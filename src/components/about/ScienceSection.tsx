@@ -1,0 +1,56 @@
+
+const ScienceSection = () => {
+  return (
+    <section className="py-16 md:py-24 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="md:w-1/2">
+              <div className="rounded-lg overflow-hidden shadow-lg">
+                <img 
+                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80"
+                  alt="Научный анализ данных"
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+            <div className="md:w-1/2">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-everliv-800">Научная обоснованность</h2>
+              <p className="text-lg mb-6 text-gray-600">
+                Все рекомендации EVERLIV основаны на обширных научных исследованиях и современных медицинских протоколах. Мы сотрудничаем с ведущими научными институтами для постоянного совершенствования наших алгоритмов.
+              </p>
+              <ul className="space-y-4">
+                <li className="flex items-start">
+                  <div className="bg-evergreen-500 rounded-full p-1 mr-3 mt-1">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                  <span className="text-gray-700">Регулярные обновления на основе новейших исследований</span>
+                </li>
+                <li className="flex items-start">
+                  <div className="bg-evergreen-500 rounded-full p-1 mr-3 mt-1">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                  <span className="text-gray-700">Верификация рекомендаций медицинскими экспертами</span>
+                </li>
+                <li className="flex items-start">
+                  <div className="bg-evergreen-500 rounded-full p-1 mr-3 mt-1">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                  <span className="text-gray-700">Прозрачность алгоритмов и источников данных</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default ScienceSection;
