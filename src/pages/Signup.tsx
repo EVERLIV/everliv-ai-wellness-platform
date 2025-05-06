@@ -1,49 +1,50 @@
 
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
 import AuthLayout from '@/components/AuthLayout';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Signup = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { signUp, isLoading, user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!fullName || !email || !password) {
-      toast.error("Пожалуйста, заполните все поля");
       return;
     }
     
     if (!agreedToTerms) {
-      toast.error("Пожалуйста, примите условия и политику конфиденциальности");
       return;
     }
+
+    // Split full name into first and last name
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
     
     try {
-      setIsLoading(true);
-      // Here we would integrate with a real authentication system
-      // For now, we're just simulating success
-      
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success("Аккаунт успешно создан");
-      // Here we would redirect to onboarding or dashboard
+      await signUp(email, password, { 
+        first_name: firstName,
+        last_name: lastName
+      });
     } catch (error) {
-      toast.error("Ошибка регистрации. Пожалуйста, попробуйте еще раз.");
       console.error("Signup error:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
+
+  // Redirect if already logged in
+  if (user) {
+    return <Navigate to="/dashboard" />;
+  }
 
   return (
     <AuthLayout 

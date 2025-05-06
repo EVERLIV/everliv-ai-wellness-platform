@@ -1,41 +1,36 @@
 
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 import AuthLayout from '@/components/AuthLayout';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ResetPassword = () => {
   const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { resetPassword, isLoading, user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email) {
-      toast.error("Пожалуйста, введите ваш email");
       return;
     }
     
     try {
-      setIsLoading(true);
-      // Here we would integrate with a real password reset system
-      // For now, we're just simulating success
-      
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await resetPassword(email);
       setIsSubmitted(true);
-      toast.success("Инструкции по восстановлению пароля отправлены на ваш email");
     } catch (error) {
-      toast.error("Ошибка отправки запроса. Пожалуйста, попробуйте еще раз.");
       console.error("Reset password error:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
+
+  // Redirect if already logged in
+  if (user) {
+    return <Navigate to="/dashboard" />;
+  }
 
   return (
     <AuthLayout 
