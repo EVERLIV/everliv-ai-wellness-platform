@@ -1,5 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,35 +8,35 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 100%;
+    --foreground: 215 13.8% 24%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 215 13.8% 24%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 215 13.8% 24%;
     
-    --primary: 213 70% 23%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 150 50% 36.5%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 150 52% 51%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 156 50% 24%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 120 100% 97.1%;
+    --accent-foreground: 156 50% 24%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 156 50% 24%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -54,54 +55,77 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
 }
 
 @layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md font-medium
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+    min-h-[44px] px-5 py-2.5 text-base transition-colors duration-300;
+  }
+  
   .btn-primary {
-    @apply bg-everliv-600 hover:bg-everliv-700 text-white font-medium py-2 px-4 rounded transition-all;
+    @apply bg-primary hover:bg-secondary text-white;
   }
-
+  
   .btn-secondary {
-    @apply bg-evergreen-500 hover:bg-evergreen-600 text-white font-medium py-2 px-4 rounded transition-all;
+    @apply bg-white hover:bg-gray-50 text-secondary border border-gray-300;
+  }
+  
+  .btn-accent {
+    @apply bg-secondary hover:bg-secondary/80 text-white;
   }
 
-  .btn-outline {
-    @apply border border-everliv-600 text-everliv-600 hover:bg-everliv-50 font-medium py-2 px-4 rounded transition-all;
+  .card {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm;
+  }
+
+  .card-body {
+    @apply p-7;
   }
 
   .heading-xl {
-    @apply text-3xl md:text-4xl lg:text-5xl font-bold text-everliv-800;
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold text-secondary font-heading;
   }
 
   .heading-lg {
-    @apply text-2xl md:text-3xl lg:text-4xl font-bold text-everliv-800;
+    @apply text-2xl md:text-3xl lg:text-4xl font-bold text-secondary font-heading;
   }
 
   .heading-md {
-    @apply text-xl md:text-2xl font-bold text-everliv-800;
+    @apply text-xl md:text-2xl font-bold text-secondary font-heading;
   }
 
   .heading-sm {
-    @apply text-lg md:text-xl font-semibold text-everliv-800;
+    @apply text-lg md:text-xl font-semibold text-secondary font-heading;
   }
 
   .hero-gradient {
-    @apply bg-gradient-to-br from-everliv-800 via-everliv-700 to-everliv-600;
+    @apply bg-gradient-to-br from-secondary via-primary to-primary/90;
   }
 
   .card-shadow {
-    @apply shadow-soft hover:shadow-medium transition-shadow duration-300;
+    @apply shadow-sm hover:shadow-md transition-shadow duration-300;
   }
 
   .feature-card {
-    @apply bg-white rounded-lg p-6 shadow-soft hover:shadow-medium transition-all duration-300;
+    @apply bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100;
   }
 
   .stat-card {
-    @apply bg-white rounded-lg p-6 shadow-soft border border-gray-100;
+    @apply bg-white rounded-xl p-6 shadow-sm border border-gray-100;
   }
 
   .form-control {
     @apply flex flex-col space-y-1.5 w-full;
   }
+  
+  .pulse {
+    @apply animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite];
+  }
 }
+
