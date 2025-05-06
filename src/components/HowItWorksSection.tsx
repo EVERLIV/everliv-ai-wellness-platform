@@ -1,95 +1,54 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { CheckCircle } from 'lucide-react';
 
 export default function HowItWorksSection() {
   const steps = [
     {
-      number: "01",
+      icon: "👤",
       title: "Создайте профиль",
-      description: "Заполните подробный профиль здоровья, включая вашу историю болезни, цели и текущее состояние здоровья.",
+      description: "Заполните личные данные"
     },
     {
-      number: "02",
-      title: "Загрузите данные",
-      description: "Загрузите результаты анализов, интегрируйте данные с носимых устройств или внесите информацию вручную.",
+      icon: "📋",
+      title: "Загрузите анализы",
+      description: "Загрузите результаты лабораторных исследований"
     },
     {
-      number: "03",
+      icon: "🔍",
       title: "Получите анализ",
-      description: "Наш ИИ проанализирует ваши данные и предоставит подробную интерпретацию и персонализированные рекомендации.",
+      description: "AI проанализирует ваши данные"
     },
     {
-      number: "04",
-      title: "Отслеживайте прогресс",
-      description: "Регулярно обновляйте данные, следуйте рекомендациям и наблюдайте за улучшениями вашего здоровья.",
-    }
-  ];
-
-  const benefits = [
-    "Научно обоснованные рекомендации",
-    "Интеграция с медицинскими устройствами",
-    "Конфиденциальность и безопасность данных",
-    "Поддержка от специалистов",
-    "Регулярные обновления на основе новейших исследований",
-    "Персонализация на основе вашей уникальной биологии"
+      icon: "📊",
+      title: "Получайте рекомендации",
+      description: "Следуйте персональным рекомендациям"
+    },
   ];
 
   return (
-    <section className="py-16 md:py-24">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto text-center mb-16">
-          <h2 className="heading-lg mb-6">Как работает EVERLIV</h2>
-          <p className="text-lg text-gray-600">
-            Простой процесс для получения глубокого анализа вашего здоровья и персонализированных рекомендаций, основанных на науке и новейших технологиях ИИ.
-          </p>
-        </div>
+    <section className="py-12 bg-white border-t border-gray-100">
+      <div className="container mx-auto px-4">
+        <h2 className="text-2xl font-semibold text-center mb-10">Как это работает?</h2>
+        <p className="text-sm text-gray-600 text-center mb-10 max-w-2xl mx-auto">
+          Узнайте, как наша платформа использует искусственный интеллект для анализа вашего здоровья
+          и предоставления персонализированных рекомендаций
+        </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {steps.map((step, index) => (
-            <div key={index} className="feature-card relative border-t-4 border-everliv-600">
-              <div className="absolute -top-4 left-6 bg-everliv-600 text-white text-sm font-bold py-1 px-3 rounded">
-                {step.number}
+            <div key={index} className="border border-green-100 rounded-lg p-6 bg-green-50 flex flex-col items-center text-center">
+              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center mb-4 border border-green-200">
+                <span className="text-xl">{step.icon}</span>
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900 mt-4">
-                {step.title}
-              </h3>
-              <p className="text-gray-600">{step.description}</p>
+              <h3 className="text-md font-medium mb-2 text-gray-800">{step.title}</h3>
+              <p className="text-xs text-gray-600">{step.description}</p>
             </div>
           ))}
         </div>
         
-        <div className="bg-gray-50 rounded-xl p-8 lg:p-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div>
-              <h3 className="heading-md mb-6">Преимущества платформы EVERLIV</h3>
-              <p className="text-gray-600 mb-6">
-                Наша платформа объединяет передовые технологии искусственного интеллекта с научными исследованиями, чтобы предоставить вам наиболее точные и эффективные рекомендации для вашего здоровья и долголетия.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-2 flex-shrink-0" />
-                    <span className="text-gray-700">{benefit}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="flex flex-col justify-center items-start lg:items-center">
-              <div className="bg-white p-6 rounded-lg shadow-soft border border-gray-100 max-w-md w-full">
-                <h4 className="text-xl font-semibold mb-4 text-center">Готовы начать путь к оптимальному здоровью?</h4>
-                <p className="text-gray-600 mb-6 text-center">
-                  Присоединяйтесь к тысячам людей, которые уже улучшили свое здоровье с помощью EVERLIV.
-                </p>
-                <Link to="/signup" className="block">
-                  <Button className="w-full bg-everliv-600 hover:bg-everliv-700 text-white">
-                    Создать бесплатный аккаунт
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
+        <div className="text-xs text-gray-400 text-center">
+          <p>Заинтересованы в предложениях для бизнеса? <Link to="/corporate" className="underline text-primary">Посмотрите наши корпоративные решения</Link></p>
         </div>
       </div>
     </section>

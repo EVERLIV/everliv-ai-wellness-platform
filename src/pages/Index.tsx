@@ -1,23 +1,21 @@
 
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
-import FeatureSection from '@/components/FeatureSection';
 import HowItWorksSection from '@/components/HowItWorksSection';
-import TestimonialsSection from '@/components/TestimonialsSection';
-import PricingSection from '@/components/PricingSection';
+import HealthPathSection from '@/components/HealthPathSection';
+import FeaturesGridSection from '@/components/FeaturesGridSection';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white">
       <Header />
       <main className="flex-grow pt-16">
         <HeroSection />
-        <FeatureSection />
         <HowItWorksSection />
-        <TestimonialsSection />
-        <PricingSection />
+        <HealthPathSection />
+        <FeaturesGridSection />
         <CTASection />
       </main>
       <Footer />
