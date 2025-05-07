@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { PanelRight, Trash2 } from "lucide-react";
@@ -15,10 +15,29 @@ export type ComponentData = {
   children?: ComponentData[];
 };
 
-const EditorCanvas = () => {
-  const [components, setComponents] = useState<ComponentData[]>([]);
+interface EditorCanvasProps {
+  initialComponents?: ComponentData[];
+  onChange?: (components: ComponentData[]) => void;
+}
+
+const EditorCanvas = ({ initialComponents = [], onChange }: EditorCanvasProps) => {
+  const [components, setComponents] = useState<ComponentData[]>(initialComponents);
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
   const [showLibrary, setShowLibrary] = useState(true);
+
+  useEffect(() => {
+    // Initialize with provided components if any
+    if (initialComponents.length > 0) {
+      setComponents(initialComponents);
+    }
+  }, [initialComponents]);
+
+  // Update parent component when components change
+  useEffect(() => {
+    if (onChange) {
+      onChange(components);
+    }
+  }, [components, onChange]);
 
   const handleDragEnd = (result: any) => {
     const { source, destination, draggableId } = result;
@@ -100,11 +119,6 @@ const EditorCanvas = () => {
               {showLibrary ? "Hide" : "Show"} Library
             </span>
           </Button>
-          
-          <div className="flex space-x-2">
-            <Button size="sm" variant="secondary">Preview</Button>
-            <Button size="sm">Save Page</Button>
-          </div>
         </div>
         
         <Droppable droppableId="editor-canvas">

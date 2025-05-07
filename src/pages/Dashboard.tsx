@@ -1,149 +1,44 @@
 
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from "@/components/ui/button";
-import { supabase } from '@/integrations/supabase/client';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { FileText } from 'lucide-react';
-
-interface Profile {
-  id: string;
-  first_name: string | null;
-  last_name: string | null;
-  date_of_birth: string | null;
-  gender: string | null;
-  height: number | null;
-  weight: number | null;
-  medical_conditions: string[] | null;
-  allergies: string[] | null;
-  medications: string[] | null;
-  goals: string[] | null;
-}
+import React, { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PageManagement from "@/components/editor/PageManagement";
+import BlogManagement from "@/components/blog/BlogManagement";
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        if (!user) return;
-
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (error) {
-          throw error;
-        }
-
-        if (data) {
-          setProfile(data as Profile);
-        }
-      } catch (error: any) {
-        console.error('Error fetching profile:', error.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchProfile();
-  }, [user]);
+  const [activeTab, setActiveTab] = useState("pages");
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow container mx-auto px-4 py-8 pt-24">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white shadow rounded-lg p-6 mb-6">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold text-gray-800">Персональная панель</h1>
-              <Button 
-                variant="outline" 
-                className="border-red-500 text-red-500 hover:bg-red-50"
-                onClick={() => signOut()}
-              >
-                Выйти
-              </Button>
-            </div>
-            
-            {loading ? (
-              <div className="flex justify-center p-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-evergreen-500"></div>
-              </div>
-            ) : (
-              <div>
-                <div className="mb-6 p-4 bg-evergreen-50 rounded-lg">
-                  <h2 className="text-xl font-semibold text-evergreen-700 mb-2">Добро пожаловать, {profile?.first_name || user?.email}</h2>
-                  <p className="text-gray-600">Здесь вы можете управлять своим профилем здоровья и отслеживать прогресс.</p>
-                </div>
-                
-                {/* Profile section - placeholder for future functionality */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-medium text-gray-800 mb-3">Ваш профиль</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-gray-50 p-4 rounded">
-                      <p className="text-sm text-gray-500">Имя и фамилия</p>
-                      <p className="font-medium">{profile?.first_name} {profile?.last_name || 'Не указано'}</p>
-                    </div>
-                    <div className="bg-gray-50 p-4 rounded">
-                      <p className="text-sm text-gray-500">Email</p>
-                      <p className="font-medium">{user?.email}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Admin Tools Section */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-medium text-gray-800 mb-3">Инструменты администратора</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <Link to="/page-builder" className="block">
-                      <div className="bg-white border border-gray-200 rounded p-4 hover:shadow-md transition-shadow">
-                        <h4 className="font-medium mb-2">Конструктор страниц</h4>
-                        <p className="text-sm text-gray-600 mb-3">
-                          Создавайте и редактируйте страницы сайта с помощью визуального редактора
-                        </p>
-                        <Button variant="outline" size="sm" className="w-full">Открыть</Button>
-                      </div>
-                    </Link>
-                    
-                    <Link to="/admin-blog" className="block">
-                      <div className="bg-white border border-gray-200 rounded p-4 hover:shadow-md transition-shadow">
-                        <div className="flex items-center mb-2">
-                          <FileText className="mr-2 h-5 w-5 text-blue-500" />
-                          <h4 className="font-medium">Управление блогом</h4>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-3">
-                          Создавайте и редактируйте статьи для блога с загрузкой изображений
-                        </p>
-                        <Button variant="outline" size="sm" className="w-full">Управлять</Button>
-                      </div>
-                    </Link>
-                  </div>
-                </div>
-                
-                {/* Placeholder for future functionality */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {['Здоровье', 'Питание', 'Активность', 'Сон', 'Ментальное здоровье', 'Анализы'].map((category) => (
-                    <div key={category} className="bg-white border border-gray-200 rounded p-4 hover:shadow-md transition-shadow">
-                      <h4 className="font-medium mb-2">{category}</h4>
-                      <p className="text-sm text-gray-600 mb-3">Данные будут доступны скоро</p>
-                      <Button variant="outline" size="sm" className="w-full">Настроить</Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-4">
+          <h1 className="text-2xl font-bold">Dashboard</h1>
         </div>
-      </main>
-      <Footer />
+      </div>
+      
+      <div className="container mx-auto px-4 py-6">
+        <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-6">
+            <TabsTrigger value="pages">Pages</TabsTrigger>
+            <TabsTrigger value="blog">Blog</TabsTrigger>
+            <TabsTrigger value="media">Media</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="pages" className="mt-0">
+            <PageManagement />
+          </TabsContent>
+          
+          <TabsContent value="blog" className="mt-0">
+            <BlogManagement />
+          </TabsContent>
+          
+          <TabsContent value="media" className="mt-0">
+            <div className="bg-white p-6 rounded-md shadow-sm">
+              <h2 className="text-lg font-medium mb-4">Media Library</h2>
+              <p className="text-gray-500">Media library functionality will be implemented soon.</p>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };

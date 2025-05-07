@@ -51,6 +51,11 @@ const App = () => (
                 <PageBuilder />
               </ProtectedRoute>
             } />
+            <Route path="/page-builder/:pageId" element={
+              <ProtectedRoute>
+                <PageBuilder />
+              </ProtectedRoute>
+            } />
             <Route path="/admin-blog" element={
               <ProtectedRoute>
                 <AdminBlog />
