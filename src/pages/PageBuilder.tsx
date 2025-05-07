@@ -4,8 +4,15 @@ import EditorCanvas from "@/components/editor/EditorCanvas";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { DragDropContext } from "react-beautiful-dnd";
 
 const PageBuilder = () => {
+  const handleDragEnd = (result: any) => {
+    // This function will be passed down to the EditorCanvas component
+    if (!result.destination) return;
+    // The actual drag handling is done in EditorCanvas
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-white border-b border-gray-200 p-2 flex items-center justify-between">
@@ -25,9 +32,11 @@ const PageBuilder = () => {
         </div>
       </header>
       
-      <div className="flex-1 flex">
-        <EditorCanvas />
-      </div>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="flex-1 flex">
+          <EditorCanvas />
+        </div>
+      </DragDropContext>
     </div>
   );
 };

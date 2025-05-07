@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { Droppable, Draggable } from "react-beautiful-dnd";
 import { PanelRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ComponentLibrary from "./ComponentLibrary";
@@ -107,64 +107,62 @@ const EditorCanvas = () => {
           </div>
         </div>
         
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="editor-canvas">
-            {(provided) => (
-              <div
-                className="flex-1 p-4 overflow-auto"
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-              >
-                {components.length === 0 ? (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center text-gray-500 bg-gray-50">
-                    <p>Drag components from the library to start building your page</p>
-                  </div>
-                ) : (
-                  components.map((component, index) => (
-                    <Draggable key={component.id} draggableId={component.id} index={index}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
+        <Droppable droppableId="editor-canvas">
+          {(provided) => (
+            <div
+              className="flex-1 p-4 overflow-auto"
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              {components.length === 0 ? (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center text-gray-500 bg-gray-50">
+                  <p>Drag components from the library to start building your page</p>
+                </div>
+              ) : (
+                components.map((component, index) => (
+                  <Draggable key={component.id} draggableId={component.id} index={index}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className={cn(
+                          "relative mb-4 border rounded-md group",
+                          selectedComponent === component.id ? "border-primary ring-2 ring-primary ring-opacity-20" : "border-gray-200",
+                          snapshot.isDragging ? "shadow-lg" : "shadow-sm"
+                        )}
+                      >
+                        <div 
                           className={cn(
-                            "relative mb-4 border rounded-md group",
-                            selectedComponent === component.id ? "border-primary ring-2 ring-primary ring-opacity-20" : "border-gray-200",
-                            snapshot.isDragging ? "shadow-lg" : "shadow-sm"
+                            "absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-full shadow-md p-1 z-10",
+                            selectedComponent === component.id && "opacity-100"
                           )}
                         >
-                          <div 
-                            className={cn(
-                              "absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-full shadow-md p-1 z-10",
-                              selectedComponent === component.id && "opacity-100"
-                            )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-red-500 hover:text-red-600 hover:bg-red-50"
+                            onClick={() => handleComponentDelete(component.id)}
                           >
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6 text-red-500 hover:text-red-600 hover:bg-red-50"
-                              onClick={() => handleComponentDelete(component.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          
-                          <div 
-                            className="p-2"
-                            {...provided.dragHandleProps}
-                            onClick={() => handleComponentSelect(component.id)}
-                          >
-                            {renderComponent(component)}
-                          </div>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
-                      )}
-                    </Draggable>
-                  ))
-                )}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+                        
+                        <div 
+                          className="p-2"
+                          {...provided.dragHandleProps}
+                          onClick={() => handleComponentSelect(component.id)}
+                        >
+                          {renderComponent(component)}
+                        </div>
+                      </div>
+                    )}
+                  </Draggable>
+                ))
+              )}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
       </div>
       
       {/* Component Settings Panel */}
