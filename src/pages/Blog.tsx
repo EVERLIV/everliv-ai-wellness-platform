@@ -9,6 +9,12 @@ import BlogSidebar from "@/components/blog/BlogSidebar";
 const Blog = () => {
   const [category, setCategory] = useState("all");
 
+  const handleCategoryChange = (newCategory: string) => {
+    setCategory(newCategory);
+    // Scroll to top when changing categories
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -20,7 +26,7 @@ const Blog = () => {
               <BlogList category={category} />
             </div>
             <div className="lg:w-1/4">
-              <BlogSidebar onCategoryChange={setCategory} />
+              <BlogSidebar onCategoryChange={handleCategoryChange} />
             </div>
           </div>
         </div>
