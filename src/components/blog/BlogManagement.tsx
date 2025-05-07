@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +15,7 @@ interface BlogPost {
   thumbnail: string;
   created_at: string;
   updated_at: string;
-  author: {
-    id: string;
-    first_name: string;
-    last_name: string;
-  } | null;
+  author_id: string;
 }
 
 const BlogManagement = () => {
@@ -42,14 +37,7 @@ const BlogManagement = () => {
       
       const { data, error } = await supabase
         .from('blog_posts')
-        .select(`
-          *,
-          author:author_id (
-            id,
-            first_name,
-            last_name
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
       
       if (error) {

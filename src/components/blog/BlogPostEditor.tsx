@@ -3,145 +3,123 @@ import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Upload, Image, Check, Pencil, FileText } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Upload, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from 'uuid';
 
-interface BlogPostEditorProps {
-  onBack: () => void;
-  existingPost?: {
-    id: string;
-    title: string;
-    content: string;
-    excerpt: string;
-    category: string;
-    thumbnail: string;
-  }
+interface BlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category: string;
+  thumbnail: string;
+  created_at: string;
+  updated_at: string;
+  author_id: string;
 }
 
-const BlogPostEditor = ({ onBack, existingPost }: BlogPostEditorProps) => {
+interface BlogPostEditorProps {
+  existingPost?: BlogPost;
+  onBack: () => void;
+}
+
+const BlogPostEditor = ({ existingPost, onBack }: BlogPostEditorProps) => {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
+  
   const [title, setTitle] = useState(existingPost?.title || '');
   const [content, setContent] = useState(existingPost?.content || '');
   const [excerpt, setExcerpt] = useState(existingPost?.excerpt || '');
   const [category, setCategory] = useState(existingPost?.category || 'guide');
-  const [thumbnailUrl, setThumbnailUrl] = useState(existingPost?.thumbnail || '');
-  const [uploading, setUploading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>(existingPost?.thumbnail || '');
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
-  const handleThumbnailUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      if (!event.target.files || event.target.files.length === 0) {
-        return;
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
+    
+    const file = e.target.files[0];
+    setThumbnailFile(file);
+    
+    // Create a preview for the thumbnail
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setThumbnailPreview(event.target.result as string);
       }
-      const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
-      const filePath = `blog-thumbnails/${fileName}`;
-      
-      setUploading(true);
-      
-      const { error: uploadError } = await supabase.storage
-        .from('blog')
-        .upload(filePath, file);
-      
-      if (uploadError) {
-        throw uploadError;
-      }
-      
-      const { data } = supabase.storage
-        .from('blog')
-        .getPublicUrl(filePath);
-      
-      setThumbnailUrl(data.publicUrl);
-      toast({
-        title: "Изображение загружено",
-        description: "Миниатюра успешно загружена"
-      });
-    } catch (error) {
-      console.error('Error uploading thumbnail:', error);
-      toast({
-        title: "Ошибка загрузки",
-        description: "Не удалось загрузить изображение",
-        variant: "destructive"
-      });
-    } finally {
-      setUploading(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleThumbnailClear = () => {
+    setThumbnailPreview('');
+    setThumbnailFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
-  const handleImageInsert = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      if (!event.target.files || event.target.files.length === 0) {
-        return;
-      }
-      const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${uuidv4()}.${fileExt}`;
-      const filePath = `blog-content/${fileName}`;
-      
-      setUploading(true);
-      
-      const { error: uploadError } = await supabase.storage
-        .from('blog')
-        .upload(filePath, file);
-      
-      if (uploadError) {
-        throw uploadError;
-      }
-      
-      const { data } = supabase.storage
-        .from('blog')
-        .getPublicUrl(filePath);
-      
-      // Insert image markdown at cursor position
-      const imageMarkdown = `\n![${file.name}](${data.publicUrl})\n`;
-      
-      // Insert at cursor position or at the end
-      const textArea = document.getElementById('content-editor') as HTMLTextAreaElement;
-      if (textArea) {
-        const startPos = textArea.selectionStart;
-        const endPos = textArea.selectionEnd;
-        
-        const textBefore = content.substring(0, startPos);
-        const textAfter = content.substring(endPos);
-        
-        setContent(textBefore + imageMarkdown + textAfter);
-      } else {
-        setContent(content + imageMarkdown);
-      }
-      
-      toast({
-        title: "Изображение вставлено",
-        description: "Изображение успешно добавлено в статью"
-      });
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      toast({
-        title: "Ошибка загрузки",
-        description: "Не удалось загрузить изображение",
-        variant: "destructive"
-      });
-    } finally {
-      setUploading(false);
+  const uploadThumbnail = async (): Promise<string> => {
+    if (!thumbnailFile) {
+      return existingPost?.thumbnail || '';
+    }
+    
+    const fileExt = thumbnailFile.name.split('.').pop();
+    const fileName = `${uuidv4()}.${fileExt}`;
+    const filePath = `blog/${fileName}`;
+    
+    const { error } = await supabase.storage
+      .from('blog')
+      .upload(filePath, thumbnailFile);
+    
+    if (error) {
+      throw error;
+    }
+    
+    const { data } = supabase.storage.from('blog').getPublicUrl(filePath);
+    return data.publicUrl;
+  };
+
+  const getCategoryLabel = (categoryValue: string): string => {
+    switch (categoryValue) {
+      case 'guide': return 'Руководство';
+      case 'research': return 'Исследование';
+      case 'success': return 'История успеха';
+      case 'news': return 'Новости';
+      default: return categoryValue;
     }
   };
 
-  const savePost = async () => {
-    if (!title || !content || !excerpt || !thumbnailUrl) {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!title || !excerpt || !content || !category) {
       toast({
-        title: "Заполните все поля",
-        description: "Заголовок, содержание, описание и миниатюра обязательны",
+        title: "Не все поля заполнены",
+        description: "Пожалуйста, заполните все обязательные поля",
         variant: "destructive"
       });
       return;
     }
-
+    
     try {
-      setSaving(true);
+      setLoading(true);
+      
+      // Upload the thumbnail if a new one is provided
+      const thumbnailUrl = await uploadThumbnail();
+      
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("Пользователь не авторизован");
+      }
       
       const postData = {
         title,
@@ -149,6 +127,7 @@ const BlogPostEditor = ({ onBack, existingPost }: BlogPostEditorProps) => {
         excerpt,
         category,
         thumbnail: thumbnailUrl,
+        author_id: user.id,
         updated_at: new Date().toISOString()
       };
       
@@ -164,297 +143,185 @@ const BlogPostEditor = ({ onBack, existingPost }: BlogPostEditorProps) => {
         // Create new post
         result = await supabase
           .from('blog_posts')
-          .insert([{
-            ...postData,
-            author_id: (await supabase.auth.getUser()).data.user?.id
-          }]);
+          .insert([postData]);
       }
       
-      if (result.error) {
-        throw result.error;
-      }
+      const { error } = result;
+      if (error) throw error;
       
       toast({
         title: existingPost ? "Статья обновлена" : "Статья создана",
-        description: existingPost ? "Изменения успешно сохранены" : "Новая статья успешно опубликована"
+        description: existingPost 
+          ? "Изменения успешно сохранены" 
+          : "Новая статья успешно добавлена в блог"
       });
       
-      onBack(); // Return to the blog post list
-      
+      onBack();
     } catch (error: any) {
-      console.error('Error saving post:', error);
+      console.error('Error saving blog post:', error);
       toast({
         title: "Ошибка сохранения",
         description: error.message || "Не удалось сохранить статью",
         variant: "destructive"
       });
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
-  };
-
-  const handleAddFormatting = (format: string) => {
-    const textArea = document.getElementById('content-editor') as HTMLTextAreaElement;
-    if (!textArea) return;
-    
-    const startPos = textArea.selectionStart;
-    const endPos = textArea.selectionEnd;
-    const selectedText = content.substring(startPos, endPos);
-    
-    let formattedText = '';
-    let cursorOffset = 0;
-    
-    switch (format) {
-      case 'bold':
-        formattedText = `**${selectedText}**`;
-        cursorOffset = 2;
-        break;
-      case 'italic':
-        formattedText = `*${selectedText}*`;
-        cursorOffset = 1;
-        break;
-      case 'heading1':
-        formattedText = `\n# ${selectedText}\n`;
-        cursorOffset = 3;
-        break;
-      case 'heading2':
-        formattedText = `\n## ${selectedText}\n`;
-        cursorOffset = 4;
-        break;
-      case 'link':
-        formattedText = `[${selectedText || 'Текст ссылки'}](url)`;
-        cursorOffset = selectedText ? 3 : 13;
-        break;
-      case 'list':
-        formattedText = selectedText
-          ? selectedText.split('\n').map(line => `- ${line}`).join('\n')
-          : '- ';
-        cursorOffset = 2;
-        break;
-      default:
-        return;
-    }
-    
-    const newContent = 
-      content.substring(0, startPos) + 
-      formattedText + 
-      content.substring(endPos);
-    
-    setContent(newContent);
-    
-    // Set cursor position after the format marks
-    setTimeout(() => {
-      textArea.focus();
-      if (selectedText) {
-        textArea.setSelectionRange(startPos + formattedText.length, startPos + formattedText.length);
-      } else {
-        const newCursorPos = startPos + cursorOffset;
-        textArea.setSelectionRange(newCursorPos, newCursorPos);
-      }
-    }, 0);
   };
 
   return (
     <div className="w-full space-y-6">
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" size="sm" className="gap-2" onClick={onBack}>
-          <ArrowLeft className="h-4 w-4" />
-          Назад к списку статей
+      <div className="flex items-center space-x-2">
+        <Button variant="ghost" onClick={onBack} className="gap-1">
+          <ArrowLeft className="w-4 h-4" />
+          Назад
         </Button>
-        <Button 
-          onClick={savePost} 
-          disabled={!title || !content || !excerpt || !thumbnailUrl || saving || uploading}
-          className="gap-2"
-        >
-          <Check className="h-4 w-4" />
-          {saving ? "Сохранение..." : existingPost ? "Обновить статью" : "Опубликовать статью"}
-        </Button>
+        <h2 className="text-2xl font-bold">
+          {existingPost ? "Редактирование статьи" : "Создание новой статьи"}
+        </h2>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-4">
-          <div>
-            <Label htmlFor="title">Заголовок</Label>
-            <Input 
-              id="title" 
-              value={title} 
-              onChange={e => setTitle(e.target.value)}
-              placeholder="Введите заголовок статьи..." 
-              className="text-lg"
-            />
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2 space-y-6">
+            {/* Title */}
+            <div className="space-y-2">
+              <Label htmlFor="title">Заголовок</Label>
+              <Input 
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Введите заголовок статьи..."
+                className="text-lg"
+                disabled={loading}
+              />
+            </div>
+            
+            {/* Excerpt */}
+            <div className="space-y-2">
+              <Label htmlFor="excerpt">Краткое описание</Label>
+              <Textarea 
+                id="excerpt"
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+                placeholder="Краткое описание статьи..."
+                className="h-20 resize-none"
+                disabled={loading}
+              />
+            </div>
+            
+            {/* Content */}
+            <div className="space-y-2">
+              <Label htmlFor="content">Содержание</Label>
+              <Textarea 
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Введите содержание статьи..."
+                className="h-64 resize-none"
+                disabled={loading}
+              />
+              <p className="text-xs text-gray-500">
+                Поддерживается Markdown разметка
+              </p>
+            </div>
           </div>
           
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <Label htmlFor="content">Содержание</Label>
-              <div className="flex space-x-1">
-                <Button 
-                  type="button" 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={() => handleAddFormatting('bold')}
-                  title="Жирный"
-                >
-                  <strong>B</strong>
-                </Button>
-                <Button 
-                  type="button" 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={() => handleAddFormatting('italic')}
-                  title="Курсив"
-                >
-                  <em>I</em>
-                </Button>
-                <Button 
-                  type="button" 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={() => handleAddFormatting('heading1')}
-                  title="Заголовок 1"
-                >
-                  H1
-                </Button>
-                <Button 
-                  type="button" 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={() => handleAddFormatting('heading2')}
-                  title="Заголовок 2"
-                >
-                  H2
-                </Button>
-                <Button 
-                  type="button" 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={() => handleAddFormatting('link')}
-                  title="Ссылка"
-                >
-                  <FileText className="h-4 w-4" />
-                </Button>
-                <Button 
-                  type="button" 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={() => handleAddFormatting('list')}
-                  title="Список"
-                >
-                  •••
-                </Button>
-                <div>
-                  <input 
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleImageInsert}
-                    accept="image/*"
-                    className="hidden"
-                    id="content-image-upload"
-                  />
+          <div className="space-y-6">
+            {/* Category */}
+            <div className="space-y-2">
+              <Label htmlFor="category">Категория</Label>
+              <Select
+                value={category}
+                onValueChange={(value) => setCategory(value)}
+                disabled={loading}
+              >
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="Выберите категорию" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="guide">{getCategoryLabel('guide')}</SelectItem>
+                  <SelectItem value="research">{getCategoryLabel('research')}</SelectItem>
+                  <SelectItem value="success">{getCategoryLabel('success')}</SelectItem>
+                  <SelectItem value="news">{getCategoryLabel('news')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Thumbnail */}
+            <div className="space-y-2">
+              <Label htmlFor="thumbnail">Обложка статьи</Label>
+              <div className="border rounded-md p-4">
+                {thumbnailPreview ? (
+                  <div className="space-y-3">
+                    <img 
+                      src={thumbnailPreview} 
+                      alt="Thumbnail preview" 
+                      className="w-full h-40 object-cover rounded-md"
+                    />
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full gap-1"
+                      onClick={handleThumbnailClear}
+                      disabled={loading}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Удалить
+                    </Button>
+                  </div>
+                ) : (
                   <Button 
                     type="button" 
-                    size="sm" 
                     variant="outline" 
-                    onClick={() => document.getElementById('content-image-upload')?.click()}
-                    title="Вставить изображение"
-                    disabled={uploading}
+                    className="w-full h-40 flex flex-col gap-2 justify-center items-center cursor-pointer"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={loading}
                   >
-                    <Image className="h-4 w-4" />
+                    <Upload className="h-8 w-8 opacity-50" />
+                    <span>Загрузить изображение</span>
+                    <span className="text-xs text-gray-500">JPG, PNG до 2MB</span>
                   </Button>
-                </div>
+                )}
+                <input
+                  type="file"
+                  id="thumbnail"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/png, image/jpeg"
+                  onChange={handleThumbnailChange}
+                  disabled={loading}
+                />
               </div>
             </div>
-            <Textarea 
-              id="content-editor"
-              value={content} 
-              onChange={e => setContent(e.target.value)}
-              placeholder="Введите содержание статьи..." 
-              className="min-h-[400px] font-mono"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Поддерживается Markdown: **жирный текст**, *курсив*, # заголовок, [текст ссылки](url)
-            </p>
           </div>
         </div>
         
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="excerpt">Краткое описание</Label>
-            <Textarea 
-              id="excerpt" 
-              value={excerpt} 
-              onChange={e => setExcerpt(e.target.value)}
-              placeholder="Короткое описание для предпросмотра статьи..." 
-              className="h-24"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="category">Категория</Label>
-            <select
-              id="category"
-              value={category}
-              onChange={e => setCategory(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="guide">Руководство</option>
-              <option value="research">Исследование</option>
-              <option value="success">История успеха</option>
-              <option value="news">Новости</option>
-            </select>
-          </div>
-          
-          <div>
-            <Label>Миниатюра</Label>
-            <div className="mt-2 border rounded-md overflow-hidden">
-              {thumbnailUrl ? (
-                <div className="relative">
-                  <img 
-                    src={thumbnailUrl} 
-                    alt="Thumbnail preview" 
-                    className="w-full h-40 object-cover"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="secondary"
-                    className="absolute bottom-2 right-2"
-                    onClick={() => document.getElementById('thumbnail-upload')?.click()}
-                  >
-                    <Pencil className="h-4 w-4 mr-1" />
-                    Изменить
-                  </Button>
-                </div>
-              ) : (
-                <div className="bg-gray-50 h-40 flex flex-col items-center justify-center">
-                  <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                  <p className="text-sm text-gray-500">Загрузите миниатюру</p>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="secondary"
-                    className="mt-2"
-                    onClick={() => document.getElementById('thumbnail-upload')?.click()}
-                    disabled={uploading}
-                  >
-                    {uploading ? "Загрузка..." : "Выбрать изображение"}
-                  </Button>
-                </div>
-              )}
-              <input 
-                type="file"
-                id="thumbnail-upload"
-                onChange={handleThumbnailUpload}
-                accept="image/*"
-                className="hidden"
-              />
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Рекомендуемый размер: 1200x630 пикселей
-            </p>
-          </div>
+        <div className="flex justify-end gap-2 pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onBack}
+            disabled={loading}
+          >
+            Отмена
+          </Button>
+          <Button
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="animate-spin mr-2">⏳</span>
+                {existingPost ? "Обновление..." : "Создание..."}
+              </>
+            ) : (
+              existingPost ? "Обновить статью" : "Создать статью"
+            )}
+          </Button>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
