@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import { ComponentData } from "./EditorCanvas";
 import { componentRegistry } from "./componentRegistry";
+import { ChevronDown } from "lucide-react";
 
 interface ComponentSettingsProps {
   component: ComponentData;
@@ -24,6 +26,33 @@ const ComponentSettings: React.FC<ComponentSettingsProps> = ({ component, onUpda
   const handleChange = (property: string, value: any) => {
     onUpdate({ [property]: value });
   };
+
+  // Group properties by category for better organization
+  const groupProperties = () => {
+    const groups: Record<string, Record<string, any>> = {
+      content: {},
+      style: {},
+      layout: {},
+      advanced: {}
+    };
+    
+    Object.entries(props).forEach(([key, value]) => {
+      // Simple categorization based on property name
+      if (key.includes("text") || key.includes("title") || key.includes("description") || key.includes("content")) {
+        groups.content[key] = value;
+      } else if (key.includes("color") || key.includes("background") || key.includes("border") || key.includes("shadow")) {
+        groups.style[key] = value;
+      } else if (key.includes("width") || key.includes("height") || key.includes("padding") || key.includes("margin") || key.includes("align")) {
+        groups.layout[key] = value;
+      } else {
+        groups.advanced[key] = value;
+      }
+    });
+    
+    return groups;
+  };
+
+  const propertyGroups = groupProperties();
 
   // Render different form controls based on property type
   const renderControl = (propName: string, propValue: any) => {
@@ -67,54 +96,6 @@ const ComponentSettings: React.FC<ComponentSettingsProps> = ({ component, onUpda
                 <SelectItem value="secondary">Secondary</SelectItem>
                 <SelectItem value="ghost">Ghost</SelectItem>
                 <SelectItem value="link">Link</SelectItem>
-              </SelectContent>
-            </Select>
-          );
-        }
-        
-        if (propName === "size") {
-          return (
-            <Select value={propValue} onValueChange={(value) => handleChange(propName, value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="default">Default</SelectItem>
-                <SelectItem value="sm">Small</SelectItem>
-                <SelectItem value="lg">Large</SelectItem>
-                <SelectItem value="icon">Icon</SelectItem>
-              </SelectContent>
-            </Select>
-          );
-        }
-        
-        if (propName === "align") {
-          return (
-            <Select value={propValue} onValueChange={(value) => handleChange(propName, value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="left">Left</SelectItem>
-                <SelectItem value="center">Center</SelectItem>
-                <SelectItem value="right">Right</SelectItem>
-              </SelectContent>
-            </Select>
-          );
-        }
-        
-        if (propName === "aspectRatio") {
-          return (
-            <Select value={propValue} onValueChange={(value) => handleChange(propName, value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="16:9">16:9</SelectItem>
-                <SelectItem value="4:3">4:3</SelectItem>
-                <SelectItem value="1:1">1:1</SelectItem>
-                <SelectItem value="3:4">3:4</SelectItem>
-                <SelectItem value="9:16">9:16</SelectItem>
               </SelectContent>
             </Select>
           );
@@ -169,29 +150,83 @@ const ComponentSettings: React.FC<ComponentSettingsProps> = ({ component, onUpda
         </h2>
       </div>
       
-      <Tabs defaultValue="properties" className="flex-1 flex flex-col">
+      <Tabs defaultValue="content" className="flex-1 flex flex-col">
         <div className="px-4 border-b border-gray-100">
           <TabsList className="w-full">
-            <TabsTrigger value="properties" className="flex-1">Properties</TabsTrigger>
-            <TabsTrigger value="styles" className="flex-1">Styles</TabsTrigger>
+            <TabsTrigger value="content" className="flex-1">Content</TabsTrigger>
+            <TabsTrigger value="style" className="flex-1">Style</TabsTrigger>
+            <TabsTrigger value="advanced" className="flex-1">Advanced</TabsTrigger>
           </TabsList>
         </div>
         
-        <TabsContent value="properties" className="p-4 space-y-4 flex-1 overflow-y-auto">
-          {Object.entries(props).map(([propName, propValue]) => (
-            <div key={propName} className="space-y-2">
-              <Label htmlFor={`prop-${propName}`} className="capitalize">
-                {propName.replace(/([A-Z])/g, ' $1').trim()}
-              </Label>
-              {renderControl(propName, propValue)}
+        <TabsContent value="content" className="p-4 space-y-5 flex-1 overflow-y-auto">
+          <div className="rounded-md border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-medium text-sm text-gray-700">Content</h3>
+              <ChevronDown className="h-4 w-4 text-gray-500" />
             </div>
-          ))}
+            <Separator className="mb-4" />
+            {Object.entries(propertyGroups.content).map(([propName, propValue]) => (
+              <div key={propName} className="space-y-2 mb-4">
+                <Label htmlFor={`prop-${propName}`} className="capitalize text-xs">
+                  {propName.replace(/([A-Z])/g, ' $1').trim()}
+                </Label>
+                {renderControl(propName, propValue)}
+              </div>
+            ))}
+          </div>
         </TabsContent>
         
-        <TabsContent value="styles" className="p-4">
-          <p className="text-sm text-gray-500">
-            Style options will be available in the next version.
-          </p>
+        <TabsContent value="style" className="p-4 space-y-5 flex-1 overflow-y-auto">
+          <div className="rounded-md border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-medium text-sm text-gray-700">Layout</h3>
+              <ChevronDown className="h-4 w-4 text-gray-500" />
+            </div>
+            <Separator className="mb-4" />
+            {Object.entries(propertyGroups.layout).map(([propName, propValue]) => (
+              <div key={propName} className="space-y-2 mb-4">
+                <Label htmlFor={`prop-${propName}`} className="capitalize text-xs">
+                  {propName.replace(/([A-Z])/g, ' $1').trim()}
+                </Label>
+                {renderControl(propName, propValue)}
+              </div>
+            ))}
+          </div>
+          
+          <div className="rounded-md border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-medium text-sm text-gray-700">Style</h3>
+              <ChevronDown className="h-4 w-4 text-gray-500" />
+            </div>
+            <Separator className="mb-4" />
+            {Object.entries(propertyGroups.style).map(([propName, propValue]) => (
+              <div key={propName} className="space-y-2 mb-4">
+                <Label htmlFor={`prop-${propName}`} className="capitalize text-xs">
+                  {propName.replace(/([A-Z])/g, ' $1').trim()}
+                </Label>
+                {renderControl(propName, propValue)}
+              </div>
+            ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="advanced" className="p-4 space-y-5 flex-1 overflow-y-auto">
+          <div className="rounded-md border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-medium text-sm text-gray-700">Advanced Settings</h3>
+              <ChevronDown className="h-4 w-4 text-gray-500" />
+            </div>
+            <Separator className="mb-4" />
+            {Object.entries(propertyGroups.advanced).map(([propName, propValue]) => (
+              <div key={propName} className="space-y-2 mb-4">
+                <Label htmlFor={`prop-${propName}`} className="capitalize text-xs">
+                  {propName.replace(/([A-Z])/g, ' $1').trim()}
+                </Label>
+                {renderControl(propName, propValue)}
+              </div>
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
     </div>

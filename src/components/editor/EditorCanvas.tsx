@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import { PanelRight, Trash2 } from "lucide-react";
+import { PanelRight, Trash2, Move, Copy, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ComponentLibrary from "./ComponentLibrary";
 import ComponentSettings from "./ComponentSettings";
@@ -18,13 +18,19 @@ export type ComponentData = {
 interface EditorCanvasProps {
   initialComponents?: ComponentData[];
   onChange?: (components: ComponentData[]) => void;
+  viewMode?: 'desktop' | 'tablet' | 'mobile';
+  showLibrary?: boolean;
 }
 
-const EditorCanvas = ({ initialComponents = [], onChange }: EditorCanvasProps) => {
+const EditorCanvas = ({ 
+  initialComponents = [], 
+  onChange,
+  viewMode = 'desktop',
+  showLibrary = true
+}: EditorCanvasProps) => {
   const [components, setComponents] = useState<ComponentData[]>(initialComponents);
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
-  const [showLibrary, setShowLibrary] = useState(true);
-
+  
   useEffect(() => {
     // Initialize with provided components if any
     if (initialComponents.length > 0) {
@@ -58,6 +64,7 @@ const EditorCanvas = ({ initialComponents = [], onChange }: EditorCanvasProps) =
       const newComponents = [...components];
       newComponents.splice(destination.index, 0, newComponent);
       setComponents(newComponents);
+      setSelectedComponent(newComponentId); // Auto-select newly added component
       return;
     }
     
@@ -79,6 +86,21 @@ const EditorCanvas = ({ initialComponents = [], onChange }: EditorCanvasProps) =
     if (selectedComponent === componentId) setSelectedComponent(null);
   };
 
+  const handleComponentDuplicate = (componentId: string) => {
+    const component = components.find(comp => comp.id === componentId);
+    if (component) {
+      const newComponent = {
+        ...component,
+        id: `${component.type}-${Date.now()}`
+      };
+      const index = components.findIndex(comp => comp.id === componentId);
+      const newComponents = [...components];
+      newComponents.splice(index + 1, 0, newComponent);
+      setComponents(newComponents);
+      setSelectedComponent(newComponent.id);
+    }
+  };
+
   const handleComponentUpdate = (componentId: string, newProps: Record<string, any>) => {
     setComponents(components.map(comp => 
       comp.id === componentId ? { ...comp, props: { ...comp.props, ...newProps } } : comp
@@ -96,11 +118,22 @@ const EditorCanvas = ({ initialComponents = [], onChange }: EditorCanvasProps) =
     ? components.find(comp => comp.id === selectedComponent) 
     : null;
 
+  const getCanvasWidth = () => {
+    switch (viewMode) {
+      case 'mobile':
+        return 'w-[375px]';
+      case 'tablet':
+        return 'w-[768px]';
+      default:
+        return 'w-full';
+    }
+  };
+
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-100 w-full">
       {/* Component Library Sidebar */}
       <div className={cn(
-        "transition-all duration-300 bg-white border-r border-gray-200 shadow-sm",
+        "transition-all duration-300 bg-white border-r border-gray-200 shadow-sm z-10",
         showLibrary ? "w-64" : "w-0 overflow-hidden"
       )}>
         <ComponentLibrary />
@@ -108,72 +141,101 @@ const EditorCanvas = ({ initialComponents = [], onChange }: EditorCanvasProps) =
       
       {/* Main Editor Canvas */}
       <div className="flex-1 flex flex-col">
-        <div className="bg-white p-2 border-b border-gray-200 flex justify-between">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowLibrary(!showLibrary)}
-          >
-            <PanelRight className={cn("h-4 w-4", showLibrary && "rotate-180")} />
-            <span className="ml-2 hidden sm:inline-block">
-              {showLibrary ? "Hide" : "Show"} Library
-            </span>
-          </Button>
-        </div>
-        
         <Droppable droppableId="editor-canvas">
           {(provided) => (
             <div
-              className="flex-1 p-4 overflow-auto"
+              className={cn(
+                "flex-1 p-4 overflow-auto flex flex-col items-center",
+                viewMode !== 'desktop' && 'bg-gray-200'
+              )}
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
-              {components.length === 0 ? (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center text-gray-500 bg-gray-50">
-                  <p>Drag components from the library to start building your page</p>
-                </div>
-              ) : (
-                components.map((component, index) => (
-                  <Draggable key={component.id} draggableId={component.id} index={index}>
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className={cn(
-                          "relative mb-4 border rounded-md group",
-                          selectedComponent === component.id ? "border-primary ring-2 ring-primary ring-opacity-20" : "border-gray-200",
-                          snapshot.isDragging ? "shadow-lg" : "shadow-sm"
-                        )}
-                      >
-                        <div 
+              <div className={cn(
+                "bg-white min-h-[80vh] shadow-md transition-all duration-300",
+                getCanvasWidth(),
+                viewMode !== 'desktop' && 'border border-gray-300 rounded-lg'
+              )}>
+                {components.length === 0 ? (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center text-gray-500 bg-gray-50 h-full flex items-center justify-center">
+                    <div>
+                      <p className="mb-2 font-semibold">Drag components from the library</p>
+                      <p className="text-sm text-gray-400">Start building your page by adding components</p>
+                    </div>
+                  </div>
+                ) : (
+                  components.map((component, index) => (
+                    <Draggable key={component.id} draggableId={component.id} index={index}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
                           className={cn(
-                            "absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-full shadow-md p-1 z-10",
-                            selectedComponent === component.id && "opacity-100"
+                            "relative mb-4 border group",
+                            selectedComponent === component.id ? 
+                              "border-primary ring-1 ring-primary" : 
+                              "border-transparent hover:border-dashed hover:border-gray-300",
+                            snapshot.isDragging ? "shadow-lg" : ""
                           )}
                         >
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 text-red-500 hover:text-red-600 hover:bg-red-50"
-                            onClick={() => handleComponentDelete(component.id)}
+                          <div 
+                            className={cn(
+                              "absolute -top-10 left-0 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded shadow-md flex z-10",
+                              selectedComponent === component.id && "opacity-100"
+                            )}
                           >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                            <div
+                              {...provided.dragHandleProps}
+                              className="p-2 border-r cursor-move hover:bg-gray-50"
+                              title="Move"
+                            >
+                              <Move className="h-4 w-4 text-gray-500" />
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-gray-500 hover:text-gray-700"
+                              onClick={() => handleComponentDuplicate(component.id)}
+                              title="Duplicate"
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-gray-500 hover:text-gray-700"
+                              onClick={() => setSelectedComponent(component.id)}
+                              title="Edit"
+                            >
+                              <Settings className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-red-500 hover:text-red-600"
+                              onClick={() => handleComponentDelete(component.id)}
+                              title="Delete"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          
+                          <div 
+                            className={cn(
+                              "p-4",
+                              selectedComponent === component.id && "outline outline-2 outline-blue-200"
+                            )}
+                            onClick={() => handleComponentSelect(component.id)}
+                          >
+                            {renderComponent(component)}
+                          </div>
                         </div>
-                        
-                        <div 
-                          className="p-2"
-                          {...provided.dragHandleProps}
-                          onClick={() => handleComponentSelect(component.id)}
-                        >
-                          {renderComponent(component)}
-                        </div>
-                      </div>
-                    )}
-                  </Draggable>
-                ))
-              )}
-              {provided.placeholder}
+                      )}
+                    </Draggable>
+                  ))
+                )}
+                {provided.placeholder}
+              </div>
             </div>
           )}
         </Droppable>
@@ -181,8 +243,8 @@ const EditorCanvas = ({ initialComponents = [], onChange }: EditorCanvasProps) =
       
       {/* Component Settings Panel */}
       <div className={cn(
-        "w-72 bg-white border-l border-gray-200 transition-all duration-300 shadow-sm",
-        !selectedComponent && "opacity-50"
+        "w-80 bg-white border-l border-gray-200 transition-all duration-300 shadow-sm overflow-y-auto",
+        !selectedComponent && "opacity-80"
       )}>
         {selectedComponentData ? (
           <ComponentSettings
@@ -190,8 +252,10 @@ const EditorCanvas = ({ initialComponents = [], onChange }: EditorCanvasProps) =
             onUpdate={(newProps) => handleComponentUpdate(selectedComponentData.id, newProps)}
           />
         ) : (
-          <div className="p-4 text-center text-gray-500">
-            <p>Select a component to edit its properties</p>
+          <div className="p-6 text-center text-gray-500">
+            <Settings className="h-10 w-10 text-gray-300 mx-auto mb-4" />
+            <p className="font-medium mb-2">No component selected</p>
+            <p className="text-sm">Select a component to edit its properties</p>
           </div>
         )}
       </div>
