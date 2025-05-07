@@ -9,11 +9,12 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+// Define types for our pages
 interface Page {
   id: string;
   title: string;
   slug: string;
-  description: string;
+  description: string | null;
   created_at: string;
   updated_at: string;
   published: boolean;
@@ -36,14 +37,17 @@ const PageManagement = () => {
   const fetchPages = async () => {
     try {
       setLoading(true);
+      
+      // Use the "any" type temporarily until Supabase types are updated
       const { data, error } = await supabase
-        .from('pages')
+        .from('pages' as any)
         .select('*')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       
-      setPages(data || []);
+      // Cast the data to our Page type
+      setPages(data as unknown as Page[] || []);
     } catch (error: any) {
       console.error('Error fetching pages:', error);
       toast({
@@ -96,8 +100,9 @@ const PageManagement = () => {
       };
 
       if (editingPage) {
+        // Use the "any" type temporarily until Supabase types are updated
         const { error } = await supabase
-          .from('pages')
+          .from('pages' as any)
           .update(pageData)
           .eq('id', editingPage.id);
           
@@ -108,8 +113,9 @@ const PageManagement = () => {
           description: "The page has been successfully updated"
         });
       } else {
+        // Use the "any" type temporarily until Supabase types are updated
         const { error } = await supabase
-          .from('pages')
+          .from('pages' as any)
           .insert([{
             ...pageData,
             created_at: new Date().toISOString(),
@@ -140,8 +146,9 @@ const PageManagement = () => {
     if (!confirm("Are you sure you want to delete this page?")) return;
     
     try {
+      // Use the "any" type temporarily until Supabase types are updated
       const { error } = await supabase
-        .from('pages')
+        .from('pages' as any)
         .delete()
         .eq('id', pageId);
       
@@ -165,8 +172,9 @@ const PageManagement = () => {
 
   const handleTogglePublish = async (page: Page) => {
     try {
+      // Use the "any" type temporarily until Supabase types are updated
       const { error } = await supabase
-        .from('pages')
+        .from('pages' as any)
         .update({ 
           published: !page.published,
           updated_at: new Date().toISOString()
@@ -205,8 +213,9 @@ const PageManagement = () => {
       const newTitle = `${page.title} (Copy)`;
       const newSlug = `${page.slug}-copy`;
       
+      // Use the "any" type temporarily until Supabase types are updated
       const { error } = await supabase
-        .from('pages')
+        .from('pages' as any)
         .insert([{
           title: newTitle,
           slug: newSlug,

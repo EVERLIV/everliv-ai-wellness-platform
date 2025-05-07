@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import EditorCanvas from "@/components/editor/EditorCanvas";
 import { Button } from "@/components/ui/button";
@@ -8,12 +7,23 @@ import { DragDropContext } from "react-beautiful-dnd";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+// Define types for our page and content
+interface Page {
+  id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+  published: boolean;
+}
+
 const PageBuilder = () => {
   const { pageId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [pageData, setPageData] = useState<any>(null);
+  const [pageData, setPageData] = useState<Page | null>(null);
   const [pageContent, setPageContent] = useState<any[]>([]);
   
   useEffect(() => {
@@ -26,25 +36,26 @@ const PageBuilder = () => {
     try {
       setLoading(true);
       
+      // Use any type temporarily until Supabase types are updated
       const { data, error } = await supabase
-        .from('pages')
+        .from('pages' as any)
         .select('*')
         .eq('id', pageId)
         .single();
       
       if (error) throw error;
       
-      setPageData(data);
+      setPageData(data as unknown as Page);
       
       // Fetch page content if it exists
       const { data: contentData, error: contentError } = await supabase
-        .from('page_contents')
+        .from('page_contents' as any)
         .select('content')
         .eq('page_id', pageId)
         .single();
       
       if (contentData) {
-        setPageContent(JSON.parse(contentData.content || '[]'));
+        setPageContent(contentData.content || []);
       }
       
     } catch (error: any) {
@@ -78,11 +89,11 @@ const PageBuilder = () => {
         throw new Error("No page ID found");
       }
       
-      const content = JSON.stringify(components);
+      const content = components;
       
       // Check if content record exists
       const { data: existingContent } = await supabase
-        .from('page_contents')
+        .from('page_contents' as any)
         .select('id')
         .eq('page_id', pageId)
         .single();
@@ -90,7 +101,7 @@ const PageBuilder = () => {
       if (existingContent) {
         // Update existing record
         const { error } = await supabase
-          .from('page_contents')
+          .from('page_contents' as any)
           .update({ 
             content,
             updated_at: new Date().toISOString()
@@ -101,7 +112,7 @@ const PageBuilder = () => {
       } else {
         // Insert new record
         const { error } = await supabase
-          .from('page_contents')
+          .from('page_contents' as any)
           .insert([{
             page_id: pageId,
             content,
@@ -114,7 +125,7 @@ const PageBuilder = () => {
       
       // Update page updated_at timestamp
       await supabase
-        .from('pages')
+        .from('pages' as any)
         .update({ updated_at: new Date().toISOString() })
         .eq('id', pageId);
       
