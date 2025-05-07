@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -149,7 +149,7 @@ const BlogPostEditor = ({ onBack, existingPost }: BlogPostEditorProps) => {
         excerpt,
         category,
         thumbnail: thumbnailUrl,
-        updated_at: new Date()
+        updated_at: new Date().toISOString()
       };
       
       let result;

@@ -56,7 +56,7 @@ const BlogManagement = () => {
         throw error;
       }
       
-      setPosts(data || []);
+      setPosts(data as BlogPost[] || []);
     } catch (error: any) {
       console.error('Error fetching blog posts:', error);
       toast({
