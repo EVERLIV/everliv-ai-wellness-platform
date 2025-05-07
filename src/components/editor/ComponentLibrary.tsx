@@ -1,12 +1,14 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { componentCategories } from "./componentRegistry";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const ComponentLibrary = () => {
   const categories = Object.keys(componentCategories);
@@ -24,6 +26,14 @@ const ComponentLibrary = () => {
   const handleTabChange = (value: string) => {
     setSelectedCategory(value);
   };
+
+  // Log available component types to help debugging
+  useEffect(() => {
+    console.log("Component categories:", categories);
+    categories.forEach(category => {
+      console.log(`Category ${category} components:`, componentCategories[category].map(c => c.type));
+    });
+  }, []);
 
   return (
     <div className="h-full flex flex-col">
@@ -108,6 +118,25 @@ const ComponentLibrary = () => {
                             >
                               <span className="text-2xl mb-2">{component.icon}</span>
                               <span className="text-xs text-center font-medium">{component.label}</span>
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="mt-1 text-xs p-1 h-auto opacity-60 hover:opacity-100"
+                                onClick={() => {
+                                  // Copy component type to clipboard
+                                  navigator.clipboard.writeText(component.type)
+                                    .then(() => {
+                                      toast.success(`Тип компонента ${component.label} скопирован`);
+                                    })
+                                    .catch(() => {
+                                      toast.error("Не удалось скопировать");
+                                    });
+                                }}
+                                title="Скопировать тип компонента"
+                              >
+                                <Plus className="h-3 w-3 mr-1" />
+                                Добавить вручную
+                              </Button>
                             </div>
                           )}
                         </Draggable>

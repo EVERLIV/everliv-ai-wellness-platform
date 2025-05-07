@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import { PanelRight, Trash2, Move, Copy, Settings, LayoutGrid, Columns, LayoutTemplate } from "lucide-react";
+import { PanelRight, Trash2, Move, Copy, Settings, LayoutGrid, Columns, LayoutTemplate, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ComponentLibrary from "./ComponentLibrary";
 import ComponentSettings from "./ComponentSettings";
 import { componentRegistry } from "./componentRegistry";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 export type ComponentData = {
   id: string;
@@ -31,6 +32,7 @@ const EditorCanvas = ({
 }: EditorCanvasProps) => {
   const [components, setComponents] = useState<ComponentData[]>(initialComponents);
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
   
   useEffect(() => {
     // Initialize with provided components if any
@@ -49,23 +51,45 @@ const EditorCanvas = ({
   const handleDragEnd = (result: any) => {
     const { source, destination, draggableId } = result;
     
+    console.log("Drag end:", result);
+    
     // Dropped outside the list
-    if (!destination) return;
+    if (!destination) {
+      console.log("No destination found");
+      return;
+    }
     
     // If it's coming from the component library
     if (source.droppableId === 'component-library') {
-      const componentType = draggableId.split('-')[0];
-      const newComponentId = `${componentType}-${Date.now()}`;
-      const newComponent = {
-        id: newComponentId,
-        type: componentType,
-        props: componentRegistry[componentType]?.defaultProps || {},
-      };
-      
-      const newComponents = [...components];
-      newComponents.splice(destination.index, 0, newComponent);
-      setComponents(newComponents);
-      setSelectedComponent(newComponentId); // Auto-select newly added component
+      try {
+        console.log("Adding component from library");
+        const componentType = draggableId.split('-')[0];
+        console.log("Component type:", componentType);
+        
+        if (!componentRegistry[componentType]) {
+          console.error("Component type not found in registry:", componentType);
+          toast.error(`Component type "${componentType}" not found in registry`);
+          return;
+        }
+        
+        const newComponentId = `${componentType}-${Date.now()}`;
+        const newComponent = {
+          id: newComponentId,
+          type: componentType,
+          props: componentRegistry[componentType]?.defaultProps || {},
+        };
+        
+        console.log("New component:", newComponent);
+        
+        const newComponents = [...components];
+        newComponents.splice(destination.index, 0, newComponent);
+        setComponents(newComponents);
+        setSelectedComponent(newComponentId); // Auto-select newly added component
+        toast.success(`Component ${componentRegistry[componentType]?.label} added`);
+      } catch (error) {
+        console.error("Error adding component:", error);
+        toast.error("Failed to add component");
+      }
       return;
     }
     
@@ -75,6 +99,7 @@ const EditorCanvas = ({
       const [removed] = newComponents.splice(source.index, 1);
       newComponents.splice(destination.index, 0, removed);
       setComponents(newComponents);
+      toast.success("Component reordered");
     }
   };
 
@@ -85,6 +110,7 @@ const EditorCanvas = ({
   const handleComponentDelete = (componentId: string) => {
     setComponents(components.filter(comp => comp.id !== componentId));
     if (selectedComponent === componentId) setSelectedComponent(null);
+    toast.success("Component deleted");
   };
 
   const handleComponentDuplicate = (componentId: string) => {
@@ -99,6 +125,7 @@ const EditorCanvas = ({
       newComponents.splice(index + 1, 0, newComponent);
       setComponents(newComponents);
       setSelectedComponent(newComponent.id);
+      toast.success("Component duplicated");
     }
   };
 
@@ -106,6 +133,25 @@ const EditorCanvas = ({
     setComponents(components.map(comp => 
       comp.id === componentId ? { ...comp, props: { ...comp.props, ...newProps } } : comp
     ));
+  };
+
+  const addComponent = (componentType: string) => {
+    if (!componentRegistry[componentType]) {
+      toast.error(`Component type "${componentType}" not found`);
+      return;
+    }
+    
+    const newComponentId = `${componentType}-${Date.now()}`;
+    const newComponent = {
+      id: newComponentId,
+      type: componentType,
+      props: componentRegistry[componentType]?.defaultProps || {},
+    };
+    
+    setComponents([...components, newComponent]);
+    setSelectedComponent(newComponentId);
+    setShowQuickAdd(false);
+    toast.success(`Added ${componentRegistry[componentType]?.label} component`);
   };
 
   const renderComponent = (component: ComponentData) => {
@@ -153,7 +199,7 @@ const EditorCanvas = ({
               ref={provided.innerRef}
             >
               <div className={cn(
-                "bg-white min-h-[80vh] shadow-md transition-all duration-300",
+                "bg-white min-h-[80vh] shadow-md transition-all duration-300 relative",
                 getCanvasWidth(),
                 viewMode !== 'desktop' && 'border border-gray-300 rounded-lg'
               )}>
@@ -163,6 +209,34 @@ const EditorCanvas = ({
                       <LayoutTemplate className="h-12 w-12 text-gray-400 mb-3 mx-auto" />
                       <p className="mb-2 font-semibold">Перетащите компоненты из библиотеки</p>
                       <p className="text-sm text-gray-400">Создайте вашу страницу с помощью готовых блоков</p>
+                      <Button 
+                        variant="outline" 
+                        className="mt-4 mx-auto"
+                        onClick={() => setShowQuickAdd(!showQuickAdd)}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Добавить блок
+                      </Button>
+                      
+                      {showQuickAdd && (
+                        <div className="absolute bg-white rounded-md shadow-lg border p-4 z-20 mt-2 w-72 left-1/2 transform -translate-x-1/2">
+                          <h3 className="font-medium mb-2">Выберите компонент</h3>
+                          <div className="grid grid-cols-2 gap-2 mt-3">
+                            {Object.entries(componentRegistry).map(([type, info]) => (
+                              <Button 
+                                key={type}
+                                variant="outline" 
+                                size="sm"
+                                className="flex flex-col items-center justify-center h-16 p-2"
+                                onClick={() => addComponent(type)}
+                              >
+                                <span className="text-xl mb-1">{info.icon}</span>
+                                <span className="text-xs">{info.label}</span>
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -242,6 +316,38 @@ const EditorCanvas = ({
                           )}
                         </Draggable>
                       ))}
+
+                      {/* Add component button at the bottom */}
+                      <div className="flex justify-center mt-8 mb-8">
+                        <Button 
+                          variant="outline" 
+                          className="border-dashed"
+                          onClick={() => setShowQuickAdd(!showQuickAdd)}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Добавить блок
+                        </Button>
+                        
+                        {showQuickAdd && (
+                          <div className="absolute bg-white rounded-md shadow-lg border p-4 z-20 mt-10 w-72">
+                            <h3 className="font-medium mb-2">Выберите компонент</h3>
+                            <div className="grid grid-cols-2 gap-2 mt-3">
+                              {Object.entries(componentRegistry).map(([type, info]) => (
+                                <Button 
+                                  key={type}
+                                  variant="outline" 
+                                  size="sm"
+                                  className="flex flex-col items-center justify-center h-16 p-2"
+                                  onClick={() => addComponent(type)}
+                                >
+                                  <span className="text-xl mb-1">{info.icon}</span>
+                                  <span className="text-xs">{info.label}</span>
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     {provided.placeholder}
                   </ScrollArea>

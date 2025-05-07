@@ -20,6 +20,7 @@ import { DragDropContext } from "react-beautiful-dnd";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 // Define types for our page and content
 interface Page {
@@ -43,7 +44,7 @@ interface PageContent {
 const PageBuilder = () => {
   const { pageId } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast: hookToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [pageData, setPageData] = useState<Page | null>(null);
   const [pageContent, setPageContent] = useState<any[]>([]);
@@ -93,7 +94,7 @@ const PageBuilder = () => {
       
     } catch (error: any) {
       console.error('Error fetching page:', error);
-      toast({
+      hookToast({
         title: "Error loading page",
         description: error.message,
         variant: "destructive"
@@ -109,14 +110,14 @@ const PageBuilder = () => {
   };
   
   const handleDragEnd = (result: any) => {
-    // This function will be passed down to the EditorCanvas component
-    if (!result.destination) return;
+    console.log("Drag end in PageBuilder:", result);
     // The actual drag handling is done in EditorCanvas
   };
   
   const handleSave = async (components: any[]) => {
     try {
       setLoading(true);
+      toast.loading("Saving changes...");
       
       if (!pageId) {
         throw new Error("No page ID found");
@@ -168,14 +169,12 @@ const PageBuilder = () => {
         .update({ updated_at: new Date().toISOString() })
         .eq('id', pageId);
       
-      toast({
-        title: "Page saved",
-        description: "Your changes have been saved successfully"
-      });
+      toast.success("Page saved successfully");
       
     } catch (error: any) {
       console.error('Error saving page:', error);
-      toast({
+      toast.error(`Error: ${error.message}`);
+      hookToast({
         title: "Error saving page",
         description: error.message,
         variant: "destructive"
