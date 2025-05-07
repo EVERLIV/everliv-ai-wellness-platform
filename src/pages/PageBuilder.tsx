@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import EditorCanvas from "@/components/editor/EditorCanvas";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,14 @@ interface Page {
   published: boolean;
 }
 
+interface PageContent {
+  id: string;
+  page_id: string;
+  content: any[];
+  created_at: string;
+  updated_at: string;
+}
+
 const PageBuilder = () => {
   const { pageId } = useParams();
   const navigate = useNavigate();
@@ -36,16 +45,16 @@ const PageBuilder = () => {
     try {
       setLoading(true);
       
-      // Use any type temporarily until Supabase types are updated
-      const { data, error } = await supabase
+      // Fetch page data
+      const { data: pageData, error: pageError } = await supabase
         .from('pages' as any)
         .select('*')
         .eq('id', pageId)
         .single();
       
-      if (error) throw error;
+      if (pageError) throw pageError;
       
-      setPageData(data as unknown as Page);
+      setPageData(pageData as unknown as Page);
       
       // Fetch page content if it exists
       const { data: contentData, error: contentError } = await supabase
@@ -54,8 +63,16 @@ const PageBuilder = () => {
         .eq('page_id', pageId)
         .single();
       
-      if (contentData) {
-        setPageContent(contentData.content || []);
+      if (contentError) {
+        // If no content exists yet, just use an empty array
+        if (contentError.code === 'PGRST116') {
+          setPageContent([]);
+        } else {
+          throw contentError;
+        }
+      } else if (contentData && contentData.content) {
+        // Safely access content property after checking it exists
+        setPageContent(contentData.content);
       }
       
     } catch (error: any) {
@@ -92,13 +109,17 @@ const PageBuilder = () => {
       const content = components;
       
       // Check if content record exists
-      const { data: existingContent } = await supabase
+      const { data: existingContent, error: checkError } = await supabase
         .from('page_contents' as any)
         .select('id')
         .eq('page_id', pageId)
         .single();
       
-      if (existingContent) {
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+      
+      if (existingContent && existingContent.id) {
         // Update existing record
         const { error } = await supabase
           .from('page_contents' as any)
