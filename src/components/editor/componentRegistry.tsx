@@ -129,4 +129,4 @@ export const componentCategories = Object.entries(componentRegistry).reduce((acc
     ...value
   });
   return acc;
-}, {} as Record<string, Array<{ type: string; label: string; icon: string; category: string }>);
+}, {} as Record<string, Array<{ type: string; label: string; icon: string; category: string }>>);
