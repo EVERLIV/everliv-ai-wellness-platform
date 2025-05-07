@@ -1,10 +1,12 @@
 
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from "@/components/ui/button";
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { FileText } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -94,6 +96,35 @@ const Dashboard = () => {
                       <p className="text-sm text-gray-500">Email</p>
                       <p className="font-medium">{user?.email}</p>
                     </div>
+                  </div>
+                </div>
+                
+                {/* Admin Tools Section */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-medium text-gray-800 mb-3">Инструменты администратора</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Link to="/page-builder" className="block">
+                      <div className="bg-white border border-gray-200 rounded p-4 hover:shadow-md transition-shadow">
+                        <h4 className="font-medium mb-2">Конструктор страниц</h4>
+                        <p className="text-sm text-gray-600 mb-3">
+                          Создавайте и редактируйте страницы сайта с помощью визуального редактора
+                        </p>
+                        <Button variant="outline" size="sm" className="w-full">Открыть</Button>
+                      </div>
+                    </Link>
+                    
+                    <Link to="/admin-blog" className="block">
+                      <div className="bg-white border border-gray-200 rounded p-4 hover:shadow-md transition-shadow">
+                        <div className="flex items-center mb-2">
+                          <FileText className="mr-2 h-5 w-5 text-blue-500" />
+                          <h4 className="font-medium">Управление блогом</h4>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-3">
+                          Создавайте и редактируйте статьи для блога с загрузкой изображений
+                        </p>
+                        <Button variant="outline" size="sm" className="w-full">Управлять</Button>
+                      </div>
+                    </Link>
                   </div>
                 </div>
                 

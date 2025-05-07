@@ -19,6 +19,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import PageBuilder from "./pages/PageBuilder";
+import AdminBlog from "./pages/AdminBlog";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,11 @@ const App = () => (
             <Route path="/page-builder" element={
               <ProtectedRoute>
                 <PageBuilder />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin-blog" element={
+              <ProtectedRoute>
+                <AdminBlog />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
