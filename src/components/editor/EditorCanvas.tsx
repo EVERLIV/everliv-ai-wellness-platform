@@ -59,7 +59,7 @@ const EditorCanvas = ({
       const newComponent = {
         id: newComponentId,
         type: componentType,
-        props: { ...componentRegistry[componentType]?.defaultProps } || {},
+        props: componentRegistry[componentType]?.defaultProps || {},
       };
       
       const newComponents = [...components];
