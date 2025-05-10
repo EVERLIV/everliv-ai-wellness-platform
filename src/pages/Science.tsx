@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { Snowflake, Utensils, Waves, CircleDashed, Pill } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
+import ScienceSection from "@/components/about/ScienceSection";
 
 const Science = () => {
   const scientificMethods = [
@@ -57,6 +58,9 @@ const Science = () => {
     }
   ];
 
+  const tabNames = ["cold", "fasting", "breathing", "oxygen", "supplements"];
+  const shortNames = ["Холодовые", "Голодание", "Дыхание", "Кислород", "Добавки"];
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -90,19 +94,19 @@ const Science = () => {
             <Tabs defaultValue="cold" className="max-w-4xl mx-auto">
               <TabsList className="grid grid-cols-5 mb-8">
                 {scientificMethods.map((method, index) => (
-                  <TabsTrigger key={index} value={Object.keys({cold: "", fasting: "", breathing: "", oxygen: "", supplements: ""})[index]}>
-                    <div className="flex flex-col items-center p-2">
-                      <div className="p-1">
-                        {method.icon}
-                      </div>
-                      <span className="mt-1 text-xs">{method.title.split(' ')[0]}</span>
+                  <TabsTrigger key={index} value={tabNames[index]} className="w-full py-3 px-2 flex flex-col items-center">
+                    <div className="p-1 bg-white rounded-full shadow-sm">
+                      {method.icon}
                     </div>
+                    <span className="mt-2 text-xs font-medium whitespace-normal text-center">
+                      {shortNames[index]}
+                    </span>
                   </TabsTrigger>
                 ))}
               </TabsList>
               
               {scientificMethods.map((method, index) => (
-                <TabsContent key={index} value={Object.keys({cold: "", fasting: "", breathing: "", oxygen: "", supplements: ""})[index]} className="bg-gray-50 p-6 rounded-lg">
+                <TabsContent key={index} value={tabNames[index]} className="bg-gray-50 p-6 rounded-lg">
                   <div className="mb-4 flex items-center">
                     <div className="mr-4 bg-white p-3 rounded-full shadow-sm">
                       {method.icon}
@@ -130,52 +134,7 @@ const Science = () => {
         </section>
 
         {/* Scientific Approach */}
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Наш научный подход</h2>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="shadow-sm">
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-semibold mb-4">Биологические маркеры</h3>
-                    <p className="text-gray-700 mb-4">
-                      Мы используем комплексный анализ биомаркеров крови для создания полной картины вашего здоровья. Это включает:
-                    </p>
-                    <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                      <li>Маркеры воспаления (СРБ, ИЛ-6, ФНО-α)</li>
-                      <li>Гормональный баланс (тестостерон, эстрадиол, кортизол)</li>
-                      <li>Метаболические показатели (глюкоза, инсулин, HbA1c)</li>
-                      <li>Липидный профиль и маркеры сердечно-сосудистого риска</li>
-                      <li>Показатели иммунной функции и окислительного стресса</li>
-                    </ul>
-                  </CardContent>
-                </Card>
-                
-                <Card className="shadow-sm">
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-semibold mb-4">Персонализированный подход</h3>
-                    <p className="text-gray-700 mb-4">
-                      Наша система искусственного интеллекта анализирует ваши индивидуальные особенности, генетику, 
-                      образ жизни и результаты анализов для создания максимально эффективных рекомендаций именно для вас.
-                    </p>
-                    <p className="text-gray-700">
-                      Мы постоянно обновляем наши алгоритмы на основе новейших научных исследований и 
-                      данных наших пользователей для достижения наилучших результатов.
-                    </p>
-                    <div className="mt-4">
-                      <img 
-                        src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80" 
-                        alt="Персонализированный подход"
-                        className="rounded-md w-full h-auto"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </div>
-        </section>
+        <ScienceSection />
 
         {/* Expert Collaboration */}
         <section className="py-16 bg-white">
