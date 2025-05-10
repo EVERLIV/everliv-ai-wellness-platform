@@ -19,6 +19,8 @@ import Partnership from "./pages/Partnership";
 import BloodAnalysis from "./pages/BloodAnalysis";
 import HowItWorks from "./pages/HowItWorks";
 import Science from "./pages/Science";
+import Community from "./pages/Community";
+import Webinars from "./pages/Webinars";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
@@ -49,6 +51,8 @@ const App = () => (
             <Route path="/blood-analysis" element={<BloodAnalysis />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/science" element={<Science />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/webinars" element={<Webinars />} />
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
