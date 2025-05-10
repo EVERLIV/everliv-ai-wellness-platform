@@ -1,5 +1,5 @@
 
-import { Snowflake, Utensils, Waves, CirclesDashed, Pill } from 'lucide-react';
+import { Snowflake, Utensils, Waves, CircleDashed, Pill } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -24,7 +24,7 @@ export default function KeyFeaturesSection() {
       background: "bg-green-50"
     },
     {
-      icon: <CirclesDashed className="h-8 w-8 md:h-12 md:w-12 text-purple-400" />,
+      icon: <CircleDashed className="h-8 w-8 md:h-12 md:w-12 text-purple-400" />,
       title: "Кислородная терапия",
       description: "Ускоряет восстановление и улучшает клеточное здоровье",
       background: "bg-purple-50"
