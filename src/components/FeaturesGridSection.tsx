@@ -6,64 +6,64 @@ export default function FeaturesGridSection() {
   const features = [
     {
       icon: "📊",
-      title: "Мониторинг здоровья",
-      description: "Постоянное отслеживание ключевых показателей здоровья"
+      title: "Персональные протоколы",
+      description: "Индивидуальные программы холода, голодания и дыхательных практик"
     },
     {
       icon: "🧬",
-      title: "Анализ генетических данных",
-      description: "Выявление генетических предрасположенностей к заболеваниям"
+      title: "Загрузка анализов крови",
+      description: "Отслеживайте изменения в показателях каждые 2-3 месяца"
     },
     {
-      icon: "🥗",
-      title: "Персонализированное питание",
-      description: "Рекомендации по питанию на основе ваших индивидуальных данных"
+      icon: "🤖",
+      title: "ИИ-анализ и отчеты",
+      description: "Автоматическое выявление трендов и потенциальных проблем"
     },
     {
       icon: "💊",
       title: "Рекомендации по добавкам",
-      description: "Индивидуальный подбор витаминов и добавок"
+      description: "Персонализированный подбор добавок и витаминов"
     },
     {
-      icon: "🏃",
-      title: "План физической активности",
-      description: "Оптимальные физические нагрузки для вашего организма"
+      icon: "👥",
+      title: "Поддержка сообщества",
+      description: "Общение с единомышленниками и консультации экспертов"
     },
     {
-      icon: "🧠",
-      title: "Когнитивное здоровье",
-      description: "Рекомендации по поддержанию когнитивных функций"
+      icon: "🎁",
+      title: "Партнерская программа",
+      description: "Зарабатывайте, приглашая друзей и специалистов"
     },
     {
-      icon: "😴",
-      title: "Анализ качества сна",
-      description: "Советы по улучшению качества сна и регуляции циркадных ритмов"
+      icon: "🎯",
+      title: "Персональные челленджи",
+      description: "Достигайте целей с помощью геймифицированных задач"
     },
     {
-      icon: "📱",
-      title: "Мобильный доступ",
-      description: "Удобный доступ к платформе с любого устройства"
+      icon: "🏆",
+      title: "Отслеживание прогресса",
+      description: "Наблюдайте за изменениями и улучшениями в реальном времени"
     }
   ];
 
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl font-semibold text-center mb-4">Возможности Everliv</h2>
-        <p className="text-sm text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+        <h2 className="text-2xl font-bold text-center mb-4">Возможности Everliv</h2>
+        <p className="text-md text-gray-600 text-center mb-12 max-w-2xl mx-auto">
           Наша платформа предлагает широкий спектр инструментов для мониторинга и улучшения вашего здоровья
         </p>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-12">
           {features.map((feature, index) => (
-            <div key={index} className="flex">
+            <div key={index} className="flex p-4 rounded-lg hover:bg-gray-50 transition-colors">
               <div className="mr-3">
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                  <span>{feature.icon}</span>
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                  <span className="text-xl">{feature.icon}</span>
                 </div>
               </div>
               <div>
-                <h3 className="text-sm font-medium mb-1">{feature.title}</h3>
+                <h3 className="text-md font-medium mb-1">{feature.title}</h3>
                 <p className="text-xs text-gray-600">{feature.description}</p>
               </div>
             </div>
@@ -72,7 +72,7 @@ export default function FeaturesGridSection() {
         
         <div className="text-center">
           <Link to="/features">
-            <Button variant="outline" className="rounded-3xl text-sm border-primary text-primary hover:bg-primary hover:text-white">
+            <Button variant="outline" className="rounded-full text-sm border-primary text-primary hover:bg-primary hover:text-white">
               Посмотреть все возможности
             </Button>
           </Link>

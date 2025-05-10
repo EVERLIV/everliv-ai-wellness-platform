@@ -1,17 +1,17 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Share2 } from "lucide-react";
 
 export default function CTASection() {
   return (
     <section className="py-16 bg-green-50 border-t border-green-100">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6 font-heading">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6 font-heading">
             Начните свой путь к оптимальному здоровью и долголетию сегодня
           </h2>
-          <p className="text-md text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             Присоединяйтесь к тысячам людей, которые уже используют EVERLIV для достижения своих целей в области здоровья.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
@@ -26,6 +26,24 @@ export default function CTASection() {
                 <ArrowRight className="ml-1 h-5 w-5" />
               </Button>
             </Link>
+          </div>
+          
+          <div className="mt-8 border-t border-green-200 pt-8">
+            <p className="font-medium text-gray-700 mb-4">Поделитесь с друзьями и получайте бонусы</p>
+            <div className="flex justify-center gap-4">
+              <Button variant="outline" size="sm" className="rounded-full border-gray-300 hover:border-primary">
+                <Share2 className="mr-2 h-4 w-4" /> Facebook
+              </Button>
+              <Button variant="outline" size="sm" className="rounded-full border-gray-300 hover:border-primary">
+                <Share2 className="mr-2 h-4 w-4" /> Instagram
+              </Button>
+              <Button variant="outline" size="sm" className="rounded-full border-gray-300 hover:border-primary">
+                <Share2 className="mr-2 h-4 w-4" /> Telegram
+              </Button>
+            </div>
+            <p className="text-sm text-gray-500 mt-4">
+              #EVERLIV #ЗдоровоеДолголетие
+            </p>
           </div>
         </div>
       </div>

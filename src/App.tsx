@@ -15,6 +15,10 @@ import Pricing from "./pages/Pricing";
 import Blog from "./pages/Blog";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
+import Partnership from "./pages/Partnership";
+import BloodAnalysis from "./pages/BloodAnalysis";
+import HowItWorks from "./pages/HowItWorks";
+import Science from "./pages/Science";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
@@ -41,6 +45,10 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/partnership" element={<Partnership />} />
+            <Route path="/blood-analysis" element={<BloodAnalysis />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/science" element={<Science />} />
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
