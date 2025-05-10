@@ -1,4 +1,7 @@
 
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+
 const ScienceSection = () => {
   return (
     <section className="py-16 md:py-24 bg-gray-50">
@@ -19,32 +22,36 @@ const ScienceSection = () => {
               <p className="text-lg mb-6 text-gray-600">
                 Все рекомендации EVERLIV основаны на обширных научных исследованиях и современных медицинских протоколах. Мы сотрудничаем с ведущими научными институтами для постоянного совершенствования наших алгоритмов.
               </p>
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <div className="bg-evergreen-500 rounded-full p-1 mr-3 mt-1">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span className="text-gray-700">Регулярные обновления на основе новейших исследований</span>
-                </li>
-                <li className="flex items-start">
-                  <div className="bg-evergreen-500 rounded-full p-1 mr-3 mt-1">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span className="text-gray-700">Верификация рекомендаций медицинскими экспертами</span>
-                </li>
-                <li className="flex items-start">
-                  <div className="bg-evergreen-500 rounded-full p-1 mr-3 mt-1">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  </div>
-                  <span className="text-gray-700">Прозрачность алгоритмов и источников данных</span>
-                </li>
-              </ul>
+              <Card>
+                <CardContent className="p-6">
+                  <ul className="space-y-4">
+                    <li className="flex items-start">
+                      <div className="bg-evergreen-500 rounded-full p-1 mr-3 mt-1 flex-shrink-0">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </div>
+                      <span className="text-gray-700">Регулярные обновления на основе новейших исследований</span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="bg-evergreen-500 rounded-full p-1 mr-3 mt-1 flex-shrink-0">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </div>
+                      <span className="text-gray-700">Верификация рекомендаций медицинскими экспертами</span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="bg-evergreen-500 rounded-full p-1 mr-3 mt-1 flex-shrink-0">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                      </div>
+                      <span className="text-gray-700">Прозрачность алгоритмов и источников данных</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>

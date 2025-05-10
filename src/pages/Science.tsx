@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Snowflake, Utensils, Waves, CircleDashed, Pill } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Science = () => {
   const scientificMethods = [
     {
-      icon: <Snowflake className="w-12 h-12 text-blue-500" />,
+      icon: <Snowflake className="w-8 h-8 text-blue-500" />,
       title: "Холодовые воздействия",
       description: "Закаливание и холодовые воздействия активируют бурый жир, укрепляют иммунитет и повышают стрессоустойчивость организма. Регулярное воздействие холода также способствует выработке норадреналина и повышению клеточной стойкости.",
       research: [
@@ -19,7 +20,7 @@ const Science = () => {
       ]
     },
     {
-      icon: <Utensils className="w-12 h-12 text-amber-500" />,
+      icon: <Utensils className="w-8 h-8 text-amber-500" />,
       title: "Пролонгированное и интервальное голодание",
       description: "Периодическое голодание активирует аутофагию, процесс очищения клеток от поврежденных органелл. Это приводит к улучшению метаболизма, чувствительности к инсулину и снижению воспаления.",
       research: [
@@ -28,7 +29,7 @@ const Science = () => {
       ]
     },
     {
-      icon: <Waves className="w-12 h-12 text-green-500" />,
+      icon: <Waves className="w-8 h-8 text-green-500" />,
       title: "Дыхательные практики",
       description: "Метод Вим Хофа и другие дыхательные практики позволяют осознанно влиять на автономную нервную систему, снижая уровень стресса и улучшая когнитивные функции.",
       research: [
@@ -37,7 +38,7 @@ const Science = () => {
       ]
     },
     {
-      icon: <CircleDashed className="w-12 h-12 text-purple-500" />,
+      icon: <CircleDashed className="w-8 h-8 text-purple-500" />,
       title: "Кислородная терапия",
       description: "Гипербарическая оксигенация повышает уровень кислорода в тканях, что способствует ускоренному восстановлению, регенерации и улучшению клеточного здоровья.",
       research: [
@@ -46,7 +47,7 @@ const Science = () => {
       ]
     },
     {
-      icon: <Pill className="w-12 h-12 text-rose-500" />,
+      icon: <Pill className="w-8 h-8 text-rose-500" />,
       title: "Качественные добавки",
       description: "Определенные добавки, основанные на индивидуальных потребностях, могут значительно улучшить здоровье, восполняя дефициты или оптимизируя работу организма.",
       research: [
@@ -59,7 +60,7 @@ const Science = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow pt-16">
+      <main className="flex-grow">
         {/* Hero Section */}
         <section className="py-16 bg-gradient-to-b from-white to-gray-50">
           <div className="container mx-auto px-4">
@@ -69,6 +70,14 @@ const Science = () => {
                 Все методы и подходы EVERLIV основаны на научных исследованиях и проверенных практиках.
                 Узнайте, как древняя мудрость и современная наука работают вместе для улучшения вашего здоровья.
               </p>
+              <div className="mt-6">
+                <img
+                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80"
+                  alt="Научные исследования"
+                  className="rounded-lg shadow-md mx-auto max-w-full h-auto object-cover"
+                  style={{ maxHeight: "400px" }}
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -82,9 +91,11 @@ const Science = () => {
               <TabsList className="grid grid-cols-5 mb-8">
                 {scientificMethods.map((method, index) => (
                   <TabsTrigger key={index} value={Object.keys({cold: "", fasting: "", breathing: "", oxygen: "", supplements: ""})[index]}>
-                    <div className="flex flex-col items-center">
-                      {method.icon}
-                      <span className="mt-2 text-xs">{method.title.split(' ')[0]}</span>
+                    <div className="flex flex-col items-center p-2">
+                      <div className="p-1">
+                        {method.icon}
+                      </div>
+                      <span className="mt-1 text-xs">{method.title.split(' ')[0]}</span>
                     </div>
                   </TabsTrigger>
                 ))}
@@ -124,30 +135,43 @@ const Science = () => {
             <div className="max-w-4xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Наш научный подход</h2>
               
-              <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-                <h3 className="text-xl font-semibold mb-4">Биологические маркеры</h3>
-                <p className="text-gray-700 mb-4">
-                  Мы используем комплексный анализ биомаркеров крови для создания полной картины вашего здоровья. Это включает:
-                </p>
-                <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                  <li>Маркеры воспаления (СРБ, ИЛ-6, ФНО-α)</li>
-                  <li>Гормональный баланс (тестостерон, эстрадиол, кортизол)</li>
-                  <li>Метаболические показатели (глюкоза, инсулин, HbA1c)</li>
-                  <li>Липидный профиль и маркеры сердечно-сосудистого риска</li>
-                  <li>Показатели иммунной функции и окислительного стресса</li>
-                </ul>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-xl font-semibold mb-4">Персонализированный подход</h3>
-                <p className="text-gray-700 mb-4">
-                  Наша система искусственного интеллекта анализирует ваши индивидуальные особенности, генетику, 
-                  образ жизни и результаты анализов для создания максимально эффективных рекомендаций именно для вас.
-                </p>
-                <p className="text-gray-700">
-                  Мы постоянно обновляем наши алгоритмы на основе новейших научных исследований и 
-                  данных наших пользователей для достижения наилучших результатов.
-                </p>
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className="shadow-sm">
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-semibold mb-4">Биологические маркеры</h3>
+                    <p className="text-gray-700 mb-4">
+                      Мы используем комплексный анализ биомаркеров крови для создания полной картины вашего здоровья. Это включает:
+                    </p>
+                    <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                      <li>Маркеры воспаления (СРБ, ИЛ-6, ФНО-α)</li>
+                      <li>Гормональный баланс (тестостерон, эстрадиол, кортизол)</li>
+                      <li>Метаболические показатели (глюкоза, инсулин, HbA1c)</li>
+                      <li>Липидный профиль и маркеры сердечно-сосудистого риска</li>
+                      <li>Показатели иммунной функции и окислительного стресса</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+                
+                <Card className="shadow-sm">
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-semibold mb-4">Персонализированный подход</h3>
+                    <p className="text-gray-700 mb-4">
+                      Наша система искусственного интеллекта анализирует ваши индивидуальные особенности, генетику, 
+                      образ жизни и результаты анализов для создания максимально эффективных рекомендаций именно для вас.
+                    </p>
+                    <p className="text-gray-700">
+                      Мы постоянно обновляем наши алгоритмы на основе новейших научных исследований и 
+                      данных наших пользователей для достижения наилучших результатов.
+                    </p>
+                    <div className="mt-4">
+                      <img 
+                        src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80" 
+                        alt="Персонализированный подход"
+                        className="rounded-md w-full h-auto"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </div>
