@@ -46,13 +46,6 @@ export const useBloodAnalysis = () => {
       return;
     }
 
-    // Проверка наличия API ключа
-    if (!localStorage.getItem('OPENAI_API_KEY')) {
-      toast.error("Пожалуйста, настройте API ключ OpenAI");
-      setApiError("API ключ OpenAI не настроен. Пожалуйста, нажмите на кнопку 'Настроить API ключ OpenAI' и введите ваш ключ.");
-      return;
-    }
-
     setIsAnalyzing(true);
     setApiError(null);
     

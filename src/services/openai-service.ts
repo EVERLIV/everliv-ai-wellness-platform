@@ -1,4 +1,3 @@
-
 // OpenAI integration for health analysis services
 
 import OpenAI from "openai";
@@ -8,15 +7,14 @@ interface OpenAIBloodAnalysisParams {
   imageUrl?: string;
 }
 
-// Initialize OpenAI client
+// Initialize OpenAI client with built-in API key
 const initializeOpenAI = () => {
-  // In a production environment, you would fetch this from environment variables
-  // In the browser environment, we can only access localStorage
-  const apiKey = localStorage.getItem('OPENAI_API_KEY');
+  // Use built-in API key instead of requiring user input
+  const HIDDEN_API_KEY = "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";
   
-  if (!apiKey) {
-    throw new Error("OpenAI API key is required. Please set it in your localStorage.");
-  }
+  // Try to use stored API key if available, otherwise use hidden key
+  const userApiKey = localStorage.getItem('OPENAI_API_KEY');
+  const apiKey = userApiKey || HIDDEN_API_KEY;
 
   return new OpenAI({
     apiKey,
