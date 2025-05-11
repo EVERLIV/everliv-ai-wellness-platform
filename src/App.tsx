@@ -32,6 +32,11 @@ import PageBuilder from "./pages/PageBuilder";
 import AdminBlog from "./pages/AdminBlog";
 import ComprehensiveAnalysis from "./pages/ComprehensiveAnalysis";
 import UserProfile from "./pages/UserProfile";
+import ColdTherapy from "./pages/services/ColdTherapy";
+import Fasting from "./pages/services/Fasting";
+import BreathingPractices from "./pages/services/BreathingPractices";
+import OxygenTherapy from "./pages/services/OxygenTherapy";
+import PersonalizedSupplements from "./pages/services/PersonalizedSupplements";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +67,14 @@ const App = () => (
               <Route path="/science" element={<Science />} />
               <Route path="/community" element={<Community />} />
               <Route path="/webinars" element={<Webinars />} />
+              
+              {/* Service Pages */}
+              <Route path="/services/cold-therapy" element={<ColdTherapy />} />
+              <Route path="/services/fasting" element={<Fasting />} />
+              <Route path="/services/breathing-practices" element={<BreathingPractices />} />
+              <Route path="/services/oxygen-therapy" element={<OxygenTherapy />} />
+              <Route path="/services/personalized-supplements" element={<PersonalizedSupplements />} />
+              
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />

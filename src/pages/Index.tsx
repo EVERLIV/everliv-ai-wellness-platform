@@ -9,6 +9,7 @@ import TestimonialsSection from '@/components/TestimonialsSection';
 import CTASection from '@/components/CTASection';
 import PartnershipSection from '@/components/PartnershipSection';
 import Footer from '@/components/Footer';
+import ServicesSection from '@/components/ServicesSection';
 
 const Index = () => {
   return (
@@ -17,6 +18,7 @@ const Index = () => {
       <main className="flex-grow pt-16">
         <HeroSection />
         <KeyFeaturesSection />
+        <ServicesSection />
         <HowItWorksSection />
         <HealthPathSection />
         <FeaturesGridSection />
