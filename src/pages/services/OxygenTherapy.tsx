@@ -4,7 +4,7 @@ import ServicePageLayout from '@/components/services/ServicePageLayout';
 import ProtocolCard from '@/components/services/ProtocolCard';
 import ScientificExplanation from '@/components/services/ScientificExplanation';
 import FAQ from '@/components/services/FAQ';
-import { Oxygen } from 'lucide-react';
+import { Wind } from 'lucide-react';
 
 const oxygenProtocols = [
   {
@@ -96,22 +96,22 @@ const OxygenTherapy = () => {
     {
       title: "Повышение энергии",
       description: "Увеличение уровня энергии и выносливости в течение дня",
-      icon: <Oxygen className="h-10 w-10" />
+      icon: <Wind className="h-10 w-10" />
     },
     {
       title: "Улучшение сна",
       description: "Качественный сон и быстрое засыпание",
-      icon: <Oxygen className="h-10 w-10" />
+      icon: <Wind className="h-10 w-10" />
     },
     {
       title: "Ускорение восстановления",
       description: "Сокращение времени восстановления после физических нагрузок",
-      icon: <Oxygen className="h-10 w-10" />
+      icon: <Wind className="h-10 w-10" />
     },
     {
       title: "Укрепление иммунитета",
       description: "Повышение защитных функций организма",
-      icon: <Oxygen className="h-10 w-10" />
+      icon: <Wind className="h-10 w-10" />
     }
   ];
 

@@ -1,8 +1,10 @@
+
 import React from 'react';
 import ServicePageLayout from '@/components/services/ServicePageLayout';
 import ProtocolCard from '@/components/services/ProtocolCard';
 import ScientificExplanation from '@/components/services/ScientificExplanation';
 import FAQ from '@/components/services/FAQ';
+import { Pill } from 'lucide-react';
 
 const PersonalizedSupplements = () => {
   const supplementProtocols = [
@@ -10,24 +12,27 @@ const PersonalizedSupplements = () => {
       title: "Оптимизация витамина D",
       description: "Протокол приема витамина D для поддержания иммунитета и здоровья костей",
       duration: "Ежедневно",
-      difficulty: "beginner" as const, // Using correct type
+      difficulty: "beginner" as const, 
       benefits: ["Укрепление иммунитета", "Поддержка костной ткани", "Улучшение настроения"],
+      steps: ["Сдайте анализ на витамин D", "Принимайте рекомендованную дозировку"],
       category: "supplements"
     },
     {
       title: "Магний для сна и релаксации",
       description: "Протокол приема магния перед сном для улучшения качества сна и снижения стресса",
       duration: "Перед сном",
-      difficulty: "beginner" as const, // Using correct type
+      difficulty: "beginner" as const,
       benefits: ["Улучшение сна", "Снижение стресса", "Поддержка нервной системы"],
+      steps: ["Принимайте магний за 1-2 часа до сна", "Выбирайте хелатные формы"],
       category: "supplements"
     },
     {
       title: "Омега-3 для здоровья сердца и мозга",
       description: "Протокол приема Омега-3 жирных кислот для поддержания здоровья сердца и когнитивных функций",
       duration: "Ежедневно",
-      difficulty: "intermediate" as const, // Using correct type
+      difficulty: "intermediate" as const,
       benefits: ["Поддержка сердечно-сосудистой системы", "Улучшение когнитивных функций", "Снижение воспаления"],
+      steps: ["Принимайте во время еды", "Выбирайте качественные источники"],
       category: "supplements"
     }
   ];
@@ -56,7 +61,7 @@ const PersonalizedSupplements = () => {
     }
   ];
 
-  const faqData = [
+  const faqs = [
     {
       question: "Как правильно принимать витамин D?",
       answer: "Витамин D рекомендуется принимать во время еды, чтобы улучшить его усвоение. Дозировка зависит от вашего уровня витамина D в крови и должна быть определена врачом."
@@ -94,15 +99,43 @@ const PersonalizedSupplements = () => {
     researchData: scientificResearch // For backward compatibility
   };
 
+  const benefits = [
+    {
+      title: "Персонализированный подход",
+      description: "Добавки, подобранные на основе ваших индивидуальных показателей",
+      icon: <Pill className="h-10 w-10" />
+    },
+    {
+      title: "Научное обоснование",
+      description: "Все рекомендации основаны на научных исследованиях",
+      icon: <Pill className="h-10 w-10" />
+    },
+    {
+      title: "Оптимизация здоровья",
+      description: "Улучшение самочувствия и профилактика заболеваний",
+      icon: <Pill className="h-10 w-10" />
+    },
+    {
+      title: "Мониторинг эффективности",
+      description: "Регулярное отслеживание результатов и корректировка подхода",
+      icon: <Pill className="h-10 w-10" />
+    }
+  ];
+
   return (
     <ServicePageLayout
-      title="Персонализированные добавки"
-      description="Индивидуально подобранные добавки на основе ваших биологических данных"
-      imageSrc="/placeholder.svg"
-    >
-      {/* Content inside ServicePageLayout */}
-      <div className="grid gap-10 py-8">
-        {/* Protocol cards */}
+      hero={{
+        title: "Персонализированные добавки",
+        subtitle: "Научный подход к улучшению здоровья",
+        description: "Индивидуально подобранные добавки на основе ваших биологических данных",
+        imageSrc: "/placeholder.svg"
+      }}
+      benefits={benefits}
+      scientificBackground={<ScientificExplanation
+        {...scientificExplanationProps}
+        category="Научные исследования добавок"
+      />}
+      protocols={
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {supplementProtocols.map((protocol, index) => (
             <ProtocolCard
@@ -112,26 +145,15 @@ const PersonalizedSupplements = () => {
               duration={protocol.duration}
               difficulty={protocol.difficulty}
               benefits={protocol.benefits}
+              steps={protocol.steps}
               category={protocol.category}
-              steps={[]}  // Adding required steps prop
             />
           ))}
         </div>
-        
-        {/* Scientific explanation section */}
-        <ScientificExplanation
-          {...scientificExplanationProps}
-        />
-        
-        {/* FAQ section */}
-        <FAQ
-          faqs={faqData.map(item => ({
-            question: item.question,
-            answer: item.answer
-          }))}
-        />
-      </div>
-    </ServicePageLayout>
+      }
+      casesStudies={<div className="text-center text-gray-600">Примеры результатов пациентов будут добавлены в ближайшее время</div>}
+      faq={faqs}
+    />
   );
 };
 
