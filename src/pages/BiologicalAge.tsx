@@ -17,6 +17,7 @@ import { Brain, Clock, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { FEATURES } from "@/constants/subscription-features";
 import { Skeleton } from "@/components/ui/skeleton";
+import FeatureAccess from "@/components/FeatureAccess";
 
 const BiologicalAge = () => {
   const { user } = useAuth();
@@ -27,20 +28,36 @@ const BiologicalAge = () => {
   
   // Form state
   const [formData, setFormData] = useState({
+    // Basic info
     age: "",
     gender: "",
     height: "",
     weight: "",
+    // Lifestyle data
     sleepHours: "",
     exerciseFrequency: "",
     diet: "",
     smoking: "no",
     alcohol: "rarely",
     stress: "moderate",
-    chronicConditions: "no"
+    // Medical history
+    chronicConditions: "no",
+    // Analysis data
+    cholesterol: "",
+    hdlCholesterol: "",
+    ldlCholesterol: "",
+    triglycerides: "",
+    glucose: "",
+    hba1c: "",
+    creatinine: "",
+    vitaminD: "",
+    inflammation: "",
+    // Advanced tests
+    telomereLengthTest: "no",
+    epigeneticTest: "no",
   });
 
-  const canUseHealthAnalysis = canUseFeature(FEATURES.COMPREHENSIVE_ASSESSMENT);
+  const canUseHealthAnalysis = canUseFeature(FEATURES.BIOLOGICAL_AGE_TEST);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({
@@ -50,7 +67,7 @@ const BiologicalAge = () => {
   };
 
   const handleNextStep = () => {
-    if (formStep < 3) {
+    if (formStep < 4) {
       setFormStep(formStep + 1);
     }
   };
@@ -66,7 +83,7 @@ const BiologicalAge = () => {
     try {
       // Record feature trial
       if (user && canUseHealthAnalysis) {
-        await recordFeatureTrial(FEATURES.COMPREHENSIVE_ASSESSMENT);
+        await recordFeatureTrial(FEATURES.BIOLOGICAL_AGE_TEST);
       }
 
       // Mock calculation for now - we'd replace with actual API call
@@ -77,7 +94,7 @@ const BiologicalAge = () => {
         // Calculate biological age (mock implementation)
         let biologicalAge = chronologicalAge;
         
-        // Adjust based on lifestyle factors
+        // Adjust based on lifestyle factors and analysis data
         if (formData.exerciseFrequency === 'daily') {
           biologicalAge -= 3;
         } else if (formData.exerciseFrequency === 'weekly') {
@@ -114,25 +131,87 @@ const BiologicalAge = () => {
           biologicalAge += 4;
         }
         
+        // Adjust based on blood analysis data if provided
+        if (formData.cholesterol && parseFloat(formData.cholesterol) > 5.2) {
+          biologicalAge += 2;
+        }
+        
+        if (formData.glucose && parseFloat(formData.glucose) > 6.0) {
+          biologicalAge += 3;
+        }
+        
+        if (formData.vitaminD && parseFloat(formData.vitaminD) < 30) {
+          biologicalAge += 1;
+        }
+        
+        if (formData.inflammation && parseFloat(formData.inflammation) > 3) {
+          biologicalAge += 2;
+        }
+        
+        // If advanced tests are done, they have a stronger impact on the calculation
+        if (formData.telomereLengthTest === 'yes') {
+          biologicalAge -= 2; // Assuming good results for this mock
+        }
+        
+        if (formData.epigeneticTest === 'yes') {
+          biologicalAge -= 3; // Assuming good results for this mock
+        }
+        
         // Ensure biological age isn't negative
         biologicalAge = Math.max(biologicalAge, 15);
         
+        // Generate recommendations based on inputs
+        const recommendations = [];
+        
+        if (formData.exerciseFrequency !== 'daily') {
+          recommendations.push("Увеличьте физическую активность до 30 минут ежедневно.");
+        }
+        
+        if (formData.diet !== 'healthy') {
+          recommendations.push("Перейдите на более сбалансированное питание с большим количеством овощей и фруктов.");
+        }
+        
+        if (parseInt(formData.sleepHours) < 7) {
+          recommendations.push("Стремитесь к 7-8 часам сна каждую ночь для оптимального восстановления.");
+        }
+        
+        if (formData.stress === 'high') {
+          recommendations.push("Практикуйте методы управления стрессом, такие как медитация или йога.");
+        }
+        
+        if (formData.alcohol === 'frequently') {
+          recommendations.push("Сократите потребление алкоголя для улучшения общего состояния здоровья.");
+        }
+        
+        if (formData.smoking === 'yes') {
+          recommendations.push("Отказ от курения может значительно улучшить вашу биологическую молодость.");
+        }
+        
+        if (formData.cholesterol && parseFloat(formData.cholesterol) > 5.2) {
+          recommendations.push("Снижение уровня холестерина через диету и упражнения. Рассмотрите консультацию с врачом.");
+        }
+        
+        if (formData.glucose && parseFloat(formData.glucose) > 6.0) {
+          recommendations.push("Контролируйте уровень глюкозы путем снижения потребления простых углеводов.");
+        }
+        
+        if (formData.vitaminD && parseFloat(formData.vitaminD) < 30) {
+          recommendations.push("Рассмотрите добавки витамина D и больше времени проводите на солнце.");
+        }
+
         const mockResults = {
           chronologicalAge,
           biologicalAge,
           difference: chronologicalAge - biologicalAge,
-          recommendations: [
-            formData.exerciseFrequency !== 'daily' && "Увеличьте физическую активность до 30 минут ежедневно.",
-            formData.diet !== 'healthy' && "Перейдите на более сбалансированное питание с большим количеством овощей и фруктов.",
-            parseInt(formData.sleepHours) < 7 && "Стремитесь к 7-8 часам сна каждую ночь для оптимального восстановления.",
-            formData.stress === 'high' && "Практикуйте методы управления стрессом, такие как медитация или йога.",
-            formData.alcohol === 'frequently' && "Сократите потребление алкоголя для улучшения общего состояния здоровья.",
-            formData.smoking === 'yes' && "Отказ от курения может значительно улучшить вашу биологическую молодость.",
-          ].filter(Boolean),
+          recommendations: recommendations.filter(Boolean),
+          bloodAnalysisContribution: formData.cholesterol || formData.glucose || formData.vitaminD ? 
+            "Данные анализов крови были учтены в расчете вашего биологического возраста" : 
+            "Добавление данных анализов крови позволит получить более точную оценку биологического возраста",
+          accuracyScore: (formData.cholesterol || formData.glucose || formData.vitaminD) ? 75 : 60
         };
 
         setResults(mockResults);
-        setFormStep(4); // Go to results step
+        setFormStep(5); // Go to results step
         toast.success("Расчет биологического возраста завершен");
       }, 2000);
     } catch (error) {
@@ -153,6 +232,10 @@ const BiologicalAge = () => {
     if (step === 3) {
       return !!formData.smoking && !!formData.alcohol && !!formData.stress && !!formData.chronicConditions;
     }
+    if (step === 4) {
+      // This is optional data, so always return true
+      return true;
+    }
     return false;
   };
 
@@ -168,37 +251,25 @@ const BiologicalAge = () => {
                 <h1 className="text-3xl md:text-4xl font-bold">Тест на биологический возраст</h1>
               </div>
               
-              {!user ? (
-                <Alert className="mb-6">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Требуется авторизация</AlertTitle>
-                  <AlertDescription>
-                    Для использования функции расчета биологического возраста необходимо авторизоваться
-                  </AlertDescription>
-                </Alert>
-              ) : !canUseHealthAnalysis ? (
-                <Alert className="mb-6">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Функция недоступна</AlertTitle>
-                  <AlertDescription>
-                    Вы уже использовали бесплатную пробную версию теста на биологический возраст. Для продолжения оформите подписку.
-                  </AlertDescription>
-                </Alert>
-              ) : (
+              <FeatureAccess
+                featureName={FEATURES.BIOLOGICAL_AGE_TEST}
+                title="Тест на биологический возраст"
+                description="Определение биологического возраста и факторов здоровья с использованием искусственного интеллекта"
+              >
                 <Card>
                   <CardHeader>
                     <CardTitle>Тест на биологический возраст</CardTitle>
                     <CardDescription>
-                      Ответьте на вопросы о вашем образе жизни для определения вашего биологического возраста
+                      Ответьте на вопросы о вашем образе жизни и здоровье для определения вашего биологического возраста
                     </CardDescription>
                     
-                    {formStep < 4 && (
+                    {formStep < 5 && (
                       <div className="mt-2">
                         <div className="flex justify-between text-sm mb-1">
-                          <span>Шаг {formStep} из 3</span>
-                          <span>{Math.round((formStep/3) * 100)}%</span>
+                          <span>Шаг {formStep} из 4</span>
+                          <span>{Math.round((formStep/4) * 100)}%</span>
                         </div>
-                        <Progress value={(formStep/3) * 100} className="h-2" />
+                        <Progress value={(formStep/4) * 100} className="h-2" />
                       </div>
                     )}
                   </CardHeader>
@@ -412,6 +483,155 @@ const BiologicalAge = () => {
                     )}
 
                     {formStep === 4 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-medium">Данные лабораторных анализов</h3>
+                          <div className="text-sm text-gray-500">(необязательно)</div>
+                        </div>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Добавьте данные ваших недавних анализов для более точной оценки биологического возраста
+                        </p>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="cholesterol">Общий холестерин (ммоль/л)</Label>
+                            <Input 
+                              id="cholesterol" 
+                              type="text"
+                              placeholder="Например: 5.2"
+                              value={formData.cholesterol}
+                              onChange={(e) => handleInputChange('cholesterol', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="hdlCholesterol">HDL-холестерин (ммоль/л)</Label>
+                            <Input 
+                              id="hdlCholesterol" 
+                              type="text"
+                              placeholder="Например: 1.4"
+                              value={formData.hdlCholesterol}
+                              onChange={(e) => handleInputChange('hdlCholesterol', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="ldlCholesterol">LDL-холестерин (ммоль/л)</Label>
+                            <Input 
+                              id="ldlCholesterol" 
+                              type="text"
+                              placeholder="Например: 3.0"
+                              value={formData.ldlCholesterol}
+                              onChange={(e) => handleInputChange('ldlCholesterol', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="triglycerides">Триглицериды (ммоль/л)</Label>
+                            <Input 
+                              id="triglycerides" 
+                              type="text"
+                              placeholder="Например: 1.7"
+                              value={formData.triglycerides}
+                              onChange={(e) => handleInputChange('triglycerides', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="glucose">Глюкоза (ммоль/л)</Label>
+                            <Input 
+                              id="glucose" 
+                              type="text"
+                              placeholder="Например: 5.4"
+                              value={formData.glucose}
+                              onChange={(e) => handleInputChange('glucose', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="hba1c">HbA1c (%)</Label>
+                            <Input 
+                              id="hba1c" 
+                              type="text"
+                              placeholder="Например: 5.2"
+                              value={formData.hba1c}
+                              onChange={(e) => handleInputChange('hba1c', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="creatinine">Креатинин (мкмоль/л)</Label>
+                            <Input 
+                              id="creatinine" 
+                              type="text"
+                              placeholder="Например: 80"
+                              value={formData.creatinine}
+                              onChange={(e) => handleInputChange('creatinine', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="vitaminD">Витамин D (нг/мл)</Label>
+                            <Input 
+                              id="vitaminD" 
+                              type="text"
+                              placeholder="Например: 35"
+                              value={formData.vitaminD}
+                              onChange={(e) => handleInputChange('vitaminD', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="inflammation">С-реактивный белок (мг/л)</Label>
+                            <Input 
+                              id="inflammation" 
+                              type="text"
+                              placeholder="Например: 1.5"
+                              value={formData.inflammation}
+                              onChange={(e) => handleInputChange('inflammation', e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        
+                        <Separator className="my-4" />
+                        
+                        <div>
+                          <h4 className="font-medium mb-3">Продвинутые тесты на старение</h4>
+                          
+                          <div className="space-y-4">
+                            <div>
+                              <Label>Проходили ли вы тест на длину теломер?</Label>
+                              <RadioGroup 
+                                value={formData.telomereLengthTest} 
+                                onValueChange={(value) => handleInputChange('telomereLengthTest', value)}
+                                className="flex gap-4 mt-2"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="yes" id="telomere-yes" />
+                                  <Label htmlFor="telomere-yes">Да</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="no" id="telomere-no" />
+                                  <Label htmlFor="telomere-no">Нет</Label>
+                                </div>
+                              </RadioGroup>
+                            </div>
+                            
+                            <div>
+                              <Label>Проходили ли вы эпигенетический тест (метилирование ДНК)?</Label>
+                              <RadioGroup 
+                                value={formData.epigeneticTest} 
+                                onValueChange={(value) => handleInputChange('epigeneticTest', value)}
+                                className="flex gap-4 mt-2"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="yes" id="epigenetic-yes" />
+                                  <Label htmlFor="epigenetic-yes">Да</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="no" id="epigenetic-no" />
+                                  <Label htmlFor="epigenetic-no">Нет</Label>
+                                </div>
+                              </RadioGroup>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {formStep === 5 && (
                       <div className="space-y-6">
                         {isCalculating ? (
                           <div className="space-y-4">
@@ -440,6 +660,19 @@ const BiologicalAge = () => {
                                   <p className="font-medium">Соответствует вашему хронологическому возрасту</p>
                                 )}
                               </div>
+                              
+                              <div className="mt-4 text-center">
+                                <p className="text-sm text-gray-500">Точность оценки</p>
+                                <div className="relative pt-1 w-48 mx-auto">
+                                  <Progress value={results.accuracyScore} className="h-2 mt-2" />
+                                  <div className="flex justify-between mt-1">
+                                    <span className="text-xs">0%</span>
+                                    <span className="text-xs">{results.accuracyScore}%</span>
+                                    <span className="text-xs">100%</span>
+                                  </div>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">{results.bloodAnalysisContribution}</p>
+                              </div>
                             </div>
                             
                             <div className="pt-4">
@@ -457,7 +690,8 @@ const BiologicalAge = () => {
                             <div className="bg-gray-50 p-4 rounded-lg mt-4">
                               <p className="text-sm text-gray-600">
                                 Внимание: Этот тест предоставляет приблизительную оценку биологического возраста на основе 
-                                ваших ответов. Для более точной оценки рекомендуется комплексное медицинское обследование.
+                                ваших ответов. Для более точной оценки рекомендуется комплексное медицинское обследование
+                                и дополнительные лабораторные анализы.
                               </p>
                             </div>
                           </>
@@ -467,17 +701,17 @@ const BiologicalAge = () => {
                   </CardContent>
                   
                   <CardFooter className="flex justify-between">
-                    {formStep > 1 && formStep < 4 && (
+                    {formStep > 1 && formStep < 5 && (
                       <Button variant="outline" onClick={handlePrevStep}>
                         Назад
                       </Button>
                     )}
                     
-                    {formStep === 4 ? (
+                    {formStep === 5 ? (
                       <Button variant="outline" onClick={() => setFormStep(1)}>
                         Пройти тест заново
                       </Button>
-                    ) : formStep < 3 ? (
+                    ) : formStep < 4 ? (
                       <Button 
                         onClick={handleNextStep}
                         disabled={!isStepComplete(formStep)}
@@ -487,14 +721,14 @@ const BiologicalAge = () => {
                     ) : (
                       <Button 
                         onClick={handleCalculate}
-                        disabled={!isStepComplete(formStep) || isCalculating}
+                        disabled={isCalculating}
                       >
                         {isCalculating ? "Расчет..." : "Рассчитать возраст"}
                       </Button>
                     )}
                   </CardFooter>
                 </Card>
-              )}
+              </FeatureAccess>
             </div>
           </div>
         </section>

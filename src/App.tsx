@@ -30,6 +30,7 @@ import Dashboard from "./pages/Dashboard";
 import UserSubscription from "./pages/UserSubscription";
 import PageBuilder from "./pages/PageBuilder";
 import AdminBlog from "./pages/AdminBlog";
+import ComprehensiveAnalysis from "./pages/ComprehensiveAnalysis";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const App = () => (
               <Route path="/partnership" element={<Partnership />} />
               <Route path="/blood-analysis" element={<BloodAnalysis />} />
               <Route path="/biological-age" element={<BiologicalAge />} />
+              <Route path="/comprehensive-analysis" element={<ComprehensiveAnalysis />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/science" element={<Science />} />
               <Route path="/community" element={<Community />} />

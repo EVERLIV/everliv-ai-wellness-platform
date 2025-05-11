@@ -10,32 +10,57 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Brain, TestTube, Clock, AlertCircle } from "lucide-react";
+import { Brain, TestTube, Clock, AlertCircle, FileUpload } from "lucide-react";
 import { toast } from "sonner";
 import { FEATURES } from "@/constants/subscription-features";
 import { Skeleton } from "@/components/ui/skeleton";
+import FeatureAccess from "@/components/FeatureAccess";
 
 const BloodAnalysis = () => {
   const { user } = useAuth();
   const { canUseFeature, recordFeatureTrial } = useSubscription();
   const [bloodText, setBloodText] = useState("");
+  const [bloodPhotoUrl, setBloodPhotoUrl] = useState("");
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState("input");
+  const [selectedInputMethod, setSelectedInputMethod] = useState<"text" | "photo">("text");
 
   const canUseBloodAnalysis = canUseFeature(FEATURES.BLOOD_ANALYSIS);
+  const canUsePhotoAnalysis = canUseFeature(FEATURES.PHOTO_BLOOD_ANALYSIS);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // In a real app, we would upload to a server/storage here
+      // For now, create a local URL to display the image
+      const url = URL.createObjectURL(file);
+      setBloodPhotoUrl(url);
+      setSelectedInputMethod("photo");
+      toast.success("Фото загружено");
+    }
+  };
 
   const handleAnalyze = async () => {
-    if (!bloodText.trim()) {
+    if (selectedInputMethod === "text" && !bloodText.trim()) {
       toast.error("Пожалуйста, введите результаты анализа крови");
+      return;
+    }
+
+    if (selectedInputMethod === "photo" && !bloodPhotoUrl) {
+      toast.error("Пожалуйста, загрузите фото результатов анализа");
       return;
     }
 
     setIsAnalyzing(true);
     try {
       // Record feature trial
-      if (user && canUseBloodAnalysis) {
-        await recordFeatureTrial(FEATURES.BLOOD_ANALYSIS);
+      if (user) {
+        if (selectedInputMethod === "text" && canUseBloodAnalysis) {
+          await recordFeatureTrial(FEATURES.BLOOD_ANALYSIS);
+        } else if (selectedInputMethod === "photo" && canUsePhotoAnalysis) {
+          await recordFeatureTrial(FEATURES.PHOTO_BLOOD_ANALYSIS);
+        }
       }
 
       // Mock analysis for now - we'd replace with actual API call
@@ -49,9 +74,9 @@ const BloodAnalysis = () => {
             { name: "Холестерин общий", value: "6.2 ммоль/л", normalRange: "до 5.2 ммоль/л", status: "high", recommendation: "Повышен. Рекомендуется корректировка диеты с уменьшением потребления животных жиров." },
           ],
           supplements: [
-            { name: "Омега-3", reason: "Для улучшения липидного профиля и снижения холестерина" },
-            { name: "Витамин С", reason: "Для поддержки иммунной системы при повышенных лейкоцитах" },
-            { name: "Коэнзим Q10", reason: "Для поддержки сердечно-сосудистой системы" },
+            { name: "Омега-3", reason: "Для улучшения липидного профиля и снижения холестерина", dosage: "1000 мг ежедневно во время еды" },
+            { name: "Витамин С", reason: "Для поддержки иммунной системы при повышенных лейкоцитах", dosage: "500 мг 2 раза в день" },
+            { name: "Коэнзим Q10", reason: "Для поддержки сердечно-сосудистой системы", dosage: "100 мг ежедневно" },
           ],
           generalRecommendation: "На основе анализа крови рекомендуется обратить внимание на повышенный уровень холестерина и лейкоцитов. Следует включить в рацион больше свежих овощей, фруктов, омега-3 жирных кислот, и уменьшить потребление животных жиров. При сохранении повышенных лейкоцитов в течение более 2 недель рекомендуется консультация терапевта."
         };
@@ -80,28 +105,16 @@ const BloodAnalysis = () => {
                 <h1 className="text-3xl md:text-4xl font-bold">Анализ крови и биомаркеров</h1>
               </div>
 
-              {!user ? (
-                <Alert className="mb-6">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Требуется авторизация</AlertTitle>
-                  <AlertDescription>
-                    Для использования функции анализа крови необходимо авторизоваться
-                  </AlertDescription>
-                </Alert>
-              ) : !canUseBloodAnalysis ? (
-                <Alert className="mb-6">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Функция недоступна</AlertTitle>
-                  <AlertDescription>
-                    Вы уже использовали бесплатную пробную версию анализа крови. Для продолжения оформите подписку.
-                  </AlertDescription>
-                </Alert>
-              ) : (
+              <FeatureAccess
+                featureName={FEATURES.BLOOD_ANALYSIS}
+                title="Анализ крови с помощью AI"
+                description="Расшифровка результатов анализов крови с использованием искусственного интеллекта"
+              >
                 <Card>
                   <CardHeader>
                     <CardTitle>AI анализ результатов крови</CardTitle>
                     <CardDescription>
-                      Загрузите результаты вашего анализа крови для получения персонализированных рекомендаций
+                      Введите или загрузите фото результатов вашего анализа крови для получения персонализированных рекомендаций
                     </CardDescription>
                   </CardHeader>
                   <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -112,24 +125,76 @@ const BloodAnalysis = () => {
                     <TabsContent value="input">
                       <CardContent>
                         <div className="space-y-4">
-                          <div>
-                            <p className="mb-2 text-sm text-gray-500">
-                              Введите результаты вашего анализа крови в свободной форме или скопируйте из файла
-                            </p>
-                            <Textarea 
-                              placeholder="Например: Гемоглобин: 142 г/л, Эритроциты: 4.7 млн/мкл, Лейкоциты: 10.2 тыс/мкл..."
-                              value={bloodText}
-                              onChange={(e) => setBloodText(e.target.value)}
-                              rows={10}
-                              className="resize-none"
-                            />
-                          </div>
+                          <Tabs defaultValue={selectedInputMethod} onValueChange={(value) => setSelectedInputMethod(value as "text" | "photo")}>
+                            <TabsList>
+                              <TabsTrigger value="text">Ввод текста</TabsTrigger>
+                              <TabsTrigger value="photo" disabled={!canUsePhotoAnalysis}>
+                                Фото анализа
+                                {!canUsePhotoAnalysis && <span className="ml-2 text-xs">(Требуется подписка)</span>}
+                              </TabsTrigger>
+                            </TabsList>
+                            
+                            <TabsContent value="text" className="pt-4">
+                              <p className="mb-2 text-sm text-gray-500">
+                                Введите результаты вашего анализа крови в свободной форме или скопируйте из файла
+                              </p>
+                              <Textarea 
+                                placeholder="Например: Гемоглобин: 142 г/л, Эритроциты: 4.7 млн/мкл, Лейкоциты: 10.2 тыс/мкл..."
+                                value={bloodText}
+                                onChange={(e) => setBloodText(e.target.value)}
+                                rows={10}
+                                className="resize-none"
+                              />
+                            </TabsContent>
+                            
+                            <TabsContent value="photo" className="pt-4">
+                              <div className="space-y-4">
+                                <div>
+                                  <p className="mb-4 text-sm text-gray-500">
+                                    Загрузите фото или скан вашего анализа крови для автоматического распознавания результатов с помощью AI
+                                  </p>
+                                  
+                                  <div className="flex items-center gap-4">
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      onClick={() => document.getElementById('bloodPhotoInput')?.click()}
+                                      className="flex items-center gap-2"
+                                    >
+                                      <FileUpload className="h-4 w-4" />
+                                      Загрузить фото
+                                    </Button>
+                                    <input
+                                      id="bloodPhotoInput"
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={handlePhotoUpload}
+                                      className="hidden"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                {bloodPhotoUrl && (
+                                  <div className="mt-4">
+                                    <p className="text-sm font-medium mb-2">Загруженное фото:</p>
+                                    <div className="border rounded-md p-2 bg-gray-50 max-w-sm">
+                                      <img
+                                        src={bloodPhotoUrl}
+                                        alt="Загруженные результаты анализа"
+                                        className="max-w-full rounded"
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </TabsContent>
+                          </Tabs>
                         </div>
                       </CardContent>
                       <CardFooter>
                         <Button 
                           onClick={handleAnalyze} 
-                          disabled={!canUseBloodAnalysis || isAnalyzing || !bloodText.trim()}
+                          disabled={isAnalyzing || (selectedInputMethod === "text" && !bloodText.trim()) || (selectedInputMethod === "photo" && !bloodPhotoUrl)}
                         >
                           {isAnalyzing ? "Анализируем..." : "Анализировать"}
                         </Button>
@@ -174,12 +239,13 @@ const BloodAnalysis = () => {
 
                             <div>
                               <h3 className="text-lg font-medium mb-3">Рекомендуемые добавки</h3>
-                              <ul className="space-y-2">
+                              <ul className="space-y-3">
                                 {analysisResults.supplements.map((supplement: any) => (
                                   <li key={supplement.name} className="flex items-start gap-2">
                                     <div className="min-w-4 mt-1">•</div>
                                     <div>
                                       <span className="font-medium">{supplement.name}</span> — {supplement.reason}
+                                      <div className="text-sm text-gray-600 mt-1">Дозировка: {supplement.dosage}</div>
                                     </div>
                                   </li>
                                 ))}
@@ -201,7 +267,7 @@ const BloodAnalysis = () => {
                     </TabsContent>
                   </Tabs>
                 </Card>
-              )}
+              </FeatureAccess>
             </div>
           </div>
         </section>

@@ -120,13 +120,15 @@ const Dashboard = () => {
                       <p className="text-gray-500 mb-4 text-sm">
                         Получите комплексную оценку здоровья на основе всех ваших данных
                       </p>
-                      <Button 
-                        variant="outline"
-                        className="w-full"
-                        disabled={!canUseFeature(FEATURES.COMPREHENSIVE_ASSESSMENT)}
-                      >
-                        {canUseFeature(FEATURES.COMPREHENSIVE_ASSESSMENT) ? 'Скоро' : 'Требуется подписка'}
-                      </Button>
+                      <Link to="/comprehensive-analysis">
+                        <Button 
+                          variant="outline"
+                          className="w-full"
+                          disabled={!canUseFeature(FEATURES.COMPREHENSIVE_AI_ANALYSIS)}
+                        >
+                          {canUseFeature(FEATURES.COMPREHENSIVE_AI_ANALYSIS) ? 'Перейти' : 'Требуется подписка'}
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </CardContent>
