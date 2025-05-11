@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageManagement from "@/components/editor/PageManagement";
@@ -77,7 +78,7 @@ const Dashboard = () => {
           {/* AI Health Features */}
           <div className="mb-6">
             <h2 className="text-xl font-bold mb-4">AI Функции для здоровья</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-3">
@@ -85,7 +86,7 @@ const Dashboard = () => {
                     <div>
                       <h3 className="text-lg font-medium mb-2">Анализ крови с AI</h3>
                       <p className="text-gray-500 mb-4 text-sm">
-                        Получите расшифровку анализа крови и персонализированные рекомендации на основе AI
+                        Получите расшифровку анализа крови и персонализированные рекомендации
                       </p>
                       <Link to="/blood-analysis">
                         <Button 
@@ -106,9 +107,9 @@ const Dashboard = () => {
                   <div className="flex items-start gap-3">
                     <Clock className="h-8 w-8 text-everliv-600 shrink-0" />
                     <div>
-                      <h3 className="text-lg font-medium mb-2">Тест на биологический возраст</h3>
+                      <h3 className="text-lg font-medium mb-2">Биологический возраст</h3>
                       <p className="text-gray-500 mb-4 text-sm">
-                        Определите свой биологический возраст и получите рекомендации по его улучшению
+                        Определите свой биологический возраст и получите рекомендации
                       </p>
                       <Link to="/biological-age">
                         <Button 
@@ -129,7 +130,7 @@ const Dashboard = () => {
                   <div className="flex items-start gap-3">
                     <Brain className="h-8 w-8 text-everliv-600 shrink-0" />
                     <div>
-                      <h3 className="text-lg font-medium mb-2">Комплексный AI анализ</h3>
+                      <h3 className="text-lg font-medium mb-2">AI анализ здоровья</h3>
                       <p className="text-gray-500 mb-4 text-sm">
                         Получите комплексную оценку здоровья на основе всех ваших данных
                       </p>
@@ -140,6 +141,28 @@ const Dashboard = () => {
                           disabled={!canUseFeature(FEATURES.COMPREHENSIVE_AI_ANALYSIS)}
                         >
                           {canUseFeature(FEATURES.COMPREHENSIVE_AI_ANALYSIS) ? 'Перейти' : 'Требуется подписка'}
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-3">
+                    <Calendar className="h-8 w-8 text-everliv-600 shrink-0" />
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">Мои протоколы</h3>
+                      <p className="text-gray-500 mb-4 text-sm">
+                        Персональные протоколы здоровья и отслеживание прогресса
+                      </p>
+                      <Link to="/my-protocols">
+                        <Button 
+                          variant="outline"
+                          className="w-full"
+                        >
+                          Перейти
                         </Button>
                       </Link>
                     </div>
@@ -177,4 +200,5 @@ const Dashboard = () => {
       <Footer />
     </div>;
 };
+
 export default Dashboard;

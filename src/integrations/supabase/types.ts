@@ -176,6 +176,176 @@ export type Database = {
         }
         Relationships: []
       }
+      protocol_analysis_results: {
+        Row: {
+          analysis_date: string
+          created_at: string
+          file_path: string | null
+          id: string
+          notes: string | null
+          protocol_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          analysis_date: string
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          notes?: string | null
+          protocol_id: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          analysis_date?: string
+          created_at?: string
+          file_path?: string | null
+          id?: string
+          notes?: string | null
+          protocol_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protocol_analysis_results_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "user_protocols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      protocol_events: {
+        Row: {
+          completed: boolean
+          created_at: string
+          description: string | null
+          event_date: string
+          event_type: string
+          id: string
+          protocol_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          description?: string | null
+          event_date: string
+          event_type: string
+          id?: string
+          protocol_id: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          protocol_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protocol_events_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "user_protocols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      protocol_supplements: {
+        Row: {
+          created_at: string
+          day: number
+          dose: string
+          id: string
+          protocol_id: string
+          scheduled_time: string | null
+          supplement_name: string
+          taken: boolean
+          taken_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day: number
+          dose: string
+          id?: string
+          protocol_id: string
+          scheduled_time?: string | null
+          supplement_name: string
+          taken?: boolean
+          taken_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: number
+          dose?: string
+          id?: string
+          protocol_id?: string
+          scheduled_time?: string | null
+          supplement_name?: string
+          taken?: boolean
+          taken_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protocol_supplements_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "user_protocols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      protocol_wellbeing: {
+        Row: {
+          created_at: string
+          day: number
+          energy_level: number
+          id: string
+          notes: string | null
+          protocol_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day: number
+          energy_level: number
+          id?: string
+          notes?: string | null
+          protocol_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: number
+          energy_level?: number
+          id?: string
+          notes?: string | null
+          protocol_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protocol_wellbeing_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "user_protocols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           created_at: string
