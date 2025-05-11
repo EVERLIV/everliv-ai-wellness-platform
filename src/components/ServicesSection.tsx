@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Brain, Thermometer, Activity, FlaskRound, Flask } from "lucide-react";
+import { Brain, Thermometer, Activity, FlaskRound } from "lucide-react";
 
 interface ServiceCardProps {
   icon: React.ReactNode;
@@ -97,7 +97,7 @@ const ServicesSection: React.FC = () => {
       ]
     },
     {
-      icon: <Flask className="h-5 w-5" />,
+      icon: <FlaskRound className="h-5 w-5" />,
       title: "Кислородная терапия",
       description: "Методы насыщения организма кислородом для восстановления и оздоровления клеток.",
       link: "/services/oxygen-therapy",
