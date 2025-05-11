@@ -30,7 +30,7 @@ export default function HealthPathSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {paths.map((path, index) => <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
               <div className="flex items-center mb-4">
-                <div className="w-10 h-10 rounded-full bg-everliv-600 text-white flex items-center justify-center text-lg font-semibold">
+                <div className="w-10 h-10 rounded-full text-white flex items-center justify-center text-lg font-semibold bg-everliv-500">
                   {path.number}
                 </div>
                 <h3 className="ml-3 text-xl font-semibold">{path.title}</h3>
