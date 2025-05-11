@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { Brain, AlertCircle, FileUpload } from "lucide-react";
+import { Brain, AlertCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { FEATURES } from "@/constants/subscription-features";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -249,7 +249,7 @@ const ComprehensiveAnalysis = () => {
                                     onClick={() => document.getElementById('bloodPhoto')?.click()}
                                     className="flex items-center gap-2"
                                   >
-                                    <FileUpload className="h-4 w-4" />
+                                    <Upload className="h-4 w-4" />
                                     Загрузить фото
                                   </Button>
                                   <Input 

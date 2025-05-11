@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Brain, TestTube, Clock, AlertCircle, FileUpload } from "lucide-react";
+import { Brain, TestTube, Clock, AlertCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { FEATURES } from "@/constants/subscription-features";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -161,7 +161,7 @@ const BloodAnalysis = () => {
                                       onClick={() => document.getElementById('bloodPhotoInput')?.click()}
                                       className="flex items-center gap-2"
                                     >
-                                      <FileUpload className="h-4 w-4" />
+                                      <Upload className="h-4 w-4" />
                                       Загрузить фото
                                     </Button>
                                     <input
