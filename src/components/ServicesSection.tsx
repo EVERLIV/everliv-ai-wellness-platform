@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Brain, Thermometer, Activity, FlaskRound } from "lucide-react";
+import { Brain, Thermometer, Activity, FlaskRound, MapPin } from "lucide-react";
 
 interface ServiceCardProps {
   icon: React.ReactNode;
@@ -118,6 +118,18 @@ const ServicesSection: React.FC = () => {
         "Адаптогены",
         "Пробиотики",
         "Сенолитики"
+      ]
+    },
+    {
+      icon: <MapPin className="h-5 w-5" />,
+      title: "Клиники Москва",
+      description: "Сеть специализированных клиник долголетия в Москве с полным спектром услуг.",
+      link: "/moscow-clinics",
+      benefits: [
+        "Комплексная диагностика",
+        "Специализированные процедуры",
+        "Индивидуальные программы",
+        "Удобное расположение"
       ]
     }
   ];

@@ -23,6 +23,7 @@ import HowItWorks from "./pages/HowItWorks";
 import Science from "./pages/Science";
 import Community from "./pages/Community";
 import Webinars from "./pages/Webinars";
+import MoscowClinics from "./pages/MoscowClinics";
 import { AuthProvider } from "./contexts/AuthContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="/science" element={<Science />} />
               <Route path="/community" element={<Community />} />
               <Route path="/webinars" element={<Webinars />} />
+              <Route path="/moscow-clinics" element={<MoscowClinics />} />
               
               {/* Service Pages */}
               <Route path="/services/cold-therapy" element={<ColdTherapy />} />
