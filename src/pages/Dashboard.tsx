@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageManagement from "@/components/editor/PageManagement";
@@ -7,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CreditCard, TestTube, Clock, Brain, User } from "lucide-react";
+import { ArrowLeft, CreditCard, TestTube, Clock, Brain, User, Calendar } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,6 +28,12 @@ const Dashboard = () => {
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold">Dashboard</h1>
             <div className="flex gap-2">
+              <Link to="/my-protocols">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Мои протоколы
+                </Button>
+              </Link>
               <Link to="/profile">
                 <Button variant="outline" className="flex items-center gap-2">
                   <User className="h-4 w-4" />

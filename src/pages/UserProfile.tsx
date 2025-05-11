@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, History } from "lucide-react";
+import { ArrowLeft, User, History, Calendar } from "lucide-react";
 import ProfileForm from "@/components/profile/ProfileForm";
 import ProfileSummary from "@/components/profile/ProfileSummary";
 import AnalysisHistoryList from "@/components/profile/AnalysisHistoryList";
@@ -25,12 +25,20 @@ const UserProfile = () => {
         <div className="bg-white border-b border-gray-200 my-[20px]">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold">Профиль пользователя</h1>
-            <Link to="/dashboard">
-              <Button variant="outline" className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Назад к дашборду
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link to="/my-protocols">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Мои протоколы
+                </Button>
+              </Link>
+              <Link to="/dashboard">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Назад к дашборду
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
         
