@@ -1,11 +1,11 @@
 
 import React from 'react';
-import ProtocolTrackingDashboard from './ProtocolTrackingDashboard';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import ProtocolTrackingDashboard from '@/pages/ProtocolTrackingDashboard';
 
 const ProtocolTracking = () => {
   return (

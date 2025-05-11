@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Routes,
@@ -21,7 +20,7 @@ import ComprehensiveAnalysisPage from "./pages/ComprehensiveAnalysisPage";
 import ColdTherapy from "./pages/services/ColdTherapy";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import MyProtocols from "./pages/MyProtocols";
-import ProtocolTrackingDashboard from "./pages/ProtocolTrackingDashboard";
+import ProtocolTracking from "./pages/ProtocolTracking";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -87,9 +86,14 @@ function App() {
           <MyProtocols />
         </ProtectedRoute>
       } />
+      <Route path="/protocol-tracking" element={
+        <ProtectedRoute>
+          <ProtocolTracking />
+        </ProtectedRoute>
+      } />
       <Route path="/protocols/:id" element={
         <ProtectedRoute>
-          <ProtocolTrackingDashboard />
+          <ProtocolTracking />
         </ProtectedRoute>
       } />
     </Routes>
