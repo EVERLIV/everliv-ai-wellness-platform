@@ -11,8 +11,8 @@ const NotFound = () => {
   }, [location.pathname]);
   return <div className="min-h-screen flex flex-col">
       <Header />
-      <div className="flex-grow flex items-center justify-center bg-gray-50 py-20 px-4 my-[100px]">
-        <div className="text-center max-w-xl">
+      <div className="flex-grow flex items-center justify-center bg-gray-50 py-20 px-4 my-0">
+        <div className="text-center max-w-xl py-[100px]">
           <h1 className="text-5xl md:text-7xl font-bold mb-6 text-gray-800">404</h1>
           <h2 className="text-2xl md:text-3xl font-semibold mb-4 text-gray-700">Страница не найдена</h2>
           <p className="text-lg text-gray-600 mb-8">
