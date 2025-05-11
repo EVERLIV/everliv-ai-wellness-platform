@@ -22,8 +22,10 @@ import Science from "./pages/Science";
 import Community from "./pages/Community";
 import Webinars from "./pages/Webinars";
 import { AuthProvider } from "./contexts/AuthContext";
+import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import UserSubscription from "./pages/UserSubscription";
 import PageBuilder from "./pages/PageBuilder";
 import AdminBlog from "./pages/AdminBlog";
 
@@ -33,50 +35,57 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <AuthProvider>
-        <TooltipProvider delayDuration={0}>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/features" element={<Features />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/partnership" element={<Partnership />} />
-            <Route path="/blood-analysis" element={<BloodAnalysis />} />
-            <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/science" element={<Science />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/webinars" element={<Webinars />} />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/page-builder" element={
-              <ProtectedRoute>
-                <PageBuilder />
-              </ProtectedRoute>
-            } />
-            <Route path="/page-builder/:pageId" element={
-              <ProtectedRoute>
-                <PageBuilder />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin-blog" element={
-              <ProtectedRoute>
-                <AdminBlog />
-              </ProtectedRoute>
-            } />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </TooltipProvider>
+        <SubscriptionProvider>
+          <TooltipProvider delayDuration={0}>
+            <Toaster />
+            <Sonner />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/partnership" element={<Partnership />} />
+              <Route path="/blood-analysis" element={<BloodAnalysis />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/science" element={<Science />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/webinars" element={<Webinars />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/dashboard/subscription" element={
+                <ProtectedRoute>
+                  <UserSubscription />
+                </ProtectedRoute>
+              } />
+              <Route path="/page-builder" element={
+                <ProtectedRoute>
+                  <PageBuilder />
+                </ProtectedRoute>
+              } />
+              <Route path="/page-builder/:pageId" element={
+                <ProtectedRoute>
+                  <PageBuilder />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin-blog" element={
+                <ProtectedRoute>
+                  <AdminBlog />
+                </ProtectedRoute>
+              } />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </TooltipProvider>
+        </SubscriptionProvider>
       </AuthProvider>
     </BrowserRouter>
   </QueryClientProvider>

@@ -45,6 +45,27 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_trials: {
+        Row: {
+          feature_name: string
+          id: string
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          feature_name: string
+          id?: string
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          feature_name?: string
+          id?: string
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       page_contents: {
         Row: {
           content: Json
@@ -152,6 +173,39 @@ export type Database = {
           medications?: string[] | null
           updated_at?: string
           weight?: number | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          plan_type: string
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          plan_type: string
+          started_at?: string
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          plan_type?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

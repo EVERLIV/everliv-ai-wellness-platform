@@ -3,9 +3,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const PricingTable = () => {
   const [annual, setAnnual] = useState(true);
+  const { user } = useAuth();
   
   return (
     <section className="py-16 bg-white">
@@ -43,11 +45,19 @@ const PricingTable = () => {
                   <span className="text-gray-600"> руб./мес</span>
                   {annual && <p className="text-sm text-gray-500">при годовой оплате</p>}
                 </div>
-                <Link to="/signup">
-                  <Button variant="outline" className="w-full border-everliv-600 text-everliv-600 hover:bg-everliv-50">
-                    Начать бесплатно
-                  </Button>
-                </Link>
+                {user ? (
+                  <Link to="/dashboard/subscription">
+                    <Button variant="outline" className="w-full border-everliv-600 text-everliv-600 hover:bg-everliv-50">
+                      Выбрать план
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to="/signup">
+                    <Button variant="outline" className="w-full border-everliv-600 text-everliv-600 hover:bg-everliv-50">
+                      Начать бесплатно
+                    </Button>
+                  </Link>
+                )}
               </div>
               <div className="border-t border-gray-100 p-6 bg-gray-50">
                 <ul className="space-y-3">
@@ -84,11 +94,19 @@ const PricingTable = () => {
                   <span className="text-gray-600"> руб./мес</span>
                   {annual && <p className="text-sm text-gray-500">при годовой оплате</p>}
                 </div>
-                <Link to="/signup">
-                  <Button className="w-full bg-everliv-600 hover:bg-everliv-700 text-white">
-                    Выбрать план
-                  </Button>
-                </Link>
+                {user ? (
+                  <Link to="/dashboard/subscription">
+                    <Button className="w-full bg-everliv-600 hover:bg-everliv-700 text-white">
+                      Выбрать план
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to="/signup">
+                    <Button className="w-full bg-everliv-600 hover:bg-everliv-700 text-white">
+                      Выбрать план
+                    </Button>
+                  </Link>
+                )}
               </div>
               <div className="border-t border-gray-100 p-6 bg-gray-50">
                 <ul className="space-y-3">
@@ -122,11 +140,19 @@ const PricingTable = () => {
                   <span className="text-gray-600"> руб./мес</span>
                   {annual && <p className="text-sm text-gray-500">при годовой оплате</p>}
                 </div>
-                <Link to="/signup">
-                  <Button variant="outline" className="w-full border-everliv-600 text-everliv-600 hover:bg-everliv-50">
-                    Выбрать план
-                  </Button>
-                </Link>
+                {user ? (
+                  <Link to="/dashboard/subscription">
+                    <Button variant="outline" className="w-full border-everliv-600 text-everliv-600 hover:bg-everliv-50">
+                      Выбрать план
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to="/signup">
+                    <Button variant="outline" className="w-full border-everliv-600 text-everliv-600 hover:bg-everliv-50">
+                      Выбрать план
+                    </Button>
+                  </Link>
+                )}
               </div>
               <div className="border-t border-gray-100 p-6 bg-gray-50">
                 <ul className="space-y-3">
