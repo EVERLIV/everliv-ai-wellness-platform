@@ -8,6 +8,7 @@ export const FEATURES = {
   SUPPLEMENTS_SELECTION: "supplements_selection",
   HEALTH_MONITORING: "health_monitoring",
   COMPREHENSIVE_ASSESSMENT: "comprehensive_assessment",
+  BIOLOGICAL_AGE_TEST: "biological_age_test",
 };
 
 export const PLAN_FEATURES: Record<string, PlanFeature> = {
@@ -39,6 +40,11 @@ export const PLAN_FEATURES: Record<string, PlanFeature> = {
   [FEATURES.COMPREHENSIVE_ASSESSMENT]: {
     name: "Комплексная оценка здоровья",
     description: "Полная комплексная оценка состояния здоровья",
+    includedIn: { basic: false, standard: false, premium: true }
+  },
+  [FEATURES.BIOLOGICAL_AGE_TEST]: {
+    name: "Тест на биологический возраст",
+    description: "Определение биологического возраста на основе ИИ",
     includedIn: { basic: false, standard: false, premium: true }
   },
 };

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageManagement from "@/components/editor/PageManagement";
@@ -6,15 +7,20 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CreditCard } from "lucide-react";
+import { ArrowLeft, CreditCard, TestTube, Clock, Brain } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
+import { FEATURES } from "@/constants/subscription-features";
+
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("pages");
   const {
     subscription,
-    isLoading
+    isLoading,
+    canUseFeature
   } = useSubscription();
+  
   return <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       
@@ -52,6 +58,79 @@ const Dashboard = () => {
                   {subscription ? 'Управление подпиской' : 'Оформить подписку'}
                 </Button>
               </Link>
+            </div>
+          </div>
+          
+          {/* AI Health Features */}
+          <div className="mb-6">
+            <h2 className="text-xl font-bold mb-4">AI Функции для здоровья</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-3">
+                    <TestTube className="h-8 w-8 text-everliv-600 shrink-0" />
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">Анализ крови с AI</h3>
+                      <p className="text-gray-500 mb-4 text-sm">
+                        Получите расшифровку анализа крови и персонализированные рекомендации на основе AI
+                      </p>
+                      <Link to="/blood-analysis">
+                        <Button 
+                          variant="outline"
+                          className="w-full"
+                          disabled={!canUseFeature(FEATURES.BLOOD_ANALYSIS)}
+                        >
+                          {canUseFeature(FEATURES.BLOOD_ANALYSIS) ? 'Перейти' : 'Требуется подписка'}
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-3">
+                    <Clock className="h-8 w-8 text-everliv-600 shrink-0" />
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">Тест на биологический возраст</h3>
+                      <p className="text-gray-500 mb-4 text-sm">
+                        Определите свой биологический возраст и получите рекомендации по его улучшению
+                      </p>
+                      <Link to="/biological-age">
+                        <Button 
+                          variant="outline"
+                          className="w-full"
+                          disabled={!canUseFeature(FEATURES.BIOLOGICAL_AGE_TEST)}
+                        >
+                          {canUseFeature(FEATURES.BIOLOGICAL_AGE_TEST) ? 'Перейти' : 'Требуется подписка'}
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-3">
+                    <Brain className="h-8 w-8 text-everliv-600 shrink-0" />
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">Комплексный AI анализ</h3>
+                      <p className="text-gray-500 mb-4 text-sm">
+                        Получите комплексную оценку здоровья на основе всех ваших данных
+                      </p>
+                      <Button 
+                        variant="outline"
+                        className="w-full"
+                        disabled={!canUseFeature(FEATURES.COMPREHENSIVE_ASSESSMENT)}
+                      >
+                        {canUseFeature(FEATURES.COMPREHENSIVE_ASSESSMENT) ? 'Скоро' : 'Требуется подписка'}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
           

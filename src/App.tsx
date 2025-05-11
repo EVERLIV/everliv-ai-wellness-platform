@@ -1,5 +1,5 @@
 
-import React from "react"; // Make sure React is properly imported
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,6 +18,7 @@ import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Partnership from "./pages/Partnership";
 import BloodAnalysis from "./pages/BloodAnalysis";
+import BiologicalAge from "./pages/BiologicalAge";
 import HowItWorks from "./pages/HowItWorks";
 import Science from "./pages/Science";
 import Community from "./pages/Community";
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/partnership" element={<Partnership />} />
               <Route path="/blood-analysis" element={<BloodAnalysis />} />
+              <Route path="/biological-age" element={<BiologicalAge />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/science" element={<Science />} />
               <Route path="/community" element={<Community />} />
