@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 export interface ServicePageProps {
   title: string;
   description: string;
