@@ -24,14 +24,12 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await signIn({ email, password });
-      if (error) throw error;
-      
-      navigate('/dashboard');
+      await signIn({ email, password });
       toast({
         title: "Успешный вход",
         description: "Вы успешно вошли в систему",
       });
+      navigate('/dashboard');
     } catch (error: any) {
       console.error('Error during login:', error);
       toast({

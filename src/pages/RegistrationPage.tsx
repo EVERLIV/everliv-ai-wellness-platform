@@ -14,6 +14,8 @@ const RegistrationPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
@@ -33,12 +35,18 @@ const RegistrationPage = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await signUp({ email, password });
-      if (error) throw error;
+      await signUp({
+        email,
+        password,
+        userData: {
+          first_name: firstName,
+          last_name: lastName
+        }
+      });
       
       toast({
         title: "Регистрация успешна",
-        description: "Аккаунт успешно создан. Вы можете войти в систему.",
+        description: "Аккаунт успешно создан. Проверьте вашу электронную почту для подтверждения.",
       });
       navigate('/login');
     } catch (error: any) {
@@ -68,6 +76,28 @@ const RegistrationPage = () => {
             <form onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div className="space-y-2">
+                  <Label htmlFor="firstName">Имя</Label>
+                  <Input 
+                    id="firstName" 
+                    type="text" 
+                    placeholder="Иван" 
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Фамилия</Label>
+                  <Input 
+                    id="lastName" 
+                    type="text" 
+                    placeholder="Иванов" 
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input 
                     id="email" 
@@ -82,19 +112,19 @@ const RegistrationPage = () => {
                   <Label htmlFor="password">Пароль</Label>
                   <Input 
                     id="password" 
-                    type="password"
+                    type="password" 
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)} 
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Подтверждение пароля</Label>
+                  <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
                   <Input 
                     id="confirmPassword" 
-                    type="password"
+                    type="password" 
                     value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)} 
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                   />
                 </div>
@@ -103,13 +133,13 @@ const RegistrationPage = () => {
                   className="w-full" 
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Создание аккаунта...' : 'Зарегистрироваться'}
+                  {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
                 </Button>
               </div>
             </form>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <div className="text-center text-sm">
+          <CardFooter>
+            <div className="text-center text-sm w-full">
               Уже есть аккаунт?{' '}
               <Link to="/login" className="text-primary hover:underline">
                 Войти

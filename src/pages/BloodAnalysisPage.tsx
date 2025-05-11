@@ -9,6 +9,7 @@ import BloodAnalysisResults from '@/components/blood-analysis/BloodAnalysisResul
 
 const BloodAnalysisPage = () => {
   const [results, setResults] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -16,6 +17,15 @@ const BloodAnalysisPage = () => {
     navigate('/login');
     return null;
   }
+
+  const handleAnalysisComplete = (analysisResults: any) => {
+    setResults(analysisResults);
+    setIsAnalyzing(false);
+  };
+  
+  const handleBack = () => {
+    setResults(null);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -28,9 +38,16 @@ const BloodAnalysisPage = () => {
           </p>
           
           {results ? (
-            <BloodAnalysisResults results={results} />
+            <BloodAnalysisResults 
+              results={results} 
+              isAnalyzing={isAnalyzing} 
+              onBack={handleBack} 
+            />
           ) : (
-            <BloodAnalysisForm onAnalysisComplete={setResults} />
+            <BloodAnalysisForm 
+              onUpload={() => setIsAnalyzing(true)}
+              onAnalysisComplete={handleAnalysisComplete} 
+            />
           )}
         </div>
       </div>

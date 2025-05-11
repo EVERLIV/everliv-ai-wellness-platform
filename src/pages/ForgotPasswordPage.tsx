@@ -12,8 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { resetPassword } = useAuth();
   const { toast } = useToast();
 
@@ -22,19 +22,17 @@ const ForgotPasswordPage = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await resetPassword(email);
-      if (error) throw error;
-      
+      await resetPassword(email);
       setIsSubmitted(true);
       toast({
-        title: "Инструкции отправлены",
-        description: "Проверьте свою электронную почту для сброса пароля.",
+        title: "Запрос отправлен",
+        description: "Проверьте вашу электронную почту для инструкций по сбросу пароля",
       });
     } catch (error: any) {
-      console.error('Error during password reset:', error);
+      console.error('Error during password reset request:', error);
       toast({
         title: "Ошибка",
-        description: error.message || "Не удалось отправить инструкции по сбросу пароля.",
+        description: error.message || "Не удалось отправить запрос на сброс пароля. Попробуйте позже.",
         variant: "destructive"
       });
     } finally {
@@ -50,51 +48,62 @@ const ForgotPasswordPage = () => {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Восстановление пароля</CardTitle>
             <CardDescription className="text-center">
-              Введите email для получения инструкций по сбросу пароля
+              {isSubmitted 
+                ? "Инструкции по сбросу пароля отправлены на вашу почту" 
+                : "Введите адрес электронной почты для сброса пароля"
+              }
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            {isSubmitted ? (
-              <div className="text-center space-y-4">
-                <div className="p-4 bg-green-50 text-green-800 rounded-md">
-                  Инструкции отправлены на вашу электронную почту.
-                </div>
-                <p className="text-sm text-gray-600">
-                  Если вы не получили письмо в течение нескольких минут, проверьте папку "Спам" или попробуйте снова.
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit}>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="your@email.com" 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
+          
+          {!isSubmitted ? (
+            <>
+              <CardContent>
+                <form onSubmit={handleSubmit}>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="your@email.com" 
+                        required
+                      />
+                    </div>
+                    
+                    <Button 
+                      type="submit" 
+                      className="w-full" 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'Отправка...' : 'Отправить инструкции'}
+                    </Button>
                   </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Отправка...' : 'Отправить инструкции'}
-                  </Button>
+                </form>
+              </CardContent>
+              
+              <CardFooter className="flex flex-col space-y-4">
+                <div className="text-center text-sm">
+                  <Link to="/login" className="text-primary hover:underline">
+                    Вернуться к входу
+                  </Link>
                 </div>
-              </form>
-            )}
-          </CardContent>
-          <CardFooter className="flex justify-center">
-            <div className="text-center text-sm">
-              <Link to="/login" className="text-primary hover:underline">
-                Вернуться на страницу входа
+              </CardFooter>
+            </>
+          ) : (
+            <CardFooter className="flex flex-col space-y-4 pt-6">
+              <p className="text-center text-sm text-gray-500 mb-4">
+                Проверьте вашу электронную почту для получения инструкций по сбросу пароля.
+                Если вы не получили письмо, проверьте папку "Спам".
+              </p>
+              <Link to="/login">
+                <Button variant="outline" className="w-full">
+                  Вернуться к странице входа
+                </Button>
               </Link>
-            </div>
-          </CardFooter>
+            </CardFooter>
+          )}
         </Card>
       </div>
       <Footer />
