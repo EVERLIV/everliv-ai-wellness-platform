@@ -168,21 +168,21 @@ export const SupplementsTracker = () => {
     
     // Update all in database
     try {
-      const updates = updatedSupplements
-        .filter(s => !s.taken)
-        .map(s => ({
-          id: s.id,
-          taken: true,
-          taken_at: new Date().toISOString()
-        }));
+      // Filter supplements that need to be updated (not already taken)
+      const supplementsToUpdate = updatedSupplements.filter(s => !s.taken);
       
-      if (updates.length === 0) return;
-      
-      const { error } = await supabase
-        .from('protocol_supplements')
-        .upsert(updates);
-      
-      if (error) throw error;
+      // Update each supplement individually to avoid the type error
+      for (const supplement of supplementsToUpdate) {
+        const { error } = await supabase
+          .from('protocol_supplements')
+          .update({ 
+            taken: true,
+            taken_at: new Date().toISOString() 
+          })
+          .eq('id', supplement.id);
+        
+        if (error) throw error;
+      }
       
       toast.success('Все добавки отмечены как принятые');
     } catch (error) {
