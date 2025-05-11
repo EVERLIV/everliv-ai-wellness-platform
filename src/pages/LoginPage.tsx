@@ -9,19 +9,20 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const {
+    signIn
+  } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       await signIn(email, password);
       toast({
@@ -40,12 +41,10 @@ const LoginPage = () => {
       setIsLoading(false);
     }
   };
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Header />
       <div className="flex-grow flex items-center justify-center bg-gray-50 py-16 px-4">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md py-0 my-[100px]">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Вход в систему</CardTitle>
             <CardDescription className="text-center">
@@ -57,38 +56,18 @@ const LoginPage = () => {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="your@email.com" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
+                  <Input id="email" type="email" placeholder="your@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Пароль</Label>
-                    <Link 
-                      to="/forgot-password" 
-                      className="text-sm font-medium text-primary hover:underline"
-                    >
+                    <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline">
                       Забыли пароль?
                     </Link>
                   </div>
-                  <Input 
-                    id="password" 
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)} 
-                    required
-                  />
+                  <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
                 </div>
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isLoading}
-                >
+                <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Вход...' : 'Войти'}
                 </Button>
               </div>
@@ -105,8 +84,6 @@ const LoginPage = () => {
         </Card>
       </div>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default LoginPage;
