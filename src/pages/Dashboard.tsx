@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageManagement from "@/components/editor/PageManagement";
@@ -10,17 +9,17 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, CreditCard } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { Skeleton } from "@/components/ui/skeleton";
-
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("pages");
-  const { subscription, isLoading } = useSubscription();
-
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+  const {
+    subscription,
+    isLoading
+  } = useSubscription();
+  return <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       
       <div className="flex-grow pt-16">
-        <div className="bg-white border-b border-gray-200">
+        <div className="bg-white border-b border-gray-200 my-[20px]">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold">Dashboard</h1>
             <Link to="/">
@@ -40,23 +39,12 @@ const Dashboard = () => {
                 <CreditCard className="h-6 w-6 text-everliv-600" />
                 <div>
                   <h2 className="font-medium">Состояние подписки</h2>
-                  {isLoading ? (
-                    <Skeleton className="h-5 w-32 mt-1" />
-                  ) : subscription ? (
-                    <div className="flex items-center mt-1">
-                      <span className={`text-sm ${
-                        subscription.status === 'active' 
-                          ? 'text-evergreen-600' 
-                          : 'text-yellow-600'
-                      }`}>
-                        {subscription.plan_type === 'basic' ? 'Базовый' : 
-                         subscription.plan_type === 'standard' ? 'Стандарт' : 'Премиум'} 
+                  {isLoading ? <Skeleton className="h-5 w-32 mt-1" /> : subscription ? <div className="flex items-center mt-1">
+                      <span className={`text-sm ${subscription.status === 'active' ? 'text-evergreen-600' : 'text-yellow-600'}`}>
+                        {subscription.plan_type === 'basic' ? 'Базовый' : subscription.plan_type === 'standard' ? 'Стандарт' : 'Премиум'} 
                         ({subscription.status === 'active' ? 'Активна' : 'Отменена'})
                       </span>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-gray-500 mt-1">Нет активной подписки</span>
-                  )}
+                    </div> : <span className="text-sm text-gray-500 mt-1">Нет активной подписки</span>}
                 </div>
               </div>
               <Link to="/dashboard/subscription">
@@ -93,8 +81,6 @@ const Dashboard = () => {
       </div>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Dashboard;
