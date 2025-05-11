@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import BloodAnalysisForm from '@/components/blood-analysis/BloodAnalysisForm';
 import BloodAnalysisResults from '@/components/blood-analysis/BloodAnalysisResults';
+import { useBloodAnalysis } from '@/hooks/useBloodAnalysis';
 
 const BloodAnalysisPage = () => {
   const [results, setResults] = useState(null);
@@ -27,6 +28,39 @@ const BloodAnalysisPage = () => {
     setResults(null);
   };
 
+  const handleAnalyze = (data: { text: string, photoUrl: string, inputMethod: "text" | "photo" }) => {
+    setIsAnalyzing(true);
+    // Simulate analysis
+    setTimeout(() => {
+      handleAnalysisComplete({
+        markers: [
+          {
+            name: 'Гемоглобин',
+            value: '140 г/л',
+            normalRange: '130-160 г/л',
+            status: 'normal',
+            recommendation: 'В норме, особых рекомендаций нет'
+          },
+          {
+            name: 'Лейкоциты',
+            value: '10.5 тыс/мкл',
+            normalRange: '4.0-9.0 тыс/мкл',
+            status: 'high',
+            recommendation: 'Повышены, рекомендуется консультация врача'
+          }
+        ],
+        supplements: [
+          {
+            name: 'Витамин C',
+            reason: 'Поддержка иммунной системы',
+            dosage: '500-1000 мг в день'
+          }
+        ],
+        generalRecommendation: 'Рекомендуется повторить анализ через 1 месяц для контроля показателей.'
+      });
+    }, 2000);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -46,7 +80,7 @@ const BloodAnalysisPage = () => {
           ) : (
             <BloodAnalysisForm 
               isAnalyzing={isAnalyzing}
-              onAnalysisComplete={handleAnalysisComplete} 
+              onAnalyze={handleAnalyze}
             />
           )}
         </div>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ServicePageLayout from '@/components/services/ServicePageLayout';
 import { CheckCircle } from 'lucide-react';
@@ -17,6 +18,27 @@ const Fasting = () => {
     "Ускорение регенерации клеток",
     "Нормализация веса"
   ];
+  
+  const fastingProtocol = {
+    title: "Начальный протокол 16:8",
+    description: "Оптимальный протокол для начинающих практиковать интервальное голодание",
+    difficulty: "beginner" as const,
+    duration: "14 дней",
+    category: "голодание",
+    steps: [
+      "День 1-3: Постепенно увеличивайте период ночного голодания до 12 часов",
+      "День 4-7: Увеличьте период голодания до 14 часов",
+      "День 8-14: Достигните целевого периода в 16 часов голодания",
+      "Рекомендуемое окно питания: с 12:00 до 20:00",
+      "Пейте воду, несладкий чай и кофе в период голодания"
+    ],
+    benefits: [
+      "Мягкое вхождение в практику голодания без стресса",
+      "Активация метаболической гибкости",
+      "Улучшение чувствительности к инсулину",
+      "Снижение воспаления"
+    ]
+  };
 
   return (
     <ServicePageLayout
@@ -58,7 +80,7 @@ const Fasting = () => {
       <Tabs defaultValue="intermittent" className="mb-12">
         <TabsList className="mb-6">
           <TabsTrigger value="intermittent">Интервальное голодание</TabsTrigger>
-          <TabsTrigger value="extended">Прод��енное голодание</TabsTrigger>
+          <TabsTrigger value="extended">Продленное голодание</TabsTrigger>
           <TabsTrigger value="mimicking">Имитация голодания</TabsTrigger>
         </TabsList>
         <TabsContent value="intermittent" className="space-y-4">
@@ -92,24 +114,13 @@ const Fasting = () => {
             </Card>
           </div>
           <ProtocolCard
-            title="Начальный протокол 16:8"
-            description="Оптимальный протокол для начинающих практиковать интервальное голодание"
-            difficulty="beginner"
-            duration="14 дней"
-            category="голодание"
-            steps={[
-              "День 1-3: Постепенно увеличивайте период ночного голодания до 12 часов",
-              "День 4-7: Увеличьте период голодания до 14 часов",
-              "День 8-14: Достигните целевого периода в 16 часов голодания",
-              "Рекомендуемое окно питания: с 12:00 до 20:00",
-              "Пейте воду, несладкий чай и кофе в период голодания"
-            ]}
-            benefits={[
-              "Мягкое вхождение в практику голодания без стресса",
-              "Активация метаболической гибкости",
-              "Улучшение чувствительности к инсулину",
-              "Снижение воспаления"
-            ]}
+            title={fastingProtocol.title}
+            description={fastingProtocol.description}
+            difficulty={fastingProtocol.difficulty}
+            duration={fastingProtocol.duration}
+            category={fastingProtocol.category}
+            steps={fastingProtocol.steps}
+            benefits={fastingProtocol.benefits}
           />
         </TabsContent>
         

@@ -1,7 +1,9 @@
+
 import React from 'react';
 import ServicePageLayout from '@/components/services/ServicePageLayout';
 import ProtocolCard from '@/components/services/ProtocolCard';
 import ScientificExplanation from '@/components/services/ScientificExplanation';
+import FAQ from '@/components/services/FAQ';
 
 const BreathingPractices = () => {
   const breathingProtocols = [
@@ -9,22 +11,28 @@ const BreathingPractices = () => {
       title: "Диафрагмальное дыхание",
       description: "Улучшает насыщение крови кислородом и снижает стресс.",
       duration: "5-10 минут",
-      difficulty: "Легко",
-      benefits: ["Снижение стресса", "Улучшение сна", "Увеличение энергии"]
+      difficulty: "beginner" as const,
+      benefits: ["Снижение стресса", "Улучшение сна", "Увеличение энергии"],
+      steps: ["Сядьте или лягте в удобное положение", "Вдыхайте через нос, выдыхайте через рот"],
+      category: "breathing"
     },
     {
       title: "Дыхание по Бутейко",
       description: "Нормализует дыхание и улучшает общее состояние здоровья.",
       duration: "15-20 минут",
-      difficulty: "Средне",
-      benefits: ["Улучшение дыхания", "Снижение тревожности", "Укрепление иммунитета"]
+      difficulty: "intermediate" as const,
+      benefits: ["Улучшение дыхания", "Снижение тревожности", "Укрепление иммунитета"],
+      steps: ["Сядьте в удобное положение", "Следуйте инструкциям по технике Бутейко"],
+      category: "breathing"
     },
     {
       title: "Квадратное дыхание",
       description: "Помогает сбалансировать нервную систему и улучшить концентрацию.",
       duration: "5-10 минут",
-      difficulty: "Легко",
-      benefits: ["Улучшение концентрации", "Снижение стресса", "Улучшение настроения"]
+      difficulty: "beginner" as const,
+      benefits: ["Улучшение концентрации", "Снижение стресса", "Улучшение настроения"],
+      steps: ["Вдох на 4 счета", "Задержка на 4 счета", "Выдох на 4 счета", "Задержка на 4 счета"],
+      category: "breathing"
     }
   ];
 
@@ -56,6 +64,29 @@ const BreathingPractices = () => {
     }
   ];
 
+  // Create ScientificExplanationProps matching the updated interface
+  const scientificExplanationProps = {
+    summary: "Дыхательные практики - это методы управления дыханием, которые помогают улучшить физическое и психическое здоровье.",
+    mechanisms: [
+      {
+        title: "Регуляция нервной системы",
+        description: <p>Дыхательные техники воздействуют на баланс симпатической и парасимпатической нервных систем.</p>
+      },
+      {
+        title: "Улучшение газообмена",
+        description: <p>Правильное дыхание улучшает эффективность доставки кислорода к тканям и выведение углекислого газа.</p>
+      }
+    ],
+    references: scientificResearch.map(item => ({
+      title: item.title,
+      authors: item.authors,
+      journal: item.journal,
+      year: item.year,
+      summary: item.summary
+    })),
+    researchData: scientificResearch // For backward compatibility
+  };
+
   return (
     <ServicePageLayout
       title="Дыхательные практики"
@@ -74,29 +105,20 @@ const BreathingPractices = () => {
               duration={protocol.duration}
               difficulty={protocol.difficulty}
               benefits={protocol.benefits}
-              category="breathing"
+              steps={protocol.steps}
+              category={protocol.category}
             />
           ))}
         </div>
         
         {/* Scientific explanation section */}
         <ScientificExplanation
+          {...scientificExplanationProps}
           category="Научные исследования дыхательных практик"
-          researchData={scientificResearch}
         />
         
         {/* FAQ section */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold">Часто задаваемые вопросы</h2>
-          <div className="space-y-2">
-            {faqData.map((faq, index) => (
-              <div key={index} className="border p-4 rounded-md">
-                <h3 className="font-medium">{faq.question}</h3>
-                <p className="text-gray-600">{faq.answer}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <FAQ faqs={faqData} />
       </div>
     </ServicePageLayout>
   );
