@@ -5,30 +5,7 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ChevronRight } from 'lucide-react';
-
-export interface BenefitProps {
-  title: string;
-  description: string;
-  icon?: React.ReactNode;
-}
-
-export interface ServiceHeroProps {
-  title: string;
-  subtitle: string;
-  description: string;
-  imageSrc?: string;
-  imageAlt?: string;
-}
-
-export interface ServicePageProps {
-  hero: ServiceHeroProps;
-  benefits: BenefitProps[];
-  scientificBackground: ReactNode;
-  protocols: ReactNode;
-  casesStudies: ReactNode;
-  visualElement?: ReactNode;
-  faq?: { question: string; answer: ReactNode }[];
-}
+import { ServicePageProps, BenefitProps, ServiceHeroProps } from './ServicePageLayout.d';
 
 const ServicePageLayout: React.FC<ServicePageProps> = ({
   hero,

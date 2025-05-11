@@ -4,6 +4,7 @@ import ServicePageLayout from '@/components/services/ServicePageLayout';
 import ProtocolCard from '@/components/services/ProtocolCard';
 import ScientificExplanation from '@/components/services/ScientificExplanation';
 import FAQ from '@/components/services/FAQ';
+import { Oxygen } from 'lucide-react';
 
 const oxygenProtocols = [
   {
@@ -91,14 +92,43 @@ const OxygenTherapy = () => {
     researchData: scientificResearch // For backward compatibility
   };
 
+  const benefits = [
+    {
+      title: "Повышение энергии",
+      description: "Увеличение уровня энергии и выносливости в течение дня",
+      icon: <Oxygen className="h-10 w-10" />
+    },
+    {
+      title: "Улучшение сна",
+      description: "Качественный сон и быстрое засыпание",
+      icon: <Oxygen className="h-10 w-10" />
+    },
+    {
+      title: "Ускорение восстановления",
+      description: "Сокращение времени восстановления после физических нагрузок",
+      icon: <Oxygen className="h-10 w-10" />
+    },
+    {
+      title: "Укрепление иммунитета",
+      description: "Повышение защитных функций организма",
+      icon: <Oxygen className="h-10 w-10" />
+    }
+  ];
+
   return (
     <ServicePageLayout
-      title="Кислородная терапия"
-      description="Протоколы кислородной терапии для повышения энергии и восстановления"
-      imageSrc="/placeholder.svg"
-    >
-      <div className="grid gap-10 py-8">
-        {/* Protocol cards */}
+      hero={{
+        title: "Кислородная терапия",
+        subtitle: "Современные методы оксигенации тканей",
+        description: "Протоколы кислородной терапии для повышения энергии, ускорения восстановления и укрепления здоровья",
+        imageSrc: "/placeholder.svg"
+      }}
+      benefits={benefits}
+      scientificBackground={<ScientificExplanation
+        {...scientificExplanationProps}
+        category="Научные исследования кислородной терапии"
+      />}
+      protocols={
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {oxygenProtocols.map((protocol, index) => (
             <ProtocolCard
@@ -113,17 +143,10 @@ const OxygenTherapy = () => {
             />
           ))}
         </div>
-        
-        {/* Scientific explanation section */}
-        <ScientificExplanation
-          {...scientificExplanationProps}
-          category="Научные исследования кислородной терапии"
-        />
-        
-        {/* FAQ section */}
-        <FAQ faqs={faqs} />
-      </div>
-    </ServicePageLayout>
+      }
+      casesStudies={<div className="text-center text-gray-600">Примеры результатов пациентов будут добавлены в ближайшее время</div>}
+      faq={faqs}
+    />
   );
 };
 

@@ -4,6 +4,7 @@ import ServicePageLayout from '@/components/services/ServicePageLayout';
 import ProtocolCard from '@/components/services/ProtocolCard';
 import ScientificExplanation from '@/components/services/ScientificExplanation';
 import FAQ from '@/components/services/FAQ';
+import { Wind } from 'lucide-react';
 
 const BreathingPractices = () => {
   const breathingProtocols = [
@@ -87,15 +88,43 @@ const BreathingPractices = () => {
     researchData: scientificResearch // For backward compatibility
   };
 
+  const benefits = [
+    {
+      title: "Снижение стресса",
+      description: "Снижение уровня кортизола и улучшение психоэмоционального состояния",
+      icon: <Wind className="h-10 w-10" />
+    },
+    {
+      title: "Улучшение сна",
+      description: "Нормализация сна и улучшение качества отдыха",
+      icon: <Wind className="h-10 w-10" />
+    },
+    {
+      title: "Повышение энергии",
+      description: "Увеличение жизненной энергии и работоспособности",
+      icon: <Wind className="h-10 w-10" />
+    },
+    {
+      title: "Улучшение пищеварения",
+      description: "Нормализация работы пищеварительной системы",
+      icon: <Wind className="h-10 w-10" />
+    }
+  ];
+
   return (
     <ServicePageLayout
-      title="Дыхательные практики"
-      description="Специализированные дыхательные техники для улучшения здоровья и производительности"
-      imageSrc="/placeholder.svg"
-    >
-      {/* Content inside ServicePageLayout */}
-      <div className="grid gap-10 py-8">
-        {/* Protocol cards */}
+      hero={{
+        title: "Дыхательные практики",
+        subtitle: "Путь к осознанному дыханию",
+        description: "Специализированные дыхательные техники для улучшения здоровья и повышения качества жизни",
+        imageSrc: "/placeholder.svg"
+      }}
+      benefits={benefits}
+      scientificBackground={<ScientificExplanation
+        {...scientificExplanationProps}
+        category="Научные исследования дыхательных практик"
+      />}
+      protocols={
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {breathingProtocols.map((protocol, index) => (
             <ProtocolCard
@@ -110,17 +139,10 @@ const BreathingPractices = () => {
             />
           ))}
         </div>
-        
-        {/* Scientific explanation section */}
-        <ScientificExplanation
-          {...scientificExplanationProps}
-          category="Научные исследования дыхательных практик"
-        />
-        
-        {/* FAQ section */}
-        <FAQ faqs={faqData} />
-      </div>
-    </ServicePageLayout>
+      }
+      casesStudies={<div className="text-center text-gray-600">Примеры результатов пациентов будут добавлены в ближайшее время</div>}
+      faq={faqData}
+    />
   );
 };
 
