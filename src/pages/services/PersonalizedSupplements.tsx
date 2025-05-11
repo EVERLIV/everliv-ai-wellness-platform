@@ -2,6 +2,7 @@ import React from 'react';
 import ServicePageLayout from '@/components/services/ServicePageLayout';
 import ProtocolCard from '@/components/services/ProtocolCard';
 import ScientificExplanation from '@/components/services/ScientificExplanation';
+import FAQ from '@/components/services/FAQ';
 
 const PersonalizedSupplements = () => {
   const supplementProtocols = [
@@ -9,22 +10,25 @@ const PersonalizedSupplements = () => {
       title: "Оптимизация витамина D",
       description: "Протокол приема витамина D для поддержания иммунитета и здоровья костей",
       duration: "Ежедневно",
-      difficulty: "Легко",
-      benefits: ["Укрепление иммунитета", "Поддержка костной ткани", "Улучшение настроения"]
+      difficulty: "beginner" as const, // Using correct type
+      benefits: ["Укрепление иммунитета", "Поддержка костной ткани", "Улучшение настроения"],
+      category: "supplements"
     },
     {
       title: "Магний для сна и релаксации",
       description: "Протокол приема магния перед сном для улучшения качества сна и снижения стресса",
       duration: "Перед сном",
-      difficulty: "Легко",
-      benefits: ["Улучшение сна", "Снижение стресса", "Поддержка нервной системы"]
+      difficulty: "beginner" as const, // Using correct type
+      benefits: ["Улучшение сна", "Снижение стресса", "Поддержка нервной системы"],
+      category: "supplements"
     },
     {
       title: "Омега-3 для здоровья сердца и мозга",
       description: "Протокол приема Омега-3 жирных кислот для поддержания здоровья сердца и когнитивных функций",
       duration: "Ежедневно",
-      difficulty: "Легко",
-      benefits: ["Поддержка сердечно-сосудистой системы", "Улучшение когнитивных функций", "Снижение воспаления"]
+      difficulty: "intermediate" as const, // Using correct type
+      benefits: ["Поддержка сердечно-сосудистой системы", "Улучшение когнитивных функций", "Снижение воспаления"],
+      category: "supplements"
     }
   ];
 
@@ -67,6 +71,29 @@ const PersonalizedSupplements = () => {
     }
   ];
 
+  // Create ScientificExplanationProps matching the updated interface
+  const scientificExplanationProps = {
+    summary: "Персонализированные добавки - это подход, основанный на индивидуальных биологических показателях и потребностях.",
+    mechanisms: [
+      {
+        title: "Восполнение дефицитов",
+        description: <p>Добавки целенаправленно восполняют дефициты микроэлементов на основе анализа крови и генетических данных.</p>
+      },
+      {
+        title: "Оптимизация функций организма",
+        description: <p>Точно подобранные добавки помогают оптимизировать работу различных систем организма.</p>
+      }
+    ],
+    references: scientificResearch.map(item => ({
+      title: item.title,
+      authors: item.authors,
+      journal: item.journal,
+      year: item.year,
+      summary: item.summary
+    })),
+    researchData: scientificResearch // For backward compatibility
+  };
+
   return (
     <ServicePageLayout
       title="Персонализированные добавки"
@@ -85,29 +112,24 @@ const PersonalizedSupplements = () => {
               duration={protocol.duration}
               difficulty={protocol.difficulty}
               benefits={protocol.benefits}
-              category="supplements"
+              category={protocol.category}
+              steps={[]}  // Adding required steps prop
             />
           ))}
         </div>
         
         {/* Scientific explanation section */}
         <ScientificExplanation
-          category="Научные исследования персонализированных добавок"
-          researchData={scientificResearch}
+          {...scientificExplanationProps}
         />
         
         {/* FAQ section */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4">Часто задаваемые вопросы</h2>
-          <div className="space-y-4">
-            {faqData.map((faq, index) => (
-              <div key={index} className="border p-4 rounded-md">
-                <h3 className="font-medium">{faq.question}</h3>
-                <p className="text-gray-600">{faq.answer}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        <FAQ
+          faqs={faqData.map(item => ({
+            question: item.question,
+            answer: item.answer
+          }))}
+        />
       </div>
     </ServicePageLayout>
   );

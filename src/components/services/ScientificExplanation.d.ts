@@ -14,8 +14,8 @@ export interface ScientificExplanationProps {
     doi?: string;
     url?: string;
   }[];
-  category?: string; // Add category support for backward compatibility
-  researchData?: { // Add researchData support for backward compatibility
+  category?: string;
+  researchData?: {
     title: string;
     authors: string;
     year: number;
