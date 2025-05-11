@@ -46,7 +46,6 @@ const BloodAnalysisPage = () => {
           ) : (
             <BloodAnalysisForm 
               isAnalyzing={isAnalyzing}
-              setIsAnalyzing={setIsAnalyzing}
               onAnalysisComplete={handleAnalysisComplete} 
             />
           )}

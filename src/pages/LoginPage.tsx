@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -24,17 +23,17 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      await signIn({ email, password });
+      await signIn(email, password);
       toast({
         title: "Успешный вход",
-        description: "Вы успешно вошли в систему",
+        description: "Вы успешно вошли в систему"
       });
       navigate('/dashboard');
     } catch (error: any) {
-      console.error('Error during login:', error);
+      console.error('Error during sign in:', error);
       toast({
         title: "Ошибка входа",
-        description: error.message || "Не удалось войти. Проверьте данные и попробуйте снова.",
+        description: error.message || "Не удалось войти в систему. Проверьте ваши данные.",
         variant: "destructive"
       });
     } finally {

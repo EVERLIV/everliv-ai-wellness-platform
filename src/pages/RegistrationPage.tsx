@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -35,13 +34,9 @@ const RegistrationPage = () => {
     setIsLoading(true);
 
     try {
-      await signUp({
-        email,
-        password,
-        userData: {
-          first_name: firstName,
-          last_name: lastName
-        }
+      await signUp(email, password, {
+        first_name: firstName,
+        last_name: lastName
       });
       
       toast({

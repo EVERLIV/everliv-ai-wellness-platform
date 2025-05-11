@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ServicePageLayout from '@/components/services/ServicePageLayout';
 import { CheckCircle } from 'lucide-react';
@@ -21,8 +20,8 @@ const Fasting = () => {
 
   return (
     <ServicePageLayout
-      title="Интервальное голодание и лечебные голодания"
-      description="Научно-обоснованные протоколы голодания для оздоровления, омоложения и профилактики заболеваний"
+      title="Лечебное голодание"
+      description="Научно обоснованные протоколы голодания для оздоровления и регенерации"
       imageSrc="/placeholder.svg"
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
@@ -59,7 +58,7 @@ const Fasting = () => {
       <Tabs defaultValue="intermittent" className="mb-12">
         <TabsList className="mb-6">
           <TabsTrigger value="intermittent">Интервальное голодание</TabsTrigger>
-          <TabsTrigger value="extended">Продленное голодание</TabsTrigger>
+          <TabsTrigger value="extended">Прод��енное голодание</TabsTrigger>
           <TabsTrigger value="mimicking">Имитация голодания</TabsTrigger>
         </TabsList>
         <TabsContent value="intermittent" className="space-y-4">
