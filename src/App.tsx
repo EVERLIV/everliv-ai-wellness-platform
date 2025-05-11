@@ -28,6 +28,8 @@ import UserSubscription from "./pages/UserSubscription";
 import NotFound from "./pages/NotFound";
 import Signup from "./pages/Signup";
 import Science from "./pages/Science";
+import RestrictedService from "./pages/RestrictedService";
+import Index from "./pages/Index";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -66,8 +68,9 @@ function App() {
           <UserProfile />
         </ProtectedRoute>
       } />
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<Index />} />
       <Route path="/services" element={<ServicesPage />} />
+      <Route path="/services/:serviceId" element={<RestrictedService />} />
       <Route path="/blood-analysis" element={
         <ProtectedRoute>
           <BloodAnalysisPage />

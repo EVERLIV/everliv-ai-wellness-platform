@@ -32,7 +32,12 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
       <TrialStatusBanner />
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="flex items-center text-lg font-semibold">
+        <Link to="/" className="flex items-center text-lg font-semibold gap-2">
+          <img 
+            src="/lovable-uploads/1d550229-884d-4912-81bb-d9b77b6f44bf.png" 
+            alt="EVERLIV Logo" 
+            className="h-8 w-auto" 
+          />
           EVERLIV
         </Link>
 

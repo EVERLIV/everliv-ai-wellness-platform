@@ -19,7 +19,7 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
-      <main className="flex-grow pt-16">
+      <main className="flex-grow pt-24"> {/* Increased padding-top to prevent overlap with header */}
         <HeroSection />
         <KeyFeaturesSection />
         <ServicesSection />
