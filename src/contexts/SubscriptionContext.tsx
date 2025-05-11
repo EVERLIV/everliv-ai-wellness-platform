@@ -1,7 +1,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
+import { Subscription, SubscriptionPlan, FeatureTrial, PlanFeature } from "@/types/subscription";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -100,8 +100,9 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         
         if (trialsError) throw trialsError;
         
-        setSubscription(subscriptionData);
-        setFeatureTrials(trialsData || []);
+        // Cast the subscription data to the correct type
+        setSubscription(subscriptionData as Subscription | null);
+        setFeatureTrials(trialsData as FeatureTrial[] || []);
       } catch (error) {
         console.error("Error fetching subscription data:", error);
       } finally {
@@ -121,7 +122,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     if (subscription) {
       const feature = PLAN_FEATURES[featureName];
       if (feature) {
-        return feature.includedIn[subscription.plan_type as SubscriptionPlan];
+        return feature.includedIn[subscription.plan_type];
       }
     }
     
@@ -153,7 +154,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
 
-      setFeatureTrials([...featureTrials, data]);
+      setFeatureTrials([...featureTrials, data as unknown as FeatureTrial]);
     } catch (error) {
       console.error("Error recording feature trial:", error);
       toast.error("Не удалось записать использование пробной функции");
@@ -175,7 +176,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       const newSubscription = {
         user_id: user.id,
         plan_type: planType,
-        status: 'active',
+        status: 'active' as SubscriptionStatus,
         expires_at: expiresAt.toISOString(),
       };
 
@@ -187,7 +188,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
 
-      setSubscription(data);
+      setSubscription(data as Subscription);
       toast.success(`Подписка ${planType} успешно оформлена!`);
     } catch (error) {
       console.error("Error purchasing subscription:", error);
@@ -201,7 +202,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { error } = await supabase
         .from('subscriptions')
-        .update({ status: 'canceled' })
+        .update({ status: 'canceled' as SubscriptionStatus })
         .eq('id', subscription.id);
 
       if (error) throw error;
@@ -221,7 +222,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       // Cancel current subscription
       const { error: cancelError } = await supabase
         .from('subscriptions')
-        .update({ status: 'canceled' })
+        .update({ status: 'canceled' as SubscriptionStatus })
         .eq('id', subscription.id);
 
       if (cancelError) throw cancelError;
@@ -234,7 +235,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       const newSubscription = {
         user_id: user!.id,
         plan_type: newPlanType,
-        status: 'active',
+        status: 'active' as SubscriptionStatus,
         expires_at: expiresAt.toISOString(),
       };
 
@@ -246,7 +247,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
 
-      setSubscription(data);
+      setSubscription(data as Subscription);
       toast.success(`Подписка обновлена до ${newPlanType}`);
     } catch (error) {
       console.error("Error upgrading subscription:", error);
