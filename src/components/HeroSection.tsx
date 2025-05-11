@@ -5,7 +5,7 @@ import { Search, ArrowRight } from "lucide-react";
 
 export default function HeroSection() {
   return (
-    <div className="bg-white pt-16 pb-8">
+    <div className="bg-white pt-32 pb-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6 font-heading">

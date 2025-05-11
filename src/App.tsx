@@ -26,6 +26,8 @@ import Pricing from "./pages/Pricing";
 import Webinars from "./pages/Webinars";
 import UserSubscription from "./pages/UserSubscription";
 import NotFound from "./pages/NotFound";
+import Signup from "./pages/Signup";
+import Science from "./pages/Science";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -51,6 +53,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegistrationPage />} />
+      <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/dashboard" element={
@@ -102,10 +105,10 @@ function App() {
         </ProtectedRoute>
       } />
       
-      {/* Adding missing routes */}
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/webinars" element={<Webinars />} />
       <Route path="/subscription" element={<UserSubscription />} />
+      <Route path="/science" element={<Science />} />
       
       {/* Add catch-all route for 404 errors */}
       <Route path="*" element={<NotFound />} />

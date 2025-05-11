@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ const Header = () => {
           <Link to="/services" className="hover:text-gray-600">Услуги</Link>
           <Link to="/pricing" className="hover:text-gray-600">Цены</Link>
           <Link to="/webinars" className="hover:text-gray-600">Вебинары</Link>
+          <Link to="/science" className="hover:text-gray-600">Наука</Link>
           {user ? (
             <>
               <Link to="/dashboard" className="hover:text-gray-600">Панель управления</Link>
@@ -49,7 +51,7 @@ const Header = () => {
               <Link to="/login">
                 <Button variant="ghost" size="sm">Войти</Button>
               </Link>
-              <Link to="/register">
+              <Link to="/signup">
                 <Button size="sm">Регистрация</Button>
               </Link>
             </>
@@ -69,6 +71,7 @@ const Header = () => {
             <Link to="/services" className="hover:text-gray-600">Услуги</Link>
             <Link to="/pricing" className="hover:text-gray-600">Цены</Link>
             <Link to="/webinars" className="hover:text-gray-600">Вебинары</Link>
+            <Link to="/science" className="hover:text-gray-600">Наука</Link>
             {user ? (
               <>
                 <Link to="/dashboard" className="hover:text-gray-600">Панель управления</Link>
@@ -79,7 +82,7 @@ const Header = () => {
                 <Link to="/login">
                   <Button variant="ghost" size="sm">Войти</Button>
                 </Link>
-                <Link to="/register">
+                <Link to="/signup">
                   <Button size="sm">Регистрация</Button>
                 </Link>
               </>

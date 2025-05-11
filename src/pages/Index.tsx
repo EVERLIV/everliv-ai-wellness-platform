@@ -10,6 +10,9 @@ import CTASection from '@/components/CTASection';
 import PartnershipSection from '@/components/PartnershipSection';
 import Footer from '@/components/Footer';
 import ServicesSection from '@/components/ServicesSection';
+import DataProtectionSection from '@/components/DataProtectionSection';
+import ScientificBasisSection from '@/components/ScientificBasisSection';
+import AiMedicineSection from '@/components/AiMedicineSection';
 
 const Index = () => {
   return (
@@ -19,6 +22,9 @@ const Index = () => {
         <HeroSection />
         <KeyFeaturesSection />
         <ServicesSection />
+        <DataProtectionSection />
+        <ScientificBasisSection />
+        <AiMedicineSection />
         <HowItWorksSection />
         <HealthPathSection />
         <FeaturesGridSection />
