@@ -2,6 +2,8 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface BloodMarker {
   name: string;
@@ -24,10 +26,11 @@ interface BloodAnalysisResultsProps {
     generalRecommendation: string;
   } | null;
   isAnalyzing: boolean;
+  apiError?: string | null;
   onBack: () => void;
 }
 
-const BloodAnalysisResults = ({ results, isAnalyzing, onBack }: BloodAnalysisResultsProps) => {
+const BloodAnalysisResults = ({ results, isAnalyzing, apiError, onBack }: BloodAnalysisResultsProps) => {
   if (isAnalyzing) {
     return (
       <div className="space-y-4">
@@ -35,6 +38,25 @@ const BloodAnalysisResults = ({ results, isAnalyzing, onBack }: BloodAnalysisRes
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-4 w-2/3" />
         <Skeleton className="h-4 w-3/4" />
+      </div>
+    );
+  }
+
+  if (apiError) {
+    return (
+      <div className="space-y-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Ошибка анализа</AlertTitle>
+          <AlertDescription>
+            {apiError}
+          </AlertDescription>
+        </Alert>
+        <div className="pt-4">
+          <Button variant="outline" onClick={onBack}>
+            Вернуться к вводу данных
+          </Button>
+        </div>
       </div>
     );
   }
@@ -73,17 +95,21 @@ const BloodAnalysisResults = ({ results, isAnalyzing, onBack }: BloodAnalysisRes
 
       <div>
         <h3 className="text-lg font-medium mb-3">Рекомендуемые добавки</h3>
-        <ul className="space-y-3">
-          {results.supplements.map((supplement) => (
-            <li key={supplement.name} className="flex items-start gap-2">
-              <div className="min-w-4 mt-1">•</div>
-              <div>
-                <span className="font-medium">{supplement.name}</span> — {supplement.reason}
-                <div className="text-sm text-gray-600 mt-1">Дозировка: {supplement.dosage}</div>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {results.supplements.length > 0 ? (
+          <ul className="space-y-3">
+            {results.supplements.map((supplement) => (
+              <li key={supplement.name} className="flex items-start gap-2">
+                <div className="min-w-4 mt-1">•</div>
+                <div>
+                  <span className="font-medium">{supplement.name}</span> — {supplement.reason}
+                  <div className="text-sm text-gray-600 mt-1">Дозировка: {supplement.dosage}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500">Нет рекомендуемых добавок для данных результатов анализа.</p>
+        )}
       </div>
 
       <div>

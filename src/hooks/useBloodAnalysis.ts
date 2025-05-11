@@ -28,6 +28,7 @@ export const useBloodAnalysis = () => {
   const [results, setResults] = useState<BloodAnalysisResults | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState("input");
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const canUseBloodAnalysis = canUseFeature(FEATURES.BLOOD_ANALYSIS);
   const canUsePhotoAnalysis = canUseFeature(FEATURES.PHOTO_BLOOD_ANALYSIS);
@@ -46,6 +47,8 @@ export const useBloodAnalysis = () => {
     }
 
     setIsAnalyzing(true);
+    setApiError(null);
+    
     try {
       // Record feature trial
       if (user) {
@@ -56,7 +59,7 @@ export const useBloodAnalysis = () => {
         }
       }
 
-      // Call OpenAI service
+      // Call OpenAI service with proper parameters based on input method
       const analysisResults = await analyzeBloodTestWithOpenAI({
         text: inputMethod === "text" ? text : undefined,
         imageUrl: inputMethod === "photo" ? photoUrl : undefined
@@ -67,6 +70,7 @@ export const useBloodAnalysis = () => {
       toast.success("Анализ успешно завершен");
     } catch (error) {
       console.error("Ошибка анализа:", error);
+      setApiError(error instanceof Error ? error.message : "Неизвестная ошибка");
       toast.error("Произошла ошибка при анализе");
     } finally {
       setIsAnalyzing(false);
@@ -77,6 +81,7 @@ export const useBloodAnalysis = () => {
     results,
     isAnalyzing,
     activeTab,
+    apiError,
     setActiveTab,
     analyzeBloodTest
   };
