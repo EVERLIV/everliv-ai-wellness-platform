@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +20,8 @@ import {
   Play, 
   Pause, 
   Trash2,
-  Calendar
+  Calendar,
+  ExternalLink
 } from 'lucide-react';
 
 // Иконки для категорий протоколов
@@ -348,7 +349,7 @@ const MyProtocols = () => {
                 <div className="flex items-center space-x-2">
                   <span className={`px-3 py-1 rounded-full text-xs ${
                     protocolStatuses[protocol.status].color
-                  }`}>
+                  } flex items-center`}>
                     {protocolStatuses[protocol.status].icon}
                     <span className="ml-1">{protocolStatuses[protocol.status].text}</span>
                   </span>
@@ -403,17 +404,27 @@ const MyProtocols = () => {
               <div className="flex space-x-2">
                 {getProtocolStatusOptions(protocol)}
               </div>
-              <Button 
-                variant="link" 
-                onClick={() => {
-                  toast({
-                    title: 'Протокол',
-                    description: 'Детальный просмотр будет доступен в ближайшем обновлении',
-                  });
-                }}
-              >
-                Подробнее
-              </Button>
+              
+              {protocol.status === 'in_progress' ? (
+                <Link to={`/protocols/${protocol.id}`}>
+                  <Button variant="link" className="flex items-center">
+                    <span className="mr-1">Отслеживание</span>
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </Link>
+              ) : (
+                <Button 
+                  variant="link" 
+                  onClick={() => {
+                    toast({
+                      title: 'Протокол',
+                      description: 'Детальный просмотр будет доступен после начала протокола',
+                    });
+                  }}
+                >
+                  Подробнее
+                </Button>
+              )}
             </CardFooter>
           </Card>
         ))}

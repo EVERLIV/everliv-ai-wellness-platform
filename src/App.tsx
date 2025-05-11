@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+
+import React from 'react';
 import {
-  createBrowserRouter,
-  RouterProvider,
-  useNavigate,
+  Routes,
+  Route,
+  Navigate,
+  useLocation
 } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import LoginPage from "./pages/LoginPage";
@@ -19,111 +21,79 @@ import ComprehensiveAnalysisPage from "./pages/ComprehensiveAnalysisPage";
 import ColdTherapy from "./pages/services/ColdTherapy";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import MyProtocols from "./pages/MyProtocols";
+import ProtocolTracking from "./pages/ProtocolTracking";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
 
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
-    }
-  }, [user, navigate]);
+  if (isLoading) {
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
-  return user ? children : null;
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
 };
 
-const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/register",
-    element: <RegistrationPage />,
-  },
-  {
-    path: "/forgot-password",
-    element: <ForgotPasswordPage />,
-  },
-  {
-    path: "/reset-password",
-    element: <ResetPasswordPage />,
-  },
-  {
-    path: "/dashboard",
-    element: (
-      <ProtectedRoute>
-        <Dashboard />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/profile",
-    element: (
-      <ProtectedRoute>
-        <UserProfile />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/",
-    element: <LandingPage />,
-  },
-  {
-    path: "/services",
-    element: <ServicesPage />,
-  },
-  {
-    path: "/blood-analysis",
-    element: (
-      <ProtectedRoute>
-        <BloodAnalysisPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/biological-age",
-    element: (
-      <ProtectedRoute>
-        <BiologicalAgePage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/comprehensive-analysis",
-    element: (
-      <ProtectedRoute>
-        <ComprehensiveAnalysisPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/services/cold-therapy",
-    element: <ColdTherapy />,
-  },
-  {
-    path: "/dashboard/subscription",
-    element: (
-      <ProtectedRoute>
-        <SubscriptionPage />
-      </ProtectedRoute>
-    ),
-  },
-  
-  {
-    path: "/my-protocols",
-    element: (
-      <ProtectedRoute>
-        <MyProtocols />
-      </ProtectedRoute>
-    ),
-  },
-  
-]);
-
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegistrationPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <UserProfile />
+        </ProtectedRoute>
+      } />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/services" element={<ServicesPage />} />
+      <Route path="/blood-analysis" element={
+        <ProtectedRoute>
+          <BloodAnalysisPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/biological-age" element={
+        <ProtectedRoute>
+          <BiologicalAgePage />
+        </ProtectedRoute>
+      } />
+      <Route path="/comprehensive-analysis" element={
+        <ProtectedRoute>
+          <ComprehensiveAnalysisPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/services/cold-therapy" element={<ColdTherapy />} />
+      <Route path="/dashboard/subscription" element={
+        <ProtectedRoute>
+          <SubscriptionPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/my-protocols" element={
+        <ProtectedRoute>
+          <MyProtocols />
+        </ProtectedRoute>
+      } />
+      <Route path="/protocols/:id" element={
+        <ProtectedRoute>
+          <ProtocolTracking />
+        </ProtectedRoute>
+      } />
+    </Routes>
+  );
 }
 
 export default App;
