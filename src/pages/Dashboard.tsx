@@ -1,11 +1,10 @@
-
 import React, { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Activity, Calendar, User, ArrowLeft, Printer, LineChart, BookMedical, Stethoscope, FileBarChart } from "lucide-react";
+import { FileText, Activity, Calendar, User, ArrowLeft, Printer, LineChart, BookOpen, Stethoscope, FileBarChart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
@@ -181,7 +180,7 @@ const Dashboard = () => {
                 <Card>
                   <CardHeader className="pb-2 border-b">
                     <CardTitle className="text-lg flex items-center">
-                      <BookMedical className="h-5 w-5 mr-2 text-blue-600" />
+                      <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
                       Предстоящие визиты
                     </CardTitle>
                   </CardHeader>
@@ -234,7 +233,7 @@ const Dashboard = () => {
                 <Card>
                   <CardHeader className="pb-2 border-b">
                     <CardTitle className="text-lg flex items-center">
-                      <BookMedical className="h-5 w-5 mr-2 text-blue-600" />
+                      <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
                       Рекомендации AI
                     </CardTitle>
                   </CardHeader>
@@ -342,7 +341,7 @@ const Dashboard = () => {
                   <CardTitle>Аналитика здоровья</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-500 mb-4">Здесь будет отображаться аналитика вашего здоровья</p>
+                  <p className="text-gray-500 mb-4">Здесь будет отображаться аналити��а вашего здоровья</p>
                   <Link to="/comprehensive-analysis">
                     <Button>
                       Перейти к аналитике
