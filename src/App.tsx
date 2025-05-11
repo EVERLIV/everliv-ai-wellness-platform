@@ -31,6 +31,7 @@ import UserSubscription from "./pages/UserSubscription";
 import PageBuilder from "./pages/PageBuilder";
 import AdminBlog from "./pages/AdminBlog";
 import ComprehensiveAnalysis from "./pages/ComprehensiveAnalysis";
+import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,11 @@ const App = () => (
               <Route path="/dashboard/subscription" element={
                 <ProtectedRoute>
                   <UserSubscription />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <UserProfile />
                 </ProtectedRoute>
               } />
               <Route path="/page-builder" element={
