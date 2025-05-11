@@ -1,7 +1,7 @@
 
 // OpenAI integration for health analysis services
 
-import { OpenAI } from "openai";
+import OpenAI from "openai";
 
 interface OpenAIBloodAnalysisParams {
   text?: string;

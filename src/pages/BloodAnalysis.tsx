@@ -15,6 +15,7 @@ const BloodAnalysis = () => {
     results,
     isAnalyzing,
     activeTab,
+    apiError,
     setActiveTab,
     analyzeBloodTest
   } = useBloodAnalysis();
@@ -61,6 +62,7 @@ const BloodAnalysis = () => {
                         <BloodAnalysisResults 
                           results={results}
                           isAnalyzing={isAnalyzing}
+                          apiError={apiError}
                           onBack={() => setActiveTab("input")}
                         />
                       </CardContent>
