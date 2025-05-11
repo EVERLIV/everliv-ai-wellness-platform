@@ -7,7 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CreditCard, TestTube, Clock, Brain, User, Calendar } from "lucide-react";
+import { ArrowLeft, CreditCard, TestTube, Clock, Brain, User, Calendar, Activity } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
@@ -78,7 +78,7 @@ const Dashboard = () => {
           {/* AI Health Features */}
           <div className="mb-6">
             <h2 className="text-xl font-bold mb-4">AI Функции для здоровья</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-3">
@@ -163,6 +163,28 @@ const Dashboard = () => {
                           className="w-full"
                         >
                           Перейти
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-3">
+                    <Activity className="h-8 w-8 text-everliv-600 shrink-0" />
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">Отслеживание протоколов</h3>
+                      <p className="text-gray-500 mb-4 text-sm">
+                        Отслеживайте прогресс ваших протоколов и анализируйте результаты
+                      </p>
+                      <Link to="/my-protocols">
+                        <Button 
+                          variant="outline"
+                          className="w-full"
+                        >
+                          Перейти к отслеживанию
                         </Button>
                       </Link>
                     </div>
