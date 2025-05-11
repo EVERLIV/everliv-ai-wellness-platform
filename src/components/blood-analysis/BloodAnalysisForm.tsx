@@ -16,20 +16,32 @@ interface BloodAnalysisFormProps {
 const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) => {
   const [bloodText, setBloodText] = useState("");
   const [bloodPhotoUrl, setBloodPhotoUrl] = useState("");
+  const [bloodPhotoFile, setBloodPhotoFile] = useState<File | null>(null);
   const [selectedInputMethod, setSelectedInputMethod] = useState<"text" | "photo">("text");
   const { canUseFeature } = useSubscription();
   const canUsePhotoAnalysis = canUseFeature(FEATURES.PHOTO_BLOOD_ANALYSIS);
   
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // В реальном приложении мы бы загрузили файл на сервер/хранилище
-      // Но для демонстрации создаем локальный URL для отображения изображения
-      const url = URL.createObjectURL(file);
-      setBloodPhotoUrl(url);
-      setSelectedInputMethod("photo");
-      toast.success("Фото загружено");
+    if (!file) return;
+    
+    // Check file size - limit to 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Файл слишком большой. Максимальный размер - 5MB");
+      return;
     }
+    
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Пожалуйста, загрузите файл изображения");
+      return;
+    }
+    
+    setBloodPhotoFile(file);
+    const url = URL.createObjectURL(file);
+    setBloodPhotoUrl(url);
+    setSelectedInputMethod("photo");
+    toast.success("Фото загружено");
   };
 
   const handleSubmit = () => {
@@ -41,6 +53,15 @@ const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) =
     if (selectedInputMethod === "photo" && !bloodPhotoUrl) {
       toast.error("Пожалуйста, загрузите фото результатов анализа");
       return;
+    }
+
+    // Log some information about the file
+    if (bloodPhotoFile) {
+      console.log("Submitting file:", {
+        name: bloodPhotoFile.name,
+        type: bloodPhotoFile.type,
+        size: `${(bloodPhotoFile.size / 1024).toFixed(2)} KB`
+      });
     }
 
     onAnalyze({

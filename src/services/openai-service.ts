@@ -1,10 +1,11 @@
+
 // OpenAI integration for health analysis services
 
 import OpenAI from "openai";
 
 interface OpenAIBloodAnalysisParams {
   text?: string;
-  imageUrl?: string;
+  imageBase64?: string;
 }
 
 // Initialize OpenAI client with built-in API key
@@ -30,7 +31,7 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
   
   try {
     const openai = initializeOpenAI();
-    const { text, imageUrl } = params;
+    const { text, imageBase64 } = params;
     
     let messages = [];
     
@@ -46,7 +47,7 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
           content: createBloodTestPrompt(text)
         }
       ];
-    } else if (imageUrl) {
+    } else if (imageBase64) {
       // For image input - format correctly for the content array
       messages = [
         {
@@ -56,8 +57,8 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
         {
           role: "user",
           content: [
-            { type: "text", text: "Analyze this blood test results image and provide detailed recommendations:" },
-            { type: "image_url", image_url: { url: imageUrl } }
+            { type: "text", text: "Проанализируй этот анализ крови и предоставь подробные рекомендации. Чётко определяй названия показателей, их значения, нормальные диапазоны, и дай конкретные рекомендации по каждому отклонению:" },
+            { type: "image_url", image_url: { url: imageBase64 } }
           ]
         }
       ];
@@ -65,7 +66,18 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
       throw new Error("Either text or image is required");
     }
     
-    console.log("Messages being sent to OpenAI:", JSON.stringify(messages, null, 2));
+    console.log("Sending request to OpenAI with message structure:", 
+      JSON.stringify(messages.map(m => {
+        if (typeof m.content === 'string') {
+          return { role: m.role, contentType: 'string' };
+        } else {
+          return { 
+            role: m.role, 
+            contentTypes: m.content.map(c => c.type)
+          };
+        }
+      }), null, 2)
+    );
     
     // Make API call to OpenAI
     const response = await openai.chat.completions.create({
@@ -79,7 +91,6 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
     console.log("Received response from OpenAI:", aiResponse.substring(0, 200) + "...");
     
     // Parse the AI response to match our expected format
-    // This assumes the AI is instructed to respond in a specific JSON format
     try {
       return JSON.parse(aiResponse);
     } catch (error) {

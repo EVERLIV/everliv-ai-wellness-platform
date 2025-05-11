@@ -33,6 +33,25 @@ export const useBloodAnalysis = () => {
   const canUseBloodAnalysis = canUseFeature(FEATURES.BLOOD_ANALYSIS);
   const canUsePhotoAnalysis = canUseFeature(FEATURES.PHOTO_BLOOD_ANALYSIS);
 
+  const convertBlobToBase64 = async (blobUrl: string): Promise<string> => {
+    try {
+      // Fetch the blob URL
+      const response = await fetch(blobUrl);
+      const blob = await response.blob();
+      
+      // Convert blob to base64
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error("Error converting blob to base64:", error);
+      throw new Error("Failed to process the image. Please try again.");
+    }
+  };
+
   const analyzeBloodTest = async (data: { text: string, photoUrl: string, inputMethod: "text" | "photo" }) => {
     const { text, photoUrl, inputMethod } = data;
     
@@ -59,15 +78,28 @@ export const useBloodAnalysis = () => {
         }
       }
 
+      let base64Image: string | undefined;
+      
+      // Convert blob URL to base64 if photo analysis is used
+      if (inputMethod === "photo" && photoUrl) {
+        try {
+          base64Image = await convertBlobToBase64(photoUrl);
+          console.log("Successfully converted image to base64");
+        } catch (error) {
+          console.error("Error converting image:", error);
+          throw new Error("Не удалось обработать изображение. Пожалуйста, попробуйте другое фото.");
+        }
+      }
+
       console.log("Analyzing blood test with params:", {
         text: inputMethod === "text" ? text : undefined,
-        imageUrl: inputMethod === "photo" ? photoUrl : undefined
+        imageUrl: inputMethod === "photo" ? "image data available (not logging full base64)" : undefined
       });
 
       // Call OpenAI service with proper parameters based on input method
       const analysisResults = await analyzeBloodTestWithOpenAI({
         text: inputMethod === "text" ? text : undefined,
-        imageUrl: inputMethod === "photo" ? photoUrl : undefined
+        imageBase64: inputMethod === "photo" ? base64Image : undefined
       });
 
       setResults(analysisResults);
