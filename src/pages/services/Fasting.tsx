@@ -1,118 +1,166 @@
 
 import React from 'react';
-import { FlaskRound, Activity, Heart, Brain } from 'lucide-react';
 import ServicePageLayout from '@/components/services/ServicePageLayout';
+import { CheckCircle } from 'lucide-react';
 import ProtocolCard from '@/components/services/ProtocolCard';
-import ScientificExplanation from '@/components/services/ScientificExplanation';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 
 const Fasting = () => {
-  // Mock data for fasting therapy page
-  const hero = {
-    title: 'Голодание',
-    subtitle: 'Активация аутофагии и улучшение метаболического здоровья',
-    description: 'Периодическое голодание – мощный инструмент оздоровления, который запускает процессы клеточного самоочищения, нормализует метаболизм и улучшает чувствительность к инсулину. Наши протоколы основаны на клинических исследованиях и адаптированы для безопасного применения.'
-  };
-
   const benefits = [
-    {
-      title: 'Активация аутофагии',
-      description: 'Запуск процесса клеточного "самопоедания", очищающего организм от старых и дисфункциональных компонентов',
-      icon: <FlaskRound className="h-8 w-8" />
-    },
-    {
-      title: 'Улучшение метаболизма',
-      description: 'Повышение чувствительности к инсулину, нормализация уровня глюкозы и улучшение липидного профиля',
-      icon: <Activity className="h-8 w-8" />
-    },
-    {
-      title: 'Периодическое голодание',
-      description: 'Различные режимы ограничения времени приема пищи для достижения метаболической гибкости',
-      icon: <Heart className="h-8 w-8" />
-    },
-    {
-      title: 'Ограничение калорий',
-      description: 'Практика умеренного снижения калорийности рациона без недоедания для долгосрочных эффектов',
-      icon: <Brain className="h-8 w-8" />
-    }
+    "Активирование процесса аутофагии",
+    "Улучшение чувствительности к инсулину",
+    "Снижение воспаления в организме",
+    "Улучшение когнитивных функций",
+    "Повышение продолжительности жизни",
+    "Ускорение регенерации клеток",
+    "Нормализация веса"
   ];
-
-  // Placeholder content for other sections - these would be expanded in a full implementation
-  const scientificBackground = (
-    <ScientificExplanation
-      summary="Периодическое голодание и ограничение калорий активируют множество защитных механизмов в организме. Современные исследования показывают, что эти практики запускают процессы аутофагии, улучшают митохондриальную функцию и повышают стрессоустойчивость клеток."
-      mechanisms={[
-        {
-          title: "Аутофагия и клеточное обновление",
-          description: (
-            <p>Голодание запускает процесс аутофагии - механизм клеточного "самопоедания", при котором клетка перерабатывает старые, поврежденные органеллы и белки. Этот процесс критически важен для поддержания клеточного гомеостаза и замедления процессов старения.</p>
-          )
-        },
-        {
-          title: "Метаболическая гибкость",
-          description: (
-            <p>В период голодания организм переключается с использования глюкозы на потребление жировых запасов для производства энергии. Этот переход способствует повышению метаболической гибкости - способности организма эффективно использовать разные источники энергии.</p>
-          )
-        }
-      ]}
-      references={[
-        {
-          title: "Effects of Intermittent Fasting on Health, Aging, and Disease",
-          authors: "de Cabo R, Mattson MP.",
-          journal: "New England Journal of Medicine",
-          year: 2019,
-          doi: "10.1056/NEJMra1905136"
-        },
-        {
-          title: "Fasting: Molecular Mechanisms and Clinical Applications",
-          authors: "Longo VD, Mattson MP.",
-          journal: "Cell Metabolism",
-          year: 2022,
-          doi: "10.1016/j.cmet.2022.02.040"
-        }
-      ]}
-    />
-  );
-
-  const protocols = (
-    <div className="space-y-6">
-      <ProtocolCard 
-        title="Интервальное голодание 16/8"
-        description="Базовый протокол ограничения времени приема пищи"
-        difficulty="beginner"
-        duration="Ежедневно"
-        steps={[
-          "Ограничьте прием пищи 8-часовым окном (например, с 12:00 до 20:00)",
-          "В остальные 16 часов потребляйте только воду, несладкий чай или черный кофе",
-          "Начните с 12/12 и постепенно увеличивайте окно голодания",
-          "Старайтесь придерживаться одного и того же времени приема пищи"
-        ]}
-        benefits={[
-          "Улучшение чувствительности к инсулину",
-          "Снижение воспаления",
-          "Повышение энергии",
-          "Умеренная активация аутофагии"
-        ]}
-      />
-      
-      {/* Placeholder for more protocols that would be added in a full implementation */}
-    </div>
-  );
-
-  const casesStudies = (
-    <div className="bg-white rounded-lg p-6 shadow-sm">
-      <h3 className="text-xl font-semibold mb-4">Кейс: Улучшение метаболического здоровья</h3>
-      <p>Данные о результатах применения методик периодического голодания будут добавлены в ближайшее время.</p>
-    </div>
-  );
 
   return (
     <ServicePageLayout
-      hero={hero}
-      benefits={benefits}
-      scientificBackground={scientificBackground}
-      protocols={protocols}
-      casesStudies={casesStudies}
-    />
+      title="Интервальное голодание и лечебные голодания"
+      description="Научно-обоснованные протоколы голодания для оздоровления, омоложения и профилактики заболеваний"
+      imageSrc="/placeholder.svg"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Преимущества голодания</h2>
+          <ul className="space-y-3">
+            {benefits.map((benefit, index) => (
+              <li key={index} className="flex items-start">
+                <CheckCircle className="h-5 w-5 text-emerald-500 mr-2 mt-0.5" />
+                <span>{benefit}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Важно знать</h2>
+          <div className="bg-orange-50 p-4 rounded-lg border border-orange-100 mb-4">
+            <h3 className="font-semibold text-orange-800">Противопоказания</h3>
+            <p className="text-orange-700 text-sm mt-1">
+              Голодание не рекомендуется при беременности, кормлении грудью, нарушениях пищевого поведения, 
+              низком весе, сахарном диабете 1 типа и некоторых других заболеваниях. Необходима консультация специалиста.
+            </p>
+          </div>
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+            <h3 className="font-semibold text-blue-800">Индивидуальный подход</h3>
+            <p className="text-blue-700 text-sm mt-1">
+              Протоколы голодания должны быть адаптированы под ваши индивидуальные особенности, 
+              цели и состояние здоровья. Мы поможем вам подобрать оптимальный вариант.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <Tabs defaultValue="intermittent" className="mb-12">
+        <TabsList className="mb-6">
+          <TabsTrigger value="intermittent">Интервальное голодание</TabsTrigger>
+          <TabsTrigger value="extended">Продленное голодание</TabsTrigger>
+          <TabsTrigger value="mimicking">Имитация голодания</TabsTrigger>
+        </TabsList>
+        <TabsContent value="intermittent" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="font-semibold">16:8</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  16 часов голодания, 8 часов окно для приема пищи. 
+                  Наиболее популярная и доступная схема для начинающих.
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="font-semibold">18:6</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  18 часов голодания, 6 часов окно для приема пищи.
+                  Более выраженный эффект, подходит для опытных практикующих.
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="font-semibold">20:4 (Протокол "Воин")</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  20 часов голодания, 4 часа окно для приема пищи.
+                  Максимальная активация аутофагии при ежедневном режиме.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          <ProtocolCard
+            title="Начальный протокол 16:8"
+            description="Оптимальный протокол для начинающих практиковать интервальное голодание"
+            difficulty="beginner"
+            duration="14 дней"
+            category="голодание"
+            steps={[
+              "День 1-3: Постепенно увеличивайте период ночного голодания до 12 часов",
+              "День 4-7: Увеличьте период голодания до 14 часов",
+              "День 8-14: Достигните целевого периода в 16 часов голодания",
+              "Рекомендуемое окно питания: с 12:00 до 20:00",
+              "Пейте воду, несладкий чай и кофе в период голодания"
+            ]}
+            benefits={[
+              "Мягкое вхождение в практику голодания без стресса",
+              "Активация метаболической гибкости",
+              "Улучшение чувствительности к инсулину",
+              "Снижение воспаления"
+            ]}
+          />
+        </TabsContent>
+        
+        <TabsContent value="extended" className="space-y-4">
+          <p className="text-gray-700 mb-4">
+            Продленное голодание на воде (от 24 до 72 часов) обеспечивает более глубокую активацию процессов аутофагии 
+            и метаболической перезагрузки организма. Требует подготовки и должно проводиться под контролем специалиста.
+          </p>
+          <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100 mb-4">
+            <p className="text-yellow-800 text-sm">
+              <strong>Важно:</strong> Продленное голодание требует правильной подготовки, постепенного выхода и не рекомендуется 
+              людям с определенными заболеваниями. Необходима предварительная консультация специалиста.
+            </p>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="mimicking" className="space-y-4">
+          <p className="text-gray-700 mb-4">
+            Протокол имитации голодания (Fasting Mimicking Diet) разработан профессором Вальтером Лонго. 
+            Позволяет получить преимущества голодания, сохраняя при этом минимальное потребление пищи.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="font-semibold">5-дневный протокол имитации голодания</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Низкокалорийная диета с особым соотношением макронутриентов, активирующая те же механизмы, 
+                  что и полное голодание. Проводится 1 раз в 1-3 месяца.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      <div className="mt-12 bg-blue-50 p-6 rounded-xl">
+        <h3 className="text-xl font-semibold mb-3">Начните свой путь к здоровью через голодание</h3>
+        <p className="text-gray-700 mb-4">
+          Наши специалисты помогут вам подобрать оптимальный протокол голодания с учетом ваших индивидуальных особенностей и целей.
+        </p>
+        <div className="flex flex-wrap gap-4">
+          <Button asChild>
+            <Link to="/dashboard/subscription">Записаться на консультацию</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/my-protocols">Изучить все протоколы</Link>
+          </Button>
+        </div>
+      </div>
+    </ServicePageLayout>
   );
 };
 

@@ -46,7 +46,7 @@ const RegistrationPage = () => {
       
       toast({
         title: "Регистрация успешна",
-        description: "Аккаунт успешно создан. Проверьте вашу электронную почту для подтверждения.",
+        description: "Аккаунт успешно создан. Вы можете войти в систему.",
       });
       navigate('/login');
     } catch (error: any) {

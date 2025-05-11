@@ -45,7 +45,8 @@ const BloodAnalysisPage = () => {
             />
           ) : (
             <BloodAnalysisForm 
-              onUpload={() => setIsAnalyzing(true)}
+              isAnalyzing={isAnalyzing}
+              setIsAnalyzing={setIsAnalyzing}
               onAnalysisComplete={handleAnalysisComplete} 
             />
           )}
