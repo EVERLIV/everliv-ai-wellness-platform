@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Brain, Activity, Heart, Lungs } from 'lucide-react';
+import { Brain, Activity, Heart } from 'lucide-react';
 import ServicePageLayout from '@/components/services/ServicePageLayout';
 import ScientificExplanation from '@/components/services/ScientificExplanation';
 import ProtocolCard, { ProtocolProps } from '@/components/services/ProtocolCard';
@@ -27,7 +26,7 @@ const BreathingPractices = () => {
     {
       title: 'Нормализация кислотно-щелочного баланса',
       description: 'Определенные дыхательные техники помогают оптимизировать pH крови и тканей',
-      icon: <Lungs className="h-8 w-8" />
+      icon: <Brain className="h-8 w-8" />
     },
     {
       title: 'Повышение энергетического потенциала',

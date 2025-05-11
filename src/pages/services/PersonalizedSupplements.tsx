@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { FlaskRound, Heart, Brain, Pills } from 'lucide-react';
+import { FlaskRound, Heart, Brain, Pill } from 'lucide-react';
 import ServicePageLayout from '@/components/services/ServicePageLayout';
 import ScientificExplanation from '@/components/services/ScientificExplanation';
 import ProtocolCard, { ProtocolProps } from '@/components/services/ProtocolCard';
@@ -32,7 +31,7 @@ const PersonalizedSupplements = () => {
     {
       title: 'Сенолитики',
       description: 'Компоненты, способствующие удалению стареющих (сенесцентных) клеток из организма',
-      icon: <Pills className="h-8 w-8" />
+      icon: <Pill className="h-8 w-8" />
     }
   ];
 
