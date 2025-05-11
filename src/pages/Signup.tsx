@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import AuthLayout from '@/components/AuthLayout';
 import { useAuth } from '@/contexts/AuthContext';
+import { Clock } from 'lucide-react';
 
 const Signup = () => {
   const [fullName, setFullName] = useState('');
@@ -52,6 +53,15 @@ const Signup = () => {
       description="Присоединяйтесь к EVERLIV и начните путь к оптимальному здоровью."
       type="signup"
     >
+      <div className="bg-everliv-50 p-3 rounded-lg mb-6 border border-everliv-100">
+        <div className="flex items-center">
+          <Clock className="h-5 w-5 text-everliv-600 mr-2" />
+          <p className="text-sm text-everliv-700">
+            <span className="font-semibold">Бонус при регистрации:</span> Получите полный доступ к платформе на 24 часа бесплатно!
+          </p>
+        </div>
+      </div>
+    
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="name">Имя и фамилия</Label>

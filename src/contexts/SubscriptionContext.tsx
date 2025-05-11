@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,8 +8,10 @@ import {
   recordFeatureTrialService, 
   purchaseSubscriptionService,
   cancelSubscriptionService,
-  upgradeSubscriptionService
+  upgradeSubscriptionService,
+  checkTrialStatusService
 } from "@/services/subscription-service";
+import { toast } from "sonner";
 
 interface SubscriptionContextType {
   subscription: Subscription | null;
@@ -22,6 +23,9 @@ interface SubscriptionContextType {
   purchaseSubscription: (planType: SubscriptionPlan) => Promise<void>;
   cancelSubscription: () => Promise<void>;
   upgradeSubscription: (newPlanType: SubscriptionPlan) => Promise<void>;
+  isTrialActive: boolean;
+  trialExpiresAt: Date | null;
+  trialTimeRemaining: string | null;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -31,7 +35,44 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [featureTrials, setFeatureTrials] = useState<FeatureTrial[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isTrialActive, setIsTrialActive] = useState<boolean>(false);
+  const [trialExpiresAt, setTrialExpiresAt] = useState<Date | null>(null);
+  const [trialTimeRemaining, setTrialTimeRemaining] = useState<string | null>(null);
   const { hasFeatureTrial, canUseFeature } = useSubscriptionHelpers(featureTrials);
+
+  // Calculate time remaining for trial
+  useEffect(() => {
+    if (!trialExpiresAt) {
+      setTrialTimeRemaining(null);
+      return;
+    }
+    
+    const calculateTimeRemaining = () => {
+      const now = new Date();
+      const expiresAt = new Date(trialExpiresAt);
+      const diffMs = expiresAt.getTime() - now.getTime();
+      
+      if (diffMs <= 0) {
+        setIsTrialActive(false);
+        setTrialTimeRemaining("Истек");
+        return;
+      }
+      
+      const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      
+      if (diffHrs > 0) {
+        setTrialTimeRemaining(`${diffHrs} ч ${diffMins} мин`);
+      } else {
+        setTrialTimeRemaining(`${diffMins} мин`);
+      }
+    };
+    
+    calculateTimeRemaining();
+    const timer = setInterval(calculateTimeRemaining, 60000); // Update every minute
+    
+    return () => clearInterval(timer);
+  }, [trialExpiresAt]);
 
   // Fetch subscription data when user changes
   useEffect(() => {
@@ -40,6 +81,8 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         setSubscription(null);
         setFeatureTrials([]);
         setIsLoading(false);
+        setIsTrialActive(false);
+        setTrialExpiresAt(null);
         return;
       }
 
@@ -49,6 +92,13 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         const data = await fetchSubscriptionData(user.id);
         setSubscription(data.subscription);
         setFeatureTrials(data.featureTrials);
+        
+        // Check trial status
+        const trialStatus = await checkTrialStatusService(user.id);
+        setIsTrialActive(trialStatus.isActive);
+        if (trialStatus.expiresAt) {
+          setTrialExpiresAt(new Date(trialStatus.expiresAt));
+        }
       } catch (error) {
         console.error("Error loading subscription data:", error);
       } finally {
@@ -114,11 +164,27 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     isLoading,
     featureTrials,
     hasFeatureTrial,
-    canUseFeature: (featureName: string) => canUseFeature(featureName, subscription?.plan_type),
+    canUseFeature: (featureName: string) => {
+      // If user has an active subscription, check if the feature is included
+      if (subscription?.status === 'active') {
+        return canUseFeature(featureName, subscription?.plan_type);
+      }
+      
+      // If trial is active, allow access to all features
+      if (isTrialActive) {
+        return true;
+      }
+      
+      // Otherwise, check if they've used their trial for this feature
+      return canUseFeature(featureName, subscription?.plan_type);
+    },
     recordFeatureTrial,
     purchaseSubscription,
     cancelSubscription,
     upgradeSubscription,
+    isTrialActive,
+    trialExpiresAt,
+    trialTimeRemaining
   };
 
   return (

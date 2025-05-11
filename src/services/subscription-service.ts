@@ -35,6 +35,41 @@ export const fetchSubscriptionData = async (userId: string) => {
   }
 };
 
+export const checkTrialStatusService = async (userId: string) => {
+  try {
+    // Fetch user profile to check registration date
+    const { data: userData, error: userError } = await supabase
+      .from('profiles')
+      .select('created_at')
+      .eq('id', userId)
+      .single();
+    
+    if (userError) throw userError;
+    
+    if (!userData) {
+      return { isActive: false, expiresAt: null };
+    }
+    
+    const createdAt = new Date(userData.created_at);
+    const now = new Date();
+    
+    // Calculate trial expiration (24 hours after registration)
+    const trialExpiresAt = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
+    
+    // Check if trial is still active
+    const isActive = trialExpiresAt > now;
+    
+    return { 
+      isActive,
+      expiresAt: trialExpiresAt.toISOString()
+    };
+  } catch (error) {
+    console.error("Error checking trial status:", error);
+    // Default to trial not active in case of error
+    return { isActive: false, expiresAt: null };
+  }
+};
+
 export const recordFeatureTrialService = async (userId: string, featureName: string): Promise<FeatureTrial> => {
   try {
     const newTrial = {
