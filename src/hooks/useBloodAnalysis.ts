@@ -46,6 +46,13 @@ export const useBloodAnalysis = () => {
       return;
     }
 
+    // Проверка наличия API ключа
+    if (!localStorage.getItem('OPENAI_API_KEY')) {
+      toast.error("Пожалуйста, настройте API ключ OpenAI");
+      setApiError("API ключ OpenAI не настроен. Пожалуйста, нажмите на кнопку 'Настроить API ключ OpenAI' и введите ваш ключ.");
+      return;
+    }
+
     setIsAnalyzing(true);
     setApiError(null);
     
@@ -58,6 +65,11 @@ export const useBloodAnalysis = () => {
           await recordFeatureTrial(FEATURES.PHOTO_BLOOD_ANALYSIS);
         }
       }
+
+      console.log("Analyzing blood test with params:", {
+        text: inputMethod === "text" ? text : undefined,
+        imageUrl: inputMethod === "photo" ? photoUrl : undefined
+      });
 
       // Call OpenAI service with proper parameters based on input method
       const analysisResults = await analyzeBloodTestWithOpenAI({

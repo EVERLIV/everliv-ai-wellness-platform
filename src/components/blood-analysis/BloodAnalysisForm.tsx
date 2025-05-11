@@ -23,8 +23,8 @@ const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) =
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // In a real app, we would upload to a server/storage here
-      // For now, create a local URL to display the image
+      // В реальном приложении мы бы загрузили файл на сервер/хранилище
+      // Но для демонстрации создаем локальный URL для отображения изображения
       const url = URL.createObjectURL(file);
       setBloodPhotoUrl(url);
       setSelectedInputMethod("photo");
