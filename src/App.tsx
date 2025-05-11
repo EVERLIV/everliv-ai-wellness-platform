@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Routes,
@@ -21,6 +22,10 @@ import ColdTherapy from "./pages/services/ColdTherapy";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import MyProtocols from "./pages/MyProtocols";
 import ProtocolTracking from "./pages/ProtocolTracking";
+import Pricing from "./pages/Pricing";
+import Webinars from "./pages/Webinars";
+import UserSubscription from "./pages/UserSubscription";
+import NotFound from "./pages/NotFound";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -96,6 +101,14 @@ function App() {
           <ProtocolTracking />
         </ProtectedRoute>
       } />
+      
+      {/* Adding missing routes */}
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/webinars" element={<Webinars />} />
+      <Route path="/subscription" element={<UserSubscription />} />
+      
+      {/* Add catch-all route for 404 errors */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
