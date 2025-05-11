@@ -4,9 +4,12 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { PLAN_FEATURES } from "@/constants/subscription-features";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, AlertCircle, Clock } from "lucide-react";
+import { CheckCircle, AlertCircle, Clock, CreditCard, ChevronRight, Shield } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 const SubscriptionManagement = () => {
   const { subscription, isLoading, purchaseSubscription, cancelSubscription, upgradeSubscription } = useSubscription();
@@ -24,7 +27,10 @@ const SubscriptionManagement = () => {
   const handlePurchase = async (planType: 'basic' | 'standard' | 'premium') => {
     setIsProcessing(true);
     try {
-      await purchaseSubscription(planType);
+      // In the future, this will redirect to payment gateway
+      toast.info("Функциональность оплаты СБП будет добавлена в ближайшее время");
+      // Uncomment below when payment integration is ready
+      // await purchaseSubscription(planType);
     } finally {
       setIsProcessing(false);
     }
@@ -33,7 +39,10 @@ const SubscriptionManagement = () => {
   const handleUpgrade = async (planType: 'basic' | 'standard' | 'premium') => {
     setIsProcessing(true);
     try {
-      await upgradeSubscription(planType);
+      // In the future, this will redirect to payment gateway
+      toast.info("Функциональность оплаты СБП будет добавлена в ближайшее время");
+      // Uncomment below when payment integration is ready
+      // await upgradeSubscription(planType);
     } finally {
       setIsProcessing(false);
     }
@@ -54,63 +63,151 @@ const SubscriptionManagement = () => {
       
       {subscription ? (
         <Card>
-          <CardHeader>
-            <CardTitle>
-              Текущая подписка: {subscription.plan_type === 'basic' ? 'Базовый' : 
-                               subscription.plan_type === 'standard' ? 'Стандарт' : 'Премиум'}
-            </CardTitle>
-            <CardDescription>
-              Статус: {subscription.status === 'active' ? (
-                <span className="text-evergreen-500 inline-flex items-center gap-1">
-                  <CheckCircle className="h-4 w-4" /> Активна
-                </span>
-              ) : (
-                <span className="text-yellow-500 inline-flex items-center gap-1">
-                  <AlertCircle className="h-4 w-4" /> Отменена
-                </span>
+          <CardHeader className="pb-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  Текущая подписка: {subscription.plan_type === 'basic' ? 'Базовый' : 
+                                  subscription.plan_type === 'standard' ? 'Стандарт' : 'Премиум'}
+                  <Badge className={subscription.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                    {subscription.status === 'active' ? 'Активна' : 'Отменена'}
+                  </Badge>
+                </CardTitle>
+                <CardDescription>
+                  Пользуйтесь всеми возможностями вашего плана
+                </CardDescription>
+              </div>
+              {subscription.status === 'active' && (
+                <div className="text-right">
+                  <p className="text-sm text-gray-500">Следующий платеж:</p>
+                  <p className="font-medium">{format(new Date(subscription.expires_at), 'dd.MM.yyyy')}</p>
+                </div>
               )}
-            </CardDescription>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4">
-              <div>
-                <p className="text-sm text-gray-500">Дата начала:</p>
-                <p className="font-medium">{format(new Date(subscription.started_at), 'dd.MM.yyyy')}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Дата окончания:</p>
-                <p className="font-medium">{format(new Date(subscription.expires_at), 'dd.MM.yyyy')}</p>
-              </div>
+            <Tabs defaultValue="summary">
+              <TabsList className="mb-4">
+                <TabsTrigger value="summary">Информация</TabsTrigger>
+                <TabsTrigger value="features">Возможности</TabsTrigger>
+                <TabsTrigger value="payment">Оплата</TabsTrigger>
+              </TabsList>
               
-              <div className="mt-4">
-                <h4 className="font-medium mb-2">Доступные функции:</h4>
-                <ul className="space-y-2">
-                  {Object.entries(PLAN_FEATURES).map(([key, feature]) => (
-                    <li key={key} className={`flex items-start gap-2 ${
-                      feature.includedIn[subscription.plan_type as 'basic' | 'standard' | 'premium'] 
-                        ? 'text-gray-800' 
-                        : 'text-gray-400'
-                    }`}>
-                      {feature.includedIn[subscription.plan_type as 'basic' | 'standard' | 'premium'] ? (
-                        <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 flex-shrink-0" />
-                      ) : (
-                        <AlertCircle className="h-5 w-5 text-gray-300 mt-0.5 flex-shrink-0" />
-                      )}
-                      <span>{feature.name}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+              <TabsContent value="summary">
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-500">Дата начала:</p>
+                      <p className="font-medium">{format(new Date(subscription.started_at), 'dd.MM.yyyy')}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Дата окончания:</p>
+                      <p className="font-medium">{format(new Date(subscription.expires_at), 'dd.MM.yyyy')}</p>
+                    </div>
+                  </div>
+                  
+                  {subscription.status === 'active' ? (
+                    <Card className="bg-gray-50 border-gray-200">
+                      <CardContent className="p-4">
+                        <p className="text-sm">
+                          Ваша подписка активна и будет автоматически продлена 
+                          {format(new Date(subscription.expires_at), 'dd.MM.yyyy')}. 
+                          Вы можете отменить автоматическое продление в любое время.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <Card className="bg-amber-50 border-amber-200">
+                      <CardContent className="p-4">
+                        <p className="text-sm text-amber-800">
+                          Ваша подписка отменена и закончится {format(new Date(subscription.expires_at), 'dd.MM.yyyy')}. 
+                          До этой даты вы можете продолжать пользоваться всеми возможностями плана.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="features">
+                <div className="mb-4">
+                  <h4 className="font-medium mb-2">Доступные функции вашего плана:</h4>
+                  <ul className="space-y-2">
+                    {Object.entries(PLAN_FEATURES).map(([key, feature]) => (
+                      <li key={key} className={`flex items-start gap-2 ${
+                        feature.includedIn[subscription.plan_type as 'basic' | 'standard' | 'premium'] 
+                          ? 'text-gray-800' 
+                          : 'text-gray-400'
+                      }`}>
+                        {feature.includedIn[subscription.plan_type as 'basic' | 'standard' | 'premium'] ? (
+                          <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 flex-shrink-0" />
+                        ) : (
+                          <AlertCircle className="h-5 w-5 text-gray-300 mt-0.5 flex-shrink-0" />
+                        )}
+                        <div>
+                          <span>{feature.name}</span>
+                          <p className="text-xs text-gray-500 mt-0.5">{feature.description}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                {subscription.plan_type !== 'premium' && (
+                  <Card className="bg-gray-50 border-gray-200 mt-4">
+                    <CardContent className="p-4 flex justify-between items-center">
+                      <div>
+                        <h4 className="font-medium">Хотите больше возможностей?</h4>
+                        <p className="text-sm text-gray-500">Улучшите свой план для доступа ко всем функциям</p>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        className="flex items-center"
+                        onClick={() => handleUpgrade('premium')}
+                        disabled={isProcessing}
+                      >
+                        Улучшить <ChevronRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="payment">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium mb-2">Способ оплаты</h4>
+                    <Card className="bg-gray-50 border-gray-200">
+                      <CardContent className="p-4 flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <CreditCard className="h-6 w-6 text-gray-400" />
+                          <div>
+                            <p>Система быстрых платежей (СБП)</p>
+                            <p className="text-xs text-gray-500">Будет доступно при оплате</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Shield className="h-4 w-4" />
+                    <span>Безопасная оплата через защищенные каналы</span>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
-          <CardFooter className="flex flex-wrap gap-3">
+          <CardFooter className="flex flex-wrap gap-3 border-t pt-4">
             {subscription.status === 'active' && (
               <>
                 {subscription.plan_type !== 'premium' && (
                   <Button 
                     onClick={() => handleUpgrade('premium')} 
                     disabled={isProcessing}
+                    className="flex items-center gap-1"
                   >
+                    <CreditCard className="h-4 w-4" />
                     Обновить до Премиум
                   </Button>
                 )}
@@ -137,7 +234,9 @@ const SubscriptionManagement = () => {
               <Button 
                 onClick={() => handlePurchase(subscription.plan_type as 'basic' | 'standard' | 'premium')} 
                 disabled={isProcessing}
+                className="flex items-center gap-1"
               >
+                <CreditCard className="h-4 w-4" />
                 Возобновить подписку
               </Button>
             )}
@@ -145,6 +244,7 @@ const SubscriptionManagement = () => {
         </Card>
       ) : (
         <div className="grid gap-6 md:grid-cols-3">
+          {/* Basic Plan */}
           <Card>
             <CardHeader>
               <CardTitle>Базовый</CardTitle>
@@ -168,15 +268,17 @@ const SubscriptionManagement = () => {
             </CardContent>
             <CardFooter>
               <Button 
-                className="w-full" 
+                className="w-full flex items-center gap-1" 
                 onClick={() => handlePurchase('basic')}
                 disabled={isProcessing}
               >
+                <CreditCard className="h-4 w-4" />
                 Выбрать Базовый
               </Button>
             </CardFooter>
           </Card>
           
+          {/* Standard Plan */}
           <Card className="border-everliv-600 ring-2 ring-everliv-600/20 relative">
             <div className="bg-everliv-600 text-white text-xs font-semibold px-3 py-1 absolute right-0 top-0 rounded-bl">
               Популярный выбор
@@ -203,15 +305,17 @@ const SubscriptionManagement = () => {
             </CardContent>
             <CardFooter>
               <Button 
-                className="w-full bg-everliv-600 hover:bg-everliv-700" 
+                className="w-full bg-everliv-600 hover:bg-everliv-700 flex items-center gap-1" 
                 onClick={() => handlePurchase('standard')}
                 disabled={isProcessing}
               >
+                <CreditCard className="h-4 w-4" />
                 Выбрать Стандарт
               </Button>
             </CardFooter>
           </Card>
           
+          {/* Premium Plan */}
           <Card>
             <CardHeader>
               <CardTitle>Премиум</CardTitle>
@@ -235,10 +339,11 @@ const SubscriptionManagement = () => {
             </CardContent>
             <CardFooter>
               <Button 
-                className="w-full" 
+                className="w-full flex items-center gap-1" 
                 onClick={() => handlePurchase('premium')}
                 disabled={isProcessing}
               >
+                <CreditCard className="h-4 w-4" />
                 Выбрать Премиум
               </Button>
             </CardFooter>

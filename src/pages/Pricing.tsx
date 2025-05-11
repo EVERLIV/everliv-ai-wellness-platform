@@ -6,6 +6,7 @@ import PricingTable from "@/components/pricing/PricingTable";
 import PricingFAQ from "@/components/pricing/PricingFAQ";
 import CorporatePricing from "@/components/pricing/CorporatePricing";
 import CTASection from "@/components/CTASection";
+import SubscriptionFeatureTable from "@/components/pricing/SubscriptionFeatureTable";
 
 const Pricing = () => {
   return (
@@ -14,6 +15,7 @@ const Pricing = () => {
       <main className="flex-grow pt-16">
         <PricingHero />
         <PricingTable />
+        <SubscriptionFeatureTable />
         <CorporatePricing />
         <PricingFAQ />
         <CTASection />

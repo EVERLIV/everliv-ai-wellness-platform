@@ -2,13 +2,85 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, CreditCard, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { toast } from "sonner";
 
 const PricingTable = () => {
   const [annual, setAnnual] = useState(true);
   const { user } = useAuth();
+  const { subscription, purchaseSubscription } = useSubscription();
+  const [processingPlan, setProcessingPlan] = useState<string | null>(null);
   
+  const handleSelectPlan = async (planType: 'basic' | 'standard' | 'premium') => {
+    if (!user) {
+      toast.info("Для выбора плана необходимо авторизоваться");
+      return;
+    }
+    
+    setProcessingPlan(planType);
+    try {
+      // In the future, this will redirect to payment gateway
+      toast.info("Функциональность оплаты будет добавлена в ближайшее время");
+      // await purchaseSubscription(planType);
+      // toast.success(`Подписка ${planType} успешно выбрана`);
+    } catch (error) {
+      toast.error("Произошла ошибка при выборе плана");
+    } finally {
+      setProcessingPlan(null);
+    }
+  };
+  
+  // Calculate prices with annual discount
+  const getPrice = (basePrice: number, planType: string) => {
+    return annual ? Math.round(basePrice * 0.8) : basePrice;
+  };
+  
+  const plans = [
+    {
+      type: "basic",
+      name: "Базовый",
+      basePrice: 990,
+      description: "Для начинающих следить за здоровьем",
+      features: [
+        "Базовый анализ здоровья",
+        "Интерпретация до 5 показателей",
+        "Еженедельные отчеты",
+        "Доступ к базе знаний",
+        "Отслеживание симптомов"
+      ]
+    },
+    {
+      type: "standard",
+      name: "Стандарт",
+      basePrice: 1790,
+      description: "Для активной заботы о здоровье",
+      popular: true,
+      features: [
+        "Все функции базового плана",
+        "Расширенный анализ здоровья",
+        "Интерпретация до 15 показателей",
+        "Персонализированные планы питания",
+        "Рекомендации по добавкам"
+      ]
+    },
+    {
+      type: "premium",
+      name: "Премиум",
+      basePrice: 2490,
+      description: "Максимальные возможности",
+      features: [
+        "Все функции стандартного плана",
+        "Полный анализ здоровья",
+        "Интерпретация всех показателей",
+        "VIP поддержка от экспертов",
+        "Квартальные консультации",
+        "Персональный план оздоровления"
+      ]
+    }
+  ];
+
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
@@ -35,146 +107,72 @@ const PricingTable = () => {
 
           {/* Pricing Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Basic Plan */}
-            <div className="border border-gray-200 rounded-xl shadow-sm overflow-hidden bg-white">
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-everliv-800 mb-2">Базовый</h3>
-                <p className="text-gray-600 mb-6">Для начинающих следить за здоровьем</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold">{annual ? '790' : '990'}</span>
-                  <span className="text-gray-600"> руб./мес</span>
-                  {annual && <p className="text-sm text-gray-500">при годовой оплате</p>}
-                </div>
-                {user ? (
-                  <Link to="/dashboard/subscription">
-                    <Button variant="outline" className="w-full border-everliv-600 text-everliv-600 hover:bg-everliv-50">
-                      Выбрать план
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link to="/signup">
-                    <Button variant="outline" className="w-full border-everliv-600 text-everliv-600 hover:bg-everliv-50">
-                      Начать бесплатно
-                    </Button>
-                  </Link>
+            {plans.map((plan) => (
+              <div 
+                key={plan.type} 
+                className={`border ${plan.popular ? 'border-2 border-everliv-600' : 'border-gray-200'} rounded-xl shadow-sm overflow-hidden bg-white`}
+              >
+                {plan.popular && (
+                  <div className="bg-everliv-600 text-white text-xs font-semibold px-3 py-1 absolute right-0 top-0 rounded-bl">
+                    Популярный выбор
+                  </div>
                 )}
-              </div>
-              <div className="border-t border-gray-100 p-6 bg-gray-50">
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">Базовый анализ здоровья</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">Интерпретация до 5 показателей</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">Еженедельные отчеты</span>
-                  </li>
-                  <li className="flex items-start text-gray-400">
-                    <CheckCircle className="h-5 w-5 text-gray-300 mt-0.5 mr-3 flex-shrink-0" />
-                    <span>Персонализированные планы питания</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            
-            {/* Standard Plan */}
-            <div className="border-2 border-everliv-600 rounded-xl shadow-md overflow-hidden bg-white relative">
-              <div className="bg-everliv-600 text-white text-xs font-semibold px-3 py-1 absolute right-0 top-0 rounded-bl">
-                Популярный выбор
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-everliv-800 mb-2">Стандарт</h3>
-                <p className="text-gray-600 mb-6">Для активной заботы о здоровье</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold">{annual ? '1490' : '1790'}</span>
-                  <span className="text-gray-600"> руб./мес</span>
-                  {annual && <p className="text-sm text-gray-500">при годовой оплате</p>}
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-everliv-800 mb-2">{plan.name}</h3>
+                  <p className="text-gray-600 mb-6">{plan.description}</p>
+                  <div className="mb-6">
+                    <span className="text-4xl font-bold">{getPrice(plan.basePrice, plan.type)}</span>
+                    <span className="text-gray-600"> руб./мес</span>
+                    {annual && <p className="text-sm text-gray-500">при годовой оплате</p>}
+                  </div>
+                  {user ? (
+                    <Button 
+                      className={`w-full ${plan.popular ? 'bg-everliv-600 hover:bg-everliv-700 text-white' : 'border-everliv-600 text-everliv-600 hover:bg-everliv-50'}`} 
+                      variant={plan.popular ? "default" : "outline"} 
+                      onClick={() => handleSelectPlan(plan.type as 'basic' | 'standard' | 'premium')}
+                      disabled={processingPlan === plan.type}
+                    >
+                      {processingPlan === plan.type ? 'Обработка...' : (
+                        subscription?.plan_type === plan.type 
+                          ? 'Текущий план' 
+                          : 'Выбрать план'
+                      )}
+                    </Button>
+                  ) : (
+                    <Link to="/signup">
+                      <Button 
+                        className={`w-full ${plan.popular ? 'bg-everliv-600 hover:bg-everliv-700 text-white' : 'border-everliv-600 text-everliv-600 hover:bg-everliv-50'}`}
+                        variant={plan.popular ? "default" : "outline"}
+                      >
+                        Зарегистрироваться
+                      </Button>
+                    </Link>
+                  )}
                 </div>
-                {user ? (
-                  <Link to="/dashboard/subscription">
-                    <Button className="w-full bg-everliv-600 hover:bg-everliv-700 text-white">
-                      Выбрать план
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link to="/signup">
-                    <Button className="w-full bg-everliv-600 hover:bg-everliv-700 text-white">
-                      Выбрать план
-                    </Button>
-                  </Link>
-                )}
-              </div>
-              <div className="border-t border-gray-100 p-6 bg-gray-50">
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">Расширенный анализ здоровья</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">Интерпретация до 15 показателей</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">Персонализированные планы питания</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">Рекомендации по добавкам</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            
-            {/* Premium Plan */}
-            <div className="border border-gray-200 rounded-xl shadow-sm overflow-hidden bg-white">
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-everliv-800 mb-2">Премиум</h3>
-                <p className="text-gray-600 mb-6">Максимальные возможности</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold">{annual ? '1990' : '2490'}</span>
-                  <span className="text-gray-600"> руб./мес</span>
-                  {annual && <p className="text-sm text-gray-500">при годовой оплате</p>}
+                <div className="border-t border-gray-100 p-6 bg-gray-50">
+                  <ul className="space-y-3">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-start">
+                        <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-3 flex-shrink-0" />
+                        <span className="text-gray-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                {user ? (
-                  <Link to="/dashboard/subscription">
-                    <Button variant="outline" className="w-full border-everliv-600 text-everliv-600 hover:bg-everliv-50">
-                      Выбрать план
-                    </Button>
-                  </Link>
-                ) : (
-                  <Link to="/signup">
-                    <Button variant="outline" className="w-full border-everliv-600 text-everliv-600 hover:bg-everliv-50">
-                      Выбрать план
-                    </Button>
-                  </Link>
-                )}
+                
+                {/* Payment security indicator */}
+                <div className="border-t border-gray-100 p-4 bg-gray-50 flex items-center justify-center text-sm text-gray-500">
+                  <Shield className="h-4 w-4 mr-2 text-gray-400" />
+                  <span>Безопасная оплата</span>
+                  <CreditCard className="h-4 w-4 ml-2 text-gray-400" />
+                </div>
               </div>
-              <div className="border-t border-gray-100 p-6 bg-gray-50">
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">Полный анализ здоровья</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">Интерпретация всех показателей</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">VIP поддержка от экспертов</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">Квартальные консультации</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+            ))}
+          </div>
+          
+          {/* FAQ shortcut */}
+          <div className="mt-12 text-center">
+            <p className="text-gray-600">Есть вопросы по подпискам? Посмотрите наши <Link to="/faq" className="text-everliv-600 hover:underline">часто задаваемые вопросы</Link> или <Link to="/contact" className="text-everliv-600 hover:underline">свяжитесь с нами</Link>.</p>
           </div>
         </div>
       </div>
