@@ -179,7 +179,7 @@ const Dashboard = () => {
                       <p className="text-gray-500 mb-4 text-sm">
                         Отслеживайте прогресс ваших протоколов и анализируйте результаты
                       </p>
-                      <Link to="/my-protocols">
+                      <Link to="/protocol-tracking">
                         <Button 
                           variant="outline"
                           className="w-full"

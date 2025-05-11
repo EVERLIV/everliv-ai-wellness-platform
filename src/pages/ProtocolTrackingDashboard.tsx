@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Calendar, CheckCircle, Clock, LineChart, AlertCircle, User, Activity, FileText } from 'lucide-react';
+import { ProtocolChart } from '@/components/protocol/ProtocolChart';
 
 const ProtocolTrackingDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -10,7 +11,7 @@ const ProtocolTrackingDashboard = () => {
     coq10: { taken: false, name: "Коэнзим Q10", dose: "200 мг" },
     carnitine: { taken: false, name: "L-карнитин", dose: "1,5 г" },
     ala: { taken: false, name: "Альфа-липоевая кислота", dose: "600 мг" },
-    nr: { taken: false, name: "Никотинамид рибозид", dose: "500 мг" },
+    nr: { taken: true, name: "Никотинамид рибозид", dose: "500 мг" },
     resveratrol: { taken: false, name: "Ресвератрол", dose: "150 мг" }
   });
 
@@ -19,6 +20,18 @@ const ProtocolTrackingDashboard = () => {
       ...prev,
       [key]: { ...prev[key as keyof typeof prev], taken: !prev[key as keyof typeof prev].taken }
     }));
+  };
+
+  const markAllTaken = () => {
+    const updatedSupplements = Object.keys(supplements).reduce((acc, key) => {
+      acc[key as keyof typeof supplements] = { 
+        ...supplements[key as keyof typeof supplements], 
+        taken: true 
+      };
+      return acc;
+    }, {} as typeof supplements);
+    
+    setSupplements(updatedSupplements);
   };
 
   // Данные для графика энергии
@@ -164,7 +177,10 @@ const ProtocolTrackingDashboard = () => {
               </div>
 
               <div className="mt-4 flex">
-                <button className="flex items-center justify-center bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-2 px-4 rounded-lg text-sm w-full">
+                <button 
+                  className="flex items-center justify-center bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-2 px-4 rounded-lg text-sm w-full"
+                  onClick={markAllTaken}
+                >
                   <CheckCircle size={16} className="mr-2" />
                   Отметить все как принятые
                 </button>
@@ -265,21 +281,66 @@ const ProtocolTrackingDashboard = () => {
         {activeTab === 'supplements' && (
           <div className="bg-white p-5 rounded-lg shadow">
             <h2 className="text-lg font-semibold mb-4">Календарь приема добавок</h2>
-            <p className="text-gray-600">Содержимое вкладки "Добавки" будет здесь</p>
+            <div className="h-64">
+              <ProtocolChart 
+                data={[
+                  { date: '1 мая', 'Коэнзим Q10': 1, 'L-карнитин': 1, 'АЛК': 1 },
+                  { date: '2 мая', 'Коэнзим Q10': 1, 'L-карнитин': 1, 'АЛК': 1 },
+                  { date: '3 мая', 'Коэнзим Q10': 1, 'L-карнитин': 1, 'АЛК': 1 },
+                  { date: '4 мая', 'Коэнзим Q10': 0, 'L-карнитин': 1, 'АЛК': 1 },
+                  { date: '5 мая', 'Коэнзим Q10': 1, 'L-карнитин': 0, 'АЛК': 1 },
+                  { date: '6 мая', 'Коэнзим Q10': 1, 'L-карнитин': 1, 'АЛК': 1 },
+                  { date: '7 мая', 'Коэнзим Q10': 1, 'L-карнитин': 1, 'АЛК': 1 }
+                ]} 
+                xAxisKey="date" 
+              />
+            </div>
           </div>
         )}
 
         {activeTab === 'analytics' && (
           <div className="bg-white p-5 rounded-lg shadow">
             <h2 className="text-lg font-semibold mb-4">Аналитика прогресса</h2>
-            <p className="text-gray-600">Содержимое вкладки "Аналитика" будет здесь</p>
+            <div className="h-64">
+              <ProtocolChart 
+                data={[
+                  { day: 'День 1', 'Энергия': 3, 'Сон': 5 },
+                  { day: 'День 7', 'Энергия': 4, 'Сон': 6 },
+                  { day: 'День 14', 'Энергия': 5, 'Сон': 7 },
+                  { day: 'День 21', 'Энергия': 6, 'Сон': 7 },
+                  { day: 'День 28', 'Энергия': 7, 'Сон': 8 },
+                  { day: 'День 32', 'Энергия': 7, 'Сон': 8 }
+                ]} 
+                xAxisKey="day" 
+              />
+            </div>
           </div>
         )}
         
         {activeTab === 'tests' && (
           <div className="bg-white p-5 rounded-lg shadow">
             <h2 className="text-lg font-semibold mb-4">Результаты анализов</h2>
-            <p className="text-gray-600">Содержимое вкладки "Анализы" будет здесь</p>
+            <div className="space-y-4">
+              <div className="p-4 border border-gray-200 rounded-lg">
+                <div className="flex justify-between">
+                  <div>
+                    <h3 className="font-medium">Исходные анализы</h3>
+                    <p className="text-xs text-gray-500">Загружено: 01.04.2025</p>
+                  </div>
+                  <button className="text-blue-600 text-sm hover:underline">Посмотреть</button>
+                </div>
+              </div>
+              
+              <div className="p-4 border border-dashed border-gray-300 rounded-lg flex justify-center items-center">
+                <div className="flex flex-col items-center space-y-2">
+                  <FileText className="h-8 w-8 text-gray-400" />
+                  <p className="text-sm text-gray-500">Загрузите контрольные анализы (день 90)</p>
+                  <button className="px-3 py-1 bg-blue-50 text-blue-600 text-sm rounded-full hover:bg-blue-100">
+                    Загрузить файл
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </main>
