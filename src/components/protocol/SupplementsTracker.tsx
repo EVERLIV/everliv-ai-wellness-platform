@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useProtocolData } from '@/hooks/useProtocolData';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Supplement = {
   id: string;
@@ -20,6 +21,7 @@ export const SupplementsTracker = () => {
   const { protocolDay, userId } = useProtocolData(id);
   const [supplements, setSupplements] = useState<Supplement[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [selectedTab, setSelectedTab] = useState<string>("current"); // Add state for tab selection
   
   // Fetch supplements for the current protocol and day
   useEffect(() => {
@@ -215,6 +217,43 @@ export const SupplementsTracker = () => {
     );
   }
   
+  const renderSupplementsList = () => (
+    <div className="space-y-3">
+      {supplements.length === 0 ? (
+        <div className="text-center text-gray-500 py-4">
+          На этот день не назначены добавки
+        </div>
+      ) : (
+        supplements.map((supplement) => (
+          <div 
+            key={supplement.id}
+            className={`flex items-center justify-between p-3 rounded-lg cursor-pointer 
+              ${supplement.taken ? 'bg-green-50 border border-green-100' : 'bg-gray-50 border border-gray-100'}`}
+            onClick={() => toggleSupplement(supplement.id)}
+          >
+            <div className="flex items-center">
+              <div className={`w-5 h-5 rounded-full mr-3 flex items-center justify-center 
+                ${supplement.taken ? 'bg-green-500 text-white' : 'bg-white border border-gray-300'}`}>
+                {supplement.taken && <CheckCircle size={14} />}
+              </div>
+              <div>
+                <div className="font-medium text-sm">{supplement.supplement_name}</div>
+                <div className="text-xs text-gray-500">{supplement.dose}</div>
+              </div>
+            </div>
+            <div className="text-xs">
+              {supplement.taken ? (
+                <span className="text-green-600">Принято</span>
+              ) : (
+                <span className="text-gray-400">{supplement.scheduled_time}</span>
+              )}
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+  
   return (
     <div className="bg-white p-5 rounded-lg shadow">
       <h2 className="text-lg font-semibold mb-4 flex items-center">
@@ -222,54 +261,36 @@ export const SupplementsTracker = () => {
         Добавки на день {protocolDay}
       </h2>
       
-      <div className="space-y-3">
-        {supplements.length === 0 ? (
-          <div className="text-center text-gray-500 py-4">
-            На этот день не назначены добавки
-          </div>
-        ) : (
-          supplements.map((supplement) => (
-            <div 
-              key={supplement.id}
-              className={`flex items-center justify-between p-3 rounded-lg cursor-pointer 
-                ${supplement.taken ? 'bg-green-50 border border-green-100' : 'bg-gray-50 border border-gray-100'}`}
-              onClick={() => toggleSupplement(supplement.id)}
-            >
-              <div className="flex items-center">
-                <div className={`w-5 h-5 rounded-full mr-3 flex items-center justify-center 
-                  ${supplement.taken ? 'bg-green-500 text-white' : 'bg-white border border-gray-300'}`}>
-                  {supplement.taken && <CheckCircle size={14} />}
-                </div>
-                <div>
-                  <div className="font-medium text-sm">{supplement.supplement_name}</div>
-                  <div className="text-xs text-gray-500">{supplement.dose}</div>
-                </div>
-              </div>
-              <div className="text-xs">
-                {supplement.taken ? (
-                  <span className="text-green-600">Принято</span>
-                ) : (
-                  <span className="text-gray-400">{supplement.scheduled_time}</span>
-                )}
-              </div>
+      <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="current">Текущий день</TabsTrigger>
+          <TabsTrigger value="history">История</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="current">
+          {renderSupplementsList()}
+          
+          {supplements.length > 0 && (
+            <div className="mt-4 flex">
+              <Button 
+                variant="outline"
+                className="w-full"
+                onClick={markAllTaken}
+                disabled={supplements.every(s => s.taken)}
+              >
+                <CheckCircle size={16} className="mr-2" />
+                Отметить все как принятые
+              </Button>
             </div>
-          ))
-        )}
-      </div>
-
-      {supplements.length > 0 && (
-        <div className="mt-4 flex">
-          <Button 
-            variant="outline"
-            className="w-full"
-            onClick={markAllTaken}
-            disabled={supplements.every(s => s.taken)}
-          >
-            <CheckCircle size={16} className="mr-2" />
-            Отметить все как принятые
-          </Button>
-        </div>
-      )}
+          )}
+        </TabsContent>
+        
+        <TabsContent value="history">
+          <div className="text-center text-gray-500 py-4">
+            История приема добавок будет здесь
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

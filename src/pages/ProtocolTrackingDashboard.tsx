@@ -53,58 +53,98 @@ const ProtocolTrackingDashboard = () => {
 
       {/* Навигация */}
       <nav className="bg-white border-b border-gray-200">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="container mx-auto">
-          <TabsList className="bg-transparent border-b-0">
-            <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
-              <Activity size={18} className="mr-2" />
-              Обзор
-            </TabsTrigger>
-            <TabsTrigger value="supplements" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
-              <Calendar size={18} className="mr-2" />
-              Добавки
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
-              <LineChart size={18} className="mr-2" />
-              Аналитика
-            </TabsTrigger>
-            <TabsTrigger value="tests" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
-              <FileText size={18} className="mr-2" />
-              Анализы
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="container mx-auto">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="bg-transparent border-b-0">
+              <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
+                <Activity size={18} className="mr-2" />
+                Обзор
+              </TabsTrigger>
+              <TabsTrigger value="supplements" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
+                <Calendar size={18} className="mr-2" />
+                Добавки
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
+                <LineChart size={18} className="mr-2" />
+                Аналитика
+              </TabsTrigger>
+              <TabsTrigger value="tests" className="data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none">
+                <FileText size={18} className="mr-2" />
+                Анализы
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </nav>
 
       {/* Основное содержимое */}
       <main className="container mx-auto p-4">
-        <TabsContent value="overview" className="mt-0">
+        <Tabs value={activeTab} className="hidden">
+          <TabsContent value="overview">
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Прогресс по протоколу */}
+              <ProtocolProgress />
+
+              {/* Сегодняшние добавки */}
+              <SupplementsTracker />
+
+              {/* Самочувствие */}
+              <WellbeingTracker />
+
+              {/* События */}
+              <EventsList />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="supplements">
+            <div className="bg-white p-5 rounded-lg shadow">
+              <h2 className="text-lg font-semibold mb-4">Календарь приема добавок</h2>
+              <SupplementsTracker />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AnalyticsView />
+          </TabsContent>
+          
+          <TabsContent value="tests">
+            <div className="bg-white p-5 rounded-lg shadow">
+              <h2 className="text-lg font-semibold mb-4">Результаты анализов</h2>
+              <div className="space-y-4">
+                <div className="p-4 border border-dashed border-gray-300 rounded-lg flex justify-center items-center">
+                  <div className="flex flex-col items-center space-y-2">
+                    <FileText className="h-8 w-8 text-gray-400" />
+                    <p className="text-sm text-gray-500">Загрузите результаты анализов для отслеживания прогресса</p>
+                    <button className="px-3 py-1 bg-blue-50 text-blue-600 text-sm rounded-full hover:bg-blue-100">
+                      Загрузить файл
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+        
+        {/* Display content based on active tab */}
+        {activeTab === "overview" && (
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Прогресс по протоколу */}
             <ProtocolProgress />
-
-            {/* Сегодняшние добавки */}
             <SupplementsTracker />
-
-            {/* Самочувствие */}
             <WellbeingTracker />
-
-            {/* События */}
             <EventsList />
           </div>
-        </TabsContent>
-
-        <TabsContent value="supplements" className="mt-0">
+        )}
+        
+        {activeTab === "supplements" && (
           <div className="bg-white p-5 rounded-lg shadow">
             <h2 className="text-lg font-semibold mb-4">Календарь приема добавок</h2>
             <SupplementsTracker />
           </div>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="mt-0">
-          <AnalyticsView />
-        </TabsContent>
+        )}
         
-        <TabsContent value="tests" className="mt-0">
+        {activeTab === "analytics" && <AnalyticsView />}
+        
+        {activeTab === "tests" && (
           <div className="bg-white p-5 rounded-lg shadow">
             <h2 className="text-lg font-semibold mb-4">Результаты анализов</h2>
             <div className="space-y-4">
@@ -119,7 +159,7 @@ const ProtocolTrackingDashboard = () => {
               </div>
             </div>
           </div>
-        </TabsContent>
+        )}
       </main>
     </div>
   );
