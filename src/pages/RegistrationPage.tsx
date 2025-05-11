@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-
 const RegistrationPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,10 +15,13 @@ const RegistrationPage = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp } = useAuth();
+  const {
+    signUp
+  } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -30,18 +32,15 @@ const RegistrationPage = () => {
       });
       return;
     }
-
     setIsLoading(true);
-
     try {
       await signUp(email, password, {
         first_name: firstName,
         last_name: lastName
       });
-      
       toast({
         title: "Регистрация успешна",
-        description: "Аккаунт успешно создан. Вы можете войти в систему.",
+        description: "Аккаунт успешно создан. Вы можете войти в систему."
       });
       navigate('/login');
     } catch (error: any) {
@@ -55,12 +54,10 @@ const RegistrationPage = () => {
       setIsLoading(false);
     }
   };
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Header />
       <div className="flex-grow flex items-center justify-center bg-gray-50 py-16 px-4">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md py-0 my-[100px]">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Регистрация</CardTitle>
             <CardDescription className="text-center">
@@ -72,62 +69,25 @@ const RegistrationPage = () => {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">Имя</Label>
-                  <Input 
-                    id="firstName" 
-                    type="text" 
-                    placeholder="Иван" 
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    required
-                  />
+                  <Input id="firstName" type="text" placeholder="Иван" value={firstName} onChange={e => setFirstName(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Фамилия</Label>
-                  <Input 
-                    id="lastName" 
-                    type="text" 
-                    placeholder="Иванов" 
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    required
-                  />
+                  <Input id="lastName" type="text" placeholder="Иванов" value={lastName} onChange={e => setLastName(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="your@email.com" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
+                  <Input id="email" type="email" placeholder="your@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Пароль</Label>
-                  <Input 
-                    id="password" 
-                    type="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
-                  <Input 
-                    id="confirmPassword" 
-                    type="password" 
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                  />
+                  <Input id="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
                 </div>
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isLoading}
-                >
+                <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
                 </Button>
               </div>
@@ -144,8 +104,6 @@ const RegistrationPage = () => {
         </Card>
       </div>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default RegistrationPage;
