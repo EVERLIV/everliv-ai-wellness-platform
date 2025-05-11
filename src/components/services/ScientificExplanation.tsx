@@ -25,13 +25,22 @@ export interface ScientificExplanationProps {
   }[];
   visualComponent?: ReactNode;
   references: ResearchReference[];
+  category?: string;
+  researchData?: {
+    title: string;
+    authors: string;
+    year: number;
+    journal: string;
+    summary: string;
+  }[];
 }
 
 const ScientificExplanation: React.FC<ScientificExplanationProps> = ({
   summary,
   mechanisms,
   visualComponent,
-  references
+  references,
+  category
 }) => {
   return (
     <div className="space-y-8">
@@ -65,7 +74,7 @@ const ScientificExplanation: React.FC<ScientificExplanationProps> = ({
       </div>
 
       <div className="bg-white rounded-lg p-6 shadow-sm">
-        <h3 className="text-xl font-semibold mb-4">Научные исследования</h3>
+        <h3 className="text-xl font-semibold mb-4">{category || "Научные исследования"}</h3>
         <div className="space-y-4">
           {references.map((reference, index) => (
             <Card key={index} className="border border-gray-200">
