@@ -209,6 +209,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_protocols: {
+        Row: {
+          added_at: string
+          benefits: string[]
+          category: string
+          completed_at: string | null
+          completion_percentage: number
+          description: string
+          difficulty: string
+          duration: string
+          id: string
+          notes: string | null
+          started_at: string | null
+          status: string
+          steps: string[]
+          title: string
+          user_id: string
+          warnings: string[] | null
+        }
+        Insert: {
+          added_at?: string
+          benefits: string[]
+          category: string
+          completed_at?: string | null
+          completion_percentage?: number
+          description: string
+          difficulty: string
+          duration: string
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          status?: string
+          steps: string[]
+          title: string
+          user_id: string
+          warnings?: string[] | null
+        }
+        Update: {
+          added_at?: string
+          benefits?: string[]
+          category?: string
+          completed_at?: string | null
+          completion_percentage?: number
+          description?: string
+          difficulty?: string
+          duration?: string
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          status?: string
+          steps?: string[]
+          title?: string
+          user_id?: string
+          warnings?: string[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

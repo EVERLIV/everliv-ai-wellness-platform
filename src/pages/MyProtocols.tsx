@@ -11,14 +11,6 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { 
   Thermometer, 
   Brain, 
   Activity, 
@@ -32,7 +24,7 @@ import {
 } from 'lucide-react';
 
 // Иконки для категорий протоколов
-const categoryIcons = {
+const categoryIcons: Record<string, React.ReactNode> = {
   cold_therapy: <Thermometer className="h-5 w-5" />,
   breathing: <Activity className="h-5 w-5" />,
   oxygen: <Brain className="h-5 w-5" />,
@@ -40,7 +32,7 @@ const categoryIcons = {
 };
 
 // Названия категорий
-const categoryNames = {
+const categoryNames: Record<string, string> = {
   cold_therapy: "Холодовое воздействие",
   breathing: "Дыхательные практики",
   oxygen: "Кислородная терапия",
@@ -48,7 +40,7 @@ const categoryNames = {
 };
 
 // Статусы протоколов
-const protocolStatuses = {
+const protocolStatuses: Record<string, { text: string, color: string, icon: React.ReactNode }> = {
   not_started: { text: "Не начат", color: "bg-gray-200", icon: <X className="h-4 w-4 text-gray-500" /> },
   in_progress: { text: "В процессе", color: "bg-blue-200", icon: <Play className="h-4 w-4 text-blue-500" /> },
   paused: { text: "Приостановлен", color: "bg-yellow-200", icon: <Pause className="h-4 w-4 text-yellow-500" /> },
@@ -69,9 +61,9 @@ interface UserProtocol {
   added_at: string;
   status: 'not_started' | 'in_progress' | 'paused' | 'completed';
   completion_percentage: number;
-  started_at?: string;
-  completed_at?: string;
-  notes?: string;
+  started_at?: string | null;
+  completed_at?: string | null;
+  notes?: string | null;
 }
 
 const MyProtocols = () => {
@@ -96,8 +88,8 @@ const MyProtocols = () => {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      setProtocols(data || []);
-    } catch (error) {
+      setProtocols(data as UserProtocol[] || []);
+    } catch (error: any) {
       console.error('Ошибка при загрузке протоколов:', error);
       toast({
         title: 'Ошибка',
@@ -110,7 +102,9 @@ const MyProtocols = () => {
   };
 
   useEffect(() => {
-    fetchProtocols();
+    if (user) {
+      fetchProtocols();
+    }
   }, [user]);
 
   const updateProtocolStatus = async (id: string, newStatus: UserProtocol['status']) => {
@@ -141,7 +135,7 @@ const MyProtocols = () => {
         title: 'Статус обновлен',
         description: `Протокол ${newStatus === 'completed' ? 'завершен' : 'обновлен'}`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Ошибка при обновлении статуса:', error);
       toast({
         title: 'Ошибка',
@@ -164,7 +158,7 @@ const MyProtocols = () => {
       setProtocols(protocols.map(protocol => 
         protocol.id === id ? { ...protocol, completion_percentage: percentage } : protocol
       ));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Ошибка при обновлении прогресса:', error);
       toast({
         title: 'Ошибка',
@@ -190,7 +184,7 @@ const MyProtocols = () => {
         title: 'Протокол удален',
         description: 'Протокол успешно удален из вашей программы',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Ошибка при удалении протокола:', error);
       toast({
         title: 'Ошибка',
@@ -311,7 +305,7 @@ const MyProtocols = () => {
               {Object.keys(categoryNames).map(category => (
                 <TabsContent key={category} value={category} className="mt-6">
                   <h2 className="text-xl font-semibold mb-4">
-                    {categoryNames[category as keyof typeof categoryNames]} ({
+                    {categoryNames[category]} ({
                       protocols.filter(p => p.category === category).length
                     })
                   </h2>
@@ -346,7 +340,7 @@ const MyProtocols = () => {
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <div className="flex items-center">
-                  {categoryIcons[protocol.category as keyof typeof categoryIcons]}
+                  {categoryIcons[protocol.category]}
                   <CardTitle className="ml-2 text-lg">
                     {protocol.title}
                   </CardTitle>
@@ -371,7 +365,7 @@ const MyProtocols = () => {
             <CardContent>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm text-gray-500">
-                  {categoryNames[protocol.category as keyof typeof categoryNames]} • {protocol.difficulty === 'beginner' ? 'Начинающий' : protocol.difficulty === 'intermediate' ? 'Средний' : 'Продвинутый'} • {protocol.duration}
+                  {categoryNames[protocol.category]} • {protocol.difficulty === 'beginner' ? 'Начинающий' : protocol.difficulty === 'intermediate' ? 'Средний' : 'Продвинутый'} • {protocol.duration}
                 </div>
                 {protocol.started_at && (
                   <div className="text-sm text-gray-500 flex items-center">
@@ -412,7 +406,6 @@ const MyProtocols = () => {
               <Button 
                 variant="link" 
                 onClick={() => {
-                  // Здесь будет навигация к детальному просмотру протокола
                   toast({
                     title: 'Протокол',
                     description: 'Детальный просмотр будет доступен в ближайшем обновлении',
