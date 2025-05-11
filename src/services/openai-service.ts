@@ -1,4 +1,3 @@
-
 // OpenAI integration for health analysis services
 
 import OpenAI from "openai";
@@ -11,11 +10,11 @@ interface OpenAIBloodAnalysisParams {
 // Initialize OpenAI client
 const initializeOpenAI = () => {
   // In a production environment, you would fetch this from environment variables
-  // or from the Supabase secrets
-  const apiKey = process.env.OPENAI_API_KEY || localStorage.getItem('OPENAI_API_KEY');
+  // In the browser environment, we can only access localStorage
+  const apiKey = localStorage.getItem('OPENAI_API_KEY');
   
   if (!apiKey) {
-    throw new Error("OpenAI API key is required");
+    throw new Error("OpenAI API key is required. Please set it in your localStorage.");
   }
 
   return new OpenAI({
@@ -34,7 +33,6 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
     const openai = initializeOpenAI();
     const { text, imageUrl } = params;
     
-    let content = "";
     let messages = [];
     
     if (text) {
