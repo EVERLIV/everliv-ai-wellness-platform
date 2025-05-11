@@ -102,6 +102,12 @@ export const useBloodAnalysis = () => {
         imageBase64: inputMethod === "photo" ? base64Image : undefined
       });
 
+      // Validate results structure
+      if (!analysisResults || !Array.isArray(analysisResults.markers)) {
+        console.error("Invalid analysis results structure:", analysisResults);
+        throw new Error("Не удалось распознать данные с изображения. Попробуйте сделать более четкое фото или ввести данные вручную.");
+      }
+
       setResults(analysisResults);
       setActiveTab("results");
       toast.success("Анализ успешно завершен");

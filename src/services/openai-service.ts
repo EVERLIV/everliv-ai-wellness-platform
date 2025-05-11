@@ -1,4 +1,3 @@
-
 // OpenAI integration for health analysis services
 
 import OpenAI from "openai";
@@ -57,8 +56,14 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
         {
           role: "user",
           content: [
-            { type: "text", text: "Проанализируй этот анализ крови и предоставь подробные рекомендации. Чётко определяй названия показателей, их значения, нормальные диапазоны, и дай конкретные рекомендации по каждому отклонению:" },
-            { type: "image_url", image_url: { url: imageBase64 } }
+            { 
+              type: "text", 
+              text: "Проанализируй этот анализ крови на русском языке. Выдели все показатели, их значения и нормальные диапазоны. Если значение выходит за пределы нормы, дай конкретные рекомендации. Предложи дополнительные анализы или добавки при необходимости. Ответ должен быть структурированным JSON объектом согласно системной инструкции." 
+            },
+            { 
+              type: "image_url", 
+              image_url: { url: imageBase64 } 
+            }
           ]
         }
       ];
@@ -84,7 +89,8 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
       model: "gpt-4o",
       messages: messages as any,
       temperature: 0.5,
-      max_tokens: 1500,
+      max_tokens: 2000,
+      response_format: { type: "json_object" }
     });
     
     const aiResponse = response.choices[0].message.content || "";
@@ -96,13 +102,10 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
     } catch (error) {
       console.error("Failed to parse AI response as JSON:", error);
       console.log("Full AI response:", aiResponse);
-      // Handle the case where AI doesn't return valid JSON
-      // For now, return a structured error response
-      return {
-        markers: [{ name: "Error", value: "Failed to parse AI response", normalRange: "N/A", status: "high", recommendation: "Please try again" }],
-        supplements: [],
-        generalRecommendation: "There was an issue processing your results. Please try again or contact support."
-      };
+      
+      // Attempt to extract structured data even if full parsing fails
+      const fallbackResponse = createFallbackResponse(aiResponse);
+      return fallbackResponse;
     }
   } catch (error) {
     console.error("Error analyzing blood test:", error);
@@ -111,61 +114,110 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
 };
 
 /**
+ * Creates a fallback response when JSON parsing fails
+ */
+const createFallbackResponse = (responseText: string) => {
+  // Default fallback response
+  let fallbackResponse = {
+    markers: [],
+    supplements: [],
+    generalRecommendation: "Произошла ошибка при анализе данных. Пожалуйста, попробуйте еще раз с более четким изображением или введите данные вручную."
+  };
+
+  try {
+    // Try to extract some meaningful data even if JSON parsing failed
+    
+    // Look for marker patterns
+    const markerMatches = responseText.match(/["']?name["']?\s*:\s*["']([^"']+)["']/g);
+    if (markerMatches && markerMatches.length > 0) {
+      const extractedMarkers = [];
+      markerMatches.forEach(match => {
+        const nameMatch = match.match(/["']?name["']?\s*:\s*["']([^"']+)["']/);
+        if (nameMatch && nameMatch[1]) {
+          extractedMarkers.push({
+            name: nameMatch[1],
+            value: "Не удалось распознать",
+            normalRange: "Не удалось распознать",
+            status: "normal",
+            recommendation: "Рекомендуем повторить анализ или ввести данные вручную"
+          });
+        }
+      });
+      
+      if (extractedMarkers.length > 0) {
+        fallbackResponse.markers = extractedMarkers;
+      }
+    }
+    
+    // Look for general recommendation
+    const generalRecMatch = responseText.match(/["']?generalRecommendation["']?\s*:\s*["']([^"']+)["']/);
+    if (generalRecMatch && generalRecMatch[1]) {
+      fallbackResponse.generalRecommendation = generalRecMatch[1];
+    }
+    
+    return fallbackResponse;
+  } catch (error) {
+    console.error("Error creating fallback response:", error);
+    return fallbackResponse;
+  }
+};
+
+/**
  * Creates a system prompt for blood test analysis
  */
 export const createBloodTestSystemPrompt = () => {
-  return `You are a highly qualified medical AI assistant specializing in blood test analysis. 
-  Your task is to analyze blood test results, identify abnormalities, and provide personalized recommendations.
+  return `Вы - высококвалифицированный медицинский ИИ-помощник, специализирующийся на анализе результатов анализов крови.
+  Ваша задача - анализировать результаты анализов крови, выявлять отклонения и предоставлять персонализированные рекомендации.
   
-  Respond ONLY with a JSON object in the following format:
+  Отвечайте ТОЛЬКО в формате JSON объекта следующей структуры:
   {
     "markers": [
       {
-        "name": "Marker name",
-        "value": "Detected value",
-        "normalRange": "Normal range",
+        "name": "Название показателя",
+        "value": "Обнаруженное значение",
+        "normalRange": "Нормальный диапазон",
         "status": "normal|high|low",
-        "recommendation": "Specific recommendation for this marker"
+        "recommendation": "Конкретная рекомендация для данного показателя"
       }
     ],
     "supplements": [
       {
-        "name": "Supplement name",
-        "reason": "Reason for recommendation",
-        "dosage": "Recommended dosage"
+        "name": "Название добавки",
+        "reason": "Причина рекомендации",
+        "dosage": "Рекомендуемая дозировка"
       }
     ],
-    "generalRecommendation": "Overall recommendation based on all markers"
+    "generalRecommendation": "Общая рекомендация на основе всех показателей"
   }
   
-  Important guidelines:
-  - Be thorough and scientifically accurate in your analysis
-  - Identify both concerning markers and positive indicators
-  - Provide specific, actionable recommendations for each abnormal marker
-  - Suggest appropriate supplements or lifestyle changes based on the specific results
-  - Include a comprehensive overall recommendation
-  - Consider potential interactions between different markers
+  Важные указания:
+  - Будьте тщательны и научно точны в своем анализе
+  - Определяйте как проблемные показатели, так и положительные индикаторы
+  - Предоставляйте конкретные, выполнимые рекомендации для каждого отклоняющегося показателя
+  - Предлагайте соответствующие добавки или изменения образа жизни на основе конкретных результатов
+  - Включайте комплексную общую рекомендацию
+  - Учитывайте потенциальные взаимодействия между различными показателями
   
-  Do not include any text outside of this JSON structure.`;
+  Не включайте никакой текст вне этой JSON структуры.`;
 };
 
 /**
  * Creates a prompt for OpenAI based on blood test data
  */
 export const createBloodTestPrompt = (text: string) => {
-  return `Analyze the following blood test results in detail and provide personalized recommendations:
+  return `Проанализируйте следующие результаты анализа крови подробно и предоставьте персонализированные рекомендации:
   
   ${text}
   
-  For each abnormal marker:
-  1. Identify the specific issue
-  2. Explain its health implications
-  3. Suggest specific dietary, lifestyle or supplement interventions
-  4. Indicate urgency level if appropriate
+  Для каждого отклоняющегося показателя:
+  1. Определите конкретную проблему
+  2. Объясните её влияние на здоровье
+  3. Предложите конкретные диетические, образ жизни или добавочные вмешательства
+  4. Укажите уровень срочности, если уместно
   
-  Also identify any positive markers and provide encouragement.
+  Также определите любые положительные показатели и предоставьте поддержку.
   
-  Remember to respond ONLY in the required JSON format.`;
+  Не забудьте отвечать ТОЛЬКО в требуемом JSON формате.`;
 };
 
 /**
@@ -218,57 +270,57 @@ export const analyzeBiologicalAgeWithOpenAI = async (biomarkerData: object) => {
  * Creates a system prompt for biological age analysis
  */
 export const createBiologicalAgeSystemPrompt = () => {
-  return `You are an expert AI specializing in biological age assessment and longevity medicine. 
-  Your task is to analyze biomarkers and health data to estimate biological age and provide longevity recommendations.
+  return `Вы - экспертный ИИ, специализирующийся на оценке биологического возраста и медицинской долговечности. 
+  Ваша задача - анализировать биомаркеры и данные о здоровье, чтобы оценить биологический возраст и предложить рекомендации по долговечности.
   
-  Respond ONLY with a JSON object in the following format:
+  Отвечайте ТОЛЬКО в формате JSON объекта следующей структуры:
   {
     "biologicalAge": number,
     "chronologicalAge": number,
     "ageDifference": number,
     "agingFactors": [
       {
-        "factor": "Factor name",
+        "factor": "Фактор возраста",
         "impact": "high|medium|low",
-        "description": "How this factor affects biological age"
+        "description": "Как этот фактор влияет на биологический возраст"
       }
     ],
     "recommendations": [
       {
-        "category": "diet|exercise|sleep|supplements|lifestyle",
-        "recommendation": "Specific recommendation",
+        "category": "диета|физическая активность|сна|средства|жизненный стиле",
+        "recommendation": "Специфическая рекомендация",
         "priority": "high|medium|low"
       }
     ],
-    "detailedAnalysis": "Overall analysis explaining biological age calculation and key insights"
+    "detailedAnalysis": "Общий анализ, объясняющий расчет биологического возраста и ключевые инсайты"
   }
   
-  Important guidelines:
-  - Be scientifically accurate in your assessments
-  - Base your analysis on established biological age calculation methodologies
-  - Provide personalized, actionable recommendations
-  - Prioritize evidence-based interventions
-  - Consider interactions between different biomarkers
+  Важные указания:
+  - Будьте научно точны в своих оценках
+  - Основывайтесь на established методологиях оценки биологического возраста
+  - Предоставляйте персонализированные, выполнимые рекомендации
+  - Приоритизируйте основные результаты
+  - Учитывайте взаимодействия между различными биомаркерами
   
-  Do not include any text outside of this JSON structure.`;
+  Не включайте никакой текст вне этой JSON структуры.`;
 };
 
 /**
  * Creates a biological age analysis prompt
  */
 export const createBiologicalAgePrompt = (biomarkerData: object) => {
-  return `Analyze the following biomarker data to estimate biological age and provide comprehensive longevity recommendations:
+  return `Анализируйте следующие биомаркерные данные, чтобы оценить биологический возраст и предложить комплексные рекомендации по долговечности:
   
   ${JSON.stringify(biomarkerData)}
   
-  In your analysis:
-  1. Calculate estimated biological age based on these biomarkers
-  2. Compare to chronological age
-  3. Identify key factors accelerating or decelerating aging
-  4. Provide specific, personalized interventions to optimize longevity
-  5. Prioritize recommendations by potential impact
+  В вашем анализе:
+  1. Вычислите оценку биологического возраста на основе этих биомаркеров
+  2. Сравните с возрастом постепенности
+  3. Идентифицируйте ключевые факторы, ускоряющие или замедляющие старение
+  4. Предложите конкретные, персонализированные вмешательства для оптимизации долговечности
+  5. Приоритизируйте рекомендации по степени влияния
   
-  Remember to respond ONLY in the required JSON format.`;
+  Не забудьте отвечать ТОЛЬКО в требуемом JSON формате.`;
 };
 
 /**
@@ -321,78 +373,78 @@ export const performComprehensiveAnalysisWithOpenAI = async (healthData: object)
  * Creates a system prompt for comprehensive health analysis
  */
 export const createComprehensiveAnalysisSystemPrompt = () => {
-  return `You are a holistic health AI expert specializing in comprehensive health assessment. 
-  Your task is to analyze various health metrics and provide an integrated health analysis.
+  return `Вы - экспертный ИИ, специализирующийся на полном анализе здоровья. 
+  Ваша задача - оценить различные метрики здоровья и предоставить интегрированный анализ здоровья.
   
-  Respond ONLY with a JSON object in the following format:
+  Отвечайте ТОЛЬКО в формате JSON объекта следующей структуры:
   {
     "healthScore": number (0-100),
     "keyConcerns": [
       {
-        "area": "Area of concern",
+        "area": "Область опасности",
         "severity": "critical|high|medium|low",
-        "description": "Detailed description of the concern"
+        "description": "Подробное описание опасности"
       }
     ],
     "strengths": [
       {
-        "area": "Health strength",
-        "description": "Description of this health strength"
+        "area": "Здоровая сила",
+        "description": "Описание этой здоровой сильи"
       }
     ],
     "systemAnalysis": [
       {
-        "system": "cardiovascular|metabolic|immune|hormonal|neurological|etc",
+        "system": "кардио|метаболизм|иммунитет|гормональная система|нервная система|и т.д.",
         "status": "optimal|good|fair|poor|critical",
         "markers": [
           {
-            "name": "Marker name",
-            "value": "Value",
-            "interpretation": "Interpretation of this specific marker"
+            "name": "Название показателя",
+            "value": "Значение",
+            "interpretation": "Интерпретация этого конкретного показателя"
           }
         ],
         "recommendations": [
-          "Specific recommendation for this system"
+          "Специфическая рекомендация для этого системы"
         ]
       }
     ],
     "integratedRecommendations": [
       {
-        "category": "nutrition|exercise|sleep|stress|supplements|medical|lifestyle",
-        "recommendation": "Specific integrated recommendation",
+        "category": "напитки|физическая активность|сна|стресс|добавки|медикаменты|жизненный стиле",
+        "recommendation": "Специфическая интегрированная рекомендация",
         "priority": "high|medium|low",
-        "timeframe": "immediate|short-term|long-term"
+        "timeframe": "срочность (недели, месяца, лет)"
       }
     ],
-    "detailedAnalysis": "Overall integrated analysis explaining connections between systems and key insights"
+    "detailedAnalysis": "Общий интегрированный анализ, объясняющий связи между системами и ключевые инсайты"
   }
   
-  Important guidelines:
-  - Provide a truly integrated analysis that looks at relationships between different health systems
-  - Consider how issues in one system may affect others
-  - Be comprehensive but prioritize the most important findings
-  - Make evidence-based recommendations
-  - Personalize the analysis based on all available data
+  Важные указания:
+  - Проведите полный интегрированный анализ, учитывающий взаимосвязи между различными системами здоровья
+  - Учитывайте, как проблемы в одной системе могут влиять на другие
+  - Будьте полным и научным в своем анализе
+  - Предоставляйте выполнимые, основательные рекомендации
+  - Персонализируйте анализ на основе всех доступных данных
   
-  Do not include any text outside of this JSON structure.`;
+  Не включайте никакой текст вне этой JSON структуры.`;
 };
 
 /**
  * Creates a comprehensive analysis prompt
  */
 export const createComprehensiveAnalysisPrompt = (healthData: object) => {
-  return `Perform a comprehensive health analysis based on the following health data:
+  return `Проведите полный анализ здоровья на основе следующих данных о здоровье:
   
   ${JSON.stringify(healthData)}
   
-  In your analysis:
-  1. Evaluate overall health status with a numerical score
-  2. Identify key health concerns and their severity
-  3. Highlight health strengths and positive indicators
-  4. Analyze each body system separately
-  5. Provide integrated recommendations that address multiple issues simultaneously
-  6. Consider interactions between different systems and markers
-  7. Prioritize recommendations by impact and urgency
+  В вашем анализе:
+  1. Оцените общее состояние здоровья с числовым оценкой
+  2. Идентифицируйте ключевые проблемы и их серьезность
+  3. Выделите положительные сильности и положительные индикаторы
+  4. Анализируйте каждую систему здоровья отдельно
+  5. Предложите интегрированные рекомендации, которые одновременно решают несколько проблем
+  6. Учитывайте взаимодействия между различными системами и метриками
+  7. Приоритизируйте рекомендации по степени влияния и срочности
   
-  Remember to respond ONLY in the required JSON format.`;
+  Не забудьте отвечать ТОЛЬКО в требуемом JSON формате.`;
 };
