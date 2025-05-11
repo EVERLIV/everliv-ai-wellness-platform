@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { useSubscription, PLAN_FEATURES } from "@/contexts/SubscriptionContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { PLAN_FEATURES } from "@/constants/subscription-features";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertCircle, Clock } from "lucide-react";
