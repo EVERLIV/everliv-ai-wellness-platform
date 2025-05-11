@@ -1,3 +1,4 @@
+
 // OpenAI integration for health analysis services
 
 import OpenAI from "openai";
@@ -48,7 +49,7 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
         }
       ];
     } else if (imageUrl) {
-      // For image input
+      // For image input - format correctly for the content array
       messages = [
         {
           role: "system",
@@ -66,6 +67,8 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
       throw new Error("Either text or image is required");
     }
     
+    console.log("Messages being sent to OpenAI:", JSON.stringify(messages, null, 2));
+    
     // Make API call to OpenAI
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -75,6 +78,7 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
     });
     
     const aiResponse = response.choices[0].message.content || "";
+    console.log("Received response from OpenAI:", aiResponse.substring(0, 200) + "...");
     
     // Parse the AI response to match our expected format
     // This assumes the AI is instructed to respond in a specific JSON format
@@ -82,6 +86,7 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
       return JSON.parse(aiResponse);
     } catch (error) {
       console.error("Failed to parse AI response as JSON:", error);
+      console.log("Full AI response:", aiResponse);
       // Handle the case where AI doesn't return valid JSON
       // For now, return a structured error response
       return {

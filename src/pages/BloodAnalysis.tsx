@@ -10,8 +10,15 @@ import BloodAnalysisForm from "@/components/blood-analysis/BloodAnalysisForm";
 import BloodAnalysisResults from "@/components/blood-analysis/BloodAnalysisResults";
 import { useBloodAnalysis } from "@/hooks/useBloodAnalysis";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+
+interface ApiKeyFormValues {
+  apiKey: string;
+}
 
 const BloodAnalysis = () => {
   const {
@@ -24,14 +31,29 @@ const BloodAnalysis = () => {
   } = useBloodAnalysis();
   
   const [showApiKeyForm, setShowApiKeyForm] = useState(false);
-  const [apiKey, setApiKey] = useState("");
+  const [hasApiKey, setHasApiKey] = useState(false);
 
-  const handleApiKeySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (apiKey.trim()) {
-      localStorage.setItem('OPENAI_API_KEY', apiKey.trim());
-      toast.success("API ключ OpenAI был сохранен");
+  // Проверяем наличие API ключа при загрузке компонента
+  useEffect(() => {
+    const apiKey = localStorage.getItem('OPENAI_API_KEY');
+    setHasApiKey(!!apiKey);
+  }, []);
+
+  const form = useForm<ApiKeyFormValues>({
+    defaultValues: {
+      apiKey: ''
+    }
+  });
+
+  const onSubmit = (values: ApiKeyFormValues) => {
+    if (values.apiKey.trim()) {
+      localStorage.setItem('OPENAI_API_KEY', values.apiKey.trim());
+      setHasApiKey(true);
+      toast.success("API ключ OpenAI успешно сохранен");
       setShowApiKeyForm(false);
+      form.reset();
+    } else {
+      toast.error("Пожалуйста, введите API ключ");
     }
   };
 
@@ -49,13 +71,20 @@ const BloodAnalysis = () => {
 
               {/* API Key Form */}
               <div className="mb-6">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowApiKeyForm(!showApiKeyForm)}
-                  className="mb-2"
-                >
-                  {showApiKeyForm ? "Скрыть форму API ключа" : "Настроить API ключ OpenAI"}
-                </Button>
+                <div className="flex items-center gap-3 mb-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowApiKeyForm(!showApiKeyForm)}
+                  >
+                    {showApiKeyForm ? "Скрыть форму API ключа" : "Настроить API ключ OpenAI"}
+                  </Button>
+                  {hasApiKey && (
+                    <span className="text-sm text-green-600 flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="mr-1"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                      API ключ настроен
+                    </span>
+                  )}
+                </div>
                 
                 {showApiKeyForm && (
                   <Card className="mb-6">
@@ -66,20 +95,22 @@ const BloodAnalysis = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <form onSubmit={handleApiKeySubmit} className="space-y-4">
-                        <div>
-                          <label htmlFor="apiKey" className="block text-sm font-medium mb-1">
-                            API ключ OpenAI
-                          </label>
-                          <input
-                            type="password"
-                            id="apiKey"
-                            value={apiKey}
-                            onChange={(e) => setApiKey(e.target.value)}
-                            className="w-full p-2 border rounded-md"
-                            placeholder="sk-..."
-                          />
-                        </div>
+                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormItem>
+                          <FormLabel htmlFor="apiKey">API ключ OpenAI</FormLabel>
+                          <FormDescription>
+                            Вы можете получить API ключ на сайте <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">OpenAI</a>
+                          </FormDescription>
+                          <FormControl>
+                            <Input
+                              {...form.register('apiKey')}
+                              type="password" 
+                              id="apiKey"
+                              placeholder="sk-..."
+                              className="w-full"
+                            />
+                          </FormControl>
+                        </FormItem>
                         <Button type="submit">Сохранить ключ</Button>
                       </form>
                     </CardContent>
