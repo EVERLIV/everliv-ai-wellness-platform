@@ -36,6 +36,14 @@ import DeliveryInfo from "./pages/DeliveryInfo";
 import PaymentInfo from "./pages/PaymentInfo";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Checkout from "./pages/Checkout";
+import TermsOfUse from "./pages/TermsOfUse";
+import About from "./pages/About";
+import Blog from "./pages/Blog";
+import HelpCenter from "./pages/HelpCenter";
+import Security from "./pages/Security";
+import AIMedicine from "./pages/AIMedicine";
+import Contact from "./pages/Contact";
+import FAQ from "./pages/FAQ";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -124,10 +132,20 @@ function App() {
       
       <Route path="/legal" element={<LegalInfo />} />
       <Route path="/contacts" element={<Contacts />} />
+      <Route path="/contact" element={<Contact />} />
       <Route path="/delivery" element={<DeliveryInfo />} />
       <Route path="/payment-info" element={<PaymentInfo />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/checkout" element={<Checkout />} />
+      
+      {/* New Routes */}
+      <Route path="/terms" element={<TermsOfUse />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/help" element={<HelpCenter />} />
+      <Route path="/security" element={<Security />} />
+      <Route path="/ai-medicine" element={<AIMedicine />} />
+      <Route path="/faq" element={<FAQ />} />
       
       <Route path="*" element={<NotFound />} />
     </Routes>

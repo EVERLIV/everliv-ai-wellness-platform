@@ -12,7 +12,10 @@ const FooterLegal = () => {
           <div className="text-sm text-gray-500">
             &copy; {currentYear} EVERLIV | ООО «КЕЙ ДЖИ ИНЖИНИРИНГ» | ИНН: 7702423360 | ОГРН: 1177746965131
           </div>
-          <div className="flex space-x-4">
+          <div className="flex flex-wrap justify-center md:justify-end gap-4">
+            <Link to="/terms" className="text-sm text-gray-500 hover:text-everliv-600">
+              Условия использования
+            </Link>
             <Link to="/legal" className="text-sm text-gray-500 hover:text-everliv-600">
               Юридическая информация
             </Link>
@@ -21,6 +24,9 @@ const FooterLegal = () => {
             </Link>
             <Link to="/delivery" className="text-sm text-gray-500 hover:text-everliv-600">
               Оказание услуг
+            </Link>
+            <Link to="/payment-info" className="text-sm text-gray-500 hover:text-everliv-600">
+              Правила оплаты
             </Link>
             <Link to="/contacts" className="text-sm text-gray-500 hover:text-everliv-600">
               Контакты

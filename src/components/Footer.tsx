@@ -1,5 +1,7 @@
+
 import { Link } from 'react-router-dom';
 import FooterLegal from './FooterLegal';
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   return <footer className="bg-gray-50 border-t border-gray-200">
@@ -38,6 +40,7 @@ export default function Footer() {
               <li><Link to="/pricing" className="text-gray-600 hover:text-everliv-600">Тарифы</Link></li>
               <li><Link to="/security" className="text-gray-600 hover:text-everliv-600">Безопасность</Link></li>
               <li><Link to="/science" className="text-gray-600 hover:text-everliv-600">Научный подход</Link></li>
+              <li><Link to="/ai-medicine" className="text-gray-600 hover:text-everliv-600">Применение ИИ</Link></li>
             </ul>
           </div>
           
@@ -50,7 +53,7 @@ export default function Footer() {
               <li><Link to="/contacts" className="text-gray-600 hover:text-everliv-600">Контакты</Link></li>
               <li><Link to="/legal" className="text-gray-600 hover:text-everliv-600">Юридическая информация</Link></li>
               <li><Link to="/delivery" className="text-gray-600 hover:text-everliv-600">Оказание услуг</Link></li>
-              
+              <li><Link to="/payment-info" className="text-gray-600 hover:text-everliv-600">Правила оплаты</Link></li>
             </ul>
           </div>
           
@@ -58,6 +61,7 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4 text-gray-800">Поддержка</h3>
             <ul className="space-y-3">
               <li><Link to="/help" className="text-gray-600 hover:text-everliv-600">Центр помощи</Link></li>
+              <li><Link to="/faq" className="text-gray-600 hover:text-everliv-600">Частые вопросы</Link></li>
               <li><Link to="/terms" className="text-gray-600 hover:text-everliv-600">Условия использования</Link></li>
               <li><Link to="/privacy" className="text-gray-600 hover:text-everliv-600">Политика конфиденциальности</Link></li>
               <li><Link to="/payment-info" className="text-gray-600 hover:text-everliv-600">Правила оплаты и возврата</Link></li>
