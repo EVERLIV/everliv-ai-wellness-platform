@@ -7,8 +7,8 @@ import {
   useLocation
 } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
-import LoginPage from "./pages/LoginPage";
-import RegistrationPage from "./pages/RegistrationPage";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import Dashboard from "./pages/Dashboard";
@@ -26,7 +26,6 @@ import Pricing from "./pages/Pricing";
 import Webinars from "./pages/Webinars";
 import UserSubscription from "./pages/UserSubscription";
 import NotFound from "./pages/NotFound";
-import Signup from "./pages/Signup";
 import Science from "./pages/Science";
 import RestrictedService from "./pages/RestrictedService";
 import Index from "./pages/Index";
@@ -67,8 +66,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegistrationPage />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />

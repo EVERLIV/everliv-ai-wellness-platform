@@ -52,7 +52,7 @@ const Login = () => {
         <div className="space-y-2">
           <div className="flex justify-between">
             <Label htmlFor="password">Пароль</Label>
-            <Link to="/reset-password" className="text-sm text-everliv-600 hover:underline">
+            <Link to="/forgot-password" className="text-sm text-everliv-600 hover:underline">
               Забыли пароль?
             </Link>
           </div>
