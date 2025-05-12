@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Send, Loader2, User, Bot, Brain, Heart, Activity, ThumbsUp } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
-import { openai } from "@/services/openai-service";
+// Remove the incorrect import of openai
 
 type Message = {
   id: string;
