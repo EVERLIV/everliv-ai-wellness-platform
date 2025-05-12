@@ -1,12 +1,8 @@
-
 import { Link } from 'react-router-dom';
 import FooterLegal from './FooterLegal';
-
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  
-  return (
-    <footer className="bg-gray-50 border-t border-gray-200">
+  return <footer className="bg-gray-50 border-t border-gray-200">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
@@ -54,7 +50,7 @@ export default function Footer() {
               <li><Link to="/contacts" className="text-gray-600 hover:text-everliv-600">Контакты</Link></li>
               <li><Link to="/legal" className="text-gray-600 hover:text-everliv-600">Юридическая информация</Link></li>
               <li><Link to="/delivery" className="text-gray-600 hover:text-everliv-600">Оказание услуг</Link></li>
-              <li><Link to="/payment-info" className="text-gray-600 hover:text-everliv-600">Информация об оплате</Link></li>
+              
             </ul>
           </div>
           
@@ -72,6 +68,5 @@ export default function Footer() {
         </div>
       </div>
       <FooterLegal />
-    </footer>
-  );
+    </footer>;
 }
