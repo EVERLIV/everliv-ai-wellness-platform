@@ -2,10 +2,10 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
-import { TeamSection } from "@/components/about/TeamSection";
-import { MissionSection } from "@/components/about/MissionSection";
-import { ScienceSection } from "@/components/about/ScienceSection";
-import { TechnologySection } from "@/components/about/TechnologySection";
+import TeamSection from "@/components/about/TeamSection";
+import MissionSection from "@/components/about/MissionSection";
+import ScienceSection from "@/components/about/ScienceSection";
+import TechnologySection from "@/components/about/TechnologySection";
 
 const About = () => {
   return (
