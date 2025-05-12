@@ -44,6 +44,32 @@ export default function PartnershipSection() {
             ))}
           </div>
           
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <Link to="/partnerships/medical-institutions" className="block">
+              <div className="bg-white p-6 rounded-xl border border-primary/30 hover:shadow-md transition-all h-full flex flex-col">
+                <h3 className="text-xl font-bold mb-3">Для медицинских учреждений</h3>
+                <p className="text-gray-600 text-sm mb-4 flex-grow">Комплексные решения для клиник и медицинских центров</p>
+                <Button variant="outline" className="w-full">Подробнее</Button>
+              </div>
+            </Link>
+            
+            <Link to="/partnerships/corporate-clients" className="block">
+              <div className="bg-white p-6 rounded-xl border border-primary/30 hover:shadow-md transition-all h-full flex flex-col">
+                <h3 className="text-xl font-bold mb-3">Для корпоративных клиентов</h3>
+                <p className="text-gray-600 text-sm mb-4 flex-grow">Программы поддержки здоровья сотрудников</p>
+                <Button variant="outline" className="w-full">Подробнее</Button>
+              </div>
+            </Link>
+            
+            <Link to="/partnerships/medical-specialists" className="block">
+              <div className="bg-white p-6 rounded-xl border border-primary/30 hover:shadow-md transition-all h-full flex flex-col">
+                <h3 className="text-xl font-bold mb-3">Для медицинских специалистов</h3>
+                <p className="text-gray-600 text-sm mb-4 flex-grow">Инструменты для практикующих врачей</p>
+                <Button variant="outline" className="w-full">Подробнее</Button>
+              </div>
+            </Link>
+          </div>
+          
           <div className="bg-white p-6 rounded-xl border border-primary/30 mb-8">
             <h3 className="text-xl font-bold mb-3">Лидерборд партнеров</h3>
             <div className="space-y-3">

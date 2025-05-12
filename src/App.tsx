@@ -45,6 +45,9 @@ import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
 import Partnership from "./pages/Partnership";
 import AIRecommendationsPage from "./pages/services/AIRecommendations";
+import MedicalInstitutions from "./pages/partnerships/MedicalInstitutions";
+import CorporateClients from "./pages/partnerships/CorporateClients";
+import MedicalSpecialists from "./pages/partnerships/MedicalSpecialists";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -151,6 +154,11 @@ function App() {
       <Route path="/ai-medicine" element={<AIMedicine />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/partnership" element={<Partnership />} />
+      
+      {/* New Partnership routes */}
+      <Route path="/partnerships/medical-institutions" element={<MedicalInstitutions />} />
+      <Route path="/partnerships/corporate-clients" element={<CorporateClients />} />
+      <Route path="/partnerships/medical-specialists" element={<MedicalSpecialists />} />
       
       <Route path="*" element={<NotFound />} />
     </Routes>
