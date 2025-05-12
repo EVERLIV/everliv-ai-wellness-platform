@@ -140,7 +140,7 @@ function App() {
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/checkout" element={<Checkout />} />
       
-      {/* New Routes */}
+      {/* Partnership routes */}
       <Route path="/services/ai-recommendations" element={<AIRecommendationsPage />} />
       <Route path="/terms" element={<TermsOfUse />} />
       <Route path="/about" element={<About />} />
@@ -155,7 +155,7 @@ function App() {
       <Route path="/faq" element={<FAQ />} />
       <Route path="/partnership" element={<Partnership />} />
       
-      {/* New Partnership routes */}
+      {/* Partnership specific routes */}
       <Route path="/partnerships/medical-institutions" element={<MedicalInstitutions />} />
       <Route path="/partnerships/corporate-clients" element={<CorporateClients />} />
       <Route path="/partnerships/medical-specialists" element={<MedicalSpecialists />} />
