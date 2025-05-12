@@ -2,6 +2,7 @@
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import PageHeader from '@/components/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { MapPin, Phone, Mail } from 'lucide-react';
 
@@ -9,10 +10,13 @@ const Contacts = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow pt-16 bg-gray-50">
+      <main className="flex-grow pt-24">
+        <PageHeader
+          title="Контакты"
+          description="Свяжитесь с нами, чтобы узнать больше о наших услугах или задать интересующие вас вопросы"
+        />
+        
         <div className="container mx-auto px-4 py-12">
-          <h1 className="text-3xl font-bold mb-6">Контакты</h1>
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <Card>
               <CardContent className="pt-6 flex flex-col items-center text-center p-6">

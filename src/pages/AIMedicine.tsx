@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Brain, Cpu, Shield, HeartPulse, LineChart, Users } from "lucide-react";
+import { Brain, Cpu, Shield, HeartPulse, LineChart, Users, BookOpen, ExternalLink, CheckCircle } from "lucide-react";
 
 const AIMedicine = () => {
   return (
@@ -120,7 +120,100 @@ const AIMedicine = () => {
           </div>
         </section>
         
+        {/* New Scientific Research Section */}
         <section className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-12">Научные исследования и публикации</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+              <Card className="shadow-md">
+                <CardContent className="p-6">
+                  <div className="flex items-start mb-4">
+                    <BookOpen className="h-6 w-6 text-primary mr-3" />
+                    <h3 className="text-xl font-semibold">Исследование эффективности ИИ в прогнозировании заболеваний</h3>
+                  </div>
+                  <p className="text-gray-700 mb-4">
+                    В крупномасштабном исследовании, опубликованном в журнале "Nature Medicine" (2023), модели ИИ 
+                    продемонстрировали точность прогнозирования сердечно-сосудистых заболеваний на уровне 89%, 
+                    что превышает традиционные методы оценки рисков на 23%.
+                  </p>
+                  <div className="flex items-center">
+                    <ExternalLink className="h-4 w-4 text-primary mr-2" />
+                    <a href="#" className="text-primary hover:underline">Читать публикацию</a>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="shadow-md">
+                <CardContent className="p-6">
+                  <div className="flex items-start mb-4">
+                    <BookOpen className="h-6 w-6 text-primary mr-3" />
+                    <h3 className="text-xl font-semibold">ИИ в персонализации протоколов питания и добавок</h3>
+                  </div>
+                  <p className="text-gray-700 mb-4">
+                    Исследование в "Journal of Personalized Medicine" (2022) показало, что персонализированные 
+                    протоколы питания, разработанные с помощью ИИ на основе анализа крови, привели к нормализации 
+                    ключевых биомаркеров у 76% участников в течение 3 месяцев.
+                  </p>
+                  <div className="flex items-center">
+                    <ExternalLink className="h-4 w-4 text-primary mr-2" />
+                    <a href="#" className="text-primary hover:underline">Читать публикацию</a>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="bg-primary/5 rounded-2xl p-8 mb-12">
+              <h3 className="text-2xl font-bold mb-6">Наш вклад в науку об ИИ в медицине</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h4 className="text-lg font-semibold mb-4">Исследовательские проекты</h4>
+                  <ul className="space-y-3">
+                    <li className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5" />
+                      <span className="text-gray-700">Разработка биомаркеров биологического возраста на основе ИИ-анализа</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5" />
+                      <span className="text-gray-700">Алгоритмы раннего выявления метаболических нарушений</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5" />
+                      <span className="text-gray-700">Предсказательные модели эффективности добавок на основе генетики</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="text-lg font-semibold mb-4">Научные партнерства</h4>
+                  <ul className="space-y-3">
+                    <li className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5" />
+                      <span className="text-gray-700">Сотрудничество с Институтом биомедицинских исследований</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5" />
+                      <span className="text-gray-700">Партнерство с Центром исследований долголетия</span>
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5" />
+                      <span className="text-gray-700">Участие в международных исследовательских проектах по ИИ в медицине</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <h3 className="text-xl font-semibold mb-4">Хотите узнать больше о научной базе наших технологий?</h3>
+              <Button size="lg" className="mr-4">Скачать научный обзор</Button>
+              <Button variant="outline" size="lg">Записаться на консультацию</Button>
+            </div>
+          </div>
+        </section>
+        
+        <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-8">Откройте новые возможности для вашего здоровья</h2>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto mb-12">

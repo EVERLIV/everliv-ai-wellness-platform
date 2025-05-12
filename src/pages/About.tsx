@@ -6,6 +6,8 @@ import TeamSection from "@/components/about/TeamSection";
 import MissionSection from "@/components/about/MissionSection";
 import ScienceSection from "@/components/about/ScienceSection";
 import TechnologySection from "@/components/about/TechnologySection";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 const About = () => {
   return (
@@ -16,8 +18,47 @@ const About = () => {
           title="О компании EVERLIV"
           description="Мы объединяем передовую науку, современные технологии и персонализированный подход для поддержания здоровья и долголетия"
         />
+        
+        {/* CEO and Founder Section */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col md:flex-row gap-12 items-center">
+              <div className="md:w-1/3">
+                <img 
+                  src="https://images.unsplash.com/photo-1556157382-97eda2f9e2bf?auto=format&fit=crop&q=80&w=400" 
+                  alt="Основатель компании" 
+                  className="rounded-lg shadow-lg w-full h-auto"
+                />
+              </div>
+              <div className="md:w-2/3">
+                <h2 className="text-3xl font-bold mb-4">Наша история</h2>
+                <p className="text-lg text-gray-700 mb-6">
+                  Компания EVERLIV была основана в 2021 году с целью сделать передовые исследования в области долголетия 
+                  и персонализированной медицины доступными для всех. Наш основатель, профессор Александр Петров, 
+                  более 15 лет занимался исследованиями в области биомаркеров старения и превентивной медицины.
+                </p>
+                <Card className="mb-6">
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-semibold mb-2">Цель основателя</h3>
+                    <p className="text-gray-700">
+                      "Моя цель — создать экосистему, где каждый человек может получить персонализированные 
+                      рекомендации для улучшения здоровья и продления жизни, основанные на самых последних научных 
+                      открытиях и технологиях. Мы стремимся сделать современную науку о долголетии доступной и 
+                      применимой в повседневной жизни."
+                    </p>
+                    <div className="mt-4">
+                      <p className="font-semibold">Профессор Александр Петров</p>
+                      <p className="text-gray-600">CEO и основатель EVERLIV</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Button>Узнать больше о нашей миссии</Button>
+              </div>
+            </div>
+          </div>
+        </section>
+        
         <MissionSection />
-        <TeamSection />
         <ScienceSection />
         <TechnologySection />
       </main>
