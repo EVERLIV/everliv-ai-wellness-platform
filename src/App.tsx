@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Routes,
@@ -43,7 +44,7 @@ import AIMedicine from "./pages/AIMedicine";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
 import Partnership from "./pages/Partnership";
-import AIRecommendationsPage from "./pages/AIRecommendationsPage";
+import AIRecommendationsPage from "./pages/services/AIRecommendations";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
