@@ -1,12 +1,12 @@
-
 import { Link } from 'react-router-dom';
+import FooterLegal from './FooterLegal';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="bg-gray-50 border-t border-gray-200 py-12">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="bg-gray-50 border-t border-gray-200">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <Link to="/" className="flex items-center mb-6">
@@ -50,7 +50,9 @@ export default function Footer() {
               <li><Link to="/about" className="text-gray-600 hover:text-everliv-600">О нас</Link></li>
               <li><Link to="/blog" className="text-gray-600 hover:text-everliv-600">Блог</Link></li>
               <li><Link to="/careers" className="text-gray-600 hover:text-everliv-600">Карьера</Link></li>
-              <li><Link to="/contact" className="text-gray-600 hover:text-everliv-600">Контакты</Link></li>
+              <li><Link to="/contacts" className="text-gray-600 hover:text-everliv-600">Контакты</Link></li>
+              <li><Link to="/legal" className="text-gray-600 hover:text-everliv-600">Юридическая информация</Link></li>
+              <li><Link to="/delivery" className="text-gray-600 hover:text-everliv-600">Оказание услуг</Link></li>
             </ul>
           </div>
           
@@ -61,16 +63,12 @@ export default function Footer() {
               <li><Link to="/terms" className="text-gray-600 hover:text-everliv-600">Условия использования</Link></li>
               <li><Link to="/privacy" className="text-gray-600 hover:text-everliv-600">Политика конфиденциальности</Link></li>
               <li><a href="mailto:support@everliv.ai" className="text-gray-600 hover:text-everliv-600">support@everliv.ai</a></li>
+              <li><a href="tel:+74951234567" className="text-gray-600 hover:text-everliv-600">+7 (495) 123-45-67</a></li>
             </ul>
           </div>
         </div>
-        
-        <div className="border-t border-gray-200 pt-8 mt-8 text-center">
-          <p className="text-gray-500 text-sm">
-            &copy; {currentYear} EVERLIV. Все права защищены.
-          </p>
-        </div>
       </div>
+      <FooterLegal />
     </footer>
   );
 }

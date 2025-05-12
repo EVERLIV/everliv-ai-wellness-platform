@@ -13,6 +13,7 @@ import ServicesSection from '@/components/ServicesSection';
 import DataProtectionSection from '@/components/DataProtectionSection';
 import ScientificBasisSection from '@/components/ScientificBasisSection';
 import AiMedicineSection from '@/components/AiMedicineSection';
+import CompanyInfoSection from '@/components/CompanyInfoSection';
 
 const Index = () => {
   return (
@@ -30,6 +31,7 @@ const Index = () => {
         <FeaturesGridSection />
         <TestimonialsSection />
         <PartnershipSection />
+        <CompanyInfoSection />
         <CTASection />
       </main>
       <Footer />

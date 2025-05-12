@@ -14,6 +14,7 @@ import FeaturesGridSection from '@/components/FeaturesGridSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import PartnershipSection from '@/components/PartnershipSection';
 import CTASection from '@/components/CTASection';
+import CompanyInfoSection from '@/components/CompanyInfoSection';
 
 const LandingPage = () => {
   return (
@@ -31,6 +32,7 @@ const LandingPage = () => {
         <FeaturesGridSection />
         <TestimonialsSection />
         <PartnershipSection />
+        <CompanyInfoSection />
         <CTASection />
       </main>
       <Footer />

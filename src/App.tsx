@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Routes,
@@ -30,6 +29,9 @@ import Signup from "./pages/Signup";
 import Science from "./pages/Science";
 import RestrictedService from "./pages/RestrictedService";
 import Index from "./pages/Index";
+import LegalInfo from "./pages/LegalInfo";
+import Contacts from "./pages/Contacts";
+import DeliveryInfo from "./pages/DeliveryInfo";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -58,6 +60,7 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Dashboard />
@@ -68,9 +71,11 @@ function App() {
           <UserProfile />
         </ProtectedRoute>
       } />
+      
       <Route path="/" element={<Index />} />
       <Route path="/services" element={<ServicesPage />} />
       <Route path="/services/:serviceId" element={<RestrictedService />} />
+      
       <Route path="/blood-analysis" element={
         <ProtectedRoute>
           <BloodAnalysisPage />
@@ -113,7 +118,10 @@ function App() {
       <Route path="/subscription" element={<UserSubscription />} />
       <Route path="/science" element={<Science />} />
       
-      {/* Add catch-all route for 404 errors */}
+      <Route path="/legal" element={<LegalInfo />} />
+      <Route path="/contacts" element={<Contacts />} />
+      <Route path="/delivery" element={<DeliveryInfo />} />
+      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
