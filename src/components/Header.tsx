@@ -1,33 +1,24 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import TrialStatusBanner from "./dashboard/TrialStatusBanner";
 import { Menu, X, ChevronDown } from "lucide-react";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
-
 interface HeaderProps {
   className?: string;
 }
-
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const {
+    user,
+    signOut
+  } = useAuth();
   const navigate = useNavigate();
-
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
-
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -36,17 +27,11 @@ const Header = () => {
       console.error("Sign out failed:", error);
     }
   };
-
-  return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+  return <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
       <TrialStatusBanner />
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center text-lg font-semibold gap-2">
-          <img 
-            src="/lovable-uploads/1d550229-884d-4912-81bb-d9b77b6f44bf.png" 
-            alt="EVERLIV Logo" 
-            className="h-8 w-auto" 
-          />
+          <img src="/lovable-uploads/1d550229-884d-4912-81bb-d9b77b6f44bf.png" alt="EVERLIV Logo" className="h-8 w-auto" />
           EVERLIV
         </Link>
 
@@ -59,10 +44,7 @@ const Header = () => {
                   <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          to="/services"
-                        >
+                        <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/services">
                           <div className="text-sm font-medium leading-none">Все услуги</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                             Комплексные решения для здорового долголетия
@@ -72,23 +54,12 @@ const Header = () => {
                     </li>
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          to="/services/cold-therapy"
-                        >
-                          <div className="text-sm font-medium leading-none">Холодовая терапия</div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            Методики закаливания для укрепления иммунитета
-                          </p>
-                        </Link>
+                        
                       </NavigationMenuLink>
                     </li>
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          to="/comprehensive-analysis"
-                        >
+                        <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/comprehensive-analysis">
                           <div className="text-sm font-medium leading-none">Комплексный анализ</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                             Полный анализ состояния вашего организма
@@ -98,10 +69,7 @@ const Header = () => {
                     </li>
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          to="/blood-analysis"
-                        >
+                        <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/blood-analysis">
                           <div className="text-sm font-medium leading-none">Анализ крови</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                             Расшифровка и интерпретация анализов крови
@@ -121,10 +89,7 @@ const Header = () => {
                   <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          to="/about"
-                        >
+                        <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/about">
                           <div className="text-sm font-medium leading-none">О компании</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                             История, миссия и команда EVERLIV
@@ -134,10 +99,7 @@ const Header = () => {
                     </li>
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          to="/science"
-                        >
+                        <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/science">
                           <div className="text-sm font-medium leading-none">Научный подход</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                             Исследования и разработки в области долголетия
@@ -147,10 +109,7 @@ const Header = () => {
                     </li>
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          to="/ai-medicine"
-                        >
+                        <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/ai-medicine">
                           <div className="text-sm font-medium leading-none">ИИ в медицине</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                             Как мы применяем искусственный интеллект
@@ -160,10 +119,7 @@ const Header = () => {
                     </li>
                     <li>
                       <NavigationMenuLink asChild>
-                        <Link
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          to="/security"
-                        >
+                        <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/security">
                           <div className="text-sm font-medium leading-none">Безопасность данных</div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                             Как мы защищаем ваши персональные данные
@@ -186,23 +142,19 @@ const Header = () => {
             </NavigationMenuList>
           </NavigationMenu>
           
-          {user ? (
-            <>
+          {user ? <>
               <Link to="/dashboard" className="hover:text-gray-600">
                 <Button variant="outline" size="sm">Личный кабинет</Button>
               </Link>
               <Button variant="outline" size="sm" onClick={handleSignOut}>Выйти</Button>
-            </>
-          ) : (
-            <>
+            </> : <>
               <Link to="/login">
                 <Button variant="ghost" size="sm">Войти</Button>
               </Link>
               <Link to="/signup">
                 <Button size="sm">Регистрация</Button>
               </Link>
-            </>
-          )}
+            </>}
         </div>
 
         <div className="md:hidden">
@@ -212,8 +164,7 @@ const Header = () => {
         </div>
       </div>
 
-      {isOpen && (
-        <div className="md:hidden bg-gray-50 py-4">
+      {isOpen && <div className="md:hidden bg-gray-50 py-4">
           <div className="container mx-auto px-4 flex flex-col space-y-3">
             <div className="py-2 border-b border-gray-200">
               <div className="flex justify-between items-center" onClick={() => setIsOpen(!isOpen)}>
@@ -246,26 +197,19 @@ const Header = () => {
             <Link to="/webinars" className="hover:text-gray-600">Вебинары</Link>
             <Link to="/contacts" className="hover:text-gray-600">Контакты</Link>
             
-            {user ? (
-              <>
+            {user ? <>
                 <Link to="/dashboard" className="hover:text-gray-600">Личный кабинет</Link>
                 <Button variant="outline" size="sm" onClick={handleSignOut}>Выйти</Button>
-              </>
-            ) : (
-              <>
+              </> : <>
                 <Link to="/login">
                   <Button variant="ghost" size="sm">Войти</Button>
                 </Link>
                 <Link to="/signup">
                   <Button size="sm">Регистрация</Button>
                 </Link>
-              </>
-            )}
+              </>}
           </div>
-        </div>
-      )}
-    </header>
-  );
+        </div>}
+    </header>;
 };
-
 export default Header;
