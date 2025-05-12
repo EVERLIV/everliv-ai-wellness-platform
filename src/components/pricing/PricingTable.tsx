@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CheckCircle, CreditCard, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -10,30 +10,39 @@ import { toast } from "sonner";
 const PricingTable = () => {
   const [annual, setAnnual] = useState(true);
   const { user } = useAuth();
-  const { subscription, purchaseSubscription } = useSubscription();
+  const { subscription } = useSubscription();
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
+  const navigate = useNavigate();
   
-  const handleSelectPlan = async (planType: 'basic' | 'standard' | 'premium') => {
+  const handleSelectPlan = (planType: 'basic' | 'standard' | 'premium', planName: string, basePrice: number) => {
     if (!user) {
       toast.info("Для выбора плана необходимо авторизоваться");
       return;
     }
     
     setProcessingPlan(planType);
-    try {
-      // In the future, this will redirect to payment gateway
-      toast.info("Функциональность оплаты будет добавлена в ближайшее время");
-      // await purchaseSubscription(planType);
-      // toast.success(`Подписка ${planType} успешно выбрана`);
-    } catch (error) {
-      toast.error("Произошла ошибка при выборе плана");
-    } finally {
-      setProcessingPlan(null);
-    }
+    
+    // Calculate price with annual discount if applicable
+    const price = annual ? Math.round(basePrice * 0.8) : basePrice;
+    
+    // Navigate to checkout with plan details
+    navigate('/checkout', {
+      state: {
+        plan: {
+          type: planType,
+          name: planName,
+          price: price,
+          period: "месяц",
+          annual: annual
+        }
+      }
+    });
+    
+    setProcessingPlan(null);
   };
   
   // Calculate prices with annual discount
-  const getPrice = (basePrice: number, planType: string) => {
+  const getPrice = (basePrice: number) => {
     return annual ? Math.round(basePrice * 0.8) : basePrice;
   };
   
@@ -121,7 +130,7 @@ const PricingTable = () => {
                   <h3 className="text-xl font-semibold text-everliv-800 mb-2">{plan.name}</h3>
                   <p className="text-gray-600 mb-6">{plan.description}</p>
                   <div className="mb-6">
-                    <span className="text-4xl font-bold">{getPrice(plan.basePrice, plan.type)}</span>
+                    <span className="text-4xl font-bold">{getPrice(plan.basePrice)}</span>
                     <span className="text-gray-600"> руб./мес</span>
                     {annual && <p className="text-sm text-gray-500">при годовой оплате</p>}
                   </div>
@@ -129,8 +138,8 @@ const PricingTable = () => {
                     <Button 
                       className={`w-full ${plan.popular ? 'bg-everliv-600 hover:bg-everliv-700 text-white' : 'border-everliv-600 text-everliv-600 hover:bg-everliv-50'}`} 
                       variant={plan.popular ? "default" : "outline"} 
-                      onClick={() => handleSelectPlan(plan.type as 'basic' | 'standard' | 'premium')}
-                      disabled={processingPlan === plan.type}
+                      onClick={() => handleSelectPlan(plan.type as 'basic' | 'standard' | 'premium', plan.name, plan.basePrice)}
+                      disabled={processingPlan === plan.type || subscription?.plan_type === plan.type}
                     >
                       {processingPlan === plan.type ? 'Обработка...' : (
                         subscription?.plan_type === plan.type 
@@ -170,9 +179,15 @@ const PricingTable = () => {
             ))}
           </div>
           
-          {/* FAQ shortcut */}
+          {/* Payment info and FAQ shortcut */}
           <div className="mt-12 text-center">
-            <p className="text-gray-600">Есть вопросы по подпискам? Посмотрите наши <Link to="/faq" className="text-everliv-600 hover:underline">часто задаваемые вопросы</Link> или <Link to="/contact" className="text-everliv-600 hover:underline">свяжитесь с нами</Link>.</p>
+            <p className="text-gray-600 mb-2">
+              Оплата осуществляется через АО «АЛЬФА-БАНК». Принимаем карты VISA, MasterCard, МИР.
+            </p>
+            <p className="text-gray-600">
+              Есть вопросы по подпискам? Посмотрите наши <Link to="/faq" className="text-everliv-600 hover:underline">часто задаваемые вопросы</Link>, 
+              <Link to="/payment-info" className="text-everliv-600 hover:underline"> информацию об оплате</Link> или <Link to="/contact" className="text-everliv-600 hover:underline">свяжитесь с нами</Link>.
+            </p>
           </div>
         </div>
       </div>
