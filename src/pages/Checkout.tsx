@@ -9,8 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Shield, CreditCard, Check, ArrowLeft } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import visaLogo from '/lovable-uploads/1c7a38e9-8ae4-48ca-913e-142d38f7d302.png';
-import masterCardLogo from '/lovable-uploads/1d550229-884d-4912-81bb-d9b77b6f44bf.png';
 
 const Checkout = () => {
   const location = useLocation();
@@ -109,8 +107,8 @@ const Checkout = () => {
                             <span className="ml-2">Банковская карта</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <img src={visaLogo} alt="VISA" className="h-6" />
-                            <img src={masterCardLogo} alt="MasterCard" className="h-6" />
+                            <div className="text-blue-600 font-bold px-2 py-0.5 text-xs rounded">VISA</div>
+                            <div className="text-red-600 font-bold px-2 py-0.5 text-xs rounded">MasterCard</div>
                             <div className="bg-blue-900 text-white px-2 py-0.5 text-xs rounded font-bold">МИР</div>
                           </div>
                         </div>

@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import FooterLegal from './FooterLegal';
 
@@ -53,6 +54,7 @@ export default function Footer() {
               <li><Link to="/contacts" className="text-gray-600 hover:text-everliv-600">Контакты</Link></li>
               <li><Link to="/legal" className="text-gray-600 hover:text-everliv-600">Юридическая информация</Link></li>
               <li><Link to="/delivery" className="text-gray-600 hover:text-everliv-600">Оказание услуг</Link></li>
+              <li><Link to="/payment-info" className="text-gray-600 hover:text-everliv-600">Информация об оплате</Link></li>
             </ul>
           </div>
           
@@ -62,6 +64,7 @@ export default function Footer() {
               <li><Link to="/help" className="text-gray-600 hover:text-everliv-600">Центр помощи</Link></li>
               <li><Link to="/terms" className="text-gray-600 hover:text-everliv-600">Условия использования</Link></li>
               <li><Link to="/privacy" className="text-gray-600 hover:text-everliv-600">Политика конфиденциальности</Link></li>
+              <li><Link to="/payment-info" className="text-gray-600 hover:text-everliv-600">Правила оплаты и возврата</Link></li>
               <li><a href="mailto:support@everliv.ai" className="text-gray-600 hover:text-everliv-600">support@everliv.ai</a></li>
               <li><a href="tel:+74951234567" className="text-gray-600 hover:text-everliv-600">+7 (495) 123-45-67</a></li>
             </ul>
