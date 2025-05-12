@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { FEATURES } from "@/constants/subscription-features";
-import { analyzeBloodTestWithOpenAI } from "@/services/openai-service";
+import { analyzeBloodTestWithOpenAI } from "@/services/ai";
 
 interface BloodAnalysisResults {
   markers: Array<{

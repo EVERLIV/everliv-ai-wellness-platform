@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Card, CardHeader, CardContent, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Send, Loader2, User, Bot, Brain, Heart, Activity, ThumbsUp } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
-// Remove the incorrect import of openai
+// No imports needed from openai-service for this component
 
 type Message = {
   id: string;
