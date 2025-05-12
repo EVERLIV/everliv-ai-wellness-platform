@@ -1,18 +1,21 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Shield, CreditCard, Check, ArrowLeft } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 const Checkout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const { subscription } = useSubscription();
   const [loading, setLoading] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   
@@ -23,6 +26,13 @@ const Checkout = () => {
     period: "месяц",
     annual: false
   };
+
+  // Redirect to pricing if no plan is selected
+  useEffect(() => {
+    if (!location.state?.plan) {
+      navigate('/pricing');
+    }
+  }, [location.state, navigate]);
   
   // Process payment (simulation)
   const handlePayment = (e: React.FormEvent) => {
@@ -36,6 +46,34 @@ const Checkout = () => {
       toast.success("Оплата прошла успешно!");
     }, 2000);
   };
+
+  const getPlanFeatures = (planName: string) => {
+    switch (planName) {
+      case "Базовый":
+        return [
+          "Базовый анализ здоровья",
+          "Интерпретация до 5 показателей",
+          "Еженедельные отчеты",
+          "Доступ к базе знаний"
+        ];
+      case "Стандарт":
+        return [
+          "Расширенный анализ здоровья",
+          "Интерпретация до 15 показателей",
+          "Персонализированные планы",
+          "Еженедельные отчеты"
+        ];
+      case "Премиум":
+        return [
+          "Полный анализ здоровья",
+          "Интерпретация всех показателей",
+          "VIP поддержка от экспертов",
+          "Персонализированные планы"
+        ];
+      default:
+        return [];
+    }
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -47,7 +85,11 @@ const Checkout = () => {
             Назад к тарифам
           </Link>
           
-          <h1 className="text-3xl font-bold mb-6">Оформление подписки</h1>
+          <h1 className="text-3xl font-bold mb-6">
+            {plan.isUpgrade 
+              ? `Улучшение плана с ${plan.fromPlan === 'basic' ? 'Базовый' : plan.fromPlan === 'standard' ? 'Стандарт' : 'Премиум'} до ${plan.name}`
+              : 'Оформление подписки'}
+          </h1>
           
           {orderComplete ? (
             <Card className="max-w-2xl mx-auto">
@@ -59,7 +101,9 @@ const Checkout = () => {
                 </div>
                 <h2 className="text-2xl font-bold mb-2">Оплата прошла успешно</h2>
                 <p className="mb-6 text-gray-600">
-                  Спасибо за подписку на тариф {plan.name}! Ваш доступ активирован.
+                  {plan.isUpgrade 
+                    ? `Спасибо за улучшение плана до ${plan.name}! Ваш доступ активирован.`
+                    : `Спасибо за подписку на тариф ${plan.name}! Ваш доступ активирован.`}
                 </p>
                 <div className="flex justify-center gap-4">
                   <Link to="/dashboard">

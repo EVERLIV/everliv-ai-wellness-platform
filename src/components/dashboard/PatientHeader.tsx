@@ -1,22 +1,24 @@
+
 import React from "react";
 import { User, Printer, ArrowLeft, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { Badge } from "@/components/ui/badge";
+
 interface PatientHeaderProps {
   patientName: string;
   patientId: string;
   lastCheckup: string;
 }
+
 const PatientHeader = ({
   patientName,
   patientId,
   lastCheckup
 }: PatientHeaderProps) => {
-  const {
-    subscription
-  } = useSubscription();
+  const { subscription } = useSubscription();
+  
   const getPlanBadgeColor = (planType?: string) => {
     switch (planType) {
       case 'basic':
@@ -29,7 +31,22 @@ const PatientHeader = ({
         return 'bg-gray-100 text-gray-800';
     }
   };
-  return <div className="bg-white border-b border-gray-200 my-[20px]">
+  
+  const getPlanName = (planType?: string) => {
+    switch (planType) {
+      case 'basic':
+        return 'Базовый';
+      case 'standard':
+        return 'Стандарт';
+      case 'premium':
+        return 'Премиум';
+      default:
+        return 'Базовый';
+    }
+  };
+  
+  return (
+    <div className="bg-white border-b border-gray-200 my-[20px]">
       <div className="container mx-auto px-4 my-0 py-[60px]">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
@@ -40,10 +57,12 @@ const PatientHeader = ({
               <h1 className="text-2xl font-bold">{patientName}</h1>
               <div className="flex items-center gap-2">
                 <p className="text-gray-500">ID: {patientId} • Последний визит: {lastCheckup}</p>
-                {subscription && <Badge className={`${getPlanBadgeColor(subscription.plan_type)} flex items-center gap-1`}>
+                {subscription && (
+                  <Badge className={`${getPlanBadgeColor(subscription.plan_type)} flex items-center gap-1`}>
                     <Crown className="h-3 w-3" /> 
-                    План: {subscription.plan_type === 'basic' ? 'Базовый' : subscription.plan_type === 'standard' ? 'Стандарт' : 'Премиум'}
-                  </Badge>}
+                    План: {getPlanName(subscription.plan_type)}
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
@@ -61,6 +80,8 @@ const PatientHeader = ({
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default PatientHeader;

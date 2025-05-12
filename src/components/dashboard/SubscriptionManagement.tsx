@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { PLAN_FEATURES } from "@/constants/subscription-features";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
 const SubscriptionManagement = () => {
-  const { subscription, isLoading, purchaseSubscription, cancelSubscription, upgradeSubscription } = useSubscription();
+  const navigate = useNavigate();
+  const { subscription, isLoading, cancelSubscription } = useSubscription();
   const [isProcessing, setIsProcessing] = useState(false);
 
   if (isLoading) {
@@ -24,28 +26,62 @@ const SubscriptionManagement = () => {
     );
   }
 
-  const handlePurchase = async (planType: 'basic' | 'standard' | 'premium') => {
-    setIsProcessing(true);
-    try {
-      // In the future, this will redirect to payment gateway
-      toast.info("Функциональность оплаты СБП будет добавлена в ближайшее время");
-      // Uncomment below when payment integration is ready
-      // await purchaseSubscription(planType);
-    } finally {
-      setIsProcessing(false);
+  // Helper function to calculate plan price
+  const getPlanPrice = (planType: 'basic' | 'standard' | 'premium') => {
+    switch (planType) {
+      case 'basic':
+        return 790;
+      case 'standard':
+        return 1490;
+      case 'premium':
+        return 1990;
+      default:
+        return 0;
     }
   };
 
-  const handleUpgrade = async (planType: 'basic' | 'standard' | 'premium') => {
-    setIsProcessing(true);
-    try {
-      // In the future, this will redirect to payment gateway
-      toast.info("Функциональность оплаты СБП будет добавлена в ближайшее время");
-      // Uncomment below when payment integration is ready
-      // await upgradeSubscription(planType);
-    } finally {
-      setIsProcessing(false);
-    }
+  // Calculate price difference for upgrade (if applicable)
+  const calculatePriceDifference = (currentPlan: string, newPlan: 'basic' | 'standard' | 'premium') => {
+    if (!currentPlan) return getPlanPrice(newPlan);
+    
+    const currentPrice = getPlanPrice(currentPlan as 'basic' | 'standard' | 'premium');
+    const newPrice = getPlanPrice(newPlan);
+    
+    return Math.max(0, newPrice - currentPrice);
+  };
+
+  const handlePurchase = (planType: 'basic' | 'standard' | 'premium') => {
+    navigate('/checkout', {
+      state: {
+        plan: {
+          type: planType,
+          name: planType === 'basic' ? 'Базовый' : planType === 'standard' ? 'Стандарт' : 'Премиум',
+          price: getPlanPrice(planType),
+          period: "месяц",
+          annual: false
+        }
+      }
+    });
+  };
+
+  const handleUpgrade = (planType: 'basic' | 'standard' | 'premium') => {
+    if (!subscription) return;
+    
+    const priceDifference = calculatePriceDifference(subscription.plan_type, planType);
+    
+    navigate('/checkout', {
+      state: {
+        plan: {
+          type: planType,
+          name: planType === 'basic' ? 'Базовый' : planType === 'standard' ? 'Стандарт' : 'Премиум',
+          price: priceDifference,
+          period: "месяц",
+          annual: false,
+          isUpgrade: true,
+          fromPlan: subscription.plan_type
+        }
+      }
+    });
   };
 
   const handleCancel = async () => {

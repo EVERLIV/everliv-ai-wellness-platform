@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import SubscriptionManagement from "@/components/dashboard/SubscriptionManagement";
+import PageHeader from "@/components/PageHeader";
 
 const UserSubscription = () => {
   return (
@@ -12,9 +13,13 @@ const UserSubscription = () => {
       <Header />
       
       <div className="flex-grow pt-16">
-        <div className="bg-white border-b border-gray-200">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Управление подпиской</h1>
+        <PageHeader
+          title="Управление подпиской"
+          description="Выберите оптимальный тарифный план для вашего здоровья"
+        />
+        
+        <div className="container mx-auto px-4 py-8 mb-12">
+          <div className="flex justify-end mb-6">
             <Link to="/dashboard">
               <Button variant="outline" className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
@@ -22,9 +27,7 @@ const UserSubscription = () => {
               </Button>
             </Link>
           </div>
-        </div>
-        
-        <div className="container mx-auto px-4 py-8">
+          
           <SubscriptionManagement />
         </div>
       </div>
