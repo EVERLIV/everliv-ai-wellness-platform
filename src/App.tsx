@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Routes,
@@ -44,6 +43,7 @@ import AIMedicine from "./pages/AIMedicine";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
 import Partnership from "./pages/Partnership";
+import AIRecommendationsPage from "./pages/AIRecommendationsPage";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -137,6 +137,7 @@ function App() {
       <Route path="/checkout" element={<Checkout />} />
       
       {/* New Routes */}
+      <Route path="/services/ai-recommendations" element={<AIRecommendationsPage />} />
       <Route path="/terms" element={<TermsOfUse />} />
       <Route path="/about" element={<About />} />
       <Route path="/blog" element={<Blog />} />

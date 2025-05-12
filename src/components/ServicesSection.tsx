@@ -1,7 +1,8 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Brain, Thermometer, Activity, FlaskRound, MapPin } from "lucide-react";
+import { Brain, Thermometer, Activity, FlaskRound, MapPin, HeartPulse } from "lucide-react";
 interface ServiceCardProps {
   icon: React.ReactNode;
   title: string;
@@ -74,11 +75,11 @@ const ServicesSection: React.FC = () => {
     link: "/services/personalized-supplements",
     benefits: ["Нутрицевтики", "Адаптогены", "Пробиотики", "Сенолитики"]
   }, {
-    icon: <MapPin className="h-5 w-5" />,
-    title: "Клиники Москва",
-    description: "Сеть специализированных клиник долголетия в Москве с полным спектром услуг.",
-    link: "/moscow-clinics",
-    benefits: ["Комплексная диагностика", "Специализированные процедуры", "Индивидуальные программы", "Удобное расположение"]
+    icon: <HeartPulse className="h-5 w-5" />,
+    title: "ИИ Рекомендации",
+    description: "Персонализированные рекомендации по образу жизни, питанию и добавкам на основе анализа ваших данных.",
+    link: "/services/ai-recommendations",
+    benefits: ["Рекомендации по образу жизни", "Анализ витаминного профиля", "Персональные протоколы здоровья", "Интеграция с медицинскими данными"]
   }];
   return <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
