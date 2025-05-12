@@ -16,6 +16,9 @@ const FooterLegal = () => {
             <Link to="/legal" className="text-sm text-gray-500 hover:text-everliv-600">
               Юридическая информация
             </Link>
+            <Link to="/privacy" className="text-sm text-gray-500 hover:text-everliv-600">
+              Политика конфиденциальности
+            </Link>
             <Link to="/delivery" className="text-sm text-gray-500 hover:text-everliv-600">
               Оказание услуг
             </Link>

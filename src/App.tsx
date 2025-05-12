@@ -34,6 +34,7 @@ import LegalInfo from "./pages/LegalInfo";
 import Contacts from "./pages/Contacts";
 import DeliveryInfo from "./pages/DeliveryInfo";
 import PaymentInfo from "./pages/PaymentInfo";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Checkout from "./pages/Checkout";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -125,6 +126,7 @@ function App() {
       <Route path="/contacts" element={<Contacts />} />
       <Route path="/delivery" element={<DeliveryInfo />} />
       <Route path="/payment-info" element={<PaymentInfo />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/checkout" element={<Checkout />} />
       
       <Route path="*" element={<NotFound />} />

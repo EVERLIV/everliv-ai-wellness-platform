@@ -231,7 +231,7 @@ const Checkout = () => {
           
           <div className="mt-8 text-sm text-gray-500 text-center">
             <p>
-              Нажимая кнопку «Оплатить», вы соглашаетесь с <Link to="/payment-info" className="text-everliv-600 hover:underline">условиями оплаты</Link> и <Link to="/payment-info" className="text-everliv-600 hover:underline">правилами возврата</Link>.
+              Нажимая кнопку «Оплатить», вы соглашаетесь с <Link to="/payment-info" className="text-everliv-600 hover:underline">условиями оплаты</Link> и <Link to="/privacy" className="text-everliv-600 hover:underline">политикой конфиденциальности</Link>.
             </p>
           </div>
         </div>
