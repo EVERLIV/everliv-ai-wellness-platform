@@ -74,7 +74,7 @@ const AiMedicineSection = () => {
                 Наш ИИ постоянно обучается и совершенствуется, использует данные из тысяч научных исследований и клинических 
                 случаев, чтобы предлагать максимально точные и эффективные рекомендации для вашего здоровья.
               </p>
-              <Link to="/ai-medecine">
+              <Link to="ai-medicine">
                 <Button className="rounded-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-white">
                   Подробнее о технологии
                 </Button>
