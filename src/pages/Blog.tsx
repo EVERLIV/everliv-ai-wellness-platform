@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -7,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import BlogCard, { BlogPost } from "@/components/blog/BlogCard";
+import PageHeader from "@/components/PageHeader";
 
 const mockPosts: BlogPost[] = [
   {
@@ -108,25 +108,21 @@ const BlogPage = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow pt-24 bg-gray-50">
-        <section className="py-16 bg-gradient-to-b from-primary/10 to-transparent">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl font-bold mb-4">Блог EVERLIV</h1>
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-              Актуальные исследования, практические советы и экспертные мнения в области здорового долголетия
-            </p>
-            
-            <div className="mt-8 max-w-lg mx-auto relative">
-              <Input 
-                type="text" 
-                placeholder="Поиск статей..." 
-                className="w-full pl-12 pr-4 py-3 text-lg rounded-lg"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            </div>
+        <PageHeader
+          title="Блог EVERLIV"
+          description="Актуальные исследования, практические советы и экспертные мнения в области здорового долголетия"
+        >
+          <div className="mt-8 max-w-lg mx-auto relative">
+            <Input 
+              type="text" 
+              placeholder="Поиск статей..." 
+              className="w-full pl-12 pr-4 py-3 text-lg rounded-lg"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
           </div>
-        </section>
+        </PageHeader>
         
         <section className="py-12">
           <div className="container mx-auto px-4">

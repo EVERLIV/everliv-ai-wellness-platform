@@ -1,7 +1,7 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import PricingHero from "@/components/pricing/PricingHero";
+import PageHeader from "@/components/PageHeader";
 import PricingTable from "@/components/pricing/PricingTable";
 import PricingFAQ from "@/components/pricing/PricingFAQ";
 import CorporatePricing from "@/components/pricing/CorporatePricing";
@@ -13,8 +13,11 @@ const Pricing = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow pt-16">
-        <PricingHero />
+      <main className="flex-grow pt-24">
+        <PageHeader
+          title="Тарифы и цены"
+          description="Выберите тариф, который подходит именно вам, и начните заботиться о своем здоровье уже сегодня"
+        />
         <PricingTable />
         <DetailedServiceInfo />
         <SubscriptionFeatureTable />

@@ -1,27 +1,21 @@
 
-import React from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ScienceHero from "@/components/science/ScienceHero";
+import PageHeader from "@/components/PageHeader";
 import ScientificMethods from "@/components/science/ScientificMethods";
-import ScienceSection from "@/components/about/ScienceSection";
 import ExpertCollaboration from "@/components/science/ExpertCollaboration";
+import ScienceHero from "@/components/science/ScienceHero";
 
 const Science = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow">
-        {/* Hero Section */}
-        <ScienceHero />
-
-        {/* Scientific Methods Section */}
+      <main className="flex-grow pt-24">
+        <PageHeader
+          title="Научный подход EVERLIV"
+          description="Узнайте о научной базе и исследованиях, которые лежат в основе наших технологий и рекомендаций"
+        />
         <ScientificMethods />
-
-        {/* Scientific Approach */}
-        <ScienceSection />
-
-        {/* Expert Collaboration */}
         <ExpertCollaboration />
       </main>
       <Footer />
