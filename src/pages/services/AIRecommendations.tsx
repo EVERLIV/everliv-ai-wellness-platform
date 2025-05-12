@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ServicePageLayout from '@/components/services/ServicePageLayout';
@@ -51,7 +50,7 @@ const AIRecommendationsPage: React.FC = () => {
             Искусственный интеллект обрабатывает медицинские данные, используя алгоритмы глубокого обучения и 
             нейронные сети. Он сопоставляет ваши биомаркеры с обширными базами данных научных исследований, 
             выявляя значимые паттерны и корреляции. При этом учитываются индивидуальные особенности каждого 
-            человека, что позволяет создавать действительно персонализированные рекомендации.
+            человека, что позволяет создавать действительно персонализированные рекоменд��ции.
           </p>
 
           <h3 className="text-xl font-semibold mt-4">Доказательная база</h3>
@@ -90,9 +89,11 @@ const AIRecommendationsPage: React.FC = () => {
               Задайте вопросы нашему ИИ-доктору, который анализирует знания тысяч медицинских исследований 
               и протоколов для предоставления научно обоснованных ответов по вопросам здоровья и долголетия.
             </p>
-            <Button variant="default" className="mt-2">
-              <MessageSquare className="mr-2 h-4 w-4" /> Консультация с ИИ-доктором
-            </Button>
+            <Link to="/dashboard">
+              <Button variant="default" className="mt-2">
+                <MessageSquare className="mr-2 h-4 w-4" /> Консультация с ИИ-доктором
+              </Button>
+            </Link>
           </div>
 
           <div className="border-l-4 border-primary pl-6 py-2">
@@ -102,9 +103,11 @@ const AIRecommendationsPage: React.FC = () => {
               ИИ составит оптимальный план приема добавок с дозировками, адаптированными к вашим 
               индивидуальным потребностям.
             </p>
-            <Button variant="default" className="mt-2">
-              <ClipboardList className="mr-2 h-4 w-4" /> Получить план добавок
-            </Button>
+            <Link to="/pricing">
+              <Button variant="default" className="mt-2">
+                <ClipboardList className="mr-2 h-4 w-4" /> Узнать о тарифах
+              </Button>
+            </Link>
           </div>
 
           <div className="border-l-4 border-primary pl-6 py-2">
