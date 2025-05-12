@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -134,7 +135,7 @@ const Header = () => {
                 <Link to="/blog" className="hover:text-gray-600 px-4 py-2">Блог</Link>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link to="/webinars" className="hover:text-gray-600 px-4 py-2">Вебинары</Link>
+                <Link to="/partnership" className="hover:text-gray-600 px-4 py-2">Партнерство</Link>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <Link to="/contacts" className="hover:text-gray-600 px-4 py-2">Контакты</Link>
@@ -194,7 +195,7 @@ const Header = () => {
             </div>
             
             <Link to="/blog" className="hover:text-gray-600">Блог</Link>
-            <Link to="/webinars" className="hover:text-gray-600">Вебинары</Link>
+            <Link to="/partnership" className="hover:text-gray-600">Партнерство</Link>
             <Link to="/contacts" className="hover:text-gray-600">Контакты</Link>
             
             {user ? <>

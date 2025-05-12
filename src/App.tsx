@@ -43,6 +43,7 @@ import Security from "./pages/Security";
 import AIMedicine from "./pages/AIMedicine";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
+import Partnership from "./pages/Partnership";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -124,7 +125,6 @@ function App() {
       } />
       
       <Route path="/pricing" element={<Pricing />} />
-      <Route path="/webinars" element={<Webinars />} />
       <Route path="/subscription" element={<UserSubscription />} />
       <Route path="/science" element={<Science />} />
       
@@ -140,10 +140,15 @@ function App() {
       <Route path="/terms" element={<TermsOfUse />} />
       <Route path="/about" element={<About />} />
       <Route path="/blog" element={<Blog />} />
-      <Route path="/help" element={<HelpCenter />} />
+      <Route path="/help" element={
+        <ProtectedRoute>
+          <HelpCenter />
+        </ProtectedRoute>
+      } />
       <Route path="/security" element={<Security />} />
       <Route path="/ai-medicine" element={<AIMedicine />} />
       <Route path="/faq" element={<FAQ />} />
+      <Route path="/partnership" element={<Partnership />} />
       
       <Route path="*" element={<NotFound />} />
     </Routes>
