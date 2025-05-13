@@ -1,108 +1,70 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 
-interface Protocol {
+export interface Protocol {
   id: string;
-  title: string;
+  name: string;
   description: string;
+  status: 'active' | 'completed' | 'pending';
   progress: number;
   startDate: string;
-  endDate: string;
-  status: 'active' | 'completed' | 'paused';
+  endDate?: string;
 }
 
 export const useProtocols = () => {
-  const [protocols, setProtocols] = useState<Protocol[] | null>(null);
+  const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchProtocols = async () => {
-      if (!user) {
-        setProtocols([]);
-        setIsLoading(false);
-        return;
-      }
-
       try {
         setIsLoading(true);
-        
-        // Mock data for demo purposes
-        // In a real application, this would be fetched from Supabase
-        const mockProtocols: Protocol[] = [
+        // In a real app, this would be a fetch call to your API
+        // For now, using mock data
+        const mockData: Protocol[] = [
           {
             id: '1',
-            title: 'Антивозрастной протокол',
-            description: 'Комплексная программа для замедления процессов старения',
+            name: 'Восстановление здоровья',
+            description: 'Комплексный протокол для улучшения общего состояния',
+            status: 'active',
             progress: 65,
-            startDate: '2024-04-10',
-            endDate: '2024-07-10',
-            status: 'active'
+            startDate: '2025-03-10T00:00:00Z',
+            endDate: '2025-06-10T00:00:00Z'
           },
           {
             id: '2',
-            title: 'Улучшение сна',
-            description: 'Протокол для нормализации сна и повышения его качества',
-            progress: 40,
-            startDate: '2024-04-15',
-            endDate: '2024-06-15',
-            status: 'active'
+            name: 'Энергия и фокус',
+            description: 'Протокол для повышения энергии и концентрации внимания',
+            status: 'active',
+            progress: 30,
+            startDate: '2025-04-01T00:00:00Z',
+            endDate: '2025-07-01T00:00:00Z'
           },
           {
             id: '3',
-            title: 'Иммунная поддержка',
-            description: 'Повышение иммунитета и защитных функций организма',
-            progress: 20,
-            startDate: '2024-05-01',
-            endDate: '2024-08-01',
-            status: 'active'
-          },
-          {
-            id: '4',
-            title: 'Энергия и выносливость',
-            description: 'Программа для повышения жизненной энергии и работоспособности',
-            progress: 85,
-            startDate: '2024-03-01',
-            endDate: '2024-06-01',
-            status: 'active'
+            name: 'Иммунная поддержка',
+            description: 'Укрепление иммунитета и защитных функций организма',
+            status: 'pending',
+            progress: 0,
+            startDate: '2025-05-15T00:00:00Z',
+            endDate: '2025-08-15T00:00:00Z'
           }
         ];
-
-        setProtocols(mockProtocols);
-        setError(null);
-      } catch (error: any) {
-        console.error('Error fetching protocols:', error);
-        setError('Не удалось загрузить протоколы');
-      } finally {
+        
+        // Simulate API delay
+        setTimeout(() => {
+          setProtocols(mockData);
+          setIsLoading(false);
+        }, 500);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Unknown error'));
         setIsLoading(false);
       }
     };
 
     fetchProtocols();
-  }, [user]);
+  }, []);
 
-  const addProtocol = async (protocolData: Omit<Protocol, 'id'>) => {
-    // Implementation for adding a new protocol
-    // This would typically involve a call to Supabase
-  };
-
-  const updateProtocol = async (id: string, updates: Partial<Protocol>) => {
-    // Implementation for updating a protocol
-  };
-
-  const deleteProtocol = async (id: string) => {
-    // Implementation for deleting a protocol
-  };
-
-  return {
-    protocols,
-    isLoading,
-    error,
-    addProtocol,
-    updateProtocol,
-    deleteProtocol
-  };
+  return { protocols, isLoading, error };
 };

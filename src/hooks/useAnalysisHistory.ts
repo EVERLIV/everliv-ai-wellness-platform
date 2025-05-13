@@ -1,104 +1,64 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { AnalysisRecord } from '@/components/dashboard/RecentAnalysisResults';
 
-export interface AnalysisRecord {
-  id: string;
-  created_at: string;
-  analysis_type: string;
-  results?: {
-    status: 'normal' | 'warning' | 'critical';
-    indicators: {
-      name: string;
-      value: string;
-      unit: string;
-      status: 'normal' | 'low' | 'high';
-    }[];
-  };
-}
+export { AnalysisRecord };
 
 export const useAnalysisHistory = () => {
   const [history, setHistory] = useState<AnalysisRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const fetchAnalysisHistory = async () => {
-      if (!user) {
-        setHistory([]);
-        setIsLoading(false);
-        return;
-      }
-
+    const fetchHistory = async () => {
       try {
         setIsLoading(true);
-        
-        // Mock data for demo purposes
-        // In a real application, this would be fetched from Supabase
-        const mockHistory: AnalysisRecord[] = [
+        // In a real app, this would be a fetch call to your API
+        // For now, using mock data
+        const mockData: AnalysisRecord[] = [
           {
             id: '1',
-            created_at: '2024-05-10T10:00:00',
             analysis_type: 'Общий анализ крови',
+            created_at: '2025-04-15T10:30:00Z',
             results: {
               status: 'normal',
               indicators: [
-                { name: 'Гемоглобин', value: '145', unit: 'г/л', status: 'normal' },
-                { name: 'Эритроциты', value: '4.8', unit: '10^12/л', status: 'normal' },
-                { name: 'Лейкоциты', value: '6.2', unit: '10^9/л', status: 'normal' },
-                { name: 'Тромбоциты', value: '280', unit: '10^9/л', status: 'normal' },
-                { name: 'СОЭ', value: '12', unit: 'мм/ч', status: 'normal' }
+                { name: 'Гемоглобин', value: 145, unit: 'г/л', status: 'normal' },
+                { name: 'Эритроциты', value: 4.8, unit: '10^12/л', status: 'normal' },
+                { name: 'Лейкоциты', value: 6.5, unit: '10^9/л', status: 'normal' },
+                { name: 'СОЭ', value: 8, unit: 'мм/ч', status: 'normal' }
               ]
             }
           },
           {
             id: '2',
-            created_at: '2024-04-02T14:30:00',
             analysis_type: 'Биохимический анализ крови',
+            created_at: '2025-04-10T14:15:00Z',
             results: {
               status: 'warning',
               indicators: [
-                { name: 'Глюкоза', value: '5.9', unit: 'ммоль/л', status: 'high' },
-                { name: 'Холестерин', value: '5.8', unit: 'ммоль/л', status: 'high' },
-                { name: 'Креатинин', value: '80', unit: 'мкмоль/л', status: 'normal' },
-                { name: 'АЛТ', value: '25', unit: 'Ед/л', status: 'normal' },
-                { name: 'АСТ', value: '28', unit: 'Ед/л', status: 'normal' }
-              ]
-            }
-          },
-          {
-            id: '3',
-            created_at: '2024-02-15T09:15:00',
-            analysis_type: 'Гормональный профиль',
-            results: {
-              status: 'critical',
-              indicators: [
-                { name: 'ТТГ', value: '4.5', unit: 'мМЕ/л', status: 'high' },
-                { name: 'Т4 свободный', value: '9.2', unit: 'пмоль/л', status: 'low' },
-                { name: 'Кортизол', value: '750', unit: 'нмоль/л', status: 'high' },
-                { name: 'Витамин D', value: '15', unit: 'нг/мл', status: 'low' }
+                { name: 'Глюкоза', value: 5.8, unit: 'ммоль/л', status: 'high' },
+                { name: 'Холестерин', value: 5.9, unit: 'ммоль/л', status: 'high' },
+                { name: 'АЛТ', value: 25, unit: 'Ед/л', status: 'normal' },
+                { name: 'АСТ', value: 24, unit: 'Ед/л', status: 'normal' }
               ]
             }
           }
         ];
-
-        setHistory(mockHistory);
-        setError(null);
-      } catch (error: any) {
-        console.error('Error fetching analysis history:', error);
-        setError('Не удалось загрузить историю анализов');
-      } finally {
+        
+        // Simulate API delay
+        setTimeout(() => {
+          setHistory(mockData);
+          setIsLoading(false);
+        }, 500);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Unknown error'));
         setIsLoading(false);
       }
     };
 
-    fetchAnalysisHistory();
-  }, [user]);
+    fetchHistory();
+  }, []);
 
-  return {
-    history,
-    isLoading,
-    error
-  };
+  return { history, isLoading, error };
 };

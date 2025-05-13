@@ -3,7 +3,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/utils";
-import { AnalysisRecord } from "@/hooks/useAnalysisHistory";
+
+export interface AnalysisRecord {
+  id: string;
+  analysis_type: string;
+  created_at: string;
+  results?: {
+    status: "normal" | "warning" | "critical";
+    indicators: {
+      name: string;
+      value: string | number;
+      unit: string;
+      status: "normal" | "low" | "high";
+    }[];
+  };
+}
 
 interface RecentAnalysisResultsProps {
   results: AnalysisRecord[];
@@ -52,7 +66,7 @@ const RecentAnalysisResults = ({ results, isLoading }: RecentAnalysisResultsProp
                 </Badge>
               </div>
               <p className="text-sm text-gray-500">
-                {new Date(result.created_at).toLocaleDateString('ru-RU')}
+                {result.created_at ? formatDate(result.created_at) : 'Дата не указана'}
               </p>
             </div>
             
