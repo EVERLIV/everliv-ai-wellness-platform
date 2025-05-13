@@ -4,9 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import TrialStatusBanner from "./dashboard/TrialStatusBanner";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Settings } from "lucide-react";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 interface HeaderProps {
   className?: string;
@@ -18,6 +19,7 @@ const Header: React.FC = () => {
     user,
     signOut
   } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   
   const toggleMenu = () => {
@@ -151,6 +153,14 @@ const Header: React.FC = () => {
           
           {user ? (
             <>
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button variant="default" size="sm" className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    Админ-панель
+                  </Button>
+                </Link>
+              )}
               <Link to="/dashboard" className="hover:text-gray-600">
                 <Button variant="outline" size="sm">Личный кабинет</Button>
               </Link>
@@ -211,6 +221,12 @@ const Header: React.FC = () => {
             
             {user ? (
               <>
+                {isAdmin && (
+                  <Link to="/admin" className="text-primary font-medium flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    Админ-панель
+                  </Link>
+                )}
                 <Link to="/dashboard" className="hover:text-gray-600">Личный кабинет</Link>
                 <Button variant="outline" size="sm" onClick={handleSignOut}>Выйти</Button>
               </>

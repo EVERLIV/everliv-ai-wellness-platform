@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
@@ -11,14 +10,13 @@ import ProfileSummary from "@/components/profile/ProfileSummary";
 import AnalysisHistoryList from "@/components/profile/AnalysisHistoryList";
 import { useProfile } from "@/hooks/useProfile";
 import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 const UserProfile = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const { profileData, isLoading, isUpdating, updateProfile } = useProfile();
   const { history, isLoading: isHistoryLoading } = useAnalysisHistory();
-  
-  // Temporary check for admin status - in a real app, you'd check user roles from your auth system
-  const isAdmin = true; // This would be fetched from your auth context or user profile
+  const { isAdmin } = useIsAdmin();
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
