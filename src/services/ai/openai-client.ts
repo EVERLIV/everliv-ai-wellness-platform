@@ -1,19 +1,16 @@
 
 import OpenAI from "openai";
 
-/**
- * Initialize OpenAI client with appropriate API key
- */
+// Initialize OpenAI client with API key
 export const initializeOpenAI = () => {
-  // Use built-in API key instead of requiring user input
-  const HIDDEN_API_KEY = "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";
+  const apiKey = process.env.OPENAI_API_KEY || "";
   
-  // Try to use stored API key if available, otherwise use hidden key
-  const userApiKey = localStorage.getItem('OPENAI_API_KEY');
-  const apiKey = userApiKey || HIDDEN_API_KEY;
-
+  if (!apiKey) {
+    console.error("OpenAI API key is not configured. Please set the OPENAI_API_KEY environment variable.");
+  }
+  
   return new OpenAI({
-    apiKey,
-    dangerouslyAllowBrowser: true // Note: In production, use backend calls
+    apiKey: apiKey,
+    dangerouslyAllowBrowser: true // Note: This is for client-side use only, not recommended for production
   });
 };

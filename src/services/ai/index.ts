@@ -1,18 +1,6 @@
 
-// Re-export all services from their respective files
-export { initializeOpenAI } from './openai-client';
-export { 
-  analyzeBloodTestWithOpenAI,
-  createBloodTestSystemPrompt,
-  createBloodTestPrompt
-} from './blood-test-analysis';
-export { 
-  analyzeBiologicalAgeWithOpenAI, 
-  createBiologicalAgeSystemPrompt, 
-  createBiologicalAgePrompt 
-} from './biological-age-analysis';
-export { 
-  performComprehensiveAnalysisWithOpenAI, 
-  createComprehensiveAnalysisSystemPrompt, 
-  createComprehensiveAnalysisPrompt 
-} from './comprehensive-analysis';
+// Export all AI-related functionality
+export * from './blood-test-analysis';
+export * from './biological-age-analysis';
+export * from './comprehensive-analysis';
+export * from './openai-client';
