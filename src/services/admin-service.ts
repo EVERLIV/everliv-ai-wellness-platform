@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 // Типы для пользователей
 export interface AdminUser {
@@ -103,6 +104,33 @@ export const updateUserProfile = async (userId: string, data: { first_name?: str
 };
 
 // Функции для работы с тарифами
+
+// Вспомогательная функция для преобразования Json в PlanFeatureDetail[]
+const convertJsonToFeatures = (features: Json): PlanFeatureDetail[] => {
+  if (!features) return [];
+  
+  // Если features это массив объектов
+  if (Array.isArray(features)) {
+    return features as PlanFeatureDetail[];
+  }
+  
+  try {
+    // Если features это строка JSON, попробуем распарсить
+    if (typeof features === 'string') {
+      return JSON.parse(features) as PlanFeatureDetail[];
+    }
+  } catch (e) {
+    console.error("Failed to parse features JSON:", e);
+  }
+  
+  return [];
+};
+
+// Вспомогательная функция для преобразования PlanFeatureDetail[] в Json
+const convertFeaturesToJson = (features: PlanFeatureDetail[]): Json => {
+  return features as unknown as Json;
+};
+
 export const fetchSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
   try {
     const { data, error } = await supabase
@@ -111,7 +139,12 @@ export const fetchSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
       .order('price');
 
     if (error) throw error;
-    return data || [];
+    
+    // Преобразуем данные из базы в формат SubscriptionPlan
+    return (data || []).map(plan => ({
+      ...plan,
+      features: convertJsonToFeatures(plan.features)
+    }));
   } catch (error) {
     console.error("Error fetching subscription plans:", error);
     toast.error("Ошибка при загрузке тарифных планов");
@@ -121,15 +154,26 @@ export const fetchSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
 
 export const createSubscriptionPlan = async (plan: Omit<SubscriptionPlan, 'id' | 'created_at' | 'updated_at'>): Promise<SubscriptionPlan | null> => {
   try {
+    // Преобразуем features в формат JSON для базы данных
+    const planToInsert = {
+      ...plan,
+      features: convertFeaturesToJson(plan.features)
+    };
+    
     const { data, error } = await supabase
       .from('subscription_plans')
-      .insert(plan)
+      .insert(planToInsert)
       .select()
       .single();
 
     if (error) throw error;
     toast.success("Тарифный план создан");
-    return data;
+    
+    // Преобразуем полученный результат обратно в формат SubscriptionPlan
+    return {
+      ...data,
+      features: convertJsonToFeatures(data.features)
+    };
   } catch (error) {
     console.error("Error creating subscription plan:", error);
     toast.error("Ошибка при создании тарифного плана");
@@ -139,12 +183,16 @@ export const createSubscriptionPlan = async (plan: Omit<SubscriptionPlan, 'id' |
 
 export const updateSubscriptionPlan = async (id: string, plan: Partial<SubscriptionPlan>): Promise<boolean> => {
   try {
+    // Если есть features, преобразуем их в формат JSON для базы данных
+    const planToUpdate = {
+      ...plan,
+      features: plan.features ? convertFeaturesToJson(plan.features) : undefined,
+      updated_at: new Date().toISOString()
+    };
+    
     const { error } = await supabase
       .from('subscription_plans')
-      .update({
-        ...plan,
-        updated_at: new Date().toISOString()
-      })
+      .update(planToUpdate)
       .eq('id', id);
 
     if (error) throw error;
