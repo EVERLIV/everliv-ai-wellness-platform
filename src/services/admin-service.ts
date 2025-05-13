@@ -111,13 +111,30 @@ const convertJsonToFeatures = (features: Json): PlanFeatureDetail[] => {
   
   // Если features это массив объектов
   if (Array.isArray(features)) {
-    return features as PlanFeatureDetail[];
+    // Используем явное приведение типов с проверкой структуры
+    return features.map(item => {
+      // Проверяем, что элемент содержит нужные поля
+      if (typeof item === 'object' && item !== null && 'name' in item && 'description' in item) {
+        return {
+          name: String(item.name),
+          description: String(item.description)
+        };
+      }
+      // Если структура не соответствует, возвращаем пустой объект
+      return { name: "", description: "" };
+    });
   }
   
   try {
     // Если features это строка JSON, попробуем распарсить
     if (typeof features === 'string') {
-      return JSON.parse(features) as PlanFeatureDetail[];
+      const parsed = JSON.parse(features);
+      if (Array.isArray(parsed)) {
+        return parsed.map(item => ({
+          name: String(item.name || ""),
+          description: String(item.description || "")
+        }));
+      }
     }
   } catch (e) {
     console.error("Failed to parse features JSON:", e);
@@ -128,6 +145,8 @@ const convertJsonToFeatures = (features: Json): PlanFeatureDetail[] => {
 
 // Вспомогательная функция для преобразования PlanFeatureDetail[] в Json
 const convertFeaturesToJson = (features: PlanFeatureDetail[]): Json => {
+  // Используем "as unknown as" для безопасного преобразования типов
+  // PlanFeatureDetail[] -> unknown -> Json
   return features as unknown as Json;
 };
 
