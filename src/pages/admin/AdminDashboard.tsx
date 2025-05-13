@@ -7,10 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Users, BarChart2, Database, Settings } from "lucide-react";
 import { useAdminApi } from "@/hooks/useAdminApi";
-
 const AdminDashboard = () => {
-  const { fetchData, loading, error } = useAdminApi();
-  
+  const {
+    fetchData,
+    loading,
+    error
+  } = useAdminApi();
   useEffect(() => {
     const loadDashboardData = async () => {
       const data = await fetchData('/api/admin/dashboard');
@@ -19,12 +21,9 @@ const AdminDashboard = () => {
         console.log('Dashboard data loaded with cache busting');
       }
     };
-    
     loadDashboardData();
   }, [fetchData]);
-
-  return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+  return <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       <div className="flex-grow pt-16">
         <div className="bg-white border-b border-gray-200 my-[20px]">
@@ -224,8 +223,6 @@ const AdminDashboard = () => {
         </div>
       </div>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default AdminDashboard;
