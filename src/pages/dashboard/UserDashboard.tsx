@@ -24,6 +24,18 @@ const UserDashboard = () => {
     }, 1500);
   };
 
+  // Map the protocols from useProtocols hook format to the format expected by UserProtocolsList
+  const mappedProtocols = protocols?.map(protocol => ({
+    id: protocol.id,
+    title: protocol.name, // Map 'name' to 'title'
+    description: protocol.description,
+    progress: protocol.progress,
+    startDate: protocol.startDate,
+    endDate: protocol.endDate || '',
+    status: protocol.status === 'active' ? 'active' : 
+           protocol.status === 'completed' ? 'completed' : 'paused'
+  }));
+
   return (
     <DashboardLayout>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -55,7 +67,7 @@ const UserDashboard = () => {
       </div>
 
       <UserProtocolsList 
-        protocols={protocols?.slice(0, 3) || []} 
+        protocols={mappedProtocols?.slice(0, 3) || []} 
         isLoading={protocolsLoading} 
         compact={true}
       />
