@@ -1,23 +1,23 @@
 
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from '@/pages/LandingPage'; // Changed from Home to LandingPage
+import { Route, Routes } from 'react-router-dom';
+import Home from '@/pages/LandingPage';
 import Pricing from '@/pages/Pricing';
 import LoginPage from '@/pages/LoginPage';
-import RegisterPage from '@/pages/Login'; // Changed from RegisterPage to Login
-import Dashboard from '@/pages/Dashboard'; // Changed from dashboard/Dashboard
+import RegisterPage from '@/pages/Login';
+import Dashboard from '@/pages/Dashboard';
 import UserProfile from '@/pages/UserProfile';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import ProtocolDetailPage from '@/pages/ProtocolTracking'; // Changed from protocols/ProtocolDetailPage
-import MyProtocolsPage from '@/pages/MyProtocols'; // Changed from protocols/MyProtocolsPage
-import AddProtocolPage from '@/pages/ProtocolTracking'; // Changed from protocols/AddProtocolPage
+import ProtocolDetailPage from '@/pages/ProtocolTracking';
+import MyProtocolsPage from '@/pages/MyProtocols';
+import AddProtocolPage from '@/pages/ProtocolTracking';
 import BloodAnalysisPage from '@/pages/BloodAnalysisPage';
-import AIRecommendationsPage from '@/pages/AI'; // Changed from AIRecommendationsPage
+import AIRecommendationsPage from '@/pages/AI';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminUsers from '@/pages/admin/AdminUsers';
-import AdminUserDetail from '@/pages/admin/AdminStatistics'; // Changed from admin/AdminUserDetail
-import AdminProtocols from '@/pages/admin/AdminPricing'; // Changed from admin/AdminProtocols
+import AdminUserDetail from '@/pages/admin/AdminStatistics';
+import AdminProtocols from '@/pages/admin/AdminPricing';
 import AdminPricing from '@/pages/admin/AdminPricing';
-import ProtocolPage from '@/pages/ProtocolTracking'; // Changed from ProtocolPage
+import ProtocolPage from '@/pages/ProtocolTracking';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import { useState, useEffect } from 'react';
@@ -25,14 +25,14 @@ import { Toaster } from '@/components/ui/toaster';
 import { toast } from '@/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import BlogPage from '@/pages/Blog'; // Changed from BlogPage
-import BlogPostPage from '@/pages/Blog'; // Changed from BlogPostPage
+import BlogPage from '@/pages/Blog';
+import BlogPostPage from '@/pages/Blog';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
-import AboutPage from '@/pages/About'; // Changed from AboutPage
-import ContactPage from '@/pages/Contact'; // Changed from ContactPage
-import FeaturesPage from '@/pages/Features'; // Changed from FeaturesPage
-import NotFoundPage from '@/pages/NotFound'; // Changed from NotFoundPage
+import AboutPage from '@/pages/About';
+import ContactPage from '@/pages/Contact';
+import FeaturesPage from '@/pages/Features';
+import NotFoundPage from '@/pages/NotFound';
 import UserSubscription from '@/pages/UserSubscription';
 import Checkout from '@/pages/Checkout';
 
@@ -114,154 +114,151 @@ function App() {
   }
 
   return (
-    <Router>
-      <AuthProvider>
-        <SubscriptionProvider>
-          <Routes>
-            {/* Публичные страницы */}
-            <Route path="/" element={<Home />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/blog/:id" element={<BlogPostPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/features" element={<FeaturesPage />} />
-            
-            {/* Защищенные страницы */}
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/profile" 
-              element={
-                <ProtectedRoute>
-                  <UserProfile />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/subscription" 
-              element={
-                <ProtectedRoute>
-                  <UserSubscription />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/checkout" 
-              element={
-                <ProtectedRoute>
-                  <Checkout />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/protocols" 
-              element={
-                <ProtectedRoute>
-                  <ProtocolPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/my-protocols" 
-              element={
-                <ProtectedRoute>
-                  <MyProtocolsPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/protocols/:id" 
-              element={
-                <ProtectedRoute>
-                  <ProtocolDetailPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/protocols/add" 
-              element={
-                <ProtectedRoute>
-                  <AddProtocolPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/blood-analysis" 
-              element={
-                <ProtectedRoute>
-                  <BloodAnalysisPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/recommendations" 
-              element={
-                <ProtectedRoute>
-                  <AIRecommendationsPage />
-                </ProtectedRoute>
-              } 
-            />
-            
-            {/* Страницы администратора */}
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute adminRequired={true}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/users" 
-              element={
-                <ProtectedRoute adminRequired={true}>
-                  <AdminUsers />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/users/:id" 
-              element={
-                <ProtectedRoute adminRequired={true}>
-                  <AdminUserDetail />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/protocols" 
-              element={
-                <ProtectedRoute adminRequired={true}>
-                  <AdminProtocols />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin/pricing" 
-              element={
-                <ProtectedRoute adminRequired={true}>
-                  <AdminPricing />
-                </ProtectedRoute>
-              } 
-            />
-            
-            {/* 404 страница */}
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-          <Toaster />
-        </SubscriptionProvider>
-      </AuthProvider>
-    </Router>
+    // Removed the BrowserRouter component that was here before
+    <>
+      <Routes>
+        {/* Публичные страницы */}
+        <Route path="/" element={<Home />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:id" element={<BlogPostPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/features" element={<FeaturesPage />} />
+        
+        {/* Защищенные страницы */}
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/subscription" 
+          element={
+            <ProtectedRoute>
+              <UserSubscription />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/checkout" 
+          element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/protocols" 
+          element={
+            <ProtectedRoute>
+              <ProtocolPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/my-protocols" 
+          element={
+            <ProtectedRoute>
+              <MyProtocolsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/protocols/:id" 
+          element={
+            <ProtectedRoute>
+              <ProtocolDetailPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/protocols/add" 
+          element={
+            <ProtectedRoute>
+              <AddProtocolPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/blood-analysis" 
+          element={
+            <ProtectedRoute>
+              <BloodAnalysisPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/recommendations" 
+          element={
+            <ProtectedRoute>
+              <AIRecommendationsPage />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Страницы администратора */}
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute adminRequired={true}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/users" 
+          element={
+            <ProtectedRoute adminRequired={true}>
+              <AdminUsers />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/users/:id" 
+          element={
+            <ProtectedRoute adminRequired={true}>
+              <AdminUserDetail />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/protocols" 
+          element={
+            <ProtectedRoute adminRequired={true}>
+              <AdminProtocols />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/pricing" 
+          element={
+            <ProtectedRoute adminRequired={true}>
+              <AdminPricing />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* 404 страница */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+      <Toaster />
+    </>
   );
 }
 

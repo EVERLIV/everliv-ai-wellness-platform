@@ -1,44 +1,33 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-
-interface AnalysisResult {
-  id: string;
-  date: string;
-  type: string;
-  status: 'normal' | 'warning' | 'critical';
-  indicators: {
-    name: string;
-    value: string;
-    unit: string;
-    status: 'normal' | 'low' | 'high';
-  }[];
-}
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatDate } from "@/lib/utils";
+import { AnalysisRecord } from "@/hooks/useAnalysisHistory";
 
 interface RecentAnalysisResultsProps {
-  results: AnalysisResult[];
+  results: AnalysisRecord[];
   isLoading: boolean;
 }
 
 const RecentAnalysisResults = ({ results, isLoading }: RecentAnalysisResultsProps) => {
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-everliv-600" />
+      <div className="space-y-4">
+        <Skeleton className="h-[150px] w-full rounded-md" />
+        <Skeleton className="h-[150px] w-full rounded-md" />
       </div>
     );
   }
 
   if (results.length === 0) {
     return (
-      <Card className="bg-gray-50 border-dashed">
-        <CardContent className="py-12 text-center">
-          <p className="text-gray-600 mb-4">У вас пока нет результатов анализов</p>
-          <Link to="/blood-analysis">
-            <Button>Загрузить анализы</Button>
-          </Link>
+      <Card>
+        <CardContent className="p-6 text-center">
+          <p className="text-sm text-gray-500">У вас пока нет результатов анализов</p>
+          <button className="mt-4 text-sm text-primary hover:underline">
+            Загрузить результаты анализов
+          </button>
         </CardContent>
       </Card>
     );
@@ -48,51 +37,72 @@ const RecentAnalysisResults = ({ results, isLoading }: RecentAnalysisResultsProp
     <div className="space-y-4">
       {results.map((result) => (
         <Card key={result.id} className="overflow-hidden">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">{result.type}</CardTitle>
-            <CardDescription>{result.date}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {result.indicators.slice(0, 3).map((indicator, index) => (
-                <div key={index} className="flex items-center justify-between py-1 border-b border-gray-100 last:border-0">
-                  <span className="text-sm">{indicator.name}</span>
-                  <div className="flex items-center">
-                    <span className={`text-sm font-medium ${
-                      indicator.status === 'normal' 
-                        ? 'text-green-600' 
-                        : indicator.status === 'low' 
-                        ? 'text-amber-600' 
-                        : 'text-red-600'
-                    }`}>
-                      {indicator.value} {indicator.unit}
-                    </span>
-                  </div>
-                </div>
-              ))}
-              
-              {result.indicators.length > 3 && (
-                <div className="text-xs text-gray-500 text-right mt-1">
-                  + еще {result.indicators.length - 3} показателей
-                </div>
-              )}
-              
-              <div className="mt-3">
-                <Link to={`/blood-analysis/${result.id}`}>
-                  <Button variant="outline" size="sm" className="w-full">
-                    Просмотреть полный отчет
-                  </Button>
-                </Link>
+          <CardContent className="p-0">
+            <div className="p-4 border-b">
+              <div className="flex justify-between items-center mb-1">
+                <h3 className="font-medium">{result.analysis_type}</h3>
+                <Badge 
+                  variant={
+                    result.results?.status === "normal" ? "outline" : 
+                    result.results?.status === "warning" ? "secondary" : "destructive"
+                  }
+                >
+                  {result.results?.status === "normal" ? "Норма" : 
+                   result.results?.status === "warning" ? "Внимание" : "Критично"}
+                </Badge>
               </div>
+              <p className="text-sm text-gray-500">
+                {new Date(result.created_at).toLocaleDateString('ru-RU')}
+              </p>
+            </div>
+            
+            <div className="p-4">
+              <div className="space-y-2">
+                {result.results?.indicators.slice(0, 3).map((indicator, index) => (
+                  <div key={index} className="flex justify-between items-center">
+                    <span className="text-sm">{indicator.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-medium ${
+                        indicator.status === "normal" ? "text-green-600" :
+                        indicator.status === "low" ? "text-amber-600" : "text-red-600"
+                      }`}>
+                        {indicator.value} {indicator.unit}
+                      </span>
+                      <Badge 
+                        variant="outline"
+                        className={`text-xs ${
+                          indicator.status === "normal" ? "border-green-200 text-green-600" :
+                          indicator.status === "low" ? "border-amber-200 text-amber-600" : "border-red-200 text-red-600"
+                        }`}
+                      >
+                        {indicator.status === "normal" ? "N" : 
+                         indicator.status === "low" ? "L" : "H"}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+                
+                {result.results?.indicators.length > 3 && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    +{result.results.indicators.length - 3} еще показателей
+                  </p>
+                )}
+              </div>
+            </div>
+            
+            <div className="bg-muted/50 p-3 flex justify-center">
+              <button className="text-sm text-primary hover:underline">
+                Посмотреть полный отчет
+              </button>
             </div>
           </CardContent>
         </Card>
       ))}
       
-      <div className="text-center mt-4">
-        <Link to="/blood-analysis">
-          <Button variant="outline">История всех анализов</Button>
-        </Link>
+      <div className="text-center">
+        <button className="text-sm text-primary hover:underline">
+          Смотреть все результаты
+        </button>
       </div>
     </div>
   );
