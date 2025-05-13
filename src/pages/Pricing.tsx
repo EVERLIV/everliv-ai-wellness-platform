@@ -6,27 +6,22 @@ import PricingTable from "@/components/pricing/PricingTable";
 import PricingFAQ from "@/components/pricing/PricingFAQ";
 import CorporatePricing from "@/components/pricing/CorporatePricing";
 import CTASection from "@/components/CTASection";
-import SubscriptionFeatureTable from "@/components/pricing/SubscriptionFeatureTable";
-import DetailedServiceInfo from "@/components/pricing/DetailedServiceInfo";
+import PricingFeaturesTable from "@/components/pricing/PricingFeaturesTable";
+import { PageLayout } from "@/components/PageLayout";
 
 const Pricing = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow pt-24">
-        <PageHeader
-          title="Тарифы и цены"
-          description="Выберите тариф, который подходит именно вам, и начните заботиться о своем здоровье уже сегодня"
-        />
-        <PricingTable />
-        <DetailedServiceInfo />
-        <SubscriptionFeatureTable />
-        <CorporatePricing />
-        <PricingFAQ />
-        <CTASection />
-      </main>
-      <Footer />
-    </div>
+    <PageLayout>
+      <PageHeader
+        title="Тарифы и цены"
+        description="Выберите тариф, который подходит именно вам, и начните заботиться о своем здоровье уже сегодня"
+      />
+      <PricingTable />
+      <PricingFeaturesTable />
+      <CorporatePricing />
+      <PricingFAQ />
+      <CTASection />
+    </PageLayout>
   );
 };
 
