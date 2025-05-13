@@ -3,21 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDate } from "@/lib/utils";
-
-export interface AnalysisRecord {
-  id: string;
-  analysis_type: string;
-  created_at: string;
-  results?: {
-    status: "normal" | "warning" | "critical";
-    indicators: {
-      name: string;
-      value: string | number;
-      unit: string;
-      status: "normal" | "low" | "high";
-    }[];
-  };
-}
+import { AnalysisRecord } from "@/hooks/useAnalysisHistory";
 
 interface RecentAnalysisResultsProps {
   results: AnalysisRecord[];

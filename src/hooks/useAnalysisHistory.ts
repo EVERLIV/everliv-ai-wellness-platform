@@ -1,8 +1,20 @@
 
 import { useState, useEffect } from 'react';
-import { AnalysisRecord } from '@/components/dashboard/RecentAnalysisResults';
 
-export { AnalysisRecord };
+export interface AnalysisRecord {
+  id: string;
+  analysis_type: string;
+  created_at: string;
+  results?: {
+    status: "normal" | "warning" | "critical";
+    indicators: {
+      name: string;
+      value: string | number;
+      unit: string;
+      status: "normal" | "low" | "high";
+    }[];
+  };
+}
 
 export const useAnalysisHistory = () => {
   const [history, setHistory] = useState<AnalysisRecord[]>([]);

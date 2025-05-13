@@ -62,6 +62,6 @@ const AnalysisHistoryList = ({ history, isLoading }: AnalysisHistoryListProps) =
       </CardContent>
     </Card>
   );
-};
+}
 
 export default AnalysisHistoryList;
