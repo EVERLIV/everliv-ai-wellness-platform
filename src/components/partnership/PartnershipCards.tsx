@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Handshake, Building2, Users, CheckCircle } from 'lucide-react';
+import { Link } from "react-router-dom";
 
 const PartnershipCards = () => {
   return (
@@ -30,7 +31,9 @@ const PartnershipCards = () => {
               <span>Обучение персонала и техническая поддержка</span>
             </li>
           </ul>
-          <Button className="w-full">Узнать подробнее</Button>
+          <Link to="/partnerships/medical-institutions">
+            <Button className="w-full">Узнать подробнее</Button>
+          </Link>
         </CardContent>
       </Card>
       
@@ -57,7 +60,9 @@ const PartnershipCards = () => {
               <span>Корпоративные тарифы и индивидуальные условия</span>
             </li>
           </ul>
-          <Button className="w-full">Узнать подробнее</Button>
+          <Link to="/partnerships/corporate-clients">
+            <Button className="w-full">Узнать подробнее</Button>
+          </Link>
         </CardContent>
       </Card>
       
@@ -84,7 +89,9 @@ const PartnershipCards = () => {
               <span>Реферальная система и комиссионные</span>
             </li>
           </ul>
-          <Button className="w-full">Узнать подробнее</Button>
+          <Link to="/partnerships/medical-specialists">
+            <Button className="w-full">Узнать подробнее</Button>
+          </Link>
         </CardContent>
       </Card>
     </div>
