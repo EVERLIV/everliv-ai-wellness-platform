@@ -7,19 +7,23 @@ import TrialStatusBanner from "./dashboard/TrialStatusBanner";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
+
 interface HeaderProps {
   className?: string;
 }
-const Header = () => {
+
+const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const {
     user,
     signOut
   } = useAuth();
   const navigate = useNavigate();
+  
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
+  
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -28,7 +32,9 @@ const Header = () => {
       console.error("Sign out failed:", error);
     }
   };
-  return <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+  
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
       <TrialStatusBanner />
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center text-lg font-semibold gap-2">
@@ -143,19 +149,23 @@ const Header = () => {
             </NavigationMenuList>
           </NavigationMenu>
           
-          {user ? <>
+          {user ? (
+            <>
               <Link to="/dashboard" className="hover:text-gray-600">
                 <Button variant="outline" size="sm">Личный кабинет</Button>
               </Link>
               <Button variant="outline" size="sm" onClick={handleSignOut}>Выйти</Button>
-            </> : <>
+            </>
+          ) : (
+            <>
               <Link to="/login">
                 <Button variant="ghost" size="sm">Войти</Button>
               </Link>
               <Link to="/signup">
                 <Button size="sm">Регистрация</Button>
               </Link>
-            </>}
+            </>
+          )}
         </div>
 
         <div className="md:hidden">
@@ -165,7 +175,8 @@ const Header = () => {
         </div>
       </div>
 
-      {isOpen && <div className="md:hidden bg-gray-50 py-4">
+      {isOpen && (
+        <div className="md:hidden bg-gray-50 py-4">
           <div className="container mx-auto px-4 flex flex-col space-y-3">
             <div className="py-2 border-b border-gray-200">
               <div className="flex justify-between items-center" onClick={() => setIsOpen(!isOpen)}>
@@ -198,19 +209,26 @@ const Header = () => {
             <Link to="/partnership" className="hover:text-gray-600">Партнерство</Link>
             <Link to="/contacts" className="hover:text-gray-600">Контакты</Link>
             
-            {user ? <>
+            {user ? (
+              <>
                 <Link to="/dashboard" className="hover:text-gray-600">Личный кабинет</Link>
                 <Button variant="outline" size="sm" onClick={handleSignOut}>Выйти</Button>
-              </> : <>
+              </>
+            ) : (
+              <>
                 <Link to="/login">
                   <Button variant="ghost" size="sm">Войти</Button>
                 </Link>
                 <Link to="/signup">
                   <Button size="sm">Регистрация</Button>
                 </Link>
-              </>}
+              </>
+            )}
           </div>
-        </div>}
-    </header>;
+        </div>
+      )}
+    </header>
+  );
 };
+
 export default Header;
