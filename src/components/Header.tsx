@@ -9,6 +9,7 @@ import TrialStatusBanner from "./dashboard/TrialStatusBanner";
 import Logo from "./header/Logo";
 import DesktopNavigation from "./header/DesktopNavigation";
 import MobileMenu from "./header/MobileMenu";
+import CacheControl from "./admin/CacheControl";
 
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,11 +30,21 @@ const Header: React.FC = () => {
     }
   };
   
+  // Get current path to determine if we're in admin section
+  const isAdminPage = window.location.pathname.startsWith('/admin');
+  
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
       <TrialStatusBanner />
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Logo />
+
+        {/* Admin tools (only shown on admin pages) */}
+        {isAdmin && isAdminPage && (
+          <div className="ml-4 mr-auto">
+            <CacheControl />
+          </div>
+        )}
 
         {/* Desktop Navigation */}
         <DesktopNavigation 

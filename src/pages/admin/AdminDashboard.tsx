@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,23 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Users, BarChart2, Database, Settings } from "lucide-react";
+import { useAdminApi } from "@/hooks/useAdminApi";
 
 const AdminDashboard = () => {
+  const { fetchData, loading, error } = useAdminApi();
+  
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      const data = await fetchData('/api/admin/dashboard');
+      if (data) {
+        // Process dashboard data
+        console.log('Dashboard data loaded with cache busting');
+      }
+    };
+    
+    loadDashboardData();
+  }, [fetchData]);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
