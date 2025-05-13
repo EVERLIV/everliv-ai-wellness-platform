@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, Flask, BarChart, Calendar, Users } from "lucide-react";
+import { FileText, FileBarChart, BarChart, Calendar, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const DashboardActionPanel = () => {
@@ -13,7 +13,7 @@ const DashboardActionPanel = () => {
       color: "text-blue-500",
     },
     {
-      icon: Flask,
+      icon: FileBarChart,
       label: "Загрузить анализы",
       path: "/blood-analysis",
       color: "text-green-500",

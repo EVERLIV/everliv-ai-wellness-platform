@@ -4,7 +4,7 @@ import {
   LayoutDashboard, 
   FileText, 
   User, 
-  Flask, 
+  FileBarChart, 
   Brain, 
   Settings,
   CreditCard 
@@ -23,7 +23,7 @@ const DashboardSidebar = () => {
   const menuItems = [
     { icon: LayoutDashboard, label: 'Панель управления', path: '/dashboard' },
     { icon: FileText, label: 'Мои протоколы', path: '/my-protocols' },
-    { icon: Flask, label: 'Анализы крови', path: '/blood-analysis' },
+    { icon: FileBarChart, label: 'Анализы крови', path: '/blood-analysis' },
     { icon: Brain, label: 'ИИ Рекомендации', path: '/recommendations' },
     { icon: CreditCard, label: 'Управление подпиской', path: '/subscription' },
     { icon: User, label: 'Личный профиль', path: '/profile' },
