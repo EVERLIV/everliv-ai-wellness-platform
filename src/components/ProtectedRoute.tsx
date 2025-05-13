@@ -4,9 +4,10 @@ import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  adminRequired?: boolean;
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, adminRequired = false }: ProtectedRouteProps) => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
@@ -20,6 +21,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   if (!user) {
     return <Navigate to="/login" />;
+  }
+
+  // Check if admin access is required but the user is not an admin
+  if (adminRequired && user?.role !== 'admin') {
+    return <Navigate to="/dashboard" />;
   }
 
   return <>{children}</>;

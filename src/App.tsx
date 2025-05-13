@@ -1,23 +1,23 @@
 
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from '@/pages/Home';
+import Home from '@/pages/LandingPage'; // Changed from Home to LandingPage
 import Pricing from '@/pages/Pricing';
 import LoginPage from '@/pages/LoginPage';
-import RegisterPage from '@/pages/RegisterPage';
-import Dashboard from '@/pages/dashboard/Dashboard';
+import RegisterPage from '@/pages/Login'; // Changed from RegisterPage to Login
+import Dashboard from '@/pages/Dashboard'; // Changed from dashboard/Dashboard
 import UserProfile from '@/pages/UserProfile';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import ProtocolDetailPage from '@/pages/protocols/ProtocolDetailPage';
-import MyProtocolsPage from '@/pages/protocols/MyProtocolsPage';
-import AddProtocolPage from '@/pages/protocols/AddProtocolPage';
+import ProtocolDetailPage from '@/pages/ProtocolTracking'; // Changed from protocols/ProtocolDetailPage
+import MyProtocolsPage from '@/pages/MyProtocols'; // Changed from protocols/MyProtocolsPage
+import AddProtocolPage from '@/pages/ProtocolTracking'; // Changed from protocols/AddProtocolPage
 import BloodAnalysisPage from '@/pages/BloodAnalysisPage';
-import AIRecommendationsPage from '@/pages/AIRecommendationsPage';
+import AIRecommendationsPage from '@/pages/AI'; // Changed from AIRecommendationsPage
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminUsers from '@/pages/admin/AdminUsers';
-import AdminUserDetail from '@/pages/admin/AdminUserDetail';
-import AdminProtocols from '@/pages/admin/AdminProtocols';
+import AdminUserDetail from '@/pages/admin/AdminStatistics'; // Changed from admin/AdminUserDetail
+import AdminProtocols from '@/pages/admin/AdminPricing'; // Changed from admin/AdminProtocols
 import AdminPricing from '@/pages/admin/AdminPricing';
-import ProtocolPage from '@/pages/ProtocolPage';
+import ProtocolPage from '@/pages/ProtocolTracking'; // Changed from ProtocolPage
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import { useState, useEffect } from 'react';
@@ -25,14 +25,14 @@ import { Toaster } from '@/components/ui/toaster';
 import { toast } from '@/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import BlogPage from '@/pages/BlogPage';
-import BlogPostPage from '@/pages/BlogPostPage';
+import BlogPage from '@/pages/Blog'; // Changed from BlogPage
+import BlogPostPage from '@/pages/Blog'; // Changed from BlogPostPage
 import { AuthProvider } from '@/contexts/AuthContext';
 import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
-import AboutPage from '@/pages/AboutPage';
-import ContactPage from '@/pages/ContactPage';
-import FeaturesPage from '@/pages/FeaturesPage';
-import NotFoundPage from '@/pages/NotFoundPage';
+import AboutPage from '@/pages/About'; // Changed from AboutPage
+import ContactPage from '@/pages/Contact'; // Changed from ContactPage
+import FeaturesPage from '@/pages/Features'; // Changed from FeaturesPage
+import NotFoundPage from '@/pages/NotFound'; // Changed from NotFoundPage
 import UserSubscription from '@/pages/UserSubscription';
 import Checkout from '@/pages/Checkout';
 
@@ -217,7 +217,7 @@ function App() {
             <Route 
               path="/admin" 
               element={
-                <ProtectedRoute adminRequired>
+                <ProtectedRoute adminRequired={true}>
                   <AdminDashboard />
                 </ProtectedRoute>
               } 
@@ -225,7 +225,7 @@ function App() {
             <Route 
               path="/admin/users" 
               element={
-                <ProtectedRoute adminRequired>
+                <ProtectedRoute adminRequired={true}>
                   <AdminUsers />
                 </ProtectedRoute>
               } 
@@ -233,7 +233,7 @@ function App() {
             <Route 
               path="/admin/users/:id" 
               element={
-                <ProtectedRoute adminRequired>
+                <ProtectedRoute adminRequired={true}>
                   <AdminUserDetail />
                 </ProtectedRoute>
               } 
@@ -241,7 +241,7 @@ function App() {
             <Route 
               path="/admin/protocols" 
               element={
-                <ProtectedRoute adminRequired>
+                <ProtectedRoute adminRequired={true}>
                   <AdminProtocols />
                 </ProtectedRoute>
               } 
@@ -249,7 +249,7 @@ function App() {
             <Route 
               path="/admin/pricing" 
               element={
-                <ProtectedRoute adminRequired>
+                <ProtectedRoute adminRequired={true}>
                   <AdminPricing />
                 </ProtectedRoute>
               } 

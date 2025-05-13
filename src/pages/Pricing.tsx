@@ -7,15 +7,14 @@ import PricingFAQ from "@/components/pricing/PricingFAQ";
 import CorporatePricing from "@/components/pricing/CorporatePricing";
 import CTASection from "@/components/CTASection";
 import PricingFeaturesTable from "@/components/pricing/PricingFeaturesTable";
-import { PageLayout } from "@/components/PageLayout";
+import PageLayout from "@/components/PageLayout";
 
 const Pricing = () => {
   return (
-    <PageLayout>
-      <PageHeader
-        title="Тарифы и цены"
-        description="Выберите тариф, который подходит именно вам, и начните заботиться о своем здоровье уже сегодня"
-      />
+    <PageLayout
+      title="Тарифы и цены"
+      description="Выберите тариф, который подходит именно вам, и начните заботиться о своем здоровье уже сегодня"
+    >
       <PricingTable />
       <PricingFeaturesTable />
       <CorporatePricing />
