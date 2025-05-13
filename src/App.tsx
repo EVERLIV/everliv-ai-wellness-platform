@@ -48,6 +48,11 @@ import AIRecommendationsPage from "./pages/services/AIRecommendations";
 import MedicalInstitutions from "./pages/partnerships/MedicalInstitutions";
 import CorporateClients from "./pages/partnerships/CorporateClients";
 import MedicalSpecialists from "./pages/partnerships/MedicalSpecialists";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminBlog from "./pages/AdminBlog";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminPricing from "./pages/admin/AdminPricing";
+import AdminStatistics from "./pages/admin/AdminStatistics";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -63,6 +68,29 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+};
+
+// Admin route that checks for admin privileges
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
+  
+  // In a real app, you would check for admin role
+  const isAdmin = true; // Temporary for demo purposes
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return <Navigate to="/dashboard" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
@@ -85,6 +113,33 @@ function App() {
         <ProtectedRoute>
           <UserProfile />
         </ProtectedRoute>
+      } />
+      
+      {/* Admin Routes */}
+      <Route path="/admin" element={
+        <AdminRoute>
+          <AdminDashboard />
+        </AdminRoute>
+      } />
+      <Route path="/admin/blog" element={
+        <AdminRoute>
+          <AdminBlog />
+        </AdminRoute>
+      } />
+      <Route path="/admin/users" element={
+        <AdminRoute>
+          <AdminUsers />
+        </AdminRoute>
+      } />
+      <Route path="/admin/pricing" element={
+        <AdminRoute>
+          <AdminPricing />
+        </AdminRoute>
+      } />
+      <Route path="/admin/statistics" element={
+        <AdminRoute>
+          <AdminStatistics />
+        </AdminRoute>
       } />
       
       <Route path="/" element={<Index />} />

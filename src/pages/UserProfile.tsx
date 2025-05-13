@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, History, Calendar } from "lucide-react";
+import { ArrowLeft, User, History, Calendar, Settings } from "lucide-react";
 import ProfileForm from "@/components/profile/ProfileForm";
 import ProfileSummary from "@/components/profile/ProfileSummary";
 import AnalysisHistoryList from "@/components/profile/AnalysisHistoryList";
@@ -16,6 +16,9 @@ const UserProfile = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const { profileData, isLoading, isUpdating, updateProfile } = useProfile();
   const { history, isLoading: isHistoryLoading } = useAnalysisHistory();
+  
+  // Temporary check for admin status - in a real app, you'd check user roles from your auth system
+  const isAdmin = true; // This would be fetched from your auth context or user profile
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -26,6 +29,14 @@ const UserProfile = () => {
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold">Профиль пользователя</h1>
             <div className="flex gap-2">
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button variant="default" className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    Панель администратора
+                  </Button>
+                </Link>
+              )}
               <Link to="/my-protocols">
                 <Button variant="outline" className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
