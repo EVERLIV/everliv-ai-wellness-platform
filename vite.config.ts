@@ -27,6 +27,8 @@ export default defineConfig({
     manifest: true
   },
   server: {
+    // Set server port to 8080 as required
+    port: 8080,
     // Add headers to prevent caching during development
     headers: {
       'Cache-Control': 'no-store',
