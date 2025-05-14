@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -83,14 +82,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
       
-      // Then check profiles table if admin_users check failed
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .single();
-        
-      if (!profileError && profileData?.role === 'admin') {
+      // Then check user metadata instead of profiles table
+      if (user?.user_metadata?.role === 'admin') {
         setIsAdmin(true);
       } else {
         setIsAdmin(false);

@@ -27,14 +27,8 @@ export const useIsAdmin = () => {
         if (!adminError && adminData) {
           setIsAdmin(true);
         } else {
-          // If not found in admin_users, check profiles table for role field
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
-            
-          setIsAdmin(profileError ? false : (profileData?.role === 'admin'));
+          // Check user metadata instead of profiles table role field
+          setIsAdmin(user.user_metadata?.role === 'admin' || false);
         }
       } catch (error) {
         console.error('Error checking admin status:', error);

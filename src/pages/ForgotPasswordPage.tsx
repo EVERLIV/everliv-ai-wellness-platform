@@ -8,14 +8,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { resetPassword } = useAuth();
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,14 +23,12 @@ const ForgotPasswordPage = () => {
     try {
       await resetPassword(email);
       setIsSubmitted(true);
-      toast({
-        title: "Запрос отправлен",
+      toast("Запрос отправлен", {
         description: "Проверьте вашу электронную почту для инструкций по сбросу пароля",
       });
     } catch (error: any) {
       console.error('Error during password reset request:', error);
-      toast({
-        title: "Ошибка",
+      toast("Ошибка", {
         description: error.message || "Не удалось отправить запрос на сброс пароля. Попробуйте позже.",
         variant: "destructive"
       });

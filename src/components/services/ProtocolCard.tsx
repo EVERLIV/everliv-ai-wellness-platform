@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,14 +44,12 @@ const ProtocolCard: React.FC<ProtocolProps> = ({
   category
 }) => {
   const difficultyInfo = difficultyClasses[difficulty];
-  const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   
   const addToMyProgram = async () => {
     if (!user) {
-      toast({
-        title: "Требуется авторизация",
+      toast("Требуется авторизация", {
         description: "Для добавления протокола в программу необходимо войти в систему",
         variant: "destructive"
       });
@@ -84,14 +82,12 @@ const ProtocolCard: React.FC<ProtocolProps> = ({
       
       if (error) throw error;
       
-      toast({
-        title: "Протокол добавлен",
+      toast("Протокол добавлен", {
         description: "Протокол успешно добавлен в вашу программу",
       });
     } catch (error) {
       console.error("Ошибка при добавлении протокола:", error);
-      toast({
-        title: "Ошибка",
+      toast("Ошибка", {
         description: "Не удалось добавить протокол в программу",
         variant: "destructive"
       });
