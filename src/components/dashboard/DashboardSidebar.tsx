@@ -11,10 +11,12 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 
 const DashboardSidebar = () => {
   const location = useLocation();
   const { user } = useAuth();
+  const { isAdmin } = useIsAdmin();
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -48,6 +50,16 @@ const DashboardSidebar = () => {
             {item.label}
           </Link>
         ))}
+        
+        {isAdmin && (
+          <Link
+            to="/admin/blog"
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors text-primary hover:bg-gray-100"
+          >
+            <Settings className="h-5 w-5" />
+            Админ-панель
+          </Link>
+        )}
       </div>
     </aside>
   );

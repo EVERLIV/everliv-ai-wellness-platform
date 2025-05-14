@@ -58,7 +58,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
         {user ? (
           <>
             {isAdmin && (
-              <Link to="/admin" className="text-primary font-medium flex items-center gap-2">
+              <Link to="/admin/blog" className="text-primary font-medium flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Админ-панель
               </Link>

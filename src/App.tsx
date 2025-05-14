@@ -18,6 +18,7 @@ import AdminUserDetail from '@/pages/admin/AdminStatistics';
 import AdminProtocols from '@/pages/admin/AdminPricing';
 import AdminPricing from '@/pages/admin/AdminPricing';
 import ProtocolPage from '@/pages/ProtocolTracking';
+import AdminBlog from '@/pages/AdminBlog';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import { useState, useEffect } from 'react';
@@ -218,6 +219,14 @@ function App() {
           element={
             <ProtectedRoute adminRequired={true}>
               <AdminDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/blog" 
+          element={
+            <ProtectedRoute adminRequired={true}>
+              <AdminBlog />
             </ProtectedRoute>
           } 
         />
