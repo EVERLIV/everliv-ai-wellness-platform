@@ -8,6 +8,11 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true, // For client-side usage, not recommended for production
 });
 
+// Export function to initialize OpenAI client for use in other modules
+export function initializeOpenAI() {
+  return openai;
+}
+
 export async function generateAIResponse(message: string): Promise<string> {
   try {
     // Use a conditional check to handle demo mode when no API key is set
