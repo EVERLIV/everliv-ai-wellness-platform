@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -66,7 +67,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('role')
+        .select('is_admin') // Changed from 'role' to 'is_admin'
         .eq('id', user.id)
         .single();
       
@@ -76,7 +77,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
       
-      setIsAdmin(data?.role === 'admin');
+      setIsAdmin(!!data?.is_admin); // Use is_admin instead of role
     } catch (err) {
       console.error('Error checking user role:', err);
       setIsAdmin(false);
@@ -87,7 +88,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(true);
     const response = await supabase.auth.signInWithPassword({ email, password });
     setIsLoading(false);
-    return response;
+    
+    return {
+      error: response.error,
+      data: response.data.session
+    };
   };
 
   const signUp = async (email: string, password: string, metadata?: { [key: string]: any }) => {
@@ -100,7 +105,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     });
     setIsLoading(false);
-    return response;
+    
+    return {
+      error: response.error,
+      data: {
+        user: response.data.user,
+        session: response.data.session
+      }
+    };
   };
 
   const signOut = async () => {

@@ -6,11 +6,11 @@ import { useAuth } from '@/contexts/AuthContext';
 export const useIsAdmin = () => {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     const checkAdmin = async () => {
-      if (!user || !isAuthenticated) {
+      if (!user) {
         setIsAdmin(false);
         setIsLoading(false);
         return;
@@ -27,11 +27,14 @@ export const useIsAdmin = () => {
         if (!adminError && adminData) {
           setIsAdmin(true);
         } else {
-          // If not found in admin_users, check using the is_admin function
-          const { data: functionData, error: functionError } = await supabase
-            .rpc('is_admin', { user_uuid: user.id });
+          // If not found in admin_users, check profiles table for is_admin flag
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('is_admin')
+            .eq('id', user.id)
+            .single();
             
-          setIsAdmin(functionError ? false : !!functionData);
+          setIsAdmin(profileError ? false : !!profileData?.is_admin);
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
@@ -42,7 +45,7 @@ export const useIsAdmin = () => {
     };
 
     checkAdmin();
-  }, [user, isAuthenticated]);
+  }, [user]);
 
   return { isAdmin, isLoading };
 };

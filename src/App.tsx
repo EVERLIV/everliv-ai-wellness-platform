@@ -1,4 +1,3 @@
-
 import { Route, Routes } from 'react-router-dom';
 import Home from '@/pages/LandingPage';
 import Pricing from '@/pages/Pricing';
@@ -49,22 +48,14 @@ function App() {
         if (error) {
           console.error('Supabase connection error:', error);
           setIsConnected(false);
-          toast({
-            title: 'Ошибка соединения с базой данных',
-            description: 'Не удалось подключиться к Supabase',
-            variant: 'destructive'
-          });
+          toast.error('Ошибка соединения с базой данных: не удалось подключиться к Supabase');
         } else {
           setIsConnected(true);
         }
       } catch (err) {
         console.error('Supabase connection check failed:', err);
         setIsConnected(false);
-        toast({
-          title: 'Ошибка соединения с базой данных',
-          description: 'Пожалуйста, проверьте подключение к интернету',
-          variant: 'destructive'
-        });
+        toast.error('Ошибка соединения с базой данных: проверьте подключение к интернету');
       }
     };
 

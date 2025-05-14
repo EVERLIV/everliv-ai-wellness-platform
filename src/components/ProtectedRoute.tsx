@@ -1,5 +1,6 @@
+
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
 interface ProtectedRouteProps {
@@ -9,17 +10,17 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminRequired = false }) => {
   const { user, isLoading } = useAuth();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
-        router.push('/login');
+        navigate('/login');
       } else if (adminRequired && user?.user_metadata?.role !== 'admin') {
-        router.push('/dashboard');
+        navigate('/dashboard');
       }
     }
-  }, [user, isLoading, router, adminRequired]);
+  }, [user, isLoading, navigate, adminRequired]);
 
   if (isLoading) {
     return <div>Loading...</div>;
