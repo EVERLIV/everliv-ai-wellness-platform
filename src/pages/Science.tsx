@@ -1,34 +1,9 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
-import { MicroscopeIcon, BookOpen, TestTube, Brain, FileBarChart, GraduationCap } from 'lucide-react';
-
-// Создаем компонент с нужной иконкой
-const MicroscopeIcon = (props) => {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M6 18h8"></path>
-      <path d="M3 22h18"></path>
-      <path d="M14 22a7 7 0 1 0 0-14h-1"></path>
-      <path d="M9 14h2"></path>
-      <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"></path>
-      <path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"></path>
-    </svg>
-  );
-};
+import { BookOpen, TestTube, Brain, FileBarChart, GraduationCap } from 'lucide-react';
+import { Microscope } from 'lucide-react';
 
 const Science = () => {
   return (
@@ -76,7 +51,7 @@ const Science = () => {
               <Card className="border-primary/20">
                 <CardContent className="pt-6">
                   <div className="flex flex-col items-center text-center">
-                    <MicroscopeIcon className="h-16 w-16 text-primary mb-4" />
+                    <Microscope className="h-16 w-16 text-primary mb-4" />
                     <h3 className="text-xl font-semibold mb-2">Фундаментальные исследования</h3>
                     <p className="text-gray-600">
                       Молекулярные механизмы старения, клеточные пути и биохимические процессы, 
