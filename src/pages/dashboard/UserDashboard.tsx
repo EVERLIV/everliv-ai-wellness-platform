@@ -11,6 +11,17 @@ import { Loader2 } from "lucide-react";
 import { useProtocols } from "@/hooks/useProtocols";
 import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
 
+// Define the Protocol type that matches what UserProtocolsList expects
+interface Protocol {
+  id: string;
+  title: string;
+  description: string;
+  progress: number;
+  startDate: string;
+  endDate: string;
+  status: 'active' | 'completed' | 'paused';
+}
+
 const UserDashboard = () => {
   const { protocols, isLoading: protocolsLoading } = useProtocols();
   const { history, isLoading: historyLoading } = useAnalysisHistory();
@@ -25,16 +36,16 @@ const UserDashboard = () => {
   };
 
   // Map the protocols from useProtocols hook format to the format expected by UserProtocolsList
-  const mappedProtocols = protocols?.map(protocol => ({
+  const mappedProtocols: Protocol[] = protocols?.map(protocol => ({
     id: protocol.id,
     title: protocol.name, // Map 'name' to 'title'
     description: protocol.description,
     progress: protocol.progress,
     startDate: protocol.startDate,
     endDate: protocol.endDate || '',
-    status: protocol.status === 'active' ? 'active' : 
-           protocol.status === 'completed' ? 'completed' : 'paused'
-  }));
+    status: (protocol.status === 'active' ? 'active' : 
+            protocol.status === 'completed' ? 'completed' : 'paused') as 'active' | 'completed' | 'paused'
+  })) || [];
 
   return (
     <DashboardLayout>
@@ -67,7 +78,7 @@ const UserDashboard = () => {
       </div>
 
       <UserProtocolsList 
-        protocols={mappedProtocols?.slice(0, 3) || []} 
+        protocols={mappedProtocols.slice(0, 3)} 
         isLoading={protocolsLoading} 
         compact={true}
       />
