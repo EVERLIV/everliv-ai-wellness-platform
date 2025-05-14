@@ -36,6 +36,10 @@ import NotFoundPage from '@/pages/NotFound';
 import UserSubscription from '@/pages/UserSubscription';
 import Checkout from '@/pages/Checkout';
 import PaymentStatus from '@/pages/PaymentStatus';
+import AIMedicinePage from '@/pages/AIMedicine';
+import SciencePage from '@/pages/Science';
+import SecurityPage from '@/pages/Security';
+import PartnershipPage from '@/pages/Partnership';
 
 function App() {
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
@@ -122,6 +126,12 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/features" element={<FeaturesPage />} />
+          
+          {/* Добавляем отсутствующие маршруты */}
+          <Route path="/ai-medicine" element={<AIMedicinePage />} />
+          <Route path="/science" element={<SciencePage />} />
+          <Route path="/security" element={<SecurityPage />} />
+          <Route path="/partnership" element={<PartnershipPage />} />
           
           {/* Платежные страницы */}
           <Route path="/payment/success" element={<PaymentStatus />} />
