@@ -54,7 +54,12 @@ const DashboardSidebar = () => {
         {isAdmin && (
           <Link
             to="/admin/blog"
-            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors text-primary hover:bg-gray-100"
+            className={cn(
+              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              isActive("/admin/blog")
+                ? "bg-everliv-50 text-everliv-700"
+                : "text-primary hover:bg-gray-100"
+            )}
           >
             <Settings className="h-5 w-5" />
             Админ-панель

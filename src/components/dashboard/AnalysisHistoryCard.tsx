@@ -46,7 +46,7 @@ const AnalysisHistoryCard = () => {
               <p className="text-sm text-amber-600 mb-2">
                 Требуется подписка для доступа к анализу крови
               </p>
-              <Link to="/dashboard/subscription">
+              <Link to="/subscription">
                 <Button variant="outline" size="sm" className="border-everliv-600 text-everliv-600 hover:bg-everliv-50">
                   Активировать подписку
                 </Button>
