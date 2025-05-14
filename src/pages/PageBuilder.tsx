@@ -1,19 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
-import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
+import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { EditorCanvas } from '@/components/editor/EditorCanvas';
-import { ComponentLibrary } from '@/components/editor/ComponentLibrary';
-import { ComponentSettings } from '@/components/editor/ComponentSettings';
-import { PageManagement } from '@/components/editor/PageManagement';
+import EditorCanvas from '@/components/editor/EditorCanvas';
+import ComponentLibrary from '@/components/editor/ComponentLibrary';
+import ComponentSettings from '@/components/editor/ComponentSettings';
+import PageManagement from '@/components/editor/PageManagement';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 interface Protocol {
   id: string;
@@ -47,20 +47,32 @@ const PageBuilder: React.FC = () => {
         if (pagesError) throw pagesError;
         setPages(pagesData || []);
         
-        // Then, fetch protocols data from custom endpoint or use pages with appropriate type
+        // Then, fetch protocols data - use user_protocols table instead of protocols
         const { data: protocolsData, error: protocolsError } = await supabase
-          .from('protocols')
+          .from('user_protocols')
           .select('*');
 
         if (protocolsError) {
           console.error("Error fetching protocols:", protocolsError);
         } else {
-          // Ensure we only include items that have the expected properties
-          const validProtocols = (protocolsData || []).filter(
-            (item): item is Protocol => 
+          // Map user_protocols data to Protocol interface
+          const validProtocols = (protocolsData || [])
+            .filter(item => 
               typeof item.title === 'string' && 
               typeof item.description === 'string'
-          );
+            )
+            .map(item => ({
+              id: item.id,
+              title: item.title,
+              description: item.description,
+              category: item.category || '',
+              duration: item.duration || '',
+              difficulty: item.difficulty || '',
+              steps: item.steps || [],
+              benefits: item.benefits || [],
+              warnings: item.warnings || []
+            }));
+          
           setProtocols(validProtocols);
         }
       } catch (error: any) {
@@ -99,7 +111,7 @@ const PageBuilder: React.FC = () => {
   const handleDeleteProtocol = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('protocols')
+        .from('user_protocols') // Use user_protocols instead of protocols
         .delete()
         .eq('id', id);
       
