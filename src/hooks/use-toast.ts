@@ -8,14 +8,10 @@ export interface ToastProps {
   variant?: "default" | "destructive";
 }
 
-export const toast = {
-  ...sonnerToast,
-  error: (message: string) => sonnerToast.error(message),
-  success: (message: string) => sonnerToast.success(message)
-};
+export const toast = sonnerToast;
 
 export const useToast = () => {
   return {
-    toast
+    toast: sonnerToast,
   };
 };

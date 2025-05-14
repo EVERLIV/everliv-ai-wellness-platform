@@ -1,3 +1,4 @@
+
 import { Route, Routes } from 'react-router-dom';
 import Home from '@/pages/LandingPage';
 import Pricing from '@/pages/Pricing';
@@ -21,8 +22,7 @@ import AdminBlog from '@/pages/AdminBlog';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import { useState, useEffect } from 'react';
-import { Toaster } from '@/components/ui/toaster';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import BlogPage from '@/pages/Blog';
@@ -262,7 +262,6 @@ function App() {
           {/* 404 страница */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-        <Toaster />
       </SubscriptionProvider>
     </AuthProvider>
   );
