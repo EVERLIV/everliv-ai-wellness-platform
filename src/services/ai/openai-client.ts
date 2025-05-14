@@ -67,7 +67,24 @@ export const generateChatCompletion = async (
   }
 };
 
+// Function used by AI Doctor for generating responses to user queries
+export const generateAIResponse = async (userMessage: string): Promise<string> => {
+  const systemPrompt = `Вы опытный врач-терапевт, который помогает пользователям с их медицинскими вопросами. 
+  Отвечайте четко, профессионально и с эмпатией. Основывайтесь только на научно подтвержденных медицинских знаниях.
+  В случае серьезных симптомов, всегда советуйте обратиться к врачу.
+  Отвечайте на русском языке.`;
+  
+  return generateChatCompletion([
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userMessage }
+  ], {
+    temperature: 0.7,
+    model: 'gpt-3.5-turbo'
+  });
+};
+
 export default {
   initializeOpenAI,
-  generateChatCompletion
+  generateChatCompletion,
+  generateAIResponse
 };

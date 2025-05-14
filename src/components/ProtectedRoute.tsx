@@ -1,31 +1,36 @@
-
-import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   adminRequired?: boolean;
 }
 
-const ProtectedRoute = ({ children, adminRequired = false }: ProtectedRouteProps) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminRequired = false }) => {
   const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        router.push('/login');
+      } else if (adminRequired && user?.user_metadata?.role !== 'admin') {
+        router.push('/dashboard');
+      }
+    }
+  }, [user, isLoading, router, adminRequired]);
 
   if (isLoading) {
-    // You could return a loading spinner here
-    return (
-      <div className="h-screen flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-evergreen-500"></div>
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
   if (!user) {
-    return <Navigate to="/login" />;
+    return null;
   }
 
-  // Check if admin access is required but the user is not an admin
-  if (adminRequired && user?.role !== 'admin') {
-    return <Navigate to="/dashboard" />;
+  if (adminRequired && user?.user_metadata?.role !== 'admin') {
+    return null;
   }
 
   return <>{children}</>;
