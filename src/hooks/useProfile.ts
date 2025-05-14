@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/use-toast";
 
 export interface ProfileData {
   id: string;
@@ -37,14 +37,22 @@ export const useProfile = () => {
 
       if (error) {
         console.error("Error fetching profile:", error);
-        toast.error("Не удалось загрузить данные профиля");
+        toast({
+          title: "Ошибка",
+          description: "Не удалось загрузить данные профиля",
+          variant: "destructive"
+        });
         return;
       }
 
       setProfileData(data);
     } catch (error) {
       console.error("Unexpected error fetching profile:", error);
-      toast.error("Произошла ошибка при загрузке профиля");
+      toast({
+        title: "Ошибка",
+        description: "Произошла ошибка при загрузке профиля",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -62,17 +70,28 @@ export const useProfile = () => {
 
       if (error) {
         console.error("Error updating profile:", error);
-        toast.error("Не удалось обновить профиль");
+        toast({
+          title: "Ошибка",
+          description: "Не удалось обновить профиль",
+          variant: "destructive"
+        });
         return false;
       }
 
       // Update local state with new data
       setProfileData(prev => prev ? { ...prev, ...updatedData } : null);
-      toast.success("Профиль успешно обновлен");
+      toast({
+        title: "Успешно",
+        description: "Профиль успешно обновлен"
+      });
       return true;
     } catch (error) {
       console.error("Unexpected error updating profile:", error);
-      toast.error("Произошла ошибка при обновлении профиля");
+      toast({
+        title: "Ошибка", 
+        description: "Произошла ошибка при обновлении профиля",
+        variant: "destructive"
+      });
       return false;
     } finally {
       setIsUpdating(false);
