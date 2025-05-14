@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProtocols } from '@/hooks/useProtocols';
 
 const ProtocolsTab: React.FC = () => {
-  const { protocols, loading, deleteProtocol } = useProtocols();
+  const { protocols, isLoading, error, deleteProtocol } = useProtocols();
   const navigate = useNavigate();
 
   return (
@@ -15,7 +15,7 @@ const ProtocolsTab: React.FC = () => {
         <Button>Создать протокол</Button>
       </div>
       
-      {loading ? (
+      {isLoading ? (
         <p>Загрузка протоколов...</p>
       ) : protocols.length === 0 ? (
         <p>Протоколы не найдены</p>

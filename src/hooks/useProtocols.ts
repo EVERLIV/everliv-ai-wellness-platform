@@ -1,14 +1,18 @@
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export interface Protocol {
   id: string;
-  name: string;
+  title: string;
   description: string;
-  status: 'active' | 'completed' | 'pending';
-  progress: number;
-  startDate: string;
-  endDate?: string;
+  category: string;
+  duration: string;
+  difficulty: string;
+  steps: any[];
+  benefits: string[];
+  warnings: string[];
 }
 
 export const useProtocols = () => {
@@ -16,55 +20,73 @@ export const useProtocols = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const fetchProtocols = async () => {
-      try {
-        setIsLoading(true);
-        // In a real app, this would be a fetch call to your API
-        // For now, using mock data
-        const mockData: Protocol[] = [
-          {
-            id: '1',
-            name: 'Восстановление здоровья',
-            description: 'Комплексный протокол для улучшения общего состояния',
-            status: 'active',
-            progress: 65,
-            startDate: '2025-03-10T00:00:00Z',
-            endDate: '2025-06-10T00:00:00Z'
-          },
-          {
-            id: '2',
-            name: 'Энергия и фокус',
-            description: 'Протокол для повышения энергии и концентрации внимания',
-            status: 'active',
-            progress: 30,
-            startDate: '2025-04-01T00:00:00Z',
-            endDate: '2025-07-01T00:00:00Z'
-          },
-          {
-            id: '3',
-            name: 'Иммунная поддержка',
-            description: 'Укрепление иммунитета и защитных функций организма',
-            status: 'pending',
-            progress: 0,
-            startDate: '2025-05-15T00:00:00Z',
-            endDate: '2025-08-15T00:00:00Z'
-          }
-        ];
-        
-        // Simulate API delay
-        setTimeout(() => {
-          setProtocols(mockData);
-          setIsLoading(false);
-        }, 500);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Unknown error'));
-        setIsLoading(false);
-      }
-    };
+  const fetchProtocols = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch protocols data from user_protocols table
+      const { data: protocolsData, error: protocolsError } = await supabase
+        .from('user_protocols')
+        .select('*');
 
+      if (protocolsError) {
+        console.error("Error fetching protocols:", protocolsError);
+        throw protocolsError;
+      }
+
+      // Map user_protocols data to Protocol interface
+      const validProtocols = (protocolsData || [])
+        .filter(item => 
+          typeof item.title === 'string' && 
+          typeof item.description === 'string'
+        )
+        .map(item => ({
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          category: item.category || '',
+          duration: item.duration || '',
+          difficulty: item.difficulty || '',
+          steps: item.steps || [],
+          benefits: item.benefits || [],
+          warnings: item.warnings || []
+        }));
+      
+      setProtocols(validProtocols);
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Unknown error');
+      setError(error);
+      toast.error("Ошибка загрузки", {
+        description: `Не удалось загрузить протоколы: ${error.message}`
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteProtocol = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_protocols')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      setProtocols(protocols.filter(protocol => protocol.id !== id));
+      toast.success("Протокол удален", {
+        description: "Протокол был успешно удален"
+      });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Unknown error');
+      toast.error("Ошибка удаления", {
+        description: `Не удалось удалить протокол: ${error.message}`
+      });
+    }
+  };
+
+  useEffect(() => {
     fetchProtocols();
   }, []);
 
-  return { protocols, isLoading, error };
+  return { protocols, isLoading, error, deleteProtocol, fetchProtocols };
 };
