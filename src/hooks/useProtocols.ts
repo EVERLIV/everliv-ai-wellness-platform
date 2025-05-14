@@ -13,6 +13,14 @@ export interface Protocol {
   steps: any[];
   benefits: string[];
   warnings: string[];
+  // Properties for UserProtocolsList compatibility
+  progress?: number;
+  status?: 'active' | 'completed' | 'paused';
+  startDate?: string;
+  endDate?: string;
+  // Internal properties
+  completion_percentage?: number;
+  started_at?: string | null;
 }
 
 export const useProtocols = () => {
@@ -48,7 +56,13 @@ export const useProtocols = () => {
           difficulty: item.difficulty || '',
           steps: item.steps || [],
           benefits: item.benefits || [],
-          warnings: item.warnings || []
+          warnings: item.warnings || [],
+          progress: item.completion_percentage || 0,
+          status: mapStatus(item.status),
+          startDate: item.started_at ? new Date(item.started_at).toLocaleDateString('ru-RU') : '',
+          endDate: item.completed_at ? new Date(item.completed_at).toLocaleDateString('ru-RU') : '',
+          completion_percentage: item.completion_percentage,
+          started_at: item.started_at
         }));
       
       setProtocols(validProtocols);
@@ -82,6 +96,13 @@ export const useProtocols = () => {
         description: `Не удалось удалить протокол: ${error.message}`
       });
     }
+  };
+
+  // Helper function to map database status to component status
+  const mapStatus = (dbStatus: string): 'active' | 'completed' | 'paused' => {
+    if (dbStatus === 'in_progress') return 'active';
+    if (dbStatus === 'completed') return 'completed';
+    return 'paused';
   };
 
   useEffect(() => {
