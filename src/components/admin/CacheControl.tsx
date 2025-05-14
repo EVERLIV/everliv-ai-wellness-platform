@@ -2,13 +2,15 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface CacheControlProps {
   onRefresh?: () => void;
 }
 
 const CacheControl: React.FC<CacheControlProps> = ({ onRefresh }) => {
+  const { toast } = useToast();
+
   const handleClearCache = () => {
     // Clear application cache
     if ('caches' in window) {
@@ -22,7 +24,8 @@ const CacheControl: React.FC<CacheControlProps> = ({ onRefresh }) => {
     // Force reload with cache bypass
     window.location.reload();
     
-    toast("Кэш очищен", {
+    toast({
+      title: "Кэш очищен",
       description: "Страница перезагружается с обновленными данными",
     });
     

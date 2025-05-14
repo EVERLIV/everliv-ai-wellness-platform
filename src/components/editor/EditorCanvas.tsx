@@ -22,15 +22,13 @@ interface EditorCanvasProps {
   onChange?: (components: ComponentData[]) => void;
   viewMode?: 'desktop' | 'tablet' | 'mobile';
   showLibrary?: boolean;
-  onSelectComponent?: (component: ComponentData | null) => void;
 }
 
 const EditorCanvas = ({ 
   initialComponents = [], 
   onChange,
   viewMode = 'desktop',
-  showLibrary = true,
-  onSelectComponent
+  showLibrary = true
 }: EditorCanvasProps) => {
   const [components, setComponents] = useState<ComponentData[]>(initialComponents);
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
@@ -106,27 +104,12 @@ const EditorCanvas = ({
   };
 
   const handleComponentSelect = (componentId: string) => {
-    const newSelectedId = componentId === selectedComponent ? null : componentId;
-    setSelectedComponent(newSelectedId);
-    
-    // Call the parent's onSelectComponent if provided
-    if (onSelectComponent) {
-      const selectedComp = newSelectedId ? components.find(comp => comp.id === newSelectedId) || null : null;
-      onSelectComponent(selectedComp);
-    }
+    setSelectedComponent(componentId === selectedComponent ? null : componentId);
   };
 
   const handleComponentDelete = (componentId: string) => {
     setComponents(components.filter(comp => comp.id !== componentId));
-    
-    // Clear selection if the deleted component was selected
-    if (selectedComponent === componentId) {
-      setSelectedComponent(null);
-      if (onSelectComponent) {
-        onSelectComponent(null);
-      }
-    }
-    
+    if (selectedComponent === componentId) setSelectedComponent(null);
     toast.success("Component deleted");
   };
 
@@ -141,31 +124,15 @@ const EditorCanvas = ({
       const newComponents = [...components];
       newComponents.splice(index + 1, 0, newComponent);
       setComponents(newComponents);
-      
-      // Select the new component
       setSelectedComponent(newComponent.id);
-      if (onSelectComponent) {
-        onSelectComponent(newComponent);
-      }
-      
       toast.success("Component duplicated");
     }
   };
 
   const handleComponentUpdate = (componentId: string, newProps: Record<string, any>) => {
-    const updatedComponents = components.map(comp => 
+    setComponents(components.map(comp => 
       comp.id === componentId ? { ...comp, props: { ...comp.props, ...newProps } } : comp
-    );
-    
-    setComponents(updatedComponents);
-    
-    // Update selected component in parent if needed
-    if (onSelectComponent && selectedComponent === componentId) {
-      const updatedComp = updatedComponents.find(comp => comp.id === componentId);
-      if (updatedComp) {
-        onSelectComponent(updatedComp);
-      }
-    }
+    ));
   };
 
   const addComponent = (componentType: string) => {
@@ -181,15 +148,8 @@ const EditorCanvas = ({
       props: componentRegistry[componentType]?.defaultProps || {},
     };
     
-    const newComponents = [...components, newComponent];
-    setComponents(newComponents);
-    
-    // Select the new component
+    setComponents([...components, newComponent]);
     setSelectedComponent(newComponentId);
-    if (onSelectComponent) {
-      onSelectComponent(newComponent);
-    }
-    
     setShowQuickAdd(false);
     toast.success(`Added ${componentRegistry[componentType]?.label} component`);
   };

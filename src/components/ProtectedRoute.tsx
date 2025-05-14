@@ -1,37 +1,25 @@
 
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useAuth } from '@/contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  adminRequired?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminRequired = false }) => {
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, isLoading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isLoading) {
-      if (!user) {
-        navigate('/login');
-      } else if (adminRequired && user?.user_metadata?.role !== 'admin') {
-        navigate('/dashboard');
-      }
-    }
-  }, [user, isLoading, navigate, adminRequired]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    // You could return a loading spinner here
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-evergreen-500"></div>
+      </div>
+    );
   }
 
   if (!user) {
-    return null;
-  }
-
-  if (adminRequired && user?.user_metadata?.role !== 'admin') {
-    return null;
+    return <Navigate to="/login" />;
   }
 
   return <>{children}</>;

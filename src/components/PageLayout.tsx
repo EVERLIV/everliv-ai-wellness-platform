@@ -4,14 +4,14 @@ import Header from "./Header";
 import Footer from "./Footer";
 import PageBreadcrumb from "./PageBreadcrumb";
 
-export interface PageLayoutProps {
+interface PageLayoutProps {
   children: ReactNode;
-  title?: string;
+  title: string;
   description?: string;
   breadcrumbItems?: Array<{ title: string; href?: string }>;
 }
 
-const PageLayout = ({ children, title = "", description, breadcrumbItems = [] }: PageLayoutProps) => {
+const PageLayout = ({ children, title, description, breadcrumbItems = [] }: PageLayoutProps) => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -19,7 +19,7 @@ const PageLayout = ({ children, title = "", description, breadcrumbItems = [] }:
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             {breadcrumbItems.length > 0 && <PageBreadcrumb items={breadcrumbItems} />}
-            {title && <h1 className="text-3xl font-bold mb-2">{title}</h1>}
+            <h1 className="text-3xl font-bold mb-2">{title}</h1>
             {description && <p className="text-gray-700 mb-6">{description}</p>}
             {children}
           </div>

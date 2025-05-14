@@ -1,204 +1,126 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { User } from '@supabase/supabase-js';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-interface AuthContextType {
+type AuthContextType = {
   user: User | null;
+  session: Session | null;
   isLoading: boolean;
-  isAdmin: boolean;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error: any }>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, userData: { first_name: string; last_name: string }) => Promise<void>;
   signOut: () => Promise<void>;
-  signUp: (email: string, password: string, userData?: any) => Promise<{ success: boolean; error: any }>;
-  resetPassword: (email: string) => Promise<{ success: boolean; error: any }>;
-  updatePassword: (password: string) => Promise<{ success: boolean; error: any }>;
-}
+  resetPassword: (email: string) => Promise<void>;
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for active session on load
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Auth state changed:', event);
+        setSession(session);
+        setUser(session?.user ?? null);
         
-        if (error) {
-          console.error('Error checking session:', error);
-          return;
+        // Handle auth events
+        if (event === 'SIGNED_IN') {
+          // Defer additional data fetching
+          setTimeout(() => {
+            toast.success('Успешный вход в систему');
+            navigate('/dashboard');
+          }, 0);
+        } else if (event === 'SIGNED_OUT') {
+          setTimeout(() => {
+            toast.info('Вы вышли из системы');
+            navigate('/');
+          }, 0);
         }
-        
-        if (session) {
-          setUser(session.user);
-          
-          // Check if user is admin
-          await checkAdminStatus(session.user.id);
-        }
-      } catch (err) {
-        console.error('Session check error:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Listen for auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session && session.user) {
-          setUser(session.user);
-          await checkAdminStatus(session.user.id);
-        } else {
-          setUser(null);
-          setIsAdmin(false);
-        }
-        
-        setIsLoading(false);
       }
     );
 
-    checkSession();
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
 
     return () => {
-      authListener?.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
-  }, []);
-
-  // Check if user is admin
-  const checkAdminStatus = async (userId: string) => {
-    try {
-      // First check admin_users table
-      const { data: adminData, error: adminError } = await supabase
-        .from('admin_users')
-        .select()
-        .eq('user_id', userId)
-        .single();
-        
-      if (!adminError && adminData) {
-        setIsAdmin(true);
-        return;
-      }
-      
-      // Then check user metadata instead of profiles table
-      if (user?.user_metadata?.role === 'admin') {
-        setIsAdmin(true);
-      } else {
-        setIsAdmin(false);
-      }
-    } catch (error) {
-      console.error('Error checking admin status:', error);
-      setIsAdmin(false);
-    }
-  };
+  }, [navigate]);
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      
-      if (error) {
-        return { success: false, error };
-      }
-      
-      return { success: true, error: null };
-    } catch (error) {
-      console.error('Sign in error:', error);
-      return { success: false, error };
+      setIsLoading(true);
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    } catch (error: any) {
+      toast.error(error.message || 'Ошибка входа');
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const signUp = async (email: string, password: string, userData?: any) => {
+  const signUp = async (email: string, password: string, userData: { first_name: string; last_name: string }) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
+      setIsLoading(true);
+      const { error } = await supabase.auth.signUp({ 
+        email, 
         password,
         options: {
           data: userData
         }
       });
-      
-      if (error) {
-        return { success: false, error };
-      }
-      
-      // Create profile for user
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: data.user.id,
-              email: email,
-              ...userData
-            }
-          ]);
-          
-        if (profileError) {
-          console.error('Error creating profile:', profileError);
-        }
-      }
-      
-      return { success: true, error: null };
-    } catch (error) {
-      console.error('Sign up error:', error);
-      return { success: false, error };
+      if (error) throw error;
+      toast.success('Регистрация успешна! Проверьте вашу электронную почту для подтверждения.');
+    } catch (error: any) {
+      toast.error(error.message || 'Ошибка регистрации');
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error('Sign out error:', error);
-      toast.error('Error signing out');
+      setIsLoading(true);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch (error: any) {
+      toast.error(error.message || 'Ошибка выхода из системы');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const resetPassword = async (email: string) => {
     try {
+      setIsLoading(true);
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
-      
-      if (error) {
-        return { success: false, error };
-      }
-      
-      return { success: true, error: null };
-    } catch (error) {
-      console.error('Reset password error:', error);
-      return { success: false, error };
-    }
-  };
-
-  const updatePassword = async (password: string) => {
-    try {
-      const { error } = await supabase.auth.updateUser({ password });
-      
-      if (error) {
-        return { success: false, error };
-      }
-      
-      return { success: true, error: null };
-    } catch (error) {
-      console.error('Update password error:', error);
-      return { success: false, error };
+      if (error) throw error;
+      return Promise.resolve();
+    } catch (error: any) {
+      toast.error(error.message || 'Ошибка отправки запроса на сброс пароля');
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isLoading,
-      isAdmin, 
-      signIn, 
-      signOut, 
-      signUp, 
-      resetPassword,
-      updatePassword
-    }}>
+    <AuthContext.Provider value={{ user, session, isLoading, signIn, signUp, signOut, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );

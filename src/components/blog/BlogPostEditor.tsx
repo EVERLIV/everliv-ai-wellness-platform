@@ -1,3 +1,4 @@
+
 import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Upload, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from 'uuid';
 
 interface BlogPost {
@@ -27,6 +28,7 @@ interface BlogPostEditorProps {
 }
 
 const BlogPostEditor = ({ existingPost, onBack }: BlogPostEditorProps) => {
+  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   
@@ -98,8 +100,10 @@ const BlogPostEditor = ({ existingPost, onBack }: BlogPostEditorProps) => {
     e.preventDefault();
     
     if (!title || !excerpt || !content || !category) {
-      toast("Не все поля заполнены", {
-        description: "Пожалуйста, заполните все обязательные поля"
+      toast({
+        title: "Не все поля заполнены",
+        description: "Пожалуйста, заполните все обязательные поля",
+        variant: "destructive"
       });
       return;
     }
@@ -145,7 +149,8 @@ const BlogPostEditor = ({ existingPost, onBack }: BlogPostEditorProps) => {
       const { error } = result;
       if (error) throw error;
       
-      toast(existingPost ? "Статья обновлена" : "Статья создана", {
+      toast({
+        title: existingPost ? "Статья обновлена" : "Статья создана",
         description: existingPost 
           ? "Изменения успешно сохранены" 
           : "Новая статья успешно добавлена в блог"
@@ -154,8 +159,10 @@ const BlogPostEditor = ({ existingPost, onBack }: BlogPostEditorProps) => {
       onBack();
     } catch (error: any) {
       console.error('Error saving blog post:', error);
-      toast("Ошибка сохранения", {
-        description: error.message || "Не удалось сохранить статью"
+      toast({
+        title: "Ошибка сохранения",
+        description: error.message || "Не удалось сохранить статью",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);

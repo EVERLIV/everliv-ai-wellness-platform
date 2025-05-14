@@ -1,333 +1,410 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
-import { ArrowLeft, Save, PlusCircle, Edit, Trash2, FileText } from "lucide-react";
+import { Pencil, Trash2, Plus, ExternalLink, Eye, Copy } from "lucide-react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-interface PageContent {
-  id: string;
-  page_id: string;
-  content: any;
-  created_at: string;
-  updated_at: string;
-}
-
+// Define types for our pages
 interface Page {
   id: string;
-  slug: string;
   title: string;
+  slug: string;
   description: string | null;
-  published: boolean;
   created_at: string;
   updated_at: string;
+  published: boolean;
 }
 
 const PageManagement = () => {
-  const navigate = useNavigate();
-  const { pageId } = useParams<{ pageId: string }>();
-
-  const [page, setPage] = useState<Page | null>(null);
-  const [content, setContent] = useState<PageContent | null>(null);
-  const [title, setTitle] = useState('');
-  const [slug, setSlug] = useState('');
-  const [description, setDescription] = useState('');
-  const [published, setPublished] = useState(false);
+  const [pages, setPages] = useState<Page[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [isNewPage, setIsNewPage] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [editingPage, setEditingPage] = useState<Page | null>(null);
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [description, setDescription] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        if (pageId === 'new') {
-          setIsNewPage(true);
-          setLoading(false);
-          return;
-        }
+    fetchPages();
+  }, []);
 
-        // Fetch page data
-        const { data: pageData, error: pageError } = await supabase
-          .from('pages')
-          .select('*')
-          .eq('id', pageId)
-          .single();
-
-        if (pageError) {
-          throw pageError;
-        }
-
-        if (!pageData) {
-          toast("Страница не найдена", {
-            description: "Указанная страница не существует."
-          });
-          navigate('/admin/pages');
-          return;
-        }
-
-        setPage(pageData);
-        setTitle(pageData.title);
-        setSlug(pageData.slug);
-        setDescription(pageData.description || '');
-        setPublished(pageData.published);
-
-        // Fetch page content
-        const { data: contentData, error: contentError } = await supabase
-          .from('page_contents')
-          .select('*')
-          .eq('page_id', pageId)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
-
-        if (contentError) {
-          throw contentError;
-        }
-
-        setContent(contentData || null);
-      } catch (error: any) {
-        console.error('Error fetching data:', error);
-        toast("Ошибка загрузки данных", {
-          description: error.message || "Не удалось загрузить данные страницы."
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [pageId, navigate]);
-
-  const handleSave = useCallback(async () => {
-    setSaving(true);
-    try {
-      if (!title || !slug) {
-        toast("Не все поля заполнены", {
-          description: "Пожалуйста, заполните все обязательные поля."
-        });
-        return;
-      }
-
-      const pageData = {
-        title,
-        slug,
-        description,
-        published,
-      };
-
-      if (isNewPage && pageId === 'new') {
-        // Create new page and content
-        const { data: newPage, error: newPageError } = await supabase
-          .from('pages')
-          .insert({ ...pageData })
-          .select()
-          .single();
-
-        if (newPageError) {
-          throw newPageError;
-        }
-
-        const initialContent = {
-          page_id: newPage.id,
-          content: { blocks: [] },
-        };
-
-        const { error: newContentError } = await supabase
-          .from('page_contents')
-          .insert(initialContent);
-
-        if (newContentError) {
-          throw newContentError;
-        }
-
-        toast("Страница создана", {
-          description: "Новая страница успешно создана."
-        });
-        navigate(`/admin/pages/${newPage.id}`);
-      } else if (page) {
-        // Update existing page
-        const { error: updatePageError } = await supabase
-          .from('pages')
-          .update(pageData)
-          .eq('id', page.id);
-
-        if (updatePageError) {
-          throw updatePageError;
-        }
-
-        toast("Страница обновлена", {
-          description: "Данные страницы успешно обновлены."
-        });
-      }
-    } catch (error: any) {
-      console.error('Error saving data:', error);
-      toast("Ошибка сохранения", {
-        description: error.message || "Не удалось сохранить данные страницы."
-      });
-    } finally {
-      setSaving(false);
-    }
-  }, [title, slug, description, published, page, navigate, isNewPage, pageId]);
-
-  const handleDelete = async () => {
-    if (!page) return;
-
-    if (!window.confirm("Вы уверены, что хотите удалить эту страницу?")) {
-      return;
-    }
-
+  const fetchPages = async () => {
     try {
       setLoading(true);
-      // Delete page content
-      if (content) {
-        const { error: contentError } = await supabase
-          .from('page_contents')
-          .delete()
-          .eq('page_id', page.id);
-
-        if (contentError) {
-          throw contentError;
-        }
-      }
-
-      // Delete page
-      const { error: pageError } = await supabase
-        .from('pages')
-        .delete()
-        .eq('id', page.id);
-
-      if (pageError) {
-        throw pageError;
-      }
-
-      toast("Страница удалена", {
-        description: "Страница и ее содержимое были успешно удалены."
-      });
-      navigate('/admin/pages');
+      
+      // Use the "any" type temporarily until Supabase types are updated
+      const { data, error } = await supabase
+        .from('pages' as any)
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      
+      // Cast the data to our Page type
+      setPages(data as unknown as Page[] || []);
     } catch (error: any) {
-      console.error('Error deleting page:', error);
-      toast("Ошибка удаления", {
-        description: error.message || "Не удалось удалить страницу."
+      console.error('Error fetching pages:', error);
+      toast({
+        title: "Error loading pages",
+        description: error.message,
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
+  const handleOpenDialog = (page?: Page) => {
+    if (page) {
+      setEditingPage(page);
+      setTitle(page.title);
+      setSlug(page.slug);
+      setDescription(page.description || "");
+    } else {
+      setEditingPage(null);
+      setTitle("");
+      setSlug("");
+      setDescription("");
+    }
+    setOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpen(false);
+    setEditingPage(null);
+  };
+
+  const handleSlugChange = (value: string) => {
+    // Convert to slug format (lowercase, replace spaces with dashes, remove special chars)
+    const slugValue = value.toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w\-]+/g, '');
+    setSlug(slugValue);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const pageData = {
+        title,
+        slug,
+        description,
+        updated_at: new Date().toISOString()
+      };
+
+      if (editingPage) {
+        // Use the "any" type temporarily until Supabase types are updated
+        const { error } = await supabase
+          .from('pages' as any)
+          .update(pageData)
+          .eq('id', editingPage.id);
+          
+        if (error) throw error;
+        
+        toast({
+          title: "Page updated",
+          description: "The page has been successfully updated"
+        });
+      } else {
+        // Use the "any" type temporarily until Supabase types are updated
+        const { error } = await supabase
+          .from('pages' as any)
+          .insert([{
+            ...pageData,
+            created_at: new Date().toISOString(),
+            published: false
+          }]);
+          
+        if (error) throw error;
+        
+        toast({
+          title: "Page created",
+          description: "The page has been successfully created"
+        });
+      }
+      
+      handleCloseDialog();
+      fetchPages();
+    } catch (error: any) {
+      console.error('Error saving page:', error);
+      toast({
+        title: "Error saving page",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeletePage = async (pageId: string) => {
+    if (!confirm("Are you sure you want to delete this page?")) return;
+    
+    try {
+      // Use the "any" type temporarily until Supabase types are updated
+      const { error } = await supabase
+        .from('pages' as any)
+        .delete()
+        .eq('id', pageId);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Page deleted",
+        description: "The page has been successfully deleted"
+      });
+      
+      fetchPages();
+    } catch (error: any) {
+      console.error('Error deleting page:', error);
+      toast({
+        title: "Error deleting page",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleTogglePublish = async (page: Page) => {
+    try {
+      // Use the "any" type temporarily until Supabase types are updated
+      const { error } = await supabase
+        .from('pages' as any)
+        .update({ 
+          published: !page.published,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', page.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: page.published ? "Page unpublished" : "Page published",
+        description: `The page is now ${page.published ? "unpublished" : "published"}`
+      });
+      
+      fetchPages();
+    } catch (error: any) {
+      console.error('Error updating page status:', error);
+      toast({
+        title: "Error updating page status",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const handleDuplicatePage = async (page: Page) => {
+    try {
+      // Create a new title with "(Copy)" suffix
+      const newTitle = `${page.title} (Copy)`;
+      const newSlug = `${page.slug}-copy`;
+      
+      // Use the "any" type temporarily until Supabase types are updated
+      const { error } = await supabase
+        .from('pages' as any)
+        .insert([{
+          title: newTitle,
+          slug: newSlug,
+          description: page.description,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          published: false
+        }]);
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Page duplicated",
+        description: "A copy of the page has been created"
+      });
+      
+      fetchPages();
+    } catch (error: any) {
+      console.error('Error duplicating page:', error);
+      toast({
+        title: "Error duplicating page",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="mb-8 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Button variant="ghost" onClick={() => navigate('/admin/pages')} className="gap-1">
-            <ArrowLeft className="w-4 h-4" />
-            Назад
-          </Button>
-          <h1 className="text-2xl font-bold">
-            {isNewPage ? 'Создать страницу' : 'Редактировать страницу'}
-          </h1>
-        </div>
-        {page && !isNewPage && (
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            disabled={loading}
-            className="gap-1"
-          >
-            <Trash2 className="w-4 h-4" />
-            Удалить
-          </Button>
-        )}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <div className="bg-white shadow-md rounded-md p-5">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="title">Заголовок</Label>
-                <Input
-                  id="title"
-                  placeholder="Заголовок страницы"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  disabled={saving}
-                />
-              </div>
-              <div>
-                <Label htmlFor="slug">URL Slug</Label>
-                <Input
-                  id="slug"
-                  placeholder="URL страницы"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  disabled={saving}
-                />
-              </div>
-              <div>
-                <Label htmlFor="description">Описание</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Описание страницы"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="resize-none h-32"
-                  disabled={saving}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div className="bg-white shadow-md rounded-md p-5">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="published"
-                  checked={published}
-                  onCheckedChange={(checked) => setPublished(!!checked)}
-                  disabled={saving}
-                />
-                <Label htmlFor="published">Опубликовать</Label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-6 flex justify-end">
-        <Button
-          variant="default"
-          onClick={handleSave}
-          disabled={saving}
-          className="gap-2"
-        >
-          {saving ? (
-            <>
-              <span className="animate-spin mr-2">⏳</span>
-              Сохранение...
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              Сохранить
-            </>
-          )}
+    <div className="w-full space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Pages</h2>
+        <Button onClick={() => handleOpenDialog()} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Create Page
         </Button>
       </div>
+
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      ) : pages.length === 0 ? (
+        <div className="border border-dashed border-gray-300 rounded-lg p-12 text-center">
+          <h3 className="text-xl font-medium mb-2">No pages found</h3>
+          <p className="text-gray-500 mb-4">Create your first page to start building your website.</p>
+          <Button onClick={() => handleOpenDialog()}>Create Page</Button>
+        </div>
+      ) : (
+        <div className="bg-white rounded-md border">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Title</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Slug</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Updated</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Status</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {pages.map((page) => (
+                  <tr key={page.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm font-medium">{page.title}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500">/{page.slug}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500">{formatDate(page.updated_at)}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        page.published 
+                          ? "bg-green-100 text-green-800" 
+                          : "bg-gray-100 text-gray-800"
+                      }`}>
+                        {page.published ? "Published" : "Draft"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end space-x-2">
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => handleTogglePublish(page)}
+                          className="text-gray-500 hover:text-gray-700"
+                        >
+                          {page.published ? "Unpublish" : "Publish"}
+                        </Button>
+                        
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDuplicatePage(page)}
+                          className="text-gray-500 hover:text-gray-700"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          asChild
+                        >
+                          <Link to={`/page-builder/${page.id}`}>
+                            <Pencil className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                        
+                        {page.published && (
+                          <Button 
+                            size="sm" 
+                            variant="ghost"
+                            asChild
+                          >
+                            <a href={`/${page.slug}`} target="_blank" rel="noopener noreferrer">
+                              <Eye className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        )}
+                        
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => handleDeletePage(page.id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingPage ? "Edit Page" : "Create New Page"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input 
+                  id="title" 
+                  value={title} 
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    if (!editingPage) handleSlugChange(e.target.value);
+                  }}
+                  placeholder="Page Title"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="slug">Slug</Label>
+                <div className="flex items-center">
+                  <span className="text-gray-500 mr-1">/</span>
+                  <Input 
+                    id="slug" 
+                    value={slug} 
+                    onChange={(e) => setSlug(e.target.value)}
+                    placeholder="page-url-slug"
+                    pattern="[a-z0-9\-]+"
+                    title="Only lowercase letters, numbers, and hyphens are allowed"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="description">Description (optional)</Label>
+                <Input 
+                  id="description" 
+                  value={description} 
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Page description"
+                />
+              </div>
+            </div>
+            <DialogFooter className="mt-4">
+              <Button type="button" variant="outline" onClick={handleCloseDialog}>Cancel</Button>
+              <Button type="submit">{editingPage ? "Update" : "Create"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

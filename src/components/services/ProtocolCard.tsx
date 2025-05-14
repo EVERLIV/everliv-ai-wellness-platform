@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { toast } from "sonner";
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,11 +16,6 @@ export interface ProtocolProps {
   benefits: string[];
   warnings?: string[];
   category: string;
-}
-
-export interface UserProtocolProps extends ProtocolProps {
-  id: string;
-  onDelete: (id: string) => Promise<void>;
 }
 
 const difficultyClasses = {
@@ -38,7 +33,7 @@ const difficultyClasses = {
   }
 };
 
-const ProtocolCard = ({
+const ProtocolCard: React.FC<ProtocolProps> = ({
   title,
   description,
   difficulty,
@@ -46,18 +41,19 @@ const ProtocolCard = ({
   steps,
   benefits,
   warnings,
-  category,
-  id,
-  onDelete
-}: ProtocolProps & { id?: string; onDelete?: (id: string) => Promise<void> }) => {
+  category
+}) => {
   const difficultyInfo = difficultyClasses[difficulty];
+  const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   
   const addToMyProgram = async () => {
     if (!user) {
-      toast("Требуется авторизация", {
-        description: "Для добавления протокола в программу необходимо войти в систему"
+      toast({
+        title: "Требуется авторизация",
+        description: "Для добавления протокола в программу необходимо войти в систему",
+        variant: "destructive"
       });
       navigate('/login');
       return;
@@ -88,13 +84,16 @@ const ProtocolCard = ({
       
       if (error) throw error;
       
-      toast("Протокол добавлен", {
-        description: "Протокол успешно добавлен в вашу программу"
+      toast({
+        title: "Протокол добавлен",
+        description: "Протокол успешно добавлен в вашу программу",
       });
     } catch (error) {
       console.error("Ошибка при добавлении протокола:", error);
-      toast("Ошибка", {
-        description: "Не удалось добавить протокол в программу"
+      toast({
+        title: "Ошибка",
+        description: "Не удалось добавить протокол в программу",
+        variant: "destructive"
       });
     }
   };
@@ -142,27 +141,10 @@ const ProtocolCard = ({
         )}
       </CardContent>
       <CardFooter className="bg-gray-50">
-        {onDelete ? (
-          <Button 
-            onClick={() => onDelete(id!)} 
-            variant="destructive" 
-            className="w-full"
-          >
-            Удалить протокол
-          </Button>
-        ) : (
-          <Button 
-            onClick={addToMyProgram} 
-            variant="outline" 
-            className="w-full"
-          >
-            Добавить в мою программу
-          </Button>
-        )}
+        <Button onClick={addToMyProgram} variant="outline" className="w-full">Добавить в мою программу</Button>
       </CardFooter>
     </Card>
   );
 };
 
-export { ProtocolCard };
 export default ProtocolCard;

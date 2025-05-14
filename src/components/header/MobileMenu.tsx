@@ -58,12 +58,12 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
         {user ? (
           <>
             {isAdmin && (
-              <Link to="/admin/blog" className="text-primary font-medium flex items-center gap-2" onClick={() => setIsOpen(false)}>
+              <Link to="/admin" className="text-primary font-medium flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Админ-панель
               </Link>
             )}
-            <Link to="/dashboard" className="hover:text-gray-600" onClick={() => setIsOpen(false)}>Личный кабинет</Link>
+            <Link to="/dashboard" className="hover:text-gray-600">Личный кабинет</Link>
             <Button variant="outline" size="sm" onClick={handleSignOut}>Выйти</Button>
           </>
         ) : (

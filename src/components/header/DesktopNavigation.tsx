@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -133,7 +134,7 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({
       {user ? (
         <>
           {isAdmin && (
-            <Link to="/admin/blog">
+            <Link to="/admin">
               <Button variant="default" size="sm" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Админ-панель

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
@@ -29,10 +28,10 @@ const UserProfile = () => {
             <h1 className="text-2xl font-bold">Профиль пользователя</h1>
             <div className="flex gap-2">
               {isAdmin && (
-                <Link to="/admin/blog">
+                <Link to="/admin">
                   <Button variant="default" className="flex items-center gap-2">
                     <Settings className="h-4 w-4" />
-                    Админ-панель
+                    Панель администратора
                   </Button>
                 </Link>
               )}

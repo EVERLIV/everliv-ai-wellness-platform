@@ -42,7 +42,7 @@ const SubscriptionBanner = () => {
             )}
           </div>
         </div>
-        <Link to="/subscription">
+        <Link to="/dashboard/subscription">
           <Button>
             {subscription ? "Управление подпиской" : "Оформить подписку"}
           </Button>

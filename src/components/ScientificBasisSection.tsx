@@ -3,7 +3,6 @@ import React from 'react';
 import { BookOpen, GraduationCap, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const ScientificBasisSection = () => {
   return (
@@ -55,15 +54,12 @@ const ScientificBasisSection = () => {
           </div>
           
           <div className="md:w-1/2">
-            <div className="rounded-lg overflow-hidden shadow-lg">
-              <AspectRatio ratio={4/3} className="bg-gray-100">
-                <img 
-                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80" 
-                  alt="Научные исследования" 
-                  className="w-full h-full object-cover"
-                />
-              </AspectRatio>
-            </div>
+            <img 
+              src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80" 
+              alt="Научные исследования" 
+              className="rounded-lg shadow-lg w-full h-auto object-cover"
+              style={{ maxHeight: '450px' }}
+            />
           </div>
         </div>
       </div>

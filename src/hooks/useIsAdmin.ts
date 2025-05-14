@@ -1,15 +1,15 @@
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
-export const useIsAdmin = () => {
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+export function useIsAdmin() {
   const { user } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAdmin = async () => {
+    async function checkAdminStatus() {
       if (!user) {
         setIsAdmin(false);
         setIsLoading(false);
@@ -17,18 +17,15 @@ export const useIsAdmin = () => {
       }
 
       try {
-        // First check for admin_users table
-        const { data: adminData, error: adminError } = await supabase
-          .from('admin_users')
-          .select()
-          .eq('user_id', user.id)
-          .single();
-          
-        if (!adminError && adminData) {
-          setIsAdmin(true);
+        const { data, error } = await supabase.rpc('is_admin', { 
+          user_uuid: user.id 
+        });
+        
+        if (error) {
+          console.error('Error checking admin status:', error);
+          setIsAdmin(false);
         } else {
-          // Check user metadata instead of profiles table role field
-          setIsAdmin(user.user_metadata?.role === 'admin' || false);
+          setIsAdmin(!!data);
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
@@ -36,10 +33,10 @@ export const useIsAdmin = () => {
       } finally {
         setIsLoading(false);
       }
-    };
+    }
 
-    checkAdmin();
+    checkAdminStatus();
   }, [user]);
 
   return { isAdmin, isLoading };
-};
+}
