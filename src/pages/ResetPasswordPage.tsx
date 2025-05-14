@@ -1,65 +1,60 @@
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from "sonner";
+import { AuthLayout } from '@/components/AuthLayout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 
-const ResetPasswordPage = () => {
+interface ResetPasswordPageProps {}
+
+const ResetPasswordPage: React.FC<ResetPasswordPageProps> = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const [token, setToken] = useState<string | null>(null);
 
-  const accessToken = searchParams.get('access_token');
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!accessToken) {
-      toast("Ошибка", {
-        description: "Отсутствует токен доступа. Пожалуйста, убедитесь, что вы перешли по правильной ссылке."
-      });
-      return;
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const tokenFromUrl = searchParams.get('token');
+    if (tokenFromUrl) {
+      setToken(tokenFromUrl);
     }
+  }, [location.search]);
 
+  const resetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (password !== confirmPassword) {
       toast("Ошибка", {
-        description: "Пароль и подтверждение пароля не совпадают."
-      });
-      return;
-    }
-
-    if (password.length < 6) {
-      toast("Ошибка", {
-        description: "Пароль должен содержать не менее 6 символов."
+        description: "Пароли не совпадают"
       });
       return;
     }
 
     setLoading(true);
     try {
+      // Use updateUser instead of older API
       const { error } = await supabase.auth.updateUser({
-        password: password,
-        access_token: accessToken,
+        password: password
       });
 
       if (error) {
-        toast("Ошибка", {
-          description: error.message || "Не удалось обновить пароль."
+        toast("Ошибка сброса пароля", {
+          description: error.message
         });
-      } else {
-        toast("Пароль успешно обновлен", {
-          description: "Теперь вы можете войти в систему с новым паролем."
-        });
-        navigate('/login');
+        return;
       }
+
+      toast("Успешно", {
+        description: "Ваш пароль был успешно сброшен"
+      });
+      navigate('/login');
     } catch (error: any) {
       toast("Ошибка", {
-        description: error.message || "Произошла ошибка при обновлении пароля."
+        description: "Произошла неожиданная ошибка"
       });
     } finally {
       setLoading(false);
@@ -67,45 +62,41 @@ const ResetPasswordPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md p-4">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center">Сброс пароля</CardTitle>
-          <CardDescription className="text-center">
+    <AuthLayout>
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold">Сброс пароля</h2>
+          <p className="text-muted-foreground">
             Введите новый пароль для вашей учетной записи.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="password">Новый пароль</Label>
-              <Input
-                type="password"
-                id="password"
-                placeholder="Новый пароль"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
-              <Input
-                type="password"
-                id="confirmPassword"
-                placeholder="Подтвердите пароль"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button disabled={loading} className="w-full">
-              {loading ? "Обновление..." : "Обновить пароль"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          </p>
+        </div>
+        <form onSubmit={resetPassword} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="password">Новый пароль</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+          <Button disabled={loading} type="submit" className="w-full">
+            {loading ? 'Сброс...' : 'Сбросить пароль'}
+          </Button>
+        </form>
+      </div>
+    </AuthLayout>
   );
 };
 

@@ -310,7 +310,7 @@ const PageManagement = () => {
 
       <div className="mt-6 flex justify-end">
         <Button
-          variant="primary"
+          variant="default"
           onClick={handleSave}
           disabled={saving}
           className="gap-2"

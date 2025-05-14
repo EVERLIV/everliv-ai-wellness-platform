@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,11 @@ export interface ProtocolProps {
   category: string;
 }
 
+export interface UserProtocolProps extends ProtocolProps {
+  id: string;
+  onDelete: (id: string) => Promise<void>;
+}
+
 const difficultyClasses = {
   beginner: {
     text: 'Начинающий',
@@ -32,7 +38,7 @@ const difficultyClasses = {
   }
 };
 
-const ProtocolCard: React.FC<ProtocolProps> = ({
+const ProtocolCard = ({
   title,
   description,
   difficulty,
@@ -40,8 +46,10 @@ const ProtocolCard: React.FC<ProtocolProps> = ({
   steps,
   benefits,
   warnings,
-  category
-}) => {
+  category,
+  id,
+  onDelete
+}: ProtocolProps & { id?: string; onDelete?: (id: string) => Promise<void> }) => {
   const difficultyInfo = difficultyClasses[difficulty];
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -49,8 +57,7 @@ const ProtocolCard: React.FC<ProtocolProps> = ({
   const addToMyProgram = async () => {
     if (!user) {
       toast("Требуется авторизация", {
-        description: "Для добавления протокола в программу необходимо войти в систему",
-        variant: "destructive"
+        description: "Для добавления протокола в программу необходимо войти в систему"
       });
       navigate('/login');
       return;
@@ -82,13 +89,12 @@ const ProtocolCard: React.FC<ProtocolProps> = ({
       if (error) throw error;
       
       toast("Протокол добавлен", {
-        description: "Протокол успешно добавлен в вашу программу",
+        description: "Протокол успешно добавлен в вашу программу"
       });
     } catch (error) {
       console.error("Ошибка при добавлении протокола:", error);
       toast("Ошибка", {
-        description: "Не удалось добавить протокол в программу",
-        variant: "destructive"
+        description: "Не удалось добавить протокол в программу"
       });
     }
   };
@@ -136,10 +142,27 @@ const ProtocolCard: React.FC<ProtocolProps> = ({
         )}
       </CardContent>
       <CardFooter className="bg-gray-50">
-        <Button onClick={addToMyProgram} variant="outline" className="w-full">Добавить в мою программу</Button>
+        {onDelete ? (
+          <Button 
+            onClick={() => onDelete(id!)} 
+            variant="destructive" 
+            className="w-full"
+          >
+            Удалить протокол
+          </Button>
+        ) : (
+          <Button 
+            onClick={addToMyProgram} 
+            variant="outline" 
+            className="w-full"
+          >
+            Добавить в мою программу
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
 };
 
+export { ProtocolCard };
 export default ProtocolCard;

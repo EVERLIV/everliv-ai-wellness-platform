@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { ProtocolCard } from '@/components/services/ProtocolCard';
+import ProtocolCard from '@/components/services/ProtocolCard';
 import { toast } from "sonner";
 
 interface UserProtocol {
@@ -106,7 +107,15 @@ const MyProtocolsPage: React.FC = () => {
           {protocols.map(protocol => (
             <ProtocolCard
               key={protocol.id}
-              protocol={protocol}
+              id={protocol.id}
+              title={protocol.title}
+              description={protocol.description}
+              category={protocol.category}
+              duration={protocol.duration}
+              difficulty={protocol.difficulty as 'beginner' | 'intermediate' | 'advanced'}
+              steps={protocol.steps}
+              benefits={protocol.benefits}
+              warnings={protocol.warnings || []}
               onDelete={handleDeleteProtocol}
             />
           ))}

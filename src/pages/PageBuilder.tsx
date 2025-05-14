@@ -1,138 +1,125 @@
-import React, { useState, useCallback } from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { v4 as uuidv4 } from 'uuid';
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { toast } from "sonner";
+import React, { useState, useEffect } from 'react';
+// Remove or comment out these imports if not needed
+// import { DndProvider } from 'react-dnd';
+// import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useParams } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+const PageBuilder: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
+  const [duration, setDuration] = useState('');
+  const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner');
+  const [steps, setSteps] = useState<string[]>([]);
+  const [benefits, setBenefits] = useState<string[]>([]);
+  const [warnings, setWarnings] = useState<string[]>([]);
+  const { user } = useAuth();
 
-interface PageContent {
-  id: string;
-  type: string;
-  content: any;
-  position: number;
-}
+  useEffect(() => {
+    if (id && id !== 'new') {
+      fetchProtocol(id);
+    }
+  }, [id]);
 
-const PageBuilder = () => {
-  const [pageContents, setPageContents] = useState<PageContent[]>([]);
-  const [newContentType, setNewContentType] = useState('text');
-  const [newContent, setNewContent] = useState('');
+  const fetchProtocol = async (protocolId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('protocols')
+        .select('*')
+        .eq('id', protocolId)
+        .single();
 
-  const addContent = useCallback(() => {
-    if (!newContent) {
-      toast("Please enter some content", {
-        description: "You must enter content before adding it to the page."
+      if (error) {
+        console.error("Error fetching protocol:", error);
+        toast("Ошибка загрузки протокола", {
+          description: error.message
+        });
+        return;
+      }
+
+      if (data) {
+        setTitle(data.title);
+        setDescription(data.description);
+        setCategory(data.category);
+        setDuration(data.duration);
+        setDifficulty(data.difficulty);
+        setSteps(data.steps);
+        setBenefits(data.benefits);
+        setWarnings(data.warnings || []);
+      }
+    } catch (error: any) {
+      console.error("Unexpected error fetching protocol:", error);
+      toast("Неожиданная ошибка", {
+        description: error.message || "Не удалось загрузить протокол"
+      });
+    }
+  };
+
+  const saveProtocol = async () => {
+    if (!user) {
+      toast("Требуется авторизация", {
+        description: "Для сохранения протокола необходимо войти в систему"
       });
       return;
     }
 
-    const newPageContent: PageContent = {
-      id: uuidv4(),
-      type: newContentType,
-      content: newContent,
-      position: pageContents.length,
-    };
+    try {
+      const protocolData = {
+        title,
+        description,
+        category,
+        duration,
+        difficulty,
+        steps,
+        benefits,
+        warnings: warnings || [],
+        user_id: user.id
+      };
 
-    setPageContents(prev => [...prev, newPageContent]);
-    setNewContent('');
-    toast("Content added", {
-      description: "The content has been added to the page."
-    });
-  }, [newContent, newContentType, pageContents.length]);
+      let res;
 
-  const moveContent = useCallback(
-    (dragIndex: number, hoverIndex: number) => {
-      const existingContent = [...pageContents];
-      const draggedItem = existingContent[dragIndex];
+      if (id && id !== 'new') {
+        res = await supabase
+          .from('protocols')
+          .update(protocolData)
+          .eq('id', id);
+      } else {
+        res = await supabase
+          .from('protocols')
+          .insert(protocolData);
+      }
 
-      existingContent.splice(dragIndex, 1);
-      existingContent.splice(hoverIndex, 0, draggedItem);
+      const { error } = res;
 
-      // Normalize positions
-      const normalizedContent = existingContent.map((item, index) => ({
-        ...item,
-        position: index,
-      }));
+      if (error) {
+        console.error("Error saving protocol:", error);
+        toast("Ошибка сохранения протокола", {
+          description: error.message
+        });
+        return;
+      }
 
-      setPageContents(normalizedContent);
-      toast("Content moved", {
-        description: "The content has been moved to its new position."
+      toast("Протокол сохранен", {
+        description: "Протокол успешно сохранен"
       });
-    },
-    [pageContents]
-  );
-
-  const deleteContent = useCallback((id: string) => {
-    setPageContents(prev => prev.filter(content => content.id !== id));
-    toast("Content deleted", {
-      description: "The content has been successfully deleted."
-    });
-  }, []);
+    } catch (error: any) {
+      console.error("Unexpected error saving protocol:", error);
+      toast("Неожиданная ошибка", {
+        description: error.message || "Не удалось сохранить протокол"
+      });
+    }
+  };
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Page Builder</h1>
-
-        {/* Add New Content Section */}
-        <div className="mb-4">
-          <Label htmlFor="contentType">Content Type</Label>
-          <Select onValueChange={setNewContentType}>
-            <SelectTrigger id="contentType">
-              <SelectValue placeholder="Select content type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="text">Text</SelectItem>
-              <SelectItem value="image">Image</SelectItem>
-              <SelectItem value="video">Video</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="mb-4">
-          <Label htmlFor="content">Content</Label>
-          <Textarea
-            id="content"
-            placeholder="Enter content"
-            value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
-            className="w-full"
-          />
-        </div>
-
-        <Button onClick={addContent}>Add Content</Button>
-
-        {/* Page Content Display */}
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-2">Page Content</h2>
-          {pageContents.map((content, index) => (
-            <div key={content.id} className="border p-4 mb-2 rounded-md">
-              <p>
-                <strong>Type:</strong> {content.type}
-              </p>
-              <p>
-                <strong>Content:</strong> {content.content}
-              </p>
-              <div className="flex justify-end mt-2">
-                <Button size="sm" variant="destructive" onClick={() => deleteContent(content.id)}>
-                  Delete
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </DndProvider>
+    <div>
+      <h1>Page Builder</h1>
+      {/* Form elements will go here */}
+      <button onClick={saveProtocol}>Save Protocol</button>
+    </div>
   );
 };
 
