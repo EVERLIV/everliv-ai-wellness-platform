@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner";
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,23 +18,18 @@ const LoginPage = () => {
     signIn
   } = useAuth();
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
       await signIn(email, password);
-      toast({
-        title: "Успешный вход",
+      toast("Успешный вход", {
         description: "Вы успешно вошли в систему"
       });
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Error during sign in:', error);
-      toast({
-        title: "Ошибка входа",
+      toast("Ошибка входа", {
         description: error.message || "Не удалось войти в систему. Проверьте ваши данные.",
         variant: "destructive"
       });
@@ -77,7 +73,7 @@ const LoginPage = () => {
             <div className="text-center text-sm">
               Нет аккаунта?{' '}
               <Link to="/register" className="text-primary hover:underline">
-                Зарегистрироваться
+                Зареги��трироваться
               </Link>
             </div>
           </CardFooter>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { PlusCircle, Pencil, Trash2, Search, FileText } from "lucide-react";
 import BlogPostEditor from './BlogPostEditor';
 
@@ -19,7 +19,6 @@ interface BlogPost {
 }
 
 const BlogManagement = () => {
-  const { toast } = useToast();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,10 +46,8 @@ const BlogManagement = () => {
       setPosts(data as BlogPost[] || []);
     } catch (error: any) {
       console.error('Error fetching blog posts:', error);
-      toast({
-        title: "Ошибка загрузки данных",
-        description: error.message || "Не удалось загрузить список статей",
-        variant: "destructive"
+      toast("Ошибка загрузки данных", {
+        description: error.message || "Не удалось загрузить список статей"
       });
     } finally {
       setLoading(false);
@@ -68,8 +65,7 @@ const BlogManagement = () => {
         throw error;
       }
       
-      toast({
-        title: "Статья удалена",
+      toast("Статья удалена", {
         description: "Статья успешно удалена из блога"
       });
       
@@ -77,10 +73,8 @@ const BlogManagement = () => {
       setConfirmingDelete(null);
     } catch (error: any) {
       console.error('Error deleting post:', error);
-      toast({
-        title: "Ошибка удаления",
-        description: error.message || "Не удалось удалить статью",
-        variant: "destructive"
+      toast("Ошибка удаления", {
+        description: error.message || "Не удалось удалить статью"
       });
     }
   };

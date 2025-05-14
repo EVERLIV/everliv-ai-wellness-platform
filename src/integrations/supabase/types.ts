@@ -198,6 +198,7 @@ export type Database = {
           last_name: string | null
           medical_conditions: string[] | null
           medications: string[] | null
+          role: string | null
           updated_at: string
           weight: number | null
         }
@@ -213,6 +214,7 @@ export type Database = {
           last_name?: string | null
           medical_conditions?: string[] | null
           medications?: string[] | null
+          role?: string | null
           updated_at?: string
           weight?: number | null
         }
@@ -228,6 +230,7 @@ export type Database = {
           last_name?: string | null
           medical_conditions?: string[] | null
           medications?: string[] | null
+          role?: string | null
           updated_at?: string
           weight?: number | null
         }

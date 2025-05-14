@@ -1,12 +1,12 @@
 
-import { toast as sonnerToast } from "sonner";
+import { toast as sonnerToast, ToastT } from "sonner";
 
-export interface ToastProps {
-  title?: React.ReactNode;
-  description?: React.ReactNode;
+export type ToastProps = {
+  title?: string;
+  description?: string | React.ReactNode;
   action?: React.ReactNode;
-  variant?: "default" | "destructive";
-}
+  variant?: "default" | "destructive" | "success";
+};
 
 // Export the toast function directly from sonner
 export const toast = sonnerToast;
