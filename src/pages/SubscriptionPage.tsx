@@ -7,6 +7,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, ChevronLeft } from 'lucide-react';
+import { SubscriptionPlan } from '@/types/subscription';
 
 const SubscriptionPage = () => {
   const { user } = useAuth();
@@ -20,8 +21,10 @@ const SubscriptionPage = () => {
   const plans = [
     {
       name: "Базовый",
-      price: "990 ₽",
+      price: 990,
+      displayPrice: "990 ₽",
       period: "месяц",
+      type: "basic" as SubscriptionPlan,
       description: "Доступ к основным функциям",
       features: [
         "Отслеживание протоколов",
@@ -31,8 +34,10 @@ const SubscriptionPage = () => {
     },
     {
       name: "Стандарт",
-      price: "2490 ₽",
+      price: 2490,
+      displayPrice: "2490 ₽",
       period: "месяц",
+      type: "standard" as SubscriptionPlan,
       description: "Все базовые функции + расширенный анализ",
       featured: true,
       features: [
@@ -44,8 +49,10 @@ const SubscriptionPage = () => {
     },
     {
       name: "Премиум",
-      price: "4990 ₽",
+      price: 4990,
+      displayPrice: "4990 ₽",
       period: "месяц",
+      type: "premium" as SubscriptionPlan,
       description: "Максимальная поддержка для вашего здоровья",
       features: [
         "Все функции стандартного плана",
@@ -55,6 +62,19 @@ const SubscriptionPage = () => {
       ]
     }
   ];
+
+  const handleSelectPlan = (plan: typeof plans[0]) => {
+    navigate('/checkout', { 
+      state: { 
+        plan: {
+          name: plan.name,
+          price: plan.price,
+          type: plan.type,
+          isUpgrade: false
+        } 
+      }
+    });
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -84,7 +104,7 @@ const SubscriptionPage = () => {
                 <CardHeader className={`${plan.featured ? 'bg-primary/10' : ''}`}>
                   <CardTitle>{plan.name}</CardTitle>
                   <CardDescription className="flex items-end gap-1">
-                    <span className="text-2xl font-bold text-foreground">{plan.price}</span>
+                    <span className="text-2xl font-bold text-foreground">{plan.displayPrice}</span>
                     <span className="text-sm text-muted-foreground">/{plan.period}</span>
                   </CardDescription>
                   <p className="text-sm text-muted-foreground">{plan.description}</p>
@@ -98,7 +118,10 @@ const SubscriptionPage = () => {
                       </li>
                     ))}
                   </ul>
-                  <Button className={`w-full mt-6 ${plan.featured ? '' : 'bg-white text-primary hover:text-white border border-primary'}`}>
+                  <Button 
+                    className={`w-full mt-6 ${plan.featured ? '' : 'bg-white text-primary hover:text-white border border-primary'}`}
+                    onClick={() => handleSelectPlan(plan)}
+                  >
                     Выбрать план
                   </Button>
                 </CardContent>

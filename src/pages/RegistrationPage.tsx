@@ -15,6 +15,7 @@ const RegistrationPage = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     signUp
   } = useAuth();
@@ -22,36 +23,29 @@ const RegistrationPage = () => {
   const {
     toast
   } = useToast();
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    
     if (password !== confirmPassword) {
-      toast({
-        title: "Ошибка регистрации",
-        description: "Пароли не совпадают",
-        variant: "destructive"
-      });
+      toast.error('Пароли не совпадают');
       return;
     }
-    setIsLoading(true);
+    
     try {
-      await signUp(email, password, {
-        first_name: firstName,
-        last_name: lastName
-      });
-      toast({
-        title: "Регистрация успешна",
-        description: "Аккаунт успешно создан. Вы можете войти в систему."
-      });
+      setIsSubmitting(true);
+      const { error } = await signUp(email, password);
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast.success('Регистрация прошла успешно! Пожалуйста, проверьте email для подтверждения аккаунта.');
       navigate('/login');
     } catch (error: any) {
-      console.error('Error during registration:', error);
-      toast({
-        title: "Ошибка регистрации",
-        description: error.message || "Не удалось создать аккаунт. Попробуйте позже.",
-        variant: "destructive"
-      });
+      console.error('Ошибка при регистрации:', error);
+      toast.error(error?.message || 'Не удалось зарегистрироваться. Пожалуйста, попробуйте снова.');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
   return <div className="min-h-screen flex flex-col">
@@ -87,8 +81,8 @@ const RegistrationPage = () => {
                   <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
                   <Input id="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+                <Button type="submit" className="w-full" disabled={isLoading || isSubmitting}>
+                  {isLoading || isSubmitting ? 'Регистрация...' : 'Зарегистрироваться'}
                 </Button>
               </div>
             </form>

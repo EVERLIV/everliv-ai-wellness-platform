@@ -146,6 +146,45 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_sessions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          metadata: Json | null
+          payment_url: string
+          plan_type: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id: string
+          metadata?: Json | null
+          payment_url: string
+          plan_type: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          payment_url?: string
+          plan_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           allergies: string[] | null
@@ -191,6 +230,83 @@ export type Database = {
           medications?: string[] | null
           updated_at?: string
           weight?: number | null
+        }
+        Relationships: []
+      }
+      promo_code_uses: {
+        Row: {
+          discounted_amount: number
+          id: string
+          original_amount: number
+          plan_type: string
+          promo_code_id: string
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          discounted_amount: number
+          id?: string
+          original_amount: number
+          plan_type: string
+          promo_code_id: string
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          discounted_amount?: number
+          id?: string
+          original_amount?: number
+          plan_type?: string
+          promo_code_id?: string
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_code_uses_promo_code_id_fkey"
+            columns: ["promo_code_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promo_codes: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          discount_percent: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          one_time_per_user: boolean
+          uses_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_percent: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          one_time_per_user?: boolean
+          uses_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_percent?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          one_time_per_user?: boolean
+          uses_count?: number
         }
         Relationships: []
       }
@@ -408,6 +524,7 @@ export type Database = {
           created_at: string
           expires_at: string
           id: string
+          payment_id: string | null
           plan_type: string
           started_at: string
           status: string
@@ -418,6 +535,7 @@ export type Database = {
           created_at?: string
           expires_at: string
           id?: string
+          payment_id?: string | null
           plan_type: string
           started_at?: string
           status: string
@@ -428,6 +546,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           id?: string
+          payment_id?: string | null
           plan_type?: string
           started_at?: string
           status?: string
