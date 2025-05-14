@@ -27,6 +27,13 @@ interface Protocol {
   warnings: string[];
 }
 
+// Define mock component data for EditorCanvas and ComponentSettings
+interface ComponentData {
+  id: string;
+  type: string;
+  props: Record<string, any>;
+}
+
 const PageBuilder: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('pages');
@@ -34,6 +41,9 @@ const PageBuilder: React.FC = () => {
   const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Add state for selected component in editor
+  const [selectedComponent, setSelectedComponent] = useState<ComponentData | null>(null);
 
   useEffect(() => {
     const fetchPages = async () => {
@@ -128,6 +138,19 @@ const PageBuilder: React.FC = () => {
     }
   };
 
+  // Function to handle component updates in the editor
+  const handleComponentUpdate = (newProps: Record<string, any>) => {
+    if (selectedComponent) {
+      setSelectedComponent({
+        ...selectedComponent,
+        props: {
+          ...selectedComponent.props,
+          ...newProps
+        }
+      });
+    }
+  };
+
   return (
     <ProtectedRoute adminRequired>
       <DashboardLayout>
@@ -142,11 +165,42 @@ const PageBuilder: React.FC = () => {
             </TabsList>
             
             <TabsContent value="pages">
-              <PageManagement 
-                pages={pages} 
-                onDelete={handleDeletePage} 
-                loading={loading}
-              />
+              {/* Pass appropriate props to PageManagement component */}
+              <div className="bg-white p-6 rounded-lg shadow">
+                <div className="flex justify-between mb-6">
+                  <h2 className="text-xl font-semibold">Список страниц</h2>
+                  <Button>Создать страницу</Button>
+                </div>
+                
+                {loading ? (
+                  <p>Загрузка страниц...</p>
+                ) : pages.length === 0 ? (
+                  <p>Страницы не найдены</p>
+                ) : (
+                  <div className="space-y-4">
+                    {pages.map(page => (
+                      <div key={page.id} className="border p-4 rounded-md flex justify-between items-center">
+                        <div>
+                          <h3 className="font-semibold">{page.title}</h3>
+                          <p className="text-sm text-gray-500">{page.slug}</p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm">
+                            Редактировать
+                          </Button>
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            onClick={() => handleDeletePage(page.id)}
+                          >
+                            Удалить
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </TabsContent>
             
             <TabsContent value="protocols">
@@ -193,11 +247,20 @@ const PageBuilder: React.FC = () => {
                 </div>
                 
                 <div className="col-span-6 bg-gray-100 p-4 rounded-lg">
-                  <EditorCanvas />
+                  <EditorCanvas onSelectComponent={setSelectedComponent} />
                 </div>
                 
                 <div className="col-span-3 bg-white p-4 rounded-lg shadow">
-                  <ComponentSettings />
+                  {selectedComponent ? (
+                    <ComponentSettings 
+                      component={selectedComponent} 
+                      onUpdate={handleComponentUpdate} 
+                    />
+                  ) : (
+                    <div className="p-4 text-gray-500 text-center">
+                      Выберите компонент для редактирования
+                    </div>
+                  )}
                 </div>
               </div>
             </TabsContent>
