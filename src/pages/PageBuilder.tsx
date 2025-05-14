@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EditorCanvas from '@/components/editor/EditorCanvas';
+import { ComponentData } from '@/components/editor/EditorCanvas';
 import ComponentLibrary from '@/components/editor/ComponentLibrary';
 import ComponentSettings from '@/components/editor/ComponentSettings';
 import PageManagement from '@/components/editor/PageManagement';
