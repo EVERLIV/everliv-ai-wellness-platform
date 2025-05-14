@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
 export function useIsAdmin() {
-  const { user } = useAuth();
+  const { user, checkAdmin } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -17,16 +17,8 @@ export function useIsAdmin() {
       }
 
       try {
-        const { data, error } = await supabase.rpc('is_admin', { 
-          user_uuid: user.id 
-        });
-        
-        if (error) {
-          console.error('Error checking admin status:', error);
-          setIsAdmin(false);
-        } else {
-          setIsAdmin(!!data);
-        }
+        const isAdminUser = await checkAdmin();
+        setIsAdmin(isAdminUser);
       } catch (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
@@ -36,7 +28,7 @@ export function useIsAdmin() {
     }
 
     checkAdminStatus();
-  }, [user]);
+  }, [user, checkAdmin]);
 
   return { isAdmin, isLoading };
 }

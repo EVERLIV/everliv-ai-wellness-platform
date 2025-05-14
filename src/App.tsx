@@ -36,6 +36,7 @@ import FeaturesPage from '@/pages/Features';
 import NotFoundPage from '@/pages/NotFound';
 import UserSubscription from '@/pages/UserSubscription';
 import Checkout from '@/pages/Checkout';
+import PaymentStatus from '@/pages/PaymentStatus';
 
 function App() {
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
@@ -115,159 +116,164 @@ function App() {
   }
 
   return (
-    // Removed the BrowserRouter component that was here before
-    <>
-      <Routes>
-        {/* Публичные страницы */}
-        <Route path="/" element={<Home />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/blog/:id" element={<BlogPostPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/features" element={<FeaturesPage />} />
-        
-        {/* Защищенные страницы */}
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/profile" 
-          element={
-            <ProtectedRoute>
-              <UserProfile />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/subscription" 
-          element={
-            <ProtectedRoute>
-              <UserSubscription />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/checkout" 
-          element={
-            <ProtectedRoute>
-              <Checkout />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/protocols" 
-          element={
-            <ProtectedRoute>
-              <ProtocolPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/my-protocols" 
-          element={
-            <ProtectedRoute>
-              <MyProtocolsPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/protocols/:id" 
-          element={
-            <ProtectedRoute>
-              <ProtocolDetailPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/protocols/add" 
-          element={
-            <ProtectedRoute>
-              <AddProtocolPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/blood-analysis" 
-          element={
-            <ProtectedRoute>
-              <BloodAnalysisPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/recommendations" 
-          element={
-            <ProtectedRoute>
-              <AIRecommendationsPage />
-            </ProtectedRoute>
-          } 
-        />
-        
-        {/* Страницы администратора */}
-        <Route 
-          path="/admin" 
-          element={
-            <ProtectedRoute adminRequired={true}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/blog" 
-          element={
-            <ProtectedRoute adminRequired={true}>
-              <AdminBlog />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/users" 
-          element={
-            <ProtectedRoute adminRequired={true}>
-              <AdminUsers />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/users/:id" 
-          element={
-            <ProtectedRoute adminRequired={true}>
-              <AdminUserDetail />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/protocols" 
-          element={
-            <ProtectedRoute adminRequired={true}>
-              <AdminProtocols />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/admin/pricing" 
-          element={
-            <ProtectedRoute adminRequired={true}>
-              <AdminPricing />
-            </ProtectedRoute>
-          } 
-        />
-        
-        {/* 404 страница */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-      <Toaster />
-    </>
+    <AuthProvider>
+      <SubscriptionProvider>
+        <Routes>
+          {/* Публичные страницы */}
+          <Route path="/" element={<Home />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:id" element={<BlogPostPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/features" element={<FeaturesPage />} />
+          
+          {/* Платежные страницы */}
+          <Route path="/payment/success" element={<PaymentStatus />} />
+          <Route path="/payment/fail" element={<PaymentStatus />} />
+          
+          {/* Защищенные страницы */}
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <UserProfile />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/subscription" 
+            element={
+              <ProtectedRoute>
+                <UserSubscription />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/checkout" 
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/protocols" 
+            element={
+              <ProtectedRoute>
+                <ProtocolPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/my-protocols" 
+            element={
+              <ProtectedRoute>
+                <MyProtocolsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/protocols/:id" 
+            element={
+              <ProtectedRoute>
+                <ProtocolDetailPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/protocols/add" 
+            element={
+              <ProtectedRoute>
+                <AddProtocolPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/blood-analysis" 
+            element={
+              <ProtectedRoute>
+                <BloodAnalysisPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/recommendations" 
+            element={
+              <ProtectedRoute>
+                <AIRecommendationsPage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Страницы администратора */}
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute adminRequired={true}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/blog" 
+            element={
+              <ProtectedRoute adminRequired={true}>
+                <AdminBlog />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/users" 
+            element={
+              <ProtectedRoute adminRequired={true}>
+                <AdminUsers />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/users/:id" 
+            element={
+              <ProtectedRoute adminRequired={true}>
+                <AdminUserDetail />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/protocols" 
+            element={
+              <ProtectedRoute adminRequired={true}>
+                <AdminProtocols />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/pricing" 
+            element={
+              <ProtectedRoute adminRequired={true}>
+                <AdminPricing />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* 404 страница */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+        <Toaster />
+      </SubscriptionProvider>
+    </AuthProvider>
   );
 }
 

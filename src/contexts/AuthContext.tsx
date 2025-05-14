@@ -1,127 +1,133 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Session, User } from "@supabase/supabase-js";
+import { useNavigate } from "react-router-dom";
 
-type AuthContextType = {
+interface AuthContextType {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, userData: { first_name: string; last_name: string }) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
-};
+  resetPassword: (email: string) => Promise<{ error: any }>;
+  updatePassword: (password: string) => Promise<{ error: any }>;
+  checkAdmin: () => Promise<boolean>;
+}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Initialize auth
   useEffect(() => {
-    // Set up auth state listener FIRST
+    // Important: Set up auth state listener FIRST to avoid missing events
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Handle auth events
-        if (event === 'SIGNED_IN') {
-          // Defer additional data fetching
-          setTimeout(() => {
-            toast.success('Успешный вход в систему');
-            navigate('/dashboard');
-          }, 0);
-        } else if (event === 'SIGNED_OUT') {
-          setTimeout(() => {
-            toast.info('Вы вышли из системы');
-            navigate('/');
-          }, 0);
-        }
+      (event, currentSession) => {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+        setIsLoading(false);
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
       setIsLoading(false);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
+  // Sign in with email and password
   const signIn = async (email: string, password: string) => {
     try {
-      setIsLoading(true);
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-    } catch (error: any) {
-      toast.error(error.message || 'Ошибка входа');
-      throw error;
-    } finally {
-      setIsLoading(false);
+      return { error };
+    } catch (error) {
+      return { error };
     }
   };
 
-  const signUp = async (email: string, password: string, userData: { first_name: string; last_name: string }) => {
+  // Sign up with email and password
+  const signUp = async (email: string, password: string) => {
     try {
-      setIsLoading(true);
-      const { error } = await supabase.auth.signUp({ 
-        email, 
-        password,
-        options: {
-          data: userData
-        }
-      });
-      if (error) throw error;
-      toast.success('Регистрация успешна! Проверьте вашу электронную почту для подтверждения.');
-    } catch (error: any) {
-      toast.error(error.message || 'Ошибка регистрации');
-      throw error;
-    } finally {
-      setIsLoading(false);
+      const { error } = await supabase.auth.signUp({ email, password });
+      return { error };
+    } catch (error) {
+      return { error };
     }
   };
 
+  // Sign out
   const signOut = async () => {
-    try {
-      setIsLoading(true);
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-    } catch (error: any) {
-      toast.error(error.message || 'Ошибка выхода из системы');
-    } finally {
-      setIsLoading(false);
-    }
+    await supabase.auth.signOut();
   };
 
+  // Reset password
   const resetPassword = async (email: string) => {
     try {
-      setIsLoading(true);
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
-      if (error) throw error;
-      return Promise.resolve();
-    } catch (error: any) {
-      toast.error(error.message || 'Ошибка отправки запроса на сброс пароля');
-      throw error;
-    } finally {
-      setIsLoading(false);
+      return { error };
+    } catch (error) {
+      return { error };
+    }
+  };
+
+  // Update password
+  const updatePassword = async (password: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      return { error };
+    } catch (error) {
+      return { error };
+    }
+  };
+
+  // Check if user is admin
+  const checkAdmin = async () => {
+    if (!user) return false;
+    
+    try {
+      const { data, error } = await supabase.rpc('is_admin', { 
+        user_uuid: user.id 
+      });
+      
+      if (error) {
+        console.error('Error checking admin status:', error);
+        return false;
+      }
+      
+      return !!data;
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      return false;
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, signIn, signUp, signOut, resetPassword }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        isLoading,
+        signIn,
+        signUp,
+        signOut,
+        resetPassword,
+        updatePassword,
+        checkAdmin
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -130,7 +136,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
