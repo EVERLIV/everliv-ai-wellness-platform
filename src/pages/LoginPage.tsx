@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { AuthLayout } from '@/components/AuthLayout';
+import AuthLayout from '@/components/AuthLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,18 +25,18 @@ const LoginPage: React.FC = () => {
       });
 
       if (error) {
-        toast("Ошибка входа", {
+        toast.error("Ошибка входа", {
           description: error.message
         });
         return;
       }
 
-      toast("Успешный вход", {
+      toast.success("Успешный вход", {
         description: "Добро пожаловать обратно!"
       });
       navigate('/dashboard');
     } catch (error: any) {
-      toast("Ошибка", {
+      toast.error("Ошибка", {
         description: "Произошла неожиданная ошибка при входе"
       });
     } finally {
@@ -44,14 +45,12 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <AuthLayout>
+    <AuthLayout
+      title="Войти в аккаунт"
+      description="Введите свой адрес электронной почты и пароль, чтобы войти."
+      type="login"
+    >
       <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold">Войти в аккаунт</h2>
-          <p className="text-muted-foreground">
-            Введите свой адрес электронной почты и пароль, чтобы войти.
-          </p>
-        </div>
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>

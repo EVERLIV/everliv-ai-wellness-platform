@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { AuthLayout } from '@/components/AuthLayout';
+import AuthLayout from '@/components/AuthLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,7 +29,7 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = () => {
   const resetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast("Ошибка", {
+      toast.error("Ошибка", {
         description: "Пароли не совпадают"
       });
       return;
@@ -42,18 +43,18 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = () => {
       });
 
       if (error) {
-        toast("Ошибка сброса пароля", {
+        toast.error("Ошибка сброса пароля", {
           description: error.message
         });
         return;
       }
 
-      toast("Успешно", {
+      toast.success("Успешно", {
         description: "Ваш пароль был успешно сброшен"
       });
       navigate('/login');
     } catch (error: any) {
-      toast("Ошибка", {
+      toast.error("Ошибка", {
         description: "Произошла неожиданная ошибка"
       });
     } finally {
@@ -62,14 +63,12 @@ const ResetPasswordPage: React.FC<ResetPasswordPageProps> = () => {
   };
 
   return (
-    <AuthLayout>
+    <AuthLayout
+      title="Сброс пароля"
+      description="Введите новый пароль для вашей учетной записи."
+      type="reset"
+    >
       <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold">Сброс пароля</h2>
-          <p className="text-muted-foreground">
-            Введите новый пароль для вашей учетной записи.
-          </p>
-        </div>
         <form onSubmit={resetPassword} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="password">Новый пароль</Label>
