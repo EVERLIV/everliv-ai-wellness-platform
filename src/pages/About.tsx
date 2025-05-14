@@ -25,7 +25,7 @@ const About = () => {
             <div className="flex flex-col md:flex-row gap-12 items-center">
               <div className="md:w-1/3">
                 <img 
-                  src="https://images.unsplash.com/photo-1556157382-97eda2f9e2bf?auto=format&fit=crop&q=80&w=400" 
+                  src="https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D?auto=format&fit=crop&q=80&w=400" 
                   alt="Основатель компании" 
                   className="rounded-lg shadow-lg w-full h-auto"
                 />
