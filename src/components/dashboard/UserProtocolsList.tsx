@@ -1,19 +1,9 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import { ChevronRight, Loader2 } from "lucide-react";
-
-interface Protocol {
-  id: string;
-  title: string;
-  description: string;
-  progress: number;
-  startDate: string;
-  endDate: string;
-  status: 'active' | 'completed' | 'paused';
-}
+import { Protocol } from "@/hooks/useProtocols";
 
 interface UserProtocolsListProps {
   protocols: Protocol[];

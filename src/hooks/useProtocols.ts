@@ -14,10 +14,10 @@ export interface Protocol {
   benefits: string[];
   warnings: string[];
   // Properties for UserProtocolsList compatibility
-  progress?: number;
-  status?: 'active' | 'completed' | 'paused';
-  startDate?: string;
-  endDate?: string;
+  progress: number;  // This is now required, not optional
+  status: 'active' | 'completed' | 'paused';
+  startDate: string;
+  endDate: string;
   // Internal properties
   completion_percentage?: number;
   started_at?: string | null;
