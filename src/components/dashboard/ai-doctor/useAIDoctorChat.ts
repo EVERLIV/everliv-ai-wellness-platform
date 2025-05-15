@@ -7,7 +7,8 @@ import { processAIDoctorMessage, getUserMedicalContext } from '@/services/ai/ai-
 
 export const useAIDoctorChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [inputText, setInputText] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
   const [medicalContext, setMedicalContext] = useState('');
   const { user } = useAuth();
 
@@ -46,7 +47,8 @@ export const useAIDoctorChat = () => {
     };
     
     setMessages(prev => [...prev, userMessage]);
-    setIsLoading(true);
+    setIsProcessing(true);
+    setInputText('');
     
     try {
       // Process message through AI service
@@ -65,13 +67,15 @@ export const useAIDoctorChat = () => {
       
       setMessages(prev => [...prev, errorMessage]);
     } finally {
-      setIsLoading(false);
+      setIsProcessing(false);
     }
   }, [messages, user]);
 
   return {
     messages,
-    isLoading,
+    inputText,
+    setInputText,
+    isProcessing,
     sendMessage,
     medicalContext
   };

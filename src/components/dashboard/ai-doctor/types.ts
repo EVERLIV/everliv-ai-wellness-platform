@@ -1,4 +1,6 @@
 
+import { ReactNode } from 'react';
+
 export type Message = {
   id: string;
   role: "user" | "assistant";
@@ -8,5 +10,5 @@ export type Message = {
 
 export type SuggestedQuestion = {
   text: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 };

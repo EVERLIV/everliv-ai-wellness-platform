@@ -1,12 +1,30 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Activity, Brain, Heart, ThumbsUp } from "lucide-react";
+import { Activity, Brain, Heart, ThumbsUp, Moon, Pill, HeartPulse, Apple } from "lucide-react";
 import { SuggestedQuestion } from "./types";
 
 interface SuggestedQuestionsProps {
   onSelectQuestion: (question: string) => void;
 }
+
+// Helper function to map string identifiers to Lucide icons
+const getIconComponent = (iconName: string) => {
+  switch (iconName) {
+    case "sleep":
+      return <Moon className="h-4 w-4 text-blue-500" />;
+    case "pill":
+      return <Pill className="h-4 w-4 text-purple-500" />;
+    case "yoga":
+      return <Brain className="h-4 w-4 text-purple-500" />;
+    case "heart":
+      return <HeartPulse className="h-4 w-4 text-red-500" />;
+    case "apple":
+      return <Apple className="h-4 w-4 text-green-500" />;
+    default:
+      return <Activity className="h-4 w-4 text-blue-500" />;
+  }
+};
 
 const SuggestedQuestions: React.FC<SuggestedQuestionsProps> = ({ onSelectQuestion }) => {
   const suggestedQuestions: SuggestedQuestion[] = [
