@@ -23,7 +23,7 @@ import BreathingPractices from './pages/services/BreathingPractices';
 import OxygenTherapy from './pages/services/OxygenTherapy';
 import AIRecommendations from './pages/services/AIRecommendations';
 import PersonalizedSupplements from './pages/services/PersonalizedSupplements';
-import { LandingPage } from './pages/LandingPage';
+import LandingPage from './pages/LandingPage';
 
 function App() {
   return (
