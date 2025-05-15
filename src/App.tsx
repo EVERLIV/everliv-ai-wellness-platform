@@ -1,232 +1,55 @@
-
 import React from 'react';
-import {
-  Routes,
-  Route,
-  Navigate,
-  useLocation
-} from "react-router-dom";
-import { useAuth } from "./contexts/AuthContext";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
-import Dashboard from "./pages/Dashboard";
-import UserProfile from "./pages/UserProfile";
-import LandingPage from "./pages/LandingPage";
-import ServicesPage from "./pages/ServicesPage";
-import BloodAnalysisPage from "./pages/BloodAnalysisPage";
-import BiologicalAgePage from "./pages/BiologicalAgePage";
-import ComprehensiveAnalysisPage from "./pages/ComprehensiveAnalysisPage";
-import ColdTherapy from "./pages/services/ColdTherapy";
-import SubscriptionPage from "./pages/SubscriptionPage";
-import MyProtocols from "./pages/MyProtocols";
-import ProtocolTracking from "./pages/ProtocolTracking";
-import Pricing from "./pages/Pricing";
-import Webinars from "./pages/Webinars";
-import UserSubscription from "./pages/UserSubscription";
-import NotFound from "./pages/NotFound";
-import Science from "./pages/Science";
-import RestrictedService from "./pages/RestrictedService";
-import Index from "./pages/Index";
-import LegalInfo from "./pages/LegalInfo";
-import Contacts from "./pages/Contacts";
-import DeliveryInfo from "./pages/DeliveryInfo";
-import PaymentInfo from "./pages/PaymentInfo";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import Checkout from "./pages/Checkout";
-import TermsOfUse from "./pages/TermsOfUse";
-import About from "./pages/About";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import HelpCenter from "./pages/HelpCenter";
-import Security from "./pages/Security";
-import AIMedicine from "./pages/AIMedicine";
-import Contact from "./pages/Contact";
-import FAQ from "./pages/FAQ";
-import Partnership from "./pages/Partnership";
-import AIRecommendationsPage from "./pages/services/AIRecommendations";
-import MedicalInstitutions from "./pages/partnerships/MedicalInstitutions";
-import CorporateClients from "./pages/partnerships/CorporateClients";
-import MedicalSpecialists from "./pages/partnerships/MedicalSpecialists";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminBlog from "./pages/AdminBlog";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminPricing from "./pages/admin/AdminPricing";
-import AdminStatistics from "./pages/admin/AdminStatistics";
-import Welcome from "./pages/Welcome";
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import ServicesPage from './pages/ServicesPage';
+import SciencePage from './pages/SciencePage';
+import ContactPage from './pages/ContactPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import ProfilePage from './pages/ProfilePage';
+import BloodAnalysisPage from './pages/BloodAnalysisPage';
+import ColdTherapyPage from './pages/services/ColdTherapyPage';
+import FastingPage from './pages/services/FastingPage';
+import BreathingPracticesPage from './pages/services/BreathingPracticesPage';
+import OxygenTherapyPage from './pages/services/OxygenTherapyPage';
+import AiRecommendationsPage from './pages/services/AiRecommendationsPage';
+import PersonalizedSupplements from './pages/services/PersonalizedSupplements';
+import AuthProvider from './contexts/AuthContext';
+import SubscriptionProvider from './contexts/SubscriptionContext';
+import PartnerClinicsPage from './pages/services/PartnerClinicsPage';
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuth();
-  const location = useLocation();
-
-  if (isLoading) {
-    return (
-      <div className="h-screen flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  return <>{children}</>;
-};
-
-// Admin route that checks for admin privileges
-const AdminRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuth();
-  const location = useLocation();
-  
-  // In a real app, you would check for admin role
-  const isAdmin = true; // Temporary for demo purposes
-
-  if (isLoading) {
-    return (
-      <div className="h-screen flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!user || !isAdmin) {
-    return <Navigate to="/dashboard" state={{ from: location }} replace />;
-  }
-
-  return <>{children}</>;
-};
+// Add the import for our new page
+import BloodAnalysisServicePage from "./pages/services/BloodAnalysisServicePage";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/auth/confirm" element={<Login />} />
-      
-      <Route path="/welcome" element={
-        <ProtectedRoute>
-          <Welcome />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      } />
-      <Route path="/profile" element={
-        <ProtectedRoute>
-          <UserProfile />
-        </ProtectedRoute>
-      } />
-      
-      {/* Admin Routes */}
-      <Route path="/admin" element={
-        <AdminRoute>
-          <AdminDashboard />
-        </AdminRoute>
-      } />
-      <Route path="/admin/blog" element={
-        <AdminRoute>
-          <AdminBlog />
-        </AdminRoute>
-      } />
-      <Route path="/admin/users" element={
-        <AdminRoute>
-          <AdminUsers />
-        </AdminRoute>
-      } />
-      <Route path="/admin/pricing" element={
-        <AdminRoute>
-          <AdminPricing />
-        </AdminRoute>
-      } />
-      <Route path="/admin/statistics" element={
-        <AdminRoute>
-          <AdminStatistics />
-        </AdminRoute>
-      } />
-      
-      <Route path="/" element={<Index />} />
-      <Route path="/services" element={<ServicesPage />} />
-      <Route path="/services/:serviceId" element={<RestrictedService />} />
-      
-      <Route path="/blood-analysis" element={
-        <ProtectedRoute>
-          <BloodAnalysisPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/biological-age" element={
-        <ProtectedRoute>
-          <BiologicalAgePage />
-        </ProtectedRoute>
-      } />
-      <Route path="/comprehensive-analysis" element={
-        <ProtectedRoute>
-          <ComprehensiveAnalysisPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/services/cold-therapy" element={<ColdTherapy />} />
-      <Route path="/dashboard/subscription" element={
-        <ProtectedRoute>
-          <SubscriptionPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/my-protocols" element={
-        <ProtectedRoute>
-          <MyProtocols />
-        </ProtectedRoute>
-      } />
-      <Route path="/protocol-tracking" element={
-        <ProtectedRoute>
-          <ProtocolTracking />
-        </ProtectedRoute>
-      } />
-      <Route path="/protocols/:id" element={
-        <ProtectedRoute>
-          <ProtocolTracking />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/pricing" element={<Pricing />} />
-      <Route path="/subscription" element={<UserSubscription />} />
-      <Route path="/science" element={<Science />} />
-      
-      <Route path="/legal" element={<LegalInfo />} />
-      <Route path="/contacts" element={<Contacts />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/delivery" element={<DeliveryInfo />} />
-      <Route path="/payment-info" element={<PaymentInfo />} />
-      <Route path="/privacy" element={<PrivacyPolicy />} />
-      <Route path="/checkout" element={<Checkout />} />
-      
-      {/* Partnership routes */}
-      <Route path="/services/ai-recommendations" element={<AIRecommendationsPage />} />
-      <Route path="/terms" element={<TermsOfUse />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/blog" element={<Blog />} />
-      <Route path="/blog/:id" element={<BlogPost />} />
-      <Route path="/help" element={
-        <ProtectedRoute>
-          <HelpCenter />
-        </ProtectedRoute>
-      } />
-      <Route path="/security" element={<Security />} />
-      <Route path="/ai-medicine" element={<AIMedicine />} />
-      <Route path="/faq" element={<FAQ />} />
-      <Route path="/partnership" element={<Partnership />} />
-      
-      {/* Partnership specific routes */}
-      <Route path="/partnerships/medical-institutions" element={<MedicalInstitutions />} />
-      <Route path="/partnerships/corporate-clients" element={<CorporateClients />} />
-      <Route path="/partnerships/medical-specialists" element={<MedicalSpecialists />} />
-      
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <AuthProvider>
+      <SubscriptionProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/science" element={<SciencePage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/blood-analysis" element={<BloodAnalysisPage />} />
+            <Route path="/services/cold-therapy" element={<ColdTherapyPage />} />
+            <Route path="/services/fasting" element={<FastingPage />} />
+            <Route path="/services/breathing-practices" element={<BreathingPracticesPage />} />
+            <Route path="/services/oxygen-therapy" element={<OxygenTherapyPage />} />
+            <Route path="/services/ai-recommendations" element={<AiRecommendationsPage />} />
+            <Route path="/services/personalized-supplements" element={<PersonalizedSupplements />} />
+            <Route path="/services/partner-clinics" element={<PartnerClinicsPage />} />
+            {
+              path: "/services/blood-analysis",
+              element: <BloodAnalysisServicePage />,
+            },
+          </Routes>
+        </Router>
+      </SubscriptionProvider>
+    </AuthProvider>
   );
 }
 
