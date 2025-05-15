@@ -1,1 +1,5 @@
+
 project_id = "lvxulelfmkbyeoxhtfpf"
+
+[functions.ai-doctor]
+verify_jwt = true
