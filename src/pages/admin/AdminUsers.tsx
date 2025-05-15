@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -10,13 +9,14 @@ import { useAdminApi } from "@/hooks/useAdminApi";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { 
   AdminUser, 
+  AdminSubscriptionPlan,
   fetchAdminUsers, 
   updateUserProfile, 
   assignSubscriptionToUser,
   cancelUserSubscription,
   fetchSubscriptionPlans,
-  SubscriptionPlan
 } from "@/services/admin-service";
+import { SubscriptionPlan } from "@/types/subscription";
 import { toast } from "sonner";
 import { 
   Dialog, 
@@ -51,9 +51,9 @@ const AdminUsers = () => {
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   
-  // Новые состояния для управления подписками
+  // Subscription management states
   const [subscriptionDialogOpen, setSubscriptionDialogOpen] = useState(false);
-  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
+  const [subscriptionPlans, setSubscriptionPlans] = useState<AdminSubscriptionPlan[]>([]);
   const [selectedPlanType, setSelectedPlanType] = useState<string>("");
   const [subscriptionExpiryDate, setSubscriptionExpiryDate] = useState<string>("");
   const [processingSubscription, setProcessingSubscription] = useState(false);
@@ -125,29 +125,24 @@ const AdminUsers = () => {
   };
 
   const handleInviteUser = async () => {
-    // В реальном приложении здесь был бы код для отправки приглашения
     toast.success(`Приглашение отправлено на ${inviteEmail}`);
     setInviteEmail("");
     setInviteDialogOpen(false);
   };
   
-  // Новые функции для управления подписками
+  // Subscription management handlers
   const handleManageSubscription = (user: AdminUser) => {
     setCurrentUser(user);
     
-    // Если у пользователя уже есть подписка, устанавливаем ее как выбранную
     if (user.subscription_type) {
       setSelectedPlanType(user.subscription_type);
     } else if (subscriptionPlans.length > 0) {
-      // Иначе выбираем первый план из списка
       setSelectedPlanType(subscriptionPlans[0].type);
     }
     
-    // Если есть дата окончания, устанавливаем ее
     if (user.subscription_expires_at) {
-      setSubscriptionExpiryDate(user.subscription_expires_at);
+      setSubscriptionExpiryDate(user.subscription_expires_at.split('T')[0]);
     } else {
-      // Иначе устанавливаем дату через месяц
       const nextMonth = new Date();
       nextMonth.setMonth(nextMonth.getMonth() + 1);
       setSubscriptionExpiryDate(nextMonth.toISOString().split('T')[0]);
@@ -163,12 +158,11 @@ const AdminUsers = () => {
     try {
       const success = await assignSubscriptionToUser(
         currentUser.id, 
-        selectedPlanType as any, 
+        selectedPlanType as SubscriptionPlan, 
         new Date(subscriptionExpiryDate).toISOString()
       );
       
       if (success) {
-        // Обновляем список пользователей
         await loadUsers();
         setSubscriptionDialogOpen(false);
       }
@@ -187,7 +181,6 @@ const AdminUsers = () => {
       try {
         const success = await cancelUserSubscription(subscriptionId);
         if (success) {
-          // Обновляем список пользователей
           await loadUsers();
         }
       } catch (error) {
@@ -407,14 +400,13 @@ const AdminUsers = () => {
                   Всего пользователей: <span className="font-medium">{filteredUsers.length}</span>
                 </p>
               </div>
-              {/* Здесь можно добавить пагинацию */}
             </div>
           </div>
         </div>
       </main>
       <Footer />
 
-      {/* Диалог редактирования пользователя */}
+      {/* User edit dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -451,7 +443,7 @@ const AdminUsers = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Диалог добавления пользователя */}
+      {/* User invite dialog */}
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -482,7 +474,7 @@ const AdminUsers = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Новый диалог управления подпиской пользователя */}
+      {/* Subscription management dialog */}
       <Dialog open={subscriptionDialogOpen} onOpenChange={setSubscriptionDialogOpen}>
         <DialogContent>
           <DialogHeader>

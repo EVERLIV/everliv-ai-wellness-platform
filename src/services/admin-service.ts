@@ -1,10 +1,9 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
-import { SubscriptionPlan, SubscriptionStatus } from "@/types/subscription";
+import { SubscriptionPlan as UserSubscriptionPlan, SubscriptionStatus } from "@/types/subscription";
 
-// Типы для пользователей
+// Types for users
 export interface AdminUser {
   id: string;
   email: string;
@@ -17,8 +16,8 @@ export interface AdminUser {
   subscription_expires_at?: string;
 }
 
-// Типы для тарифов
-export interface SubscriptionPlan {
+// Types for subscription plans
+export interface AdminSubscriptionPlan {
   id: string;
   name: string;
   type: string;
@@ -36,10 +35,10 @@ export interface PlanFeatureDetail {
   description: string;
 }
 
-// Функции для работы с пользователями
+// Functions for user management
 export const fetchAdminUsers = async (): Promise<AdminUser[]> => {
   try {
-    // Проверяем, является ли текущий пользователь администратором
+    // Verify admin permissions
     const { data: isAdmin, error: adminCheckError } = await supabase.rpc('is_admin', {
       user_uuid: (await supabase.auth.getUser()).data.user?.id
     });
@@ -48,26 +47,26 @@ export const fetchAdminUsers = async (): Promise<AdminUser[]> => {
       throw new Error("У вас нет прав администратора");
     }
 
-    // Получаем список всех пользователей
+    // Get all users
     const { data: users, error: usersError } = await supabase.auth.admin.listUsers();
     
     if (usersError) throw usersError;
 
-    // Получаем данные профилей пользователей
+    // Get user profiles
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
       .select('*');
       
     if (profilesError) throw profilesError;
 
-    // Получаем данные подписок пользователей
+    // Get user subscriptions
     const { data: subscriptions, error: subscriptionsError } = await supabase
       .from('subscriptions')
       .select('*');
       
     if (subscriptionsError) throw subscriptionsError;
 
-    // Объединяем данные
+    // Merge data
     return users.users.map(user => {
       const profile = profiles.find(p => p.id === user.id);
       const subscription = subscriptions?.find(s => s.user_id === user.id && s.status === 'active');
@@ -108,15 +107,14 @@ export const updateUserProfile = async (userId: string, data: { first_name?: str
   }
 };
 
-// Новые функции для управления подписками
-
+// Functions for subscription management
 export const assignSubscriptionToUser = async (
   userId: string, 
-  planType: SubscriptionPlan, 
+  planType: UserSubscriptionPlan, 
   expiresAt?: string
 ): Promise<boolean> => {
   try {
-    // Проверяем, является ли текущий пользователь администратором
+    // Verify admin permissions
     const { data: isAdmin, error: adminCheckError } = await supabase.rpc('is_admin', {
       user_uuid: (await supabase.auth.getUser()).data.user?.id
     });
@@ -125,14 +123,14 @@ export const assignSubscriptionToUser = async (
       throw new Error("У вас нет прав администратора");
     }
     
-    // Проверяем, есть ли уже активная подписка у пользователя
+    // Check for existing active subscription
     const { data: activeSubscriptions } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
       .eq('status', 'active');
     
-    // Если есть активная подписка, отменяем ее
+    // Cancel existing subscription if present
     if (activeSubscriptions && activeSubscriptions.length > 0) {
       const { error: cancelError } = await supabase
         .from('subscriptions')
@@ -142,13 +140,13 @@ export const assignSubscriptionToUser = async (
       if (cancelError) throw cancelError;
     }
     
-    // Определяем срок действия подписки (месяц от текущей даты, если не указано)
+    // Set subscription expiration date
     const expDate = expiresAt ? new Date(expiresAt) : new Date();
     if (!expiresAt) {
       expDate.setMonth(expDate.getMonth() + 1);
     }
     
-    // Добавляем новую подписку
+    // Add new subscription
     const { error: insertError } = await supabase
       .from('subscriptions')
       .insert({
@@ -172,7 +170,7 @@ export const assignSubscriptionToUser = async (
 
 export const cancelUserSubscription = async (subscriptionId: string): Promise<boolean> => {
   try {
-    // Проверяем, является ли текущий пользователь администратором
+    // Verify admin permissions
     const { data: isAdmin, error: adminCheckError } = await supabase.rpc('is_admin', {
       user_uuid: (await supabase.auth.getUser()).data.user?.id
     });
@@ -197,28 +195,25 @@ export const cancelUserSubscription = async (subscriptionId: string): Promise<bo
   }
 };
 
-// Вспомогательная функция для преобразования Json в PlanFeatureDetail[]
+// Helper function to convert JSON to PlanFeatureDetail[]
 const convertJsonToFeatures = (features: Json): PlanFeatureDetail[] => {
   if (!features) return [];
   
-  // Если features это массив объектов
+  // Handle array of objects
   if (Array.isArray(features)) {
-    // Используем явное приведение типов с проверкой структуры
     return features.map(item => {
-      // Проверяем, что элемент содержит нужные поля
       if (typeof item === 'object' && item !== null && 'name' in item && 'description' in item) {
         return {
           name: String(item.name),
           description: String(item.description)
         };
       }
-      // Если структура не соответствует, возвращаем пустой объект
       return { name: "", description: "" };
     });
   }
   
+  // Handle JSON string
   try {
-    // Если features это строка JSON, попробуем распарсить
     if (typeof features === 'string') {
       const parsed = JSON.parse(features);
       if (Array.isArray(parsed)) {
@@ -235,14 +230,13 @@ const convertJsonToFeatures = (features: Json): PlanFeatureDetail[] => {
   return [];
 };
 
-// Вспомогательная функция для преобразования PlanFeatureDetail[] в Json
+// Helper function to convert PlanFeatureDetail[] to Json
 const convertFeaturesToJson = (features: PlanFeatureDetail[]): Json => {
-  // Используем "as unknown as" для безопасного преобразования типов
-  // PlanFeatureDetail[] -> unknown -> Json
   return features as unknown as Json;
 };
 
-export const fetchSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
+// Subscription plan management functions
+export const fetchSubscriptionPlans = async (): Promise<AdminSubscriptionPlan[]> => {
   try {
     const { data, error } = await supabase
       .from('subscription_plans')
@@ -251,7 +245,7 @@ export const fetchSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
 
     if (error) throw error;
     
-    // Преобразуем данные из базы в формат SubscriptionPlan
+    // Convert database records to AdminSubscriptionPlan format
     return (data || []).map(plan => ({
       ...plan,
       features: convertJsonToFeatures(plan.features)
@@ -263,9 +257,9 @@ export const fetchSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
   }
 };
 
-export const createSubscriptionPlan = async (plan: Omit<SubscriptionPlan, 'id' | 'created_at' | 'updated_at'>): Promise<SubscriptionPlan | null> => {
+export const createSubscriptionPlan = async (plan: Omit<AdminSubscriptionPlan, 'id' | 'created_at' | 'updated_at'>): Promise<AdminSubscriptionPlan | null> => {
   try {
-    // Преобразуем features в формат JSON для базы данных
+    // Convert features to JSON format for database
     const planToInsert = {
       ...plan,
       features: convertFeaturesToJson(plan.features)
@@ -280,7 +274,7 @@ export const createSubscriptionPlan = async (plan: Omit<SubscriptionPlan, 'id' |
     if (error) throw error;
     toast.success("Тарифный план создан");
     
-    // Преобразуем полученный результат обратно в формат SubscriptionPlan
+    // Convert result back to AdminSubscriptionPlan format
     return {
       ...data,
       features: convertJsonToFeatures(data.features)
@@ -292,9 +286,9 @@ export const createSubscriptionPlan = async (plan: Omit<SubscriptionPlan, 'id' |
   }
 };
 
-export const updateSubscriptionPlan = async (id: string, plan: Partial<SubscriptionPlan>): Promise<boolean> => {
+export const updateSubscriptionPlan = async (id: string, plan: Partial<AdminSubscriptionPlan>): Promise<boolean> => {
   try {
-    // Если есть features, преобразуем их в формат JSON для базы данных
+    // Convert features to JSON if present
     const planToUpdate = {
       ...plan,
       features: plan.features ? convertFeaturesToJson(plan.features) : undefined,

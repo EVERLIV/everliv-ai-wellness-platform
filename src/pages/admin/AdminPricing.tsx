@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -11,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { 
-  SubscriptionPlan,
+  AdminSubscriptionPlan,
   fetchSubscriptionPlans,
   createSubscriptionPlan,
   updateSubscriptionPlan,
@@ -32,18 +31,18 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 const AdminPricing = () => {
-  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [plans, setPlans] = useState<AdminSubscriptionPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { isAdmin, isLoading: isAdminLoading } = useIsAdmin();
   
-  // Состояния для редактирования тарифа
+  // State for editing plan
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [currentPlan, setCurrentPlan] = useState<SubscriptionPlan | null>(null);
+  const [currentPlan, setCurrentPlan] = useState<AdminSubscriptionPlan | null>(null);
   const [isCreateMode, setIsCreateMode] = useState(false);
   
-  // Состояния для удаления тарифа
+  // State for deleting plan
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [planToDelete, setPlanToDelete] = useState<SubscriptionPlan | null>(null);
+  const [planToDelete, setPlanToDelete] = useState<AdminSubscriptionPlan | null>(null);
 
   useEffect(() => {
     loadPlans();
@@ -61,7 +60,7 @@ const AdminPricing = () => {
     }
   };
 
-  const handleEditPlan = (plan: SubscriptionPlan) => {
+  const handleEditPlan = (plan: AdminSubscriptionPlan) => {
     setCurrentPlan(plan);
     setIsCreateMode(false);
     setIsEditDialogOpen(true);
@@ -73,7 +72,7 @@ const AdminPricing = () => {
     setIsEditDialogOpen(true);
   };
 
-  const handleDeleteClick = (plan: SubscriptionPlan) => {
+  const handleDeleteClick = (plan: AdminSubscriptionPlan) => {
     setPlanToDelete(plan);
     setIsDeleteDialogOpen(true);
   };
@@ -94,10 +93,10 @@ const AdminPricing = () => {
     }
   };
 
-  const handleSavePlan = async (planData: Partial<SubscriptionPlan>) => {
+  const handleSavePlan = async (planData: Partial<AdminSubscriptionPlan>) => {
     try {
       if (isCreateMode) {
-        const newPlan = await createSubscriptionPlan(planData as Omit<SubscriptionPlan, 'id' | 'created_at' | 'updated_at'>);
+        const newPlan = await createSubscriptionPlan(planData as Omit<AdminSubscriptionPlan, 'id' | 'created_at' | 'updated_at'>);
         if (newPlan) {
           setPlans([...plans, newPlan]);
         }
@@ -289,7 +288,7 @@ const AdminPricing = () => {
       </main>
       <Footer />
 
-      {/* Диалог редактирования тарифа */}
+      {/* Edit plan dialog */}
       <PlanEditor
         plan={currentPlan}
         open={isEditDialogOpen}
@@ -298,7 +297,7 @@ const AdminPricing = () => {
         isNew={isCreateMode}
       />
 
-      {/* Диалог подтверждения удаления */}
+      {/* Delete confirmation dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
