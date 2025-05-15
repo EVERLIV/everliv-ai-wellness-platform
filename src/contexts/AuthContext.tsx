@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state changed:', event);
         setSession(session);
         setUser(session?.user ?? null);
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Defer additional data fetching
           setTimeout(() => {
             toast.success('Успешный вход в систему');
-            navigate('/dashboard');
+            navigate('/welcome');
           }, 0);
         } else if (event === 'SIGNED_OUT') {
           setTimeout(() => {
@@ -52,6 +52,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
+      
+      if (session) {
+        // If there's an active session, navigate to the dashboard
+        navigate('/dashboard');
+      }
     });
 
     return () => {
@@ -64,6 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(true);
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      // Navigation will be handled by the auth state change listener
     } catch (error: any) {
       console.error('Sign in error:', error);
       toast.error(error.message || 'Ошибка входа');
@@ -86,6 +92,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       if (error) throw error;
+      
+      toast.success('Регистрация успешна! На вашу почту отправлено письмо для подтверждения.');
+      // Navigate to welcome page even before email confirmation for better UX
+      navigate('/welcome');
     } catch (error: any) {
       console.error('Sign up error:', error);
       toast.error(error.message || 'Ошибка регистрации');

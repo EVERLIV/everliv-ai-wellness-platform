@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Routes,
@@ -53,6 +54,7 @@ import AdminBlog from "./pages/AdminBlog";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPricing from "./pages/admin/AdminPricing";
 import AdminStatistics from "./pages/admin/AdminStatistics";
+import Welcome from "./pages/Welcome";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -103,6 +105,13 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/auth/confirm" element={<Login />} />
+      
+      <Route path="/welcome" element={
+        <ProtectedRoute>
+          <Welcome />
+        </ProtectedRoute>
+      } />
       
       <Route path="/dashboard" element={
         <ProtectedRoute>
