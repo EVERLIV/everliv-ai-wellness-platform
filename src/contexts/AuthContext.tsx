@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -64,6 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
     } catch (error: any) {
+      console.error('Sign in error:', error);
       toast.error(error.message || 'Ошибка входа');
       throw error;
     } finally {
@@ -78,12 +80,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email, 
         password,
         options: {
-          data: userData
+          data: userData,
+          emailRedirectTo: `${window.location.origin}/auth/confirm`
         }
       });
+      
       if (error) throw error;
-      toast.success('Регистрация успешна! Проверьте вашу электронную почту для подтверждения.');
     } catch (error: any) {
+      console.error('Sign up error:', error);
       toast.error(error.message || 'Ошибка регистрации');
       throw error;
     } finally {
@@ -97,6 +101,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     } catch (error: any) {
+      console.error('Sign out error:', error);
       toast.error(error.message || 'Ошибка выхода из системы');
     } finally {
       setIsLoading(false);
@@ -110,8 +115,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
+      toast.success('Инструкции по сбросу пароля отправлены на ваш email');
       return Promise.resolve();
     } catch (error: any) {
+      console.error('Reset password error:', error);
       toast.error(error.message || 'Ошибка отправки запроса на сброс пароля');
       throw error;
     } finally {

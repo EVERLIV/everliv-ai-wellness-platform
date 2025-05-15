@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
@@ -7,22 +8,24 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { AlertCircle } from 'lucide-react';
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const {
-    signIn
-  } = useAuth();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  
+  const { signIn } = useAuth();
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
     setIsLoading(true);
+    
     try {
       await signIn(email, password);
       toast({
@@ -32,16 +35,14 @@ const LoginPage = () => {
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Error during sign in:', error);
-      toast({
-        title: "Ошибка входа",
-        description: error.message || "Не удалось войти в систему. Проверьте ваши данные.",
-        variant: "destructive"
-      });
+      setErrorMessage(error.message || "Не удалось войти в систему. Проверьте ваши данные.");
     } finally {
       setIsLoading(false);
     }
   };
-  return <div className="min-h-screen flex flex-col">
+  
+  return (
+    <div className="min-h-screen flex flex-col">
       <Header />
       <div className="flex-grow flex items-center justify-center bg-gray-50 py-16 px-4">
         <Card className="w-full max-w-md py-0 my-[100px]">
@@ -52,6 +53,15 @@ const LoginPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {errorMessage && (
+              <div className="bg-red-50 p-3 rounded-lg mb-6 border border-red-100">
+                <div className="flex items-center">
+                  <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+                  <p className="text-sm text-red-700">{errorMessage}</p>
+                </div>
+              </div>
+            )}
+            
             <form onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -74,7 +84,7 @@ const LoginPage = () => {
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <div className="text-center text-sm">
+            <div className="text-center text-sm w-full">
               Нет аккаунта?{' '}
               <Link to="/register" className="text-primary hover:underline">
                 Зарегистрироваться
@@ -84,6 +94,8 @@ const LoginPage = () => {
         </Card>
       </div>
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default LoginPage;

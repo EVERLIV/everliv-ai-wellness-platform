@@ -7,23 +7,34 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import AuthLayout from '@/components/AuthLayout';
 import { useAuth } from '@/contexts/AuthContext';
-import { Clock } from 'lucide-react';
+import { Clock, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Signup = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { signUp, isLoading, user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    setErrorMessage(null);
+    
     if (!fullName || !email || !password) {
+      setErrorMessage('Пожалуйста, заполните все поля');
       return;
     }
     
     if (!agreedToTerms) {
+      setErrorMessage('Пожалуйста, примите условия использования');
+      return;
+    }
+
+    if (password.length < 6) {
+      setErrorMessage('Пароль должен содержать не менее 6 символов');
       return;
     }
 
@@ -37,8 +48,14 @@ const Signup = () => {
         first_name: firstName,
         last_name: lastName
       });
-    } catch (error) {
+      toast.success('Регистрация успешна! Проверьте вашу электронную почту для подтверждения.');
+    } catch (error: any) {
       console.error("Signup error:", error);
+      if (error.code === 'over_email_send_rate_limit') {
+        setErrorMessage('Пожалуйста, подождите минуту перед повторной попыткой регистрации');
+      } else {
+        setErrorMessage(error.message || 'Ошибка при регистрации. Пожалуйста, попробуйте позже.');
+      }
     }
   };
 
@@ -61,6 +78,15 @@ const Signup = () => {
           </p>
         </div>
       </div>
+    
+      {errorMessage && (
+        <div className="bg-red-50 p-3 rounded-lg mb-6 border border-red-100">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+            <p className="text-sm text-red-700">{errorMessage}</p>
+          </div>
+        </div>
+      )}
     
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
@@ -94,10 +120,10 @@ const Signup = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            minLength={8}
+            minLength={6}
           />
           <p className="text-xs text-gray-500">
-            Пароль должен содержать не менее 8 символов
+            Пароль должен содержать не менее 6 символов
           </p>
         </div>
         
