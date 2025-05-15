@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { UserProtocolInsert } from '@/types/database';
 
 export interface ProtocolProps {
   title: string;
@@ -60,7 +61,7 @@ const ProtocolCard: React.FC<ProtocolProps> = ({
     }
     
     try {
-      const protocolData = {
+      const protocolData: UserProtocolInsert = {
         user_id: user.id,
         title,
         description,
@@ -70,7 +71,6 @@ const ProtocolCard: React.FC<ProtocolProps> = ({
         benefits,
         warnings: warnings || [],
         category,
-        added_at: new Date().toISOString(),
         status: 'not_started',
         completion_percentage: 0
       };

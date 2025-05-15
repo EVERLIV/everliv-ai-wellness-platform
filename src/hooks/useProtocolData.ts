@@ -1,7 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Protocol } from '@/types/protocols';
+import { UserProtocol } from '@/types/database';
 
 export const useProtocolData = (protocolId?: string) => {
   const { user } = useAuth();
@@ -34,17 +36,30 @@ export const useProtocolData = (protocolId?: string) => {
         }
         
         if (data) {
-          setProtocol(data as Protocol);
+          const userProtocol = data as UserProtocol;
+          setProtocol({
+            id: userProtocol.id,
+            title: userProtocol.title,
+            description: userProtocol.description,
+            duration: userProtocol.duration,
+            category: userProtocol.category,
+            difficulty: userProtocol.difficulty,
+            status: userProtocol.status,
+            benefits: userProtocol.benefits,
+            steps: userProtocol.steps,
+            completion_percentage: userProtocol.completion_percentage,
+            started_at: userProtocol.started_at
+          });
           
           // Calculate current day based on started_at date if available
-          if (data.started_at) {
-            const startDate = new Date(data.started_at);
+          if (userProtocol.started_at) {
+            const startDate = new Date(userProtocol.started_at);
             const today = new Date();
             const diffTime = today.getTime() - startDate.getTime();
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to start from day 1
             
             // Limit to the protocol duration
-            const durationDays = parseInt(data.duration.split(' ')[0]);
+            const durationDays = parseInt(userProtocol.duration.split(' ')[0]);
             setProtocolDay(Math.min(Math.max(diffDays, 1), durationDays));
           }
         }

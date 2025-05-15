@@ -28,3 +28,13 @@ export type ProtocolSupplementUpdate = Database['public']['Tables']['protocol_su
 export type ProtocolEvent = Database['public']['Tables']['protocol_events']['Row'];
 export type ProtocolEventInsert = Database['public']['Tables']['protocol_events']['Insert'];
 export type ProtocolEventUpdate = Database['public']['Tables']['protocol_events']['Update'];
+
+// User Protocol Types
+export type UserProtocol = Database['public']['Tables']['user_protocols']['Row'];
+export type UserProtocolInsert = Database['public']['Tables']['user_protocols']['Insert'];
+export type UserProtocolUpdate = Database['public']['Tables']['user_protocols']['Update'];
+
+// Feature Trial Types
+export type FeatureTrial = Database['public']['Tables']['feature_trials']['Row'];
+export type FeatureTrialInsert = Database['public']['Tables']['feature_trials']['Insert'];
+export type FeatureTrialUpdate = Database['public']['Tables']['feature_trials']['Update'];

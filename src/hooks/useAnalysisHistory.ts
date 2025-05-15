@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { FeatureTrial } from "@/types/database";
 
 export interface AnalysisRecord {
   id: string;
@@ -37,7 +38,7 @@ export const useAnalysisHistory = () => {
       }
       
       // Transform to our expected format
-      const analysisHistory = data.map(record => ({
+      const analysisHistory = (data as FeatureTrial[]).map(record => ({
         id: record.id,
         created_at: record.used_at,
         analysis_type: 'Анализ крови',

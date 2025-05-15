@@ -45,6 +45,30 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_trials: {
+        Row: {
+          data: Json | null
+          feature_name: string
+          id: string
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          data?: Json | null
+          feature_name: string
+          id?: string
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          data?: Json | null
+          feature_name?: string
+          id?: string
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       page_contents: {
         Row: {
           content: Json | null
@@ -109,25 +133,49 @@ export type Database = {
       }
       profiles: {
         Row: {
+          allergies: string[] | null
           created_at: string
+          date_of_birth: string | null
           first_name: string | null
+          gender: string | null
+          goals: string[] | null
+          height: number | null
           id: string
           last_name: string | null
+          medical_conditions: string[] | null
+          medications: string[] | null
           updated_at: string
+          weight: number | null
         }
         Insert: {
+          allergies?: string[] | null
           created_at?: string
+          date_of_birth?: string | null
           first_name?: string | null
+          gender?: string | null
+          goals?: string[] | null
+          height?: number | null
           id: string
           last_name?: string | null
+          medical_conditions?: string[] | null
+          medications?: string[] | null
           updated_at?: string
+          weight?: number | null
         }
         Update: {
+          allergies?: string[] | null
           created_at?: string
+          date_of_birth?: string | null
           first_name?: string | null
+          gender?: string | null
+          goals?: string[] | null
+          height?: number | null
           id?: string
           last_name?: string | null
+          medical_conditions?: string[] | null
+          medications?: string[] | null
           updated_at?: string
+          weight?: number | null
         }
         Relationships: []
       }
@@ -242,12 +290,72 @@ export type Database = {
         }
         Relationships: []
       }
+      user_protocols: {
+        Row: {
+          added_at: string
+          benefits: string[]
+          category: string
+          completed_at: string | null
+          completion_percentage: number
+          description: string
+          difficulty: string
+          duration: string
+          id: string
+          notes: string | null
+          started_at: string | null
+          status: string
+          steps: string[]
+          title: string
+          user_id: string
+          warnings: string[] | null
+        }
+        Insert: {
+          added_at?: string
+          benefits: string[]
+          category: string
+          completed_at?: string | null
+          completion_percentage?: number
+          description: string
+          difficulty: string
+          duration: string
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          status?: string
+          steps: string[]
+          title: string
+          user_id: string
+          warnings?: string[] | null
+        }
+        Update: {
+          added_at?: string
+          benefits?: string[]
+          category?: string
+          completed_at?: string | null
+          completion_percentage?: number
+          description?: string
+          difficulty?: string
+          duration?: string
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          status?: string
+          steps?: string[]
+          title?: string
+          user_id?: string
+          warnings?: string[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

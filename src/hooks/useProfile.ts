@@ -45,7 +45,7 @@ export const useProfile = () => {
         return;
       }
 
-      setProfileData(data);
+      setProfileData(data as ProfileData);
     } catch (error) {
       console.error("Unexpected error fetching profile:", error);
       toast({
