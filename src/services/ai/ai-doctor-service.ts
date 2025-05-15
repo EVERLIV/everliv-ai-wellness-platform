@@ -155,15 +155,15 @@ export function getSuggestedQuestions(profile: any): SuggestedQuestion[] {
   const questions: SuggestedQuestion[] = [
     {
       text: "Как улучшить мой сон?",
-      icon: <span>sleep</span>
+      icon: "sleep"
     },
     {
       text: "Какие добавки мне стоит принимать?",
-      icon: <span>pill</span>
+      icon: "pill"
     },
     {
       text: "Как снизить стресс?",
-      icon: <span>yoga</span>
+      icon: "yoga"
     }
   ];
   
@@ -171,14 +171,14 @@ export function getSuggestedQuestions(profile: any): SuggestedQuestion[] {
   if (profile?.medical_conditions?.includes('гипертония')) {
     questions.push({
       text: "Как мне контролировать артериальное давление?",
-      icon: <span>heart</span>
+      icon: "heart"
     });
   }
   
   if (profile?.medical_conditions?.includes('диабет')) {
     questions.push({
       text: "Какая диета рекомендуется при диабете?",
-      icon: <span>apple</span>
+      icon: "apple"
     });
   }
   

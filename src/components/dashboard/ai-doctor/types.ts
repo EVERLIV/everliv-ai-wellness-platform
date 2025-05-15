@@ -10,5 +10,5 @@ export type Message = {
 
 export type SuggestedQuestion = {
   text: string;
-  icon: ReactNode;
+  icon: string;
 };

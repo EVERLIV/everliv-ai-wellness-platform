@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Activity, Brain, Heart, ThumbsUp, Moon, Pill, HeartPulse, Apple } from "lucide-react";
+import { Activity, Brain, Heart, ThumbsUp, Moon, Pill, HeartPulse, Apple, Yoga } from "lucide-react";
 import { SuggestedQuestion } from "./types";
 
 interface SuggestedQuestionsProps {
@@ -16,7 +16,7 @@ const getIconComponent = (iconName: string) => {
     case "pill":
       return <Pill className="h-4 w-4 text-purple-500" />;
     case "yoga":
-      return <Brain className="h-4 w-4 text-purple-500" />;
+      return <Yoga className="h-4 w-4 text-purple-500" />;
     case "heart":
       return <HeartPulse className="h-4 w-4 text-red-500" />;
     case "apple":
@@ -30,19 +30,19 @@ const SuggestedQuestions: React.FC<SuggestedQuestionsProps> = ({ onSelectQuestio
   const suggestedQuestions: SuggestedQuestion[] = [
     {
       text: "Как улучшить выносливость?",
-      icon: <Activity className="h-4 w-4 text-blue-500" />,
+      icon: "activity",
     },
     {
       text: "Рекомендации для улучшения сна",
-      icon: <Brain className="h-4 w-4 text-purple-500" />,
+      icon: "sleep",
     },
     {
       text: "Какие добавки помогут моему сердцу?",
-      icon: <Heart className="h-4 w-4 text-red-500" />,
+      icon: "heart",
     },
     {
       text: "Как оптимизировать метаболизм?",
-      icon: <ThumbsUp className="h-4 w-4 text-green-500" />,
+      icon: "apple",
     },
   ];
 
@@ -57,7 +57,7 @@ const SuggestedQuestions: React.FC<SuggestedQuestionsProps> = ({ onSelectQuestio
             className="justify-start text-left h-auto py-2"
             onClick={() => onSelectQuestion(question.text)}
           >
-            {question.icon}
+            {getIconComponent(question.icon)}
             <span className="ml-2 truncate">{question.text}</span>
           </Button>
         ))}
