@@ -13,7 +13,7 @@ const AdminBlog = () => {
       <main className="flex-grow container mx-auto px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6">
-            <Link to="/dashboard">
+            <Link to="/admin/dashboard">
               <Button variant="ghost" size="sm" className="gap-1">
                 <ArrowLeft className="w-4 h-4" />
                 Вернуться в панель управления

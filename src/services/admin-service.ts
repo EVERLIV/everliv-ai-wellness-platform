@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
@@ -59,10 +60,19 @@ export const fetchAdminUsers = async (): Promise<AdminUser[]> => {
       
     if (profilesError) throw profilesError;
 
-    // Get user subscriptions
+    // Get user subscriptions - using raw query because type definition is not updated
     const { data: subscriptions, error: subscriptionsError } = await supabase
       .from('subscriptions')
-      .select('*');
+      .select('*') as unknown as { 
+        data: Array<{ 
+          id: string; 
+          user_id: string; 
+          plan_type: string; 
+          status: string; 
+          expires_at: string 
+        }> | null; 
+        error: Error | null 
+      };
       
     if (subscriptionsError) throw subscriptionsError;
 
@@ -123,19 +133,24 @@ export const assignSubscriptionToUser = async (
       throw new Error("У вас нет прав администратора");
     }
     
-    // Check for existing active subscription
-    const { data: activeSubscriptions } = await supabase
+    // Check for existing active subscription - using raw query
+    const { data: activeSubscriptions, error: queryError } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
-      .eq('status', 'active');
+      .eq('status', 'active') as unknown as { 
+        data: Array<{ id: string; user_id: string; status: string }> | null; 
+        error: Error | null 
+      };
+    
+    if (queryError) throw queryError;
     
     // Cancel existing subscription if present
     if (activeSubscriptions && activeSubscriptions.length > 0) {
       const { error: cancelError } = await supabase
         .from('subscriptions')
-        .update({ status: 'canceled' as SubscriptionStatus })
-        .eq('id', activeSubscriptions[0].id);
+        .update({ status: 'canceled' })
+        .eq('id', activeSubscriptions[0].id) as unknown as { error: Error | null };
       
       if (cancelError) throw cancelError;
     }
@@ -152,10 +167,10 @@ export const assignSubscriptionToUser = async (
       .insert({
         user_id: userId,
         plan_type: planType,
-        status: 'active' as SubscriptionStatus,
+        status: 'active',
         started_at: new Date().toISOString(),
         expires_at: expDate.toISOString()
-      });
+      }) as unknown as { error: Error | null };
     
     if (insertError) throw insertError;
     
@@ -181,8 +196,8 @@ export const cancelUserSubscription = async (subscriptionId: string): Promise<bo
     
     const { error } = await supabase
       .from('subscriptions')
-      .update({ status: 'canceled' as SubscriptionStatus })
-      .eq('id', subscriptionId);
+      .update({ status: 'canceled' })
+      .eq('id', subscriptionId) as unknown as { error: Error | null };
     
     if (error) throw error;
     
@@ -241,7 +256,10 @@ export const fetchSubscriptionPlans = async (): Promise<AdminSubscriptionPlan[]>
     const { data, error } = await supabase
       .from('subscription_plans')
       .select('*')
-      .order('price');
+      .order('price') as unknown as { 
+        data: Array<AdminSubscriptionPlan & { features: Json }> | null; 
+        error: Error | null 
+      };
 
     if (error) throw error;
     
@@ -269,16 +287,19 @@ export const createSubscriptionPlan = async (plan: Omit<AdminSubscriptionPlan, '
       .from('subscription_plans')
       .insert(planToInsert)
       .select()
-      .single();
+      .single() as unknown as { 
+        data: AdminSubscriptionPlan & { features: Json } | null; 
+        error: Error | null 
+      };
 
     if (error) throw error;
     toast.success("Тарифный план создан");
     
     // Convert result back to AdminSubscriptionPlan format
-    return {
+    return data ? {
       ...data,
       features: convertJsonToFeatures(data.features)
-    };
+    } : null;
   } catch (error) {
     console.error("Error creating subscription plan:", error);
     toast.error("Ошибка при создании тарифного плана");
@@ -298,7 +319,7 @@ export const updateSubscriptionPlan = async (id: string, plan: Partial<AdminSubs
     const { error } = await supabase
       .from('subscription_plans')
       .update(planToUpdate)
-      .eq('id', id);
+      .eq('id', id) as unknown as { error: Error | null };
 
     if (error) throw error;
     toast.success("Тарифный план обновлен");
@@ -315,7 +336,7 @@ export const deleteSubscriptionPlan = async (id: string): Promise<boolean> => {
     const { error } = await supabase
       .from('subscription_plans')
       .delete()
-      .eq('id', id);
+      .eq('id', id) as unknown as { error: Error | null };
 
     if (error) throw error;
     toast.success("Тарифный план удален");
