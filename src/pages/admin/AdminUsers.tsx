@@ -5,10 +5,18 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowLeft, Edit, UserPlus, Mail } from "lucide-react";
+import { Search, ArrowLeft, Edit, UserPlus, Mail, CreditCard, X, Calendar } from "lucide-react";
 import { useAdminApi } from "@/hooks/useAdminApi";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { AdminUser, fetchAdminUsers, updateUserProfile } from "@/services/admin-service";
+import { 
+  AdminUser, 
+  fetchAdminUsers, 
+  updateUserProfile, 
+  assignSubscriptionToUser,
+  cancelUserSubscription,
+  fetchSubscriptionPlans,
+  SubscriptionPlan
+} from "@/services/admin-service";
 import { toast } from "sonner";
 import { 
   Dialog, 
@@ -19,6 +27,14 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { format } from "date-fns";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -34,9 +50,17 @@ const AdminUsers = () => {
   });
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
+  
+  // Новые состояния для управления подписками
+  const [subscriptionDialogOpen, setSubscriptionDialogOpen] = useState(false);
+  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
+  const [selectedPlanType, setSelectedPlanType] = useState<string>("");
+  const [subscriptionExpiryDate, setSubscriptionExpiryDate] = useState<string>("");
+  const [processingSubscription, setProcessingSubscription] = useState(false);
 
   useEffect(() => {
     loadUsers();
+    loadSubscriptionPlans();
   }, []);
 
   useEffect(() => {
@@ -64,6 +88,16 @@ const AdminUsers = () => {
       toast.error("Не удалось загрузить пользователей");
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  const loadSubscriptionPlans = async () => {
+    try {
+      const plans = await fetchSubscriptionPlans();
+      setSubscriptionPlans(plans);
+    } catch (error) {
+      console.error("Error loading subscription plans:", error);
+      toast.error("Не удалось загрузить тарифные планы");
     }
   };
 
@@ -95,6 +129,71 @@ const AdminUsers = () => {
     toast.success(`Приглашение отправлено на ${inviteEmail}`);
     setInviteEmail("");
     setInviteDialogOpen(false);
+  };
+  
+  // Новые функции для управления подписками
+  const handleManageSubscription = (user: AdminUser) => {
+    setCurrentUser(user);
+    
+    // Если у пользователя уже есть подписка, устанавливаем ее как выбранную
+    if (user.subscription_type) {
+      setSelectedPlanType(user.subscription_type);
+    } else if (subscriptionPlans.length > 0) {
+      // Иначе выбираем первый план из списка
+      setSelectedPlanType(subscriptionPlans[0].type);
+    }
+    
+    // Если есть дата окончания, устанавливаем ее
+    if (user.subscription_expires_at) {
+      setSubscriptionExpiryDate(user.subscription_expires_at);
+    } else {
+      // Иначе устанавливаем дату через месяц
+      const nextMonth = new Date();
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      setSubscriptionExpiryDate(nextMonth.toISOString().split('T')[0]);
+    }
+    
+    setSubscriptionDialogOpen(true);
+  };
+  
+  const handleAssignSubscription = async () => {
+    if (!currentUser) return;
+    
+    setProcessingSubscription(true);
+    try {
+      const success = await assignSubscriptionToUser(
+        currentUser.id, 
+        selectedPlanType as any, 
+        new Date(subscriptionExpiryDate).toISOString()
+      );
+      
+      if (success) {
+        // Обновляем список пользователей
+        await loadUsers();
+        setSubscriptionDialogOpen(false);
+      }
+    } finally {
+      setProcessingSubscription(false);
+    }
+  };
+  
+  const handleCancelSubscription = async (userId: string, subscriptionId?: string) => {
+    if (!subscriptionId) {
+      toast.error("Идентификатор подписки не найден");
+      return;
+    }
+    
+    if (window.confirm("Вы уверены, что хотите отменить подписку пользователя?")) {
+      try {
+        const success = await cancelUserSubscription(subscriptionId);
+        if (success) {
+          // Обновляем список пользователей
+          await loadUsers();
+        }
+      } catch (error) {
+        console.error("Error canceling subscription:", error);
+      }
+    }
   };
 
   if (isAdminLoading) {
@@ -189,7 +288,10 @@ const AdminUsers = () => {
                         Дата регистрации
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Статус подписки
+                        Подписка
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Срок действия
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Действия
@@ -199,7 +301,7 @@ const AdminUsers = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                        <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
                           {searchQuery ? "Пользователи не найдены" : "Нет данных о пользователях"}
                         </td>
                       </tr>
@@ -259,11 +361,38 @@ const AdminUsers = () => {
                               </span>
                             )}
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {user.subscription_expires_at 
+                              ? format(new Date(user.subscription_expires_at), "dd.MM.yyyy")
+                              : "-"}
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <Button variant="ghost" size="sm" onClick={() => handleEditUser(user)}>
-                              <Edit className="h-4 w-4 mr-1" />
-                              Редактировать
-                            </Button>
+                            <div className="flex space-x-2">
+                              <Button variant="ghost" size="sm" onClick={() => handleEditUser(user)}>
+                                <Edit className="h-4 w-4 mr-1" />
+                                Профиль
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleManageSubscription(user)}
+                                className="flex items-center"
+                              >
+                                <CreditCard className="h-4 w-4 mr-1" />
+                                Подписка
+                              </Button>
+                              {user.subscription_status === 'active' && user.subscription_id && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => handleCancelSubscription(user.id, user.subscription_id)}
+                                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <X className="h-4 w-4 mr-1" />
+                                  Отменить
+                                </Button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -348,6 +477,82 @@ const AdminUsers = () => {
             >
               <Mail className="w-4 h-4 mr-2" />
               Отправить приглашение
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Новый диалог управления подпиской пользователя */}
+      <Dialog open={subscriptionDialogOpen} onOpenChange={setSubscriptionDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Управление подпиской</DialogTitle>
+          </DialogHeader>
+          {currentUser && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Пользователь</Label>
+                <p className="text-sm font-medium">
+                  {currentUser.first_name && currentUser.last_name 
+                    ? `${currentUser.first_name} ${currentUser.last_name}` 
+                    : currentUser.email}
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="planType">Тарифный план</Label>
+                <Select value={selectedPlanType} onValueChange={setSelectedPlanType}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Выберите тарифный план" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="basic">Базовый</SelectItem>
+                    <SelectItem value="standard">Стандарт</SelectItem>
+                    <SelectItem value="premium">Премиум</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="expiryDate">Дата окончания</Label>
+                <div className="flex items-center gap-2">
+                  <Input 
+                    id="expiryDate" 
+                    type="date" 
+                    value={subscriptionExpiryDate}
+                    onChange={(e) => setSubscriptionExpiryDate(e.target.value)}
+                  />
+                  <Button 
+                    variant="outline" 
+                    size="icon"
+                    onClick={() => {
+                      const nextMonth = new Date();
+                      nextMonth.setMonth(nextMonth.getMonth() + 1);
+                      setSubscriptionExpiryDate(nextMonth.toISOString().split('T')[0]);
+                    }}
+                    title="1 месяц от текущей даты"
+                  >
+                    <Calendar className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              
+              {currentUser.subscription_status === 'active' && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 text-sm text-yellow-800">
+                  У пользователя уже есть активная подписка ({currentUser.subscription_type}).
+                  При назначении новой подписки, текущая будет автоматически отменена.
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSubscriptionDialogOpen(false)}>Отмена</Button>
+            <Button 
+              onClick={handleAssignSubscription}
+              disabled={processingSubscription || !selectedPlanType || !subscriptionExpiryDate}
+            >
+              <CreditCard className="w-4 h-4 mr-2" />
+              {processingSubscription ? "Обработка..." : "Назначить подписку"}
             </Button>
           </DialogFooter>
         </DialogContent>

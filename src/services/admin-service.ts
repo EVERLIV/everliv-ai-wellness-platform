@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
+import { SubscriptionPlan, SubscriptionStatus } from "@/types/subscription";
 
 // Типы для пользователей
 export interface AdminUser {
@@ -12,6 +13,8 @@ export interface AdminUser {
   created_at: string;
   subscription_status?: string;
   subscription_type?: string;
+  subscription_id?: string;
+  subscription_expires_at?: string;
 }
 
 // Типы для тарифов
@@ -67,7 +70,7 @@ export const fetchAdminUsers = async (): Promise<AdminUser[]> => {
     // Объединяем данные
     return users.users.map(user => {
       const profile = profiles.find(p => p.id === user.id);
-      const subscription = subscriptions?.find(s => s.user_id === user.id);
+      const subscription = subscriptions?.find(s => s.user_id === user.id && s.status === 'active');
       
       return {
         id: user.id,
@@ -76,7 +79,9 @@ export const fetchAdminUsers = async (): Promise<AdminUser[]> => {
         last_name: profile?.last_name || null,
         created_at: user.created_at,
         subscription_status: subscription?.status,
-        subscription_type: subscription?.plan_type
+        subscription_type: subscription?.plan_type,
+        subscription_id: subscription?.id,
+        subscription_expires_at: subscription?.expires_at
       };
     });
   } catch (error) {
@@ -103,7 +108,94 @@ export const updateUserProfile = async (userId: string, data: { first_name?: str
   }
 };
 
-// Функции для работы с тарифами
+// Новые функции для управления подписками
+
+export const assignSubscriptionToUser = async (
+  userId: string, 
+  planType: SubscriptionPlan, 
+  expiresAt?: string
+): Promise<boolean> => {
+  try {
+    // Проверяем, является ли текущий пользователь администратором
+    const { data: isAdmin, error: adminCheckError } = await supabase.rpc('is_admin', {
+      user_uuid: (await supabase.auth.getUser()).data.user?.id
+    });
+
+    if (adminCheckError || !isAdmin) {
+      throw new Error("У вас нет прав администратора");
+    }
+    
+    // Проверяем, есть ли уже активная подписка у пользователя
+    const { data: activeSubscriptions } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('status', 'active');
+    
+    // Если есть активная подписка, отменяем ее
+    if (activeSubscriptions && activeSubscriptions.length > 0) {
+      const { error: cancelError } = await supabase
+        .from('subscriptions')
+        .update({ status: 'canceled' as SubscriptionStatus })
+        .eq('id', activeSubscriptions[0].id);
+      
+      if (cancelError) throw cancelError;
+    }
+    
+    // Определяем срок действия подписки (месяц от текущей даты, если не указано)
+    const expDate = expiresAt ? new Date(expiresAt) : new Date();
+    if (!expiresAt) {
+      expDate.setMonth(expDate.getMonth() + 1);
+    }
+    
+    // Добавляем новую подписку
+    const { error: insertError } = await supabase
+      .from('subscriptions')
+      .insert({
+        user_id: userId,
+        plan_type: planType,
+        status: 'active' as SubscriptionStatus,
+        started_at: new Date().toISOString(),
+        expires_at: expDate.toISOString()
+      });
+    
+    if (insertError) throw insertError;
+    
+    toast.success(`Подписка ${planType} успешно назначена пользователю`);
+    return true;
+  } catch (error) {
+    console.error("Error assigning subscription:", error);
+    toast.error("Ошибка при назначении подписки");
+    return false;
+  }
+};
+
+export const cancelUserSubscription = async (subscriptionId: string): Promise<boolean> => {
+  try {
+    // Проверяем, является ли текущий пользователь администратором
+    const { data: isAdmin, error: adminCheckError } = await supabase.rpc('is_admin', {
+      user_uuid: (await supabase.auth.getUser()).data.user?.id
+    });
+
+    if (adminCheckError || !isAdmin) {
+      throw new Error("У вас нет прав администратора");
+    }
+    
+    const { error } = await supabase
+      .from('subscriptions')
+      .update({ status: 'canceled' as SubscriptionStatus })
+      .eq('id', subscriptionId);
+    
+    if (error) throw error;
+    
+    toast.success("Подписка пользователя отменена");
+    return true;
+  } catch (error) {
+    console.error("Error canceling subscription:", error);
+    toast.error("Ошибка при отмене подписки");
+    return false;
+  }
+};
 
 // Вспомогательная функция для преобразования Json в PlanFeatureDetail[]
 const convertJsonToFeatures = (features: Json): PlanFeatureDetail[] => {
