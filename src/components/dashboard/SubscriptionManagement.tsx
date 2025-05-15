@@ -4,7 +4,7 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { PLAN_FEATURES } from "@/constants/subscription-features";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, AlertCircle, Clock, CreditCard, ChevronRight, Shield } from "lucide-react";
+import { CheckCircle, AlertCircle, Clock, CreditCard, ChevronRight, Shield, ArrowRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";

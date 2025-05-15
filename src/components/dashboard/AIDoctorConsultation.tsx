@@ -6,6 +6,7 @@ import { useAIDoctorChat } from "./ai-doctor/useAIDoctorChat";
 import SuggestedQuestions from "./ai-doctor/SuggestedQuestions";
 import ChatMessages from "./ai-doctor/ChatMessages";
 import ChatInput from "./ai-doctor/ChatInput";
+import { getSuggestedQuestions } from "@/services/ai/ai-doctor-service";
 
 const AIDoctorConsultation: React.FC = () => {
   const { messages, inputText, isProcessing, setInputText, sendMessage } = useAIDoctorChat();
@@ -23,6 +24,9 @@ const AIDoctorConsultation: React.FC = () => {
     e.preventDefault();
     sendMessage(inputText);
   };
+
+  // Get suggested questions - we can pass an empty profile as the default questions don't depend on profile
+  const suggestedQuestions = getSuggestedQuestions({});
 
   return (
     <Card className="h-full flex flex-col">
@@ -42,7 +46,10 @@ const AIDoctorConsultation: React.FC = () => {
       </CardContent>
 
       {messages.length === 1 && (
-        <SuggestedQuestions onSelectQuestion={sendMessage} />
+        <SuggestedQuestions 
+          onSelectQuestion={sendMessage}
+          questions={suggestedQuestions}
+        />
       )}
 
       <CardFooter className="pt-2 border-t">
