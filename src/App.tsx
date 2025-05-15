@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './pages/HomePage';
@@ -42,10 +43,7 @@ function App() {
             <Route path="/services/ai-recommendations" element={<AiRecommendationsPage />} />
             <Route path="/services/personalized-supplements" element={<PersonalizedSupplements />} />
             <Route path="/services/partner-clinics" element={<PartnerClinicsPage />} />
-            {
-              path: "/services/blood-analysis",
-              element: <BloodAnalysisServicePage />,
-            },
+            <Route path="/services/blood-analysis" element={<BloodAnalysisServicePage />} />
           </Routes>
         </Router>
       </SubscriptionProvider>
