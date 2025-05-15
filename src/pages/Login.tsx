@@ -26,6 +26,7 @@ const Login = () => {
     try {
       await signIn(email, password);
       // Navigation will be handled by auth context
+      console.log('Login successful, navigation handled by AuthContext');
     } catch (error: any) {
       console.error("Login error:", error);
       

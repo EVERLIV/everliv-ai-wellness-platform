@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
 type AuthContextType = {
@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -36,13 +37,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Defer additional data fetching
           setTimeout(() => {
             toast.success('Успешный вход в систему');
-            navigate('/welcome');
+            if (location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/') {
+              // Only navigate if on auth pages or home page
+              navigate('/welcome');
+            }
           }, 0);
         } else if (event === 'SIGNED_OUT') {
           setTimeout(() => {
             toast.info('Вы вышли из системы');
             navigate('/');
           }, 0);
+        } else if (event === 'INITIAL_SESSION') {
+          // Don't redirect if we already have a session and user is browsing
+          setIsLoading(false);
         }
       }
     );
@@ -54,22 +61,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(false);
       
       if (session) {
-        // If there's an active session, navigate to the dashboard
-        navigate('/dashboard');
+        // If there's an active session on initial load and user is on auth pages, navigate to dashboard
+        if (location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/') {
+          navigate('/dashboard');
+        }
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      
       if (error) throw error;
-      // Navigation will be handled by the auth state change listener
+      
+      // Check if this is first login ever for this user
+      const isFirstLogin = !data.session?.user?.last_sign_in_at;
+      
+      if (isFirstLogin) {
+        // Will be handled by onAuthStateChange to navigate to welcome
+        console.log('First login detected, will redirect to welcome');
+      } else {
+        // Will be handled by onAuthStateChange to navigate to dashboard
+        console.log('Returning user detected, will redirect to dashboard');
+      }
     } catch (error: any) {
       console.error('Sign in error:', error);
       toast.error(error.message || 'Ошибка входа');
