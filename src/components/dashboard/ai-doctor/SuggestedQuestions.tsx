@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Activity, Brain, Heart, ThumbsUp, Moon, Pill, HeartPulse, Apple, Yoga } from "lucide-react";
+import { Activity, Brain, Heart, ThumbsUp, Moon, Pill, HeartPulse, Apple } from "lucide-react";
 import { SuggestedQuestion } from "./types";
 
 interface SuggestedQuestionsProps {
@@ -16,7 +16,7 @@ const getIconComponent = (iconName: string) => {
     case "pill":
       return <Pill className="h-4 w-4 text-purple-500" />;
     case "yoga":
-      return <Yoga className="h-4 w-4 text-purple-500" />;
+      return <Brain className="h-4 w-4 text-purple-500" />; // Changed from Yoga to Brain icon
     case "heart":
       return <HeartPulse className="h-4 w-4 text-red-500" />;
     case "apple":
