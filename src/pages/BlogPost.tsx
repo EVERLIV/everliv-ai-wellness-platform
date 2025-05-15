@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
@@ -6,16 +5,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, Tag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
-interface BlogPost {
-  id: string;
-  title: string;
-  content: string;
-  category: string;
-  thumbnail: string;
-  created_at: string;
-  author_id: string;
-}
+import { BlogPost } from "@/types/database";
 
 const BlogPostPage = () => {
   const { id } = useParams<{ id: string }>();

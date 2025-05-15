@@ -5,18 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle, Pencil, Trash2, Search, FileText } from "lucide-react";
 import BlogPostEditor from './BlogPostEditor';
-
-interface BlogPost {
-  id: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  category: string;
-  thumbnail: string;
-  created_at: string;
-  updated_at: string;
-  author_id: string;
-}
+import { BlogPost } from "@/types/database";
 
 const BlogManagement = () => {
   const { toast } = useToast();

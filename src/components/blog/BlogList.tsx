@@ -4,16 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination";
-
-interface BlogPost {
-  id: string;
-  title: string;
-  excerpt: string;
-  category: string;
-  thumbnail: string;
-  created_at: string;
-  author_id: string;
-}
+import { BlogPost } from "@/types/database";
 
 interface BlogListProps {
   category?: string;

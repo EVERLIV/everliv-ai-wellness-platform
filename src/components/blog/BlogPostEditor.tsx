@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,18 +8,7 @@ import { ArrowLeft, Upload, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from 'uuid';
-
-interface BlogPost {
-  id: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  category: string;
-  thumbnail: string;
-  created_at: string;
-  updated_at: string;
-  author_id: string;
-}
+import { BlogPost, BlogPostInsert } from "@/types/database";
 
 interface BlogPostEditorProps {
   existingPost?: BlogPost;
@@ -121,7 +109,7 @@ const BlogPostEditor = ({ existingPost, onBack }: BlogPostEditorProps) => {
         throw new Error("Пользователь не авторизован");
       }
       
-      const postData = {
+      const postData: BlogPostInsert = {
         title,
         content,
         excerpt,

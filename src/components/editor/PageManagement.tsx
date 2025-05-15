@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -8,17 +7,7 @@ import { Pencil, Trash2, Plus, ExternalLink, Eye, Copy } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
-// Define types for our pages
-interface Page {
-  id: string;
-  title: string;
-  slug: string;
-  description: string | null;
-  created_at: string;
-  updated_at: string;
-  published: boolean;
-}
+import { Page, PageInsert } from "@/types/database";
 
 const PageManagement = () => {
   const [pages, setPages] = useState<Page[]>([]);
@@ -38,16 +27,14 @@ const PageManagement = () => {
     try {
       setLoading(true);
       
-      // Use the "any" type temporarily until Supabase types are updated
       const { data, error } = await supabase
-        .from('pages' as any)
+        .from('pages')
         .select('*')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       
-      // Cast the data to our Page type
-      setPages(data as unknown as Page[] || []);
+      setPages(data as Page[] || []);
     } catch (error: any) {
       console.error('Error fetching pages:', error);
       toast({
@@ -92,7 +79,7 @@ const PageManagement = () => {
     e.preventDefault();
     
     try {
-      const pageData = {
+      const pageData: Partial<Page> = {
         title,
         slug,
         description,
@@ -100,9 +87,8 @@ const PageManagement = () => {
       };
 
       if (editingPage) {
-        // Use the "any" type temporarily until Supabase types are updated
         const { error } = await supabase
-          .from('pages' as any)
+          .from('pages')
           .update(pageData)
           .eq('id', editingPage.id);
           
@@ -113,14 +99,15 @@ const PageManagement = () => {
           description: "The page has been successfully updated"
         });
       } else {
-        // Use the "any" type temporarily until Supabase types are updated
+        const newPageData: PageInsert = {
+          ...pageData as any,
+          created_at: new Date().toISOString(),
+          published: false
+        };
+        
         const { error } = await supabase
-          .from('pages' as any)
-          .insert([{
-            ...pageData,
-            created_at: new Date().toISOString(),
-            published: false
-          }]);
+          .from('pages')
+          .insert([newPageData]);
           
         if (error) throw error;
         
@@ -146,9 +133,8 @@ const PageManagement = () => {
     if (!confirm("Are you sure you want to delete this page?")) return;
     
     try {
-      // Use the "any" type temporarily until Supabase types are updated
       const { error } = await supabase
-        .from('pages' as any)
+        .from('pages')
         .delete()
         .eq('id', pageId);
       
@@ -172,9 +158,8 @@ const PageManagement = () => {
 
   const handleTogglePublish = async (page: Page) => {
     try {
-      // Use the "any" type temporarily until Supabase types are updated
       const { error } = await supabase
-        .from('pages' as any)
+        .from('pages')
         .update({ 
           published: !page.published,
           updated_at: new Date().toISOString()
@@ -199,31 +184,24 @@ const PageManagement = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
   const handleDuplicatePage = async (page: Page) => {
     try {
       // Create a new title with "(Copy)" suffix
       const newTitle = `${page.title} (Copy)`;
       const newSlug = `${page.slug}-copy`;
       
-      // Use the "any" type temporarily until Supabase types are updated
+      const newPage: PageInsert = {
+        title: newTitle,
+        slug: newSlug,
+        description: page.description,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        published: false
+      };
+      
       const { error } = await supabase
-        .from('pages' as any)
-        .insert([{
-          title: newTitle,
-          slug: newSlug,
-          description: page.description,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          published: false
-        }]);
+        .from('pages')
+        .insert([newPage]);
         
       if (error) throw error;
       
@@ -241,6 +219,14 @@ const PageManagement = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   return (
