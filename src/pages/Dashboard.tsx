@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,6 +12,25 @@ import SubscriptionPathways from "@/components/pricing/SubscriptionPathways";
 const Dashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    // Set loaded state after component mounts to prevent hydration issues
+    setIsLoaded(true);
+  }, []);
+
+  // Only proceed with rendering when we have user data and component is loaded
+  if (!isLoaded || !user) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Header />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-evergreen-500"></div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   // Mock patient data for demonstration
   const patientData = {

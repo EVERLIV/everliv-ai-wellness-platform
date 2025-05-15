@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,29 +20,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
+    console.log('Auth provider mounted, checking session...');
+    let mounted = true;
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event);
+        
+        if (!mounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         // Handle auth events
         if (event === 'SIGNED_IN') {
+          setIsLoading(false);
           // Defer additional data fetching
           setTimeout(() => {
+            if (!mounted) return;
             toast.success('Успешный вход в систему');
+            
+            // Only navigate if on auth pages or home page
             if (location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/') {
-              // Only navigate if on auth pages or home page
-              navigate('/welcome');
+              // Check if this is first login ever for this user
+              const isFirstLogin = !session?.user?.last_sign_in_at;
+              if (isFirstLogin) {
+                navigate('/welcome');
+              } else {
+                navigate('/dashboard');
+              }
             }
           }, 0);
         } else if (event === 'SIGNED_OUT') {
+          setIsLoading(false);
           setTimeout(() => {
+            if (!mounted) return;
             toast.info('Вы вышли из системы');
             navigate('/');
           }, 0);
@@ -56,22 +73,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      
+      console.log('Initial session check:', session ? 'Session found' : 'No session');
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
+      setIsInitialized(true);
       
-      if (session) {
-        // If there's an active session on initial load and user is on auth pages, navigate to dashboard
-        if (location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/') {
-          navigate('/dashboard');
-        }
+      // Only navigate on initial load if coming from auth pages
+      if (session && !isInitialized && (location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/')) {
+        navigate('/dashboard');
       }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate, location.pathname]);
+  }, [navigate, location.pathname, isInitialized]);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -80,22 +100,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) throw error;
       
-      // Check if this is first login ever for this user
-      const isFirstLogin = !data.session?.user?.last_sign_in_at;
-      
-      if (isFirstLogin) {
-        // Will be handled by onAuthStateChange to navigate to welcome
-        console.log('First login detected, will redirect to welcome');
-      } else {
-        // Will be handled by onAuthStateChange to navigate to dashboard
-        console.log('Returning user detected, will redirect to dashboard');
-      }
+      // Auth state change will handle the navigation
+      console.log('Login successful, navigation will be handled by auth state change');
     } catch (error: any) {
       console.error('Sign in error:', error);
       toast.error(error.message || 'Ошибка входа');
-      throw error;
-    } finally {
       setIsLoading(false);
+      throw error;
     }
   };
 
