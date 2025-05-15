@@ -1,20 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-
-export type Protocol = {
-  id: string;
-  title: string;
-  description: string;
-  duration: string;
-  category: string;
-  difficulty: string;
-  status: string;
-  benefits: string[];
-  steps: string[];
-  completion_percentage: number;
-  started_at: string | null;
-};
+import { Protocol } from '@/types/protocols';
 
 export const useProtocolData = (protocolId?: string) => {
   const { user } = useAuth();
@@ -47,7 +34,7 @@ export const useProtocolData = (protocolId?: string) => {
         }
         
         if (data) {
-          setProtocol(data);
+          setProtocol(data as Protocol);
           
           // Calculate current day based on started_at date if available
           if (data.started_at) {

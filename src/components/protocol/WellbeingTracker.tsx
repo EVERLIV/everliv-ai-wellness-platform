@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useProtocolData } from '@/hooks/useProtocolData';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ProtocolWellbeing } from '@/types/database';
 
 export const WellbeingTracker = () => {
   const { id } = useParams();
@@ -34,8 +35,8 @@ export const WellbeingTracker = () => {
         }
         
         if (data) {
-          setEnergyLevel(data.energy_level);
-          setNotes(data.notes || '');
+          setEnergyLevel((data as ProtocolWellbeing).energy_level);
+          setNotes((data as ProtocolWellbeing).notes || '');
         } else {
           // Reset to defaults if no data found
           setEnergyLevel(5);

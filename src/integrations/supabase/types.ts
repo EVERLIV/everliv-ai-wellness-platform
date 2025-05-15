@@ -131,6 +131,117 @@ export type Database = {
         }
         Relationships: []
       }
+      protocol_events: {
+        Row: {
+          completed: boolean
+          created_at: string
+          description: string | null
+          event_date: string
+          event_type: string
+          id: string
+          protocol_id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          description?: string | null
+          event_date: string
+          event_type: string
+          id?: string
+          protocol_id: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          protocol_id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      protocol_supplements: {
+        Row: {
+          created_at: string
+          day: number
+          dosage: string | null
+          id: string
+          protocol_id: string
+          supplement_name: string
+          taken: boolean
+          taken_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day: number
+          dosage?: string | null
+          id?: string
+          protocol_id: string
+          supplement_name: string
+          taken?: boolean
+          taken_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: number
+          dosage?: string | null
+          id?: string
+          protocol_id?: string
+          supplement_name?: string
+          taken?: boolean
+          taken_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      protocol_wellbeing: {
+        Row: {
+          created_at: string
+          day: number
+          energy_level: number
+          id: string
+          notes: string | null
+          protocol_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day: number
+          energy_level: number
+          id?: string
+          notes?: string | null
+          protocol_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day?: number
+          energy_level?: number
+          id?: string
+          notes?: string | null
+          protocol_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

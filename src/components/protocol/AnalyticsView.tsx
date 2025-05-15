@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { ProtocolChart } from '@/components/protocol/ProtocolChart';
 import { useProtocolData } from '@/hooks/useProtocolData';
 import { supabase } from '@/integrations/supabase/client';
+import { ProtocolWellbeing, ProtocolSupplement } from '@/types/database';
 
 type ChartDataPoint = {
   day: number;
@@ -48,7 +49,7 @@ export const AnalyticsView = () => {
         const dataMap = new Map<number, ChartDataPoint>();
         
         // Process wellbeing data
-        wellbeingData.forEach(record => {
+        (wellbeingData as ProtocolWellbeing[]).forEach(record => {
           const date = new Date();
           date.setDate(date.getDate() - (wellbeingData.length - record.day));
           
@@ -63,7 +64,7 @@ export const AnalyticsView = () => {
         // Process supplements data and calculate completion percentage
         const supplementsByDay = new Map<number, { total: number, taken: number }>();
         
-        supplementsData.forEach(record => {
+        (supplementsData as ProtocolSupplement[]).forEach(record => {
           if (!supplementsByDay.has(record.day)) {
             supplementsByDay.set(record.day, { total: 0, taken: 0 });
           }

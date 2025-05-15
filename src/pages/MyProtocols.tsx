@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +22,7 @@ import {
   Calendar,
   ExternalLink
 } from 'lucide-react';
+import { UserProtocol } from '@/types/protocols';
 
 // Иконки для категорий протоколов
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -47,25 +47,6 @@ const protocolStatuses: Record<string, { text: string, color: string, icon: Reac
   paused: { text: "Приостановлен", color: "bg-yellow-200", icon: <Pause className="h-4 w-4 text-yellow-500" /> },
   completed: { text: "Завершен", color: "bg-green-200", icon: <Check className="h-4 w-4 text-green-500" /> }
 };
-
-interface UserProtocol {
-  id: string;
-  user_id: string;
-  title: string;
-  description: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  duration: string;
-  steps: string[];
-  benefits: string[];
-  warnings: string[];
-  category: string;
-  added_at: string;
-  status: 'not_started' | 'in_progress' | 'paused' | 'completed';
-  completion_percentage: number;
-  started_at?: string | null;
-  completed_at?: string | null;
-  notes?: string | null;
-}
 
 const MyProtocols = () => {
   const [protocols, setProtocols] = useState<UserProtocol[]>([]);

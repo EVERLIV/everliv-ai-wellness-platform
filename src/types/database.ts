@@ -15,3 +15,16 @@ export type PageUpdate = Database['public']['Tables']['pages']['Update'];
 export type PageContent = Database['public']['Tables']['page_contents']['Row'];
 export type PageContentInsert = Database['public']['Tables']['page_contents']['Insert'];
 export type PageContentUpdate = Database['public']['Tables']['page_contents']['Update'];
+
+// Protocol Types
+export type ProtocolWellbeing = Database['public']['Tables']['protocol_wellbeing']['Row'];
+export type ProtocolWellbeingInsert = Database['public']['Tables']['protocol_wellbeing']['Insert'];
+export type ProtocolWellbeingUpdate = Database['public']['Tables']['protocol_wellbeing']['Update'];
+
+export type ProtocolSupplement = Database['public']['Tables']['protocol_supplements']['Row'];
+export type ProtocolSupplementInsert = Database['public']['Tables']['protocol_supplements']['Insert'];
+export type ProtocolSupplementUpdate = Database['public']['Tables']['protocol_supplements']['Update'];
+
+export type ProtocolEvent = Database['public']['Tables']['protocol_events']['Row'];
+export type ProtocolEventInsert = Database['public']['Tables']['protocol_events']['Insert'];
+export type ProtocolEventUpdate = Database['public']['Tables']['protocol_events']['Update'];

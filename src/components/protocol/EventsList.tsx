@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
+import { ProtocolEvent } from '@/types/database';
 
 type Event = {
   id: string;
@@ -54,7 +55,7 @@ export const EventsList = () => {
         
         if (error) throw error;
         
-        setEvents(data || []);
+        setEvents(data as Event[] || []);
       } catch (error) {
         console.error('Error fetching events:', error);
       } finally {
@@ -89,7 +90,7 @@ export const EventsList = () => {
       
       if (error) throw error;
       
-      setEvents(prev => [...prev, data]);
+      setEvents(prev => [...prev, data as Event]);
       setIsDialogOpen(false);
       setNewEvent({
         title: '',
