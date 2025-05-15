@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -14,7 +13,7 @@ import { toast } from "sonner";
 
 const SubscriptionManagement = () => {
   const navigate = useNavigate();
-  const { subscription, isLoading, cancelSubscription } = useSubscription();
+  const { subscription, isLoading, cancelSubscription, isTrialActive, trialTimeRemaining } = useSubscription();
   const [isProcessing, setIsProcessing] = useState(false);
 
   if (isLoading) {
@@ -88,6 +87,7 @@ const SubscriptionManagement = () => {
     setIsProcessing(true);
     try {
       await cancelSubscription();
+      toast.success("Подписка успешно отменена. Вы сможете пользоваться услугами до конца оплаченного периода.");
     } finally {
       setIsProcessing(false);
     }
@@ -95,6 +95,37 @@ const SubscriptionManagement = () => {
 
   return (
     <div className="space-y-6">
+      {/* Trial status indicator */}
+      {isTrialActive && !subscription && (
+        <Card className="border-everliv-600 mb-8">
+          <CardHeader className="pb-3 bg-everliv-50">
+            <div className="flex justify-between items-center">
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-everliv-600" />
+                Пробный период
+              </CardTitle>
+              <Badge variant="outline" className="bg-everliv-600/10 text-everliv-700 border-everliv-300">
+                Активен
+              </Badge>
+            </div>
+            <CardDescription>
+              У вас есть полный доступ ко всем функциям платформы
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">Осталось времени:</p>
+                <p className="text-xl font-bold">{trialTimeRemaining}</p>
+              </div>
+              <Button onClick={() => navigate('/pricing')}>
+                Выбрать тарифный план
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
       <h2 className="text-2xl font-bold">Управление подпиской</h2>
       
       {subscription ? (
@@ -387,15 +418,26 @@ const SubscriptionManagement = () => {
         </div>
       )}
       
-      <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-        <div className="flex items-start gap-3">
-          <Clock className="h-5 w-5 text-everliv-600 mt-1 flex-shrink-0" />
+      {/* Trial information section with improved visibility */}
+      <div className="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="flex items-start gap-4">
+          <div className="bg-everliv-100 p-2 rounded-full">
+            <Clock className="h-6 w-6 text-everliv-600" />
+          </div>
           <div>
-            <h3 className="font-medium">Пробный доступ к функциям</h3>
-            <p className="text-sm text-gray-600 mt-1">
+            <h3 className="font-medium text-lg mb-1">Пробный доступ к функциям</h3>
+            <p className="text-gray-600 mb-4">
               Без активной подписки вы можете попробовать каждую функцию нашего сервиса один раз.
               После использования пробной версии, для продолжения работы с функцией потребуется подписка.
             </p>
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-1" 
+              onClick={() => navigate('/pricing')}
+            >
+              Ознакомиться с тарифами
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>

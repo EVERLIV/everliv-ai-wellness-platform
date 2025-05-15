@@ -5,14 +5,15 @@ import { Activity, Brain, Heart, ThumbsUp, Moon, Pill, HeartPulse, Apple } from 
 import { SuggestedQuestion } from "./types";
 
 interface SuggestedQuestionsProps {
+  questions: SuggestedQuestion[];
   onSelectQuestion: (question: string) => void;
 }
 
-// Helper function to map string identifiers to Lucide icons
-const getIconComponent = (iconName: string) => {
+// Helper function to render icon based on icon name string
+const renderIcon = (iconName: string) => {
   switch (iconName) {
     case "sleep":
-      return <Moon className="h-4 w-4 text-blue-500" />;
+      return <Moon className="h-4 w-4 text-indigo-500" />;
     case "pill":
       return <Pill className="h-4 w-4 text-purple-500" />;
     case "yoga":
@@ -21,44 +22,32 @@ const getIconComponent = (iconName: string) => {
       return <HeartPulse className="h-4 w-4 text-red-500" />;
     case "apple":
       return <Apple className="h-4 w-4 text-green-500" />;
-    default:
+    case "activity":
       return <Activity className="h-4 w-4 text-blue-500" />;
+    default:
+      return <ThumbsUp className="h-4 w-4 text-gray-500" />;
   }
 };
 
-const SuggestedQuestions: React.FC<SuggestedQuestionsProps> = ({ onSelectQuestion }) => {
-  const suggestedQuestions: SuggestedQuestion[] = [
-    {
-      text: "Как улучшить выносливость?",
-      icon: "activity",
-    },
-    {
-      text: "Рекомендации для улучшения сна",
-      icon: "sleep",
-    },
-    {
-      text: "Какие добавки помогут моему сердцу?",
-      icon: "heart",
-    },
-    {
-      text: "Как оптимизировать метаболизм?",
-      icon: "apple",
-    },
-  ];
-
+const SuggestedQuestions = ({ questions, onSelectQuestion }: SuggestedQuestionsProps) => {
+  if (!questions || questions.length === 0) {
+    return null;
+  }
+  
   return (
-    <div className="px-4 mb-4">
-      <h4 className="text-sm font-medium mb-2">Рекомендуемые вопросы:</h4>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {suggestedQuestions.map((question, index) => (
-          <Button
+    <div className="mt-6">
+      <p className="text-sm text-gray-500 mb-2">Рекомендуемые вопросы:</p>
+      <div className="flex flex-wrap gap-2">
+        {questions.map((question, index) => (
+          <Button 
             key={index}
-            variant="outline"
-            className="justify-start text-left h-auto py-2"
+            variant="outline" 
+            size="sm"
+            className="flex items-center gap-1"
             onClick={() => onSelectQuestion(question.text)}
           >
-            {getIconComponent(question.icon)}
-            <span className="ml-2 truncate">{question.text}</span>
+            {question.icon && renderIcon(question.icon)}
+            <span className="text-xs">{question.text}</span>
           </Button>
         ))}
       </div>

@@ -3,10 +3,10 @@ import React, { useState, useEffect } from 'react';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Shield, CreditCard, Check, ArrowLeft } from 'lucide-react';
+import { Shield, CreditCard, Check, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -15,9 +15,17 @@ const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { subscription } = useSubscription();
+  const { subscription, purchaseSubscription, upgradeSubscription } = useSubscription();
   const [loading, setLoading] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState({
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    cardHolder: ''
+  });
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   
   // Get plan from location state or use default
   const plan = location.state?.plan || {
@@ -34,44 +42,98 @@ const Checkout = () => {
     }
   }, [location.state, navigate]);
   
-  // Process payment (simulation)
-  const handlePayment = (e: React.FormEvent) => {
+  // Handle input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPaymentDetails(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+  
+  // Validate form
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!paymentDetails.cardNumber.trim() || !/^\d{16}$/.test(paymentDetails.cardNumber.replace(/\s/g, ''))) {
+      newErrors.cardNumber = 'Введите корректный 16-значный номер карты';
+    }
+    
+    if (!paymentDetails.expiryDate.trim() || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(paymentDetails.expiryDate)) {
+      newErrors.expiryDate = 'Введите дату в формате MM/YY';
+    }
+    
+    if (!paymentDetails.cvv.trim() || !/^\d{3}$/.test(paymentDetails.cvv)) {
+      newErrors.cvv = 'Введите 3-значный CVV код';
+    }
+    
+    if (!paymentDetails.cardHolder.trim()) {
+      newErrors.cardHolder = 'Введите имя держателя карты';
+    }
+    
+    if (!agreeToTerms) {
+      newErrors.terms = 'Необходимо согласиться с условиями';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
+  // Process payment (simulated)
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setLoading(true);
     
-    // Simulate payment process
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Handle subscription based on whether it's new or upgrade
+      if (plan.isUpgrade) {
+        await upgradeSubscription(plan.type as 'basic' | 'standard' | 'premium');
+      } else {
+        await purchaseSubscription(plan.type as 'basic' | 'standard' | 'premium');
+      }
+      
       setOrderComplete(true);
-      toast.success("Оплата прошла успешно!");
-    }, 2000);
+      toast.success(plan.isUpgrade ? "Тариф успешно обновлен!" : "Подписка успешно оформлена!");
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error("Произошла ошибка при обработке платежа. Пожалуйста, попробуйте позже.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const getPlanFeatures = (planName: string) => {
-    switch (planName) {
-      case "Базовый":
-        return [
-          "Базовый анализ здоровья",
-          "Интерпретация до 5 показателей",
-          "Еженедельные отчеты",
-          "Доступ к базе знаний"
-        ];
-      case "Стандарт":
-        return [
-          "Расширенный анализ здоровья",
-          "Интерпретация до 15 показателей",
-          "Персонализированные планы",
-          "Еженедельные отчеты"
-        ];
-      case "Премиум":
-        return [
-          "Полный анализ здоровья",
-          "Интерпретация всех показателей",
-          "VIP поддержка от экспертов",
-          "Персонализированные планы"
-        ];
-      default:
-        return [];
+  // Format card number with spaces
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return value;
     }
   };
   
@@ -140,8 +202,10 @@ const Checkout = () => {
                 </Card>
                 
                 <Card>
-                  <CardContent className="pt-6">
-                    <h2 className="text-xl font-semibold mb-4">Оплата</h2>
+                  <CardHeader>
+                    <CardTitle>Оплата</CardTitle>
+                  </CardHeader>
+                  <CardContent>
                     <form onSubmit={handlePayment}>
                       <div className="mb-6">
                         <label className="block text-sm font-medium mb-1">Способ оплаты</label>
@@ -160,23 +224,63 @@ const Checkout = () => {
                       
                       <div className="mb-4">
                         <label className="block text-sm font-medium mb-1">Номер карты</label>
-                        <Input placeholder="0000 0000 0000 0000" required />
+                        <Input 
+                          placeholder="0000 0000 0000 0000" 
+                          name="cardNumber"
+                          value={formatCardNumber(paymentDetails.cardNumber)}
+                          onChange={handleInputChange}
+                          className={errors.cardNumber ? "border-red-500" : ""}
+                          maxLength={19}
+                        />
+                        {errors.cardNumber && (
+                          <p className="text-red-500 text-xs mt-1">{errors.cardNumber}</p>
+                        )}
                       </div>
                       
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                           <label className="block text-sm font-medium mb-1">Срок действия</label>
-                          <Input placeholder="MM/YY" required />
+                          <Input 
+                            placeholder="MM/YY" 
+                            name="expiryDate"
+                            value={paymentDetails.expiryDate}
+                            onChange={handleInputChange}
+                            className={errors.expiryDate ? "border-red-500" : ""}
+                            maxLength={5}
+                          />
+                          {errors.expiryDate && (
+                            <p className="text-red-500 text-xs mt-1">{errors.expiryDate}</p>
+                          )}
                         </div>
                         <div>
                           <label className="block text-sm font-medium mb-1">CVV/CVC</label>
-                          <Input placeholder="000" required type="password" maxLength={3} />
+                          <Input 
+                            placeholder="000" 
+                            type="password" 
+                            name="cvv"
+                            value={paymentDetails.cvv}
+                            onChange={handleInputChange}
+                            className={errors.cvv ? "border-red-500" : ""}
+                            maxLength={3}
+                          />
+                          {errors.cvv && (
+                            <p className="text-red-500 text-xs mt-1">{errors.cvv}</p>
+                          )}
                         </div>
                       </div>
                       
                       <div className="mb-6">
                         <label className="block text-sm font-medium mb-1">Имя на карте</label>
-                        <Input placeholder="IVAN IVANOV" required />
+                        <Input 
+                          placeholder="IVAN IVANOV" 
+                          name="cardHolder"
+                          value={paymentDetails.cardHolder}
+                          onChange={handleInputChange}
+                          className={errors.cardHolder ? "border-red-500" : ""}
+                        />
+                        {errors.cardHolder && (
+                          <p className="text-red-500 text-xs mt-1">{errors.cardHolder}</p>
+                        )}
                       </div>
                       
                       <div className="flex items-start mb-6">
@@ -184,15 +288,23 @@ const Checkout = () => {
                           id="terms"
                           name="terms"
                           type="checkbox"
-                          required
-                          className="mt-1 mr-2"
+                          checked={agreeToTerms}
+                          onChange={() => setAgreeToTerms(!agreeToTerms)}
+                          className={`mt-1 mr-2 ${errors.terms ? "ring-2 ring-red-500" : ""}`}
                         />
                         <label htmlFor="terms" className="text-sm text-gray-600">
                           Я согласен с <Link to="/payment-info" className="text-everliv-600 hover:underline">правилами оплаты</Link> и даю разрешение на обработку моих персональных данных в соответствии с <Link to="/privacy" className="text-everliv-600 hover:underline">политикой конфиденциальности</Link>
                         </label>
                       </div>
+                      {errors.terms && (
+                        <p className="text-red-500 text-xs mb-4">{errors.terms}</p>
+                      )}
                       
-                      <Button type="submit" className="w-full" disabled={loading}>
+                      <Button 
+                        type="submit" 
+                        className="w-full" 
+                        disabled={loading}
+                      >
                         {loading ? "Обработка..." : `Оплатить ${plan.price} ₽`}
                       </Button>
                     </form>
@@ -202,15 +314,17 @@ const Checkout = () => {
               
               <div>
                 <Card className="sticky top-24">
-                  <CardContent className="pt-6">
-                    <h2 className="text-lg font-semibold mb-4">Тариф "{plan.name}"</h2>
+                  <CardHeader>
+                    <CardTitle>Тариф "{plan.name}"</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
                     <p className="text-3xl font-bold mb-2">{plan.price} ₽</p>
                     <p className="text-gray-600 mb-4">за {plan.annual ? "год" : plan.period}</p>
                     
                     <div className="border-t pt-4 mb-4">
                       <h3 className="font-medium mb-2">Что включено:</h3>
                       <ul className="space-y-2">
-                        {plan.name === "Базовый" && (
+                        {plan.type === "basic" ? (
                           <>
                             <li className="flex items-start gap-2">
                               <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
@@ -225,9 +339,7 @@ const Checkout = () => {
                               <span>Еженедельные отчеты</span>
                             </li>
                           </>
-                        )}
-                        
-                        {plan.name === "Стандарт" && (
+                        ) : plan.type === "standard" ? (
                           <>
                             <li className="flex items-start gap-2">
                               <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
@@ -242,9 +354,7 @@ const Checkout = () => {
                               <span>Персонализированные планы</span>
                             </li>
                           </>
-                        )}
-                        
-                        {plan.name === "Премиум" && (
+                        ) : (
                           <>
                             <li className="flex items-start gap-2">
                               <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
@@ -268,6 +378,12 @@ const Checkout = () => {
                       <span>Безопасный платеж через Альфа-Банк</span>
                     </div>
                   </CardContent>
+                  <CardFooter className="bg-gray-50 border-t pt-4 flex flex-col text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <AlertCircle className="h-4 w-4 text-amber-500 mr-1" />
+                      <span className="text-sm text-gray-600">Вы всегда можете изменить или отменить подписку</span>
+                    </div>
+                  </CardFooter>
                 </Card>
               </div>
             </div>

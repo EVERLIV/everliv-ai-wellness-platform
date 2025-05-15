@@ -4,8 +4,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import SubscriptionBanner from "@/components/dashboard/SubscriptionBanner";
+import TrialStatusBanner from "@/components/dashboard/TrialStatusBanner";
 import PatientHeader from "@/components/dashboard/PatientHeader";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
+import SubscriptionPathways from "@/components/pricing/SubscriptionPathways";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -36,6 +38,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
+      <TrialStatusBanner />
 
       <div className="flex-grow pt-16">
         {/* Patient Info Header */}
@@ -55,6 +58,13 @@ const Dashboard = () => {
             activeTab={activeTab}
             setActiveTab={setActiveTab}
           />
+
+          {/* Add subscription pathways for a clearer subscription journey */}
+          {activeTab === "overview" && (
+            <div className="mt-8">
+              <SubscriptionPathways />
+            </div>
+          )}
         </div>
       </div>
 

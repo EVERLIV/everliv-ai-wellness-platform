@@ -1,14 +1,12 @@
 
-import { ReactNode } from 'react';
-
-export type Message = {
+export interface Message {
   id: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-};
+}
 
-export type SuggestedQuestion = {
+export interface SuggestedQuestion {
   text: string;
   icon: string;
-};
+}
