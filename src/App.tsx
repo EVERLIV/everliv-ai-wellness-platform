@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Routes,
@@ -38,6 +37,7 @@ import Checkout from "./pages/Checkout";
 import TermsOfUse from "./pages/TermsOfUse";
 import About from "./pages/About";
 import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import HelpCenter from "./pages/HelpCenter";
 import Security from "./pages/Security";
 import AIMedicine from "./pages/AIMedicine";
@@ -200,6 +200,7 @@ function App() {
       <Route path="/terms" element={<TermsOfUse />} />
       <Route path="/about" element={<About />} />
       <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:id" element={<BlogPost />} />
       <Route path="/help" element={
         <ProtectedRoute>
           <HelpCenter />

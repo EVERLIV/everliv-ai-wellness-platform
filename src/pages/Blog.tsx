@@ -1,108 +1,35 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import BlogCard, { BlogPost } from "@/components/blog/BlogCard";
+import BlogList from "@/components/blog/BlogList";
 import PageHeader from "@/components/PageHeader";
-
-const mockPosts: BlogPost[] = [
-  {
-    id: '1',
-    title: 'Интервальное голодание: научный подход к омоложению',
-    excerpt: 'Узнайте, как интервальное голодание может активировать механизмы самовосстановления организма и замедлить процессы старения.',
-    category: 'Питание',
-    coverImage: 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?auto=format&q=80&w=800',
-    author: {
-      name: 'Елена Соколова',
-      avatar: 'https://randomuser.me/api/portraits/women/44.jpg'
-    },
-    date: '10 мая 2024',
-    readTime: '7 мин чтения'
-  },
-  {
-    id: '2',
-    title: 'Как холодовой стресс активирует защитные механизмы организма',
-    excerpt: 'Исследования показывают, что регулярное воздействие холода может улучшить иммунитет, метаболизм и даже продлить жизнь.',
-    category: 'Терапия',
-    coverImage: 'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?auto=format&q=80&w=800',
-    author: {
-      name: 'Михаил Громов',
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
-    },
-    date: '2 мая 2024',
-    readTime: '5 мин чтения'
-  },
-  {
-    id: '3',
-    title: 'Биомаркеры старения: что важно отслеживать после 35 лет',
-    excerpt: 'Регулярный мониторинг ключевых биомаркеров может помочь выявить и предотвратить возрастные изменения на ранних стадиях.',
-    category: 'Диагностика',
-    coverImage: 'https://images.unsplash.com/photo-1579165466949-3180a3d056d5?auto=format&q=80&w=800',
-    author: {
-      name: 'Анна Петрова',
-      avatar: 'https://randomuser.me/api/portraits/women/65.jpg'
-    },
-    date: '25 апреля 2024',
-    readTime: '9 мин чтения'
-  },
-  {
-    id: '4',
-    title: 'Сон и долголетие: почему качественный отдых так важен',
-    excerpt: 'Последние научные данные о связи между качеством сна и продолжительностью жизни. Практические советы для улучшения сна.',
-    category: 'Образ жизни',
-    coverImage: 'https://images.unsplash.com/photo-1511295742362-92c96b312d31?auto=format&q=80&w=800',
-    author: {
-      name: 'Сергей Волков',
-      avatar: 'https://randomuser.me/api/portraits/men/22.jpg'
-    },
-    date: '18 апреля 2024',
-    readTime: '6 мин чтения'
-  },
-  {
-    id: '5',
-    title: 'Нейропластичность: как тренировать мозг для долгой активности',
-    excerpt: 'Научные методы и упражнения для поддержания когнитивных функций и предотвращения возрастных нарушений памяти.',
-    category: 'Нейронаука',
-    coverImage: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&q=80&w=800',
-    author: {
-      name: 'Ирина Соловьева',
-      avatar: 'https://randomuser.me/api/portraits/women/28.jpg'
-    },
-    date: '10 апреля 2024',
-    readTime: '8 мин чтения'
-  },
-  {
-    id: '6',
-    title: 'Персонализированная медицина: будущее здравоохранения уже наступило',
-    excerpt: 'Как искусственный интеллект и генетический анализ меняют подход к диагностике и лечению заболеваний.',
-    category: 'Технологии',
-    coverImage: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&q=80&w=800',
-    author: {
-      name: 'Александр Иванов',
-      avatar: 'https://randomuser.me/api/portraits/men/54.jpg'
-    },
-    date: '3 апреля 2024',
-    readTime: '10 мин чтения'
-  }
-];
-
-const categories = [
-  "Все", "Питание", "Терапия", "Диагностика", "Образ жизни", "Нейронаука", "Технологии"
-];
 
 const BlogPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState('Все');
+  const [activeCategory, setActiveCategory] = useState('all');
 
-  const filteredPosts = mockPosts.filter(post => {
-    const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                       post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = activeCategory === 'Все' || post.category === activeCategory;
-    return matchesSearch && matchesCategory;
-  });
+  // Categories are derived from our blog post categories
+  const categories = [
+    "all", "guide", "research", "success", "news", "interview"
+  ];
+
+  // Get category label for display
+  const getCategoryLabel = (category: string): string => {
+    switch (category) {
+      case 'all': return 'Все';
+      case 'guide': return 'Практические советы';
+      case 'research': return 'Исследования';
+      case 'success': return 'История успеха';
+      case 'news': return 'Новости';
+      case 'interview': return 'Интервью с экспертами';
+      default: return category;
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -134,32 +61,13 @@ const BlogPage = () => {
                   className="rounded-full"
                   onClick={() => setActiveCategory(category)}
                 >
-                  {category}
+                  {getCategoryLabel(category)}
                 </Button>
               ))}
             </div>
             
-            {filteredPosts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredPosts.map(post => (
-                  <BlogCard key={post.id} post={post} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <h3 className="text-xl font-semibold mb-2">По вашему запросу ничего не найдено</h3>
-                <p className="text-gray-600 mb-6">Попробуйте изменить поисковый запрос или категорию</p>
-                <Button onClick={() => { setSearchTerm(''); setActiveCategory('Все'); }}>
-                  Показать все статьи
-                </Button>
-              </div>
-            )}
+            <BlogList category={activeCategory} />
             
-            <div className="mt-12 text-center">
-              <Button variant="outline" size="lg">
-                Загрузить еще статьи
-              </Button>
-            </div>
           </div>
         </section>
         
