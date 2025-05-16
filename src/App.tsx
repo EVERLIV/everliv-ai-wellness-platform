@@ -7,6 +7,8 @@ import ServicesPage from './pages/ServicesPage';
 import LoginPage from './pages/LoginPage';
 import BloodAnalysisPage from './pages/BloodAnalysisPage';
 import BloodAnalysisServicePage from "./pages/services/BloodAnalysisServicePage";
+import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Import pages that exist in our read-only files list
 import Science from './pages/Science';
@@ -32,6 +34,11 @@ function App() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      } />
       <Route path="/blood-analysis" element={<BloodAnalysisPage />} />
       <Route path="/services/cold-therapy" element={<ColdTherapy />} />
       <Route path="/services/fasting" element={<Fasting />} />
