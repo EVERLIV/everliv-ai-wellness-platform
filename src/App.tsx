@@ -1,8 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
-import { SubscriptionProvider } from './contexts/SubscriptionContext';
+import { Routes, Route } from 'react-router-dom';
 
 // Import pages with correct paths
 import ServicesPage from './pages/ServicesPage';
@@ -27,28 +25,22 @@ import LandingPage from './pages/LandingPage';
 
 function App() {
   return (
-    <AuthProvider>
-      <SubscriptionProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/science" element={<Science />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/blood-analysis" element={<BloodAnalysisPage />} />
-            <Route path="/services/cold-therapy" element={<ColdTherapy />} />
-            <Route path="/services/fasting" element={<Fasting />} />
-            <Route path="/services/breathing-practices" element={<BreathingPractices />} />
-            <Route path="/services/oxygen-therapy" element={<OxygenTherapy />} />
-            <Route path="/services/ai-recommendations" element={<AIRecommendations />} />
-            <Route path="/services/personalized-supplements" element={<PersonalizedSupplements />} />
-            <Route path="/services/blood-analysis" element={<BloodAnalysisServicePage />} />
-          </Routes>
-        </Router>
-      </SubscriptionProvider>
-    </AuthProvider>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/services" element={<ServicesPage />} />
+      <Route path="/science" element={<Science />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/blood-analysis" element={<BloodAnalysisPage />} />
+      <Route path="/services/cold-therapy" element={<ColdTherapy />} />
+      <Route path="/services/fasting" element={<Fasting />} />
+      <Route path="/services/breathing-practices" element={<BreathingPractices />} />
+      <Route path="/services/oxygen-therapy" element={<OxygenTherapy />} />
+      <Route path="/services/ai-recommendations" element={<AIRecommendations />} />
+      <Route path="/services/personalized-supplements" element={<PersonalizedSupplements />} />
+      <Route path="/services/blood-analysis" element={<BloodAnalysisServicePage />} />
+    </Routes>
   );
 }
 
