@@ -9,6 +9,7 @@ import BloodAnalysisPage from './pages/BloodAnalysisPage';
 import BloodAnalysisServicePage from "./pages/services/BloodAnalysisServicePage";
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import Partnership from './pages/Partnership';
 
 // Import pages that exist in our read-only files list
 import Science from './pages/Science';
@@ -16,6 +17,11 @@ import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Pricing from './pages/Pricing';
+
+// Import partnership subpages
+import MedicalInstitutions from './pages/partnerships/MedicalInstitutions';
+import CorporateClients from './pages/partnerships/CorporateClients';
+import MedicalSpecialists from './pages/partnerships/MedicalSpecialists';
 
 // Import service pages
 import ColdTherapy from './pages/services/ColdTherapy';
@@ -36,11 +42,18 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/pricing" element={<Pricing />} />
+      <Route path="/partnership" element={<Partnership />} />
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Dashboard />
         </ProtectedRoute>
       } />
+      
+      {/* Partnership subpages */}
+      <Route path="/partnerships/medical-institutions" element={<MedicalInstitutions />} />
+      <Route path="/partnerships/corporate-clients" element={<CorporateClients />} />
+      <Route path="/partnerships/medical-specialists" element={<MedicalSpecialists />} />
+      
       <Route path="/blood-analysis" element={<BloodAnalysisPage />} />
       <Route path="/services/cold-therapy" element={<ColdTherapy />} />
       <Route path="/services/fasting" element={<Fasting />} />
