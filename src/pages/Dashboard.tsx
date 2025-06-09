@@ -1,7 +1,5 @@
 
 import React, { useState, useEffect } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";
@@ -19,14 +17,12 @@ const Dashboard = () => {
   if (!isLoaded || !user) {
     return (
       <div className="min-h-screen flex flex-col bg-slate-50">
-        <Header />
         <div className="flex-grow flex items-center justify-center">
           <div className="flex flex-col items-center space-y-4">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             <p className="text-gray-500">Загрузка панели управления...</p>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -35,30 +31,24 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      <Header />
+      <DashboardHeader userName={userName} />
       
-      <div className="flex-grow pt-16">
-        <DashboardHeader userName={userName} />
+      <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
+        {/* Quick Actions Grid */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">Основные функции</h2>
+            <p className="text-sm text-gray-500">Выберите действие для начала работы</p>
+          </div>
+          <DashboardQuickActions />
+        </div>
         
-        <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
-          {/* Quick Actions Grid */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Основные функции</h2>
-              <p className="text-sm text-gray-500">Выберите действие для начала работы</p>
-            </div>
-            <DashboardQuickActions />
-          </div>
-          
-          {/* Activity and Health Summary */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <DashboardActivityFeed />
-            <DashboardHealthSummary />
-          </div>
+        {/* Activity and Health Summary */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <DashboardActivityFeed />
+          <DashboardHealthSummary />
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 };

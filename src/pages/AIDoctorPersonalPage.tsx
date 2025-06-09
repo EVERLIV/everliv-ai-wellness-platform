@@ -1,7 +1,5 @@
 
 import React, { useState, useEffect } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Star, Crown, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -59,39 +57,37 @@ const AIDoctorPersonalPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
-      
-      <div className="flex-grow pt-16">
-        <div className="container mx-auto px-4 py-6 max-w-4xl">
-          {/* Компактный заголовок страницы */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Star className="h-5 w-5 text-purple-600" />
+    <div className="h-screen flex flex-col bg-gray-50">
+      {!hasPersonalAIDoctorAccess && (
+        <div className="bg-white border-b border-gray-200 p-4">
+          <div className="container mx-auto px-4 max-w-4xl">
+            {/* Компактный заголовок страницы */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Star className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-semibold text-gray-900">Персональный ИИ-Доктор</h1>
+                  <p className="text-sm text-gray-600">
+                    {hasPersonalAIDoctorAccess ? "Неограниченные консультации" : `${remainingMessages} сообщений осталось`}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">Персональный ИИ-Доктор</h1>
-                <p className="text-sm text-gray-600">
-                  {hasPersonalAIDoctorAccess ? "Неограниченные консультации" : `${remainingMessages} сообщений осталось`}
-                </p>
-              </div>
+
+              {hasPersonalAIDoctorAccess ? (
+                <Badge variant="outline" className="text-amber-600 border-amber-300 text-xs">
+                  <Crown className="h-3 w-3 mr-1" />
+                  Премиум
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs">
+                  Пробная версия
+                </Badge>
+              )}
             </div>
 
-            {hasPersonalAIDoctorAccess ? (
-              <Badge variant="outline" className="text-amber-600 border-amber-300 text-xs">
-                <Crown className="h-3 w-3 mr-1" />
-                Премиум
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs">
-                Пробная версия
-              </Badge>
-            )}
-          </div>
-
-          {/* Status Alert for Basic Users */}
-          {!hasPersonalAIDoctorAccess && (
+            {/* Status Alert for Basic Users */}
             <Alert className="mb-4 bg-gradient-to-r from-orange-50 to-purple-50 border-orange-200">
               <Crown className="h-4 w-4 text-orange-600" />
               <AlertDescription className="text-sm">
@@ -114,11 +110,15 @@ const AIDoctorPersonalPage = () => {
                 )}
               </AlertDescription>
             </Alert>
-          )}
+          </div>
+        </div>
+      )}
 
-          {/* Chat Interface */}
-          {!hasPersonalAIDoctorAccess && isLimitReached ? (
-            <Card className="min-h-[500px] flex items-center justify-center">
+      {/* Chat Interface */}
+      <div className="flex-1 min-h-0">
+        {!hasPersonalAIDoctorAccess && isLimitReached ? (
+          <div className="h-full flex items-center justify-center p-4">
+            <Card className="max-w-md mx-auto">
               <CardContent className="text-center py-12">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Lock className="h-8 w-8 text-gray-400" />
@@ -132,15 +132,13 @@ const AIDoctorPersonalPage = () => {
                 </Button>
               </CardContent>
             </Card>
-          ) : (
-            <PersonalAIDoctorChat 
-              onBack={() => navigate("/ai-doctor")}
-            />
-          )}
-        </div>
+          </div>
+        ) : (
+          <PersonalAIDoctorChat 
+            onBack={() => navigate("/ai-doctor")}
+          />
+        )}
       </div>
-
-      <Footer />
     </div>
   );
 };

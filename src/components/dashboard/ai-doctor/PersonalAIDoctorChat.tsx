@@ -2,6 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Bot } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
 import SuggestedQuestions from "./SuggestedQuestions";
@@ -66,9 +67,9 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
   const showSuggestedQuestions = messages.length === 0 || (messages.length === 1 && messages[0].role === 'assistant');
 
   return (
-    <div className="space-y-4">
+    <div className="h-screen flex flex-col bg-white">
       {/* Компактный заголовок */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 p-4 border-b bg-white">
         <Button 
           variant="ghost" 
           size="sm" 
@@ -98,8 +99,9 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
       </div>
 
       {/* Chat Interface */}
-      <div className="h-[600px] flex flex-col">
-        <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
+        {/* Messages Area with Scroll */}
+        <ScrollArea className="flex-1 p-4">
           <ChatMessages 
             messages={messages} 
             isProcessing={isProcessing}
@@ -108,22 +110,23 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
           
           {/* Показываем быстрые сообщения когда нет пользовательских сообщений */}
           {showSuggestedQuestions && (
-            <div className="p-4">
+            <div className="mt-4">
               <SuggestedQuestions 
                 questions={suggestedQuestions}
                 onSelectQuestion={handleSuggestedQuestion} 
               />
             </div>
           )}
-          
-          <div className="p-4">
-            <ChatInput
-              inputText={inputText}
-              setInputText={setInputText}
-              isProcessing={isProcessing}
-              onSubmit={handleSubmit}
-            />
-          </div>
+        </ScrollArea>
+        
+        {/* Input Area */}
+        <div className="p-4 border-t bg-white">
+          <ChatInput
+            inputText={inputText}
+            setInputText={setInputText}
+            isProcessing={isProcessing}
+            onSubmit={handleSubmit}
+          />
         </div>
       </div>
     </div>
