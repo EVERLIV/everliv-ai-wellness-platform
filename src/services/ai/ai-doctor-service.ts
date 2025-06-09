@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Message, SuggestedQuestion } from "@/components/dashboard/ai-doctor/types";
 import { v4 as uuidv4 } from "uuid";
@@ -90,6 +89,116 @@ function calculateAge(dateOfBirth: string): number {
   }
   
   return age;
+}
+
+/**
+ * Обработка сообщения для персонального ИИ-доктора с доступом к анализам
+ */
+export async function processPersonalAIDoctorMessage(
+  message: string, 
+  user: User | null, 
+  conversationHistory: Message[],
+  userAnalyses: any[] = [],
+  medicalContext: string = ""
+): Promise<Message> {
+  try {
+    // Подготавливаем расширенный медицинский контекст
+    const enhancedContext = await buildEnhancedMedicalContext(user, userAnalyses, medicalContext);
+    
+    // Форматируем историю для ИИ
+    const formattedHistory = conversationHistory.map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
+    
+    // Вызываем edge функцию для персонального ИИ-доктора
+    const { data, error } = await supabase.functions.invoke('ai-doctor-personal', {
+      body: {
+        message,
+        medicalContext: enhancedContext,
+        conversationHistory: formattedHistory,
+        userAnalyses: userAnalyses.slice(0, 3) // Отправляем только последние 3 анализа
+      }
+    });
+
+    if (error) throw error;
+    
+    return {
+      id: uuidv4(),
+      role: "assistant",
+      content: data.response,
+      timestamp: new Date()
+    };
+  } catch (error) {
+    console.error("Ошибка персонального ИИ-доктора:", error);
+    
+    return {
+      id: uuidv4(),
+      role: "assistant",
+      content: "Извините, я не смог обработать ваш запрос. Пожалуйста, попробуйте позже или обратитесь в службу поддержки.",
+      timestamp: new Date()
+    };
+  }
+}
+
+/**
+ * Создает расширенный медицинский контекст с анализами
+ */
+async function buildEnhancedMedicalContext(user: User | null, userAnalyses: any[], basicContext: string): Promise<string> {
+  if (!user) return "";
+  
+  const contextParts = [basicContext];
+  
+  // Добавляем информацию об анализах
+  if (userAnalyses.length > 0) {
+    contextParts.push("\nПоследние медицинские анализы пользователя:");
+    
+    userAnalyses.slice(0, 3).forEach((analysis, index) => {
+      const date = new Date(analysis.created_at).toLocaleDateString('ru-RU');
+      const type = getAnalysisTypeLabel(analysis.analysis_type);
+      
+      contextParts.push(`${index + 1}. ${type} от ${date}:`);
+      
+      if (analysis.results?.markers) {
+        const normalMarkers = analysis.results.markers.filter(m => m.status === 'normal').length;
+        const abnormalMarkers = analysis.results.markers.filter(m => m.status !== 'normal').length;
+        contextParts.push(`   - Показателей в норме: ${normalMarkers}`);
+        contextParts.push(`   - Отклонений: ${abnormalMarkers}`);
+        
+        // Добавляем ключевые отклонения
+        const keyAbnormalities = analysis.results.markers
+          .filter(m => m.status !== 'normal')
+          .slice(0, 3)
+          .map(m => `${m.name}: ${m.value} (${m.status})`)
+          .join(', ');
+        
+        if (keyAbnormalities) {
+          contextParts.push(`   - Ключевые отклонения: ${keyAbnormalities}`);
+        }
+      }
+      
+      if (analysis.results?.summary) {
+        contextParts.push(`   - Краткое резюме: ${analysis.results.summary.substring(0, 200)}...`);
+      }
+    });
+  }
+  
+  return contextParts.join('\n');
+}
+
+function getAnalysisTypeLabel(type: string): string {
+  const types = {
+    blood: "Анализ крови",
+    urine: "Анализ мочи", 
+    biochemistry: "Биохимический анализ",
+    hormones: "Гормональная панель",
+    vitamins: "Витамины и микроэлементы",
+    immunology: "Иммунологические исследования",
+    oncology: "Онкомаркеры",
+    cardiology: "Кардиологические маркеры",
+    other: "Другой анализ"
+  };
+  return types[type] || type;
 }
 
 /**

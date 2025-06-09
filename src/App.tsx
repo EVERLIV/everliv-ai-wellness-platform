@@ -13,6 +13,11 @@ import Partnership from './pages/Partnership';
 import Analytics from './pages/Analytics';
 import LabAnalyses from './pages/LabAnalyses';
 
+// AI Doctor pages
+import AIDoctorPage from './pages/AIDoctorPage';
+import AIDoctorGeneralPage from './pages/AIDoctorGeneralPage';
+import AIDoctorPersonalPage from './pages/AIDoctorPersonalPage';
+
 // Import pages that exist in our read-only files list
 import Science from './pages/Science';
 import Contact from './pages/Contact';
@@ -58,6 +63,23 @@ function App() {
       <Route path="/analytics" element={
         <ProtectedRoute>
           <Analytics />
+        </ProtectedRoute>
+      } />
+      
+      {/* AI Doctor routes */}
+      <Route path="/ai-doctor" element={
+        <ProtectedRoute>
+          <AIDoctorPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/ai-doctor/general" element={
+        <ProtectedRoute>
+          <AIDoctorGeneralPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/ai-doctor/personal" element={
+        <ProtectedRoute>
+          <AIDoctorPersonalPage />
         </ProtectedRoute>
       } />
       
