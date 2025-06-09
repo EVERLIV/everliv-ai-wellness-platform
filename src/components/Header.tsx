@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import { Bell, Plus } from "lucide-react";
+import { Bell, Plus, Crown } from "lucide-react";
 import Logo from "@/components/header/Logo";
+import UserProfileDropdown from "@/components/header/UserProfileDropdown";
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -70,23 +71,34 @@ const Header: React.FC = () => {
           <h1 className="text-lg font-semibold text-gray-900">Панель Управления</h1>
         </div>
 
-        {/* Right side - Actions */}
+        {/* Right side - Actions and Profile */}
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" className="relative">
             <Bell className="h-5 w-5" />
             <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
           </Button>
-          <Button 
-            className="gap-2 bg-primary hover:bg-primary/90 text-white"
-            onClick={() => navigate('/pricing')}
-            disabled={isLoading}
-          >
-            <Plus className="h-4 w-4" />
-            {hasActiveSubscription ? currentPlan : (isLoading ? 'Загрузка...' : 'Выбрать Тариф')}
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleSignOut}>
-            Выйти
-          </Button>
+          
+          {hasActiveSubscription ? (
+            <Button 
+              className="gap-2 bg-amber-600 hover:bg-amber-700 text-white"
+              onClick={() => navigate('/billing')}
+              disabled={isLoading}
+            >
+              <Crown className="h-4 w-4" />
+              {currentPlan}
+            </Button>
+          ) : (
+            <Button 
+              className="gap-2 bg-primary hover:bg-primary/90 text-white"
+              onClick={() => navigate('/pricing')}
+              disabled={isLoading}
+            >
+              <Plus className="h-4 w-4" />
+              {isLoading ? 'Загрузка...' : 'Выбрать Тариф'}
+            </Button>
+          )}
+          
+          <UserProfileDropdown />
         </div>
       </div>
     </header>

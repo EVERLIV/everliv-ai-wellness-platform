@@ -25,6 +25,11 @@ import AIDoctorPersonalPage from "./pages/AIDoctorPersonalPage";
 import LabAnalyses from "./pages/LabAnalyses";
 import Analytics from "./pages/Analytics";
 
+// Import new pages
+import AccountSettings from "./pages/AccountSettings";
+import Billing from "./pages/Billing";
+import Support from "./pages/Support";
+
 // Import pages that exist in our read-only files list
 import Science from './pages/Science';
 import Contact from './pages/Contact';
@@ -65,6 +70,9 @@ const App = () => (
               {/* Protected Routes */}
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+              <Route path="/account-settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
+              <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
+              <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
               <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
               <Route path="/ai-doctor" element={<ProtectedRoute><AIDoctorPage /></ProtectedRoute>} />
               <Route path="/ai-doctor/chat/:chatId" element={<ProtectedRoute><AIDoctorChatPage /></ProtectedRoute>} />
