@@ -134,8 +134,8 @@ const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) =
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            <strong>Внимание:</strong> Для работы анализа крови необходим API ключ OpenAI. 
-            Если анализ не работает, обратитесь к администратору для настройки ключа.
+            <strong>Информация:</strong> Анализ крови работает через защищенное соединение с OpenAI. 
+            Все данные обрабатываются конфиденциально и не сохраняются.
           </AlertDescription>
         </Alert>
 

@@ -63,14 +63,6 @@ export const useBloodAnalysis = () => {
       return;
     }
 
-    // Check if OpenAI API key is available
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      toast.error("OpenAI API ключ не настроен. Обратитесь к администратору.");
-      setApiError("OpenAI API ключ не настроен. Пожалуйста, добавьте OPENAI_API_KEY в переменные окружения.");
-      return;
-    }
-
     setIsAnalyzing(true);
     setApiError(null);
     
@@ -102,22 +94,11 @@ export const useBloodAnalysis = () => {
         imageUrl: inputMethod === "photo" ? "image data available" : undefined
       });
 
-      // Call OpenAI service with proper parameters based on input method
+      // Call Supabase Edge Function
       const analysisResults = await analyzeBloodTestWithOpenAI({
         text: inputMethod === "text" ? text : undefined,
         imageBase64: inputMethod === "photo" ? base64Image : undefined
       });
-
-      // Validate results structure
-      if (!analysisResults || !Array.isArray(analysisResults.markers)) {
-        console.error("Invalid analysis results structure:", analysisResults);
-        throw new Error("Получен некорректный ответ от ИИ. Попробуйте еще раз.");
-      }
-
-      // Ensure we have at least one marker
-      if (analysisResults.markers.length === 0) {
-        throw new Error("Не удалось распознать показатели в предоставленных данных. Проверьте данные и попробуйте еще раз.");
-      }
 
       setResults(analysisResults);
       setActiveTab("results");
