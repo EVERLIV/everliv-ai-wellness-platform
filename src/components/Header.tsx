@@ -14,7 +14,7 @@ import MobileMenu from "./header/MobileMenu";
 const Header: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const isAdmin = useIsAdmin();
+  const { isAdmin } = useIsAdmin();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {

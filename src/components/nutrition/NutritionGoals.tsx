@@ -9,7 +9,7 @@ import { useNutritionGoals } from "@/hooks/useNutritionGoals";
 import { toast } from "sonner";
 
 const NutritionGoals: React.FC = () => {
-  const { goals, updateGoals, isLoading } = useNutritionGoals();
+  const { goals, saveGoals, isLoading } = useNutritionGoals();
   const [formData, setFormData] = useState({
     daily_calories: goals?.daily_calories || 2000,
     daily_protein: goals?.daily_protein || 120,
@@ -19,7 +19,7 @@ const NutritionGoals: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      await updateGoals(formData);
+      await saveGoals(formData);
       toast.success("Цели питания обновлены!");
     } catch (error) {
       toast.error("Ошибка при сохранении целей");
