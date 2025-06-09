@@ -108,10 +108,6 @@ const LabAnalyses = () => {
     if (user) {
       getMedicalAnalysesHistory(user.id).then(setAnalysisHistory);
     }
-    // Закрываем форму нового анализа только если результаты получены
-    if (results) {
-      setShowNewAnalysis(false);
-    }
   };
 
   // Автоматически обновляем историю при получении результатов
@@ -154,7 +150,7 @@ const LabAnalyses = () => {
               </div>
             </div>
 
-            <Card>
+            <Card className="mb-8">
               <CardHeader>
                 <CardTitle>Универсальный анализатор медицинских тестов</CardTitle>
               </CardHeader>
@@ -179,6 +175,100 @@ const LabAnalyses = () => {
                 )}
               </CardContent>
             </Card>
+
+            {/* История анализов внизу страницы */}
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">История ваших анализов</h2>
+              
+              {loadingHistory ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[1,2,3].map(i => (
+                    <Card key={i} className="animate-pulse">
+                      <CardHeader className="pb-3">
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-3 bg-gray-200 rounded w-1/2 mt-2"></div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <div className="h-3 bg-gray-200 rounded"></div>
+                          <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : analysisHistory.length === 0 ? (
+                <Card className="text-center py-8">
+                  <CardContent>
+                    <div className="text-4xl mb-3">📋</div>
+                    <p className="text-gray-600">История анализов появится здесь после их обработки</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {analysisHistory.map((analysis) => (
+                    <Card key={analysis.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="text-xl">{getRiskIcon(analysis.results?.riskLevel || 'low')}</div>
+                            <div>
+                              <CardTitle className="text-sm font-medium">
+                                {getAnalysisTypeLabel(analysis.analysis_type)}
+                              </CardTitle>
+                              <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                <Calendar className="h-3 w-3" />
+                                {new Date(analysis.created_at).toLocaleDateString('ru-RU')}
+                              </div>
+                            </div>
+                          </div>
+                          <Badge variant={getRiskColor(analysis.results?.riskLevel || 'low')} className="text-xs">
+                            {getRiskText(analysis.results?.riskLevel || 'low')}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      
+                      <CardContent className="pt-0">
+                        {/* Статистика показателей */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="text-center">
+                              <div className="text-sm font-bold text-green-600">
+                                {analysis.results?.markers?.filter(m => m.status === 'normal').length || 0}
+                              </div>
+                              <div className="text-xs text-gray-500">Норма</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-sm font-bold text-red-600">
+                                {analysis.results?.markers?.filter(m => m.status !== 'normal').length || 0}
+                              </div>
+                              <div className="text-xs text-gray-500">Отклонения</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-sm font-bold text-gray-700">
+                                {analysis.results?.markers?.length || 0}
+                              </div>
+                              <div className="text-xs text-gray-500">Всего</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Кнопка просмотра */}
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full gap-2 text-xs"
+                          onClick={() => handleViewAnalysis(analysis.id)}
+                        >
+                          <Eye className="h-3 w-3" />
+                          Подробнее
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
