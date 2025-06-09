@@ -2,17 +2,16 @@
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Plus, ArrowLeft, Calendar, FileText, Eye, TrendingUp, AlertCircle } from "lucide-react";
+import { Plus, ArrowLeft, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getMedicalAnalysesHistory } from "@/services/ai/medical-analysis";
-import MedicalAnalysisForm from "@/components/medical-analysis/MedicalAnalysisForm";
-import MedicalAnalysisResults from "@/components/medical-analysis/MedicalAnalysisResults";
 import { useMedicalAnalysis } from "@/hooks/useMedicalAnalysis";
 import { toast } from "sonner";
+import AnalysisHistory from "@/components/lab-analyses/AnalysisHistory";
+import NewAnalysisForm from "@/components/lab-analyses/NewAnalysisForm";
 
 const LabAnalyses = () => {
   const navigate = useNavigate();
@@ -53,54 +52,6 @@ const LabAnalyses = () => {
 
   const handleViewAnalysis = (analysisId: string) => {
     navigate(`/analytics?id=${analysisId}`);
-  };
-
-  const getAnalysisTypeLabel = (type: string) => {
-    const types = {
-      blood: "Анализ крови",
-      urine: "Анализ мочи", 
-      biochemistry: "Биохимический анализ",
-      hormones: "Гормональная панель",
-      vitamins: "Витамины и микроэлементы",
-      immunology: "Иммунологические исследования",
-      oncology: "Онкомаркеры",
-      cardiology: "Кардиологические маркеры",
-      other: "Другой анализ"
-    };
-    return types[type] || type;
-  };
-
-  const getRiskIcon = (level: string) => {
-    switch (level) {
-      case 'high':
-        return "🔴";
-      case 'medium':
-        return "🟡";
-      default:
-        return "🟢";
-    }
-  };
-
-  const getRiskColor = (level: string) => {
-    switch (level) {
-      case 'high':
-        return 'destructive';
-      case 'medium':
-        return 'secondary';
-      default:
-        return 'default';
-    }
-  };
-
-  const getRiskText = (level: string) => {
-    switch (level) {
-      case 'high':
-        return 'Высокий риск';
-      case 'medium':
-        return 'Средний риск';
-      default:
-        return 'Низкий риск';
-    }
   };
 
   const handleNewAnalysisComplete = () => {
@@ -150,125 +101,23 @@ const LabAnalyses = () => {
               </div>
             </div>
 
-            <Card className="mb-8">
-              <CardHeader>
-                <CardTitle>Универсальный анализатор медицинских тестов</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {activeTab === "input" && (
-                  <MedicalAnalysisForm 
-                    onAnalyze={analyzeMedicalTest}
-                    isAnalyzing={isAnalyzing}
-                  />
-                )}
-                
-                {activeTab === "results" && (
-                  <MedicalAnalysisResults
-                    results={results}
-                    isAnalyzing={isAnalyzing}
-                    apiError={apiError}
-                    onBack={() => {
-                      setActiveTab("input");
-                      handleNewAnalysisComplete();
-                    }}
-                  />
-                )}
-              </CardContent>
-            </Card>
-
-            {/* История анализов внизу страницы */}
-            <div className="mt-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">История ваших анализов</h2>
-              
-              {loadingHistory ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {[1,2,3].map(i => (
-                    <Card key={i} className="animate-pulse">
-                      <CardHeader className="pb-3">
-                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                        <div className="h-3 bg-gray-200 rounded w-1/2 mt-2"></div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <div className="h-3 bg-gray-200 rounded"></div>
-                          <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : analysisHistory.length === 0 ? (
-                <Card className="text-center py-8">
-                  <CardContent>
-                    <div className="text-4xl mb-3">📋</div>
-                    <p className="text-gray-600">История анализов появится здесь после их обработки</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {analysisHistory.map((analysis) => (
-                    <Card key={analysis.id} className="hover:shadow-md transition-shadow cursor-pointer">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="text-xl">{getRiskIcon(analysis.results?.riskLevel || 'low')}</div>
-                            <div>
-                              <CardTitle className="text-sm font-medium">
-                                {getAnalysisTypeLabel(analysis.analysis_type)}
-                              </CardTitle>
-                              <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                                <Calendar className="h-3 w-3" />
-                                {new Date(analysis.created_at).toLocaleDateString('ru-RU')}
-                              </div>
-                            </div>
-                          </div>
-                          <Badge variant={getRiskColor(analysis.results?.riskLevel || 'low')} className="text-xs">
-                            {getRiskText(analysis.results?.riskLevel || 'low')}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      
-                      <CardContent className="pt-0">
-                        {/* Статистика показателей */}
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <div className="text-center">
-                              <div className="text-sm font-bold text-green-600">
-                                {analysis.results?.markers?.filter(m => m.status === 'normal').length || 0}
-                              </div>
-                              <div className="text-xs text-gray-500">Норма</div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-sm font-bold text-red-600">
-                                {analysis.results?.markers?.filter(m => m.status !== 'normal').length || 0}
-                              </div>
-                              <div className="text-xs text-gray-500">Отклонения</div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-sm font-bold text-gray-700">
-                                {analysis.results?.markers?.length || 0}
-                              </div>
-                              <div className="text-xs text-gray-500">Всего</div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Кнопка просмотра */}
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full gap-2 text-xs"
-                          onClick={() => handleViewAnalysis(analysis.id)}
-                        >
-                          <Eye className="h-3 w-3" />
-                          Подробнее
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
+            <NewAnalysisForm
+              activeTab={activeTab}
+              results={results}
+              isAnalyzing={isAnalyzing}
+              apiError={apiError}
+              analysisHistory={analysisHistory}
+              loadingHistory={loadingHistory}
+              onBack={() => {
+                setShowNewAnalysis(false);
+                setResults(null);
+                setActiveTab("input");
+              }}
+              onAnalyze={analyzeMedicalTest}
+              onTabChange={setActiveTab}
+              onViewAnalysis={handleViewAnalysis}
+              onNewAnalysisComplete={handleNewAnalysisComplete}
+            />
           </div>
         </div>
 
@@ -317,111 +166,12 @@ const LabAnalyses = () => {
           </div>
 
           {/* История анализов */}
-          {loadingHistory ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1,2,3].map(i => (
-                <Card key={i} className="animate-pulse">
-                  <CardHeader className="pb-3">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2 mt-2"></div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="h-3 bg-gray-200 rounded"></div>
-                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : analysisHistory.length === 0 ? (
-            <Card className="text-center py-12">
-              <CardContent>
-                <div className="text-6xl mb-4">🔬</div>
-                <h3 className="text-xl font-semibold mb-2">Пока нет анализов</h3>
-                <p className="text-gray-600 mb-6">
-                  Загрузите свой первый медицинский анализ для обработки с помощью ИИ
-                </p>
-                <Button 
-                  onClick={() => setShowNewAnalysis(true)}
-                  className="gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  Добавить первый анализ
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {analysisHistory.map((analysis) => (
-                <Card key={analysis.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="text-2xl">{getRiskIcon(analysis.results?.riskLevel || 'low')}</div>
-                        <div>
-                          <CardTitle className="text-lg">
-                            {getAnalysisTypeLabel(analysis.analysis_type)}
-                          </CardTitle>
-                          <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                            <Calendar className="h-4 w-4" />
-                            {new Date(analysis.created_at).toLocaleDateString('ru-RU')}
-                          </div>
-                        </div>
-                      </div>
-                      <Badge variant={getRiskColor(analysis.results?.riskLevel || 'low')} className="text-xs">
-                        {getRiskText(analysis.results?.riskLevel || 'low')}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-0">
-                    {/* Статистика показателей */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-4">
-                        <div className="text-center">
-                          <div className="text-lg font-bold text-green-600">
-                            {analysis.results?.markers?.filter(m => m.status === 'normal').length || 0}
-                          </div>
-                          <div className="text-xs text-gray-500">Норма</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-lg font-bold text-red-600">
-                            {analysis.results?.markers?.filter(m => m.status !== 'normal').length || 0}
-                          </div>
-                          <div className="text-xs text-gray-500">Отклонения</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-lg font-bold text-gray-700">
-                            {analysis.results?.markers?.length || 0}
-                          </div>
-                          <div className="text-xs text-gray-500">Всего</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Краткое резюме */}
-                    {analysis.results?.summary && (
-                      <div className="text-sm text-gray-600 mb-4 line-clamp-2">
-                        {analysis.results.summary}
-                      </div>
-                    )}
-
-                    {/* Кнопка просмотра */}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full gap-2"
-                      onClick={() => handleViewAnalysis(analysis.id)}
-                    >
-                      <Eye className="h-4 w-4" />
-                      Посмотреть детали
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+          <AnalysisHistory
+            analysisHistory={analysisHistory}
+            loadingHistory={loadingHistory}
+            onViewAnalysis={handleViewAnalysis}
+            onAddNewAnalysis={() => setShowNewAnalysis(true)}
+          />
         </div>
       </div>
 
