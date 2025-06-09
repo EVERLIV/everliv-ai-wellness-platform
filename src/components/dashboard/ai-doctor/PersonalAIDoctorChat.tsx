@@ -1,8 +1,7 @@
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Bot, User } from "lucide-react";
+import { ArrowLeft, Bot } from "lucide-react";
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
 import SuggestedQuestions from "./SuggestedQuestions";
@@ -37,8 +36,8 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
         title="Персональный ИИ Доктор EVERLIV"
         description="Персонализированные консультации с доступом к вашим анализам"
       >
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
             <Button 
               variant="ghost" 
               size="sm" 
@@ -48,13 +47,13 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
               <ArrowLeft className="h-4 w-4" />
               Назад
             </Button>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                <Bot className="h-6 w-6 text-blue-600" />
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Bot className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Персональный ИИ Доктор EVERLIV</h1>
-                <p className="text-gray-600">Персонализированные консультации с доступом к вашим анализам</p>
+                <h1 className="text-xl font-semibold text-gray-900">Персональный ИИ Доктор</h1>
+                <p className="text-sm text-gray-600">Персонализированные консультации</p>
               </div>
             </div>
           </div>
@@ -64,9 +63,9 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
+    <div className="space-y-4">
+      {/* Компактный заголовок */}
+      <div className="flex items-center gap-3">
         <Button 
           variant="ghost" 
           size="sm" 
@@ -77,17 +76,17 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
           Назад
         </Button>
         
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-            <Bot className="h-6 w-6 text-blue-600" />
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+            <Bot className="h-5 w-5 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Персональный ИИ Доктор EVERLIV</h1>
-            <p className="text-gray-600">
-              Персонализированные консультации с доступом к вашим анализам
+            <h1 className="text-lg font-semibold text-gray-900">ИИ Доктор</h1>
+            <p className="text-sm text-gray-600">
+              Персональные консультации
               {remainingMessages !== null && (
-                <span className="ml-2 text-sm font-medium text-blue-600">
-                  (Осталось сообщений: {remainingMessages})
+                <span className="ml-2 text-xs font-medium text-blue-600">
+                  ({remainingMessages} сообщений)
                 </span>
               )}
             </p>
@@ -95,18 +94,8 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
         </div>
       </div>
 
-      {/* Chat Interface - убираем обводки и тени */}
-      <div className="h-[600px] flex flex-col bg-white rounded-lg">
-        <div className="border-b border-gray-100 p-6">
-          <div className="flex items-center gap-2 mb-2">
-            <Bot className="h-5 w-5 text-blue-600" />
-            <h3 className="text-lg font-semibold">EVERLIV - Ваш персональный ИИ доктор</h3>
-          </div>
-          <p className="text-sm text-gray-600">
-            Я анализирую ваши медицинские данные и предоставляю персонализированные рекомендации
-          </p>
-        </div>
-        
+      {/* Chat Interface - прозрачный фон */}
+      <div className="h-[600px] flex flex-col rounded-lg">
         <div className="flex-1 flex flex-col">
           <ChatMessages 
             messages={messages} 
@@ -115,7 +104,7 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
           />
           
           {messages.length === 0 && (
-            <div className="p-6 border-t border-gray-100">
+            <div className="p-4 border-t border-gray-100">
               <SuggestedQuestions 
                 questions={suggestedQuestions}
                 onSelectQuestion={handleSuggestedQuestion} 

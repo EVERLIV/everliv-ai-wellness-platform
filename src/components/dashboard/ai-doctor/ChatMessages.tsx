@@ -11,7 +11,7 @@ interface ChatMessagesProps {
 
 const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isProcessing, messagesEndRef }) => {
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+    <div className="flex-1 overflow-y-auto p-4 space-y-4">
       {messages.map((message) => (
         <div
           key={message.id}
@@ -20,7 +20,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isProcessing, mes
           }`}
         >
           <div
-            className={`max-w-[80%] px-4 py-3 ${
+            className={`max-w-[85%] md:max-w-[70%] px-3 py-2 ${
               message.role === "user"
                 ? "bg-blue-600 text-white rounded-2xl rounded-br-md"
                 : "bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md"
@@ -28,28 +28,28 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isProcessing, mes
           >
             <div className="flex items-center mb-1">
               {message.role === "user" ? (
-                <User className="h-4 w-4 mr-2" />
+                <User className="h-3 w-3 mr-1" />
               ) : (
-                <Bot className="h-4 w-4 mr-2" />
+                <Bot className="h-3 w-3 mr-1" />
               )}
               <span className="text-xs opacity-70">
-                {message.role === "user" ? "Вы" : "ИИ-доктор"} •{" "}
+                {message.role === "user" ? "Вы" : "ИИ"} •{" "}
                 {message.timestamp.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}
               </span>
             </div>
-            <div className="whitespace-pre-wrap leading-relaxed">{message.content}</div>
+            <div className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</div>
           </div>
         </div>
       ))}
       {isProcessing && (
         <div className="flex justify-start">
-          <div className="max-w-[80%] px-4 py-3 bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md">
+          <div className="max-w-[85%] md:max-w-[70%] px-3 py-2 bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md">
             <div className="flex items-center">
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              <span>ИИ-доктор печатает...</span>
+              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              <span className="text-sm">ИИ печатает...</span>
             </div>
           </div>
         </div>
