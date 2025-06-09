@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Activity, Calendar, User, FileText } from "lucide-react";
+import { Activity, Calendar, User, FileText, Apple } from "lucide-react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -16,6 +16,12 @@ const QuickActionsCard = () => {
       </CardHeader>
       <CardContent className="pt-4">
         <div className="grid grid-cols-2 gap-3">
+          <Link to="/nutrition-diary">
+            <Button variant="outline" className="w-full justify-start">
+              <Apple className="h-4 w-4 mr-2" />
+              Дневник питания
+            </Button>
+          </Link>
           <Link to="/my-protocols">
             <Button variant="outline" className="w-full justify-start">
               <Calendar className="h-4 w-4 mr-2" />

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -50,16 +49,19 @@ import AIRecommendations from './pages/services/AIRecommendations';
 import PersonalizedSupplements from './pages/services/PersonalizedSupplements';
 import LandingPage from './pages/LandingPage';
 
+// Import new pages
+import NutritionDiary from "@/pages/NutritionDiary";
+
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <SubscriptionProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <SubscriptionProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<LoginPage />} />
@@ -93,11 +95,21 @@ const App = () => (
               <Route path="/services/oxygen-therapy" element={<OxygenTherapy />} />
               <Route path="/services/ai-recommendations" element={<AIRecommendations />} />
               <Route path="/services/personalized-supplements" element={<PersonalizedSupplements />} />
+              
+              {/* New Route */}
+              <Route
+                path="/nutrition-diary"
+                element={
+                  <ProtectedRoute>
+                    <NutritionDiary />
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
-          </SubscriptionProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+          </TooltipProvider>
+        </SubscriptionProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 

@@ -125,6 +125,84 @@ export type Database = {
         }
         Relationships: []
       }
+      food_analysis_requests: {
+        Row: {
+          analysis_result: Json | null
+          created_at: string
+          id: string
+          image_url: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_result?: Json | null
+          created_at?: string
+          id?: string
+          image_url: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_result?: Json | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      food_entries: {
+        Row: {
+          calories: number
+          carbs: number
+          created_at: string
+          entry_date: string
+          fat: number
+          food_name: string
+          id: string
+          image_url: string | null
+          meal_type: string
+          portion_size: string | null
+          protein: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          calories?: number
+          carbs?: number
+          created_at?: string
+          entry_date?: string
+          fat?: number
+          food_name: string
+          id?: string
+          image_url?: string | null
+          meal_type: string
+          portion_size?: string | null
+          protein?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          calories?: number
+          carbs?: number
+          created_at?: string
+          entry_date?: string
+          fat?: number
+          food_name?: string
+          id?: string
+          image_url?: string | null
+          meal_type?: string
+          portion_size?: string | null
+          protein?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       medical_analyses: {
         Row: {
           analysis_type: string
@@ -147,6 +225,39 @@ export type Database = {
           created_at?: string
           id?: string
           results?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      nutrition_goals: {
+        Row: {
+          created_at: string
+          daily_calories: number
+          daily_carbs: number
+          daily_fat: number
+          daily_protein: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_calories?: number
+          daily_carbs?: number
+          daily_fat?: number
+          daily_protein?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_calories?: number
+          daily_carbs?: number
+          daily_fat?: number
+          daily_protein?: number
+          id?: string
           updated_at?: string
           user_id?: string
         }
