@@ -9,7 +9,7 @@ import Logo from "@/components/header/Logo";
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuth();
-  const { subscription } = useSubscription();
+  const { subscription, isLoading } = useSubscription();
   const navigate = useNavigate();
   
   const handleSignOut = async () => {
@@ -25,24 +25,40 @@ const Header: React.FC = () => {
     return null;
   }
 
-  // Определяем текущий тариф
+  // Определяем текущий тариф с более точной логикой
   const getCurrentPlan = () => {
-    if (subscription?.status === 'active') {
-      switch (subscription.plan_type) {
-        case 'premium':
-          return 'Премиум';
-        case 'standard':
-          return 'Стандарт';
-        case 'basic':
-          return 'Базовый';
-        default:
-          return 'Базовый';
+    console.log("Subscription data:", subscription);
+    
+    // Если подписка загружается, показываем загрузку
+    if (isLoading) {
+      return "Загрузка...";
+    }
+    
+    // Проверяем активную подписку
+    if (subscription && subscription.status === 'active') {
+      const now = new Date();
+      const expiresAt = new Date(subscription.expires_at);
+      
+      // Проверяем, не истекла ли подписка
+      if (expiresAt > now) {
+        switch (subscription.plan_type) {
+          case 'premium':
+            return 'Премиум';
+          case 'standard':
+            return 'Стандарт';
+          case 'basic':
+            return 'Базовый';
+          default:
+            return 'Базовый';
+        }
       }
     }
-    return 'Базовый';
+    
+    return null; // Нет активной подписки
   };
 
   const currentPlan = getCurrentPlan();
+  const hasActiveSubscription = currentPlan && currentPlan !== "Загрузка...";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
@@ -63,9 +79,10 @@ const Header: React.FC = () => {
           <Button 
             className="gap-2 bg-primary hover:bg-primary/90 text-white"
             onClick={() => navigate('/pricing')}
+            disabled={isLoading}
           >
             <Plus className="h-4 w-4" />
-            {subscription?.status === 'active' ? currentPlan : 'Выбрать Тариф'}
+            {hasActiveSubscription ? currentPlan : (isLoading ? 'Загрузка...' : 'Выбрать Тариф')}
           </Button>
           <Button variant="outline" size="sm" onClick={handleSignOut}>
             Выйти

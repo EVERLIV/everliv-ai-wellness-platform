@@ -2,6 +2,7 @@
 import React, { ReactNode } from "react";
 import Header from "./Header";
 import PageBreadcrumb from "./PageBreadcrumb";
+import MinimalFooter from "./MinimalFooter";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -35,6 +36,7 @@ const PageLayout = ({
           </div>
         </div>
       </main>
+      <MinimalFooter />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import Header from "@/components/Header";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";
 import DashboardActivityFeed from "@/components/dashboard/DashboardActivityFeed";
@@ -31,6 +32,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
+      <Header />
       <DashboardHeader userName={userName} />
       
       <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">

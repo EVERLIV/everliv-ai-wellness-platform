@@ -1,6 +1,5 @@
 
 import React from 'react';
-import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import KeyFeaturesSection from '@/components/KeyFeaturesSection';
 import ServicesSection from '@/components/ServicesSection';
@@ -14,12 +13,12 @@ import TestimonialsSection from '@/components/TestimonialsSection';
 import PartnershipSection from '@/components/PartnershipSection';
 import CTASection from '@/components/CTASection';
 import CompanyInfoSection from '@/components/CompanyInfoSection';
+import MinimalFooter from '@/components/MinimalFooter';
 
 const LandingPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <Header />
-      <main className="flex-grow pt-24">
+      <main className="flex-grow">
         <HeroSection />
         <KeyFeaturesSection />
         <ServicesSection />
@@ -34,6 +33,7 @@ const LandingPage = () => {
         <CompanyInfoSection />
         <CTASection />
       </main>
+      <MinimalFooter />
     </div>
   );
 };
