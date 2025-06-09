@@ -14,19 +14,19 @@ export const usePersonalAIDoctorChat = () => {
   const [medicalContext, setMedicalContext] = useState('');
   const [userAnalyses, setUserAnalyses] = useState([]);
   const { user } = useAuth();
-  const { subscription } = useSubscription();
+  const { canUseFeature } = useSubscription();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Check if user can use the feature
-  const canUseFeature = user !== null;
-  const isBasicUser = !subscription || subscription.plan_type === 'basic';
+  // Check if user can use the feature - теперь используем правильную логику из контекста
+  const canUsePersonalAIDoctor = canUseFeature('personal_ai_doctor');
   
-  // Message limit logic for basic users
+  // Message limit logic for basic users - теперь правильно определяем премиум статус
   const messageLimit = 3;
   const [messagesUsed, setMessagesUsed] = useState(0);
   
   useEffect(() => {
-    if (isBasicUser && user) {
+    // Только если пользователь НЕ имеет доступа к функции (т.е. базовый план)
+    if (!canUsePersonalAIDoctor && user) {
       const today = new Date().toDateString();
       const storageKey = `ai_doctor_messages_${user.id}_${today}`;
       const savedMessages = localStorage.getItem(storageKey);
@@ -34,13 +34,14 @@ export const usePersonalAIDoctorChat = () => {
         setMessagesUsed(parseInt(savedMessages, 10));
       }
     }
-  }, [user, isBasicUser]);
+  }, [user, canUsePersonalAIDoctor]);
 
-  const remainingMessages = isBasicUser ? messageLimit - messagesUsed : null;
+  // Если у пользователя премиум - лимита нет, иначе показываем оставшиеся сообщения
+  const remainingMessages = canUsePersonalAIDoctor ? null : messageLimit - messagesUsed;
 
   // Инициализация чата с персональным приветствием
   useEffect(() => {
-    if (messages.length === 0 && canUseFeature) {
+    if (messages.length === 0 && user) {
       const welcomeMessage: Message = {
         id: uuidv4(),
         role: 'assistant',
@@ -66,10 +67,10 @@ export const usePersonalAIDoctorChat = () => {
       }
     };
     
-    if (canUseFeature) {
+    if (user) {
       loadUserData();
     }
-  }, [user, canUseFeature]);
+  }, [user]);
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -80,30 +81,30 @@ export const usePersonalAIDoctorChat = () => {
     e.preventDefault();
     if (!inputText.trim() || isProcessing) return;
     
-    // Check message limit for basic users
-    if (isBasicUser && messagesUsed >= messageLimit) {
+    // Check message limit только для пользователей без премиума
+    if (!canUsePersonalAIDoctor && messagesUsed >= messageLimit) {
       return;
     }
     
     sendMessage(inputText);
-  }, [inputText, isProcessing, isBasicUser, messagesUsed, messageLimit]);
+  }, [inputText, isProcessing, canUsePersonalAIDoctor, messagesUsed, messageLimit]);
 
   const handleSuggestedQuestion = useCallback((question: string) => {
     if (isProcessing) return;
     
-    // Check message limit for basic users
-    if (isBasicUser && messagesUsed >= messageLimit) {
+    // Check message limit только для пользователей без премиума
+    if (!canUsePersonalAIDoctor && messagesUsed >= messageLimit) {
       return;
     }
     
     sendMessage(question);
-  }, [isProcessing, isBasicUser, messagesUsed, messageLimit]);
+  }, [isProcessing, canUsePersonalAIDoctor, messagesUsed, messageLimit]);
 
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim()) return;
     
-    // Check message limit for basic users
-    if (isBasicUser && messagesUsed >= messageLimit) {
+    // Check message limit только для пользователей без премиума
+    if (!canUsePersonalAIDoctor && messagesUsed >= messageLimit) {
       return;
     }
     
@@ -119,8 +120,8 @@ export const usePersonalAIDoctorChat = () => {
     setIsProcessing(true);
     setInputText('');
     
-    // Update message count for basic users
-    if (isBasicUser && user) {
+    // Update message count только для пользователей без премиума
+    if (!canUsePersonalAIDoctor && user) {
       const newCount = messagesUsed + 1;
       setMessagesUsed(newCount);
       
@@ -153,7 +154,7 @@ export const usePersonalAIDoctorChat = () => {
     } finally {
       setIsProcessing(false);
     }
-  }, [messages, user, userAnalyses, medicalContext, isBasicUser, messagesUsed, messageLimit]);
+  }, [messages, user, userAnalyses, medicalContext, canUsePersonalAIDoctor, messagesUsed, messageLimit]);
 
   return {
     messages,
@@ -163,7 +164,7 @@ export const usePersonalAIDoctorChat = () => {
     sendMessage,
     medicalContext,
     userAnalyses,
-    canUseFeature,
+    canUseFeature: canUsePersonalAIDoctor,
     remainingMessages,
     handleSubmit,
     handleSuggestedQuestion,

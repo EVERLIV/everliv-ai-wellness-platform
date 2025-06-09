@@ -15,28 +15,31 @@ import PersonalAIDoctorChat from "@/components/dashboard/ai-doctor/PersonalAIDoc
 const AIDoctorPersonalPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { subscription } = useSubscription();
+  const { canUseFeature } = useSubscription();
   const [messagesUsed, setMessagesUsed] = useState(0);
   const [isLimitReached, setIsLimitReached] = useState(false);
 
-  const isBasicUser = !subscription || subscription.plan_type === 'basic';
+  // Проверяем доступ к персональному ИИ доктору
+  const hasPersonalAIDoctorAccess = canUseFeature('personal_ai_doctor');
   const messageLimit = 3;
   const remainingMessages = messageLimit - messagesUsed;
 
   useEffect(() => {
-    // Загружаем количество использованных сообщений из localStorage
-    const today = new Date().toDateString();
-    const storageKey = `ai_doctor_messages_${user?.id}_${today}`;
-    const savedMessages = localStorage.getItem(storageKey);
-    if (savedMessages) {
-      const count = parseInt(savedMessages, 10);
-      setMessagesUsed(count);
-      setIsLimitReached(count >= messageLimit && isBasicUser);
+    // Загружаем количество использованных сообщений только для пользователей без премиума
+    if (!hasPersonalAIDoctorAccess && user) {
+      const today = new Date().toDateString();
+      const storageKey = `ai_doctor_messages_${user?.id}_${today}`;
+      const savedMessages = localStorage.getItem(storageKey);
+      if (savedMessages) {
+        const count = parseInt(savedMessages, 10);
+        setMessagesUsed(count);
+        setIsLimitReached(count >= messageLimit);
+      }
     }
-  }, [user?.id, isBasicUser]);
+  }, [user?.id, hasPersonalAIDoctorAccess]);
 
   const handleMessageSent = () => {
-    if (isBasicUser) {
+    if (!hasPersonalAIDoctorAccess) {
       const newCount = messagesUsed + 1;
       setMessagesUsed(newCount);
       
@@ -70,12 +73,17 @@ const AIDoctorPersonalPage = () => {
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">Персональный ИИ-Доктор</h1>
                 <p className="text-sm text-gray-600">
-                  {isBasicUser ? `${remainingMessages} сообщений осталось` : "Неограниченные консультации"}
+                  {hasPersonalAIDoctorAccess ? "Неограниченные консультации" : `${remainingMessages} сообщений осталось`}
                 </p>
               </div>
             </div>
 
-            {isBasicUser && (
+            {hasPersonalAIDoctorAccess ? (
+              <Badge variant="outline" className="text-amber-600 border-amber-300 text-xs">
+                <Crown className="h-3 w-3 mr-1" />
+                Премиум
+              </Badge>
+            ) : (
               <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs">
                 Пробная версия
               </Badge>
@@ -83,7 +91,7 @@ const AIDoctorPersonalPage = () => {
           </div>
 
           {/* Status Alert for Basic Users */}
-          {isBasicUser && (
+          {!hasPersonalAIDoctorAccess && (
             <Alert className="mb-4 bg-gradient-to-r from-orange-50 to-purple-50 border-orange-200">
               <Crown className="h-4 w-4 text-orange-600" />
               <AlertDescription className="text-sm">
@@ -109,7 +117,7 @@ const AIDoctorPersonalPage = () => {
           )}
 
           {/* Chat Interface */}
-          {isLimitReached ? (
+          {!hasPersonalAIDoctorAccess && isLimitReached ? (
             <Card className="min-h-[500px] flex items-center justify-center">
               <CardContent className="text-center py-12">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
