@@ -1,6 +1,5 @@
 
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 import FeaturesList from "@/components/features/FeaturesList";
 import DemoSection from "@/components/features/DemoSection";
@@ -19,7 +18,6 @@ const Features = () => {
         <DemoSection />
         <TechnologyShowcase />
       </main>
-      <Footer />
     </div>
   );
 };

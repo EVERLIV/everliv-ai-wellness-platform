@@ -1,7 +1,6 @@
 
 import React, { ReactNode } from "react";
 import Header from "./Header";
-import Footer from "./Footer";
 import PageBreadcrumb from "./PageBreadcrumb";
 
 interface PageLayoutProps {
@@ -36,7 +35,6 @@ const PageLayout = ({
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

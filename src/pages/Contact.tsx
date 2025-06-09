@@ -1,6 +1,5 @@
 
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 import ContactForm from "@/components/contact/ContactForm";
 import ContactInfo from "@/components/contact/ContactInfo";
@@ -25,7 +24,6 @@ const Contact = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

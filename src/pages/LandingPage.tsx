@@ -1,7 +1,6 @@
 
 import React from 'react';
 import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
 import KeyFeaturesSection from '@/components/KeyFeaturesSection';
 import ServicesSection from '@/components/ServicesSection';
@@ -20,7 +19,7 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
-      <main className="flex-grow pt-24"> {/* Increased padding-top to prevent overlap with header */}
+      <main className="flex-grow pt-24">
         <HeroSection />
         <KeyFeaturesSection />
         <ServicesSection />
@@ -35,7 +34,6 @@ const LandingPage = () => {
         <CompanyInfoSection />
         <CTASection />
       </main>
-      <Footer />
     </div>
   );
 };

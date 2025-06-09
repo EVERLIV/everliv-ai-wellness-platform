@@ -1,6 +1,5 @@
 
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 import PricingTable from "@/components/pricing/PricingTable";
 import PricingFAQ from "@/components/pricing/PricingFAQ";
@@ -23,7 +22,6 @@ const Pricing = () => {
         <PricingFAQ />
         <CTASection />
       </main>
-      <Footer />
     </div>
   );
 };

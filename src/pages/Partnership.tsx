@@ -1,7 +1,6 @@
 
 import React from 'react';
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import PartnershipHero from "@/components/partnership/PartnershipHero";
 import PartnershipCards from "@/components/partnership/PartnershipCards";
 import PartnershipBenefits from "@/components/partnership/PartnershipBenefits";
@@ -39,7 +38,6 @@ const Partnership = () => {
           <PartnershipCTA />
         </section>
       </main>
-      <Footer />
     </div>
   );
 };

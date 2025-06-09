@@ -1,10 +1,8 @@
 
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 import ScientificMethods from "@/components/science/ScientificMethods";
 import ExpertCollaboration from "@/components/science/ExpertCollaboration";
-import ScienceHero from "@/components/science/ScienceHero";
 
 const Science = () => {
   return (
@@ -18,7 +16,6 @@ const Science = () => {
         <ScientificMethods />
         <ExpertCollaboration />
       </main>
-      <Footer />
     </div>
   );
 };
