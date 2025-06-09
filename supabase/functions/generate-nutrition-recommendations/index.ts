@@ -35,7 +35,10 @@ serve(async (req) => {
             content: `Вы - эксперт по персонализированному питанию и нутрициологии. 
             Анализируйте данные пользователя и создавайте персональные рекомендации по питанию, анализам и добавкам.
             
-            Отвечайте ТОЛЬКО в формате JSON объекта следующей структуры:
+            ВАЖНО: Отвечайте ТОЛЬКО валидным JSON объектом БЕЗ markdown форматирования.
+            НЕ ИСПОЛЬЗУЙТЕ обертку \`\`\`json или любые другие markdown символы.
+            
+            Структура ответа:
             {
               "foods": [
                 {
@@ -110,14 +113,28 @@ serve(async (req) => {
       throw new Error(data.error.message);
     }
 
-    const aiResponse = data.choices[0].message.content;
+    let aiResponse = data.choices[0].message.content;
     console.log('AI Response:', aiResponse);
+
+    // Очищаем ответ от markdown форматирования
+    aiResponse = aiResponse.trim();
+    
+    // Удаляем markdown блоки если они есть
+    if (aiResponse.startsWith('```json')) {
+      aiResponse = aiResponse.replace(/^```json\n/, '').replace(/\n```$/, '');
+    } else if (aiResponse.startsWith('```')) {
+      aiResponse = aiResponse.replace(/^```[a-zA-Z]*\n/, '').replace(/\n```$/, '');
+    }
+    
+    // Удаляем возможные лишние символы в начале и конце
+    aiResponse = aiResponse.trim();
 
     let recommendations;
     try {
       recommendations = JSON.parse(aiResponse);
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
+      console.error('Raw AI response:', aiResponse);
       throw new Error('Invalid AI response format');
     }
 
