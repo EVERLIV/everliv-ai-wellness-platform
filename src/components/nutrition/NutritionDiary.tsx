@@ -8,6 +8,7 @@ import NutritionGoals from "./NutritionGoals";
 import DailyProgress from "./DailyProgress";
 import MealEntry from "./MealEntry";
 import NutritionCharts from "./NutritionCharts";
+import PersonalizedRecommendations from "./PersonalizedRecommendations";
 import { useFoodEntries } from "@/hooks/useFoodEntries";
 
 const NutritionDiary: React.FC = () => {
@@ -117,16 +118,7 @@ const NutritionDiary: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="recommendations">
-          <Card>
-            <CardHeader>
-              <CardTitle>Персональные рекомендации</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                Здесь будут отображаться персональные рекомендации по питанию на основе ваших целей и прогресса.
-              </p>
-            </CardContent>
-          </Card>
+          <PersonalizedRecommendations />
         </TabsContent>
       </Tabs>
 
