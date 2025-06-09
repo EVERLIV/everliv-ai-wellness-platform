@@ -94,8 +94,8 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
         </div>
       </div>
 
-      {/* Chat Interface - прозрачный фон */}
-      <div className="h-[600px] flex flex-col rounded-lg">
+      {/* Chat Interface */}
+      <div className="h-[600px] flex flex-col">
         <div className="flex-1 flex flex-col">
           <ChatMessages 
             messages={messages} 
@@ -103,8 +103,9 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
             messagesEndRef={messagesEndRef}
           />
           
+          {/* Показываем быстрые сообщения только когда нет сообщений */}
           {messages.length === 0 && (
-            <div className="p-4 border-t border-gray-100">
+            <div className="p-4">
               <SuggestedQuestions 
                 questions={suggestedQuestions}
                 onSelectQuestion={handleSuggestedQuestion} 
@@ -112,7 +113,7 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
             </div>
           )}
           
-          <div className="border-t border-gray-100 p-4">
+          <div className="p-4">
             <ChatInput
               inputText={inputText}
               setInputText={setInputText}
