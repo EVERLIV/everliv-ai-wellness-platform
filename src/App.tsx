@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import Partnership from './pages/Partnership';
 import Analytics from './pages/Analytics';
+import LabAnalyses from './pages/LabAnalyses';
 
 // Import pages that exist in our read-only files list
 import Science from './pages/Science';
@@ -47,6 +48,11 @@ function App() {
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Dashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/lab-analyses" element={
+        <ProtectedRoute>
+          <LabAnalyses />
         </ProtectedRoute>
       } />
       <Route path="/analytics" element={

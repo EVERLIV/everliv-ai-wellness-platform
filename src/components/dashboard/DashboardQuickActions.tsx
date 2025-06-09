@@ -7,12 +7,12 @@ import { Link } from "react-router-dom";
 const quickActions = [
   {
     title: "Лабораторные анализы",
-    subtitle: "Загрузить и анализировать",
+    subtitle: "Загрузить и просмотреть",
     icon: TestTube2,
     iconColor: "text-emerald-600",
     iconBg: "bg-emerald-50",
-    path: "/analytics",
-    description: "Получите детальную расшифровку ваших анализов крови с помощью ИИ"
+    path: "/lab-analyses",
+    description: "Загрузите результаты анализов и получите детальную расшифровку с помощью ИИ"
   },
   {
     title: "ИИ-Доктор",
