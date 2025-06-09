@@ -1,9 +1,10 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { Message } from './types';
 import { v4 as uuidv4 } from 'uuid';
-import { processPersonalAIDoctorMessage, getUserMedicalContext } from '@/services/ai/ai-doctor-service';
+import { processPersonalAIDoctorMessage, getUserMedicalContext, getSuggestedQuestions } from '@/services/ai/ai-doctor-service';
 import { getMedicalAnalysesHistory } from '@/services/ai/medical-analysis';
 
 export const usePersonalAIDoctorChat = () => {
@@ -13,10 +14,33 @@ export const usePersonalAIDoctorChat = () => {
   const [medicalContext, setMedicalContext] = useState('');
   const [userAnalyses, setUserAnalyses] = useState([]);
   const { user } = useAuth();
+  const { subscription } = useSubscription();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Check if user can use the feature
+  const canUseFeature = user !== null;
+  const isBasicUser = !subscription || subscription.plan_type === 'basic';
+  
+  // Message limit logic for basic users
+  const messageLimit = 3;
+  const [messagesUsed, setMessagesUsed] = useState(0);
+  
+  useEffect(() => {
+    if (isBasicUser && user) {
+      const today = new Date().toDateString();
+      const storageKey = `ai_doctor_messages_${user.id}_${today}`;
+      const savedMessages = localStorage.getItem(storageKey);
+      if (savedMessages) {
+        setMessagesUsed(parseInt(savedMessages, 10));
+      }
+    }
+  }, [user, isBasicUser]);
+
+  const remainingMessages = isBasicUser ? messageLimit - messagesUsed : null;
 
   // Инициализация чата с персональным приветствием
   useEffect(() => {
-    if (messages.length === 0) {
+    if (messages.length === 0 && canUseFeature) {
       const welcomeMessage: Message = {
         id: uuidv4(),
         role: 'assistant',
@@ -42,11 +66,46 @@ export const usePersonalAIDoctorChat = () => {
       }
     };
     
-    loadUserData();
-  }, [user]);
+    if (canUseFeature) {
+      loadUserData();
+    }
+  }, [user, canUseFeature]);
+
+  // Auto scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputText.trim() || isProcessing) return;
+    
+    // Check message limit for basic users
+    if (isBasicUser && messagesUsed >= messageLimit) {
+      return;
+    }
+    
+    sendMessage(inputText);
+  }, [inputText, isProcessing, isBasicUser, messagesUsed, messageLimit]);
+
+  const handleSuggestedQuestion = useCallback((question: string) => {
+    if (isProcessing) return;
+    
+    // Check message limit for basic users
+    if (isBasicUser && messagesUsed >= messageLimit) {
+      return;
+    }
+    
+    sendMessage(question);
+  }, [isProcessing, isBasicUser, messagesUsed, messageLimit]);
 
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim()) return;
+    
+    // Check message limit for basic users
+    if (isBasicUser && messagesUsed >= messageLimit) {
+      return;
+    }
     
     // Добавляем сообщение пользователя
     const userMessage: Message = {
@@ -59,6 +118,16 @@ export const usePersonalAIDoctorChat = () => {
     setMessages(prev => [...prev, userMessage]);
     setIsProcessing(true);
     setInputText('');
+    
+    // Update message count for basic users
+    if (isBasicUser && user) {
+      const newCount = messagesUsed + 1;
+      setMessagesUsed(newCount);
+      
+      const today = new Date().toDateString();
+      const storageKey = `ai_doctor_messages_${user.id}_${today}`;
+      localStorage.setItem(storageKey, newCount.toString());
+    }
     
     try {
       // Обрабатываем сообщение через персональный ИИ сервис
@@ -84,7 +153,7 @@ export const usePersonalAIDoctorChat = () => {
     } finally {
       setIsProcessing(false);
     }
-  }, [messages, user, userAnalyses, medicalContext]);
+  }, [messages, user, userAnalyses, medicalContext, isBasicUser, messagesUsed, messageLimit]);
 
   return {
     messages,
@@ -93,7 +162,12 @@ export const usePersonalAIDoctorChat = () => {
     isProcessing,
     sendMessage,
     medicalContext,
-    userAnalyses
+    userAnalyses,
+    canUseFeature,
+    remainingMessages,
+    handleSubmit,
+    handleSuggestedQuestion,
+    messagesEndRef
   };
 };
 

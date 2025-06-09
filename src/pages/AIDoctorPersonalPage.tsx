@@ -81,7 +81,7 @@ const AIDoctorPersonalPage = () => {
                 <div>
                   <h1 className="text-2xl font-semibold text-gray-900">Персональный ИИ-Доктор</h1>
                   <p className="text-gray-600">
-                    {isBasicUser ? "1 сообщений осталось" : "Неограниченные консультации"}
+                    {isBasicUser ? `${remainingMessages} сообщений осталось` : "Неограниченные консультации"}
                   </p>
                 </div>
               </div>
@@ -140,9 +140,7 @@ const AIDoctorPersonalPage = () => {
             <Card className="min-h-[600px]">
               <CardContent className="p-0">
                 <PersonalAIDoctorChat 
-                  onMessageSent={handleMessageSent}
-                  isLimitedUser={isBasicUser}
-                  remainingMessages={remainingMessages}
+                  onBack={() => navigate("/ai-doctor")}
                 />
               </CardContent>
             </Card>

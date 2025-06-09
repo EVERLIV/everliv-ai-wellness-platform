@@ -43,7 +43,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
     }
   };
 
-  const getRiskColor = (level: string) => {
+  const getRiskColor = (level: string): "default" | "destructive" | "outline" | "secondary" => {
     switch (level) {
       case 'high':
         return 'destructive';

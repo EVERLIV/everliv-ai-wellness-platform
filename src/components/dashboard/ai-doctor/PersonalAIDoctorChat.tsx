@@ -8,6 +8,7 @@ import ChatInput from "./ChatInput";
 import SuggestedQuestions from "./SuggestedQuestions";
 import AIFeatureAccess from "./AIFeatureAccess";
 import { usePersonalAIDoctorChat } from "./usePersonalAIDoctorChat";
+import { getSuggestedQuestions } from "@/services/ai/ai-doctor-service";
 
 interface PersonalAIDoctorChatProps {
   onBack: () => void;
@@ -22,38 +23,43 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
     canUseFeature,
     remainingMessages,
     handleSubmit,
-    handleSuggestedQuestion
+    handleSuggestedQuestion,
+    messagesEndRef
   } = usePersonalAIDoctorChat();
+
+  // Get suggested questions
+  const suggestedQuestions = getSuggestedQuestions({});
 
   if (!canUseFeature) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={onBack}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Назад
-          </Button>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-              <Bot className="h-6 w-6 text-blue-600" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Персональный ИИ Доктор EVERLIV</h1>
-              <p className="text-gray-600">Персонализированные консультации с доступом к вашим анализам</p>
+      <AIFeatureAccess 
+        featureName="Персональный ИИ Доктор"
+        title="Персональный ИИ Доктор EVERLIV"
+        description="Персонализированные консультации с доступом к вашим анализам"
+      >
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onBack}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Назад
+            </Button>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <Bot className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Персональный ИИ Доктор EVERLIV</h1>
+                <p className="text-gray-600">Персонализированные консультации с доступом к вашим анализам</p>
+              </div>
             </div>
           </div>
         </div>
-
-        <AIFeatureAccess 
-          featureName="Персональный ИИ Доктор"
-          description="Получите персонализированные медицинские консультации с учетом ваших анализов и истории здоровья"
-        />
-      </div>
+      </AIFeatureAccess>
     );
   }
 
@@ -103,12 +109,19 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
         
         <CardContent className="flex-1 flex flex-col p-0">
           <div className="flex-1 overflow-hidden">
-            <ChatMessages messages={messages} />
+            <ChatMessages 
+              messages={messages} 
+              isProcessing={isProcessing}
+              messagesEndRef={messagesEndRef}
+            />
           </div>
           
           {messages.length === 0 && (
             <div className="p-6 border-t">
-              <SuggestedQuestions onQuestionSelect={handleSuggestedQuestion} />
+              <SuggestedQuestions 
+                questions={suggestedQuestions}
+                onSelectQuestion={handleSuggestedQuestion} 
+              />
             </div>
           )}
           

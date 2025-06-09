@@ -19,7 +19,7 @@ interface AnalysisCardProps {
   onViewAnalysis: (analysisId: string) => void;
   getAnalysisTypeLabel: (type: string) => string;
   getRiskIcon: (level: string) => string;
-  getRiskColor: (level: string) => string;
+  getRiskColor: (level: string) => "default" | "destructive" | "outline" | "secondary";
   getRiskText: (level: string) => string;
 }
 
