@@ -49,9 +49,9 @@ const NutritionCharts: React.FC = () => {
           };
         }
         acc[date].calories += entry.calories;
-        acc[date].protein += parseFloat(entry.protein);
-        acc[date].carbs += parseFloat(entry.carbs);
-        acc[date].fat += parseFloat(entry.fat);
+        acc[date].protein += Number(entry.protein);
+        acc[date].carbs += Number(entry.carbs);
+        acc[date].fat += Number(entry.fat);
         return acc;
       }, {});
 
@@ -83,9 +83,9 @@ const NutritionCharts: React.FC = () => {
 
       const totals = data.reduce((acc, entry) => ({
         calories: acc.calories + entry.calories,
-        protein: acc.protein + parseFloat(entry.protein),
-        carbs: acc.carbs + parseFloat(entry.carbs),
-        fat: acc.fat + parseFloat(entry.fat)
+        protein: acc.protein + Number(entry.protein),
+        carbs: acc.carbs + Number(entry.carbs),
+        fat: acc.fat + Number(entry.fat)
       }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
 
       setTodayData(totals);

@@ -2,22 +2,16 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { FoodEntry } from '@/types/database';
 
-interface FoodEntry {
-  id?: string;
-  meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
-  food_name: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  portion_size?: string;
-  image_url?: string;
-  entry_date: string;
+type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+
+interface LocalFoodEntry extends Omit<FoodEntry, 'meal_type'> {
+  meal_type: MealType;
 }
 
 export const useFoodEntries = (selectedDate: Date) => {
-  const [entries, setEntries] = useState<FoodEntry[]>([]);
+  const [entries, setEntries] = useState<LocalFoodEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const dateString = selectedDate.toISOString().split('T')[0];
@@ -36,7 +30,13 @@ export const useFoodEntries = (selectedDate: Date) => {
 
       if (error) throw error;
 
-      setEntries(data || []);
+      // Convert database entries to local type
+      const typedEntries: LocalFoodEntry[] = (data || []).map(entry => ({
+        ...entry,
+        meal_type: entry.meal_type as MealType
+      }));
+
+      setEntries(typedEntries);
     } catch (error) {
       console.error('Error fetching food entries:', error);
       toast.error('Ошибка при загрузке записей о питании');
@@ -45,7 +45,7 @@ export const useFoodEntries = (selectedDate: Date) => {
     }
   };
 
-  const addEntry = async (entry: Omit<FoodEntry, 'id'>) => {
+  const addEntry = async (entry: Omit<LocalFoodEntry, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
@@ -54,17 +54,29 @@ export const useFoodEntries = (selectedDate: Date) => {
         .from('food_entries')
         .insert({
           user_id: user.id,
-          ...entry,
-          entry_date: dateString
+          meal_type: entry.meal_type,
+          food_name: entry.food_name,
+          calories: entry.calories,
+          protein: entry.protein,
+          carbs: entry.carbs,
+          fat: entry.fat,
+          portion_size: entry.portion_size,
+          image_url: entry.image_url,
+          entry_date: entry.entry_date
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      setEntries(prev => [...prev, data]);
+      const typedEntry: LocalFoodEntry = {
+        ...data,
+        meal_type: data.meal_type as MealType
+      };
+
+      setEntries(prev => [...prev, typedEntry]);
       toast.success('Прием пищи добавлен!');
-      return data;
+      return typedEntry;
     } catch (error) {
       console.error('Error adding food entry:', error);
       toast.error('Ошибка при добавлении приема пищи');
@@ -101,9 +113,9 @@ export const useFoodEntries = (selectedDate: Date) => {
 
     entries.forEach(entry => {
       summary[entry.meal_type].calories += entry.calories;
-      summary[entry.meal_type].protein += entry.protein;
-      summary[entry.meal_type].carbs += entry.carbs;
-      summary[entry.meal_type].fat += entry.fat;
+      summary[entry.meal_type].protein += Number(entry.protein);
+      summary[entry.meal_type].carbs += Number(entry.carbs);
+      summary[entry.meal_type].fat += Number(entry.fat);
     });
 
     return summary;
@@ -114,9 +126,9 @@ export const useFoodEntries = (selectedDate: Date) => {
     return entries.reduce(
       (totals, entry) => ({
         calories: totals.calories + entry.calories,
-        protein: totals.protein + entry.protein,
-        carbs: totals.carbs + entry.carbs,
-        fat: totals.fat + entry.fat
+        protein: totals.protein + Number(entry.protein),
+        carbs: totals.carbs + Number(entry.carbs),
+        fat: totals.fat + Number(entry.fat)
       }),
       { calories: 0, protein: 0, carbs: 0, fat: 0 }
     );

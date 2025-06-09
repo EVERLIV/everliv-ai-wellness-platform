@@ -45,7 +45,14 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
     try {
       await addEntry({
         meal_type: mealType,
-        ...foodData
+        food_name: foodData.food_name,
+        calories: foodData.calories,
+        protein: foodData.protein,
+        carbs: foodData.carbs,
+        fat: foodData.fat,
+        portion_size: foodData.portion_size,
+        image_url: null,
+        entry_date: selectedDate.toISOString().split('T')[0]
       });
       onClose();
     } catch (error) {
