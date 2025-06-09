@@ -19,9 +19,10 @@ const PersonalizedRecommendations: React.FC = () => {
 
   const dailyTotals = getDailyTotals();
 
-  const handleGenerateRecommendations = () => {
+  const handleGenerateRecommendations = async () => {
+    console.log('Generating recommendations with data:', { profileData, goals, dailyTotals });
     if (profileData && goals) {
-      generateRecommendations({
+      await generateRecommendations({
         profile: profileData,
         goals,
         currentIntake: dailyTotals
@@ -32,6 +33,7 @@ const PersonalizedRecommendations: React.FC = () => {
   useEffect(() => {
     // Автоматически генерируем рекомендации при загрузке, если есть все необходимые данные
     if (profileData && goals && !recommendations && !isLoading) {
+      console.log('Auto-generating recommendations on load');
       handleGenerateRecommendations();
     }
   }, [profileData, goals]);
@@ -40,20 +42,20 @@ const PersonalizedRecommendations: React.FC = () => {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-        <span className="ml-2">Генерируем персональные рекомендации...</span>
+        <span className="ml-2 text-sm md:text-base">Генерируем персональные рекомендации...</span>
       </div>
     );
   }
 
   if (!recommendations) {
     return (
-      <Card>
+      <Card className="mx-2 md:mx-0">
         <CardContent className="pt-6">
           <div className="text-center py-8">
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 mb-4 text-sm md:text-base">
               Для получения персональных рекомендаций необходимо заполнить профиль и установить цели питания.
             </p>
-            <Button onClick={handleGenerateRecommendations} disabled={!profileData || !goals}>
+            <Button onClick={handleGenerateRecommendations} disabled={!profileData || !goals} className="w-full md:w-auto">
               Получить рекомендации
             </Button>
           </div>
@@ -63,37 +65,37 @@ const PersonalizedRecommendations: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Персональные рекомендации</h2>
-        <Button onClick={handleGenerateRecommendations} variant="outline" size="sm">
+    <div className="space-y-4 md:space-y-6 px-2 md:px-0">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <h2 className="text-lg md:text-xl font-semibold">Персональные рекомендации</h2>
+        <Button onClick={handleGenerateRecommendations} variant="outline" size="sm" className="w-full md:w-auto">
           Обновить рекомендации
         </Button>
       </div>
 
       <Tabs defaultValue="nutrition" className="w-full">
-        <TabsList className="grid grid-cols-4 w-full">
-          <TabsTrigger value="nutrition">Питание</TabsTrigger>
-          <TabsTrigger value="tests">Анализы</TabsTrigger>
-          <TabsTrigger value="vitamins">Витамины</TabsTrigger>
-          <TabsTrigger value="lifestyle">Образ жизни</TabsTrigger>
+        <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full">
+          <TabsTrigger value="nutrition" className="text-xs md:text-sm">Питание</TabsTrigger>
+          <TabsTrigger value="tests" className="text-xs md:text-sm">Анализы</TabsTrigger>
+          <TabsTrigger value="vitamins" className="text-xs md:text-sm">Витамины</TabsTrigger>
+          <TabsTrigger value="lifestyle" className="text-xs md:text-sm">Образ жизни</TabsTrigger>
         </TabsList>
 
         <TabsContent value="nutrition" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Apple className="h-5 w-5 text-green-500" />
+              <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                <Apple className="h-4 w-4 md:h-5 md:w-5 text-green-500" />
                 Рекомендуемые продукты
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {recommendations.foods?.map((food, index) => (
-                  <div key={index} className="p-4 border rounded-lg">
-                    <h4 className="font-medium text-lg mb-2">{food.name}</h4>
-                    <p className="text-sm text-gray-600 mb-3">{food.reason}</p>
-                    <div className="grid grid-cols-4 gap-2 text-xs">
+                  <div key={index} className="p-3 md:p-4 border rounded-lg">
+                    <h4 className="font-medium text-base md:text-lg mb-2">{food.name}</h4>
+                    <p className="text-xs md:text-sm text-gray-600 mb-3">{food.reason}</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                       <div className="text-center">
                         <div className="font-medium">{food.calories}</div>
                         <div className="text-gray-500">ккал</div>
@@ -124,16 +126,16 @@ const PersonalizedRecommendations: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Дневной план питания</CardTitle>
+              <CardTitle className="text-lg md:text-xl">Дневной план питания</CardTitle>
             </CardHeader>
             <CardContent>
               {recommendations.mealPlan?.map((meal, index) => (
                 <div key={index} className="mb-4 p-3 bg-gray-50 rounded-lg">
-                  <h4 className="font-medium mb-2">{meal.mealType}</h4>
-                  <ul className="space-y-1 text-sm">
+                  <h4 className="font-medium mb-2 text-sm md:text-base">{meal.mealType}</h4>
+                  <ul className="space-y-1 text-xs md:text-sm">
                     {meal.foods.map((food, foodIndex) => (
                       <li key={foodIndex} className="flex justify-between">
-                        <span>{food}</span>
+                        <span className="break-words">{food}</span>
                       </li>
                     ))}
                   </ul>
@@ -146,26 +148,27 @@ const PersonalizedRecommendations: React.FC = () => {
         <TabsContent value="tests" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-red-500" />
+              <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                <Activity className="h-4 w-4 md:h-5 md:w-5 text-red-500" />
                 Рекомендуемые анализы
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {recommendations.labTests?.map((test, index) => (
-                  <div key={index} className="p-4 border rounded-lg">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium">{test.name}</h4>
+                  <div key={index} className="p-3 md:p-4 border rounded-lg">
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-2 gap-2">
+                      <h4 className="font-medium text-sm md:text-base">{test.name}</h4>
                       <Badge 
                         variant={test.priority === 'high' ? 'destructive' : 
                                 test.priority === 'medium' ? 'default' : 'secondary'}
+                        className="w-fit text-xs"
                       >
                         {test.priority === 'high' ? 'Высокий' : 
                          test.priority === 'medium' ? 'Средний' : 'Низкий'} приоритет
                       </Badge>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">{test.reason}</p>
+                    <p className="text-xs md:text-sm text-gray-600 mb-2">{test.reason}</p>
                     <p className="text-xs text-gray-500">
                       <strong>Периодичность:</strong> {test.frequency}
                     </p>
@@ -184,20 +187,20 @@ const PersonalizedRecommendations: React.FC = () => {
         <TabsContent value="vitamins" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-yellow-500" />
+              <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                <Zap className="h-4 w-4 md:h-5 md:w-5 text-yellow-500" />
                 Персональные витамины и добавки
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {recommendations.supplements?.map((supplement, index) => (
-                  <div key={index} className="p-4 border rounded-lg">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium">{supplement.name}</h4>
-                      <Badge variant="outline">{supplement.dosage}</Badge>
+                  <div key={index} className="p-3 md:p-4 border rounded-lg">
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-2 gap-2">
+                      <h4 className="font-medium text-sm md:text-base">{supplement.name}</h4>
+                      <Badge variant="outline" className="w-fit text-xs">{supplement.dosage}</Badge>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">{supplement.benefit}</p>
+                    <p className="text-xs md:text-sm text-gray-600 mb-2">{supplement.benefit}</p>
                     <p className="text-xs text-gray-500 mb-2">
                       <strong>Когда принимать:</strong> {supplement.timing}
                     </p>
@@ -214,14 +217,14 @@ const PersonalizedRecommendations: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Витамины для улучшения усвояемости</CardTitle>
+              <CardTitle className="text-lg md:text-xl">Витамины для улучшения усвояемости</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 {recommendations.absorptionHelpers?.map((helper, index) => (
                   <div key={index} className="p-3 bg-blue-50 rounded-lg">
-                    <h4 className="font-medium text-blue-800">{helper.name}</h4>
-                    <p className="text-sm text-blue-700">{helper.function}</p>
+                    <h4 className="font-medium text-blue-800 text-sm md:text-base">{helper.name}</h4>
+                    <p className="text-xs md:text-sm text-blue-700">{helper.function}</p>
                     <p className="text-xs text-blue-600 mt-1">
                       <strong>Принимать с:</strong> {helper.takeWith}
                     </p>
@@ -235,17 +238,17 @@ const PersonalizedRecommendations: React.FC = () => {
         <TabsContent value="lifestyle" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-purple-500" />
+              <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                <Heart className="h-4 w-4 md:h-5 md:w-5 text-purple-500" />
                 Рекомендации по образу жизни
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {recommendations.lifestyle?.map((recommendation, index) => (
-                  <div key={index} className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2">{recommendation.category}</h4>
-                    <p className="text-sm text-gray-600 mb-2">{recommendation.advice}</p>
+                  <div key={index} className="p-3 md:p-4 border rounded-lg">
+                    <h4 className="font-medium mb-2 text-sm md:text-base">{recommendation.category}</h4>
+                    <p className="text-xs md:text-sm text-gray-600 mb-2">{recommendation.advice}</p>
                     <div className="text-xs text-gray-500">
                       <strong>Цель:</strong> {recommendation.goal}
                     </div>
@@ -257,19 +260,19 @@ const PersonalizedRecommendations: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Прогресс к целям</CardTitle>
+              <CardTitle className="text-lg md:text-xl">Прогресс к целям</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <div className="flex justify-between text-sm mb-2">
+                  <div className="flex justify-between text-xs md:text-sm mb-2">
                     <span>Калории</span>
                     <span>{dailyTotals.calories}/{goals?.daily_calories}</span>
                   </div>
                   <Progress value={(dailyTotals.calories / (goals?.daily_calories || 1)) * 100} />
                 </div>
                 <div>
-                  <div className="flex justify-between text-sm mb-2">
+                  <div className="flex justify-between text-xs md:text-sm mb-2">
                     <span>Белки</span>
                     <span>{dailyTotals.protein.toFixed(1)}г/{goals?.daily_protein}г</span>
                   </div>

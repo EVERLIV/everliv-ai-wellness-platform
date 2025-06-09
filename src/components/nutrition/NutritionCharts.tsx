@@ -1,210 +1,204 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { supabase } from '@/integrations/supabase/client';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { CalendarDays, TrendingUp, PieChart as PieChartIcon, BarChart3 } from "lucide-react";
 
 const NutritionCharts: React.FC = () => {
-  const [weeklyData, setWeeklyData] = useState<any[]>([]);
-  const [todayData, setTodayData] = useState({
-    protein: 0,
-    carbs: 0,
-    fat: 0,
-    calories: 0
-  });
+  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month'>('week');
 
-  useEffect(() => {
-    fetchWeeklyData();
-    fetchTodayData();
-  }, []);
-
-  const fetchWeeklyData = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(endDate.getDate() - 7);
-
-      const { data, error } = await supabase
-        .from('food_entries')
-        .select('*')
-        .eq('user_id', user.id)
-        .gte('entry_date', startDate.toISOString().split('T')[0])
-        .lte('entry_date', endDate.toISOString().split('T')[0]);
-
-      if (error) throw error;
-
-      // Группируем данные по дням
-      const groupedData = data.reduce((acc: any, entry: any) => {
-        const date = entry.entry_date;
-        if (!acc[date]) {
-          acc[date] = {
-            date,
-            calories: 0,
-            protein: 0,
-            carbs: 0,
-            fat: 0
-          };
-        }
-        acc[date].calories += entry.calories;
-        acc[date].protein += Number(entry.protein);
-        acc[date].carbs += Number(entry.carbs);
-        acc[date].fat += Number(entry.fat);
-        return acc;
-      }, {});
-
-      const chartData = Object.values(groupedData).map((day: any) => ({
-        ...day,
-        date: new Date(day.date).toLocaleDateString('ru-RU', { month: 'short', day: 'numeric' })
-      }));
-
-      setWeeklyData(chartData);
-    } catch (error) {
-      console.error('Error fetching weekly data:', error);
-    }
-  };
-
-  const fetchTodayData = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const today = new Date().toISOString().split('T')[0];
-
-      const { data, error } = await supabase
-        .from('food_entries')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('entry_date', today);
-
-      if (error) throw error;
-
-      const totals = data.reduce((acc, entry) => ({
-        calories: acc.calories + entry.calories,
-        protein: acc.protein + Number(entry.protein),
-        carbs: acc.carbs + Number(entry.carbs),
-        fat: acc.fat + Number(entry.fat)
-      }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
-
-      setTodayData(totals);
-    } catch (error) {
-      console.error('Error fetching today data:', error);
-    }
-  };
-
-  const pieData = [
-    { name: 'Белки', value: todayData.protein * 4, color: '#3B82F6' },
-    { name: 'Углеводы', value: todayData.carbs * 4, color: '#10B981' },
-    { name: 'Жиры', value: todayData.fat * 9, color: '#F59E0B' }
+  // Данные для демонстрации
+  const weeklyData = [
+    { date: 'Пн', calories: 1800, protein: 120, carbs: 200, fat: 70 },
+    { date: 'Вт', calories: 2000, protein: 130, carbs: 220, fat: 80 },
+    { date: 'Ср', calories: 1900, protein: 125, carbs: 210, fat: 75 },
+    { date: 'Чт', calories: 2100, protein: 140, carbs: 230, fat: 85 },
+    { date: 'Пт', calories: 1950, protein: 135, carbs: 215, fat: 78 },
+    { date: 'Сб', calories: 2200, protein: 145, carbs: 240, fat: 90 },
+    { date: 'Вс', calories: 2050, protein: 138, carbs: 225, fat: 82 },
   ];
 
+  const macroDistribution = [
+    { name: 'Белки', value: 30, color: '#3B82F6' },
+    { name: 'Углеводы', value: 45, color: '#10B981' },
+    { name: 'Жиры', value: 25, color: '#F59E0B' },
+  ];
+
+  const chartConfig = {
+    calories: {
+      label: "Калории",
+      color: "#8884d8",
+    },
+    protein: {
+      label: "Белки",
+      color: "#3B82F6",
+    },
+    carbs: {
+      label: "Углеводы", 
+      color: "#10B981",
+    },
+    fat: {
+      label: "Жиры",
+      color: "#F59E0B",
+    },
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Прогресс по неделям</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={weeklyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="calories" stroke="#8884d8" strokeWidth={2} />
-                <Line type="monotone" dataKey="protein" stroke="#82ca9d" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="space-y-4 md:space-y-6 px-2 md:px-0">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <h2 className="text-lg md:text-xl font-semibold">Аналитика питания</h2>
+        <Tabs value={selectedPeriod} onValueChange={(value) => setSelectedPeriod(value as 'week' | 'month')} className="w-full md:w-auto">
+          <TabsList className="grid grid-cols-2 w-full md:w-auto">
+            <TabsTrigger value="week" className="text-xs md:text-sm">Неделя</TabsTrigger>
+            <TabsTrigger value="month" className="text-xs md:text-sm">Месяц</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Распределение калорий сегодня</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={40}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value: number) => [`${Math.round(value)} ккал`, 'Калории']} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex justify-center gap-4 mt-4">
-            {pieData.map((entry, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                <span className="text-sm">{entry.name}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="calories" className="w-full">
+        <TabsList className="grid grid-cols-2 md:grid-cols-3 w-full">
+          <TabsTrigger value="calories" className="text-xs md:text-sm">
+            <TrendingUp className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+            Калории
+          </TabsTrigger>
+          <TabsTrigger value="macros" className="text-xs md:text-sm">
+            <PieChartIcon className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+            БЖУ
+          </TabsTrigger>
+          <TabsTrigger value="detailed" className="text-xs md:text-sm">
+            <BarChart3 className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+            Детальная
+          </TabsTrigger>
+        </TabsList>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Сводка за сегодня</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span>Калории</span>
-              <span className="font-medium">{todayData.calories} ккал</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Белки</span>
-              <span className="font-medium">{todayData.protein.toFixed(1)}г</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Углеводы</span>
-              <span className="font-medium">{todayData.carbs.toFixed(1)}г</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Жиры</span>
-              <span className="font-medium">{todayData.fat.toFixed(1)}г</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <TabsContent value="calories" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                <CalendarDays className="h-4 w-4 md:h-5 md:w-5 text-blue-500" />
+                Динамика калорий
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer config={chartConfig} className="h-64 md:h-80 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={weeklyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="date" 
+                      fontSize={12}
+                      tickMargin={5}
+                    />
+                    <YAxis 
+                      fontSize={12}
+                      tickMargin={5}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Line 
+                      type="monotone" 
+                      dataKey="calories" 
+                      stroke="var(--color-calories)" 
+                      strokeWidth={2}
+                      dot={{ r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Достижения</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                ✓
-              </div>
-              <span className="text-green-700">Цель по калориям достигнута</span>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                7
-              </div>
-              <span className="text-blue-700">Дней ведения дневника</span>
-            </div>
+        <TabsContent value="macros" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base md:text-lg">Распределение БЖУ</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={chartConfig} className="h-48 md:h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={macroDistribution}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={60}
+                        dataKey="value"
+                        label={({ name, value }) => `${name}: ${value}%`}
+                        labelLine={false}
+                        fontSize={10}
+                      >
+                        {macroDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base md:text-lg">Средние значения</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 md:space-y-4">
+                  <div className="flex justify-between items-center p-2 md:p-3 bg-blue-50 rounded">
+                    <span className="text-xs md:text-sm font-medium">Белки</span>
+                    <span className="text-xs md:text-sm">132г/день</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 md:p-3 bg-green-50 rounded">
+                    <span className="text-xs md:text-sm font-medium">Углеводы</span>
+                    <span className="text-xs md:text-sm">220г/день</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 md:p-3 bg-orange-50 rounded">
+                    <span className="text-xs md:text-sm font-medium">Жиры</span>
+                    <span className="text-xs md:text-sm">80г/день</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 md:p-3 bg-gray-50 rounded">
+                    <span className="text-xs md:text-sm font-medium">Калории</span>
+                    <span className="text-xs md:text-sm">2000 ккал/день</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
+
+        <TabsContent value="detailed" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base md:text-lg">Детальная аналитика БЖУ</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer config={chartConfig} className="h-64 md:h-80 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={weeklyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="date" 
+                      fontSize={12}
+                      tickMargin={5}
+                    />
+                    <YAxis 
+                      fontSize={12}
+                      tickMargin={5}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="protein" fill="var(--color-protein)" name="Белки" />
+                    <Bar dataKey="carbs" fill="var(--color-carbs)" name="Углеводы" />
+                    <Bar dataKey="fat" fill="var(--color-fat)" name="Жиры" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

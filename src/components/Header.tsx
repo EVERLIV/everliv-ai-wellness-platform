@@ -1,105 +1,80 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSubscription } from "@/contexts/SubscriptionContext";
-import { Bell, Plus, Crown } from "lucide-react";
-import Logo from "@/components/header/Logo";
-import UserProfileDropdown from "@/components/header/UserProfileDropdown";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { Menu, X } from "lucide-react";
+import Logo from "./header/Logo";
+import DesktopNavigation from "./header/DesktopNavigation";
+import UserProfileDropdown from "./header/UserProfileDropdown";
+import MobileMenu from "./header/MobileMenu";
 
 const Header: React.FC = () => {
-  const { user, signOut } = useAuth();
-  const { subscription, isLoading } = useSubscription();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  
+  const isAdmin = useIsAdmin();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate('/');
-    } catch (error) {
-      console.error("Sign out failed:", error);
-    }
+    await supabase.auth.signOut();
+    navigate("/");
   };
-  
-  if (!user) {
-    return null;
-  }
-
-  // Определяем текущий тариф с более точной логикой
-  const getCurrentPlan = () => {
-    console.log("Subscription data:", subscription);
-    
-    // Если подписка загружается, показываем загрузку
-    if (isLoading) {
-      return "Загрузка...";
-    }
-    
-    // Проверяем активную подписку
-    if (subscription && subscription.status === 'active') {
-      const now = new Date();
-      const expiresAt = new Date(subscription.expires_at);
-      
-      // Проверяем, не истекла ли подписка
-      if (expiresAt > now) {
-        switch (subscription.plan_type) {
-          case 'premium':
-            return 'Премиум';
-          case 'standard':
-            return 'Стандарт';
-          case 'basic':
-            return 'Базовый';
-          default:
-            return 'Базовый';
-        }
-      }
-    }
-    
-    return null; // Нет активной подписки
-  };
-
-  const currentPlan = getCurrentPlan();
-  const hasActiveSubscription = currentPlan && currentPlan !== "Загрузка...";
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
-      <div className="flex items-center justify-between px-6 py-3">
-        {/* Left side - Logo and Dashboard title */}
-        <div className="flex items-center gap-4">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
           <Logo />
-          <div className="h-6 w-px bg-gray-300"></div>
-          <h1 className="text-lg font-semibold text-gray-900">Панель Управления</h1>
-        </div>
 
-        {/* Right side - Actions and Profile */}
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-          </Button>
-          
-          {hasActiveSubscription ? (
-            <Button 
-              className="gap-2 bg-amber-600 hover:bg-amber-700 text-white"
-              onClick={() => navigate('/billing')}
-              disabled={isLoading}
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex">
+            <DesktopNavigation user={user} isAdmin={isAdmin} />
+          </div>
+
+          {/* Desktop Auth Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
+            {user ? (
+              <UserProfileDropdown user={user} isAdmin={isAdmin} onSignOut={handleSignOut} />
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost" size="sm">Войти</Button>
+                </Link>
+                <Link to="/signup">
+                  <Button size="sm">Регистрация</Button>
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center space-x-2">
+            {user && (
+              <UserProfileDropdown user={user} isAdmin={isAdmin} onSignOut={handleSignOut} />
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2"
             >
-              <Crown className="h-4 w-4" />
-              {currentPlan}
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-          ) : (
-            <Button 
-              className="gap-2 bg-primary hover:bg-primary/90 text-white"
-              onClick={() => navigate('/pricing')}
-              disabled={isLoading}
-            >
-              <Plus className="h-4 w-4" />
-              {isLoading ? 'Загрузка...' : 'Выбрать Тариф'}
-            </Button>
-          )}
-          
-          <UserProfileDropdown />
+          </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      <MobileMenu
+        isOpen={isMobileMenuOpen}
+        setIsOpen={setIsMobileMenuOpen}
+        user={user}
+        isAdmin={isAdmin}
+        handleSignOut={handleSignOut}
+      />
     </header>
   );
 };
