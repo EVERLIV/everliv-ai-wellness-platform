@@ -19,7 +19,7 @@ const PersonalizedRecommendations: React.FC = () => {
 
   const dailyTotals = getDailyTotals();
 
-  useEffect(() => {
+  const handleGenerateRecommendations = () => {
     if (profileData && goals) {
       generateRecommendations({
         profile: profileData,
@@ -27,7 +27,14 @@ const PersonalizedRecommendations: React.FC = () => {
         currentIntake: dailyTotals
       });
     }
-  }, [profileData, goals, dailyTotals]);
+  };
+
+  useEffect(() => {
+    // Автоматически генерируем рекомендации при загрузке, если есть все необходимые данные
+    if (profileData && goals && !recommendations && !isLoading) {
+      handleGenerateRecommendations();
+    }
+  }, [profileData, goals]);
 
   if (isLoading) {
     return (
@@ -46,11 +53,7 @@ const PersonalizedRecommendations: React.FC = () => {
             <p className="text-gray-600 mb-4">
               Для получения персональных рекомендаций необходимо заполнить профиль и установить цели питания.
             </p>
-            <Button onClick={() => generateRecommendations({
-              profile: profileData,
-              goals,
-              currentIntake: dailyTotals
-            })}>
+            <Button onClick={handleGenerateRecommendations} disabled={!profileData || !goals}>
               Получить рекомендации
             </Button>
           </div>
@@ -61,6 +64,13 @@ const PersonalizedRecommendations: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Персональные рекомендации</h2>
+        <Button onClick={handleGenerateRecommendations} variant="outline" size="sm">
+          Обновить рекомендации
+        </Button>
+      </div>
+
       <Tabs defaultValue="nutrition" className="w-full">
         <TabsList className="grid grid-cols-4 w-full">
           <TabsTrigger value="nutrition">Питание</TabsTrigger>
