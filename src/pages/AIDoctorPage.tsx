@@ -26,7 +26,9 @@ const AIDoctorPage = () => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const hasPersonalAIDoctorAccess = canUseFeature('personal_ai_doctor');
+  // Все авторизованные пользователи имеют доступ к AI Doctor
+  const hasPersonalAIDoctorAccess = !!user;
+  const isPremiumUser = canUseFeature('personal_ai_doctor');
 
   useEffect(() => {
     if (user) {
@@ -114,58 +116,51 @@ const AIDoctorPage = () => {
                 <MessageSquare className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <h1 className="text-2xl font-semibold text-gray-900">Персональный ИИ-Доктор</h1>
+                <h1 className="text-2xl font-semibold text-gray-900">ИИ-Доктор EVERLIV</h1>
                 <p className="text-gray-600">
-                  {hasPersonalAIDoctorAccess ? "Неограниченные консультации" : "Ограниченный доступ"}
+                  {isPremiumUser ? "Неограниченные консультации" : "Базовый доступ - 3 сообщения в день"}
                 </p>
               </div>
             </div>
 
-            {hasPersonalAIDoctorAccess ? (
+            {isPremiumUser ? (
               <Badge variant="outline" className="text-amber-600 border-amber-300">
                 <Crown className="h-4 w-4 mr-1" />
                 Премиум
               </Badge>
             ) : (
-              <Badge variant="outline" className="text-orange-600 border-orange-300">
-                Пробная версия
+              <Badge variant="outline" className="text-blue-600 border-blue-300">
+                Базовый доступ
               </Badge>
             )}
           </div>
 
-          {/* Предупреждение для пользователей без премиума */}
-          {!hasPersonalAIDoctorAccess && (
-            <Alert className="mb-6 bg-gradient-to-r from-orange-50 to-purple-50 border-orange-200">
-              <Crown className="h-4 w-4 text-orange-600" />
+          {/* Информация для базовых пользователей */}
+          {!isPremiumUser && (
+            <Alert className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+              <Crown className="h-4 w-4 text-blue-600" />
               <AlertDescription>
                 <div>
-                  <p className="font-medium text-orange-800 mb-1">Ограниченная версия</p>
-                  <p className="text-orange-700 text-sm">
-                    В пробной версии доступно 3 сообщения в день. Обновите подписку для неограниченного доступа.
+                  <p className="font-medium text-blue-800 mb-1">Базовая версия</p>
+                  <p className="text-blue-700 text-sm">
+                    Доступно 3 сообщения в день. Обновите подписку для неограниченного доступа и дополнительных функций.
                   </p>
                 </div>
               </AlertDescription>
             </Alert>
           )}
 
-          {/* Кнопка создания нового чата */}
-          <div className="mb-6">
-            {hasPersonalAIDoctorAccess ? (
-              <Button onClick={createNewChat} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Новый чат
+          {/* Кнопки управления */}
+          <div className="mb-6 flex gap-3">
+            <Button onClick={createNewChat} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Новый чат
+            </Button>
+            {!isPremiumUser && (
+              <Button onClick={() => navigate("/pricing")} variant="outline" className="gap-2">
+                <Crown className="h-4 w-4" />
+                Обновить подписку
               </Button>
-            ) : (
-              <div className="flex gap-3">
-                <Button onClick={createNewChat} className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Новый чат (пробная версия)
-                </Button>
-                <Button onClick={() => navigate("/pricing")} variant="outline" className="gap-2">
-                  <Crown className="h-4 w-4" />
-                  Обновить подписку
-                </Button>
-              </div>
             )}
           </div>
 
@@ -183,7 +178,7 @@ const AIDoctorPage = () => {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Нет сохраненных чатов</h3>
                 <p className="text-gray-600 mb-6">
-                  Создайте первый чат с персональным ИИ-доктором
+                  Создайте первый чат с ИИ-доктором
                 </p>
                 <Button onClick={createNewChat} className="gap-2">
                   <Plus className="h-4 w-4" />
@@ -233,14 +228,20 @@ const AIDoctorPage = () => {
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Возможности персонального ИИ-доктора</CardTitle>
+                <CardTitle className="text-lg">Возможности ИИ-доктора</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm text-gray-600">
-                  <li>✓ Доступ к истории ваших анализов</li>
-                  <li>✓ Персонализированные рекомендации</li>
-                  <li>✓ Запоминание контекста разговора</li>
-                  <li>✓ Подробная расшифровка результатов</li>
+                  <li>✓ Медицинские консультации</li>
+                  <li>✓ Анализ симптомов</li>
+                  <li>✓ Общие рекомендации по здоровью</li>
+                  {isPremiumUser && (
+                    <>
+                      <li>✓ Доступ к истории ваших анализов</li>
+                      <li>✓ Персонализированные рекомендации</li>
+                      <li>✓ Неограниченное количество сообщений</li>
+                    </>
+                  )}
                 </ul>
               </CardContent>
             </Card>

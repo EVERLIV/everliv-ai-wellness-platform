@@ -11,7 +11,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessages from "@/components/dashboard/ai-doctor/ChatMessages";
 import ChatInput from "@/components/dashboard/ai-doctor/ChatInput";
 import SuggestedQuestions from "@/components/dashboard/ai-doctor/SuggestedQuestions";
-import AIFeatureAccess from "@/components/dashboard/ai-doctor/AIFeatureAccess";
 import { getSuggestedQuestions } from "@/services/ai/ai-doctor-service";
 import { usePersonalAIDoctorChatWithId } from "@/components/dashboard/ai-doctor/usePersonalAIDoctorChatWithId";
 import Header from "@/components/Header";
@@ -38,7 +37,8 @@ const AIDoctorChatPage: React.FC = () => {
     isLoading
   } = usePersonalAIDoctorChatWithId(chatId);
 
-  const hasPersonalAIDoctorAccess = canUseFeature('personal_ai_doctor');
+  // Пользователь всегда имеет доступ к персональному AI Doctor если авторизован
+  const hasPersonalAIDoctorAccess = !!user;
 
   // Загружаем информацию о чате
   useEffect(() => {
@@ -99,33 +99,6 @@ const AIDoctorChatPage: React.FC = () => {
   if (!user) {
     navigate("/login");
     return null;
-  }
-
-  if (!hasPersonalAIDoctorAccess) {
-    return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header />
-        <div className="flex-grow pt-16">
-          <AIFeatureAccess 
-            featureName="Персональный ИИ Доктор"
-            title="Персональный ИИ Доктор EVERLIV"
-            description="Персонализированные консультации с доступом к вашим анализам"
-          >
-            <div className="space-y-4">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/ai-doctor')}
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Назад к чатам
-              </Button>
-            </div>
-          </AIFeatureAccess>
-        </div>
-        <MinimalFooter />
-      </div>
-    );
   }
 
   if (isLoading) {
