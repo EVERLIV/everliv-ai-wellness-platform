@@ -165,9 +165,9 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     isLoading,
     featureTrials,
     hasFeatureTrial,
-    // МАКСИМАЛЬНЫЙ ДОСТУП: Все функции доступны всем пользователям
+    // ПРЕМИУМ ДОСТУП: Полный доступ ко всем функциям для всех авторизованных пользователей
     canUseFeature: (featureName: string) => {
-      // Если пользователь авторизован, он имеет доступ ко всем функциям
+      // Если пользователь авторизован, он имеет полный доступ ко всем функциям
       return !!user;
     },
     recordFeatureTrial,
