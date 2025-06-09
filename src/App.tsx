@@ -1,17 +1,27 @@
-
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-// Import pages with correct paths
-import ServicesPage from './pages/ServicesPage';
-import LoginPage from './pages/LoginPage';
-import BloodAnalysisPage from './pages/BloodAnalysisPage';
-import BloodAnalysisServicePage from "./pages/services/BloodAnalysisServicePage";
-import Dashboard from './pages/Dashboard';
-import ProtectedRoute from './components/ProtectedRoute';
-import Partnership from './pages/Partnership';
-import Analytics from './pages/Analytics';
-import LabAnalyses from './pages/LabAnalyses';
+// Import pages
+import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
+import LoginPage from "./pages/LoginPage";
+import RegistrationPage from "./pages/RegistrationPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import UserProfile from "./pages/UserProfile";
+import Pricing from "./pages/Pricing";
+import AIDoctorPage from "./pages/AIDoctorPage";
+import AIDoctorChatPage from "./pages/AIDoctorChatPage";
+import AIDoctorGeneralPage from "./pages/AIDoctorGeneralPage";
+import LabAnalyses from "./pages/LabAnalyses";
+import Analytics from "./pages/Analytics";
 
 // AI Doctor pages
 import AIDoctorPage from './pages/AIDoctorPage';
@@ -39,65 +49,69 @@ import AIRecommendations from './pages/services/AIRecommendations';
 import PersonalizedSupplements from './pages/services/PersonalizedSupplements';
 import LandingPage from './pages/LandingPage';
 
-function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/services" element={<ServicesPage />} />
-      <Route path="/science" element={<Science />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/pricing" element={<Pricing />} />
-      <Route path="/partnership" element={<Partnership />} />
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>
-      } />
-      <Route path="/lab-analyses" element={
-        <ProtectedRoute>
-          <LabAnalyses />
-        </ProtectedRoute>
-      } />
-      <Route path="/analytics" element={
-        <ProtectedRoute>
-          <Analytics />
-        </ProtectedRoute>
-      } />
-      
-      {/* AI Doctor routes */}
-      <Route path="/ai-doctor" element={
-        <ProtectedRoute>
-          <AIDoctorPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/ai-doctor/general" element={
-        <ProtectedRoute>
-          <AIDoctorGeneralPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/ai-doctor/personal" element={
-        <ProtectedRoute>
-          <AIDoctorPersonalPage />
-        </ProtectedRoute>
-      } />
-      
-      {/* Partnership subpages */}
-      <Route path="/partnerships/medical-institutions" element={<MedicalInstitutions />} />
-      <Route path="/partnerships/corporate-clients" element={<CorporateClients />} />
-      <Route path="/partnerships/medical-specialists" element={<MedicalSpecialists />} />
-      
-      <Route path="/blood-analysis" element={<BloodAnalysisPage />} />
-      <Route path="/services/cold-therapy" element={<ColdTherapy />} />
-      <Route path="/services/fasting" element={<Fasting />} />
-      <Route path="/services/breathing-practices" element={<BreathingPractices />} />
-      <Route path="/services/oxygen-therapy" element={<OxygenTherapy />} />
-      <Route path="/services/ai-recommendations" element={<AIRecommendations />} />
-      <Route path="/services/personalized-supplements" element={<PersonalizedSupplements />} />
-      <Route path="/services/blood-analysis" element={<BloodAnalysisServicePage />} />
-    </Routes>
-  );
-}
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AuthProvider>
+          <SubscriptionProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegistrationPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              
+              {/* Protected Routes */}
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+              <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
+              <Route path="/ai-doctor" element={<ProtectedRoute><AIDoctorPage /></ProtectedRoute>} />
+              <Route path="/ai-doctor/chat/:chatId" element={<ProtectedRoute><AIDoctorChatPage /></ProtectedRoute>} />
+              <Route path="/ai-doctor/general" element={<ProtectedRoute><AIDoctorGeneralPage /></ProtectedRoute>} />
+              <Route path="/lab-analyses" element={<ProtectedRoute><LabAnalyses /></ProtectedRoute>} />
+              <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+              
+              {/* AI Doctor routes */}
+              <Route path="/ai-doctor" element={
+                <ProtectedRoute>
+                  <AIDoctorPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/ai-doctor/general" element={
+                <ProtectedRoute>
+                  <AIDoctorGeneralPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/ai-doctor/personal" element={
+                <ProtectedRoute>
+                  <AIDoctorPersonalPage />
+                </ProtectedRoute>
+              } />
+              
+              {/* Partnership subpages */}
+              <Route path="/partnerships/medical-institutions" element={<MedicalInstitutions />} />
+              <Route path="/partnerships/corporate-clients" element={<CorporateClients />} />
+              <Route path="/partnerships/medical-specialists" element={<MedicalSpecialists />} />
+              
+              <Route path="/blood-analysis" element={<BloodAnalysisPage />} />
+              <Route path="/services/cold-therapy" element={<ColdTherapy />} />
+              <Route path="/services/fasting" element={<Fasting />} />
+              <Route path="/services/breathing-practices" element={<BreathingPractices />} />
+              <Route path="/services/oxygen-therapy" element={<OxygenTherapy />} />
+              <Route path="/services/ai-recommendations" element={<AIRecommendations />} />
+              <Route path="/services/personalized-supplements" element={<PersonalizedSupplements />} />
+              <Route path="/services/blood-analysis" element={<BloodAnalysisServicePage />} />
+            </Routes>
+          </SubscriptionProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;

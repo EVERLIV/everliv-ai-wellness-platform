@@ -21,7 +21,7 @@ const quickActions = [
     icon: MessageSquare,
     iconColor: "text-blue-600",
     iconBg: "bg-blue-50",
-    path: "/ai-doctor/personal",
+    path: "/ai-doctor",
     description: "Персональные медицинские консультации с доступом к вашей истории и анализам",
     premium: true
   },
