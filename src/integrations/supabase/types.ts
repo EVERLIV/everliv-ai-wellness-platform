@@ -69,6 +69,33 @@ export type Database = {
         }
         Relationships: []
       }
+      medical_analyses: {
+        Row: {
+          analysis_type: string
+          created_at: string
+          id: string
+          results: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_type: string
+          created_at?: string
+          id?: string
+          results: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_type?: string
+          created_at?: string
+          id?: string
+          results?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       page_contents: {
         Row: {
           content: Json | null

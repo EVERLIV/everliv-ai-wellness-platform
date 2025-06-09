@@ -8,7 +8,7 @@ interface MedicalAnalysisParams {
   userId: string;
 }
 
-interface MedicalAnalysisResults {
+export interface MedicalAnalysisResults {
   analysisId?: string;
   analysisType: string;
   markers: Array<{
@@ -102,7 +102,7 @@ export const analyzeMedicalTestWithAI = async (params: MedicalAnalysisParams): P
 export const getMedicalAnalysesHistory = async (userId: string) => {
   try {
     const { data, error } = await supabase
-      .from('medical_analyses')
+      .from('medical_analyses' as any)
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
@@ -125,7 +125,7 @@ export const getMedicalAnalysesHistory = async (userId: string) => {
 export const getMedicalAnalysisById = async (analysisId: string, userId: string) => {
   try {
     const { data, error } = await supabase
-      .from('medical_analyses')
+      .from('medical_analyses' as any)
       .select('*')
       .eq('id', analysisId)
       .eq('user_id', userId)

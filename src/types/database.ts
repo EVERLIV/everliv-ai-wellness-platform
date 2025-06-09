@@ -38,3 +38,13 @@ export type UserProtocolUpdate = Database['public']['Tables']['user_protocols'][
 export type FeatureTrial = Database['public']['Tables']['feature_trials']['Row'];
 export type FeatureTrialInsert = Database['public']['Tables']['feature_trials']['Insert'];
 export type FeatureTrialUpdate = Database['public']['Tables']['feature_trials']['Update'];
+
+// Medical Analysis Types (temporary until types are regenerated)
+export interface MedicalAnalysis {
+  id: string;
+  user_id: string;
+  analysis_type: string;
+  results: any;
+  created_at: string;
+  updated_at: string;
+}
