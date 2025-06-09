@@ -1,7 +1,8 @@
 
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.43.2";
-import { Configuration, OpenAIApi } from "https://esm.sh/openai@3.3.0";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,83 +10,94 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
-  
-  try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
-    
-    // Get auth user
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    
-    // Setup OpenAI
-    const openAIKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIKey) {
-      return new Response(JSON.stringify({ error: 'OpenAI API key not configured' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    
-    const configuration = new Configuration({ apiKey: openAIKey });
-    const openai = new OpenAIApi(configuration);
 
-    // Parse request body
-    const { message, medicalContext, conversationHistory } = await req.json();
-    
-    // Prepare system prompt with medical guidelines
-    const systemPrompt = `You are an AI health assistant that provides general wellness information. 
-    Important rules to follow:
-    1. Never diagnose specific medical conditions.
-    2. Do not prescribe specific treatments or medications.
-    3. Provide evidence-based general health information only.
-    4. Recommend consulting a healthcare professional for specific medical concerns.
-    5. Be respectful and professional at all times.
-    6. Provide references to scientific studies when available.
-    7. Focus on general wellness, prevention, and lifestyle improvements.
-    
-    ${medicalContext ? `User medical context: ${medicalContext}` : ''}`;
-    
-    // Prepare conversation for the API
+  try {
+    const { message, medicalContext, conversationHistory, systemPrompt } = await req.json();
+
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    // Build messages array for OpenAI
     const messages = [
-      { role: 'system', content: systemPrompt },
-      ...conversationHistory.slice(-10), // Include last 10 messages only to avoid token limits
-      { role: 'user', content: message }
+      {
+        role: 'system',
+        content: systemPrompt || `You are a General AI Health Assistant providing basic medical information and wellness guidance.
+
+🔍 Your Capabilities:
+- Provide general health information and wellness tips
+- Answer basic medical questions with educational content
+- Suggest when to seek professional medical care
+- Offer lifestyle and prevention recommendations
+
+⚠️ Important Limitations:
+- This is a FREE service with LIMITED recommendations
+- BASIC level consultation only
+- Cannot provide detailed medical analysis
+- Cannot interpret specific lab results
+- Cannot diagnose or prescribe medications
+
+🗣️ Communication Style:
+- Friendly and supportive
+- Educational approach
+- Always recommend consulting healthcare professionals for specific concerns
+- Keep responses concise and actionable
+- Emphasize the value of professional medical consultation
+
+Remember: You provide general wellness guidance, not detailed medical analysis. For comprehensive health assessments, users need our premium AI Doctor service.`
+      }
     ];
-    
-    // Call OpenAI API
-    const completion = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: messages,
-      temperature: 0.7,
-      max_tokens: 1000,
+
+    // Add medical context if available
+    if (medicalContext) {
+      messages.push({
+        role: 'system',
+        content: `Patient Context: ${medicalContext}`
+      });
+    }
+
+    // Add conversation history
+    if (conversationHistory && conversationHistory.length > 0) {
+      const recentHistory = conversationHistory.slice(-6); // Last 6 messages for context
+      messages.push(...recentHistory);
+    }
+
+    // Add current message
+    messages.push({
+      role: 'user',
+      content: message
     });
 
-    const aiResponse = completion.data.choices[0].message?.content || 
-      "Извините, я не смог сформулировать ответ. Пожалуйста, попробуйте задать вопрос иначе.";
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
+    });
 
-    // Log interaction for analysis (without storing personal health details)
-    console.log(`AI Doctor interaction - User message length: ${message.length}, Response length: ${aiResponse.length}`);
-    
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const aiResponse = data.choices[0].message.content;
+
     return new Response(JSON.stringify({ response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-    
   } catch (error) {
-    console.error('Error in AI Doctor function:', error);
-    
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    console.error('Error in ai-doctor function:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

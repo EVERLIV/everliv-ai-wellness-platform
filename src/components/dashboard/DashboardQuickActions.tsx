@@ -15,13 +15,13 @@ const quickActions = [
     description: "Загрузите результаты анализов и получите детальную расшифровку с помощью ИИ"
   },
   {
-    title: "ИИ-Доктор",
-    subtitle: "Консультация",
+    title: "Доктор EVERLIV",
+    subtitle: "ИИ рекомендации",
     icon: MessageSquare,
     iconColor: "text-blue-600",
     iconBg: "bg-blue-50",
-    path: "/dashboard",
-    description: "Персональные рекомендации от ИИ-ассистента"
+    path: "/ai-doctor",
+    description: "Получите профессиональные медицинские консультации от передового ИИ-доктора с глубокой экспертизой в диагностике и анализе здоровья"
   },
   {
     title: "Аналитика",
