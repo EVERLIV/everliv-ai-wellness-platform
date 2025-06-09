@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, ImageIcon, AlertCircle } from "lucide-react";
+import { Upload, ImageIcon, AlertCircle, Info } from "lucide-react";
 import { toast } from "sonner";
 import { FEATURES } from "@/constants/subscription-features";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -33,10 +33,10 @@ const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) =
     setPhotoUploading(true);
     
     try {
-      // Check file size - limit to 5MB
-      if (file.size > 5 * 1024 * 1024) {
-        setUploadError("Файл слишком большой. Максимальный размер - 5MB");
-        toast.error("Файл слишком большой. Максимальный размер - 5MB");
+      // Check file size - limit to 10MB
+      if (file.size > 10 * 1024 * 1024) {
+        setUploadError("Файл слишком большой. Максимальный размер - 10MB");
+        toast.error("Файл слишком большой. Максимальный размер - 10MB");
         return;
       }
       
@@ -52,7 +52,6 @@ const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) =
       setBloodPhotoUrl(url);
       setSelectedInputMethod("photo");
       
-      // Log image information
       console.log("Image uploaded:", {
         name: file.name,
         type: file.type,
@@ -60,7 +59,7 @@ const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) =
         lastModified: new Date(file.lastModified).toISOString()
       });
       
-      toast.success("Фото загружено");
+      toast.success("Фото успешно загружено");
     } catch (error) {
       console.error("Error during photo upload:", error);
       setUploadError("Ошибка при загрузке фото. Пожалуйста, попробуйте еще раз.");
@@ -81,14 +80,16 @@ const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) =
       return;
     }
 
-    // Log some information about the file
-    if (bloodPhotoFile) {
-      console.log("Submitting file:", {
+    console.log("Submitting analysis request:", {
+      method: selectedInputMethod,
+      hasText: selectedInputMethod === "text" && bloodText.length > 0,
+      hasPhoto: selectedInputMethod === "photo" && bloodPhotoUrl.length > 0,
+      fileInfo: bloodPhotoFile ? {
         name: bloodPhotoFile.name,
         type: bloodPhotoFile.type,
         size: `${(bloodPhotoFile.size / 1024).toFixed(2)} KB`
-      });
-    }
+      } : null
+    });
 
     onAnalyze({
       text: bloodText,
@@ -97,46 +98,76 @@ const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) =
     });
   };
 
+  const exampleText = `Пример анализа крови:
+
+Гемоглобин: 145 г/л
+Эритроциты: 4.8×10¹²/л
+Лейкоциты: 6.2×10⁹/л
+Тромбоциты: 280×10⁹/л
+СОЭ: 12 мм/ч
+
+Глюкоза: 5.2 ммоль/л
+Общий белок: 72 г/л
+АЛТ: 28 Ед/л
+АСТ: 24 Ед/л
+Креатинин: 85 мкмоль/л`;
+
   const tips = {
     photo: [
-      "Для лучших результатов убедитесь, что текст на фото четкий и хорошо освещенный",
-      "Фотографируйте под прямым углом, избегая искажений",
-      "Убедитесь, что видны все значения и их единицы измерения"
+      "Убедитесь, что текст на фото четкий и хорошо читаемый",
+      "Фотографируйте под прямым углом, избегая теней и бликов",
+      "Проверьте, что видны все значения и единицы измерения",
+      "При плохом качестве фото лучше ввести данные вручную"
     ],
     text: [
-      "Копируйте все показатели с их значениями и единицами измерения",
-      "Для каждого показателя укажите нормальный диапазон, если он известен",
-      "Можно структурировать текст по строкам для лучшего распознавания"
+      "Включите названия показателей, их значения и единицы измерения",
+      "Добавьте референсные значения, если они указаны в анализе",
+      "Можно копировать данные прямо из электронного результата",
+      "Структурируйте данные по строкам для лучшего распознавания"
     ]
   };
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-6">
+        {/* API Key Notice */}
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Внимание:</strong> Для работы анализа крови необходим API ключ OpenAI. 
+            Если анализ не работает, обратитесь к администратору для настройки ключа.
+          </AlertDescription>
+        </Alert>
+
         <Tabs defaultValue={selectedInputMethod} onValueChange={(value) => setSelectedInputMethod(value as "text" | "photo")}>
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="text">Ввод текста</TabsTrigger>
             <TabsTrigger value="photo" disabled={!canUsePhotoAnalysis}>
-              Фото анализа
-              {!canUsePhotoAnalysis && <span className="ml-2 text-xs">(Требуется подписка)</span>}
+              Анализ фото
+              {!canUsePhotoAnalysis && <span className="ml-2 text-xs">(Pro)</span>}
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="text" className="pt-4">
-            <p className="mb-2 text-sm text-gray-500">
-              Введите результаты вашего анализа крови в свободной форме или скопируйте из файла
-            </p>
-            <Textarea 
-              placeholder="Например: Гемоглобин: 142 г/л, Эритроциты: 4.7 млн/мкл, Лейкоциты: 10.2 тыс/мкл..."
-              value={bloodText}
-              onChange={(e) => setBloodText(e.target.value)}
-              rows={10}
-              className="resize-none"
-            />
+          <TabsContent value="text" className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Результаты анализа крови
+              </label>
+              <Textarea 
+                placeholder={exampleText}
+                value={bloodText}
+                onChange={(e) => setBloodText(e.target.value)}
+                rows={12}
+                className="resize-none font-mono text-sm"
+              />
+            </div>
             
-            <div className="mt-4 bg-blue-50 p-3 rounded-md border border-blue-100">
-              <h4 className="text-sm font-medium text-blue-700 mb-2">Советы для лучшего результата:</h4>
-              <ul className="list-disc pl-5 text-xs text-blue-600 space-y-1">
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <h4 className="text-sm font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                Советы для точного анализа:
+              </h4>
+              <ul className="list-disc pl-5 text-sm text-blue-700 space-y-1">
                 {tips.text.map((tip, index) => (
                   <li key={index}>{tip}</li>
                 ))}
@@ -144,11 +175,14 @@ const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) =
             </div>
           </TabsContent>
           
-          <TabsContent value="photo" className="pt-4">
+          <TabsContent value="photo" className="space-y-4">
             <div className="space-y-4">
               <div>
-                <p className="mb-4 text-sm text-gray-500">
-                  Загрузите фото или скан вашего анализа крови для автоматического распознавания результатов с помощью AI
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Загрузить фото анализа
+                </label>
+                <p className="text-sm text-gray-500 mb-4">
+                  Загрузите четкое фото или скан вашего анализа крови для автоматического распознавания с помощью ИИ
                 </p>
                 
                 <div className="flex items-center gap-4">
@@ -160,11 +194,14 @@ const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) =
                     disabled={photoUploading}
                   >
                     {photoUploading ? (
-                      <span>Загрузка...</span>
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                        Загрузка...
+                      </>
                     ) : (
                       <>
                         <Upload className="h-4 w-4" />
-                        Загрузить фото
+                        Выбрать файл
                       </>
                     )}
                   </Button>
@@ -186,21 +223,27 @@ const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) =
               </div>
               
               {bloodPhotoUrl && (
-                <div className="mt-4">
-                  <p className="text-sm font-medium mb-2">Загруженное фото:</p>
-                  <div className="border rounded-md p-2 bg-gray-50 max-w-sm">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Предварительный просмотр:</label>
+                  <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 bg-gray-50">
                     <img
                       src={bloodPhotoUrl}
                       alt="Загруженные результаты анализа"
-                      className="max-w-full rounded"
+                      className="max-w-full max-h-64 mx-auto rounded shadow-sm"
                     />
+                    <p className="text-xs text-gray-500 text-center mt-2">
+                      {bloodPhotoFile?.name} ({(bloodPhotoFile?.size || 0 / 1024).toFixed(1)} KB)
+                    </p>
                   </div>
                 </div>
               )}
               
-              <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
-                <h4 className="text-sm font-medium text-blue-700 mb-2">Советы для лучшего распознавания:</h4>
-                <ul className="list-disc pl-5 text-xs text-blue-600 space-y-1">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h4 className="text-sm font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4" />
+                  Требования к фото:
+                </h4>
+                <ul className="list-disc pl-5 text-sm text-blue-700 space-y-1">
                   {tips.photo.map((tip, index) => (
                     <li key={index}>{tip}</li>
                   ))}
@@ -210,21 +253,25 @@ const BloodAnalysisForm = ({ onAnalyze, isAnalyzing }: BloodAnalysisFormProps) =
           </TabsContent>
         </Tabs>
       </div>
-      <div className="flex justify-end mt-4">
+      
+      <div className="flex justify-end pt-6 border-t">
         <Button 
           onClick={handleSubmit} 
-          disabled={isAnalyzing || photoUploading || (selectedInputMethod === "text" && !bloodText.trim()) || (selectedInputMethod === "photo" && !bloodPhotoUrl)}
-          className="relative"
+          disabled={
+            isAnalyzing || 
+            photoUploading || 
+            (selectedInputMethod === "text" && !bloodText.trim()) || 
+            (selectedInputMethod === "photo" && !bloodPhotoUrl)
+          }
+          className="min-w-32"
+          size="lg"
         >
           {isAnalyzing ? (
-            <span className="flex items-center">
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
+            <span className="flex items-center gap-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
               Анализируем...
             </span>
-          ) : "Анализировать"}
+          ) : "Начать анализ"}
         </Button>
       </div>
     </>

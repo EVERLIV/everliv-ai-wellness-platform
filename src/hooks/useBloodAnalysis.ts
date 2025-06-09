@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,11 +35,9 @@ export const useBloodAnalysis = () => {
 
   const convertBlobToBase64 = async (blobUrl: string): Promise<string> => {
     try {
-      // Fetch the blob URL
       const response = await fetch(blobUrl);
       const blob = await response.blob();
       
-      // Convert blob to base64
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
@@ -47,7 +46,7 @@ export const useBloodAnalysis = () => {
       });
     } catch (error) {
       console.error("Error converting blob to base64:", error);
-      throw new Error("Failed to process the image. Please try again.");
+      throw new Error("Не удалось обработать изображение. Попробуйте еще раз.");
     }
   };
 
@@ -61,6 +60,14 @@ export const useBloodAnalysis = () => {
 
     if (inputMethod === "photo" && !photoUrl) {
       toast.error("Пожалуйста, загрузите фото результатов анализа");
+      return;
+    }
+
+    // Check if OpenAI API key is available
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      toast.error("OpenAI API ключ не настроен. Обратитесь к администратору.");
+      setApiError("OpenAI API ключ не настроен. Пожалуйста, добавьте OPENAI_API_KEY в переменные окружения.");
       return;
     }
 
@@ -91,8 +98,8 @@ export const useBloodAnalysis = () => {
       }
 
       console.log("Analyzing blood test with params:", {
-        text: inputMethod === "text" ? text : undefined,
-        imageUrl: inputMethod === "photo" ? "image data available (not logging full base64)" : undefined
+        text: inputMethod === "text" ? text.substring(0, 100) + "..." : undefined,
+        imageUrl: inputMethod === "photo" ? "image data available" : undefined
       });
 
       // Call OpenAI service with proper parameters based on input method
@@ -104,16 +111,22 @@ export const useBloodAnalysis = () => {
       // Validate results structure
       if (!analysisResults || !Array.isArray(analysisResults.markers)) {
         console.error("Invalid analysis results structure:", analysisResults);
-        throw new Error("Не удалось распознать данные с изображения. Попробуйте сделать более четкое фото или ввести данные вручную.");
+        throw new Error("Получен некорректный ответ от ИИ. Попробуйте еще раз.");
+      }
+
+      // Ensure we have at least one marker
+      if (analysisResults.markers.length === 0) {
+        throw new Error("Не удалось распознать показатели в предоставленных данных. Проверьте данные и попробуйте еще раз.");
       }
 
       setResults(analysisResults);
       setActiveTab("results");
-      toast.success("Анализ успешно завершен");
+      toast.success(`Анализ завершен! Обработано ${analysisResults.markers.length} показателей.`);
     } catch (error) {
       console.error("Ошибка анализа:", error);
-      setApiError(error instanceof Error ? error.message : "Неизвестная ошибка");
-      toast.error("Произошла ошибка при анализе");
+      const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка при анализе";
+      setApiError(errorMessage);
+      toast.error("Произошла ошибка при анализе: " + errorMessage);
     } finally {
       setIsAnalyzing(false);
     }

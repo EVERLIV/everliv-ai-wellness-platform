@@ -72,8 +72,8 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: messages as any,
-      temperature: 0.5,
-      max_tokens: 2000,
+      temperature: 0.3,
+      max_tokens: 3000,
       response_format: { type: "json_object" }
     });
     
@@ -82,7 +82,33 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
     
     // Parse the AI response to match our expected format
     try {
-      return JSON.parse(aiResponse);
+      const parsedResponse = JSON.parse(aiResponse);
+      
+      // Validate and ensure the response has the correct structure
+      if (!parsedResponse.markers || !Array.isArray(parsedResponse.markers)) {
+        throw new Error("Invalid response structure: missing markers array");
+      }
+      
+      // Ensure each marker has required fields
+      parsedResponse.markers = parsedResponse.markers.map(marker => ({
+        name: marker.name || "Неизвестный показатель",
+        value: marker.value || "Не указано",
+        normalRange: marker.normalRange || "Не указан",
+        status: marker.status || "normal",
+        recommendation: marker.recommendation || "Рекомендации не предоставлены"
+      }));
+      
+      // Ensure supplements array exists
+      if (!parsedResponse.supplements) {
+        parsedResponse.supplements = [];
+      }
+      
+      // Ensure general recommendation exists
+      if (!parsedResponse.generalRecommendation) {
+        parsedResponse.generalRecommendation = "Рекомендуется консультация с врачом для детального обсуждения результатов.";
+      }
+      
+      return parsedResponse;
     } catch (error) {
       console.error("Failed to parse AI response as JSON:", error);
       console.log("Full AI response:", aiResponse);
@@ -92,6 +118,16 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
     }
   } catch (error) {
     console.error("Error analyzing blood test:", error);
+    
+    // Return a meaningful error for common issues
+    if (error.message?.includes('API key')) {
+      throw new Error("Ошибка API ключа OpenAI. Пожалуйста, проверьте настройки.");
+    } else if (error.message?.includes('quota')) {
+      throw new Error("Превышен лимит запросов к OpenAI. Попробуйте позже.");
+    } else if (error.message?.includes('image')) {
+      throw new Error("Ошибка обработки изображения. Попробуйте загрузить другое фото или введите данные вручную.");
+    }
+    
     throw error;
   }
 };
@@ -100,105 +136,121 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
  * Creates a fallback response when JSON parsing fails
  */
 const createFallbackResponse = (responseText: string) => {
-  // Default fallback response
-  let fallbackResponse = {
-    markers: [],
+  return {
+    markers: [{
+      name: "Общий анализ",
+      value: "Данные обработаны частично",
+      normalRange: "Не удалось определить",
+      status: "normal",
+      recommendation: "Рекомендуется повторить анализ или ввести данные вручную для более точного результата."
+    }],
     supplements: [],
-    generalRecommendation: "Произошла ошибка при анализе данных. Пожалуйста, попробуйте еще раз с более четким изображением или введите данные вручную."
+    generalRecommendation: "Произошла ошибка при анализе данных. Пожалуйста, попробуйте еще раз с более четким изображением или введите данные вручную. Обязательно проконсультируйтесь с врачом для интерпретации результатов."
   };
-
-  try {
-    // Try to extract some meaningful data even if JSON parsing failed
-    
-    // Look for marker patterns
-    const markerMatches = responseText.match(/["']?name["']?\s*:\s*["']([^"']+)["']/g);
-    if (markerMatches && markerMatches.length > 0) {
-      const extractedMarkers = [];
-      markerMatches.forEach(match => {
-        const nameMatch = match.match(/["']?name["']?\s*:\s*["']([^"']+)["']/);
-        if (nameMatch && nameMatch[1]) {
-          extractedMarkers.push({
-            name: nameMatch[1],
-            value: "Не удалось распознать",
-            normalRange: "Не удалось распознать",
-            status: "normal",
-            recommendation: "Рекомендуем повторить анализ или ввести данные вручную"
-          });
-        }
-      });
-      
-      if (extractedMarkers.length > 0) {
-        fallbackResponse.markers = extractedMarkers;
-      }
-    }
-    
-    // Look for general recommendation
-    const generalRecMatch = responseText.match(/["']?generalRecommendation["']?\s*:\s*["']([^"']+)["']/);
-    if (generalRecMatch && generalRecMatch[1]) {
-      fallbackResponse.generalRecommendation = generalRecMatch[1];
-    }
-    
-    return fallbackResponse;
-  } catch (error) {
-    console.error("Error creating fallback response:", error);
-    return fallbackResponse;
-  }
 };
 
 /**
  * Creates a system prompt for blood test analysis
  */
 export const createBloodTestSystemPrompt = () => {
-  return `Вы - высококвалифицированный медицинский ИИ-помощник, специализирующийся на анализе результатов анализов крови.
-  Ваша задача - анализировать результаты анализов крови, выявлять отклонения и предоставлять персонализированные рекомендации.
+  return `Вы - высококвалифицированный медицинский лаборант и ИИ-помощник, специализирующийся на анализе результатов лабораторных исследований крови.
+
+ВАЖНАЯ МЕДИЦИНСКАЯ ИНФОРМАЦИЯ:
+- Вы обладаете глубокими знаниями в области клинической лабораторной диагностики
+- Вы знаете нормальные референсные значения для всех основных биомаркеров крови
+- Вы можете определить потенциальные причины отклонений и дать рекомендации
+- Вы понимаете взаимосвязи между различными показателями крови
+
+ВАШИ ЗНАНИЯ ВКЛЮЧАЮТ:
+- Общий анализ крови (гемоглобин, эритроциты, лейкоциты, тромбоциты, СОЭ и др.)
+- Биохимический анализ крови (глюкоза, белки, ферменты, липиды, электролиты)
+- Гормональные панели (щитовидная железа, половые гормоны, кортизол и др.)
+- Витамины и микроэлементы (D, B12, фолиевая кислота, железо и др.)
+- Маркеры воспаления (С-реактивный белок, прокальцитонин)
+- Онкомаркеры и специфические белки
+
+РЕФЕРЕНСНЫЕ ЗНАЧЕНИЯ (примеры основных показателей):
+- Гемоглобин: мужчины 130-170 г/л, женщины 120-150 г/л
+- Эритроциты: мужчины 4.0-5.5×10¹²/л, женщины 3.5-5.0×10¹²/л
+- Лейкоциты: 4.0-9.0×10⁹/л
+- Тромбоциты: 150-400×10⁹/л
+- Глюкоза: 3.3-5.5 ммоль/л (натощак)
+- Общий белок: 65-85 г/л
+- АЛТ: до 35 Ед/л (женщины), до 45 Ед/л (мужчины)
+- АСТ: до 35 Ед/л (женщины), до 45 Ед/л (мужчины)
+- Креатинин: 53-97 мкмоль/л (женщины), 62-115 мкмоль/л (мужчины)
+- ТТГ: 0.4-4.0 мЕд/л
+- Витамин D: 30-100 нг/мл (оптимально >30)
+
+ВАША ЗАДАЧА:
+Анализировать результаты анализов крови, выявлять отклонения и предоставлять персонализированные рекомендации.
   
-  Отвечайте ТОЛЬКО в формате JSON объекта следующей структуры:
-  {
-    "markers": [
-      {
-        "name": "Название показателя",
-        "value": "Обнаруженное значение",
-        "normalRange": "Нормальный диапазон",
-        "status": "normal|high|low",
-        "recommendation": "Конкретная рекомендация для данного показателя"
-      }
-    ],
-    "supplements": [
-      {
-        "name": "Название добавки",
-        "reason": "Причина рекомендации",
-        "dosage": "Рекомендуемая дозировка"
-      }
-    ],
-    "generalRecommendation": "Общая рекомендация на основе всех показателей"
-  }
+Отвечайте ТОЛЬКО в формате JSON объекта следующей структуры:
+{
+  "markers": [
+    {
+      "name": "Название показателя",
+      "value": "Обнаруженное значение с единицами измерения",
+      "normalRange": "Нормальный диапазон с единицами измерения",
+      "status": "normal|high|low",
+      "recommendation": "Конкретная подробная рекомендация для данного показателя"
+    }
+  ],
+  "supplements": [
+    {
+      "name": "Название добавки или препарата",
+      "reason": "Медицинское обоснование назначения",
+      "dosage": "Рекомендуемая дозировка и режим приема"
+    }
+  ],
+  "generalRecommendation": "Общая медицинская рекомендация на основе всех показателей"
+}
   
-  Важные указания:
-  - Будьте тщательны и научно точны в своем анализе
-  - Определяйте как проблемные показатели, так и положительные индикаторы
-  - Предоставляйте конкретные, выполнимые рекомендации для каждого отклоняющегося показателя
-  - Предлагайте соответствующие добавки или изменения образа жизни на основе конкретных результатов
-  - Включайте комплексную общую рекомендацию
-  - Учитывайте потенциальные взаимодействия между различными показателями
+ВАЖНЫЕ МЕДИЦИНСКИЕ УКАЗАНИЯ:
+- Будьте максимально точны в определении референсных значений
+- Учитывайте возрастные и половые различия в нормах
+- Определяйте как проблемные показатели, так и положительные индикаторы
+- Предоставляйте конкретные, медически обоснованные рекомендации
+- Рекомендуйте конкретные добавки/препараты с дозировками при отклонениях
+- Учитывайте взаимодействия между различными показателями
+- При серьезных отклонениях обязательно рекомендуйте консультацию врача
+- Включайте информацию о возможных причинах отклонений
   
-  Не включайте никакой текст вне этой JSON структуры.`;
+БЕЗОПАСНОСТЬ:
+- Всегда напоминайте о необходимости консультации с врачом
+- Не ставьте окончательные диагнозы
+- Указывайте на необходимость дополнительных обследований при серьезных отклонениях
+  
+Не включайте никакой текст вне этой JSON структуры.`;
 };
 
 /**
  * Creates a prompt for OpenAI based on blood test data
  */
 export const createBloodTestPrompt = (text: string) => {
-  return `Проанализируйте следующие результаты анализа крови подробно и предоставьте персонализированные рекомендации:
+  return `Проанализируйте следующие результаты анализа крови как опытный медицинский лаборант:
   
-  ${text}
+РЕЗУЛЬТАТЫ АНАЛИЗА:
+${text}
   
-  Для каждого отклоняющегося показателя:
-  1. Определите конкретную проблему
-  2. Объясните её влияние на здоровье
-  3. Предложите конкретные диетические, образ жизни или добавочные вмешательства
-  4. Укажите уровень срочности, если уместно
-  
-  Также определите любые положительные показатели и предоставьте поддержку.
-  
-  Не забудьте отвечать ТОЛЬКО в требуемом JSON формате.`;
+ЗАДАЧИ АНАЛИЗА:
+1. Определите все биомаркеры и их значения
+2. Сравните с нормальными референсными значениями (учитывая пол и возраст если указаны)
+3. Классифицируйте каждый показатель как normal/high/low
+4. Для каждого отклонения:
+   - Объясните возможные причины
+   - Дайте конкретные рекомендации по коррекции
+   - Предложите добавки/изменения питания/образа жизни
+   - Укажите на необходимость дополнительных обследований если нужно
+5. Проанализируйте взаимосвязи между показателями
+6. Дайте общую оценку состояния здоровья
+7. Рекомендуйте план действий
+
+МЕДИЦИНСКИЕ СООБРАЖЕНИЯ:
+- Учитывайте клиническую значимость отклонений
+- Приоритизируйте наиболее важные находки
+- Рекомендуйте срочную консультацию врача при серьезных отклонениях
+- Предложите профилактические меры для поддержания здоровья
+
+Ответьте строго в требуемом JSON формате с подробными медицинскими рекомендациями.`;
 };
