@@ -28,6 +28,9 @@ const AIDoctorConsultation: React.FC = () => {
   // Get suggested questions - we can pass an empty profile as the default questions don't depend on profile
   const suggestedQuestions = getSuggestedQuestions({});
 
+  // Показываем быстрые сообщения если нет сообщений или есть только приветственное сообщение от ИИ
+  const showSuggestedQuestions = messages.length === 0 || (messages.length === 1 && messages[0].role === 'assistant');
+
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-2 border-b">
@@ -45,11 +48,13 @@ const AIDoctorConsultation: React.FC = () => {
         />
       </CardContent>
 
-      {messages.length === 1 && (
-        <SuggestedQuestions 
-          onSelectQuestion={sendMessage}
-          questions={suggestedQuestions}
-        />
+      {showSuggestedQuestions && (
+        <div className="p-4">
+          <SuggestedQuestions 
+            onSelectQuestion={sendMessage}
+            questions={suggestedQuestions}
+          />
+        </div>
       )}
 
       <CardFooter className="pt-2 border-t">
