@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
 import { useAuth } from "@/contexts/AuthContext";
@@ -69,7 +70,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     };
     
     calculateTimeRemaining();
-    const timer = setInterval(calculateTimeRemaining, 60000); // Update every minute
+    const timer = setInterval(calculateTimeRemaining, 60000);
     
     return () => clearInterval(timer);
   }, [trialExpiresAt]);
@@ -115,7 +116,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     }
 
     if (hasFeatureTrial(featureName)) {
-      return; // Already recorded
+      return;
     }
 
     try {
@@ -164,19 +165,10 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     isLoading,
     featureTrials,
     hasFeatureTrial,
+    // МАКСИМАЛЬНЫЙ ДОСТУП: Все функции доступны всем пользователям
     canUseFeature: (featureName: string) => {
-      // If user has an active subscription, check if the feature is included
-      if (subscription?.status === 'active') {
-        return canUseFeature(featureName, subscription?.plan_type);
-      }
-      
-      // If trial is active, allow access to all features
-      if (isTrialActive) {
-        return true;
-      }
-      
-      // Otherwise, check if they've used their trial for this feature
-      return canUseFeature(featureName, subscription?.plan_type);
+      // Если пользователь авторизован, он имеет доступ ко всем функциям
+      return !!user;
     },
     recordFeatureTrial,
     purchaseSubscription,

@@ -2,12 +2,8 @@
 import React from "react";
 import { TestTube, Clock, Brain, Calendar, Activity } from "lucide-react";
 import AIFeatureCard from "./AIFeatureCard";
-import { useSubscription } from "@/contexts/SubscriptionContext";
-import { FEATURES } from "@/constants/subscription-features";
 
 const AIFeaturesSection = () => {
-  const { canUseFeature } = useSubscription();
-
   return (
     <div className="mb-6">
       <h2 className="text-xl font-bold mb-4">AI Функции для здоровья</h2>
@@ -17,7 +13,7 @@ const AIFeaturesSection = () => {
           description="Получите расшифровку анализа крови и персонализированные рекомендации"
           icon={TestTube}
           path="/blood-analysis"
-          isDisabled={!canUseFeature(FEATURES.BLOOD_ANALYSIS)}
+          isDisabled={false}
         />
 
         <AIFeatureCard
@@ -25,7 +21,7 @@ const AIFeaturesSection = () => {
           description="Определите свой биологический возраст и получите рекомендации"
           icon={Clock}
           path="/biological-age"
-          isDisabled={!canUseFeature(FEATURES.BIOLOGICAL_AGE_TEST)}
+          isDisabled={false}
         />
 
         <AIFeatureCard
@@ -33,7 +29,7 @@ const AIFeaturesSection = () => {
           description="Получите комплексную оценку здоровья на основе всех ваших данных"
           icon={Brain}
           path="/comprehensive-analysis"
-          isDisabled={!canUseFeature(FEATURES.COMPREHENSIVE_AI_ANALYSIS)}
+          isDisabled={false}
         />
 
         <AIFeatureCard
