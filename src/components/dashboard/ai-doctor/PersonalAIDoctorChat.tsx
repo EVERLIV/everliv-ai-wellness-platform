@@ -62,6 +62,9 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
     );
   }
 
+  // Показываем быстрые сообщения если нет сообщений или есть только приветственное сообщение от ИИ
+  const showSuggestedQuestions = messages.length === 0 || (messages.length === 1 && messages[0].role === 'assistant');
+
   return (
     <div className="space-y-4">
       {/* Компактный заголовок */}
@@ -103,8 +106,8 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
             messagesEndRef={messagesEndRef}
           />
           
-          {/* Показываем быстрые сообщения только когда нет сообщений */}
-          {messages.length === 0 && (
+          {/* Показываем быстрые сообщения когда нет пользовательских сообщений */}
+          {showSuggestedQuestions && (
             <div className="p-4">
               <SuggestedQuestions 
                 questions={suggestedQuestions}
