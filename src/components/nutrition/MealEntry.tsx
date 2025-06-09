@@ -4,8 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Camera, Upload, Plus } from "lucide-react";
-import { toast } from "sonner";
+import { Camera, Upload, Plus, Loader2 } from "lucide-react";
+import { useFoodEntries } from "@/hooks/useFoodEntries";
+import { useFoodImageAnalysis } from "@/hooks/useFoodImageAnalysis";
 
 interface MealEntryProps {
   mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
@@ -24,6 +25,10 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
     portion_size: ''
   });
 
+  const { addEntry } = useFoodEntries(selectedDate);
+  const { analyzeImage, isAnalyzing } = useFoodImageAnalysis();
+  const [isSaving, setIsSaving] = useState(false);
+
   const mealTitles = {
     breakfast: 'Завтрак',
     lunch: 'Обед',
@@ -32,20 +37,39 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
   };
 
   const handleSave = async () => {
+    if (!foodData.food_name.trim()) {
+      return;
+    }
+
+    setIsSaving(true);
     try {
-      // Здесь будет логика сохранения в Supabase
-      toast.success("Прием пищи добавлен!");
+      await addEntry({
+        meal_type: mealType,
+        ...foodData
+      });
       onClose();
     } catch (error) {
-      toast.error("Ошибка при добавлении приема пищи");
+      console.error('Error saving food entry:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Здесь будет логика анализа изображения через ИИ
-      toast.info("Анализируем изображение...");
+      const analysis = await analyzeImage(file);
+      if (analysis) {
+        setFoodData({
+          food_name: analysis.food_name,
+          calories: analysis.calories,
+          protein: analysis.protein,
+          carbs: analysis.carbs,
+          fat: analysis.fat,
+          portion_size: analysis.portion_size
+        });
+        setEntryMode('manual'); // Переключаемся на ручной режим для редактирования
+      }
     }
   };
 
@@ -160,18 +184,23 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
                 onChange={handleImageUpload}
                 className="hidden"
                 id="image-upload"
+                disabled={isAnalyzing}
               />
               <Label htmlFor="image-upload" className="cursor-pointer">
                 <div className="space-y-2">
-                  {entryMode === 'camera' ? (
+                  {isAnalyzing ? (
+                    <Loader2 className="h-12 w-12 mx-auto text-blue-500 animate-spin" />
+                  ) : entryMode === 'camera' ? (
                     <Camera className="h-12 w-12 mx-auto text-gray-400" />
                   ) : (
                     <Upload className="h-12 w-12 mx-auto text-gray-400" />
                   )}
                   <p className="text-gray-600">
-                    {entryMode === 'camera' 
-                      ? 'Сфотографировать блюдо' 
-                      : 'Загрузить фото блюда'}
+                    {isAnalyzing 
+                      ? 'Анализируем изображение...'
+                      : entryMode === 'camera' 
+                        ? 'Сфотографировать блюдо' 
+                        : 'Загрузить фото блюда'}
                   </p>
                   <p className="text-sm text-gray-500">
                     ИИ автоматически определит состав БЖУ
@@ -183,11 +212,22 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
 
           {/* Кнопки действий */}
           <div className="flex gap-3 pt-4">
-            <Button variant="outline" onClick={onClose} className="flex-1">
+            <Button variant="outline" onClick={onClose} className="flex-1" disabled={isSaving}>
               Отмена
             </Button>
-            <Button onClick={handleSave} className="flex-1">
-              Добавить
+            <Button 
+              onClick={handleSave} 
+              className="flex-1" 
+              disabled={isSaving || !foodData.food_name.trim()}
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Добавление...
+                </>
+              ) : (
+                'Добавить'
+              )}
             </Button>
           </div>
         </div>

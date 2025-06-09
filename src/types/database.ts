@@ -1,4 +1,3 @@
-
 import { Database } from '@/integrations/supabase/types';
 
 // Blog Post Types
@@ -48,3 +47,16 @@ export interface MedicalAnalysis {
   created_at: string;
   updated_at: string;
 }
+
+// Nutrition Types
+export type NutritionGoal = Database['public']['Tables']['nutrition_goals']['Row'];
+export type NutritionGoalInsert = Database['public']['Tables']['nutrition_goals']['Insert'];
+export type NutritionGoalUpdate = Database['public']['Tables']['nutrition_goals']['Update'];
+
+export type FoodEntry = Database['public']['Tables']['food_entries']['Row'];
+export type FoodEntryInsert = Database['public']['Tables']['food_entries']['Insert'];
+export type FoodEntryUpdate = Database['public']['Tables']['food_entries']['Update'];
+
+export type FoodAnalysisRequest = Database['public']['Tables']['food_analysis_requests']['Row'];
+export type FoodAnalysisRequestInsert = Database['public']['Tables']['food_analysis_requests']['Insert'];
+export type FoodAnalysisRequestUpdate = Database['public']['Tables']['food_analysis_requests']['Update'];
