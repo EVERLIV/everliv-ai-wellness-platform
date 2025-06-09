@@ -1,126 +1,125 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Plus, ArrowLeft, Calendar, FileText, Eye } from "lucide-react";
+import { Plus, ArrowLeft, Calendar, FileText, Eye, TrendingUp, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import BloodAnalysisForm from "@/components/blood-analysis/BloodAnalysisForm";
-import BloodAnalysisResults from "@/components/blood-analysis/BloodAnalysisResults";
-import { useBloodAnalysis } from "@/hooks/useBloodAnalysis";
-
-// Моковые данные для списка анализов
-const mockAnalyses = [
-  {
-    id: 1,
-    date: "08.06.2025",
-    type: "Анализ крови",
-    status: "completed",
-    normalCount: 14,
-    deviationCount: 0,
-    totalCount: 14,
-    topMarkers: [
-      { name: "Гемоглобин", value: "152 г/л", status: "normal" },
-      { name: "Эритроциты", value: "4.5×10¹²/л", status: "normal" },
-      { name: "Цветовой показатель", value: "0.9", status: "normal" }
-    ]
-  },
-  {
-    id: 2,
-    date: "08.06.2025",
-    type: "Анализ мочи", 
-    status: "completed",
-    normalCount: 9,
-    deviationCount: 9,
-    totalCount: 9,
-    topMarkers: [
-      { name: "Белок", value: "0.025", status: "high" },
-      { name: "Сахар", value: "0.03", status: "high" },
-      { name: "Кетоновые тела", value: "50 мг/сут", status: "high" }
-    ]
-  },
-  {
-    id: 3,
-    date: "08.06.2025",
-    type: "Анализ крови",
-    status: "completed", 
-    normalCount: 10,
-    deviationCount: 0,
-    totalCount: 13,
-    topMarkers: [
-      { name: "Эритроциты", value: "9.41×10¹²/л", status: "normal" },
-      { name: "Гемоглобин", value: "152 г/л", status: "normal" },
-      { name: "Гематокрит", value: "43.4%", status: "normal" }
-    ]
-  },
-  {
-    id: 4,
-    date: "15.01.2025",
-    type: "Общий анализ крови + биохимия",
-    status: "completed",
-    normalCount: 8,
-    deviationCount: 0,
-    totalCount: 13,
-    topMarkers: [
-      { name: "Гемоглобин", value: "142 г/л", status: "normal" },
-      { name: "Эритроциты", value: "4.5×10¹²/л", status: "normal" },
-      { name: "Лейкоциты", value: "6.8×10⁹/л", status: "normal" }
-    ]
-  },
-  {
-    id: 5,
-    date: "10.01.2025", 
-    type: "Гормональная панель",
-    status: "completed",
-    normalCount: 6,
-    deviationCount: 0,
-    totalCount: 7,
-    topMarkers: [
-      { name: "ТТГ", value: "2.8 мЕд/л", status: "normal" },
-      { name: "Т4 свободный", value: "14.2 пмоль/л", status: "normal" },
-      { name: "Т3 свободный", value: "4.8 пмоль/л", status: "normal" }
-    ]
-  },
-  {
-    id: 6,
-    date: "05.01.2025",
-    type: "Витамины и микроэлементы", 
-    status: "completed",
-    normalCount: 3,
-    deviationCount: 0,
-    totalCount: 8,
-    topMarkers: [
-      { name: "Витамин D", value: "18 нг/мл", status: "low" },
-      { name: "Витамин B12", value: "285 пг/мл", status: "normal" },
-      { name: "Фолиевая кислота", value: "8.2 нг/мл", status: "normal" }
-    ]
-  }
-];
+import { useAuth } from "@/contexts/AuthContext";
+import { getMedicalAnalysesHistory } from "@/services/ai/medical-analysis";
+import MedicalAnalysisForm from "@/components/medical-analysis/MedicalAnalysisForm";
+import MedicalAnalysisResults from "@/components/medical-analysis/MedicalAnalysisResults";
+import { useMedicalAnalysis } from "@/hooks/useMedicalAnalysis";
+import { toast } from "sonner";
 
 const LabAnalyses = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [showNewAnalysis, setShowNewAnalysis] = useState(false);
-  const { results, isAnalyzing, activeTab, apiError, setActiveTab, analyzeBloodTest } = useBloodAnalysis();
+  const [analysisHistory, setAnalysisHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  
+  const { 
+    results, 
+    isAnalyzing, 
+    activeTab, 
+    apiError, 
+    setActiveTab, 
+    setResults, 
+    analyzeMedicalTest 
+  } = useMedicalAnalysis();
 
-  const handleViewAnalysis = (analysisId: number) => {
+  // Загрузка истории анализов
+  useEffect(() => {
+    const loadHistory = async () => {
+      if (!user) return;
+      
+      try {
+        setLoadingHistory(true);
+        const history = await getMedicalAnalysesHistory(user.id);
+        setAnalysisHistory(history);
+      } catch (error) {
+        console.error("Ошибка загрузки истории:", error);
+        toast.error("Не удалось загрузить историю анализов");
+      } finally {
+        setLoadingHistory(false);
+      }
+    };
+
+    loadHistory();
+  }, [user]);
+
+  const handleViewAnalysis = (analysisId: string) => {
     navigate(`/analytics?id=${analysisId}`);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "normal": return "text-green-600";
-      case "high": return "text-red-600";
-      case "low": return "text-amber-600";
-      default: return "text-gray-600";
+  const getAnalysisTypeLabel = (type: string) => {
+    const types = {
+      blood: "Анализ крови",
+      urine: "Анализ мочи", 
+      biochemistry: "Биохимический анализ",
+      hormones: "Гормональная панель",
+      vitamins: "Витамины и микроэлементы",
+      immunology: "Иммунологические исследования",
+      oncology: "Онкомаркеры",
+      cardiology: "Кардиологические маркеры",
+      other: "Другой анализ"
+    };
+    return types[type] || type;
+  };
+
+  const getRiskIcon = (level: string) => {
+    switch (level) {
+      case 'high':
+        return "🔴";
+      case 'medium':
+        return "🟡";
+      default:
+        return "🟢";
     }
   };
 
-  const getStatusIcon = (normalCount: number, deviationCount: number) => {
-    if (deviationCount === 0) return "🩸";
-    if (deviationCount > normalCount) return "🔸";
-    return "⚠️";
+  const getRiskColor = (level: string) => {
+    switch (level) {
+      case 'high':
+        return 'destructive';
+      case 'medium':
+        return 'secondary';
+      default:
+        return 'default';
+    }
   };
+
+  const getRiskText = (level: string) => {
+    switch (level) {
+      case 'high':
+        return 'Высокий риск';
+      case 'medium':
+        return 'Средний риск';
+      default:
+        return 'Низкий риск';
+    }
+  };
+
+  const handleNewAnalysisComplete = () => {
+    // Обновляем историю после успешного анализа
+    if (user) {
+      getMedicalAnalysesHistory(user.id).then(setAnalysisHistory);
+    }
+    // Закрываем форму нового анализа только если результаты получены
+    if (results) {
+      setShowNewAnalysis(false);
+    }
+  };
+
+  // Автоматически обновляем историю при получении результатов
+  useEffect(() => {
+    if (results?.analysisId && user) {
+      getMedicalAnalysesHistory(user.id).then(setAnalysisHistory);
+    }
+  }, [results, user]);
 
   if (showNewAnalysis) {
     return (
@@ -133,7 +132,11 @@ const LabAnalyses = () => {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => setShowNewAnalysis(false)}
+                onClick={() => {
+                  setShowNewAnalysis(false);
+                  setResults(null);
+                  setActiveTab("input");
+                }}
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -146,29 +149,32 @@ const LabAnalyses = () => {
                 </div>
                 <div>
                   <h1 className="text-2xl font-semibold text-gray-900">Новый анализ</h1>
-                  <p className="text-gray-600">Загрузите результаты для анализа</p>
+                  <p className="text-gray-600">Загрузите результаты для анализа с помощью ИИ</p>
                 </div>
               </div>
             </div>
 
             <Card>
               <CardHeader>
-                <CardTitle>Анализ крови с ИИ</CardTitle>
+                <CardTitle>Универсальный анализатор медицинских тестов</CardTitle>
               </CardHeader>
               <CardContent>
                 {activeTab === "input" && (
-                  <BloodAnalysisForm 
-                    onAnalyze={analyzeBloodTest}
+                  <MedicalAnalysisForm 
+                    onAnalyze={analyzeMedicalTest}
                     isAnalyzing={isAnalyzing}
                   />
                 )}
                 
                 {activeTab === "results" && (
-                  <BloodAnalysisResults
+                  <MedicalAnalysisResults
                     results={results}
                     isAnalyzing={isAnalyzing}
                     apiError={apiError}
-                    onBack={() => setActiveTab("input")}
+                    onBack={() => {
+                      setActiveTab("input");
+                      handleNewAnalysisComplete();
+                    }}
                   />
                 )}
               </CardContent>
@@ -206,7 +212,7 @@ const LabAnalyses = () => {
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900">Ваши анализы</h1>
-                  <p className="text-gray-600">История загруженных и проанализированных результатов</p>
+                  <p className="text-gray-600">История проанализированных результатов с помощью ИИ</p>
                 </div>
               </div>
             </div>
@@ -220,73 +226,112 @@ const LabAnalyses = () => {
             </Button>
           </div>
 
-          {/* Analyses Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockAnalyses.map((analysis) => (
-              <Card key={analysis.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="text-2xl">{getStatusIcon(analysis.normalCount, analysis.deviationCount)}</div>
-                      <div>
-                        <CardTitle className="text-lg">{analysis.type}</CardTitle>
-                        <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                          <Calendar className="h-4 w-4" />
-                          {analysis.date}
+          {/* История анализов */}
+          {loadingHistory ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1,2,3].map(i => (
+                <Card key={i} className="animate-pulse">
+                  <CardHeader className="pb-3">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2 mt-2"></div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="h-3 bg-gray-200 rounded"></div>
+                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : analysisHistory.length === 0 ? (
+            <Card className="text-center py-12">
+              <CardContent>
+                <div className="text-6xl mb-4">🔬</div>
+                <h3 className="text-xl font-semibold mb-2">Пока нет анализов</h3>
+                <p className="text-gray-600 mb-6">
+                  Загрузите свой первый медицинский анализ для обработки с помощью ИИ
+                </p>
+                <Button 
+                  onClick={() => setShowNewAnalysis(true)}
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Добавить первый анализ
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {analysisHistory.map((analysis) => (
+                <Card key={analysis.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="text-2xl">{getRiskIcon(analysis.results?.riskLevel || 'low')}</div>
+                        <div>
+                          <CardTitle className="text-lg">
+                            {getAnalysisTypeLabel(analysis.analysis_type)}
+                          </CardTitle>
+                          <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                            <Calendar className="h-4 w-4" />
+                            {new Date(analysis.created_at).toLocaleDateString('ru-RU')}
+                          </div>
+                        </div>
+                      </div>
+                      <Badge variant={getRiskColor(analysis.results?.riskLevel || 'low')} className="text-xs">
+                        {getRiskText(analysis.results?.riskLevel || 'low')}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0">
+                    {/* Статистика показателей */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-4">
+                        <div className="text-center">
+                          <div className="text-lg font-bold text-green-600">
+                            {analysis.results?.markers?.filter(m => m.status === 'normal').length || 0}
+                          </div>
+                          <div className="text-xs text-gray-500">Норма</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-lg font-bold text-red-600">
+                            {analysis.results?.markers?.filter(m => m.status !== 'normal').length || 0}
+                          </div>
+                          <div className="text-xs text-gray-500">Отклонения</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-lg font-bold text-gray-700">
+                            {analysis.results?.markers?.length || 0}
+                          </div>
+                          <div className="text-xs text-gray-500">Всего</div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="pt-0">
-                  {/* Статистика */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">{analysis.normalCount}</div>
-                        <div className="text-xs text-gray-500">Норма</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-red-600">{analysis.deviationCount}</div>
-                        <div className="text-xs text-gray-500">Отклонения</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-gray-700">{analysis.totalCount}</div>
-                        <div className="text-xs text-gray-500">Всего</div>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Топ маркеры */}
-                  <div className="space-y-2 mb-4">
-                    {analysis.topMarkers.slice(0, 3).map((marker, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-700">{marker.name}</span>
-                        <span className={`font-medium ${getStatusColor(marker.status)}`}>
-                          {marker.value}
-                        </span>
+                    {/* Краткое резюме */}
+                    {analysis.results?.summary && (
+                      <div className="text-sm text-gray-600 mb-4 line-clamp-2">
+                        {analysis.results.summary}
                       </div>
-                    ))}
-                    {analysis.topMarkers.length > 3 && (
-                      <div className="text-xs text-gray-500">+{analysis.totalCount - 3} ещё</div>
                     )}
-                  </div>
 
-                  {/* Кнопка просмотра */}
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full gap-2"
-                    onClick={() => handleViewAnalysis(analysis.id)}
-                  >
-                    <Eye className="h-4 w-4" />
-                    Посмотреть детали
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    {/* Кнопка просмотра */}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full gap-2"
+                      onClick={() => handleViewAnalysis(analysis.id)}
+                    >
+                      <Eye className="h-4 w-4" />
+                      Посмотреть детали
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
