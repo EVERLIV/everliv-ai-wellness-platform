@@ -11,7 +11,7 @@ interface ChatMessagesProps {
 
 const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isProcessing, messagesEndRef }) => {
   return (
-    <div className="space-y-4">
+    <div className="flex-1 overflow-y-auto p-6 space-y-6">
       {messages.map((message) => (
         <div
           key={message.id}
@@ -20,17 +20,17 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isProcessing, mes
           }`}
         >
           <div
-            className={`max-w-[80%] px-4 py-2 rounded-lg ${
+            className={`max-w-[80%] px-4 py-3 ${
               message.role === "user"
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted"
+                ? "bg-blue-600 text-white rounded-2xl rounded-br-md"
+                : "bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md"
             }`}
           >
             <div className="flex items-center mb-1">
               {message.role === "user" ? (
-                <User className="h-4 w-4 mr-1" />
+                <User className="h-4 w-4 mr-2" />
               ) : (
-                <Bot className="h-4 w-4 mr-1" />
+                <Bot className="h-4 w-4 mr-2" />
               )}
               <span className="text-xs opacity-70">
                 {message.role === "user" ? "Вы" : "ИИ-доктор"} •{" "}
@@ -40,13 +40,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isProcessing, mes
                 })}
               </span>
             </div>
-            <div className="whitespace-pre-wrap">{message.content}</div>
+            <div className="whitespace-pre-wrap leading-relaxed">{message.content}</div>
           </div>
         </div>
       ))}
       {isProcessing && (
         <div className="flex justify-start">
-          <div className="max-w-[80%] px-4 py-2 rounded-lg bg-muted">
+          <div className="max-w-[80%] px-4 py-3 bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md">
             <div className="flex items-center">
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               <span>ИИ-доктор печатает...</span>

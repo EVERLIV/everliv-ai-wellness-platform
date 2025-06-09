@@ -95,29 +95,27 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
         </div>
       </div>
 
-      {/* Chat Interface */}
-      <Card className="h-[600px] flex flex-col">
-        <CardHeader className="border-b">
-          <CardTitle className="flex items-center gap-2">
+      {/* Chat Interface - убираем обводки и тени */}
+      <div className="h-[600px] flex flex-col bg-white rounded-lg">
+        <div className="border-b border-gray-100 p-6">
+          <div className="flex items-center gap-2 mb-2">
             <Bot className="h-5 w-5 text-blue-600" />
-            EVERLIV - Ваш персональный ИИ доктор
-          </CardTitle>
+            <h3 className="text-lg font-semibold">EVERLIV - Ваш персональный ИИ доктор</h3>
+          </div>
           <p className="text-sm text-gray-600">
             Я анализирую ваши медицинские данные и предоставляю персонализированные рекомендации
           </p>
-        </CardHeader>
+        </div>
         
-        <CardContent className="flex-1 flex flex-col p-0">
-          <div className="flex-1 overflow-hidden">
-            <ChatMessages 
-              messages={messages} 
-              isProcessing={isProcessing}
-              messagesEndRef={messagesEndRef}
-            />
-          </div>
+        <div className="flex-1 flex flex-col">
+          <ChatMessages 
+            messages={messages} 
+            isProcessing={isProcessing}
+            messagesEndRef={messagesEndRef}
+          />
           
           {messages.length === 0 && (
-            <div className="p-6 border-t">
+            <div className="p-6 border-t border-gray-100">
               <SuggestedQuestions 
                 questions={suggestedQuestions}
                 onSelectQuestion={handleSuggestedQuestion} 
@@ -125,7 +123,7 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
             </div>
           )}
           
-          <div className="border-t p-4">
+          <div className="border-t border-gray-100 p-4">
             <ChatInput
               inputText={inputText}
               setInputText={setInputText}
@@ -133,8 +131,8 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
               onSubmit={handleSubmit}
             />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
