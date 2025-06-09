@@ -1,56 +1,76 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, MessageSquare, TrendingUp, Settings } from "lucide-react";
+import { FileText, MessageSquare, TrendingUp, Settings, TestTube2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const quickActions = [
   {
-    title: "Анализы",
-    subtitle: "Загрузить и просмотреть",
-    icon: FileText,
-    iconColor: "text-blue-500",
-    iconBg: "bg-blue-50",
-    path: "/blood-analysis"
+    title: "Лабораторные анализы",
+    subtitle: "Загрузить и анализировать",
+    icon: TestTube2,
+    iconColor: "text-emerald-600",
+    iconBg: "bg-emerald-50",
+    path: "/analytics",
+    description: "Получите детальную расшифровку ваших анализов крови с помощью ИИ"
   },
   {
     title: "ИИ-Доктор",
     subtitle: "Консультация",
     icon: MessageSquare,
-    iconColor: "text-green-500",
-    iconBg: "bg-green-50",
-    path: "/dashboard"
+    iconColor: "text-blue-600",
+    iconBg: "bg-blue-50",
+    path: "/dashboard",
+    description: "Персональные рекомендации от ИИ-ассистента"
   },
   {
-    title: "Тренды",
+    title: "Аналитика",
     subtitle: "Динамика здоровья",
     icon: TrendingUp,
-    iconColor: "text-purple-500",
+    iconColor: "text-purple-600",
     iconBg: "bg-purple-50",
-    path: "/analytics"
+    path: "/analytics",
+    description: "Отслеживайте изменения показателей здоровья"
   },
   {
     title: "Профиль",
     subtitle: "Настройки",
     icon: Settings,
-    iconColor: "text-orange-500",
-    iconBg: "bg-orange-50",
-    path: "/profile"
+    iconColor: "text-slate-600",
+    iconBg: "bg-slate-50",
+    path: "/profile",
+    description: "Управление аккаунтом и персональными данными"
   }
 ];
 
 const DashboardQuickActions = () => {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {quickActions.map((action, index) => (
-        <Link key={index} to={action.path}>
-          <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
-            <CardContent className="p-6 text-center">
-              <div className={`w-12 h-12 rounded-full ${action.iconBg} flex items-center justify-center mx-auto mb-3`}>
-                <action.icon className={`h-6 w-6 ${action.iconColor}`} />
+        <Link key={index} to={action.path} className="group">
+          <Card className="hover:shadow-lg transition-all duration-300 border-0 bg-white group-hover:scale-[1.02] h-full">
+            <CardContent className="p-6">
+              <div className="flex flex-col items-start space-y-4">
+                <div className={`w-12 h-12 rounded-xl ${action.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                  <action.icon className={`h-6 w-6 ${action.iconColor}`} />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
+                    {action.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">
+                    {action.description}
+                  </p>
+                </div>
+                
+                <div className="flex items-center text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span>{action.subtitle}</span>
+                  <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
               </div>
-              <h3 className="font-medium text-gray-900 mb-1">{action.title}</h3>
-              <p className="text-sm text-gray-500">{action.subtitle}</p>
             </CardContent>
           </Card>
         </Link>
