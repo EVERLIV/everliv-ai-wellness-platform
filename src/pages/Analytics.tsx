@@ -338,6 +338,17 @@ const Analytics: React.FC = () => {
     }
   };
 
+  // Преобразуем healthImprovementActions в формат, ожидаемый BiomarkerDetails
+  const convertToRecommendations = (actions: HealthData['healthImprovementActions']) => {
+    return actions.map(action => ({
+      id: action.id,
+      title: action.title,
+      description: action.expectedResult,
+      action: action.actions.join('. '),
+      priority: action.priority
+    }));
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -371,7 +382,7 @@ const Analytics: React.FC = () => {
         
         <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
           {/* Обзор и тренды */}
-          {healthData?.overview && (
+          {healthData?.overview?.trendsAnalysis && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card>
                 <CardContent className="p-6">
@@ -618,7 +629,7 @@ const Analytics: React.FC = () => {
             <div className="lg:col-span-2">
               <BiomarkerDetails 
                 biomarker={healthData?.biomarkers.find(b => b.id === selectedBiomarker)}
-                recommendations={healthData?.healthImprovementActions || []}
+                recommendations={healthData?.healthImprovementActions ? convertToRecommendations(healthData.healthImprovementActions) : []}
                 riskFactors={healthData?.riskFactors || []}
                 supplements={healthData?.supplements || []}
               />
