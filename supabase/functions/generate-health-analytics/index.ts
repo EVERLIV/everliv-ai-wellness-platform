@@ -28,8 +28,8 @@ serve(async (req) => {
       .eq('id', userId)
       .single();
 
-    // Анализируем данные и генерируем аналитику
-    const healthData = await generateHealthAnalytics(analyses, profile);
+    // Генерируем комплексную аналитику
+    const healthData = await generateComprehensiveAnalytics(analyses, profile);
 
     return new Response(JSON.stringify({ healthData }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -43,75 +43,148 @@ serve(async (req) => {
   }
 });
 
-async function generateHealthAnalytics(analyses: any[], profile: any) {
-  // Извлекаем биомаркеры из анализов
-  const biomarkers = extractBiomarkers(analyses);
+async function generateComprehensiveAnalytics(analyses: any[], profile: any) {
+  // Извлекаем все биомаркеры из всех анализов
+  const allBiomarkers = extractAllBiomarkers(analyses);
+  
+  // Анализируем тренды и динамику
+  const trendsAnalysis = analyzeTrends(allBiomarkers);
   
   // Рассчитываем общий балл здоровья
-  const healthScore = calculateHealthScore(biomarkers);
+  const healthScore = calculateOverallHealthScore(allBiomarkers, profile);
   
   // Определяем уровень риска
-  const riskLevel = determineRiskLevel(biomarkers);
+  const riskLevel = determineOverallRiskLevel(allBiomarkers, profile);
   
-  // Генерируем персональные рекомендации
-  const recommendations = generatePersonalizedRecommendations(biomarkers, profile);
+  // Генерируем действенные рекомендации
+  const healthImprovementActions = generateHealthImprovementActions(allBiomarkers, profile, trendsAnalysis);
   
-  // Определяем факторы риска
-  const riskFactors = identifyRiskFactors(biomarkers, profile);
+  // Рекомендуемые медицинские тесты
+  const recommendedTests = generateRecommendedTests(allBiomarkers, profile);
   
-  // Рекомендуемые добавки
-  const supplements = recommendPersonalizedSupplements(biomarkers, profile);
+  // Консультации специалистов
+  const specialistConsultations = generateSpecialistRecommendations(allBiomarkers, profile);
+  
+  // Ключевые показатели здоровья
+  const keyHealthIndicators = generateKeyHealthIndicators(allBiomarkers, profile);
+  
+  // Рекомендации по образу жизни
+  const lifestyleRecommendations = generateLifestyleRecommendations(allBiomarkers, profile);
+  
+  // Факторы риска
+  const riskFactors = identifyComprehensiveRiskFactors(allBiomarkers, profile, trendsAnalysis);
+  
+  // Персональные добавки
+  const supplements = recommendPersonalizedSupplements(allBiomarkers, profile);
 
   return {
     overview: {
       healthScore,
       riskLevel,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
+      totalAnalyses: analyses.length,
+      trendsAnalysis
     },
-    biomarkers,
-    recommendations,
+    biomarkers: allBiomarkers.slice(0, 10), // Показываем только последние ключевые
+    healthImprovementActions,
+    recommendedTests,
+    specialistConsultations,
+    keyHealthIndicators,
+    lifestyleRecommendations,
     riskFactors,
     supplements
   };
 }
 
-function extractBiomarkers(analyses: any[]) {
-  const biomarkers = [];
+function extractAllBiomarkers(analyses: any[]) {
+  const biomarkersMap = new Map();
   
   for (const analysis of analyses) {
     if (analysis.results?.markers) {
       for (const marker of analysis.results.markers) {
-        biomarkers.push({
+        const key = marker.name;
+        if (!biomarkersMap.has(key)) {
+          biomarkersMap.set(key, []);
+        }
+        biomarkersMap.get(key).push({
           id: `${analysis.id}_${marker.name}`,
           name: marker.name,
           value: parseFloat(marker.value) || 0,
           unit: marker.unit || '',
           status: marker.status || 'unknown',
-          trend: determineTrend(marker),
           referenceRange: marker.reference_range || 'Н/Д',
-          lastMeasured: analysis.created_at
+          date: analysis.created_at,
+          analysisType: analysis.analysis_type
         });
       }
     }
   }
   
-  return biomarkers;
+  // Берем последние значения для каждого биомаркера и добавляем тренд
+  const latestBiomarkers = [];
+  biomarkersMap.forEach((values, name) => {
+    values.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const latest = values[0];
+    latest.trend = calculateTrend(values);
+    latest.lastMeasured = latest.date;
+    latestBiomarkers.push(latest);
+  });
+  
+  return latestBiomarkers;
 }
 
-function calculateHealthScore(biomarkers: any[]) {
+function calculateTrend(values: any[]) {
+  if (values.length < 2) return 'stable';
+  
+  const latest = values[0].value;
+  const previous = values[1].value;
+  
+  const change = ((latest - previous) / previous) * 100;
+  
+  if (change > 5) return 'up';
+  if (change < -5) return 'down';
+  return 'stable';
+}
+
+function analyzeTrends(biomarkers: any[]) {
+  const improving = biomarkers.filter(b => 
+    (b.trend === 'up' && ['optimal', 'good'].includes(b.status)) ||
+    (b.trend === 'down' && ['attention', 'risk'].includes(b.status))
+  ).length;
+  
+  const worsening = biomarkers.filter(b => 
+    (b.trend === 'down' && ['optimal', 'good'].includes(b.status)) ||
+    (b.trend === 'up' && ['attention', 'risk'].includes(b.status))
+  ).length;
+  
+  const stable = biomarkers.filter(b => b.trend === 'stable').length;
+  
+  return { improving, worsening, stable };
+}
+
+function calculateOverallHealthScore(biomarkers: any[], profile: any) {
   if (biomarkers.length === 0) return 75;
   
   let totalScore = 0;
-  let count = 0;
+  let weightedSum = 0;
+  
+  const criticalMarkers = ['холестерин', 'глюкоза', 'давление', 'гемоглобин'];
   
   for (const marker of biomarkers) {
     let score = 0;
+    let weight = 1;
+    
+    // Повышенный вес для критических маркеров
+    if (criticalMarkers.some(critical => marker.name.toLowerCase().includes(critical))) {
+      weight = 2;
+    }
+    
     switch (marker.status) {
       case 'optimal':
         score = 100;
         break;
       case 'good':
-        score = 80;
+        score = 85;
         break;
       case 'attention':
         score = 60;
@@ -122,207 +195,773 @@ function calculateHealthScore(biomarkers: any[]) {
       default:
         score = 70;
     }
-    totalScore += score;
-    count++;
+    
+    // Учитываем тренд
+    if (marker.trend === 'up' && ['optimal', 'good'].includes(marker.status)) {
+      score += 5;
+    } else if (marker.trend === 'down' && ['attention', 'risk'].includes(marker.status)) {
+      score += 5;
+    } else if (marker.trend === 'down' && ['optimal', 'good'].includes(marker.status)) {
+      score -= 10;
+    } else if (marker.trend === 'up' && ['attention', 'risk'].includes(marker.status)) {
+      score -= 10;
+    }
+    
+    totalScore += score * weight;
+    weightedSum += weight;
   }
   
-  return Math.round(totalScore / count);
+  let finalScore = Math.round(totalScore / weightedSum);
+  
+  // Возрастные корректировки
+  if (profile?.date_of_birth) {
+    const age = calculateAge(profile.date_of_birth);
+    if (age > 60) finalScore = Math.max(finalScore - 5, 0);
+    if (age > 70) finalScore = Math.max(finalScore - 10, 0);
+  }
+  
+  return Math.min(Math.max(finalScore, 0), 100);
 }
 
-function determineRiskLevel(biomarkers: any[]) {
+function determineOverallRiskLevel(biomarkers: any[], profile: any) {
   const riskCount = biomarkers.filter(m => m.status === 'risk').length;
   const attentionCount = biomarkers.filter(m => m.status === 'attention').length;
+  const worseningTrends = biomarkers.filter(m => 
+    (m.trend === 'down' && ['optimal', 'good'].includes(m.status)) ||
+    (m.trend === 'up' && ['attention', 'risk'].includes(m.status))
+  ).length;
   
-  if (riskCount > 0) return 'high';
-  if (attentionCount > 1) return 'medium';
+  if (riskCount > 2 || (riskCount > 0 && worseningTrends > 2)) return 'high';
+  if (riskCount > 0 || attentionCount > 2 || worseningTrends > 1) return 'medium';
   return 'low';
 }
 
-function determineTrend(marker: any) {
-  // Простая логика определения тренда
-  const trends = ['up', 'down', 'stable'];
-  return trends[Math.floor(Math.random() * trends.length)];
-}
-
-function generatePersonalizedRecommendations(biomarkers: any[], profile: any) {
-  const recommendations = [];
+function generateHealthImprovementActions(biomarkers: any[], profile: any, trendsAnalysis: any) {
+  const actions = [];
   
-  // Анализируем каждый биомаркер для персональных рекомендаций
-  for (const marker of biomarkers) {
-    const markerName = marker.name.toLowerCase();
-    
-    if (marker.status === 'attention' || marker.status === 'risk') {
-      // Рекомендации по холестерину
-      if (markerName.includes('холестерин') || markerName.includes('cholesterol')) {
-        recommendations.push({
-          id: `rec_cholesterol_${marker.id}`,
-          category: 'Питание',
-          title: 'Снижение уровня холестерина',
-          description: 'Ограничьте насыщенные жиры, увеличьте потребление омега-3, добавьте овсянку и орехи в рацион',
-          priority: marker.status === 'risk' ? 'high' : 'medium',
-          action: 'Пересмотреть диету и увеличить физическую активность'
-        });
-      }
-      
-      // Рекомендации по витамину D
-      if (markerName.includes('витамин d') || markerName.includes('vitamin d')) {
-        recommendations.push({
-          id: `rec_vitd_${marker.id}`,
-          category: 'Добавки',
-          title: 'Коррекция дефицита витамина D',
-          description: 'Увеличьте время на солнце, принимайте витамин D3 в дозировке 2000-4000 МЕ',
-          priority: marker.status === 'risk' ? 'high' : 'medium',
-          action: 'Консультация с врачом для определения дозировки'
-        });
-      }
-      
-      // Рекомендации по железу
-      if (markerName.includes('железо') || markerName.includes('iron') || markerName.includes('гемоглобин')) {
-        recommendations.push({
-          id: `rec_iron_${marker.id}`,
-          category: 'Питание',
-          title: 'Повышение уровня железа',
-          description: 'Включите в рацион красное мясо, печень, бобовые, темную зелень. Принимайте с витамином C',
-          priority: marker.status === 'risk' ? 'high' : 'medium',
-          action: 'Корректировка диеты и возможный прием добавок'
-        });
-      }
-      
-      // Рекомендации по B12
-      if (markerName.includes('b12') || markerName.includes('кобаламин')) {
-        recommendations.push({
-          id: `rec_b12_${marker.id}`,
-          category: 'Добавки',
-          title: 'Коррекция дефицита B12',
-          description: 'Принимайте B12 в форме метилкобаламина, добавьте в рацион мясо, рыбу, молочные продукты',
-          priority: marker.status === 'risk' ? 'high' : 'medium',
-          action: 'Прием витаминных добавок'
-        });
-      }
-      
-      // Рекомендации по глюкозе
-      if (markerName.includes('глюкоза') || markerName.includes('glucose') || markerName.includes('сахар')) {
-        recommendations.push({
-          id: `rec_glucose_${marker.id}`,
-          category: 'Питание',
-          title: 'Контроль уровня глюкозы',
-          description: 'Ограничьте простые углеводы, увеличьте клетчатку, регулярно занимайтесь спортом',
-          priority: marker.status === 'risk' ? 'high' : 'medium',
-          action: 'Изменение образа жизни и диеты'
-        });
-      }
-    }
+  // Анализируем проблемные области
+  const cholesterolIssues = biomarkers.filter(b => 
+    b.name.toLowerCase().includes('холестерин') && ['attention', 'risk'].includes(b.status)
+  );
+  
+  const glucoseIssues = biomarkers.filter(b => 
+    (b.name.toLowerCase().includes('глюкоза') || b.name.toLowerCase().includes('гликированный')) 
+    && ['attention', 'risk'].includes(b.status)
+  );
+  
+  const vitaminDeficiencies = biomarkers.filter(b => 
+    b.name.toLowerCase().includes('витамин') && ['attention', 'risk'].includes(b.status)
+  );
+  
+  const ironIssues = biomarkers.filter(b => 
+    (b.name.toLowerCase().includes('железо') || b.name.toLowerCase().includes('гемоглобин') || 
+     b.name.toLowerCase().includes('ферритин')) && ['attention', 'risk'].includes(b.status)
+  );
+  
+  // Генерируем конкретные действия
+  if (cholesterolIssues.length > 0) {
+    actions.push({
+      id: 'cholesterol_management',
+      category: 'Сердечно-сосудистая система',
+      title: 'Нормализация уровня холестерина',
+      priority: cholesterolIssues.some(i => i.status === 'risk') ? 'high' : 'medium',
+      actions: [
+        'Исключить трансжиры и ограничить насыщенные жиры до <10% калорий',
+        'Добавить 25-30г клетчатки в день (овсянка, бобовые, овощи)',
+        'Включить омега-3: жирная рыба 2-3 раза в неделю',
+        'Кардиотренировки 150 минут в неделю умеренной интенсивности'
+      ],
+      expectedResult: 'Снижение общего холестерина на 10-15% за 2-3 месяца'
+    });
   }
   
-  // Общие рекомендации на основе профиля
+  if (glucoseIssues.length > 0) {
+    actions.push({
+      id: 'glucose_control',
+      category: 'Метаболизм',
+      title: 'Контроль уровня глюкозы',
+      priority: glucoseIssues.some(i => i.status === 'risk') ? 'high' : 'medium',
+      actions: [
+        'Ограничить простые углеводы и сахар',
+        'Питание каждые 3-4 часа небольшими порциями',
+        'Добавить 10-15 минут ходьбы после каждого приема пищи',
+        'Включить продукты с низким гликемическим индексом'
+      ],
+      expectedResult: 'Стабилизация уровня глюкозы за 4-6 недель'
+    });
+  }
+  
+  if (vitaminDeficiencies.length > 0) {
+    actions.push({
+      id: 'vitamin_optimization',
+      category: 'Витаминный статус',
+      title: 'Коррекция дефицитов витаминов',
+      priority: 'medium',
+      actions: [
+        'Ежедневно 15-20 минут на солнце для витамина D',
+        'Включить в рацион продукты, богатые дефицитными витаминами',
+        'Рассмотреть качественные добавки после консультации с врачом',
+        'Контрольный анализ через 2-3 месяца'
+      ],
+      expectedResult: 'Нормализация уровня витаминов за 2-3 месяца'
+    });
+  }
+  
+  if (ironIssues.length > 0) {
+    actions.push({
+      id: 'iron_management',
+      category: 'Кроветворение',
+      title: 'Коррекция железодефицита',
+      priority: ironIssues.some(i => i.status === 'risk') ? 'high' : 'medium',
+      actions: [
+        'Включить красное мясо, печень 2-3 раза в неделю',
+        'Принимать железосодержащие продукты с витамином C',
+        'Избегать чая/кофе во время еды (снижают усвоение железа)',
+        'Рассмотреть добавки железа по назначению врача'
+      ],
+      expectedResult: 'Улучшение показателей железа за 6-8 недель'
+    });
+  }
+  
+  // Общие рекомендации на основе возраста и пола
   if (profile) {
-    // Рекомендации по возрасту
     const age = profile.date_of_birth ? calculateAge(profile.date_of_birth) : null;
+    
     if (age && age > 40) {
-      recommendations.push({
-        id: `rec_age_${age}`,
-        category: 'Профилактика',
-        title: 'Возрастные изменения',
-        description: 'Регулярные профилактические осмотры, контроль сердечно-сосудистой системы',
+      actions.push({
+        id: 'age_related_prevention',
+        category: 'Возрастная профилактика',
+        title: 'Предотвращение возрастных изменений',
         priority: 'medium',
-        action: 'Ежегодное комплексное обследование'
+        actions: [
+          'Силовые тренировки 2-3 раза в неделю для сохранения мышечной массы',
+          'Регулярные кардиологические обследования',
+          'Контроль плотности костной ткани',
+          'Когнитивные тренировки и социальная активность'
+        ],
+        expectedResult: 'Замедление возрастных изменений'
       });
     }
     
-    // Рекомендации по полу
-    if (profile.gender === 'female') {
-      recommendations.push({
-        id: 'rec_female_health',
+    if (profile.gender === 'female' && age && age > 35) {
+      actions.push({
+        id: 'female_health',
         category: 'Женское здоровье',
         title: 'Поддержка женского здоровья',
-        description: 'Контроль уровня железа, фолиевой кислоты, регулярные гинекологические осмотры',
         priority: 'medium',
-        action: 'Специализированные обследования'
+        actions: [
+          'Регулярный контроль гормонального фона',
+          'Достаточное потребление кальция и магния',
+          'Профилактика остеопороза',
+          'Контроль веса и метаболических показателей'
+        ],
+        expectedResult: 'Поддержание гормонального баланса'
       });
     }
   }
   
-  return recommendations.slice(0, 6); // Ограничиваем количество
+  // Если тренды ухудшаются
+  if (trendsAnalysis.worsening > trendsAnalysis.improving) {
+    actions.push({
+      id: 'trend_reversal',
+      category: 'Срочные меры',
+      title: 'Остановка негативных трендов',
+      priority: 'high',
+      actions: [
+        'Комплексное медицинское обследование в течение 2 недель',
+        'Анализ факторов стресса и их устранение',
+        'Оптимизация режима сна (7-9 часов)',
+        'Временное усиление контроля за питанием и активностью'
+      ],
+      expectedResult: 'Стабилизация показателей за 4-6 недель'
+    });
+  }
+  
+  return actions;
 }
 
-function identifyRiskFactors(biomarkers: any[], profile: any) {
-  const riskFactors = [];
+function generateRecommendedTests(biomarkers: any[], profile: any) {
+  const tests = [];
+  const age = profile?.date_of_birth ? calculateAge(profile.date_of_birth) : null;
   
-  // Анализируем критические биомаркеры
-  for (const marker of biomarkers) {
-    if (marker.status === 'risk') {
-      const markerName = marker.name.toLowerCase();
-      
-      if (markerName.includes('холестерин') || markerName.includes('cholesterol')) {
-        riskFactors.push({
-          id: `risk_cholesterol_${marker.id}`,
-          factor: 'Повышенный холестерин',
-          level: 'high',
-          description: `Уровень ${marker.value} ${marker.unit} значительно превышает норму (${marker.referenceRange})`,
-          mitigation: 'Срочная коррекция диеты, исключение трансжиров, увеличение физической активности'
-        });
-      }
-      
-      if (markerName.includes('глюкоза') || markerName.includes('glucose')) {
-        riskFactors.push({
-          id: `risk_glucose_${marker.id}`,
-          factor: 'Нарушение углеводного обмена',
-          level: 'high',
-          description: `Уровень глюкозы ${marker.value} ${marker.unit} требует медицинского контроля`,
-          mitigation: 'Консультация эндокринолога, контроль питания, регулярные измерения'
-        });
-      }
-      
-      if (markerName.includes('давление') || markerName.includes('pressure')) {
-        riskFactors.push({
-          id: `risk_pressure_${marker.id}`,
-          factor: 'Артериальная гипертензия',
-          level: 'high',
-          description: 'Повышенное давление увеличивает риск сердечно-сосудистых заболеваний',
-          mitigation: 'Медикаментозная коррекция, снижение соли, контроль веса'
-        });
-      }
-    }
-    
-    // Факторы внимания
-    if (marker.status === 'attention') {
-      const markerName = marker.name.toLowerCase();
-      
-      if (markerName.includes('витамин d')) {
-        riskFactors.push({
-          id: `risk_vitd_${marker.id}`,
-          factor: 'Дефицит витамина D',
-          level: 'medium',
-          description: `Низкий уровень ${marker.value} ${marker.unit} может влиять на иммунитет и здоровье костей`,
-          mitigation: 'Прием витамина D3, увеличение времени на солнце'
-        });
-      }
-    }
+  // Базовые тесты на основе имеющихся данных
+  const hasRecentBlood = biomarkers.some(b => 
+    new Date(b.date) > new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+  );
+  
+  if (!hasRecentBlood) {
+    tests.push({
+      id: 'complete_blood_panel',
+      name: 'Расширенный анализ крови',
+      frequency: 'Каждые 3-6 месяцев',
+      priority: 'high',
+      reason: 'Базовая оценка состояния здоровья и мониторинг динамики',
+      includes: ['Общий анализ крови', 'Биохимия', 'Липидный профиль', 'Гормоны щитовидной железы']
+    });
   }
   
-  // Факторы риска на основе профиля
-  if (profile) {
-    const age = profile.date_of_birth ? calculateAge(profile.date_of_birth) : null;
+  // Специфичные тесты на основе проблем
+  const hasCardiovascularRisks = biomarkers.some(b => 
+    (b.name.toLowerCase().includes('холестерин') || b.name.toLowerCase().includes('давление')) 
+    && ['attention', 'risk'].includes(b.status)
+  );
+  
+  if (hasCardiovascularRisks) {
+    tests.push({
+      id: 'cardiovascular_screening',
+      name: 'Кардиологическое обследование',
+      frequency: 'Каждые 6-12 месяцев',
+      priority: 'high',
+      reason: 'Выявленные риски сердечно-сосудистых заболеваний',
+      includes: ['ЭКГ', 'ЭХО сердца', 'Стресс-тест', 'Артериальное давление 24ч']
+    });
+  }
+  
+  const hasMetabolicIssues = biomarkers.some(b => 
+    b.name.toLowerCase().includes('глюкоза') && ['attention', 'risk'].includes(b.status)
+  );
+  
+  if (hasMetabolicIssues) {
+    tests.push({
+      id: 'diabetes_screening',
+      name: 'Диагностика диабета',
+      frequency: 'Каждые 3-6 месяцев',
+      priority: 'high',
+      reason: 'Нарушения углеводного обмена',
+      includes: ['Глюкоза натощак', 'HbA1c', 'ОГТТ', 'Инсулин', 'С-пептид']
+    });
+  }
+  
+  // Возрастные рекомендации
+  if (age && age > 40) {
+    tests.push({
+      id: 'cancer_screening',
+      name: 'Онкологический скрининг',
+      frequency: 'Ежегодно',
+      priority: 'medium',
+      reason: 'Возрастная профилактика онкологических заболеваний',
+      includes: ['Онкомаркеры', 'КТ органов грудной клетки', 'Колоноскопия (каждые 5 лет)']
+    });
+  }
+  
+  if (profile?.gender === 'female') {
+    tests.push({
+      id: 'female_health_screening',
+      name: 'Женское здоровье',
+      frequency: 'Ежегодно',
+      priority: 'medium',
+      reason: 'Профилактика заболеваний репродуктивной системы',
+      includes: ['Гинекологический осмотр', 'УЗИ малого таза', 'Маммография (после 40 лет)', 'Цитология']
+    });
+  }
+  
+  if (profile?.gender === 'male' && age && age > 45) {
+    tests.push({
+      id: 'male_health_screening',
+      name: 'Мужское здоровье',
+      frequency: 'Ежегодно',
+      priority: 'medium',
+      reason: 'Профилактика заболеваний предстательной железы',
+      includes: ['ПСА', 'УЗИ предстательной железы', 'Урологический осмотр']
+    });
+  }
+  
+  // Проверка дефицитов
+  const hasVitaminIssues = biomarkers.some(b => 
+    b.name.toLowerCase().includes('витамин') && ['attention', 'risk'].includes(b.status)
+  );
+  
+  if (hasVitaminIssues) {
+    tests.push({
+      id: 'vitamin_panel',
+      name: 'Витаминный статус',
+      frequency: 'Каждые 6 месяцев',
+      priority: 'medium',
+      reason: 'Контроль коррекции витаминных дефицитов',
+      includes: ['Витамин D', 'B12', 'Фолиевая кислота', 'Витамин B6', 'Железо и ферритин']
+    });
+  }
+  
+  return tests;
+}
+
+function generateSpecialistRecommendations(biomarkers: any[], profile: any) {
+  const specialists = [];
+  const age = profile?.date_of_birth ? calculateAge(profile.date_of_birth) : null;
+  
+  // Кардиолог
+  const cardioRisks = biomarkers.filter(b => 
+    (b.name.toLowerCase().includes('холестерин') || b.name.toLowerCase().includes('давление')) 
+    && ['attention', 'risk'].includes(b.status)
+  );
+  
+  if (cardioRisks.length > 0) {
+    specialists.push({
+      id: 'cardiologist',
+      specialist: 'Кардиолог',
+      urgency: cardioRisks.some(r => r.status === 'risk') ? 'В течение 2 недель' : 'В течение месяца',
+      reason: 'Выявлены нарушения сердечно-сосудистой системы',
+      purpose: 'Оценка рисков, назначение лечения, профилактические рекомендации',
+      preparation: 'Принести результаты всех анализов, список принимаемых препаратов'
+    });
+  }
+  
+  // Эндокринолог
+  const endocrineIssues = biomarkers.filter(b => 
+    (b.name.toLowerCase().includes('глюкоза') || b.name.toLowerCase().includes('инсулин') || 
+     b.name.toLowerCase().includes('ттг') || b.name.toLowerCase().includes('т4')) 
+    && ['attention', 'risk'].includes(b.status)
+  );
+  
+  if (endocrineIssues.length > 0) {
+    specialists.push({
+      id: 'endocrinologist',
+      specialist: 'Эндокринолог',
+      urgency: endocrineIssues.some(i => i.status === 'risk') ? 'В течение 2 недель' : 'В течение месяца',
+      reason: 'Нарушения эндокринной системы и метаболизма',
+      purpose: 'Диагностика диабета/предиабета, коррекция гормональных нарушений',
+      preparation: 'Анализы натощак, дневник питания за неделю'
+    });
+  }
+  
+  // Гематолог
+  const bloodIssues = biomarkers.filter(b => 
+    (b.name.toLowerCase().includes('гемоглобин') || b.name.toLowerCase().includes('железо') || 
+     b.name.toLowerCase().includes('эритроциты') || b.name.toLowerCase().includes('лейкоциты')) 
+    && ['attention', 'risk'].includes(b.status)
+  );
+  
+  if (bloodIssues.length > 0) {
+    specialists.push({
+      id: 'hematologist',
+      specialist: 'Гематолог',
+      urgency: 'В течение месяца',
+      reason: 'Нарушения показателей крови',
+      purpose: 'Диагностика анемии, нарушений свертываемости',
+      preparation: 'Общий анализ крови с лейкоформулой, коагулограмма'
+    });
+  }
+  
+  // Терапевт (базовая консультация)
+  if (specialists.length === 0 && biomarkers.some(b => ['attention', 'risk'].includes(b.status))) {
+    specialists.push({
+      id: 'general_practitioner',
+      specialist: 'Терапевт',
+      urgency: 'В течение месяца',
+      reason: 'Общая оценка состояния здоровья и планирование дальнейших действий',
+      purpose: 'Комплексная оценка, направления к узким специалистам',
+      preparation: 'Все имеющиеся анализы, список жалоб и симптомов'
+    });
+  }
+  
+  // Возрастные рекомендации
+  if (age && age > 50) {
+    specialists.push({
+      id: 'preventive_checkup',
+      specialist: 'Врач профилактической медицины',
+      urgency: 'Ежегодно',
+      reason: 'Возрастная профилактика и раннее выявление заболеваний',
+      purpose: 'Комплексное обследование, скрининг онкологии',
+      preparation: 'Подготовка к расширенному обследованию'
+    });
+  }
+  
+  return specialists;
+}
+
+function generateKeyHealthIndicators(biomarkers: any[], profile: any) {
+  const indicators = [];
+  const age = profile?.date_of_birth ? calculateAge(profile.date_of_birth) : null;
+  
+  // Ключевые показатели на основе возраста и пола
+  indicators.push({
+    id: 'cardiovascular_health',
+    category: 'Сердечно-сосудистая система',
+    indicators: [
+      {
+        name: 'Общий холестерин',
+        target: '< 5.2 ммоль/л',
+        importance: 'Основной фактор риска атеросклероза',
+        frequency: 'Каждые 3-6 месяцев'
+      },
+      {
+        name: 'ЛПНП ("плохой" холестерин)',
+        target: '< 3.0 ммоль/л',
+        importance: 'Прямой фактор развития атеросклероза',
+        frequency: 'Каждые 3-6 месяцев'
+      },
+      {
+        name: 'Артериальное давление',
+        target: '< 130/80 мм рт.ст.',
+        importance: 'Контроль гипертонии и рисков инсульта',
+        frequency: 'Ежедневно при проблемах'
+      }
+    ]
+  });
+  
+  indicators.push({
+    id: 'metabolic_health',
+    category: 'Метаболическое здоровье',
+    indicators: [
+      {
+        name: 'Глюкоза натощак',
+        target: '3.9-5.9 ммоль/л',
+        importance: 'Ранняя диагностика диабета',
+        frequency: 'Каждые 3-6 месяцев'
+      },
+      {
+        name: 'HbA1c (при наличии)',
+        target: '< 5.7%',
+        importance: 'Долгосрочный контроль сахара',
+        frequency: 'Каждые 3-6 месяцев при рисках'
+      },
+      {
+        name: 'Индекс массы тела',
+        target: '18.5-24.9 кг/м²',
+        importance: 'Контроль веса и метаболических рисков',
+        frequency: 'Еженедельно'
+      }
+    ]
+  });
+  
+  indicators.push({
+    id: 'vital_nutrients',
+    category: 'Витаминно-минеральный статус',
+    indicators: [
+      {
+        name: 'Витамин D',
+        target: '30-100 нг/мл',
+        importance: 'Иммунитет, здоровье костей, настроение',
+        frequency: 'Каждые 6 месяцев'
+      },
+      {
+        name: 'Витамин B12',
+        target: '> 300 пг/мл',
+        importance: 'Нервная система, энергетический обмен',
+        frequency: 'Ежегодно или при симптомах'
+      },
+      {
+        name: 'Ферритин',
+        target: profile?.gender === 'female' ? '15-150 нг/мл' : '30-400 нг/мл',
+        importance: 'Запасы железа, профилактика анемии',
+        frequency: 'Каждые 6-12 месяцев'
+      }
+    ]
+  });
+  
+  // Возрастные и гендерные особенности
+  if (profile?.gender === 'female') {
+    indicators.push({
+      id: 'female_health',
+      category: 'Женское здоровье',
+      indicators: [
+        {
+          name: 'Гемоглобин',
+          target: '120-140 г/л',
+          importance: 'Профилактика железодефицитной анемии',
+          frequency: 'Каждые 3-6 месяцев'
+        },
+        {
+          name: 'Фолиевая кислота',
+          target: '> 3 нг/мл',
+          importance: 'Репродуктивное здоровье, профилактика анемии',
+          frequency: 'Ежегодно'
+        }
+      ]
+    });
+  }
+  
+  if (age && age > 50) {
+    indicators.push({
+      id: 'age_related',
+      category: 'Возрастные показатели',
+      indicators: [
+        {
+          name: 'ПСА (для мужчин)',
+          target: '< 4.0 нг/мл',
+          importance: 'Ранняя диагностика рака простаты',
+          frequency: 'Ежегодно после 50 лет'
+        },
+        {
+          name: 'Плотность костной ткани',
+          target: 'T-score > -1.0',
+          importance: 'Профилактика остеопороза',
+          frequency: 'Каждые 2-3 года'
+        },
+        {
+          name: 'Креатинин',
+          target: '< 115 мкмоль/л',
+          importance: 'Контроль функции почек',
+          frequency: 'Каждые 6-12 месяцев'
+        }
+      ]
+    });
+  }
+  
+  return indicators;
+}
+
+function generateLifestyleRecommendations(biomarkers: any[], profile: any) {
+  const recommendations = [];
+  const age = profile?.date_of_birth ? calculateAge(profile.date_of_birth) : null;
+  
+  // Питание
+  const nutritionRecs = {
+    id: 'nutrition',
+    category: 'Питание',
+    recommendations: []
+  };
+  
+  const hasCardioRisks = biomarkers.some(b => 
+    b.name.toLowerCase().includes('холестерин') && ['attention', 'risk'].includes(b.status)
+  );
+  
+  if (hasCardioRisks) {
+    nutritionRecs.recommendations.push({
+      advice: 'Средиземноморская диета',
+      benefit: 'Снижение холестерина и воспаления',
+      howTo: 'Больше рыбы, оливкового масла, орехов, овощей и фруктов'
+    });
+  }
+  
+  const hasMetabolicIssues = biomarkers.some(b => 
+    b.name.toLowerCase().includes('глюкоза') && ['attention', 'risk'].includes(b.status)
+  );
+  
+  if (hasMetabolicIssues) {
+    nutritionRecs.recommendations.push({
+      advice: 'Контроль гликемического индекса',
+      benefit: 'Стабилизация уровня сахара в крови',
+      howTo: 'Цельнозерновые продукты, белок в каждом приеме пищи, ограничение сладкого'
+    });
+  }
+  
+  nutritionRecs.recommendations.push({
+    advice: 'Адекватная гидратация',
+    benefit: 'Улучшение метаболизма и детоксикации',
+    howTo: '30-35 мл воды на кг веса в день, больше при физических нагрузках'
+  });
+  
+  recommendations.push(nutritionRecs);
+  
+  // Физическая активность
+  const activityRecs = {
+    id: 'physical_activity',
+    category: 'Физическая активность',
+    recommendations: [
+      {
+        advice: 'Кардиотренировки',
+        benefit: 'Улучшение сердечно-сосудистой системы и обмена веществ',
+        howTo: '150 минут умеренной активности в неделю (ходьба, плавание, велосипед)'
+      },
+      {
+        advice: 'Силовые тренировки',
+        benefit: 'Сохранение мышечной массы и плотности костей',
+        howTo: '2-3 раза в неделю, все группы мышц'
+      },
+      {
+        advice: 'Ежедневная активность',
+        benefit: 'Поддержание метаболизма в течение дня',
+        howTo: 'Минимум 8000-10000 шагов в день, перерывы каждый час'
+      }
+    ]
+  };
+  
+  recommendations.push(activityRecs);
+  
+  // Сон и восстановление
+  const sleepRecs = {
+    id: 'sleep_recovery',
+    category: 'Сон и восстановление',
+    recommendations: [
+      {
+        advice: 'Качественный сон',
+        benefit: 'Восстановление и регуляция гормонов',
+        howTo: '7-9 часов сна, одинаковое время отхода ко сну, темная прохладная комната'
+      },
+      {
+        advice: 'Управление стрессом',
+        benefit: 'Снижение кортизола и воспаления',
+        howTo: 'Медитация, йога, дыхательные практики, хобби'
+      },
+      {
+        advice: 'Регулярность режима',
+        benefit: 'Синхронизация биологических ритмов',
+        howTo: 'Одинаковое время приема пищи, сна и активности'
+      }
+    ]
+  };
+  
+  recommendations.push(sleepRecs);
+  
+  // Профилактика
+  const preventionRecs = {
+    id: 'prevention',
+    category: 'Профилактика',
+    recommendations: [
+      {
+        advice: 'Регулярные медосмотры',
+        benefit: 'Раннее выявление проблем со здоровьем',
+        howTo: 'Ежегодный чек-ап, специализированные обследования по возрасту'
+      },
+      {
+        advice: 'Вакцинация',
+        benefit: 'Защита от инфекционных заболеваний',
+        howTo: 'Согласно национальному календарю, дополнительно по рискам'
+      }
+    ]
+  };
+  
+  if (age && age > 40) {
+    preventionRecs.recommendations.push({
+      advice: 'Онкологический скрининг',
+      benefit: 'Раннее выявление онкологии',
+      howTo: 'Маммография, колоноскопия, анализы на онкомаркеры по возрасту'
+    });
+  }
+  
+  recommendations.push(preventionRecs);
+  
+  // Дополнительные рекомендации для проблемных областей
+  const hasVitaminIssues = biomarkers.some(b => 
+    b.name.toLowerCase().includes('витамин') && ['attention', 'risk'].includes(b.status)
+  );
+  
+  if (hasVitaminIssues) {
+    recommendations.push({
+      id: 'supplements',
+      category: 'Добавки и витамины',
+      recommendations: [
+        {
+          advice: 'Персонализированная витаминотерапия',
+          benefit: 'Коррекция выявленных дефицитов',
+          howTo: 'По результатам анализов, с контролем через 2-3 месяца'
+        },
+        {
+          advice: 'Натуральные источники витаминов',
+          benefit: 'Лучшая усвояемость и синергия',
+          howTo: 'Разнообразное питание, сезонные овощи и фрукты'
+        }
+      ]
+    });
+  }
+  
+  return recommendations;
+}
+
+function identifyComprehensiveRiskFactors(biomarkers: any[], profile: any, trendsAnalysis: any) {
+  const riskFactors = [];
+  
+  // Анализируем критические риски
+  const criticalMarkers = biomarkers.filter(b => b.status === 'risk');
+  const attentionMarkers = biomarkers.filter(b => b.status === 'attention');
+  const worseningTrends = biomarkers.filter(b => 
+    (b.trend === 'down' && ['optimal', 'good'].includes(b.status)) ||
+    (b.trend === 'up' && ['attention', 'risk'].includes(b.status))
+  );
+  
+  // Сердечно-сосудистые риски
+  const cardioRisks = criticalMarkers.filter(b => 
+    b.name.toLowerCase().includes('холестерин') || b.name.toLowerCase().includes('давление')
+  );
+  
+  if (cardioRisks.length > 0) {
+    riskFactors.push({
+      id: 'cardiovascular_risk',
+      factor: 'Высокий сердечно-сосудистый риск',
+      level: 'high',
+      description: `Критические нарушения: ${cardioRisks.map(r => r.name).join(', ')}. Риск инфаркта и инсульта.`,
+      mitigation: 'Срочная консультация кардиолога, коррекция образа жизни, возможна медикаментозная терапия',
+      timeframe: 'Действовать в течение 1-2 недель'
+    });
+  }
+  
+  // Метаболические риски
+  const metabolicRisks = criticalMarkers.filter(b => 
+    b.name.toLowerCase().includes('глюкоза') || b.name.toLowerCase().includes('инсулин')
+  );
+  
+  if (metabolicRisks.length > 0) {
+    riskFactors.push({
+      id: 'diabetes_risk',
+      factor: 'Риск развития диабета',
+      level: 'high',
+      description: `Нарушения углеводного обмена: ${metabolicRisks.map(r => r.name).join(', ')}`,
+      mitigation: 'Консультация эндокринолога, строгий контроль питания, регулярные физические нагрузки',
+      timeframe: 'Начать изменения немедленно'
+    });
+  }
+  
+  // Риски дефицитов
+  const vitaminDeficits = criticalMarkers.filter(b => 
+    b.name.toLowerCase().includes('витамин') || b.name.toLowerCase().includes('железо')
+  );
+  
+  if (vitaminDeficits.length > 0) {
+    riskFactors.push({
+      id: 'nutritional_deficiency',
+      factor: 'Серьезные нутритивные дефициты',
+      level: 'medium',
+      description: `Критические дефициты: ${vitaminDeficits.map(v => v.name).join(', ')}. Риск анемии, нарушений иммунитета`,
+      mitigation: 'Коррекция питания, качественные добавки, контрольные анализы через 2-3 месяца',
+      timeframe: 'Начать коррекцию в течение недели'
+    });
+  }
+  
+  // Риски ухудшающихся трендов
+  if (trendsAnalysis.worsening > trendsAnalysis.improving + 1) {
+    riskFactors.push({
+      id: 'negative_trends',
+      factor: 'Негативная динамика показателей здоровья',
+      level: 'medium',
+      description: `${trendsAnalysis.worsening} показателей ухудшаются, что может указывать на системные проблемы`,
+      mitigation: 'Комплексное обследование, анализ образа жизни, коррекция факторов риска',
+      timeframe: 'Обследование в течение месяца'
+    });
+  }
+  
+  // Возрастные риски
+  if (profile?.date_of_birth) {
+    const age = calculateAge(profile.date_of_birth);
     
-    // Возрастные риски
-    if (age && age > 50) {
+    if (age > 50 && attentionMarkers.length > 2) {
       riskFactors.push({
-        id: 'risk_age',
-        factor: 'Возрастные изменения',
+        id: 'age_related_decline',
+        factor: 'Возрастные изменения здоровья',
         level: 'medium',
-        description: 'Увеличенный риск сердечно-сосудистых заболеваний и остеопороза',
-        mitigation: 'Регулярные обследования, активный образ жизни, правильное питание'
+        description: `В возрасте ${age} лет множественные отклонения требуют пристального внимания`,
+        mitigation: 'Активная профилактика, регулярные обследования, поддержка здорового образа жизни',
+        timeframe: 'Постоянный мониторинг'
       });
     }
     
-    // Факторы образа жизни
-    if (profile.medical_conditions && profile.medical_conditions.length > 0) {
+    if (age > 65) {
       riskFactors.push({
-        id: 'risk_medical_conditions',
-        factor: 'Хронические заболевания',
-        level: 'high',
-        description: `Наличие заболеваний: ${profile.medical_conditions.join(', ')}`,
-        mitigation: 'Регулярное наблюдение у специалистов, соблюдение рекомендаций врача'
+        id: 'elderly_health_risks',
+        factor: 'Специфические риски пожилого возраста',
+        level: 'medium',
+        description: 'Повышенные риски сердечно-сосудистых заболеваний, остеопороза, когнитивных нарушений',
+        mitigation: 'Комплексная гериатрическая оценка, профилактика падений, когнитивная стимуляция',
+        timeframe: 'Регулярное наблюдение каждые 3-6 месяцев'
+      });
+    }
+  }
+  
+  // Гендерные риски
+  if (profile?.gender === 'female') {
+    const femaleRisks = biomarkers.filter(b => 
+      (b.name.toLowerCase().includes('железо') || b.name.toLowerCase().includes('гемоглобин')) 
+      && ['attention', 'risk'].includes(b.status)
+    );
+    
+    if (femaleRisks.length > 0) {
+      riskFactors.push({
+        id: 'female_anemia_risk',
+        factor: 'Риск железодефицитной анемии',
+        level: 'medium',
+        description: 'Низкие показатели железа/гемоглобина характерны для женщин репродуктивного возраста',
+        mitigation: 'Коррекция питания, добавки железа, контроль менструального цикла',
+        timeframe: 'Начать коррекцию немедленно'
       });
     }
   }
@@ -333,111 +972,148 @@ function identifyRiskFactors(biomarkers: any[], profile: any) {
 function recommendPersonalizedSupplements(biomarkers: any[], profile: any) {
   const supplements = [];
   
-  // Анализируем дефициты и рекомендуем добавки
+  // Анализируем дефициты для персонализированных рекомендаций
   for (const marker of biomarkers) {
     const markerName = marker.name.toLowerCase();
     
-    if (marker.status !== 'optimal') {
+    if (marker.status === 'attention' || marker.status === 'risk') {
       // Витамин D
-      if (markerName.includes('витамин d') || markerName.includes('vitamin d')) {
+      if (markerName.includes('витамин d')) {
         supplements.push({
-          id: `supp_vitd_${marker.id}`,
+          id: `vitamin_d_${marker.id}`,
           name: 'Витамин D3 (холекальциферол)',
-          dosage: marker.status === 'risk' ? '4000 МЕ/день' : '2000 МЕ/день',
-          benefit: 'Поддержка иммунитета, здоровья костей и мышечной функции',
-          timing: 'Утром с жирной пищей для лучшего усвоения',
-          interactions: 'Усиливает всасывание кальция, принимать с магнием'
+          dosage: marker.status === 'risk' ? '4000-5000 МЕ/день' : '2000-3000 МЕ/день',
+          benefit: 'Поддержка иммунитета, здоровья костей, настроения и мышечной функции',
+          timing: 'Утром с жирной пищей (авокадо, орехи, масло)',
+          duration: '3-6 месяцев с контрольным анализом',
+          interactions: 'Улучшает усвоение кальция, принимать с магнием для лучшего эффекта',
+          expectedImprovement: 'Повышение уровня до 40-60 нг/мл за 2-3 месяца'
         });
       }
       
       // Железо
-      if (markerName.includes('железо') || markerName.includes('iron') || markerName.includes('гемоглобин')) {
+      if (markerName.includes('железо') || markerName.includes('гемоглобин') || markerName.includes('ферритин')) {
         supplements.push({
-          id: `supp_iron_${marker.id}`,
-          name: 'Железо (бисглицинат)',
-          dosage: marker.status === 'risk' ? '25-30 мг/день' : '18 мг/день',
-          benefit: 'Профилактика анемии, улучшение транспорта кислорода',
-          timing: 'Натощак с витамином C, за час до еды',
-          interactions: 'Не принимать с кальцием, чаем, кофе'
+          id: `iron_${marker.id}`,
+          name: 'Железо в биодоступной форме (бисглицинат)',
+          dosage: marker.status === 'risk' ? '25-30 мг элементарного железа/день' : '18-25 мг/день',
+          benefit: 'Профилактика и лечение анемии, улучшение транспорта кислорода, повышение энергии',
+          timing: 'Натощак за 1 час до еды с витамином C (апельсиновый сок)',
+          duration: '3-6 месяцев с контролем ферритина',
+          interactions: 'НЕ принимать с кальцием, чаем, кофе. Усиливается витамином C',
+          expectedImprovement: 'Повышение гемоглобина на 10-20 г/л за 6-8 недель'
         });
       }
       
       // B12
       if (markerName.includes('b12') || markerName.includes('кобаламин')) {
         supplements.push({
-          id: `supp_b12_${marker.id}`,
+          id: `b12_${marker.id}`,
           name: 'Витамин B12 (метилкобаламин)',
-          dosage: marker.status === 'risk' ? '1000 мкг/день' : '500 мкг/день',
-          benefit: 'Поддержка нервной системы, образование красных кровяных телец',
-          timing: 'Утром сублингвально (под язык)',
-          interactions: 'Хорошо сочетается с фолиевой кислотой'
+          dosage: marker.status === 'risk' ? '1000-2000 мкг/день' : '500-1000 мкг/день',
+          benefit: 'Поддержка нервной системы, энергетического обмена, синтеза ДНК',
+          timing: 'Утром сублингвально (под язык) на пустой желудок',
+          duration: '2-3 месяца, затем поддерживающая доза',
+          interactions: 'Синергия с фолиевой кислотой и B6',
+          expectedImprovement: 'Нормализация уровня за 4-6 недель'
         });
       }
       
       // Фолиевая кислота
-      if (markerName.includes('фолат') || markerName.includes('folate')) {
+      if (markerName.includes('фолат') || markerName.includes('фолиевая')) {
         supplements.push({
-          id: `supp_folate_${marker.id}`,
-          name: 'Фолиевая кислота (метилфолат)',
+          id: `folate_${marker.id}`,
+          name: 'Фолиевая кислота (L-метилфолат)',
           dosage: '400-800 мкг/день',
-          benefit: 'Поддержка сердечно-сосудистой системы, синтез ДНК',
+          benefit: 'Поддержка сердечно-сосудистой системы, синтез ДНК, профилактика анемии',
           timing: 'С едой в любое время дня',
-          interactions: 'Синергия с витамином B12'
+          duration: '2-3 месяца',
+          interactions: 'Работает в синергии с B12 и B6',
+          expectedImprovement: 'Нормализация за 6-8 недель'
         });
       }
     }
   }
   
-  // Базовые добавки на основе профиля
-  if (profile) {
-    const age = profile.date_of_birth ? calculateAge(profile.date_of_birth) : null;
-    
-    // Омега-3 для всех
+  // Базовые добавки для общего здоровья
+  const age = profile?.date_of_birth ? calculateAge(profile.date_of_birth) : null;
+  
+  // Омега-3 для всех
+  if (!supplements.find(s => s.name.includes('Омега'))) {
     supplements.push({
-      id: 'supp_omega3',
-      name: 'Омега-3 (EPA/DHA)',
-      dosage: '1000-2000 мг/день',
-      benefit: 'Поддержка сердца, мозга, противовоспалительное действие',
-      timing: 'С едой в любое время',
-      interactions: 'Может усиливать действие антикоагулянтов'
+      id: 'omega3_basic',
+      name: 'Омега-3 (EPA/DHA из рыбьего жира)',
+      dosage: '1000-2000 мг/день (EPA 600-800 мг, DHA 400-600 мг)',
+      benefit: 'Поддержка сердца, мозга, суставов, противовоспалительное действие',
+      timing: 'С едой, лучше с жирной пищей',
+      duration: 'Постоянно',
+      interactions: 'Может усиливать действие антикоагулянтов',
+      expectedImprovement: 'Улучшение липидного профиля за 6-8 недель'
     });
-    
-    // Магний
-    supplements.push({
-      id: 'supp_magnesium',
-      name: 'Магний (глицинат)',
-      dosage: '300-400 мг/день',
-      benefit: 'Поддержка мышечной и нервной функции, улучшение сна',
-      timing: 'Вечером перед сном',
-      interactions: 'Улучшает усвоение витамина D'
-    });
-    
-    // Дополнительно для женщин
-    if (profile.gender === 'female') {
-      supplements.push({
-        id: 'supp_female_complex',
-        name: 'Женский витаминный комплекс',
-        dosage: 'По инструкции',
-        benefit: 'Поддержка женского здоровья, содержит железо, фолиевую кислоту',
-        timing: 'Утром с завтраком',
-        interactions: 'Комплексный состав, следить за суммарной дозировкой'
-      });
-    }
-    
-    // Для людей старше 50
-    if (age && age > 50) {
-      supplements.push({
-        id: 'supp_senior',
-        name: 'Коэнзим Q10',
-        dosage: '100-200 мг/день',
-        benefit: 'Поддержка сердечно-сосудистой системы, антиоксидантная защита',
-        timing: 'С жирной пищей',
-        interactions: 'Может снижать эффективность варфарина'
-      });
-    }
   }
   
-  return supplements.slice(0, 6); // Ограничиваем количество
+  // Магний
+  if (!supplements.find(s => s.name.includes('Магний'))) {
+    supplements.push({
+      id: 'magnesium_basic',
+      name: 'Магний (глицинат или цитрат)',
+      dosage: '300-400 мг/день',
+      benefit: 'Поддержка мышечной и нервной функции, улучшение сна, регуляция давления',
+      timing: 'Вечером за 1-2 часа до сна',
+      duration: 'Постоянно',
+      interactions: 'Улучшает усвоение витамина D, не принимать с железом',
+      expectedImprovement: 'Улучшение сна и снижение мышечных спазмов за 2-4 недели'
+    });
+  }
+  
+  // Возрастные добавки
+  if (age && age > 50) {
+    supplements.push({
+      id: 'coq10_age',
+      name: 'Коэнзим Q10 (убихинол)',
+      dosage: '100-200 мг/день',
+      benefit: 'Поддержка сердечно-сосудистой системы, антиоксидантная защита, энергетический обмен',
+      timing: 'С жирной пищей, лучше утром',
+      duration: 'Курсами по 3-6 месяцев',
+      interactions: 'Может снижать эффективность варфарина',
+      expectedImprovement: 'Повышение энергии и выносливости за 4-6 недель'
+    });
+  }
+  
+  // Для женщин
+  if (profile?.gender === 'female' && age && age < 50) {
+    supplements.push({
+      id: 'female_complex',
+      name: 'Женский витаминно-минеральный комплекс',
+      dosage: 'По инструкции (обычно 1-2 таблетки/день)',
+      benefit: 'Поддержка женского здоровья, содержит железо, фолиевую кислоту, кальций',
+      timing: 'Утром с завтраком',
+      duration: 'Постоянно с перерывами',
+      interactions: 'Комплексный состав, следить за суммарной дозировкой других добавок',
+      expectedImprovement: 'Общее улучшение самочувствия за 4-6 недель'
+    });
+  }
+  
+  // Для людей с сердечно-сосудистыми рисками
+  const hasCardioRisks = biomarkers.some(b => 
+    (b.name.toLowerCase().includes('холестерин') || b.name.toLowerCase().includes('давление'))
+    && ['attention', 'risk'].includes(b.status)
+  );
+  
+  if (hasCardioRisks) {
+    supplements.push({
+      id: 'cardio_support',
+      name: 'Натуральные статины (красный дрожжевой рис)',
+      dosage: '600-1200 мг/день (содержащий 3-5 мг монаколина К)',
+      benefit: 'Естественное снижение холестерина без побочных эффектов',
+      timing: 'Вечером с едой',
+      duration: '3-6 месяцев с контролем липидограммы',
+      interactions: 'Не принимать со статинами, может взаимодействовать с варфарином',
+      expectedImprovement: 'Снижение общего холестерина на 15-25% за 6-8 недель'
+    });
+  }
+  
+  return supplements.slice(0, 8); // Ограничиваем количество для удобства восприятия
 }
 
 function calculateAge(dateOfBirth: string): number {
