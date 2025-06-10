@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -54,7 +53,7 @@ export const useCachedAnalytics = () => {
       }
 
       if (data) {
-        setAnalytics(data.analytics_data as CachedAnalytics);
+        setAnalytics(data.analytics_data as unknown as CachedAnalytics);
       }
     } catch (error) {
       console.error('Error loading cached analytics:', error);
