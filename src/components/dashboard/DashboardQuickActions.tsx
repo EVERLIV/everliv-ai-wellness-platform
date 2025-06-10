@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, MessageSquare, TrendingUp, Settings, TestTube2, Crown } from "lucide-react";
+import { FileText, MessageSquare, TrendingUp, Settings, TestTube2, Crown, Apple } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const quickActions = [
@@ -13,6 +13,16 @@ const quickActions = [
     iconBg: "bg-emerald-50",
     path: "/lab-analyses",
     description: "Загрузите результаты анализов и получите детальную расшифровку с помощью ИИ",
+    premium: false
+  },
+  {
+    title: "Дневник питания",
+    subtitle: "Отслеживание рациона",
+    icon: Apple,
+    iconColor: "text-green-600",
+    iconBg: "bg-green-50",
+    path: "/nutrition-diary",
+    description: "Ведите учет питания, устанавливайте цели по БЖУ и получайте персональные рекомендации",
     premium: false
   },
   {
