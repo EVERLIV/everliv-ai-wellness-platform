@@ -1,24 +1,60 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, BarChart, Bar } from "recharts";
-import { TrendingUp, Info, AlertTriangle, Target, Calendar } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Activity, 
+  TrendingUp, 
+  TrendingDown, 
+  Minus,
+  Target,
+  AlertTriangle,
+  Pill,
+  CheckCircle
+} from "lucide-react";
+
+interface Biomarker {
+  id: string;
+  name: string;
+  value: number;
+  unit: string;
+  status: 'optimal' | 'good' | 'attention' | 'risk';
+  trend: 'up' | 'down' | 'stable';
+  referenceRange: string;
+  lastMeasured: string;
+}
+
+interface Recommendation {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  action: string;
+}
+
+interface RiskFactor {
+  id: string;
+  factor: string;
+  level: 'high' | 'medium' | 'low';
+  description: string;
+  mitigation: string;
+}
+
+interface Supplement {
+  id: string;
+  name: string;
+  dosage: string;
+  benefit: string;
+  timing: string;
+  interactions?: string;
+}
 
 interface BiomarkerDetailsProps {
-  biomarker?: {
-    id: string;
-    name: string;
-    value: number;
-    unit: string;
-    status: string;
-    trend: string;
-    referenceRange: string;
-    lastMeasured: string;
-  };
-  recommendations: any[];
-  riskFactors: any[];
-  supplements: any[];
+  biomarker: Biomarker | undefined;
+  recommendations: Recommendation[];
+  riskFactors: RiskFactor[];
+  supplements: Supplement[];
 }
 
 const BiomarkerDetails: React.FC<BiomarkerDetailsProps> = ({
@@ -27,34 +63,6 @@ const BiomarkerDetails: React.FC<BiomarkerDetailsProps> = ({
   riskFactors,
   supplements
 }) => {
-  // Демо-данные для графика трендов
-  const trendData = [
-    { date: '01.12', value: 5.8 },
-    { date: '15.12', value: 5.5 },
-    { date: '01.01', value: 5.2 },
-    { date: '15.01', value: 5.2 },
-  ];
-
-  const chartConfig = {
-    value: {
-      label: "Значение",
-      color: "hsl(var(--chart-1))",
-    },
-  };
-
-  if (!biomarker) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center h-96">
-          <div className="text-center text-gray-500">
-            <Info className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p>Выберите биомаркер для просмотра детальной информации</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'optimal':
@@ -70,143 +78,283 @@ const BiomarkerDetails: React.FC<BiomarkerDetailsProps> = ({
     }
   };
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'optimal':
+        return 'Оптимально';
+      case 'good':
+        return 'Хорошо';
+      case 'attention':
+        return 'Внимание';
+      case 'risk':
+        return 'Риск';
+      default:
+        return 'Не определен';
+    }
+  };
+
+  const getTrendIcon = (trend: string) => {
+    switch (trend) {
+      case 'up':
+        return <TrendingUp className="h-4 w-4 text-green-500" />;
+      case 'down':
+        return <TrendingDown className="h-4 w-4 text-red-500" />;
+      case 'stable':
+        return <Minus className="h-4 w-4 text-gray-500" />;
+      default:
+        return <Minus className="h-4 w-4 text-gray-500" />;
+    }
+  };
+
+  const getPriorityBadge = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return <Badge variant="destructive">Высокий</Badge>;
+      case 'medium':
+        return <Badge variant="secondary">Средний</Badge>;
+      case 'low':
+        return <Badge variant="outline">Низкий</Badge>;
+      default:
+        return <Badge variant="outline">Обычный</Badge>;
+    }
+  };
+
+  const getRiskLevelBadge = (level: string) => {
+    switch (level) {
+      case 'high':
+        return <Badge variant="destructive">Высокий риск</Badge>;
+      case 'medium':
+        return <Badge variant="secondary">Средний риск</Badge>;
+      case 'low':
+        return <Badge variant="outline">Низкий риск</Badge>;
+      default:
+        return <Badge variant="outline">Неизвестно</Badge>;
+    }
+  };
+
+  if (!biomarker) {
+    return (
+      <Card>
+        <CardContent className="p-8">
+          <div className="text-center text-gray-500">
+            <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium mb-2">Выберите биомаркер</h3>
+            <p className="text-sm">
+              Выберите биомаркер из списка слева для просмотра детальной информации,
+              персональных рекомендаций и связанных факторов риска.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Фильтруем рекомендации, связанные с выбранным биомаркером
+  const relatedRecommendations = recommendations.filter(rec => 
+    rec.id.includes(biomarker.id) || 
+    rec.title.toLowerCase().includes(biomarker.name.toLowerCase()) ||
+    (biomarker.name.toLowerCase().includes('холестерин') && rec.title.toLowerCase().includes('холестерин')) ||
+    (biomarker.name.toLowerCase().includes('витамин d') && rec.title.toLowerCase().includes('витамин d')) ||
+    (biomarker.name.toLowerCase().includes('железо') && rec.title.toLowerCase().includes('железо')) ||
+    (biomarker.name.toLowerCase().includes('глюкоза') && rec.title.toLowerCase().includes('глюкоза'))
+  );
+
+  // Фильтруем факторы риска, связанные с выбранным биомаркером
+  const relatedRiskFactors = riskFactors.filter(risk => 
+    risk.id.includes(biomarker.id) ||
+    risk.factor.toLowerCase().includes(biomarker.name.toLowerCase()) ||
+    (biomarker.name.toLowerCase().includes('холестерин') && risk.factor.toLowerCase().includes('холестерин')) ||
+    (biomarker.name.toLowerCase().includes('глюкоза') && risk.factor.toLowerCase().includes('глюкоза'))
+  );
+
+  // Фильтруем добавки, связанные с выбранным биомаркером
+  const relatedSupplements = supplements.filter(supp => 
+    supp.id.includes(biomarker.id) ||
+    (biomarker.name.toLowerCase().includes('витамин d') && supp.name.toLowerCase().includes('витамин d')) ||
+    (biomarker.name.toLowerCase().includes('железо') && supp.name.toLowerCase().includes('железо')) ||
+    (biomarker.name.toLowerCase().includes('b12') && supp.name.toLowerCase().includes('b12'))
+  );
+
   return (
     <div className="space-y-6">
-      {/* Основная информация о биомаркере */}
+      {/* Детали биомаркера */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-blue-500" />
+            <Activity className="h-5 w-5 text-blue-500" />
             {biomarker.name}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <div className="flex items-baseline space-x-3">
-                <span className="text-3xl font-bold text-gray-900">
-                  {biomarker.value}
-                </span>
-                <span className="text-lg text-gray-500">
-                  {biomarker.unit}
-                </span>
+              <div>
+                <h4 className="font-medium text-sm text-gray-700 mb-2">Текущее значение</h4>
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl font-bold text-gray-900">
+                    {biomarker.value}
+                  </span>
+                  <span className="text-gray-600">{biomarker.unit}</span>
+                  {getTrendIcon(biomarker.trend)}
+                </div>
               </div>
               
-              <div className={`inline-flex items-center px-3 py-1 rounded-full border ${getStatusColor(biomarker.status)}`}>
-                <span className="text-sm font-medium">
-                  {biomarker.status === 'optimal' ? 'Оптимально' :
-                   biomarker.status === 'good' ? 'Хорошо' :
-                   biomarker.status === 'attention' ? 'Требует внимания' : 'Высокий риск'}
-                </span>
-              </div>
-
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Референсные значения:</span>
-                  <span className="font-medium">{biomarker.referenceRange} {biomarker.unit}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Последнее измерение:</span>
-                  <span className="font-medium">
-                    {new Date(biomarker.lastMeasured).toLocaleDateString('ru-RU')}
-                  </span>
-                </div>
+              <div>
+                <h4 className="font-medium text-sm text-gray-700 mb-2">Референсные значения</h4>
+                <p className="text-gray-600">{biomarker.referenceRange}</p>
               </div>
             </div>
-
-            <div>
-              <h4 className="font-medium text-gray-900 mb-3">Динамика изменений</h4>
-              <ChartContainer config={chartConfig} className="h-40">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={trendData}>
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="var(--color-value)" 
-                      strokeWidth={2}
-                      dot={{ fill: "var(--color-value)" }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+            
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-sm text-gray-700 mb-2">Статус</h4>
+                <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(biomarker.status)}`}>
+                  {biomarker.status === 'optimal' && <CheckCircle className="h-4 w-4 mr-1" />}
+                  {biomarker.status === 'risk' && <AlertTriangle className="h-4 w-4 mr-1" />}
+                  {getStatusText(biomarker.status)}
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-sm text-gray-700 mb-2">Последнее измерение</h4>
+                <p className="text-gray-600">
+                  {new Date(biomarker.lastMeasured).toLocaleDateString('ru-RU')}
+                </p>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Связанные рекомендации */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-purple-500" />
-            Связанные рекомендации
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {recommendations.slice(0, 2).map((rec) => (
-              <div key={rec.id} className="p-4 bg-purple-50 rounded-lg border border-purple-100">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900 text-sm">{rec.title}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{rec.description}</p>
-                    <span className="text-xs text-purple-600 font-medium mt-2 inline-block">
-                      {rec.category}
-                    </span>
+      {/* Персональные рекомендации */}
+      {relatedRecommendations.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-green-500" />
+              Персональные рекомендации
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {relatedRecommendations.map((rec) => (
+                <div key={rec.id} className="p-4 border rounded-lg bg-green-50 border-green-200">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h4 className="font-medium text-green-900">{rec.title}</h4>
+                      <span className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full">
+                        {rec.category}
+                      </span>
+                    </div>
+                    {getPriorityBadge(rec.priority)}
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full ml-3 ${
-                    rec.priority === 'high' ? 'bg-red-100 text-red-700' :
-                    rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-green-100 text-green-700'
-                  }`}>
-                    {rec.priority === 'high' ? 'Высокий' :
-                     rec.priority === 'medium' ? 'Средний' : 'Низкий'} приоритет
-                  </span>
+                  <p className="text-sm text-green-800 mb-2">{rec.description}</p>
+                  <p className="text-xs text-green-700 font-medium">
+                    <strong>Действие:</strong> {rec.action}
+                  </p>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Интерпретация результатов */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Info className="h-5 w-5 text-blue-500" />
-            Интерпретация результатов
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-              <h4 className="font-medium text-blue-900 mb-2">Что означает этот показатель?</h4>
-              <p className="text-sm text-blue-800">
-                {biomarker.name} является важным биомаркером, который помогает оценить 
-                различные аспекты вашего здоровья. Ваше текущее значение {biomarker.value} {biomarker.unit} 
-                {biomarker.status === 'optimal' ? ' находится в оптимальном диапазоне.' :
-                 biomarker.status === 'attention' ? ' требует внимания и коррекции.' :
-                 ' указывает на необходимость медицинского вмешательства.'}
+      {/* Факторы риска */}
+      {relatedRiskFactors.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              Связанные факторы риска
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {relatedRiskFactors.map((risk) => (
+                <div key={risk.id} className="p-4 border-l-4 border-orange-200 bg-orange-50">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-orange-900">{risk.factor}</h4>
+                    {getRiskLevelBadge(risk.level)}
+                  </div>
+                  <p className="text-sm text-orange-800 mb-3">{risk.description}</p>
+                  <div className="p-3 bg-orange-100 rounded">
+                    <p className="text-xs text-orange-700">
+                      <strong>Как снизить риск:</strong> {risk.mitigation}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Рекомендуемые добавки */}
+      {relatedSupplements.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Pill className="h-5 w-5 text-purple-500" />
+              Рекомендуемые добавки
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {relatedSupplements.map((supplement) => (
+                <div key={supplement.id} className="p-4 border rounded-lg bg-purple-50 border-purple-200">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h4 className="font-medium text-purple-900">{supplement.name}</h4>
+                      <span className="text-sm font-semibold text-purple-700">
+                        {supplement.dosage}
+                      </span>
+                    </div>
+                    <Pill className="h-5 w-5 text-purple-500" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-sm text-purple-800 mb-1">
+                        <strong>Польза:</strong> {supplement.benefit}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm text-purple-800 mb-1">
+                        <strong>Как принимать:</strong> {supplement.timing}
+                      </p>
+                    </div>
+                    
+                    {supplement.interactions && (
+                      <div className="p-2 bg-purple-100 rounded">
+                        <p className="text-xs text-purple-700">
+                          <strong>Взаимодействия:</strong> {supplement.interactions}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Если нет связанных данных */}
+      {relatedRecommendations.length === 0 && relatedRiskFactors.length === 0 && relatedSupplements.length === 0 && (
+        <Card>
+          <CardContent className="p-8">
+            <div className="text-center text-gray-500">
+              <CheckCircle className="h-12 w-12 mx-auto mb-4 text-green-300" />
+              <h3 className="text-lg font-medium mb-2">Показатель в норме</h3>
+              <p className="text-sm">
+                Для этого биомаркера нет специальных рекомендаций. 
+                Ваш показатель находится в пределах нормы.
               </p>
             </div>
-
-            {biomarker.status !== 'optimal' && (
-              <div className="p-4 bg-orange-50 rounded-lg border border-orange-100">
-                <h4 className="font-medium text-orange-900 mb-2">Рекомендуемые действия</h4>
-                <ul className="text-sm text-orange-800 space-y-1">
-                  <li>• Обратитесь к врачу для консультации</li>
-                  <li>• Следуйте персональным рекомендациям</li>
-                  <li>• Повторите анализ через рекомендованный период</li>
-                  <li>• Ведите мониторинг показателей</li>
-                </ul>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
