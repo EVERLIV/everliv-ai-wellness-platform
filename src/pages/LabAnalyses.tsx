@@ -132,37 +132,90 @@ const LabAnalyses = () => {
       
       <div className="flex-grow pt-16">
         <div className="container mx-auto px-4 py-6 max-w-7xl">
-          {/* Header */}
+          {/* Header с улучшенным дизайном */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => navigate("/dashboard")}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 hover:bg-gray-100"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Назад
+                Назад к панели
               </Button>
               
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center shadow-sm">
                   <FileText className="h-6 w-6 text-emerald-600" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">Ваши анализы</h1>
-                  <p className="text-gray-600">История проанализированных результатов с помощью ИИ</p>
+                  <h1 className="text-3xl font-bold text-gray-900">Лабораторные анализы</h1>
+                  <p className="text-gray-600">Управление и анализ ваших медицинских результатов</p>
                 </div>
               </div>
             </div>
 
             <Button 
               onClick={() => setShowNewAnalysis(true)}
-              className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover:shadow-lg transition-all"
             >
               <Plus className="h-4 w-4" />
               Добавить анализ
             </Button>
+          </div>
+
+          {/* Статистика */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <FileText className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Всего анализов</p>
+                    <p className="text-2xl font-bold text-gray-900">{analysisHistory.length}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">В норме</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {analysisHistory.reduce((acc, analysis) => 
+                        acc + (analysis.results?.markers?.filter(m => m.status === 'optimal' || m.status === 'good').length || 0), 0
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Требуют внимания</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {analysisHistory.reduce((acc, analysis) => 
+                        acc + (analysis.results?.markers?.filter(m => m.status === 'attention' || m.status === 'risk').length || 0), 0
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* История анализов */}

@@ -19,15 +19,18 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
 }) => {
   const getAnalysisTypeLabel = (type: string) => {
     const types = {
-      blood: "Анализ крови",
-      urine: "Анализ мочи", 
-      biochemistry: "Биохимический анализ",
+      blood: "Общий анализ крови",
+      urine: "Общий анализ мочи", 
+      biochemistry: "Биохимический анализ крови",
       hormones: "Гормональная панель",
       vitamins: "Витамины и микроэлементы",
       immunology: "Иммунологические исследования",
       oncology: "Онкомаркеры",
       cardiology: "Кардиологические маркеры",
-      other: "Другой анализ"
+      lipids: "Липидограмма",
+      diabetes: "Анализы на диабет",
+      thyroid: "Функция щитовидной железы",
+      other: "Другие анализы"
     };
     return types[type] || type;
   };
@@ -38,8 +41,10 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
         return "🔴";
       case 'medium':
         return "🟡";
-      default:
+      case 'low':
         return "🟢";
+      default:
+        return "⚪";
     }
   };
 
@@ -49,8 +54,10 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
         return 'destructive';
       case 'medium':
         return 'secondary';
-      default:
+      case 'low':
         return 'default';
+      default:
+        return 'outline';
     }
   };
 
@@ -60,26 +67,44 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
         return 'Высокий риск';
       case 'medium':
         return 'Средний риск';
-      default:
+      case 'low':
         return 'Низкий риск';
+      default:
+        return 'Не определен';
     }
   };
 
   if (loadingHistory) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1,2,3].map(i => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-6">
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
-              <div className="space-y-2">
-                <div className="h-3 bg-gray-200 rounded"></div>
-                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-900">История анализов</h2>
+          <div className="animate-pulse h-4 bg-gray-200 rounded w-24"></div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="h-16 bg-gray-200 rounded"></div>
+                    <div className="h-16 bg-gray-200 rounded"></div>
+                    <div className="h-16 bg-gray-200 rounded"></div>
+                  </div>
+                  <div className="h-8 bg-gray-200 rounded"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -89,18 +114,27 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {analysisHistory.map((analysis) => (
-        <AnalysisCard
-          key={analysis.id}
-          analysis={analysis}
-          onViewAnalysis={onViewAnalysis}
-          getAnalysisTypeLabel={getAnalysisTypeLabel}
-          getRiskIcon={getRiskIcon}
-          getRiskColor={getRiskColor}
-          getRiskText={getRiskText}
-        />
-      ))}
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-gray-900">История анализов</h2>
+        <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+          {analysisHistory.length} {analysisHistory.length === 1 ? 'анализ' : 'анализов'}
+        </span>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {analysisHistory.map((analysis) => (
+          <AnalysisCard
+            key={analysis.id}
+            analysis={analysis}
+            onViewAnalysis={onViewAnalysis}
+            getAnalysisTypeLabel={getAnalysisTypeLabel}
+            getRiskIcon={getRiskIcon}
+            getRiskColor={getRiskColor}
+            getRiskText={getRiskText}
+          />
+        ))}
+      </div>
     </div>
   );
 };
