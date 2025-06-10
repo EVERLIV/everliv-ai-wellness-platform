@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,7 +38,7 @@ const TrialChat: React.FC = () => {
       role: 'assistant',
       content: `Привет! Я Everliv - ваш ИИ-доктор. Как ИИ-доктор, мой сервис быстрый и бесплатный. Я уже помог людям в более чем 11,196,516 консультациях!
 
-Когда мы закончим, вы можете провести видеовизит с топ-доктором, если хотите. Такие визиты стоят всего 39$.
+Когда мы закончим консультацию, вы сможете получить персональные рекомендации по вашему здоровью!
 
 Расскажите мне о своих симптомах или задайте вопрос о здоровье.`,
       timestamp: new Date()
@@ -160,7 +159,7 @@ const TrialChat: React.FC = () => {
             Как ИИ-доктор, мой сервис быстрый и бесплатный. Я уже помог людям в более чем 11,196,516 консультациях!
           </p>
           <p className="text-foreground mb-4 text-lg">
-            Когда мы закончим, вы можете провести видеовизит с топ-доктором, если хотите. Такие визиты стоят всего 39$.
+            Когда мы закончим консультацию, вы сможете получить персональные рекомендации по вашему здоровью!
           </p>
           <p className="text-foreground text-lg">
             Пожалуйста, сообщите мне ваш возраст и биологический пол для начала.
@@ -211,11 +210,11 @@ const TrialChat: React.FC = () => {
         </Button>
 
         {/* Footer disclaimer */}
-        <div className="mt-16 text-sm text-muted-foreground flex items-center justify-center gap-3">
-          <div className="w-8 h-8 bg-card rounded border shadow-sm flex items-center justify-center">
-            <Check className="w-4 h-4 text-success" />
+        <div className="mt-16 flex items-center justify-center">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-card rounded-lg px-4 py-3 border shadow-sm">
+            <Check className="w-4 h-4 text-primary flex-shrink-0" />
+            <span>Соблюдаем Федеральный закон от 21.11.2011 № 323-ФЗ</span>
           </div>
-          <span>Федеральный закон от 21.11.2011 № 323-ФЗ соответствует & анонимно</span>
         </div>
 
         <div className="mt-10 text-sm text-muted-foreground text-center max-w-md mx-auto">
