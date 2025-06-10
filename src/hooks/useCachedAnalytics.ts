@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { CachedAnalytics } from '@/types/analytics';
+import { CachedAnalytics, AnalysisRecord, ChatRecord } from '@/types/analytics';
 import { generateAnalyticsData } from '@/utils/analyticsGenerator';
 
 export const useCachedAnalytics = () => {
@@ -48,7 +48,7 @@ export const useCachedAnalytics = () => {
             ? JSON.parse(data.analytics_data) 
             : data.analytics_data;
           
-          setAnalytics(analyticsData as unknown as CachedAnalytics);
+          setAnalytics(analyticsData as CachedAnalytics);
         } catch (parseError) {
           console.error('Error parsing analytics data:', parseError);
           setAnalytics(null);
@@ -94,8 +94,9 @@ export const useCachedAnalytics = () => {
         console.error('Error loading chats:', chatsResponse.error);
       }
 
-      const analyses = analysesResponse.data || [];
-      const chats = chatsResponse.data || [];
+      // Cast the Supabase data to our interface types
+      const analyses = (analysesResponse.data || []) as AnalysisRecord[];
+      const chats = (chatsResponse.data || []) as ChatRecord[];
 
       // Генерируем аналитику
       const generatedAnalytics = await generateAnalyticsData(analyses, chats);
