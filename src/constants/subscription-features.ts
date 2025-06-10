@@ -92,6 +92,7 @@ export const FEATURES = {
   BLOOD_ANALYSIS: "blood_analysis",
   PHOTO_BLOOD_ANALYSIS: "photo_blood_analysis",
   BIOLOGICAL_AGE_TEST: "biological_age_test",
+  COMPREHENSIVE_AI_ANALYSIS: "comprehensive_ai_analysis",
   HEALTH_PROFILE: "health_profile",
   ADVANCED_ANALYTICS: "advanced_analytics",
   CHAT_ACCESS: "chat_access",
