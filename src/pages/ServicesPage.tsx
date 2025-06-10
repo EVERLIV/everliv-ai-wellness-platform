@@ -106,10 +106,10 @@ const ServicesPage = () => {
       fullWidth={true}
     >
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-evergreen-500 to-evergreen-700 py-20 text-white">
+      <section className="bg-gradient-to-br from-primary to-secondary py-20 text-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 font-heading">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Ваше здоровье под полным контролем
             </h1>
             <p className="text-xl mb-8 opacity-90">
@@ -117,12 +117,12 @@ const ServicesPage = () => {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link to="/pricing">
-                <Button size="lg" className="bg-white text-evergreen-700 hover:bg-gray-100">
+                <Button size="lg" className="bg-white text-primary hover:bg-gray-100">
                   Выбрать тариф
                 </Button>
               </Link>
               <Link to="/dashboard">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-evergreen-700">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
                   Попробовать бесплатно
                 </Button>
               </Link>
@@ -147,12 +147,12 @@ const ServicesPage = () => {
                 {/* Content */}
                 <div className="lg:w-1/2 space-y-6">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="p-3 bg-evergreen-100 rounded-xl text-evergreen-600">
+                    <div className="p-3 bg-primary/10 rounded-xl text-primary">
                       {service.icon}
                     </div>
                     <div>
                       <h3 className="text-2xl md:text-3xl font-bold">{service.title}</h3>
-                      <p className="text-evergreen-600 font-medium">{service.subtitle}</p>
+                      <p className="text-primary font-medium">{service.subtitle}</p>
                     </div>
                   </div>
 
@@ -166,7 +166,7 @@ const ServicesPage = () => {
                     <div className="grid grid-cols-1 gap-2">
                       {service.features.map((feature, i) => (
                         <div key={i} className="flex items-start gap-3">
-                          <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                           <span className="text-gray-700">{feature}</span>
                         </div>
                       ))}
@@ -187,7 +187,7 @@ const ServicesPage = () => {
                   </div>
 
                   <Link to={service.link}>
-                    <Button className="bg-evergreen-600 hover:bg-evergreen-700 text-white">
+                    <Button className="bg-primary hover:bg-primary/90 text-white">
                       Попробовать сервис
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -246,7 +246,7 @@ const ServicesPage = () => {
             ].map((item, index) => (
               <Card key={index} className="text-center">
                 <CardContent className="p-6">
-                  <div className="w-12 h-12 bg-evergreen-600 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
+                  <div className="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">
                     {item.step}
                   </div>
                   <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
@@ -259,7 +259,7 @@ const ServicesPage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-evergreen-600 text-white">
+      <section className="py-20 bg-primary text-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             {[
@@ -286,7 +286,7 @@ const ServicesPage = () => {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link to="/signup">
-              <Button size="lg" className="bg-evergreen-600 hover:bg-evergreen-700">
+              <Button size="lg" className="bg-primary hover:bg-primary/90">
                 Начать бесплатно
               </Button>
             </Link>
