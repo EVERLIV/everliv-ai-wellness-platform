@@ -20,8 +20,6 @@ import {
   ArrowLeft,
   RefreshCw
 } from "lucide-react";
-import DetailedHealthRecommendations from "@/components/analytics/DetailedHealthRecommendations";
-import { generateDetailedRecommendations } from "@/utils/detailedRecommendationsGenerator";
 
 interface Biomarker {
   name: string;
@@ -513,25 +511,6 @@ const Analytics: React.FC = () => {
 
   // Показываем сгенерированную аналитику
   console.log('Rendering analytics data');
-  const healthData: HealthData = {
-    overview: {
-      healthScore: analytics.healthScore,
-      riskLevel: analytics.riskLevel,
-      lastUpdated: analytics.lastUpdated,
-      totalAnalyses: analytics.totalAnalyses,
-      trendsAnalysis: analytics.trendsAnalysis
-    },
-    healthImprovementActions: [],
-    recommendedTests: [],
-    specialistConsultations: [],
-    keyHealthIndicators: [],
-    lifestyleRecommendations: [],
-    riskFactors: [],
-    supplements: []
-  };
-
-  // Генерируем детальные рекомендации
-  const detailedRecommendations = generateDetailedRecommendations(analytics);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
@@ -559,24 +538,6 @@ const Analytics: React.FC = () => {
           <HealthOverviewCards 
             trendsAnalysis={analytics.trendsAnalysis}
             totalAnalyses={analytics.totalAnalyses}
-          />
-
-          {/* Детальные рекомендации */}
-          <DetailedHealthRecommendations
-            recommendations={detailedRecommendations.recommendations}
-            riskFactors={detailedRecommendations.riskFactors}
-            supplements={detailedRecommendations.supplements}
-            specialists={detailedRecommendations.specialists}
-            tests={detailedRecommendations.tests}
-          />
-
-          <AnalyticsSummary 
-            healthData={healthData}
-            onDoctorQuestion={handleDoctorQuestion}
-            doctorQuestion={doctorQuestion}
-            setDoctorQuestion={setDoctorQuestion}
-            doctorResponse={doctorResponse}
-            isProcessingQuestion={isProcessingQuestion}
           />
 
           {analytics.lastUpdated && (
