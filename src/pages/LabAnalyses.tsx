@@ -12,6 +12,7 @@ import { useMedicalAnalysis } from "@/hooks/useMedicalAnalysis";
 import { toast } from "sonner";
 import AnalysisHistory from "@/components/lab-analyses/AnalysisHistory";
 import NewAnalysisForm from "@/components/lab-analyses/NewAnalysisForm";
+import MedicalDataDisclaimer from "@/components/lab-analyses/MedicalDataDisclaimer";
 
 const LabAnalyses = () => {
   const navigate = useNavigate();
@@ -101,6 +102,8 @@ const LabAnalyses = () => {
               </div>
             </div>
 
+            <MedicalDataDisclaimer />
+
             <NewAnalysisForm
               activeTab={activeTab}
               results={results}
@@ -164,6 +167,9 @@ const LabAnalyses = () => {
               Добавить анализ
             </Button>
           </div>
+
+          {/* Дисклеймер о качестве медицинских данных */}
+          <MedicalDataDisclaimer />
 
           {/* Статистика */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
