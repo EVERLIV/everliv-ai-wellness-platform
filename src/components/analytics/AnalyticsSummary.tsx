@@ -1,18 +1,8 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  MessageCircle, 
-  Phone, 
-  TrendingUp, 
-  AlertCircle, 
-  Target,
-  Pill,
-  Activity
-} from "lucide-react";
-
+import { MessageCircle, Phone, TrendingUp, AlertCircle, Target, Pill, Activity } from "lucide-react";
 interface AnalyticsSummaryProps {
   healthData: any;
   onDoctorQuestion: () => void;
@@ -21,7 +11,6 @@ interface AnalyticsSummaryProps {
   doctorResponse: string;
   isProcessingQuestion: boolean;
 }
-
 const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
   healthData,
   onDoctorQuestion,
@@ -30,8 +19,7 @@ const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
   doctorResponse,
   isProcessingQuestion
 }) => {
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  return <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Краткий обзор */}
       <div className="space-y-6">
         {/* Рекомендации */}
@@ -44,19 +32,10 @@ const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {healthData?.recommendations?.slice(0, 3).map((rec: any) => (
-                <div key={rec.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <div className={`w-2 h-2 rounded-full mt-2 ${
-                    rec.priority === 'high' ? 'bg-red-500' : 
-                    rec.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
-                  }`} />
-                  <div className="flex-1">
-                    <h4 className="font-medium text-sm text-gray-900">{rec.title}</h4>
-                    <p className="text-xs text-gray-600 mt-1">{rec.description}</p>
-                    <span className="text-xs text-blue-600 font-medium">{rec.category}</span>
-                  </div>
-                </div>
-              ))}
+              {healthData?.recommendations?.slice(0, 3).map((rec: any) => <div key={rec.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <div className={`w-2 h-2 rounded-full mt-2 ${rec.priority === 'high' ? 'bg-red-500' : rec.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'}`} />
+                  
+                </div>)}
             </div>
           </CardContent>
         </Card>
@@ -71,25 +50,18 @@ const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {healthData?.riskFactors?.map((risk: any) => (
-                <div key={risk.id} className="p-3 border-l-4 border-orange-200 bg-orange-50">
+              {healthData?.riskFactors?.map((risk: any) => <div key={risk.id} className="p-3 border-l-4 border-orange-200 bg-orange-50">
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium text-sm text-gray-900">{risk.factor}</h4>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      risk.level === 'high' ? 'bg-red-100 text-red-700' :
-                      risk.level === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-green-100 text-green-700'
-                    }`}>
-                      {risk.level === 'high' ? 'Высокий' : 
-                       risk.level === 'medium' ? 'Средний' : 'Низкий'}
+                    <span className={`text-xs px-2 py-1 rounded-full ${risk.level === 'high' ? 'bg-red-100 text-red-700' : risk.level === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>
+                      {risk.level === 'high' ? 'Высокий' : risk.level === 'medium' ? 'Средний' : 'Низкий'}
                     </span>
                   </div>
                   <p className="text-xs text-gray-600 mt-1">{risk.description}</p>
                   <p className="text-xs text-blue-600 mt-2 font-medium">
                     Рекомендация: {risk.mitigation}
                   </p>
-                </div>
-              ))}
+                </div>)}
             </div>
           </CardContent>
         </Card>
@@ -104,8 +76,7 @@ const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {healthData?.supplements?.map((supplement: any) => (
-                <div key={supplement.id} className="p-3 bg-purple-50 rounded-lg">
+              {healthData?.supplements?.map((supplement: any) => <div key={supplement.id} className="p-3 bg-purple-50 rounded-lg">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="font-medium text-sm text-gray-900">{supplement.name}</h4>
@@ -118,8 +89,7 @@ const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
                   <p className="text-xs text-blue-600 mt-2">
                     Принимать: {supplement.timing}
                   </p>
-                </div>
-              ))}
+                </div>)}
             </div>
           </CardContent>
         </Card>
@@ -142,31 +112,17 @@ const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
             </p>
 
             <div className="space-y-4">
-              <Textarea
-                placeholder="Например: Почему у меня низкий витамин D и как это исправить?"
-                value={doctorQuestion}
-                onChange={(e) => setDoctorQuestion(e.target.value)}
-                rows={3}
-                className="resize-none"
-              />
+              <Textarea placeholder="Например: Почему у меня низкий витамин D и как это исправить?" value={doctorQuestion} onChange={e => setDoctorQuestion(e.target.value)} rows={3} className="resize-none" />
 
               <div className="flex space-x-3">
-                <Button 
-                  onClick={onDoctorQuestion}
-                  disabled={!doctorQuestion.trim() || isProcessingQuestion}
-                  className="flex-1"
-                >
-                  {isProcessingQuestion ? (
-                    <>
+                <Button onClick={onDoctorQuestion} disabled={!doctorQuestion.trim() || isProcessingQuestion} className="flex-1">
+                  {isProcessingQuestion ? <>
                       <Activity className="h-4 w-4 mr-2 animate-spin" />
                       Обрабатываю...
-                    </>
-                  ) : (
-                    <>
+                    </> : <>
                       <MessageCircle className="h-4 w-4 mr-2" />
                       Задать вопрос
-                    </>
-                  )}
+                    </>}
                 </Button>
                 
                 <Button variant="outline" className="flex items-center gap-2">
@@ -176,8 +132,7 @@ const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
               </div>
             </div>
 
-            {doctorResponse && (
-              <div className="mt-6 p-4 bg-green-50 border-l-4 border-green-200 rounded-r-lg">
+            {doctorResponse && <div className="mt-6 p-4 bg-green-50 border-l-4 border-green-200 rounded-r-lg">
                 <div className="flex items-start space-x-3">
                   <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                     <MessageCircle className="h-4 w-4 text-green-600" />
@@ -191,8 +146,7 @@ const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
                     </p>
                   </div>
                 </div>
-              </div>
-            )}
+              </div>}
 
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-xs text-blue-700">
@@ -203,8 +157,6 @@ const AnalyticsSummary: React.FC<AnalyticsSummaryProps> = ({
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default AnalyticsSummary;
