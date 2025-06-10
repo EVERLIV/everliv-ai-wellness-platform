@@ -23,7 +23,8 @@ import {
   CheckCircle,
   AlertTriangle,
   Calendar,
-  FileText
+  FileText,
+  ArrowLeft
 } from "lucide-react";
 
 interface Biomarker {
@@ -189,6 +190,45 @@ const Analytics: React.FC = () => {
     }
   };
 
+  const getBiomarkerNorms = (name: string): string => {
+    const norms: { [key: string]: string } = {
+      'Холестерин общий': '< 5,2 ммоль/л',
+      'Холестерин ЛПНП': '< 3,0 ммоль/л',
+      'Холестерин ЛПВП': 'М: > 1,0 ммоль/л, Ж: > 1,2 ммоль/л',
+      'Триглицериды': '< 1,7 ммоль/л',
+      'Глюкоза': '3,9-6,0 ммоль/л',
+      'Гликированный гемоглобин': '< 6,5%',
+      'Инсулин': '2,6-24,9 мкЕд/мл',
+      'Гемоглобин': 'М: 130-160 г/л, Ж: 120-140 г/л',
+      'Эритроциты': 'М: 4,0-5,1×10¹²/л, Ж: 3,7-4,7×10¹²/л',
+      'Лейкоциты': '4,0-9,0×10⁹/л',
+      'Тромбоциты': '180-320×10⁹/л',
+      'СОЭ': 'М: до 15 мм/ч, Ж: до 20 мм/ч',
+      'Витамин D': '30-100 нг/мл',
+      'Витамин B12': '191-663 пг/мл',
+      'Фолиевая кислота': '4,6-18,7 нг/мл',
+      'Железо': 'М: 11,6-31,3 мкмоль/л, Ж: 8,9-30,4 мкмоль/л',
+      'Ферритин': 'М: 12-300 нг/мл, Ж: 12-150 нг/мл',
+      'Трансферрин': '2,0-3,6 г/л',
+      'Креатинин': 'М: 74-110 мкмоль/л, Ж: 60-93 мкмоль/л',
+      'Мочевина': '2,5-6,4 ммоль/л',
+      'АЛТ': 'М: до 41 Ед/л, Ж: до 31 Ед/л',
+      'АСТ': 'М: до 37 Ед/л, Ж: до 31 Ед/л',
+      'Билирубин общий': '8,5-20,5 мкмоль/л',
+      'Белок общий': '66-87 г/л',
+      'Альбумин': '35-52 г/л',
+      'ТТГ': '0,4-4,0 мЕд/л',
+      'Т3 свободный': '2,6-5,7 пмоль/л',
+      'Т4 свободный': '9,0-22,0 пмоль/л',
+      'Кортизол': '138-635 нмоль/л',
+      'Тестостерон': 'М: 8,64-29,0 нмоль/л',
+      'Эстрадиол': 'Ж: 68-1269 пмоль/л (зависит от фазы цикла)',
+      'ПСА': '< 4,0 нг/мл'
+    };
+
+    return norms[name] || 'Уточните у врача';
+  };
+
   const processAnalysisData = (analysis: any): AnalysisData => {
     const biomarkers: Biomarker[] = [];
     
@@ -199,7 +239,7 @@ const Analytics: React.FC = () => {
           value: marker.value,
           unit: marker.unit || '',
           status: marker.status || 'unknown',
-          referenceRange: marker.reference_range || 'Н/Д',
+          referenceRange: getBiomarkerNorms(marker.name),
           description: getBiomarkerDescription(marker.name)
         });
       }
@@ -485,7 +525,7 @@ const Analytics: React.FC = () => {
       case 'risk':
         return 'Риск';
       default:
-        return 'Неизвестно';
+        return 'Требует оценки';
     }
   };
 
@@ -550,14 +590,24 @@ const Analytics: React.FC = () => {
           {/* Заголовок страницы */}
           <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 border-b border-gray-200">
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-              <div className="flex items-center space-x-4 mb-6">
-                <Activity className="h-8 w-8 text-blue-600" />
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900">
-                    Детали анализа
-                  </h1>
-                  <p className="text-gray-600">{analysisData.analysisType}</p>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-4">
+                  <Activity className="h-8 w-8 text-blue-600" />
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-900">
+                      Детали анализа
+                    </h1>
+                    <p className="text-gray-600">{analysisData.analysisType}</p>
+                  </div>
                 </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.history.back()}
+                  className="gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Назад к списку
+                </Button>
               </div>
               
               <div className="flex items-center space-x-6 text-sm text-gray-600">
@@ -613,13 +663,13 @@ const Analytics: React.FC = () => {
 
                       {/* Референсные значения */}
                       <div>
-                        <p className="text-sm font-medium text-gray-700 mb-1">Норма</p>
-                        <p className="text-sm text-gray-600">{biomarker.referenceRange}</p>
+                        <p className="text-sm font-medium text-gray-700 mb-1">Норма (РФ Минздрав)</p>
+                        <p className="text-sm text-gray-600 font-medium">{biomarker.referenceRange}</p>
                       </div>
 
                       {/* Описание */}
                       <div>
-                        <p className="text-sm font-medium text-gray-700 mb-1">За что отвечает</p>
+                        <p className="text-sm font-medium text-gray-700 mb-1">Описание</p>
                         <p className="text-xs text-gray-600 leading-relaxed">
                           {biomarker.description}
                         </p>
@@ -711,3 +761,5 @@ const Analytics: React.FC = () => {
 };
 
 export default Analytics;
+
+}
