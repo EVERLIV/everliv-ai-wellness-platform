@@ -2,7 +2,7 @@
 import React from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Footer from "@/components/Footer";
+import MinimalFooter from "@/components/MinimalFooter";
 import Header from "@/components/Header";
 import NewAnalysisForm from "@/components/lab-analyses/NewAnalysisForm";
 
@@ -19,7 +19,7 @@ interface NewAnalysisViewProps {
     photoUrl: string;
     inputMethod: "text" | "photo";
     analysisType: string;
-  }) => void;
+  }) => Promise<void>;
   onTabChange: (tab: string) => void;
   onViewAnalysis: (analysisId: string) => void;
   onNewAnalysisComplete: () => void;
@@ -82,7 +82,7 @@ const NewAnalysisView: React.FC<NewAnalysisViewProps> = ({
         </div>
       </div>
 
-      <Footer />
+      <MinimalFooter />
     </div>
   );
 };

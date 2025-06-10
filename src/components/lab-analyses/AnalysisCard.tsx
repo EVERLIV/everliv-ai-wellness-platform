@@ -46,8 +46,12 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({
 
   const statusCounts = getStatusCounts();
   
-  // Определяем уровень риска на основе статистики маркеров
+  // Определяем уровень риска на основе статистики маркеров или из results
   const calculateRiskLevel = () => {
+    if (analysis.results?.riskLevel) {
+      return analysis.results.riskLevel;
+    }
+    
     if (statusCounts.total === 0) return 'unknown';
     
     const riskPercentage = (statusCounts.risk + statusCounts.attention) / statusCounts.total;
@@ -57,7 +61,7 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({
     return 'low';
   };
 
-  const riskLevel = analysis.results?.riskLevel || calculateRiskLevel();
+  const riskLevel = calculateRiskLevel();
 
   return (
     <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer">
@@ -81,24 +85,35 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({
               </div>
             </div>
           </div>
-          <Badge variant={getRiskColor(riskLevel)} className="text-xs">
+          <Badge variant={getRiskColor(riskLevel)} className="text-xs px-2 py-1">
             {getRiskText(riskLevel)}
           </Badge>
         </div>
       </CardHeader>
       
       <CardContent className="pt-0">
-        {/* Краткая статистика */}
-        <div className="flex items-center justify-between mb-4 text-sm">
-          <div className="flex items-center gap-4">
-            <span className="text-green-600 font-medium">✓ {statusCounts.optimal}</span>
-            <span className="text-yellow-600 font-medium">⚠ {statusCounts.attention}</span>
-            <span className="text-red-600 font-medium">⚡ {statusCounts.risk}</span>
+        {/* Краткая статистика - показываем только если есть маркеры */}
+        {statusCounts.total > 0 && (
+          <div className="flex items-center justify-between mb-4 text-sm">
+            <div className="flex items-center gap-4">
+              <span className="text-green-600 font-medium">✓ {statusCounts.optimal}</span>
+              <span className="text-yellow-600 font-medium">⚠ {statusCounts.attention}</span>
+              <span className="text-red-600 font-medium">⚡ {statusCounts.risk}</span>
+            </div>
+            <span className="text-gray-500">
+              Всего: {statusCounts.total}
+            </span>
           </div>
-          <span className="text-gray-500">
-            Всего: {statusCounts.total}
-          </span>
-        </div>
+        )}
+
+        {/* Если нет маркеров, показываем общий статус */}
+        {statusCounts.total === 0 && (
+          <div className="mb-4 p-2 bg-gray-50 rounded-lg text-center">
+            <span className="text-sm text-gray-600">
+              Анализ обработан, {getRiskText(riskLevel).toLowerCase()}
+            </span>
+          </div>
+        )}
 
         {/* Индекс здоровья если есть */}
         {analysis.results?.healthScore && (

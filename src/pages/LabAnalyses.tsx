@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import MinimalFooter from "@/components/MinimalFooter";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMedicalAnalysis } from "@/hooks/useMedicalAnalysis";
@@ -91,7 +91,7 @@ const LabAnalyses = () => {
         </div>
       </div>
 
-      <Footer />
+      <MinimalFooter />
     </div>
   );
 };

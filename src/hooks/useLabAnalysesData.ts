@@ -35,7 +35,7 @@ export const useLabAnalysesData = () => {
     loadHistory();
   }, [user]);
 
-  // Function to calculate statistics
+  // Function to calculate statistics based on analysis count, not markers
   const getStatistics = (): Statistics => {
     if (!analysisHistory || analysisHistory.length === 0) {
       return { total: 0, normal: 0, attention: 0 };
@@ -45,14 +45,27 @@ export const useLabAnalysesData = () => {
     let attention = 0;
 
     analysisHistory.forEach(analysis => {
-      if (analysis.results?.markers) {
-        analysis.results.markers.forEach(marker => {
-          if (marker.status === 'optimal' || marker.status === 'good') {
-            normal++;
-          } else if (marker.status === 'attention' || marker.status === 'risk' || marker.status === 'high' || marker.status === 'low' || marker.status === 'critical') {
-            attention++;
-          }
-        });
+      if (analysis.results?.riskLevel) {
+        if (analysis.results.riskLevel === 'low') {
+          normal++;
+        } else if (analysis.results.riskLevel === 'medium' || analysis.results.riskLevel === 'high') {
+          attention++;
+        }
+      } else if (analysis.results?.markers) {
+        // Fallback: if no riskLevel, calculate based on markers
+        const riskMarkers = analysis.results.markers.filter(marker => 
+          marker.status === 'attention' || marker.status === 'risk' || 
+          marker.status === 'high' || marker.status === 'low' || marker.status === 'critical'
+        );
+        
+        if (riskMarkers.length === 0) {
+          normal++;
+        } else {
+          attention++;
+        }
+      } else {
+        // If no data available, assume normal
+        normal++;
       }
     });
 
