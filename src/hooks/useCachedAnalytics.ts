@@ -125,7 +125,7 @@ export const useCachedAnalytics = () => {
         .from('user_analytics')
         .upsert({
           user_id: user.id,
-          analytics_data: generatedAnalytics,
+          analytics_data: generatedAnalytics as any,
           updated_at: new Date().toISOString()
         });
 
