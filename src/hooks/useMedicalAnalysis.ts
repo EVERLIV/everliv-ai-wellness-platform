@@ -39,7 +39,7 @@ export const useMedicalAnalysis = () => {
     photoUrl: string; 
     inputMethod: "text" | "photo";
     analysisType: string;
-  }) => {
+  }): Promise<void> => {
     const { text, photoUrl, inputMethod, analysisType } = data;
     
     if (!user) {
