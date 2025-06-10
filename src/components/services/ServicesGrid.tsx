@@ -11,7 +11,7 @@ const ServicesGrid = () => {
       subtitle: 'ИИ-анализ результатов лабораторных исследований',
       description: 'Загрузите фото ваших анализов или введите показатели вручную. Наш ИИ проанализирует результаты и предоставит персонализированные рекомендации для улучшения здоровья.',
       icon: <TestTube className="h-8 w-8" />,
-      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&q=80&w=800',
+      image: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&q=80&w=800',
       features: [
         'Анализ крови с расшифровкой каждого показателя',
         'Сравнение с оптимальными значениями',
@@ -55,7 +55,7 @@ const ServicesGrid = () => {
       subtitle: 'Комплексная система мониторинга здоровья',
       description: 'Создайте полный профиль своего здоровья с историей анализов, показателей и рекомендаций. Отслеживайте прогресс и получайте аналитику.',
       icon: <User className="h-8 w-8" />,
-      image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?auto=format&fit=crop&q=80&w=800',
+      image: 'https://images.unsplash.com/photo-1609220136736-443140cffec6?auto=format&fit=crop&q=80&w=800',
       features: [
         'История всех анализов и обследований',
         'Динамика показателей здоровья',
