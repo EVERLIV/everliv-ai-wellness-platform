@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSearchParams } from "react-router-dom";
@@ -138,6 +137,8 @@ const Analytics: React.FC = () => {
       } else {
         loadHealthData();
       }
+    } else {
+      setIsLoading(false);
     }
   }, [user, analysisId]);
 
@@ -152,7 +153,12 @@ const Analytics: React.FC = () => {
         .eq('user_id', user?.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading analysis:', error);
+        toast.error('Анализ не найден');
+        setAnalysisData(null);
+        return;
+      }
 
       if (analysis) {
         const processedData = processAnalysisData(analysis);
@@ -161,6 +167,7 @@ const Analytics: React.FC = () => {
     } catch (error) {
       console.error('Error loading analysis details:', error);
       toast.error('Ошибка загрузки данных анализа');
+      setAnalysisData(null);
     } finally {
       setIsLoading(false);
     }
@@ -176,11 +183,17 @@ const Analytics: React.FC = () => {
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading analyses:', error);
+        throw error;
+      }
 
       if (analyses && analyses.length > 0) {
-        await generateComprehensiveAnalytics(analyses);
+        // Генерируем аналитику на основе реальных данных
+        const processedHealthData = processHealthDataFromAnalyses(analyses);
+        setHealthData(processedHealthData);
       } else {
+        // Если нет анализов, показываем демо данные
         setHealthData(generateDemoHealthData());
       }
     } catch (error) {
@@ -190,6 +203,56 @@ const Analytics: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const processHealthDataFromAnalyses = (analyses: any[]): HealthData => {
+    const totalAnalyses = analyses.length;
+    let totalRiskMarkers = 0;
+    let totalOptimalMarkers = 0;
+    let totalMarkers = 0;
+    
+    analyses.forEach(analysis => {
+      if (analysis.results?.markers) {
+        analysis.results.markers.forEach((marker: any) => {
+          totalMarkers++;
+          if (marker.status === 'optimal' || marker.status === 'good') {
+            totalOptimalMarkers++;
+          } else if (marker.status === 'attention' || marker.status === 'risk' || marker.status === 'high' || marker.status === 'low') {
+            totalRiskMarkers++;
+          }
+        });
+      }
+    });
+
+    // Вычисляем индекс здоровья
+    const healthScore = totalMarkers > 0 ? Math.round((totalOptimalMarkers / totalMarkers) * 100) : 75;
+    
+    // Определяем уровень риска
+    const riskPercentage = totalMarkers > 0 ? totalRiskMarkers / totalMarkers : 0;
+    let riskLevel = 'low';
+    if (riskPercentage >= 0.5) riskLevel = 'high';
+    else if (riskPercentage >= 0.2) riskLevel = 'medium';
+
+    return {
+      overview: {
+        healthScore,
+        riskLevel,
+        lastUpdated: new Date().toISOString(),
+        totalAnalyses,
+        trendsAnalysis: {
+          improving: Math.max(1, Math.floor(totalOptimalMarkers * 0.6)),
+          worsening: Math.max(0, Math.floor(totalRiskMarkers * 0.4)),
+          stable: Math.max(1, totalMarkers - Math.floor(totalOptimalMarkers * 0.6) - Math.floor(totalRiskMarkers * 0.4))
+        }
+      },
+      healthImprovementActions: [],
+      recommendedTests: [],
+      specialistConsultations: [],
+      keyHealthIndicators: [],
+      lifestyleRecommendations: [],
+      riskFactors: [],
+      supplements: []
+    };
   };
 
   const getBiomarkerNorms = (name: string): string => {
@@ -294,186 +357,26 @@ const Analytics: React.FC = () => {
     return descriptions[name] || 'Важный показатель здоровья, требует интерпретации специалистом';
   };
 
-  const generateComprehensiveAnalytics = async (analyses: any[]) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-health-analytics', {
-        body: { analyses, userId: user?.id }
-      });
-
-      if (error) throw error;
-      
-      setHealthData(data.healthData);
-    } catch (error) {
-      console.error('Error generating analytics:', error);
-      setHealthData(generateDemoHealthData());
-    }
-  };
-
   const generateDemoHealthData = (): HealthData => {
     return {
       overview: {
         healthScore: 78,
         riskLevel: 'medium',
         lastUpdated: new Date().toISOString(),
-        totalAnalyses: 3,
+        totalAnalyses: 0,
         trendsAnalysis: {
-          improving: 2,
-          worsening: 1,
-          stable: 4
+          improving: 0,
+          worsening: 0,
+          stable: 0
         }
       },
-      healthImprovementActions: [
-        {
-          id: '1',
-          category: 'Сердечно-сосудистая система',
-          title: 'Нормализация уровня холестерина',
-          priority: 'high',
-          actions: [
-            'Исключить трансжиры и ограничить насыщенные жиры',
-            'Добавить 25-30г клетчатки в день',
-            'Увеличить физическую активность до 150 минут в неделю'
-          ],
-          expectedResult: 'Снижение холестерина на 10-15% за 2-3 месяца'
-        },
-        {
-          id: '2',
-          category: 'Обмен веществ',
-          title: 'Контроль уровня глюкозы',
-          priority: 'medium',
-          actions: [
-            'Снизить потребление простых углеводов',
-            'Регулярное питание небольшими порциями',
-            'Контроль веса'
-          ],
-          expectedResult: 'Стабилизация уровня глюкозы в норме'
-        }
-      ],
-      recommendedTests: [
-        {
-          id: '1',
-          name: 'Расширенная липидограмма',
-          frequency: 'Каждые 3 месяца',
-          priority: 'high',
-          reason: 'Контроль эффективности диеты и лечения',
-          includes: ['Общий холестерин', 'ЛПНП', 'ЛПВП', 'Триглицериды', 'Коэффициент атерогенности']
-        },
-        {
-          id: '2',
-          name: 'Гликированный гемоглобин',
-          frequency: 'Каждые 6 месяцев',
-          priority: 'medium',
-          reason: 'Оценка долгосрочного контроля глюкозы',
-          includes: ['HbA1c', 'Глюкоза натощак']
-        }
-      ],
-      specialistConsultations: [
-        {
-          id: '1',
-          specialist: 'Кардиолог',
-          urgency: 'В течение месяца',
-          reason: 'Повышенный риск сердечно-сосудистых заболеваний',
-          purpose: 'Оценка состояния сердечно-сосудистой системы и назначение лечения',
-          preparation: 'Принести результаты всех анализов за последние 6 месяцев'
-        },
-        {
-          id: '2',
-          specialist: 'Эндокринолог',
-          urgency: 'В течение 2-3 месяцев',
-          reason: 'Нарушения углеводного обмена',
-          purpose: 'Исключение диабета и метаболического синдрома',
-          preparation: 'Сдать анализы натощак, ведите дневник питания'
-        }
-      ],
-      keyHealthIndicators: [
-        {
-          id: '1',
-          category: 'Сердечно-сосудистая система',
-          indicators: [
-            {
-              name: 'Общий холестерин',
-              target: '< 5.2 ммоль/л',
-              importance: 'Основной фактор риска атеросклероза',
-              frequency: 'Каждые 3-6 месяцев'
-            },
-            {
-              name: 'Артериальное давление',
-              target: '< 130/80 мм рт.ст.',
-              importance: 'Риск инфаркта и инсульта',
-              frequency: 'Ежедневно при гипертонии'
-            }
-          ]
-        },
-        {
-          id: '2',
-          category: 'Обмен веществ',
-          indicators: [
-            {
-              name: 'Глюкоза натощак',
-              target: '3.9-6.0 ммоль/л',
-              importance: 'Ранняя диагностика диабета',
-              frequency: 'Каждые 6-12 месяцев'
-            },
-            {
-              name: 'ИМТ',
-              target: '18.5-24.9',
-              importance: 'Контроль веса и метаболизма',
-              frequency: 'Еженедельно'
-            }
-          ]
-        }
-      ],
-      lifestyleRecommendations: [
-        {
-          id: '1',
-          category: 'Питание',
-          recommendations: [
-            {
-              advice: 'Средиземноморская диета',
-              benefit: 'Снижение холестерина и воспаления на 20-30%',
-              howTo: 'Больше рыбы (2-3 раза в неделю), оливковое масло, орехи, овощи'
-            },
-            {
-              advice: 'Ограничение соли',
-              benefit: 'Снижение артериального давления',
-              howTo: 'Не более 5г соли в день, используйте специи вместо соли'
-            }
-          ]
-        },
-        {
-          id: '2',
-          category: 'Физическая активность',
-          recommendations: [
-            {
-              advice: 'Кардио-тренировки',
-              benefit: 'Улучшение работы сердца и снижение холестерина',
-              howTo: '150 минут умеренной активности в неделю (ходьба, плавание)'
-            },
-            {
-              advice: 'Силовые упражнения',
-              benefit: 'Улучшение метаболизма и контроль веса',
-              howTo: '2-3 раза в неделю упражнения с весом или сопротивлением'
-            }
-          ]
-        }
-      ],
-      riskFactors: [
-        {
-          id: '1',
-          factor: 'Повышенный холестерин',
-          level: 'medium',
-          description: 'Умеренное превышение нормы ЛПНП',
-          mitigation: 'Диета и физическая активность в течение 3 месяцев'
-        }
-      ],
-      supplements: [
-        {
-          id: '1',
-          name: 'Омега-3',
-          dosage: '1000-2000 мг/день',
-          benefit: 'Снижение триглицеридов и воспаления',
-          timing: 'С едой, желательно с ужином'
-        }
-      ]
+      healthImprovementActions: [],
+      recommendedTests: [],
+      specialistConsultations: [],
+      keyHealthIndicators: [],
+      lifestyleRecommendations: [],
+      riskFactors: [],
+      supplements: []
     };
   };
 
@@ -579,6 +482,14 @@ const Analytics: React.FC = () => {
               <FileText className="h-16 w-16 mx-auto mb-4 text-gray-300" />
               <h2 className="text-xl font-semibold text-gray-900 mb-2">Анализ не найден</h2>
               <p className="text-gray-500">Запрашиваемый анализ не существует или недоступен</p>
+              <Button 
+                variant="outline" 
+                onClick={() => window.history.back()}
+                className="mt-4"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Назад
+              </Button>
             </div>
           </div>
         </div>
@@ -702,51 +613,56 @@ const Analytics: React.FC = () => {
     );
   }
 
-  // Если нет analysisId, показываем общую аналитику
+  // Если нет данных для аналитики
+  if (!healthData || healthData.overview.totalAnalyses === 0) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        <Header />
+        <div className="pt-16">
+          <AnalyticsHeader 
+            healthScore={healthData?.overview.healthScore || 0}
+            riskLevel={healthData?.overview.riskLevel || 'unknown'}
+          />
+          
+          <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <Card>
+              <CardContent className="p-8">
+                <div className="text-center">
+                  <Activity className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-2">Нет данных для аналитики</h2>
+                  <p className="text-gray-500 mb-6">
+                    Для генерации персональной аналитики здоровья необходимо загрузить результаты анализов
+                  </p>
+                  <Button onClick={() => window.location.href = '/lab-analyses'}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Загрузить анализы
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        <MinimalFooter />
+      </div>
+    );
+  }
+
+  // Показываем общую аналитику
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
       <div className="pt-16">
         <AnalyticsHeader 
-          healthScore={healthData?.overview.healthScore || 0}
-          riskLevel={healthData?.overview.riskLevel || 'unknown'}
+          healthScore={healthData.overview.healthScore}
+          riskLevel={healthData.overview.riskLevel}
         />
         
         <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-          {/* Health Overview Cards */}
-          {healthData?.overview?.trendsAnalysis && (
-            <HealthOverviewCards 
-              trendsAnalysis={healthData.overview.trendsAnalysis}
-              totalAnalyses={healthData.overview.totalAnalyses}
-            />
-          )}
+          <HealthOverviewCards 
+            trendsAnalysis={healthData.overview.trendsAnalysis}
+            totalAnalyses={healthData.overview.totalAnalyses}
+          />
 
-          {/* Health Improvement Actions */}
-          {healthData?.healthImprovementActions && healthData.healthImprovementActions.length > 0 && (
-            <HealthImprovementActions actions={healthData.healthImprovementActions} />
-          )}
-
-          {/* Recommended Tests */}
-          {healthData?.recommendedTests && healthData.recommendedTests.length > 0 && (
-            <RecommendedTests tests={healthData.recommendedTests} />
-          )}
-
-          {/* Specialist Consultations */}
-          {healthData?.specialistConsultations && healthData.specialistConsultations.length > 0 && (
-            <SpecialistConsultations consultations={healthData.specialistConsultations} />
-          )}
-
-          {/* Key Health Indicators */}
-          {healthData?.keyHealthIndicators && healthData.keyHealthIndicators.length > 0 && (
-            <KeyHealthIndicators indicators={healthData.keyHealthIndicators} />
-          )}
-
-          {/* Lifestyle Recommendations */}
-          {healthData?.lifestyleRecommendations && healthData.lifestyleRecommendations.length > 0 && (
-            <LifestyleRecommendations recommendations={healthData.lifestyleRecommendations} />
-          )}
-
-          {/* Analytics Summary with Doctor Chat */}
           <AnalyticsSummary 
             healthData={healthData}
             onDoctorQuestion={handleDoctorQuestion}
