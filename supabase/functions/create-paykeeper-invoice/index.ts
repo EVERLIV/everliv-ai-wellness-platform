@@ -27,7 +27,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('PayKeeper token not configured');
     }
 
-    // Create invoice in PayKeeper
+    // Create invoice in PayKeeper using correct API endpoint
     const invoiceData = {
       pay_amount: amount,
       clientid: userId,
@@ -38,7 +38,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Creating PayKeeper invoice:', invoiceData);
 
-    const response = await fetch('https://paykeeper.alfabank.ru/info/invoice/byid/', {
+    // Use the correct PayKeeper API endpoint for creating invoices
+    const response = await fetch('https://demo.paykeeper.ru/info/invoice/byorder/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -81,3 +82,5 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 serve(handler);
+
+</edits_to_apply>
