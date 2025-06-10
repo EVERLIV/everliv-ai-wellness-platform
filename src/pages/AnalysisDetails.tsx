@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,6 +5,7 @@ import Header from "@/components/Header";
 import MinimalFooter from "@/components/MinimalFooter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
@@ -16,14 +16,15 @@ import {
   CheckCircle,
   AlertTriangle,
   Calendar,
-  FileText
+  FileText,
+  Printer
 } from "lucide-react";
 
 interface Biomarker {
   name: string;
   value: number | string;
   unit: string;
-  status: 'optimal' | 'good' | 'attention' | 'risk' | 'unknown';
+  status: 'optimal' | 'good' | 'attention' | 'risk' | 'normal' | 'high' | 'low' | 'unknown';
   referenceRange: string;
   description?: string;
 }
@@ -83,7 +84,7 @@ const AnalysisDetails: React.FC = () => {
           value: marker.value,
           unit: marker.unit || '',
           status: marker.status || 'unknown',
-          referenceRange: marker.reference_range || 'Н/Д',
+          referenceRange: marker.normalRange || marker.reference_range || 'Н/Д',
           description: getBiomarkerDescription(marker.name)
         });
       }
@@ -91,10 +92,25 @@ const AnalysisDetails: React.FC = () => {
 
     return {
       id: analysis.id,
-      analysisType: analysis.analysis_type,
+      analysisType: getAnalysisTypeName(analysis.analysis_type),
       createdAt: analysis.created_at,
       biomarkers
     };
+  };
+
+  const getAnalysisTypeName = (type: string): string => {
+    const typeNames: { [key: string]: string } = {
+      'blood_test': 'Общий анализ крови',
+      'biochemistry': 'Биохимический анализ крови',
+      'hormones': 'Анализ гормонов',
+      'vitamins': 'Анализ витаминов и микроэлементов',
+      'lipid_profile': 'Липидограмма',
+      'thyroid': 'Анализ функции щитовидной железы',
+      'diabetes': 'Анализ на диабет',
+      'liver': 'Печеночные пробы',
+      'kidney': 'Почечные пробы'
+    };
+    return typeNames[type] || 'Медицинский анализ';
   };
 
   const getBiomarkerDescription = (name: string): string => {
@@ -139,12 +155,15 @@ const AnalysisDetails: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'optimal':
+      case 'normal':
         return 'text-green-600 bg-green-50 border-green-200';
       case 'good':
         return 'text-blue-600 bg-blue-50 border-blue-200';
       case 'attention':
+      case 'low':
         return 'text-yellow-600 bg-yellow-50 border-yellow-200';
       case 'risk':
+      case 'high':
         return 'text-red-600 bg-red-50 border-red-200';
       default:
         return 'text-gray-600 bg-gray-50 border-gray-200';
@@ -155,28 +174,41 @@ const AnalysisDetails: React.FC = () => {
     switch (status) {
       case 'optimal':
         return 'Оптимально';
+      case 'normal':
+        return 'Норма';
       case 'good':
         return 'Хорошо';
       case 'attention':
         return 'Внимание';
+      case 'low':
+        return 'Ниже нормы';
       case 'risk':
         return 'Риск';
+      case 'high':
+        return 'Выше нормы';
       default:
-        return 'Неизвестно';
+        return 'Требует оценки';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'optimal':
+      case 'normal':
       case 'good':
-        return <CheckCircle className="h-4 w-4" />;
+        return <CheckCircle className="h-3 w-3" />;
       case 'attention':
+      case 'low':
       case 'risk':
-        return <AlertTriangle className="h-4 w-4" />;
+      case 'high':
+        return <AlertTriangle className="h-3 w-3" />;
       default:
-        return <Minus className="h-4 w-4" />;
+        return <Minus className="h-3 w-3" />;
     }
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   if (!user) {
@@ -219,23 +251,33 @@ const AnalysisDetails: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
-      <div className="pt-16">
+      <div className="pt-16 print:pt-0">
         {/* Заголовок страницы */}
-        <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 border-b border-gray-200">
-          <div className="container mx-auto px-4 py-8 max-w-7xl">
-            <div className="flex items-center space-x-4 mb-6">
-              <Activity className="h-8 w-8 text-blue-600" />
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  Детали анализа
-                </h1>
-                <p className="text-gray-600">{analysisData.analysisType}</p>
+        <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 border-b border-gray-200 print:bg-white print:border-none">
+          <div className="container mx-auto px-4 py-6 max-w-6xl print:py-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-4">
+                <Activity className="h-8 w-8 text-blue-600 print:h-6 print:w-6" />
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 print:text-2xl">
+                    {analysisData.analysisType}
+                  </h1>
+                  <p className="text-gray-600 print:text-sm">Детальный анализ показателей</p>
+                </div>
               </div>
+              <Button 
+                onClick={handlePrint}
+                className="gap-2 print:hidden"
+                variant="outline"
+              >
+                <Printer className="h-4 w-4" />
+                Печать PDF
+              </Button>
             </div>
             
-            <div className="flex items-center space-x-6 text-sm text-gray-600">
+            <div className="flex items-center space-x-6 text-sm text-gray-600 print:text-xs">
               <div className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4" />
+                <Calendar className="h-4 w-4 print:h-3 print:w-3" />
                 <span>
                   Дата: {new Date(analysisData.createdAt).toLocaleDateString('ru-RU', {
                     year: 'numeric',
@@ -245,80 +287,122 @@ const AnalysisDetails: React.FC = () => {
                 </span>
               </div>
               <div className="flex items-center space-x-2">
-                <Activity className="h-4 w-4" />
+                <Activity className="h-4 w-4 print:h-3 print:w-3" />
                 <span>Показателей: {analysisData.biomarkers.length}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Список биомаркеров */}
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Компактный список биомаркеров */}
+        <div className="container mx-auto px-4 py-6 max-w-6xl print:py-4">
+          <div className="space-y-3 print:space-y-2">
             {analysisData.biomarkers.map((biomarker, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg font-semibold text-gray-900">
+              <div 
+                key={index} 
+                className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow print:p-3 print:border-gray-300 print:rounded-none print:hover:shadow-none"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 print:grid-cols-4 print:gap-2">
+                  {/* Название показателя */}
+                  <div className="md:col-span-1">
+                    <h3 className="font-semibold text-gray-900 text-sm print:text-xs">
                       {biomarker.name}
-                    </CardTitle>
-                    <div className={`flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(biomarker.status)}`}>
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-1 print:hidden">
+                      {biomarker.description}
+                    </p>
+                  </div>
+
+                  {/* Значение */}
+                  <div className="md:col-span-1">
+                    <p className="text-xs font-medium text-gray-700 mb-1 print:text-xs">Значение</p>
+                    <div className="flex items-baseline space-x-1">
+                      <span className="text-lg font-bold text-gray-900 print:text-sm">
+                        {biomarker.value}
+                      </span>
+                      {biomarker.unit && (
+                        <span className="text-xs text-gray-600 print:text-xs">{biomarker.unit}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Норма */}
+                  <div className="md:col-span-1">
+                    <p className="text-xs font-medium text-gray-700 mb-1">Норма</p>
+                    <p className="text-sm text-gray-600 print:text-xs">{biomarker.referenceRange}</p>
+                  </div>
+
+                  {/* Статус */}
+                  <div className="md:col-span-1">
+                    <p className="text-xs font-medium text-gray-700 mb-1">Статус</p>
+                    <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(biomarker.status)} print:px-1 print:py-0`}>
                       {getStatusIcon(biomarker.status)}
-                      <span className="ml-1">{getStatusText(biomarker.status)}</span>
+                      <span className="ml-1 print:text-xs">{getStatusText(biomarker.status)}</span>
                     </div>
                   </div>
-                </CardHeader>
-                
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Значение */}
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 mb-1">Значение</p>
-                      <div className="flex items-baseline space-x-2">
-                        <span className="text-2xl font-bold text-gray-900">
-                          {biomarker.value}
-                        </span>
-                        {biomarker.unit && (
-                          <span className="text-sm text-gray-600">{biomarker.unit}</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Референсные значения */}
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 mb-1">Норма</p>
-                      <p className="text-sm text-gray-600">{biomarker.referenceRange}</p>
-                    </div>
-
-                    {/* Описание */}
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 mb-1">За что отвечает</p>
-                      <p className="text-xs text-gray-600 leading-relaxed">
-                        {biomarker.description}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
 
           {analysisData.biomarkers.length === 0 && (
-            <Card>
-              <CardContent className="p-8">
+            <Card className="print:border-gray-300">
+              <CardContent className="p-8 print:p-4">
                 <div className="text-center text-gray-500">
-                  <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-medium mb-2">Нет данных</h3>
-                  <p className="text-sm">
+                  <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300 print:h-8 print:w-8" />
+                  <h3 className="text-lg font-medium mb-2 print:text-sm">Нет данных</h3>
+                  <p className="text-sm print:text-xs">
                     В этом анализе не найдено биомаркеров для отображения
                   </p>
                 </div>
               </CardContent>
             </Card>
           )}
+
+          {/* Дисклеймер для печати */}
+          <div className="mt-8 print:mt-4 print:block hidden">
+            <div className="text-xs text-gray-600 border-t pt-4">
+              <p><strong>Важно:</strong> Данный анализ предоставлен только в информационных целях. 
+              Обязательно проконсультируйтесь с квалифицированным врачом для получения 
+              профессиональной медицинской консультации и назначения лечения.</p>
+            </div>
+          </div>
         </div>
       </div>
       <MinimalFooter />
+      
+      {/* Стили для печати */}
+      <style jsx>{`
+        @media print {
+          body { -webkit-print-color-adjust: exact; }
+          .print\\:hidden { display: none !important; }
+          .print\\:block { display: block !important; }
+          .print\\:pt-0 { padding-top: 0 !important; }
+          .print\\:py-4 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+          .print\\:p-3 { padding: 0.75rem !important; }
+          .print\\:p-4 { padding: 1rem !important; }
+          .print\\:text-xs { font-size: 0.75rem !important; }
+          .print\\:text-sm { font-size: 0.875rem !important; }
+          .print\\:text-2xl { font-size: 1.5rem !important; }
+          .print\\:bg-white { background-color: white !important; }
+          .print\\:border-none { border: none !important; }
+          .print\\:border-gray-300 { border-color: #d1d5db !important; }
+          .print\\:rounded-none { border-radius: 0 !important; }
+          .print\\:space-y-2 > * + * { margin-top: 0.5rem !important; }
+          .print\\:gap-2 { gap: 0.5rem !important; }
+          .print\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+          .print\\:h-3 { height: 0.75rem !important; }
+          .print\\:w-3 { width: 0.75rem !important; }
+          .print\\:h-6 { height: 1.5rem !important; }
+          .print\\:w-6 { width: 1.5rem !important; }
+          .print\\:h-8 { height: 2rem !important; }
+          .print\\:w-8 { width: 2rem !important; }
+          .print\\:px-1 { padding-left: 0.25rem !important; padding-right: 0.25rem !important; }
+          .print\\:py-0 { padding-top: 0 !important; padding-bottom: 0 !important; }
+          .print\\:mt-4 { margin-top: 1rem !important; }
+          .print\\:hover\\:shadow-none:hover { box-shadow: none !important; }
+        }
+      `}</style>
     </div>
   );
 };
