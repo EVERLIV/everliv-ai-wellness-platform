@@ -7,6 +7,7 @@ import MinimalFooter from "@/components/MinimalFooter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
   Heart, 
@@ -141,12 +142,18 @@ const HealthProfile: React.FC = () => {
 
   const loadHealthProfile = async () => {
     try {
-      // Temporarily use localStorage until database types are updated
-      const storageKey = `health_profile_${user?.id}`;
-      const savedProfile = localStorage.getItem(storageKey);
-      
-      if (savedProfile) {
-        setHealthProfile(JSON.parse(savedProfile));
+      const { data, error } = await supabase
+        .from('health_profiles')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (data) {
+        setHealthProfile(data.profile_data);
       }
     } catch (error) {
       console.error('Error loading health profile:', error);
@@ -159,9 +166,15 @@ const HealthProfile: React.FC = () => {
     try {
       setIsLoading(true);
       
-      // Temporarily save to localStorage until database types are updated
-      const storageKey = `health_profile_${user.id}`;
-      localStorage.setItem(storageKey, JSON.stringify(healthProfile));
+      const { error } = await supabase
+        .from('health_profiles')
+        .upsert({
+          user_id: user.id,
+          profile_data: healthProfile,
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
 
       toast.success('Профиль здоровья успешно сохранен');
       navigate('/dashboard');
