@@ -12,6 +12,11 @@ import {
   upgradeSubscriptionService,
   checkTrialStatusService
 } from "@/services/subscription-service";
+import { 
+  getCurrentMonthUsage, 
+  incrementUsage, 
+  checkUsageLimit 
+} from "@/services/usage-tracking-service";
 import { toast } from "sonner";
 
 interface SubscriptionContextType {
@@ -24,6 +29,8 @@ interface SubscriptionContextType {
   purchaseSubscription: (planType: SubscriptionPlan) => Promise<void>;
   cancelSubscription: () => Promise<void>;
   upgradeSubscription: (newPlanType: SubscriptionPlan) => Promise<void>;
+  checkFeatureUsage: (featureType: string) => Promise<{ canUse: boolean; currentUsage: number; limit: number }>;
+  incrementFeatureUsage: (featureType: string) => Promise<void>;
   isTrialActive: boolean;
   trialExpiresAt: Date | null;
   trialTimeRemaining: string | null;
@@ -111,9 +118,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   }, [user]);
 
   const recordFeatureTrial = async (featureName: string): Promise<void> => {
-    if (!user) {
-      return;
-    }
+    if (!user) return;
 
     if (hasFeatureTrial(featureName)) {
       return;
@@ -160,20 +165,38 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const checkFeatureUsage = async (featureType: string) => {
+    if (!user) {
+      return { canUse: false, currentUsage: 0, limit: 0 };
+    }
+
+    const planType = subscription?.plan_type || 'basic';
+    return await checkUsageLimit(user.id, featureType, planType);
+  };
+
+  const incrementFeatureUsage = async (featureType: string): Promise<void> => {
+    if (!user) return;
+
+    try {
+      await incrementUsage(user.id, featureType);
+    } catch (error) {
+      console.error("Error incrementing feature usage:", error);
+      throw error;
+    }
+  };
+
   const contextValue = {
     subscription,
     isLoading,
     featureTrials,
     hasFeatureTrial,
-    // ПРЕМИУМ ДОСТУП: Полный доступ ко всем функциям для всех авторизованных пользователей
-    canUseFeature: (featureName: string) => {
-      // Если пользователь авторизован, он имеет полный доступ ко всем функциям
-      return !!user;
-    },
+    canUseFeature,
     recordFeatureTrial,
     purchaseSubscription,
     cancelSubscription,
     upgradeSubscription,
+    checkFeatureUsage,
+    incrementFeatureUsage,
     isTrialActive,
     trialExpiresAt,
     trialTimeRemaining

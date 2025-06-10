@@ -1,62 +1,88 @@
 
-import { PlanFeature } from "@/types/subscription";
-
-export const FEATURES = {
-  AI_HEALTH_ANALYSIS: "ai_health_analysis",
-  BLOOD_ANALYSIS: "blood_analysis",
-  PERSONALIZED_RECOMMENDATIONS: "personalized_recommendations",
-  SUPPLEMENTS_SELECTION: "supplements_selection",
-  HEALTH_MONITORING: "health_monitoring",
-  COMPREHENSIVE_ASSESSMENT: "comprehensive_assessment",
-  BIOLOGICAL_AGE_TEST: "biological_age_test",
-  PHOTO_BLOOD_ANALYSIS: "photo_blood_analysis",
-  COMPREHENSIVE_AI_ANALYSIS: "comprehensive_ai_analysis",
+export const PLAN_FEATURES = {
+  labAnalyses: {
+    name: "Лабораторные анализы",
+    description: "Анализ и интерпретация результатов лабораторных исследований",
+    includedIn: {
+      basic: true,
+      standard: true,
+      premium: true
+    }
+  },
+  chatAccess: {
+    name: "Доступ к AI-доктору",
+    description: "Консультации с ИИ-доктором в чате",
+    includedIn: {
+      basic: true,
+      standard: true,
+      premium: true
+    }
+  },
+  nutritionDiary: {
+    name: "Дневник питания",
+    description: "Отслеживание питания и калорий",
+    includedIn: {
+      basic: true,
+      standard: true,
+      premium: true
+    }
+  },
+  healthProfile: {
+    name: "Профиль здоровья",
+    description: "Персональный профиль с историей здоровья",
+    includedIn: {
+      basic: false,
+      standard: true,
+      premium: true
+    }
+  },
+  advancedAnalysis: {
+    name: "Расширенная аналитика",
+    description: "Подробный анализ трендов здоровья",
+    includedIn: {
+      basic: false,
+      standard: false,
+      premium: true
+    }
+  }
 };
 
-export const PLAN_FEATURES: Record<string, PlanFeature> = {
-  [FEATURES.AI_HEALTH_ANALYSIS]: {
-    name: "Анализ здоровья с помощью ИИ",
-    description: "Базовый анализ состояния здоровья с использованием искусственного интеллекта",
-    includedIn: { basic: true, standard: true, premium: true }
+export const PLAN_LIMITS = {
+  basic: {
+    labAnalysesPerMonth: 1,
+    chatMessagesPerMonth: 99,
+    nutritionDiary: true
   },
-  [FEATURES.BLOOD_ANALYSIS]: {
-    name: "Интерпретация анализов крови",
-    description: "Расшифровка и объяснение результатов анализов крови",
-    includedIn: { basic: true, standard: true, premium: true }
+  premium: {
+    labAnalysesPerMonth: 15,
+    chatMessagesPerMonth: 199,
+    nutritionDiary: true,
+    healthProfile: true
+  }
+};
+
+export const SUBSCRIPTION_PLANS = {
+  basic: {
+    name: "Базовый",
+    type: "basic",
+    price: 0,
+    description: "Бесплатный тариф с базовыми возможностями",
+    features: [
+      "1 лабораторный анализ в месяц",
+      "99 сообщений в базовом чате",
+      "Дневник питания"
+    ]
   },
-  [FEATURES.PERSONALIZED_RECOMMENDATIONS]: {
-    name: "Персонализированные рекомендации",
-    description: "Индивидуальные рекомендации по улучшению здоровья",
-    includedIn: { basic: false, standard: true, premium: true }
-  },
-  [FEATURES.SUPPLEMENTS_SELECTION]: {
-    name: "Подбор витаминов и добавок",
-    description: "Персонализированный подбор витаминов и добавок",
-    includedIn: { basic: false, standard: true, premium: true }
-  },
-  [FEATURES.HEALTH_MONITORING]: {
-    name: "Мониторинг состояния здоровья",
-    description: "Непрерывный мониторинг показателей здоровья",
-    includedIn: { basic: false, standard: false, premium: true }
-  },
-  [FEATURES.COMPREHENSIVE_ASSESSMENT]: {
-    name: "Комплексная оценка здоровья",
-    description: "Полная комплексная оценка состояния здоровья",
-    includedIn: { basic: false, standard: false, premium: true }
-  },
-  [FEATURES.BIOLOGICAL_AGE_TEST]: {
-    name: "Тест на биологический возраст",
-    description: "Определение биологического возраста на основе ИИ",
-    includedIn: { basic: false, standard: false, premium: true }
-  },
-  [FEATURES.PHOTO_BLOOD_ANALYSIS]: {
-    name: "Анализ фото результатов",
-    description: "Распознавание и анализ фотографий медицинских анализов",
-    includedIn: { basic: false, standard: true, premium: true }
-  },
-  [FEATURES.COMPREHENSIVE_AI_ANALYSIS]: {
-    name: "Комплексный AI анализ",
-    description: "Полный комплексный анализ здоровья с использованием ИИ",
-    includedIn: { basic: false, standard: false, premium: true }
-  },
+  premium: {
+    name: "Премиум", 
+    type: "premium",
+    price: 999,
+    description: "Расширенные возможности для полноценной заботы о здоровье",
+    features: [
+      "15 лабораторных анализов в месяц",
+      "199 сообщений в премиум чате",
+      "Профиль здоровья",
+      "Дневник питания"
+    ]
+  }
 };

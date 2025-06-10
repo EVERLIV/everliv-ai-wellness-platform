@@ -516,6 +516,7 @@ export type Database = {
           id: string
           is_active: boolean
           is_popular: boolean
+          limits: Json
           name: string
           price: number
           type: string
@@ -528,6 +529,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_popular?: boolean
+          limits?: Json
           name: string
           price: number
           type: string
@@ -540,6 +542,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_popular?: boolean
+          limits?: Json
           name?: string
           price?: number
           type?: string
@@ -555,6 +558,8 @@ export type Database = {
           plan_type: string
           started_at: string
           status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           updated_at: string
           user_id: string
         }
@@ -565,6 +570,8 @@ export type Database = {
           plan_type: string
           started_at?: string
           status: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -575,7 +582,42 @@ export type Database = {
           plan_type?: string
           started_at?: string
           status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      usage_tracking: {
+        Row: {
+          created_at: string
+          feature_type: string
+          id: string
+          period_end: string
+          period_start: string
+          updated_at: string
+          usage_count: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature_type: string
+          id?: string
+          period_end: string
+          period_start: string
+          updated_at?: string
+          usage_count?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feature_type?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          updated_at?: string
+          usage_count?: number
           user_id?: string
         }
         Relationships: []
