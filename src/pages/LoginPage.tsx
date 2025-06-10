@@ -24,18 +24,19 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-    setIsLoading(true);
     
+    if (!email || !password) {
+      setErrorMessage('Пожалуйста, заполните все поля');
+      return;
+    }
+    
+    setIsLoading(true);
     try {
       await signIn(email, password);
-      toast({
-        title: "Успешный вход",
-        description: "Вы успешно вошли в систему"
-      });
-      navigate('/dashboard');
+      // Navigation will be handled by AuthContext
     } catch (error: any) {
-      console.error('Error during sign in:', error);
-      setErrorMessage(error.message || "Не удалось войти в систему. Проверьте ваши данные.");
+      console.error('Error during login:', error);
+      setErrorMessage(error.message || 'Ошибка при входе. Проверьте данные и попробуйте снова.');
     } finally {
       setIsLoading(false);
     }
@@ -45,11 +46,11 @@ const LoginPage = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <div className="flex-grow flex items-center justify-center bg-gray-50 py-16 px-4">
-        <Card className="w-full max-w-md py-0 my-[100px]">
+        <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Вход в систему</CardTitle>
             <CardDescription className="text-center">
-              Введите свои данные для входа
+              Войдите в свой аккаунт EVERLIV
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -66,16 +67,24 @@ const LoginPage = () => {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="your@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="your@email.com" 
+                    value={email} 
+                    onChange={e => setEmail(e.target.value)} 
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Пароль</Label>
-                    <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline">
-                      Забыли пароль?
-                    </Link>
-                  </div>
-                  <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+                  <Label htmlFor="password">Пароль</Label>
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    value={password} 
+                    onChange={e => setPassword(e.target.value)} 
+                    required 
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Вход...' : 'Войти'}
@@ -84,9 +93,14 @@ const LoginPage = () => {
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <div className="text-center text-sm w-full">
+            <div className="text-center text-sm">
+              <Link to="/forgot-password" className="text-primary hover:underline">
+                Забыли пароль?
+              </Link>
+            </div>
+            <div className="text-center text-sm">
               Нет аккаунта?{' '}
-              <Link to="/register" className="text-primary hover:underline">
+              <Link to="/signup" className="text-primary hover:underline">
                 Зарегистрироваться
               </Link>
             </div>

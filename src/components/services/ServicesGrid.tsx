@@ -11,7 +11,7 @@ const ServicesGrid = () => {
       subtitle: 'ИИ-анализ результатов лабораторных исследований',
       description: 'Загрузите фото ваших анализов или введите показатели вручную. Наш ИИ проанализирует результаты и предоставит персонализированные рекомендации для улучшения здоровья.',
       icon: <TestTube className="h-8 w-8" />,
-      image: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&q=80&w=800',
+      image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&q=80&w=800',
       features: [
         'Анализ крови с расшифровкой каждого показателя',
         'Сравнение с оптимальными значениями',

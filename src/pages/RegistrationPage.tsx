@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Gift } from 'lucide-react';
 
 const RegistrationPage = () => {
   const [email, setEmail] = useState('');
@@ -69,9 +69,20 @@ const RegistrationPage = () => {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Регистрация</CardTitle>
             <CardDescription className="text-center">
-              Создайте аккаунт для доступа к сервисам
+              Создайте аккаунт для доступа к сервисам EVERLIV
             </CardDescription>
           </CardHeader>
+          
+          {/* Bonus banner */}
+          <div className="mx-6 mb-6 bg-green-50 p-3 rounded-lg border border-green-100">
+            <div className="flex items-center">
+              <Gift className="h-5 w-5 text-green-600 mr-2" />
+              <p className="text-sm text-green-700">
+                <span className="font-semibold">Бонус при регистрации:</span> Базовая подписка на 1 год бесплатно!
+              </p>
+            </div>
+          </div>
+          
           <CardContent>
             {errorMessage && (
               <div className="bg-red-50 p-3 rounded-lg mb-6 border border-red-100">
@@ -86,26 +97,60 @@ const RegistrationPage = () => {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">Имя</Label>
-                  <Input id="firstName" type="text" placeholder="Иван" value={firstName} onChange={e => setFirstName(e.target.value)} required />
+                  <Input 
+                    id="firstName" 
+                    type="text" 
+                    placeholder="Иван" 
+                    value={firstName} 
+                    onChange={e => setFirstName(e.target.value)} 
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Фамилия</Label>
-                  <Input id="lastName" type="text" placeholder="Иванов" value={lastName} onChange={e => setLastName(e.target.value)} required />
+                  <Input 
+                    id="lastName" 
+                    type="text" 
+                    placeholder="Иванов" 
+                    value={lastName} 
+                    onChange={e => setLastName(e.target.value)} 
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="your@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="your@email.com" 
+                    value={email} 
+                    onChange={e => setEmail(e.target.value)} 
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Пароль</Label>
-                  <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    value={password} 
+                    onChange={e => setPassword(e.target.value)} 
+                    required 
+                    minLength={6} 
+                  />
                   <p className="text-xs text-gray-500">
                     Пароль должен содержать не менее 6 символов
                   </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
-                  <Input id="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
+                  <Input 
+                    id="confirmPassword" 
+                    type="password" 
+                    value={confirmPassword} 
+                    onChange={e => setConfirmPassword(e.target.value)} 
+                    required 
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
