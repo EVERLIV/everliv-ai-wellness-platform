@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSearchParams } from "react-router-dom";
@@ -21,6 +20,8 @@ import {
   ArrowLeft,
   RefreshCw
 } from "lucide-react";
+import DetailedHealthRecommendations from "@/components/analytics/DetailedHealthRecommendations";
+import { generateDetailedRecommendations } from "@/utils/detailedRecommendationsGenerator";
 
 interface Biomarker {
   name: string;
@@ -529,6 +530,9 @@ const Analytics: React.FC = () => {
     supplements: []
   };
 
+  // Генерируем детальные рекомендации
+  const detailedRecommendations = generateDetailedRecommendations(analytics);
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
@@ -540,7 +544,7 @@ const Analytics: React.FC = () => {
         
         <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold text-gray-900">Обзор здоровья</h2>
+            <h2 className="text-2xl font-semibold text-gray-900">Персональная аналитика здоровья</h2>
             <Button
               variant="outline"
               onClick={generateAnalytics}
@@ -555,6 +559,15 @@ const Analytics: React.FC = () => {
           <HealthOverviewCards 
             trendsAnalysis={analytics.trendsAnalysis}
             totalAnalyses={analytics.totalAnalyses}
+          />
+
+          {/* Детальные рекомендации */}
+          <DetailedHealthRecommendations
+            recommendations={detailedRecommendations.recommendations}
+            riskFactors={detailedRecommendations.riskFactors}
+            supplements={detailedRecommendations.supplements}
+            specialists={detailedRecommendations.specialists}
+            tests={detailedRecommendations.tests}
           />
 
           <AnalyticsSummary 
