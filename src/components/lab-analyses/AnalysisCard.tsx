@@ -39,13 +39,25 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({
     return {
       optimal: markers.filter(m => m.status === 'optimal' || m.status === 'good').length,
       attention: markers.filter(m => m.status === 'attention').length,
-      risk: markers.filter(m => m.status === 'risk').length,
+      risk: markers.filter(m => m.status === 'risk' || m.status === 'high' || m.status === 'low' || m.status === 'critical').length,
       total: markers.length
     };
   };
 
   const statusCounts = getStatusCounts();
-  const riskLevel = analysis.results?.riskLevel || 'low';
+  
+  // Определяем уровень риска на основе статистики маркеров
+  const calculateRiskLevel = () => {
+    if (statusCounts.total === 0) return 'unknown';
+    
+    const riskPercentage = (statusCounts.risk + statusCounts.attention) / statusCounts.total;
+    
+    if (riskPercentage >= 0.5) return 'high';
+    if (riskPercentage >= 0.2) return 'medium';
+    return 'low';
+  };
+
+  const riskLevel = analysis.results?.riskLevel || calculateRiskLevel();
 
   return (
     <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer">

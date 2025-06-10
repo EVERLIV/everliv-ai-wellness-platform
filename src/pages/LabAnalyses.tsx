@@ -69,6 +69,36 @@ const LabAnalyses = () => {
     }
   }, [results, user]);
 
+  // Функция для подсчета статистики
+  const getStatistics = () => {
+    if (!analysisHistory || analysisHistory.length === 0) {
+      return { total: 0, normal: 0, attention: 0 };
+    }
+
+    let normal = 0;
+    let attention = 0;
+
+    analysisHistory.forEach(analysis => {
+      if (analysis.results?.markers) {
+        analysis.results.markers.forEach(marker => {
+          if (marker.status === 'optimal' || marker.status === 'good') {
+            normal++;
+          } else if (marker.status === 'attention' || marker.status === 'risk' || marker.status === 'high' || marker.status === 'low' || marker.status === 'critical') {
+            attention++;
+          }
+        });
+      }
+    });
+
+    return {
+      total: analysisHistory.length,
+      normal,
+      attention
+    };
+  };
+
+  const statistics = getStatistics();
+
   if (showNewAnalysis) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
@@ -101,8 +131,6 @@ const LabAnalyses = () => {
                 </div>
               </div>
             </div>
-
-            <MedicalDataDisclaimer />
 
             <NewAnalysisForm
               activeTab={activeTab}
@@ -168,9 +196,6 @@ const LabAnalyses = () => {
             </Button>
           </div>
 
-          {/* Дисклеймер о качестве медицинских данных */}
-          <MedicalDataDisclaimer />
-
           {/* Статистика */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card className="border-0 shadow-sm">
@@ -181,7 +206,7 @@ const LabAnalyses = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-600">Всего анализов</p>
-                    <p className="text-2xl font-bold text-gray-900">{analysisHistory.length}</p>
+                    <p className="text-2xl font-bold text-gray-900">{statistics.total}</p>
                   </div>
                 </div>
               </CardContent>
@@ -195,11 +220,7 @@ const LabAnalyses = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-600">В норме</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {analysisHistory.reduce((acc, analysis) => 
-                        acc + (analysis.results?.markers?.filter(m => m.status === 'optimal' || m.status === 'good').length || 0), 0
-                      )}
-                    </p>
+                    <p className="text-2xl font-bold text-gray-900">{statistics.normal}</p>
                   </div>
                 </div>
               </CardContent>
@@ -213,11 +234,7 @@ const LabAnalyses = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-600">Требуют внимания</p>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {analysisHistory.reduce((acc, analysis) => 
-                        acc + (analysis.results?.markers?.filter(m => m.status === 'attention' || m.status === 'risk').length || 0), 0
-                      )}
-                    </p>
+                    <p className="text-2xl font-bold text-gray-900">{statistics.attention}</p>
                   </div>
                 </div>
               </CardContent>
@@ -231,6 +248,9 @@ const LabAnalyses = () => {
             onViewAnalysis={handleViewAnalysis}
             onAddNewAnalysis={() => setShowNewAnalysis(true)}
           />
+
+          {/* Дисклеймер внизу страницы */}
+          <MedicalDataDisclaimer />
         </div>
       </div>
 
