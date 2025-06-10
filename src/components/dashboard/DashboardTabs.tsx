@@ -6,7 +6,6 @@ import VitalSignsCard from "./VitalSignsCard";
 import AppointmentsCard from "./AppointmentsCard";
 import AnalysisHistoryCard from "./AnalysisHistoryCard";
 import ProtocolsProgressCard from "./ProtocolsProgressCard";
-import QuickActionsCard from "./QuickActionsCard";
 import AIRecommendationsCard from "./AIRecommendationsCard";
 import AIDoctorConsultation from "./AIDoctorConsultation";
 
@@ -39,7 +38,6 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({
             <AppointmentsCard
               appointments={patientData.upcomingAppointments}
             />
-            <QuickActionsCard />
           </div>
           <div className="lg:col-span-1">
             <ProtocolsProgressCard protocols={patientData.recentProtocols} />

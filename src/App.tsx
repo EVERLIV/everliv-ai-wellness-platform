@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -29,6 +30,7 @@ import AnalysisDetails from "./pages/AnalysisDetails";
 import AccountSettings from "./pages/AccountSettings";
 import Billing from "./pages/Billing";
 import Support from "./pages/Support";
+import HealthProfile from "./pages/HealthProfile";
 
 // Import pages that exist in our read-only files list
 import Science from './pages/Science';
@@ -73,6 +75,7 @@ const App = () => (
               {/* Protected Routes */}
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+              <Route path="/health-profile" element={<ProtectedRoute><HealthProfile /></ProtectedRoute>} />
               <Route path="/account-settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
               <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
               <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
@@ -82,7 +85,7 @@ const App = () => (
               <Route path="/ai-doctor/general" element={<ProtectedRoute><AIDoctorGeneralPage /></ProtectedRoute>} />
               <Route path="/ai-doctor/personal" element={<ProtectedRoute><AIDoctorPersonalPage /></ProtectedRoute>} />
               <Route path="/lab-analyses" element={<ProtectedRoute><LabAnalyses /></ProtectedRoute>} />
-              <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+              <Route path="/analytics" element={<ProtectedRoute><AnalysisDetails /></ProtectedRoute>} />
               <Route path="/analysis-details" element={<ProtectedRoute><AnalysisDetails /></ProtectedRoute>} />
               
               {/* Partnership subpages */}
