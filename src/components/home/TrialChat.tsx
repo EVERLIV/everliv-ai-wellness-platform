@@ -118,56 +118,54 @@ const TrialChat: React.FC = () => {
 
   if (showAgeGenderForm) {
     return (
-      <div className="w-full max-w-lg mx-auto text-center">
+      <div className="w-full max-w-lg mx-auto text-center py-20">
         {/* Logo and title */}
-        <div className="mb-8">
-          <div className="w-16 h-16 mx-auto mb-6 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-              <div className="w-3 h-3 bg-white rounded-full"></div>
-            </div>
+        <div className="mb-12">
+          <div className="w-20 h-20 mx-auto mb-8 bg-primary rounded-full shadow-lg flex items-center justify-center">
+            <Bot className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-normal text-gray-900 mb-2">
-            Your AI Doctor
+          <h1 className="text-5xl font-bold text-foreground mb-3">
+            Ваш ИИ-доктор
           </h1>
-          <h2 className="text-4xl font-normal text-gray-900 mb-4">
-            will see you now.
+          <h2 className="text-5xl font-bold text-foreground mb-6">
+            готов принять вас.
           </h2>
-          <p className="text-sm text-gray-600">⭐ Trained by top human doctors</p>
+          <p className="text-lg text-muted-foreground">⭐ Обучен лучшими врачами</p>
         </div>
 
         {/* Introduction text */}
-        <div className="bg-white rounded-lg p-6 mb-8 shadow-sm text-left">
-          <p className="text-gray-800 mb-4">
+        <div className="bg-card rounded-2xl p-8 mb-10 shadow-soft text-left border">
+          <p className="text-foreground mb-4 text-lg">
             Привет! Я Everliv - ваш персональный ИИ-доктор.
           </p>
-          <p className="text-gray-800 mb-4">
+          <p className="text-foreground mb-4 text-lg">
             Как ИИ-доктор, мой сервис быстрый и бесплатный. Я уже помог людям в более чем 11,196,516 консультациях!
           </p>
-          <p className="text-gray-800 mb-4">
+          <p className="text-foreground mb-4 text-lg">
             Когда мы закончим, вы можете провести видеовизит с топ-доктором, если хотите. Такие визиты стоят всего 39$.
           </p>
-          <p className="text-gray-800">
+          <p className="text-foreground text-lg">
             Пожалуйста, сообщите мне ваш возраст и биологический пол для начала.
           </p>
         </div>
 
         {/* Age and gender form */}
-        <div className="space-y-4 mb-8">
+        <div className="space-y-6 mb-10">
           <input
             type="text"
             placeholder="Возраст (18+)"
             value={age}
             onChange={(e) => setAge(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-6 py-4 border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-primary bg-background text-lg"
           />
           <div className="flex gap-4">
             <button
               type="button"
               onClick={() => setGender('Female')}
-              className={`flex-1 py-3 px-4 rounded-lg border transition-colors ${
+              className={`flex-1 py-4 px-6 rounded-xl border text-lg font-medium transition-all duration-300 ${
                 gender === 'Female'
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                  : 'bg-background text-foreground border-input hover:bg-accent'
               }`}
             >
               Женский
@@ -175,10 +173,10 @@ const TrialChat: React.FC = () => {
             <button
               type="button"
               onClick={() => setGender('Male')}
-              className={`flex-1 py-3 px-4 rounded-lg border transition-colors ${
+              className={`flex-1 py-4 px-6 rounded-xl border text-lg font-medium transition-all duration-300 ${
                 gender === 'Male'
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                  : 'bg-background text-foreground border-input hover:bg-accent'
               }`}
             >
               Мужской
@@ -189,105 +187,111 @@ const TrialChat: React.FC = () => {
         <Button 
           onClick={handleAgeGenderSubmit}
           disabled={!age || !gender}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 py-4 rounded-xl text-lg font-medium h-auto"
         >
           Начать ✈️
         </Button>
 
         {/* Footer disclaimer */}
-        <div className="mt-12 text-xs text-gray-500 flex items-center justify-center gap-2">
-          <div className="w-6 h-6 bg-white rounded border shadow-sm flex items-center justify-center">
-            <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+        <div className="mt-16 text-sm text-muted-foreground flex items-center justify-center gap-3">
+          <div className="w-8 h-8 bg-card rounded border shadow-sm flex items-center justify-center">
+            <div className="w-3 h-3 bg-muted-foreground rounded-full"></div>
           </div>
-          <span>HIPAA compliant & anonymous</span>
+          <span>HIPAA соответствует & анонимно</span>
         </div>
 
-        <div className="mt-8 text-xs text-gray-500 text-center max-w-md mx-auto">
+        <div className="mt-10 text-sm text-muted-foreground text-center max-w-md mx-auto">
           Всегда обсуждайте результаты Everliv с врачом. Everliv - это ИИ-доктор, а не лицензированный врач, 
           не занимается медицинской практикой и не предоставляет медицинские консультации или уход за пациентами. 
           Используя Everliv, вы соглашаетесь с нашими{' '}
-          <Link to="/terms" className="text-blue-600 hover:underline">Условиями обслуживания</Link>
+          <Link to="/terms" className="text-primary hover:underline">Условиями обслуживания</Link>
           {' '}&{' '}
-          <Link to="/privacy" className="text-blue-600 hover:underline">Политикой конфиденциальности</Link>.
+          <Link to="/privacy" className="text-primary hover:underline">Политикой конфиденциальности</Link>.
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-3xl mx-auto py-20">
       {/* Chat header */}
-      <div className="text-center mb-6">
-        <div className="w-12 h-12 mx-auto mb-4 bg-white rounded-full shadow-lg flex items-center justify-center">
-          <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-            <div className="w-2 h-2 bg-white rounded-full"></div>
-          </div>
+      <div className="text-center mb-10">
+        <div className="w-16 h-16 mx-auto mb-6 bg-primary rounded-full shadow-lg flex items-center justify-center">
+          <Bot className="w-8 h-8 text-white" />
         </div>
-        <h2 className="text-2xl font-normal text-gray-900">
-          {messageCount}/{maxMessages} консультаций
+        <h2 className="text-3xl font-bold text-foreground mb-2">
+          Консультация с ИИ-доктором
         </h2>
+        <p className="text-muted-foreground">
+          {messageCount}/{maxMessages} бесплатных вопросов
+        </p>
       </div>
 
-      {/* Messages */}
-      <div className="bg-white rounded-lg shadow-sm mb-6 min-h-96 max-h-96 overflow-y-auto">
-        <div className="p-6 space-y-4">
-          {messages.map((message) => (
-            <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`flex items-start space-x-3 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  message.role === 'user' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-100 text-gray-600'
-                }`}>
-                  {message.role === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
-                </div>
-                <div className={`rounded-lg p-3 ${
-                  message.role === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-900'
-                }`}>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-          {isProcessing && (
-            <div className="flex justify-start">
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                  <Bot className="h-4 w-4 text-gray-600" />
-                </div>
-                <div className="bg-gray-100 rounded-lg p-3">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+      {/* Chat messages */}
+      <div className="bg-card rounded-2xl shadow-soft mb-8 border">
+        <div className="p-8 min-h-[500px] max-h-[500px] overflow-y-auto">
+          <div className="space-y-6">
+            {messages.map((message) => (
+              <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`flex items-start space-x-4 max-w-[85%] ${message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    message.role === 'user' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'bg-secondary text-secondary-foreground'
+                  }`}>
+                    {message.role === 'user' ? <User className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
+                  </div>
+                  <div className={`rounded-2xl px-6 py-4 shadow-sm ${
+                    message.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-accent text-accent-foreground border'
+                  }`}>
+                    <p className="text-base leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                    <div className="text-xs opacity-70 mt-2">
+                      {message.timestamp.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
+            ))}
+            {isProcessing && (
+              <div className="flex justify-start">
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center">
+                    <Bot className="h-5 w-5 text-secondary-foreground" />
+                  </div>
+                  <div className="bg-accent rounded-2xl px-6 py-4 border">
+                    <div className="flex space-x-2">
+                      <div className="w-3 h-3 bg-muted-foreground rounded-full animate-bounce"></div>
+                      <div className="w-3 h-3 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-3 h-3 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
       </div>
 
-      {/* Input area */}
+      {/* Input area or limit reached */}
       {isLimitReached ? (
-        <div className="text-center space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-blue-800 font-medium mb-2">Лимит бесплатных вопросов исчерпан!</p>
-            <p className="text-blue-700 text-sm">
+        <div className="text-center space-y-6">
+          <div className="bg-accent border border-primary/20 rounded-2xl p-6">
+            <p className="text-foreground font-semibold mb-3 text-lg">Лимит бесплатных вопросов исчерпан!</p>
+            <p className="text-muted-foreground">
               Зарегистрируйтесь для неограниченного общения с ИИ-доктором
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/signup">
-              <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 px-8">
                 Зарегистрироваться бесплатно
               </Button>
             </Link>
             <Link to="/login">
-              <Button variant="outline">Войти в аккаунт</Button>
+              <Button variant="outline" size="lg" className="px-8">Войти в аккаунт</Button>
             </Link>
           </div>
         </div>
@@ -298,20 +302,20 @@ const TrialChat: React.FC = () => {
               placeholder="Опишите ваши симптомы или задайте вопрос о здоровье..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              rows={3}
-              className="resize-none pr-12"
+              rows={4}
+              className="resize-none pr-16 text-base border-input rounded-xl bg-background"
               disabled={isProcessing}
             />
             <Button 
               type="submit" 
               disabled={!inputText.trim() || isProcessing}
-              className="absolute bottom-2 right-2 h-8 w-8 p-0 bg-blue-600 hover:bg-blue-700"
+              className="absolute bottom-3 right-3 h-10 w-10 p-0 bg-primary hover:bg-primary/90 rounded-lg"
               size="sm"
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-5 w-5" />
             </Button>
           </div>
-          <div className="text-center text-sm text-gray-500">
+          <div className="text-center text-base text-muted-foreground">
             Осталось вопросов: {maxMessages - messageCount}
           </div>
         </form>
