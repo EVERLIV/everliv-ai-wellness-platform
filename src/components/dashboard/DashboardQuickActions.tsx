@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, MessageSquare, TrendingUp, Settings, TestTube2, Crown, Apple, Heart, User } from "lucide-react";
+import { FileText, MessageSquare, TrendingUp, Settings, TestTube2, Crown, Apple, Heart, User, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 
@@ -27,6 +27,16 @@ const DashboardQuickActions = () => {
       iconBg: "bg-emerald-50",
       path: "/lab-analyses",
       description: "Загрузите результаты анализов и получите детальную расшифровку с помощью ИИ",
+      premium: false
+    },
+    {
+      title: "Аналитика здоровья",
+      subtitle: "Комплексный анализ",
+      icon: BarChart3,
+      iconColor: "text-purple-600",
+      iconBg: "bg-purple-50",
+      path: "/analytics",
+      description: "Персональная аналитика здоровья на основе ваших данных с рекомендациями ИИ-доктора",
       premium: false
     },
     {
@@ -59,16 +69,6 @@ const DashboardQuickActions = () => {
       path: "/ai-doctor",
       description: "Персональные медицинские консультации с доступом к вашей истории и анализам",
       premium: true
-    },
-    {
-      title: "Аналитика",
-      subtitle: "Динамика здоровья",
-      icon: TrendingUp,
-      iconColor: "text-purple-600",
-      iconBg: "bg-purple-50",
-      path: "/analytics",
-      description: "Отслеживайте изменения показателей здоровья",
-      premium: false
     },
     {
       title: "Настройки",
