@@ -6,17 +6,17 @@ import Header from "@/components/Header";
 import MinimalFooter from "@/components/MinimalFooter";
 import AnalyticsHeader from "@/components/analytics/AnalyticsHeader";
 import AnalyticsLoadingIndicator from "@/components/analytics/AnalyticsLoadingIndicator";
-import AnalysisDetailsView from "@/components/analytics/AnalysisDetailsView";
-import AnalyticsMainView from "@/components/analytics/AnalyticsMainView";
-import NoAnalyticsState from "@/components/analytics/NoAnalyticsState";
 import AnalyticsSummary from "@/components/analytics/AnalyticsSummary";
 import DetailedHealthRecommendations from "@/components/analytics/DetailedHealthRecommendations";
+import HealthOverviewCards from "@/components/analytics/HealthOverviewCards";
 import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
-import { useAnalysisDetails } from "@/hooks/useAnalysisDetails";
 import { generateDetailedRecommendations } from "@/utils/detailedRecommendationsGenerator";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Activity, RefreshCw } from "lucide-react";
 
 interface HealthData {
   overview: {
@@ -57,8 +57,6 @@ const Analytics: React.FC = () => {
     loadingStep,
     generateAnalytics
   } = useCachedAnalytics();
-  
-  const { analysisData, isLoading: isLoadingAnalysis } = useAnalysisDetails(analysisId);
 
   // Обработка вопроса доктору
   const handleDoctorQuestion = async () => {
@@ -88,9 +86,7 @@ const Analytics: React.FC = () => {
   console.log('Analytics Page State:', {
     user: !!user,
     analysisId,
-    hasAnalysisData: !!analysisData,
     hasAnalytics: !!analytics,
-    isLoadingAnalysis,
     isLoadingAnalytics,
     isGenerating,
     loadingStep
@@ -102,16 +98,6 @@ const Analytics: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center">
         <p>Для доступа к аналитике необходимо войти в систему</p>
       </div>
-    );
-  }
-
-  // Просмотр конкретного анализа
-  if (analysisId) {
-    return (
-      <AnalysisDetailsView 
-        analysisData={analysisData}
-        isLoading={isLoadingAnalysis}
-      />
     );
   }
 
@@ -160,10 +146,23 @@ const Analytics: React.FC = () => {
             healthScore={0}
             riskLevel="unknown"
           />
-          <NoAnalyticsState 
-            onGenerateAnalytics={generateAnalytics}
-            isGenerating={isGenerating}
-          />
+          <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <Card>
+              <CardContent className="p-8">
+                <div className="text-center">
+                  <Activity className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-2">Аналитика не сгенерирована</h2>
+                  <p className="text-gray-500 mb-6">
+                    Нажмите кнопку ниже, чтобы создать персональную аналитику здоровья на основе ваших данных
+                  </p>
+                  <Button onClick={generateAnalytics} disabled={isGenerating} className="gap-2">
+                    <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                    {isGenerating ? 'Генерирую аналитику...' : 'Сгенерировать аналитику'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
         <MinimalFooter />
       </div>
@@ -197,13 +196,30 @@ const Analytics: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
       <div className="pt-16">
-        <AnalyticsMainView 
-          analytics={analytics}
-          onGenerateAnalytics={generateAnalytics}
-          isGenerating={isGenerating}
+        <AnalyticsHeader 
+          healthScore={analytics.healthScore}
+          riskLevel={analytics.riskLevel}
         />
         
         <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-semibold text-gray-900">Персональная аналитика здоровья</h2>
+            <Button
+              variant="outline"
+              onClick={generateAnalytics}
+              disabled={isGenerating}
+              className="gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+              {isGenerating ? 'Обновление...' : 'Обновить аналитику'}
+            </Button>
+          </div>
+
+          <HealthOverviewCards 
+            trendsAnalysis={analytics.trendsAnalysis}
+            totalAnalyses={analytics.totalAnalyses}
+          />
+
           {/* Детальные рекомендации */}
           <DetailedHealthRecommendations
             recommendations={detailedRecommendations.recommendations}
@@ -221,6 +237,12 @@ const Analytics: React.FC = () => {
             doctorResponse={doctorResponse}
             isProcessingQuestion={isProcessingQuestion}
           />
+
+          {analytics.lastUpdated && (
+            <div className="text-center text-sm text-gray-500">
+              Последнее обновление: {new Date(analytics.lastUpdated).toLocaleString('ru-RU')}
+            </div>
+          )}
         </div>
       </div>
       <MinimalFooter />
