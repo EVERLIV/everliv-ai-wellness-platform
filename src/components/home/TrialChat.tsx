@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Bot, User } from "lucide-react";
+import { Send, Bot, User, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 
@@ -195,9 +195,9 @@ const TrialChat: React.FC = () => {
         {/* Footer disclaimer */}
         <div className="mt-16 text-sm text-muted-foreground flex items-center justify-center gap-3">
           <div className="w-8 h-8 bg-card rounded border shadow-sm flex items-center justify-center">
-            <div className="w-3 h-3 bg-muted-foreground rounded-full"></div>
+            <Check className="w-4 h-4 text-success" />
           </div>
-          <span>HIPAA соответствует & анонимно</span>
+          <span>Федеральный закон от 21.11.2011 № 323-ФЗ соответствует & анонимно</span>
         </div>
 
         <div className="mt-10 text-sm text-muted-foreground text-center max-w-md mx-auto">
@@ -222,9 +222,6 @@ const TrialChat: React.FC = () => {
         <h2 className="text-3xl font-bold text-foreground mb-2">
           Консультация с ИИ-доктором
         </h2>
-        <p className="text-muted-foreground">
-          {messageCount}/{maxMessages} бесплатных вопросов
-        </p>
       </div>
 
       {/* Chat messages */}
@@ -314,9 +311,6 @@ const TrialChat: React.FC = () => {
             >
               <Send className="h-5 w-5" />
             </Button>
-          </div>
-          <div className="text-center text-base text-muted-foreground">
-            Осталось вопросов: {maxMessages - messageCount}
           </div>
         </form>
       )}

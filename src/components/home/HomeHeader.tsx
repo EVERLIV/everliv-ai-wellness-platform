@@ -35,15 +35,15 @@ const HomeHeader: React.FC = () => {
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 <Link to="/dashboard">
-                  <Button variant="ghost" size="sm">Панель управления</Button>
+                  <Button variant="ghost" size="sm" className="text-primary hover:text-primary/90 hover:bg-primary/10">Панель управления</Button>
                 </Link>
               ) : (
                 <>
                   <Link to="/login">
-                    <Button variant="ghost" size="sm">Войти</Button>
+                    <Button variant="ghost" size="sm" className="text-primary hover:text-primary/90 hover:bg-primary/10">Войти</Button>
                   </Link>
                   <Link to="/signup">
-                    <Button size="sm">Зарегистрироваться Бесплатно</Button>
+                    <Button size="sm" className="bg-primary hover:bg-primary/90 text-white">Зарегистрироваться Бесплатно</Button>
                   </Link>
                 </>
               )}
@@ -74,15 +74,15 @@ const HomeHeader: React.FC = () => {
             <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
               {user ? (
                 <Link to="/dashboard">
-                  <Button variant="ghost" size="sm" className="w-full">Панель управления</Button>
+                  <Button variant="ghost" size="sm" className="w-full text-primary hover:text-primary/90 hover:bg-primary/10">Панель управления</Button>
                 </Link>
               ) : (
                 <>
                   <Link to="/login">
-                    <Button variant="ghost" size="sm" className="w-full">Войти</Button>
+                    <Button variant="ghost" size="sm" className="w-full text-primary hover:text-primary/90 hover:bg-primary/10">Войти</Button>
                   </Link>
                   <Link to="/signup">
-                    <Button size="sm" className="w-full">Зарегистрироваться Бесплатно</Button>
+                    <Button size="sm" className="w-full bg-primary hover:bg-primary/90 text-white">Зарегистрироваться Бесплатно</Button>
                   </Link>
                 </>
               )}
