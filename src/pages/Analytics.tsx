@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSearchParams } from "react-router-dom";
@@ -13,6 +14,7 @@ import KeyHealthIndicators from "@/components/analytics/KeyHealthIndicators";
 import LifestyleRecommendations from "@/components/analytics/LifestyleRecommendations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
@@ -761,5 +763,3 @@ const Analytics: React.FC = () => {
 };
 
 export default Analytics;
-
-}
