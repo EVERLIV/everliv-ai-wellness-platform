@@ -7,7 +7,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Menu, X } from "lucide-react";
 import Logo from "./header/Logo";
-import DesktopNavigation from "./header/DesktopNavigation";
 import UserProfileDropdown from "./header/UserProfileDropdown";
 import MobileMenu from "./header/MobileMenu";
 
@@ -29,40 +28,32 @@ const Header: React.FC = () => {
           {/* Logo */}
           <Logo />
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex">
-            <DesktopNavigation />
-          </div>
-
-          {/* Desktop Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Right side menu */}
+          <div className="flex items-center space-x-2">
             {user ? (
               <UserProfileDropdown />
             ) : (
-              <>
+              <div className="hidden md:flex items-center space-x-4">
                 <Link to="/login">
                   <Button variant="ghost" size="sm">Войти</Button>
                 </Link>
                 <Link to="/signup">
                   <Button size="sm">Регистрация</Button>
                 </Link>
-              </>
+              </div>
             )}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center space-x-2">
-            {user && (
-              <UserProfileDropdown />
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2"
-            >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+            
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2"
+              >
+                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

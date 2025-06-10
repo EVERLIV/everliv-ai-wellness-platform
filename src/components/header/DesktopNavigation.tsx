@@ -31,13 +31,13 @@ const DesktopNavigation: React.FC = () => {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Услуги</NavigationMenuTrigger>
+            <NavigationMenuTrigger>Меню</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                 <li>
                   <NavigationMenuLink asChild>
                     <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/services">
-                      <div className="text-sm font-medium leading-none">Все услуги</div>
+                      <div className="text-sm font-medium leading-none">Услуги</div>
                       <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                         Комплексные решения для здорового долголетия
                       </p>
@@ -46,43 +46,18 @@ const DesktopNavigation: React.FC = () => {
                 </li>
                 <li>
                   <NavigationMenuLink asChild>
-                    
-                  </NavigationMenuLink>
-                </li>
-                <li>
-                  <NavigationMenuLink asChild>
-                    <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/comprehensive-analysis">
-                      <div className="text-sm font-medium leading-none">Комплексный анализ</div>
+                    <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/pricing">
+                      <div className="text-sm font-medium leading-none">Цены</div>
                       <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        Полный анализ состояния вашего организма
+                        Тарифные планы и стоимость услуг
                       </p>
                     </Link>
                   </NavigationMenuLink>
                 </li>
-                <li>
-                  <NavigationMenuLink asChild>
-                    <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/blood-analysis">
-                      <div className="text-sm font-medium leading-none">Анализ крови</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        Расшифровка и интерпретация анализов крови
-                      </p>
-                    </Link>
-                  </NavigationMenuLink>
-                </li>
-              </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link to="/pricing" className="hover:text-gray-600 px-4 py-2">Цены</Link>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>О нас</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                 <li>
                   <NavigationMenuLink asChild>
                     <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/about">
-                      <div className="text-sm font-medium leading-none">О компании</div>
+                      <div className="text-sm font-medium leading-none">О нас</div>
                       <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                         История, миссия и команда EVERLIV
                       </p>
@@ -91,30 +66,30 @@ const DesktopNavigation: React.FC = () => {
                 </li>
                 <li>
                   <NavigationMenuLink asChild>
-                    <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/science">
-                      <div className="text-sm font-medium leading-none">Научный подход</div>
+                    <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/blog">
+                      <div className="text-sm font-medium leading-none">Блог</div>
                       <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        Исследования и разработки в области долголетия
+                        Статьи о здоровье и долголетии
                       </p>
                     </Link>
                   </NavigationMenuLink>
                 </li>
                 <li>
                   <NavigationMenuLink asChild>
-                    <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/ai-medicine">
-                      <div className="text-sm font-medium leading-none">ИИ в медицине</div>
+                    <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/partnership">
+                      <div className="text-sm font-medium leading-none">Партнерство</div>
                       <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        Как мы применяем искусственный интеллект
+                        Сотрудничество с медицинскими организациями
                       </p>
                     </Link>
                   </NavigationMenuLink>
                 </li>
                 <li>
                   <NavigationMenuLink asChild>
-                    <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/security">
-                      <div className="text-sm font-medium leading-none">Безопасность данных</div>
+                    <Link className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground" to="/contacts">
+                      <div className="text-sm font-medium leading-none">Контакты</div>
                       <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                        Как мы защищаем ваши персональные данные
+                        Связаться с нами
                       </p>
                     </Link>
                   </NavigationMenuLink>
@@ -122,19 +97,10 @@ const DesktopNavigation: React.FC = () => {
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link to="/blog" className="hover:text-gray-600 px-4 py-2">Блог</Link>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link to="/partnership" className="hover:text-gray-600 px-4 py-2">Партнерство</Link>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <Link to="/contacts" className="hover:text-gray-600 px-4 py-2">Контакты</Link>
-          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
       
-      {user ? (
+      {user && (
         <>
           {isAdmin && (
             <Link to="/admin">
@@ -148,15 +114,6 @@ const DesktopNavigation: React.FC = () => {
             <Button variant="outline" size="sm">Личный кабинет</Button>
           </Link>
           <Button variant="outline" size="sm" onClick={handleSignOut}>Выйти</Button>
-        </>
-      ) : (
-        <>
-          <Link to="/login">
-            <Button variant="ghost" size="sm">Войти</Button>
-          </Link>
-          <Link to="/signup">
-            <Button size="sm">Регистрация</Button>
-          </Link>
         </>
       )}
     </div>
