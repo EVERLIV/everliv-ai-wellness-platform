@@ -95,18 +95,18 @@ const UserProfileDropdown: React.FC = () => {
           <span>Профиль</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
-          onClick={() => navigate('/account-settings')}
+          onClick={() => navigate('/settings')}
           className="cursor-pointer"
         >
           <Settings className="mr-2 h-4 w-4" />
           <span>Настройки аккаунта</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
-          onClick={() => navigate('/billing')}
+          onClick={() => navigate('/subscription')}
           className="cursor-pointer"
         >
           <CreditCard className="mr-2 h-4 w-4" />
-          <span>Оплата</span>
+          <span>Подписка</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={() => navigate('/support')}
