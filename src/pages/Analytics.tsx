@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSearchParams } from "react-router-dom";
@@ -9,7 +8,6 @@ import AnalyticsSummary from "@/components/analytics/AnalyticsSummary";
 import HealthOverviewCards from "@/components/analytics/HealthOverviewCards";
 import AnalyticsLoadingIndicator from "@/components/analytics/AnalyticsLoadingIndicator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -127,15 +125,15 @@ const Analytics: React.FC = () => {
 
   const { analytics, generateAnalytics, isGenerating, loadingStep, isLoading: isLoadingAnalytics } = useCachedAnalytics();
 
-  console.log('Analytics page debug:', {
-    isGenerating,
-    loadingStep,
-    analytics: !!analytics,
-    analysisId,
-    isLoadingAnalysis,
-    isLoadingAnalytics,
-    user: !!user
-  });
+  console.log('=== Analytics Page Render ===');
+  console.log('User:', !!user);
+  console.log('Analytics ID:', analysisId);
+  console.log('Is Generating:', isGenerating);
+  console.log('Loading Step:', loadingStep);
+  console.log('Has Analytics:', !!analytics);
+  console.log('Is Loading Analytics:', isLoadingAnalytics);
+  console.log('Is Loading Analysis:', isLoadingAnalysis);
+  console.log('Analytics Data:', analytics);
 
   useEffect(() => {
     if (user && analysisId) {
@@ -343,6 +341,7 @@ const Analytics: React.FC = () => {
     }
   };
 
+  // Проверка пользователя
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -502,9 +501,9 @@ const Analytics: React.FC = () => {
     );
   }
 
-  // Показываем индикатор загрузки если идет генерация
+  // Если идет генерация аналитики, показываем индикатор загрузки
   if (isGenerating) {
-    console.log('Showing loading indicator for analytics generation');
+    console.log('RENDERING LOADING INDICATOR');
     return (
       <div className="min-h-screen flex flex-col bg-slate-50">
         <Header />
@@ -519,8 +518,9 @@ const Analytics: React.FC = () => {
     );
   }
 
-  // Показываем общую аналитику или предложение сгенерировать её
+  // Если аналитика еще не сгенерирована, показываем предложение сгенерировать
   if (!analytics) {
+    console.log('RENDERING NO ANALYTICS');
     return (
       <div className="min-h-screen flex flex-col bg-slate-50">
         <Header />
@@ -554,6 +554,7 @@ const Analytics: React.FC = () => {
   }
 
   // Показываем сгенерированную аналитику
+  console.log('RENDERING ANALYTICS DATA');
   const healthData: HealthData = {
     overview: {
       healthScore: analytics.healthScore,
