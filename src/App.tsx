@@ -55,67 +55,77 @@ import LandingPage from './pages/LandingPage';
 // Import new pages
 import NutritionDiary from "@/pages/NutritionDiary";
 
-const queryClient = new QueryClient();
+const App: React.FC = () => {
+  // Create QueryClient inside component to ensure proper React context
+  const [queryClient] = React.useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        retry: 1,
+      },
+    },
+  }));
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <AuthProvider>
-        <SubscriptionProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegistrationPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
-              
-              {/* Protected Routes */}
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-              <Route path="/health-profile" element={<ProtectedRoute><HealthProfile /></ProtectedRoute>} />
-              <Route path="/account-settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
-              <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
-              <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
-              <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
-              <Route path="/ai-doctor" element={<ProtectedRoute><AIDoctorPage /></ProtectedRoute>} />
-              <Route path="/ai-doctor/chat/:chatId" element={<ProtectedRoute><AIDoctorChatPage /></ProtectedRoute>} />
-              <Route path="/ai-doctor/general" element={<ProtectedRoute><AIDoctorGeneralPage /></ProtectedRoute>} />
-              <Route path="/ai-doctor/personal" element={<ProtectedRoute><AIDoctorPersonalPage /></ProtectedRoute>} />
-              <Route path="/lab-analyses" element={<ProtectedRoute><LabAnalyses /></ProtectedRoute>} />
-              <Route path="/analytics" element={<ProtectedRoute><AnalysisDetails /></ProtectedRoute>} />
-              <Route path="/analysis-details" element={<ProtectedRoute><AnalysisDetails /></ProtectedRoute>} />
-              
-              {/* Partnership subpages */}
-              <Route path="/partnerships/medical-institutions" element={<MedicalInstitutions />} />
-              <Route path="/partnerships/corporate-clients" element={<CorporateClients />} />
-              <Route path="/partnerships/medical-specialists" element={<MedicalSpecialists />} />
-              
-              {/* Service pages */}
-              <Route path="/services/cold-therapy" element={<ColdTherapy />} />
-              <Route path="/services/fasting" element={<Fasting />} />
-              <Route path="/services/breathing-practices" element={<BreathingPractices />} />
-              <Route path="/services/oxygen-therapy" element={<OxygenTherapy />} />
-              <Route path="/services/ai-recommendations" element={<AIRecommendations />} />
-              <Route path="/services/personalized-supplements" element={<PersonalizedSupplements />} />
-              
-              {/* New Route */}
-              <Route
-                path="/nutrition-diary"
-                element={
-                  <ProtectedRoute>
-                    <NutritionDiary />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </TooltipProvider>
-        </SubscriptionProvider>
-      </AuthProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
-);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AuthProvider>
+          <SubscriptionProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegistrationPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                
+                {/* Protected Routes */}
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+                <Route path="/health-profile" element={<ProtectedRoute><HealthProfile /></ProtectedRoute>} />
+                <Route path="/account-settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
+                <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
+                <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
+                <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
+                <Route path="/ai-doctor" element={<ProtectedRoute><AIDoctorPage /></ProtectedRoute>} />
+                <Route path="/ai-doctor/chat/:chatId" element={<ProtectedRoute><AIDoctorChatPage /></ProtectedRoute>} />
+                <Route path="/ai-doctor/general" element={<ProtectedRoute><AIDoctorGeneralPage /></ProtectedRoute>} />
+                <Route path="/ai-doctor/personal" element={<ProtectedRoute><AIDoctorPersonalPage /></ProtectedRoute>} />
+                <Route path="/lab-analyses" element={<ProtectedRoute><LabAnalyses /></ProtectedRoute>} />
+                <Route path="/analytics" element={<ProtectedRoute><AnalysisDetails /></ProtectedRoute>} />
+                <Route path="/analysis-details" element={<ProtectedRoute><AnalysisDetails /></ProtectedRoute>} />
+                
+                {/* Partnership subpages */}
+                <Route path="/partnerships/medical-institutions" element={<MedicalInstitutions />} />
+                <Route path="/partnerships/corporate-clients" element={<CorporateClients />} />
+                <Route path="/partnerships/medical-specialists" element={<MedicalSpecialists />} />
+                
+                {/* Service pages */}
+                <Route path="/services/cold-therapy" element={<ColdTherapy />} />
+                <Route path="/services/fasting" element={<Fasting />} />
+                <Route path="/services/breathing-practices" element={<BreathingPractices />} />
+                <Route path="/services/oxygen-therapy" element={<OxygenTherapy />} />
+                <Route path="/services/ai-recommendations" element={<AIRecommendations />} />
+                <Route path="/services/personalized-supplements" element={<PersonalizedSupplements />} />
+                
+                {/* New Route */}
+                <Route
+                  path="/nutrition-diary"
+                  element={
+                    <ProtectedRoute>
+                      <NutritionDiary />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </TooltipProvider>
+          </SubscriptionProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
