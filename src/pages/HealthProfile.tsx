@@ -142,7 +142,8 @@ const HealthProfile: React.FC = () => {
 
   const loadHealthProfile = async () => {
     try {
-      const { data, error } = await supabase
+      // Use type assertion to work around missing table types
+      const { data, error } = await (supabase as any)
         .from('health_profiles')
         .select('*')
         .eq('user_id', user?.id)
@@ -152,7 +153,7 @@ const HealthProfile: React.FC = () => {
         throw error;
       }
 
-      if (data) {
+      if (data && data.profile_data) {
         setHealthProfile(data.profile_data);
       }
     } catch (error) {
@@ -166,7 +167,8 @@ const HealthProfile: React.FC = () => {
     try {
       setIsLoading(true);
       
-      const { error } = await supabase
+      // Use type assertion to work around missing table types
+      const { error } = await (supabase as any)
         .from('health_profiles')
         .upsert({
           user_id: user.id,
