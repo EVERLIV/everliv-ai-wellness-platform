@@ -6,26 +6,20 @@ import MinimalFooter from "@/components/MinimalFooter";
 import AnalyticsHeader from "@/components/analytics/AnalyticsHeader";
 import AnalyticsSummary from "@/components/analytics/AnalyticsSummary";
 import HealthOverviewCards from "@/components/analytics/HealthOverviewCards";
-import HealthImprovementActions from "@/components/analytics/HealthImprovementActions";
-import RecommendedTests from "@/components/analytics/RecommendedTests";
-import SpecialistConsultations from "@/components/analytics/SpecialistConsultations";
-import KeyHealthIndicators from "@/components/analytics/KeyHealthIndicators";
-import LifestyleRecommendations from "@/components/analytics/LifestyleRecommendations";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 import { 
   Activity, 
-  TrendingUp, 
-  TrendingDown, 
-  Minus,
   CheckCircle,
   AlertTriangle,
   Calendar,
   FileText,
-  ArrowLeft
+  ArrowLeft,
+  RefreshCw
 } from "lucide-react";
 
 interface Biomarker {
@@ -123,19 +117,20 @@ const Analytics: React.FC = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const analysisId = searchParams.get('id');
-  const [healthData, setHealthData] = useState<HealthData | null>(null);
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [doctorQuestion, setDoctorQuestion] = useState("");
   const [doctorResponse, setDoctorResponse] = useState("");
   const [isProcessingQuestion, setIsProcessingQuestion] = useState(false);
 
+  const { analytics, generateAnalytics, isGenerating } = useCachedAnalytics();
+
   useEffect(() => {
     if (user) {
       if (analysisId) {
         loadAnalysisDetails();
       } else {
-        loadHealthData();
+        setIsLoading(false);
       }
     } else {
       setIsLoading(false);
@@ -171,88 +166,6 @@ const Analytics: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const loadHealthData = async () => {
-    try {
-      setIsLoading(true);
-      
-      const { data: analyses, error } = await supabase
-        .from('medical_analyses')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error loading analyses:', error);
-        throw error;
-      }
-
-      if (analyses && analyses.length > 0) {
-        // Генерируем аналитику на основе реальных данных
-        const processedHealthData = processHealthDataFromAnalyses(analyses);
-        setHealthData(processedHealthData);
-      } else {
-        // Если нет анализов, показываем демо данные
-        setHealthData(generateDemoHealthData());
-      }
-    } catch (error) {
-      console.error('Error loading health data:', error);
-      toast.error('Ошибка загрузки данных аналитики');
-      setHealthData(generateDemoHealthData());
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const processHealthDataFromAnalyses = (analyses: any[]): HealthData => {
-    const totalAnalyses = analyses.length;
-    let totalRiskMarkers = 0;
-    let totalOptimalMarkers = 0;
-    let totalMarkers = 0;
-    
-    analyses.forEach(analysis => {
-      if (analysis.results?.markers) {
-        analysis.results.markers.forEach((marker: any) => {
-          totalMarkers++;
-          if (marker.status === 'optimal' || marker.status === 'good') {
-            totalOptimalMarkers++;
-          } else if (marker.status === 'attention' || marker.status === 'risk' || marker.status === 'high' || marker.status === 'low') {
-            totalRiskMarkers++;
-          }
-        });
-      }
-    });
-
-    // Вычисляем индекс здоровья
-    const healthScore = totalMarkers > 0 ? Math.round((totalOptimalMarkers / totalMarkers) * 100) : 75;
-    
-    // Определяем уровень риска
-    const riskPercentage = totalMarkers > 0 ? totalRiskMarkers / totalMarkers : 0;
-    let riskLevel = 'low';
-    if (riskPercentage >= 0.5) riskLevel = 'high';
-    else if (riskPercentage >= 0.2) riskLevel = 'medium';
-
-    return {
-      overview: {
-        healthScore,
-        riskLevel,
-        lastUpdated: new Date().toISOString(),
-        totalAnalyses,
-        trendsAnalysis: {
-          improving: Math.max(1, Math.floor(totalOptimalMarkers * 0.6)),
-          worsening: Math.max(0, Math.floor(totalRiskMarkers * 0.4)),
-          stable: Math.max(1, totalMarkers - Math.floor(totalOptimalMarkers * 0.6) - Math.floor(totalRiskMarkers * 0.4))
-        }
-      },
-      healthImprovementActions: [],
-      recommendedTests: [],
-      specialistConsultations: [],
-      keyHealthIndicators: [],
-      lifestyleRecommendations: [],
-      riskFactors: [],
-      supplements: []
-    };
   };
 
   const getBiomarkerNorms = (name: string): string => {
@@ -357,29 +270,6 @@ const Analytics: React.FC = () => {
     return descriptions[name] || 'Важный показатель здоровья, требует интерпретации специалистом';
   };
 
-  const generateDemoHealthData = (): HealthData => {
-    return {
-      overview: {
-        healthScore: 78,
-        riskLevel: 'medium',
-        lastUpdated: new Date().toISOString(),
-        totalAnalyses: 0,
-        trendsAnalysis: {
-          improving: 0,
-          worsening: 0,
-          stable: 0
-        }
-      },
-      healthImprovementActions: [],
-      recommendedTests: [],
-      specialistConsultations: [],
-      keyHealthIndicators: [],
-      lifestyleRecommendations: [],
-      riskFactors: [],
-      supplements: []
-    };
-  };
-
   const handleDoctorQuestion = async () => {
     if (!doctorQuestion.trim()) return;
     
@@ -388,7 +278,7 @@ const Analytics: React.FC = () => {
       const { data, error } = await supabase.functions.invoke('ai-doctor-analytics', {
         body: {
           question: doctorQuestion,
-          healthData: healthData,
+          healthData: analytics,
           userId: user?.id
         }
       });
@@ -443,7 +333,7 @@ const Analytics: React.FC = () => {
       case 'risk':
         return <AlertTriangle className="h-4 w-4" />;
       default:
-        return <Minus className="h-4 w-4" />;
+        return <AlertTriangle className="h-4 w-4" />;
     }
   };
 
@@ -463,7 +353,7 @@ const Analytics: React.FC = () => {
           <div className="flex flex-col items-center space-y-4">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             <p className="text-gray-500">
-              {analysisId ? 'Загрузка данных анализа...' : 'Генерация персональной аналитики здоровья...'}
+              {analysisId ? 'Загрузка данных анализа...' : 'Загрузка аналитики...'}
             </p>
           </div>
         </div>
@@ -613,15 +503,15 @@ const Analytics: React.FC = () => {
     );
   }
 
-  // Если нет данных для аналитики
-  if (!healthData || healthData.overview.totalAnalyses === 0) {
+  // Показываем общую аналитику или предложение сгенерировать её
+  if (!analytics) {
     return (
       <div className="min-h-screen flex flex-col bg-slate-50">
         <Header />
         <div className="pt-16">
           <AnalyticsHeader 
-            healthScore={healthData?.overview.healthScore || 0}
-            riskLevel={healthData?.overview.riskLevel || 'unknown'}
+            healthScore={0}
+            riskLevel="unknown"
           />
           
           <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -629,13 +519,13 @@ const Analytics: React.FC = () => {
               <CardContent className="p-8">
                 <div className="text-center">
                   <Activity className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-2">Нет данных для аналитики</h2>
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-2">Аналитика не сгенерирована</h2>
                   <p className="text-gray-500 mb-6">
-                    Для генерации персональной аналитики здоровья необходимо загрузить результаты анализов
+                    Нажмите кнопку ниже, чтобы создать персональную аналитику здоровья на основе ваших данных
                   </p>
-                  <Button onClick={() => window.location.href = '/lab-analyses'}>
-                    <FileText className="h-4 w-4 mr-2" />
-                    Загрузить анализы
+                  <Button onClick={generateAnalytics} disabled={isGenerating} className="gap-2">
+                    <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                    {isGenerating ? 'Генерирую аналитику...' : 'Сгенерировать аналитику'}
                   </Button>
                 </div>
               </CardContent>
@@ -647,20 +537,50 @@ const Analytics: React.FC = () => {
     );
   }
 
-  // Показываем общую аналитику
+  // Показываем сгенерированную аналитику
+  const healthData: HealthData = {
+    overview: {
+      healthScore: analytics.healthScore,
+      riskLevel: analytics.riskLevel,
+      lastUpdated: analytics.lastUpdated,
+      totalAnalyses: analytics.totalAnalyses,
+      trendsAnalysis: analytics.trendsAnalysis
+    },
+    healthImprovementActions: [],
+    recommendedTests: [],
+    specialistConsultations: [],
+    keyHealthIndicators: [],
+    lifestyleRecommendations: [],
+    riskFactors: [],
+    supplements: []
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
       <div className="pt-16">
         <AnalyticsHeader 
-          healthScore={healthData.overview.healthScore}
-          riskLevel={healthData.overview.riskLevel}
+          healthScore={analytics.healthScore}
+          riskLevel={analytics.riskLevel}
         />
         
         <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-semibold text-gray-900">Обзор здоровья</h2>
+            <Button
+              variant="outline"
+              onClick={generateAnalytics}
+              disabled={isGenerating}
+              className="gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+              {isGenerating ? 'Обновление...' : 'Обновить аналитику'}
+            </Button>
+          </div>
+
           <HealthOverviewCards 
-            trendsAnalysis={healthData.overview.trendsAnalysis}
-            totalAnalyses={healthData.overview.totalAnalyses}
+            trendsAnalysis={analytics.trendsAnalysis}
+            totalAnalyses={analytics.totalAnalyses}
           />
 
           <AnalyticsSummary 
@@ -671,6 +591,12 @@ const Analytics: React.FC = () => {
             doctorResponse={doctorResponse}
             isProcessingQuestion={isProcessingQuestion}
           />
+
+          {analytics.lastUpdated && (
+            <div className="text-center text-sm text-gray-500">
+              Последнее обновление: {new Date(analytics.lastUpdated).toLocaleString('ru-RU')}
+            </div>
+          )}
         </div>
       </div>
       <MinimalFooter />

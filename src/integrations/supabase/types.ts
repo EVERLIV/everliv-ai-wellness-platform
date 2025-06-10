@@ -580,6 +580,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_analytics: {
+        Row: {
+          analytics_data: Json
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analytics_data: Json
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analytics_data?: Json
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_protocols: {
         Row: {
           added_at: string

@@ -1,105 +1,12 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, AlertTriangle, Activity, FileText } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { Heart, AlertTriangle, Activity, FileText, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface HealthStats {
-  totalAnalyses: number;
-  totalConsultations: number;
-  lastAnalysisDate?: string;
-  riskLevel?: string;
-  hasRecentActivity: boolean;
-}
-
-interface AnalysisResults {
-  riskLevel?: string;
-  markers?: Array<{
-    name: string;
-    value: any;
-    status: string;
-  }>;
-}
+import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 
 const DashboardHealthSummary = () => {
-  const { user } = useAuth();
-  const [healthStats, setHealthStats] = useState<HealthStats>({
-    totalAnalyses: 0,
-    totalConsultations: 0,
-    hasRecentActivity: false
-  });
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (user) {
-      loadHealthStats();
-    }
-  }, [user]);
-
-  const loadHealthStats = async () => {
-    try {
-      setIsLoading(true);
-
-      // Загружаем статистику анализов
-      const { data: analyses, error: analysesError } = await supabase
-        .from('medical_analyses')
-        .select('created_at, results')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      // Загружаем статистику консультаций
-      const { data: chats, error: chatsError } = await supabase
-        .from('ai_doctor_chats')
-        .select('created_at')
-        .eq('user_id', user?.id);
-
-      if (!analysesError && !chatsError) {
-        const totalAnalyses = analyses?.length || 0;
-        const totalConsultations = chats?.length || 0;
-        
-        // Определяем уровень риска на основе последних анализов
-        let riskLevel = 'low';
-        if (analyses && analyses.length > 0) {
-          const latestAnalysis = analyses[0];
-          const results = latestAnalysis.results as AnalysisResults;
-          
-          if (results?.riskLevel) {
-            riskLevel = results.riskLevel;
-          } else if (results?.markers) {
-            const riskMarkers = results.markers.filter((marker) => 
-              marker.status === 'attention' || marker.status === 'risk' || marker.status === 'high' || marker.status === 'low'
-            );
-            const totalMarkers = results.markers.length;
-            const riskPercentage = riskMarkers.length / totalMarkers;
-            
-            if (riskPercentage >= 0.5) riskLevel = 'high';
-            else if (riskPercentage >= 0.2) riskLevel = 'medium';
-          }
-        }
-
-        // Проверяем недавнюю активность (последние 7 дней)
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        const hasRecentActivity = analyses?.some(analysis => 
-          new Date(analysis.created_at) > weekAgo
-        ) || false;
-
-        setHealthStats({
-          totalAnalyses,
-          totalConsultations,
-          lastAnalysisDate: analyses?.[0]?.created_at,
-          riskLevel,
-          hasRecentActivity
-        });
-      }
-    } catch (error) {
-      console.error('Error loading health stats:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { analytics, isLoading, isGenerating, generateAnalytics } = useCachedAnalytics();
 
   const getRiskLevelText = (level: string) => {
     switch (level) {
@@ -120,7 +27,7 @@ const DashboardHealthSummary = () => {
   };
 
   const getRecommendationMessage = () => {
-    if (healthStats.totalAnalyses === 0) {
+    if (!analytics || analytics.totalAnalyses === 0) {
       return {
         icon: FileText,
         color: 'text-blue-600',
@@ -130,7 +37,7 @@ const DashboardHealthSummary = () => {
       };
     }
 
-    if (!healthStats.hasRecentActivity) {
+    if (!analytics.hasRecentActivity) {
       return {
         icon: AlertTriangle,
         color: 'text-yellow-600',
@@ -140,7 +47,7 @@ const DashboardHealthSummary = () => {
       };
     }
 
-    if (healthStats.riskLevel === 'high') {
+    if (analytics.riskLevel === 'high') {
       return {
         icon: AlertTriangle,
         color: 'text-red-600',
@@ -164,10 +71,22 @@ const DashboardHealthSummary = () => {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Heart className="h-5 w-5 text-red-500" />
-          Сводка здоровья
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Heart className="h-5 w-5 text-red-500" />
+            Сводка здоровья
+          </CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={generateAnalytics}
+            disabled={isGenerating}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+            {isGenerating ? 'Обновление...' : 'Обновить'}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -183,31 +102,42 @@ const DashboardHealthSummary = () => {
               </div>
             </div>
           </div>
+        ) : !analytics ? (
+          <div className="text-center py-6">
+            <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Нет данных</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Для получения персональной сводки здоровья нажмите "Обновить"
+            </p>
+            <Button onClick={generateAnalytics} disabled={isGenerating}>
+              {isGenerating ? 'Генерация...' : 'Сгенерировать аналитику'}
+            </Button>
+          </div>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600 mb-1">
-                  {healthStats.totalAnalyses}
+                  {analytics.totalAnalyses}
                 </div>
                 <div className="text-sm text-gray-500">Анализов</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600 mb-1">
-                  {healthStats.totalConsultations}
+                  {analytics.totalConsultations}
                 </div>
                 <div className="text-sm text-gray-500">Консультаций</div>
               </div>
             </div>
 
-            {healthStats.riskLevel && healthStats.totalAnalyses > 0 && (
-              <div className={`mb-4 p-3 rounded-lg border ${getRiskLevelColor(healthStats.riskLevel)}`}>
+            {analytics.riskLevel && analytics.totalAnalyses > 0 && (
+              <div className={`mb-4 p-3 rounded-lg border ${getRiskLevelColor(analytics.riskLevel)}`}>
                 <div className="text-sm font-medium">
-                  Уровень риска: {getRiskLevelText(healthStats.riskLevel)}
+                  Уровень риска: {getRiskLevelText(analytics.riskLevel)}
                 </div>
-                {healthStats.lastAnalysisDate && (
+                {analytics.lastAnalysisDate && (
                   <div className="text-xs mt-1 opacity-75">
-                    Последний анализ: {new Date(healthStats.lastAnalysisDate).toLocaleDateString('ru-RU')}
+                    Последний анализ: {new Date(analytics.lastAnalysisDate).toLocaleDateString('ru-RU')}
                   </div>
                 )}
               </div>
@@ -223,7 +153,7 @@ const DashboardHealthSummary = () => {
                   <p className="text-sm text-gray-700 mb-3">
                     {recommendation.message}
                   </p>
-                  {healthStats.totalAnalyses === 0 && (
+                  {analytics.totalAnalyses === 0 && (
                     <Button 
                       size="sm" 
                       onClick={() => window.location.href = '/lab-analyses'}
@@ -235,6 +165,12 @@ const DashboardHealthSummary = () => {
                 </div>
               </div>
             </div>
+
+            {analytics.lastUpdated && (
+              <div className="text-xs text-gray-400 mt-3 text-center">
+                Обновлено: {new Date(analytics.lastUpdated).toLocaleString('ru-RU')}
+              </div>
+            )}
           </>
         )}
       </CardContent>
