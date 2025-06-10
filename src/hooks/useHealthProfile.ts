@@ -87,42 +87,56 @@ export const useHealthProfile = () => {
   }, [user]);
 
   const loadHealthProfile = async () => {
+    if (!user) return;
+    
     try {
-      // Use type assertion to work around missing table types
-      const { data, error } = await (supabase as any)
+      setIsLoading(true);
+      
+      const { data, error } = await supabase
         .from('health_profiles')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
+        .select('profile_data')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (error) {
+        console.error('Error loading health profile:', error);
+        return;
       }
 
       if (data && data.profile_data) {
-        setHealthProfile(data.profile_data);
+        setHealthProfile({ ...defaultHealthProfile, ...data.profile_data });
       }
     } catch (error) {
       console.error('Error loading health profile:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const saveHealthProfile = async () => {
-    if (!user) return;
+    if (!user) {
+      toast.error('Пользователь не авторизован');
+      return;
+    }
 
     try {
       setIsLoading(true);
       
-      // Use type assertion to work around missing table types
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('health_profiles')
         .upsert({
           user_id: user.id,
           profile_data: healthProfile,
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error saving health profile:', error);
+        toast.error('Ошибка сохранения профиля здоровья');
+        return;
+      }
 
       toast.success('Профиль здоровья успешно сохранен');
       navigate('/dashboard');

@@ -17,17 +17,18 @@ export const useHealthProfileStatus = () => {
   }, [user]);
 
   const checkHealthProfileStatus = async () => {
+    if (!user) return;
+    
     try {
       setIsLoading(true);
       
-      // Use type assertion to work around missing table types
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('health_profiles')
         .select('profile_data')
-        .eq('user_id', user?.id)
-        .single();
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error checking health profile status:', error);
         setIsComplete(false);
         return;
