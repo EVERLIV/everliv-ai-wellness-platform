@@ -86,3 +86,14 @@ export const SUBSCRIPTION_PLANS = {
     ]
   }
 };
+
+// Add the missing FEATURES constant that other components expect
+export const FEATURES = {
+  BLOOD_ANALYSIS: "blood_analysis",
+  PHOTO_BLOOD_ANALYSIS: "photo_blood_analysis",
+  BIOLOGICAL_AGE_TEST: "biological_age_test",
+  HEALTH_PROFILE: "health_profile",
+  ADVANCED_ANALYTICS: "advanced_analytics",
+  CHAT_ACCESS: "chat_access",
+  NUTRITION_DIARY: "nutrition_diary"
+};
