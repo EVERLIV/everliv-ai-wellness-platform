@@ -219,7 +219,7 @@ const Analytics: React.FC = () => {
         .from('user_analytics')
         .upsert({
           user_id: user.id,
-          analytics_data: generatedAnalytics,
+          analytics_data: generatedAnalytics as any,
           updated_at: new Date().toISOString()
         });
 
@@ -263,11 +263,22 @@ const Analytics: React.FC = () => {
       }
 
       if (analysis) {
+        // Безопасное извлечение маркеров из JSON
+        let biomarkers: Biomarker[] = [];
+        try {
+          const results = analysis.results as any;
+          if (results && typeof results === 'object' && results.markers) {
+            biomarkers = results.markers as Biomarker[];
+          }
+        } catch (error) {
+          console.error('Error parsing biomarkers:', error);
+        }
+
         const processedData: AnalysisData = {
           id: analysis.id,
           analysisType: analysis.analysis_type,
           createdAt: analysis.created_at,
-          biomarkers: analysis.results?.markers || []
+          biomarkers
         };
         setAnalysisData(processedData);
       }
