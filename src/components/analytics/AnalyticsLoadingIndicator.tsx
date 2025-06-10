@@ -13,6 +13,8 @@ const AnalyticsLoadingIndicator: React.FC<AnalyticsLoadingIndicatorProps> = ({
   isGenerating,
   loadingStep
 }) => {
+  console.log('AnalyticsLoadingIndicator render:', { isGenerating, loadingStep });
+
   const getProgressValue = (step: string) => {
     if (step.includes('Загрузка данных')) return 25;
     if (step.includes('Анализ данных')) return 65;
@@ -20,7 +22,11 @@ const AnalyticsLoadingIndicator: React.FC<AnalyticsLoadingIndicatorProps> = ({
     return 10;
   };
 
-  if (!isGenerating && !loadingStep) return null;
+  // Показываем компонент если идет генерация
+  if (!isGenerating) {
+    console.log('Not generating, hiding indicator');
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">

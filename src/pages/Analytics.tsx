@@ -126,6 +126,14 @@ const Analytics: React.FC = () => {
 
   const { analytics, generateAnalytics, isGenerating, loadingStep } = useCachedAnalytics();
 
+  console.log('Analytics page debug:', {
+    isGenerating,
+    loadingStep,
+    analytics,
+    analysisId,
+    isLoading
+  });
+
   useEffect(() => {
     if (user) {
       if (analysisId) {
@@ -506,14 +514,11 @@ const Analytics: React.FC = () => {
 
   // Показываем индикатор загрузки если идет генерация
   if (isGenerating) {
+    console.log('Showing loading indicator:', { isGenerating, loadingStep });
     return (
       <div className="min-h-screen flex flex-col bg-slate-50">
         <Header />
         <div className="pt-16">
-          <AnalyticsHeader 
-            healthScore={0}
-            riskLevel="generating"
-          />
           <AnalyticsLoadingIndicator 
             isGenerating={isGenerating}
             loadingStep={loadingStep}
@@ -626,3 +631,5 @@ const Analytics: React.FC = () => {
 };
 
 export default Analytics;
+
+}

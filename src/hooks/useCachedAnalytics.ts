@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +11,13 @@ export const useCachedAnalytics = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string>('');
+
+  console.log('useCachedAnalytics state:', {
+    isGenerating,
+    loadingStep,
+    analytics: !!analytics,
+    isLoading
+  });
 
   useEffect(() => {
     if (user) {
@@ -74,6 +80,7 @@ export const useCachedAnalytics = () => {
     }
 
     try {
+      console.log('Starting analytics generation...');
       setIsGenerating(true);
       setLoadingStep('Загрузка данных анализов...');
 
@@ -102,11 +109,13 @@ export const useCachedAnalytics = () => {
       const analyses = (analysesResponse.data || []) as AnalysisRecord[];
       const chats = (chatsResponse.data || []) as ChatRecord[];
 
+      console.log('Data loaded, starting analysis...');
       setLoadingStep('Анализ данных и генерация отчета...');
       
       // Генерируем аналитику
       const generatedAnalytics = await generateAnalyticsData(analyses, chats);
 
+      console.log('Analytics generated, saving...');
       setLoadingStep('Сохранение результатов...');
 
       // Сохраняем в кэш
@@ -124,12 +133,14 @@ export const useCachedAnalytics = () => {
         return;
       }
 
+      console.log('Analytics saved successfully');
       setAnalytics(generatedAnalytics);
       toast.success('Аналитика успешно обновлена');
     } catch (error) {
       console.error('Error generating analytics:', error);
       toast.error('Ошибка генерации аналитики');
     } finally {
+      console.log('Analytics generation completed');
       setIsGenerating(false);
       setLoadingStep('');
     }
