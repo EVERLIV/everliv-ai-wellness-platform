@@ -15,7 +15,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const { subscription, refetch } = useSubscription();
+  const { subscription } = useSubscription();
   const [loading, setLoading] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   
@@ -36,14 +36,14 @@ const Checkout = () => {
     if (paymentSuccess) {
       setOrderComplete(true);
       toast.success('Оплата прошла успешно!');
-      // Refresh subscription data
-      if (refetch) {
-        refetch();
-      }
+      // Refresh page data or navigate to dashboard
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 3000);
     } else if (paymentCanceled) {
       toast.info('Оплата была отменена');
     }
-  }, [paymentSuccess, paymentCanceled, refetch]);
+  }, [paymentSuccess, paymentCanceled, navigate]);
 
   // Redirect to pricing if no plan is selected
   useEffect(() => {
@@ -61,13 +61,22 @@ const Checkout = () => {
     setLoading(true);
     
     try {
+      console.log('Creating invoice with data:', {
+        userId: user.id,
+        planType: plan.type || 'standard',
+        amount: plan.price,
+        description: `Подписка ${plan.name} - EVERLIV`,
+        userEmail: user.email
+      });
+
       // Create invoice through PayKeeper API
       const { data: invoiceData, error } = await supabase.functions.invoke('create-paykeeper-invoice', {
         body: {
           userId: user.id,
-          planType: plan.type,
+          planType: plan.type || 'standard',
           amount: plan.price,
-          description: `Подписка ${plan.name} - EVERLIV`
+          description: `Подписка ${plan.name} - EVERLIV`,
+          userEmail: user.email
         }
       });
 
