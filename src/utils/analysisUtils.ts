@@ -2,6 +2,7 @@
 import { AnalysisData, Biomarker } from "@/types/analysis";
 
 export const getAnalysisTypeName = (type: string): string => {
+  console.log('Getting analysis type name for:', type);
   const typeNames: { [key: string]: string } = {
     'blood_test': 'Общий анализ крови',
     'blood': 'Общий анализ крови',
@@ -14,7 +15,9 @@ export const getAnalysisTypeName = (type: string): string => {
     'liver': 'Печеночные пробы',
     'kidney': 'Почечные пробы'
   };
-  return typeNames[type] || 'Медицинский анализ';
+  const result = typeNames[type] || 'Медицинский анализ';
+  console.log('Analysis type name result:', result);
+  return result;
 };
 
 export const getBiomarkerDescription = (name: string): string => {
@@ -57,11 +60,13 @@ export const getBiomarkerDescription = (name: string): string => {
 };
 
 export const processAnalysisData = (analysis: any): AnalysisData => {
+  console.log('processAnalysisData called with:', analysis);
   const biomarkers: Biomarker[] = [];
   
   console.log('Обрабатываем результаты анализа:', analysis.results);
   
   if (analysis.results?.markers) {
+    console.log('Found markers:', analysis.results.markers);
     for (const marker of analysis.results.markers) {
       console.log('Обрабатываем маркер:', marker);
       biomarkers.push({
@@ -73,6 +78,8 @@ export const processAnalysisData = (analysis: any): AnalysisData => {
         description: getBiomarkerDescription(marker.name)
       });
     }
+  } else {
+    console.log('No markers found in results');
   }
 
   const result = {

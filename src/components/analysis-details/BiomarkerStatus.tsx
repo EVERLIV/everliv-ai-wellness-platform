@@ -7,6 +7,8 @@ interface BiomarkerStatusProps {
 }
 
 const BiomarkerStatus: React.FC<BiomarkerStatusProps> = ({ status }) => {
+  console.log('BiomarkerStatus component rendering with status:', status);
+  
   const getStatusColor = (status: string) => {
     console.log('Определяем цвет для статуса:', status);
     switch (status) {
@@ -64,10 +66,16 @@ const BiomarkerStatus: React.FC<BiomarkerStatusProps> = ({ status }) => {
     }
   };
 
+  const statusColor = getStatusColor(status);
+  const statusText = getStatusText(status);
+  const statusIcon = getStatusIcon(status);
+
+  console.log('Final status display:', { status, statusColor, statusText });
+
   return (
-    <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(status)} print:px-1 print:py-0`}>
-      {getStatusIcon(status)}
-      <span className="ml-1 print:text-xs">{getStatusText(status)}</span>
+    <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${statusColor} print:px-1 print:py-0`}>
+      {statusIcon}
+      <span className="ml-1 print:text-xs">{statusText}</span>
     </div>
   );
 };

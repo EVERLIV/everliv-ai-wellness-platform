@@ -20,6 +20,7 @@ const AnalysisDetails: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log('AnalysisDetails component mounted, analysisId:', analysisId);
     if (user && analysisId) {
       loadAnalysisDetails();
     }
@@ -96,6 +97,8 @@ const AnalysisDetails: React.FC = () => {
       </div>
     );
   }
+
+  console.log('Rendering AnalysisDetails with data:', analysisData);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 print:bg-white">
