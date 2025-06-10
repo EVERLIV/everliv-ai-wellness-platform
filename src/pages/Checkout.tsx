@@ -1,31 +1,22 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Shield, CreditCard, Check, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Shield, Check, ArrowLeft, AlertCircle, CreditCard } from 'lucide-react';
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { subscription, purchaseSubscription, upgradeSubscription } = useSubscription();
+  const { subscription } = useSubscription();
   const [loading, setLoading] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
-  const [paymentDetails, setPaymentDetails] = useState({
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    cardHolder: ''
-  });
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   
   // Get plan from location state or use default
   const plan = location.state?.plan || {
@@ -41,102 +32,82 @@ const Checkout = () => {
       navigate('/pricing');
     }
   }, [location.state, navigate]);
-  
-  // Handle input changes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setPaymentDetails(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors(prev => {
-        const newErrors = {...prev};
-        delete newErrors[name];
-        return newErrors;
-      });
-    }
-  };
-  
-  // Validate form
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!paymentDetails.cardNumber.trim() || !/^\d{16}$/.test(paymentDetails.cardNumber.replace(/\s/g, ''))) {
-      newErrors.cardNumber = 'Введите корректный 16-значный номер карты';
-    }
-    
-    if (!paymentDetails.expiryDate.trim() || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(paymentDetails.expiryDate)) {
-      newErrors.expiryDate = 'Введите дату в формате MM/YY';
-    }
-    
-    if (!paymentDetails.cvv.trim() || !/^\d{3}$/.test(paymentDetails.cvv)) {
-      newErrors.cvv = 'Введите 3-значный CVV код';
-    }
-    
-    if (!paymentDetails.cardHolder.trim()) {
-      newErrors.cardHolder = 'Введите имя держателя карты';
-    }
-    
-    if (!agreeToTerms) {
-      newErrors.terms = 'Необходимо согласиться с условиями';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-  
-  // Process payment (simulated)
-  const handlePayment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
+
+  const handlePayment = async () => {
+    if (!user) {
+      toast.error('Необходимо войти в систему');
       return;
     }
-    
+
     setLoading(true);
     
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Handle subscription based on whether it's new or upgrade
-      if (plan.isUpgrade) {
-        await upgradeSubscription(plan.type as 'basic' | 'standard' | 'premium');
-      } else {
-        await purchaseSubscription(plan.type as 'basic' | 'standard' | 'premium');
+      // Create invoice through PayKeeper API
+      const { data: invoiceData, error } = await supabase.functions.invoke('create-paykeeper-invoice', {
+        body: {
+          userId: user.id,
+          planType: plan.type,
+          amount: plan.price,
+          description: `Подписка ${plan.name} - EVERLIV`
+        }
+      });
+
+      if (error) {
+        console.error('Error creating invoice:', error);
+        throw new Error('Ошибка создания счета для оплаты');
       }
-      
-      setOrderComplete(true);
-      toast.success(plan.isUpgrade ? "Тариф успешно обновлен!" : "Подписка успешно оформлена!");
-    } catch (error) {
+
+      console.log('Invoice created:', invoiceData);
+
+      // Initialize PayKeeper widget
+      if (window.PayKeeperWidget) {
+        window.PayKeeperWidget.init({
+          invoice_id: invoiceData.invoice_id,
+          onSuccess: () => {
+            console.log('Payment successful');
+            setOrderComplete(true);
+            toast.success('Оплата прошла успешно!');
+          },
+          onError: (error: any) => {
+            console.error('Payment error:', error);
+            toast.error('Ошибка при оплате');
+            setLoading(false);
+          },
+          onCancel: () => {
+            console.log('Payment cancelled');
+            toast.info('Оплата отменена');
+            setLoading(false);
+          }
+        });
+      } else {
+        // Fallback: redirect to PayKeeper payment page
+        const paymentUrl = `https://paykeeper.alfabank.ru/bill/${invoiceData.invoice_id}/`;
+        window.open(paymentUrl, '_blank');
+        
+        // Show message about checking payment status
+        toast.info('Окно оплаты открыто в новой вкладке. После успешной оплаты вернитесь на эту страницу.');
+        setLoading(false);
+      }
+
+    } catch (error: any) {
       console.error("Payment error:", error);
-      toast.error("Произошла ошибка при обработке платежа. Пожалуйста, попробуйте позже.");
-    } finally {
+      toast.error(error.message || "Произошла ошибка при создании счета для оплаты");
       setLoading(false);
     }
   };
 
-  // Format card number with spaces
-  const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = matches && matches[0] || '';
-    const parts = [];
+  // Load PayKeeper widget script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://paykeeper.alfabank.ru/widget/widget.js';
+    script.async = true;
+    document.head.appendChild(script);
 
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
 
-    if (parts.length) {
-      return parts.join(' ');
-    } else {
-      return value;
-    }
-  };
-  
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -203,111 +174,38 @@ const Checkout = () => {
                 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Оплата</CardTitle>
+                    <CardTitle>Оплата через PayKeeper</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <form onSubmit={handlePayment}>
-                      <div className="mb-6">
-                        <label className="block text-sm font-medium mb-1">Способ оплаты</label>
-                        <div className="flex items-center justify-between bg-white border border-gray-200 rounded p-3">
-                          <div className="flex items-center">
-                            <input type="radio" checked readOnly />
-                            <span className="ml-2">Банковская карта</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="text-blue-600 font-bold px-2 py-0.5 text-xs rounded">VISA</div>
-                            <div className="text-red-600 font-bold px-2 py-0.5 text-xs rounded">MasterCard</div>
-                            <div className="bg-blue-900 text-white px-2 py-0.5 text-xs rounded font-bold">МИР</div>
-                          </div>
+                    <div className="mb-6">
+                      <div className="flex items-center justify-between bg-white border border-gray-200 rounded p-4">
+                        <div className="flex items-center">
+                          <CreditCard className="h-6 w-6 text-blue-600 mr-3" />
+                          <span>Банковские карты и электронные кошельки</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-blue-600 font-bold px-2 py-0.5 text-xs rounded">VISA</div>
+                          <div className="text-red-600 font-bold px-2 py-0.5 text-xs rounded">MC</div>
+                          <div className="bg-blue-900 text-white px-2 py-0.5 text-xs rounded font-bold">МИР</div>
                         </div>
                       </div>
-                      
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1">Номер карты</label>
-                        <Input 
-                          placeholder="0000 0000 0000 0000" 
-                          name="cardNumber"
-                          value={formatCardNumber(paymentDetails.cardNumber)}
-                          onChange={handleInputChange}
-                          className={errors.cardNumber ? "border-red-500" : ""}
-                          maxLength={19}
-                        />
-                        {errors.cardNumber && (
-                          <p className="text-red-500 text-xs mt-1">{errors.cardNumber}</p>
-                        )}
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Срок действия</label>
-                          <Input 
-                            placeholder="MM/YY" 
-                            name="expiryDate"
-                            value={paymentDetails.expiryDate}
-                            onChange={handleInputChange}
-                            className={errors.expiryDate ? "border-red-500" : ""}
-                            maxLength={5}
-                          />
-                          {errors.expiryDate && (
-                            <p className="text-red-500 text-xs mt-1">{errors.expiryDate}</p>
-                          )}
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">CVV/CVC</label>
-                          <Input 
-                            placeholder="000" 
-                            type="password" 
-                            name="cvv"
-                            value={paymentDetails.cvv}
-                            onChange={handleInputChange}
-                            className={errors.cvv ? "border-red-500" : ""}
-                            maxLength={3}
-                          />
-                          {errors.cvv && (
-                            <p className="text-red-500 text-xs mt-1">{errors.cvv}</p>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="mb-6">
-                        <label className="block text-sm font-medium mb-1">Имя на карте</label>
-                        <Input 
-                          placeholder="IVAN IVANOV" 
-                          name="cardHolder"
-                          value={paymentDetails.cardHolder}
-                          onChange={handleInputChange}
-                          className={errors.cardHolder ? "border-red-500" : ""}
-                        />
-                        {errors.cardHolder && (
-                          <p className="text-red-500 text-xs mt-1">{errors.cardHolder}</p>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-start mb-6">
-                        <input
-                          id="terms"
-                          name="terms"
-                          type="checkbox"
-                          checked={agreeToTerms}
-                          onChange={() => setAgreeToTerms(!agreeToTerms)}
-                          className={`mt-1 mr-2 ${errors.terms ? "ring-2 ring-red-500" : ""}`}
-                        />
-                        <label htmlFor="terms" className="text-sm text-gray-600">
-                          Я согласен с <Link to="/payment-info" className="text-everliv-600 hover:underline">правилами оплаты</Link> и даю разрешение на обработку моих персональных данных в соответствии с <Link to="/privacy" className="text-everliv-600 hover:underline">политикой конфиденциальности</Link>
-                        </label>
-                      </div>
-                      {errors.terms && (
-                        <p className="text-red-500 text-xs mb-4">{errors.terms}</p>
-                      )}
-                      
-                      <Button 
-                        type="submit" 
-                        className="w-full" 
-                        disabled={loading}
-                      >
-                        {loading ? "Обработка..." : `Оплатить ${plan.price} ₽`}
-                      </Button>
-                    </form>
+                    </div>
+                    
+                    <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                      <h3 className="font-medium mb-2">Безопасная оплата</h3>
+                      <p className="text-sm text-gray-600">
+                        Оплата происходит через защищенный сервис Альфа-Банка. 
+                        Мы не храним данные ваших карт.
+                      </p>
+                    </div>
+                    
+                    <Button 
+                      onClick={handlePayment}
+                      className="w-full" 
+                      disabled={loading}
+                    >
+                      {loading ? "Обработка..." : `Оплатить ${plan.price} ₽`}
+                    </Button>
                   </CardContent>
                 </Card>
               </div>

@@ -32,6 +32,7 @@ import LabAnalyses from "./pages/LabAnalyses";
 import UserProfile from "./pages/UserProfile";
 import AccountSettings from "./pages/AccountSettings";
 import UserSubscription from "./pages/UserSubscription";
+import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/features" element={<Features />} />
+              <Route path="/checkout" element={<Checkout />} />
               
               {/* Protected routes */}
               <Route
