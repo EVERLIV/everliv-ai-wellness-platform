@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -54,7 +55,7 @@ interface SpecialistRecommendation {
   specialist: string;
   urgency: 'immediate' | 'within_month' | 'within_3_months' | 'annual';
   reason: string;
-  whatToExpect: string;
+  whatToExpected: string;
   preparation: string[];
   estimatedCost: string;
   frequency: string;
@@ -344,7 +345,7 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
                   </div>
                   
                   <div>
-                    <strong>Что ожидать на приеме:</strong> {specialist.whatToExpect}
+                    <strong>Что ожидать на приеме:</strong> {specialist.whatToExpected}
                   </div>
                   
                   <div>
