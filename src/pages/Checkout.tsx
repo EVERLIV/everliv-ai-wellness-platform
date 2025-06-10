@@ -27,7 +27,8 @@ const Checkout = () => {
     name: "Стандарт",
     price: 1990,
     period: "месяц",
-    annual: false
+    annual: false,
+    type: "standard"
   };
 
   // Check for payment status on component mount
@@ -35,7 +36,6 @@ const Checkout = () => {
     if (paymentSuccess) {
       setOrderComplete(true);
       toast.success('Оплата прошла успешно!');
-      // Refresh page data or navigate to dashboard
       setTimeout(() => {
         navigate('/dashboard');
       }, 3000);
@@ -60,15 +60,17 @@ const Checkout = () => {
     setLoading(true);
     
     try {
-      // Store current plan info for return
-      sessionStorage.setItem('checkout_plan', JSON.stringify(plan));
-      sessionStorage.setItem('checkout_user', JSON.stringify({
-        id: user.id,
-        email: user.email,
-        planType: plan.type || 'standard'
-      }));
+      // Store payment info in sessionStorage for return handling
+      const paymentInfo = {
+        userId: user.id,
+        planType: plan.type || 'standard',
+        amount: plan.price,
+        timestamp: Date.now()
+      };
       
-      // Redirect to PayKeeper payment page
+      sessionStorage.setItem('everliv_payment_info', JSON.stringify(paymentInfo));
+      
+      // Redirect to static PayKeeper payment page
       window.location.href = 'https://payment.alfabank.ru/shortlink/ePOnVto9';
 
     } catch (error: any) {
@@ -77,23 +79,6 @@ const Checkout = () => {
       setLoading(false);
     }
   };
-
-  // If returning from payment, restore plan info
-  useEffect(() => {
-    if ((paymentSuccess || paymentCanceled) && !location.state?.plan) {
-      const storedPlan = sessionStorage.getItem('checkout_plan');
-      if (storedPlan) {
-        try {
-          const planData = JSON.parse(storedPlan);
-          // Update location state or handle plan display
-          sessionStorage.removeItem('checkout_plan');
-          sessionStorage.removeItem('checkout_user');
-        } catch (e) {
-          console.error('Error parsing stored plan:', e);
-        }
-      }
-    }
-  }, [paymentSuccess, paymentCanceled, location.state]);
 
   return (
     <div className="min-h-screen flex flex-col">
