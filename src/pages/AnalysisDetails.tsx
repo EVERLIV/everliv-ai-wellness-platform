@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -52,6 +53,7 @@ const AnalysisDetails: React.FC = () => {
   const loadAnalysisDetails = async () => {
     try {
       setIsLoading(true);
+      console.log('Загружаем детали анализа для ID:', analysisId);
       
       const { data: analysis, error } = await supabase
         .from('medical_analyses')
@@ -60,10 +62,15 @@ const AnalysisDetails: React.FC = () => {
         .eq('user_id', user?.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Ошибка загрузки анализа:', error);
+        throw error;
+      }
 
       if (analysis) {
+        console.log('Загружен анализ:', analysis);
         const processedData = processAnalysisData(analysis);
+        console.log('Обработанные данные:', processedData);
         setAnalysisData(processedData);
       }
     } catch (error) {
@@ -77,8 +84,11 @@ const AnalysisDetails: React.FC = () => {
   const processAnalysisData = (analysis: any): AnalysisData => {
     const biomarkers: Biomarker[] = [];
     
+    console.log('Обрабатываем результаты анализа:', analysis.results);
+    
     if (analysis.results?.markers) {
       for (const marker of analysis.results.markers) {
+        console.log('Обрабатываем маркер:', marker);
         biomarkers.push({
           name: marker.name,
           value: marker.value,
@@ -90,17 +100,21 @@ const AnalysisDetails: React.FC = () => {
       }
     }
 
-    return {
+    const result = {
       id: analysis.id,
       analysisType: getAnalysisTypeName(analysis.analysis_type),
       createdAt: analysis.created_at,
       biomarkers
     };
+
+    console.log('Финальный результат обработки:', result);
+    return result;
   };
 
   const getAnalysisTypeName = (type: string): string => {
     const typeNames: { [key: string]: string } = {
       'blood_test': 'Общий анализ крови',
+      'blood': 'Общий анализ крови',
       'biochemistry': 'Биохимический анализ крови',
       'hormones': 'Анализ гормонов',
       'vitamins': 'Анализ витаминов и микроэлементов',
@@ -153,6 +167,7 @@ const AnalysisDetails: React.FC = () => {
   };
 
   const getStatusColor = (status: string) => {
+    console.log('Определяем цвет для статуса:', status);
     switch (status) {
       case 'optimal':
       case 'normal':
@@ -171,6 +186,7 @@ const AnalysisDetails: React.FC = () => {
   };
 
   const getStatusText = (status: string) => {
+    console.log('Определяем текст для статуса:', status);
     switch (status) {
       case 'optimal':
         return 'Оптимально';
@@ -249,7 +265,7 @@ const AnalysisDetails: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-slate-50 print:bg-white">
       <Header />
       <div className="pt-16 print:pt-0">
         {/* Заголовок страницы */}
@@ -370,39 +386,6 @@ const AnalysisDetails: React.FC = () => {
         </div>
       </div>
       <MinimalFooter />
-      
-      {/* Стили для печати */}
-      <style>{`
-        @media print {
-          body { -webkit-print-color-adjust: exact; }
-          .print\\:hidden { display: none !important; }
-          .print\\:block { display: block !important; }
-          .print\\:pt-0 { padding-top: 0 !important; }
-          .print\\:py-4 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
-          .print\\:p-3 { padding: 0.75rem !important; }
-          .print\\:p-4 { padding: 1rem !important; }
-          .print\\:text-xs { font-size: 0.75rem !important; }
-          .print\\:text-sm { font-size: 0.875rem !important; }
-          .print\\:text-2xl { font-size: 1.5rem !important; }
-          .print\\:bg-white { background-color: white !important; }
-          .print\\:border-none { border: none !important; }
-          .print\\:border-gray-300 { border-color: #d1d5db !important; }
-          .print\\:rounded-none { border-radius: 0 !important; }
-          .print\\:space-y-2 > * + * { margin-top: 0.5rem !important; }
-          .print\\:gap-2 { gap: 0.5rem !important; }
-          .print\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
-          .print\\:h-3 { height: 0.75rem !important; }
-          .print\\:w-3 { width: 0.75rem !important; }
-          .print\\:h-6 { height: 1.5rem !important; }
-          .print\\:w-6 { width: 1.5rem !important; }
-          .print\\:h-8 { height: 2rem !important; }
-          .print\\:w-8 { width: 2rem !important; }
-          .print\\:px-1 { padding-left: 0.25rem !important; padding-right: 0.25rem !important; }
-          .print\\:py-0 { padding-top: 0 !important; padding-bottom: 0 !important; }
-          .print\\:mt-4 { margin-top: 1rem !important; }
-          .print\\:hover\\:shadow-none:hover { box-shadow: none !important; }
-        }
-      `}</style>
     </div>
   );
 };
