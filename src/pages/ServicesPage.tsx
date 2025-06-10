@@ -1,6 +1,7 @@
 
 import React from 'react';
-import PageLayout from '@/components/PageLayout';
+import Header from '@/components/Header';
+import MinimalFooter from '@/components/MinimalFooter';
 import ServicesHero from '@/components/services/ServicesHero';
 import ServicesGrid from '@/components/services/ServicesGrid';
 import HowItWorksSection from '@/components/services/HowItWorksSection';
@@ -9,18 +10,17 @@ import ServicesCTA from '@/components/services/ServicesCTA';
 
 const ServicesPage = () => {
   return (
-    <PageLayout 
-      title="Наши сервисы"
-      description="Комплексная экосистема для мониторинга и улучшения здоровья"
-      breadcrumbItems={[{ title: "Сервисы" }]}
-      fullWidth={true}
-    >
-      <ServicesHero />
-      <ServicesGrid />
-      <HowItWorksSection />
-      <ServicesStats />
-      <ServicesCTA />
-    </PageLayout>
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-grow pt-16">
+        <ServicesHero />
+        <ServicesGrid />
+        <HowItWorksSection />
+        <ServicesStats />
+        <ServicesCTA />
+      </main>
+      <MinimalFooter />
+    </div>
   );
 };
 
