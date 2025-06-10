@@ -1,35 +1,21 @@
 
 import React from 'react';
-import HomeHeader from '@/components/home/HomeHeader';
-import HeroSection from '@/components/HeroSection';
-import KeyFeaturesSection from '@/components/KeyFeaturesSection';
 import TrialChat from '@/components/home/TrialChat';
-import ServicesSection from '@/components/ServicesSection';
-import DataProtectionSection from '@/components/DataProtectionSection';
-import ScientificBasisSection from '@/components/ScientificBasisSection';
-import PricingSection from '@/components/PricingSection';
-import TestimonialsSection from '@/components/TestimonialsSection';
-import PartnershipSection from '@/components/PartnershipSection';
-import CTASection from '@/components/CTASection';
-import HomeFooter from '@/components/home/HomeFooter';
 
 const Home = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <HomeHeader />
-      <main className="flex-grow pt-16">
-        <HeroSection />
-        <KeyFeaturesSection />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Header with just login button */}
+      <header className="absolute top-4 right-4 z-10">
+        <button className="text-blue-600 hover:text-blue-800 transition-colors">
+          Log in
+        </button>
+      </header>
+
+      {/* Main content */}
+      <main className="flex-1 flex items-center justify-center px-4">
         <TrialChat />
-        <ServicesSection />
-        <DataProtectionSection />
-        <ScientificBasisSection />
-        <PricingSection />
-        <TestimonialsSection />
-        <PartnershipSection />
-        <CTASection />
       </main>
-      <HomeFooter />
     </div>
   );
 };
