@@ -11,6 +11,7 @@ export const useCachedAnalytics = () => {
   const [analytics, setAnalytics] = useState<CachedAnalytics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [loadingStep, setLoadingStep] = useState<string>('');
 
   useEffect(() => {
     if (user) {
@@ -28,6 +29,7 @@ export const useCachedAnalytics = () => {
 
     try {
       setIsLoading(true);
+      setLoadingStep('Загрузка кэшированной аналитики...');
       
       const { data, error } = await supabase
         .from('user_analytics')
@@ -61,6 +63,7 @@ export const useCachedAnalytics = () => {
       setAnalytics(null);
     } finally {
       setIsLoading(false);
+      setLoadingStep('');
     }
   };
 
@@ -72,6 +75,7 @@ export const useCachedAnalytics = () => {
 
     try {
       setIsGenerating(true);
+      setLoadingStep('Загрузка данных анализов...');
 
       // Загружаем данные для генерации аналитики
       const [analysesResponse, chatsResponse] = await Promise.all([
@@ -98,8 +102,12 @@ export const useCachedAnalytics = () => {
       const analyses = (analysesResponse.data || []) as AnalysisRecord[];
       const chats = (chatsResponse.data || []) as ChatRecord[];
 
+      setLoadingStep('Анализ данных и генерация отчета...');
+      
       // Генерируем аналитику
       const generatedAnalytics = await generateAnalyticsData(analyses, chats);
+
+      setLoadingStep('Сохранение результатов...');
 
       // Сохраняем в кэш
       const { error: upsertError } = await supabase
@@ -123,6 +131,7 @@ export const useCachedAnalytics = () => {
       toast.error('Ошибка генерации аналитики');
     } finally {
       setIsGenerating(false);
+      setLoadingStep('');
     }
   };
 
@@ -130,6 +139,7 @@ export const useCachedAnalytics = () => {
     analytics,
     isLoading,
     isGenerating,
+    loadingStep,
     generateAnalytics,
     refreshAnalytics: loadCachedAnalytics
   };

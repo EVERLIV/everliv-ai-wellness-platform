@@ -6,6 +6,7 @@ import MinimalFooter from "@/components/MinimalFooter";
 import AnalyticsHeader from "@/components/analytics/AnalyticsHeader";
 import AnalyticsSummary from "@/components/analytics/AnalyticsSummary";
 import HealthOverviewCards from "@/components/analytics/HealthOverviewCards";
+import AnalyticsLoadingIndicator from "@/components/analytics/AnalyticsLoadingIndicator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -123,7 +124,7 @@ const Analytics: React.FC = () => {
   const [doctorResponse, setDoctorResponse] = useState("");
   const [isProcessingQuestion, setIsProcessingQuestion] = useState(false);
 
-  const { analytics, generateAnalytics, isGenerating } = useCachedAnalytics();
+  const { analytics, generateAnalytics, isGenerating, loadingStep } = useCachedAnalytics();
 
   useEffect(() => {
     if (user) {
@@ -497,6 +498,26 @@ const Analytics: React.FC = () => {
               </Card>
             )}
           </div>
+        </div>
+        <MinimalFooter />
+      </div>
+    );
+  }
+
+  // Показываем индикатор загрузки если идет генерация
+  if (isGenerating) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        <Header />
+        <div className="pt-16">
+          <AnalyticsHeader 
+            healthScore={0}
+            riskLevel="generating"
+          />
+          <AnalyticsLoadingIndicator 
+            isGenerating={isGenerating}
+            loadingStep={loadingStep}
+          />
         </div>
         <MinimalFooter />
       </div>
