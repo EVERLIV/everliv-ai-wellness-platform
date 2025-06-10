@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,36 +35,60 @@ export const useCachedAnalytics = () => {
   useEffect(() => {
     if (user) {
       loadCachedAnalytics();
+    } else {
+      setIsLoading(false);
     }
   }, [user]);
 
   const loadCachedAnalytics = async () => {
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       
       const { data, error } = await supabase
         .from('user_analytics')
         .select('analytics_data, updated_at')
-        .eq('user_id', user?.id)
-        .single();
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error loading cached analytics:', error);
+        setAnalytics(null);
         return;
       }
 
-      if (data) {
-        setAnalytics(data.analytics_data as unknown as CachedAnalytics);
+      if (data && data.analytics_data) {
+        try {
+          // Safely parse the analytics data
+          const analyticsData = typeof data.analytics_data === 'string' 
+            ? JSON.parse(data.analytics_data) 
+            : data.analytics_data;
+          
+          setAnalytics(analyticsData as CachedAnalytics);
+        } catch (parseError) {
+          console.error('Error parsing analytics data:', parseError);
+          setAnalytics(null);
+        }
+      } else {
+        setAnalytics(null);
       }
     } catch (error) {
       console.error('Error loading cached analytics:', error);
+      setAnalytics(null);
     } finally {
       setIsLoading(false);
     }
   };
 
   const generateAnalytics = async () => {
-    if (!user) return;
+    if (!user) {
+      toast.error('Необходимо войти в систему');
+      return;
+    }
 
     try {
       setIsGenerating(true);
@@ -82,8 +107,11 @@ export const useCachedAnalytics = () => {
           .order('created_at', { ascending: false })
       ]);
 
-      if (analysesResponse.error || chatsResponse.error) {
-        throw new Error('Failed to load data for analytics generation');
+      if (analysesResponse.error) {
+        console.error('Error loading analyses:', analysesResponse.error);
+      }
+      if (chatsResponse.error) {
+        console.error('Error loading chats:', chatsResponse.error);
       }
 
       const analyses = analysesResponse.data || [];
@@ -97,12 +125,14 @@ export const useCachedAnalytics = () => {
         .from('user_analytics')
         .upsert({
           user_id: user.id,
-          analytics_data: generatedAnalytics as any,
+          analytics_data: generatedAnalytics,
           updated_at: new Date().toISOString()
         });
 
       if (upsertError) {
-        throw upsertError;
+        console.error('Error saving analytics:', upsertError);
+        toast.error('Ошибка сохранения аналитики');
+        return;
       }
 
       setAnalytics(generatedAnalytics);
@@ -127,7 +157,7 @@ export const useCachedAnalytics = () => {
 
     if (analyses.length > 0) {
       const latestAnalysis = analyses[0];
-      const results = latestAnalysis.results as any;
+      const results = latestAnalysis.results;
       
       if (results?.riskLevel) {
         riskLevel = results.riskLevel;
