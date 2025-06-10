@@ -82,5 +82,3 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 serve(handler);
-
-</edits_to_apply>
