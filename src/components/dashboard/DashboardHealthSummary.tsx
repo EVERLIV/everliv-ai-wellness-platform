@@ -14,6 +14,15 @@ interface HealthStats {
   hasRecentActivity: boolean;
 }
 
+interface AnalysisResults {
+  riskLevel?: string;
+  markers?: Array<{
+    name: string;
+    value: any;
+    status: string;
+  }>;
+}
+
 const DashboardHealthSummary = () => {
   const { user } = useAuth();
   const [healthStats, setHealthStats] = useState<HealthStats>({
@@ -54,13 +63,15 @@ const DashboardHealthSummary = () => {
         let riskLevel = 'low';
         if (analyses && analyses.length > 0) {
           const latestAnalysis = analyses[0];
-          if (latestAnalysis.results?.riskLevel) {
-            riskLevel = latestAnalysis.results.riskLevel;
-          } else if (latestAnalysis.results?.markers) {
-            const riskMarkers = latestAnalysis.results.markers.filter((marker: any) => 
+          const results = latestAnalysis.results as AnalysisResults;
+          
+          if (results?.riskLevel) {
+            riskLevel = results.riskLevel;
+          } else if (results?.markers) {
+            const riskMarkers = results.markers.filter((marker) => 
               marker.status === 'attention' || marker.status === 'risk' || marker.status === 'high' || marker.status === 'low'
             );
-            const totalMarkers = latestAnalysis.results.markers.length;
+            const totalMarkers = results.markers.length;
             const riskPercentage = riskMarkers.length / totalMarkers;
             
             if (riskPercentage >= 0.5) riskLevel = 'high';
