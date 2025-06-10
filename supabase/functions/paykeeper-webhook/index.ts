@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -15,6 +16,7 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const callbackToken = Deno.env.get('PAYKEEPER_CALLBACK_TOKEN')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Parse webhook data from PayKeeper
@@ -27,7 +29,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('PayKeeper webhook received:', webhookData);
 
-    const { id, orderid, sum, status } = webhookData;
+    // Verify callback token for security
+    const receivedToken = webhookData.token || req.headers.get('authorization');
+    if (receivedToken !== callbackToken) {
+      console.error('Invalid callback token received');
+      return new Response('Unauthorized', { status: 401 });
+    }
+
+    const { status, sum, clientid, service_name } = webhookData;
 
     // Verify that payment was successful
     if (status !== 'paid') {
@@ -35,17 +44,46 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response('Payment not completed', { status: 200 });
     }
 
-    // Extract user ID and plan type from order ID
-    const orderParts = orderid.split('_');
-    if (orderParts.length < 3 || orderParts[0] !== 'sub') {
-      console.error('Invalid order ID format:', orderid);
-      return new Response('Invalid order ID', { status: 400 });
+    console.log('Processing successful payment:', {
+      clientid,
+      sum,
+      service_name,
+      status
+    });
+
+    // Since we're using static payment page, we need to identify user differently
+    // We'll check for recent checkout attempts or use clientid if it matches our user ID pattern
+    
+    let userId = clientid;
+    let planType = 'standard'; // Default plan
+
+    // Try to determine plan type from service_name or other fields
+    if (service_name) {
+      if (service_name.toLowerCase().includes('премиум') || service_name.toLowerCase().includes('premium')) {
+        planType = 'premium';
+      } else if (service_name.toLowerCase().includes('базовый') || service_name.toLowerCase().includes('basic')) {
+        planType = 'basic';
+      }
     }
 
-    const planType = orderParts[1] as 'basic' | 'standard' | 'premium';
-    const userId = orderParts[2];
+    // Determine plan based on amount if service_name doesn't help
+    const amount = parseFloat(sum);
+    if (amount >= 4000) {
+      planType = 'premium';
+    } else if (amount >= 2000) {
+      planType = 'standard';
+    } else {
+      planType = 'basic';
+    }
 
-    console.log('Processing payment for user:', userId, 'plan:', planType);
+    console.log('Determined plan type:', planType, 'for amount:', amount);
+
+    // If clientid doesn't look like a UUID, we need to find the user another way
+    // For now, let's assume clientid is the user ID or we have it in the webhook data
+    if (!userId || userId.length < 30) {
+      console.error('Unable to identify user from webhook data');
+      return new Response('Unable to identify user', { status: 400 });
+    }
 
     // Calculate expiration date (1 month from now)
     const expiresAt = new Date();

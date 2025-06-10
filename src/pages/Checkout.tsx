@@ -8,7 +8,6 @@ import { Shield, Check, ArrowLeft, AlertCircle, CreditCard } from 'lucide-react'
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import { supabase } from "@/integrations/supabase/client";
 
 const Checkout = () => {
   const location = useLocation();
@@ -61,50 +60,20 @@ const Checkout = () => {
     setLoading(true);
     
     try {
-      console.log('Creating invoice with data:', {
-        userId: user.id,
-        planType: plan.type || 'standard',
-        amount: plan.price,
-        description: `Подписка ${plan.name} - EVERLIV`,
-        userEmail: user.email
-      });
-
-      // Create invoice through PayKeeper API
-      const { data: invoiceData, error } = await supabase.functions.invoke('create-paykeeper-invoice', {
-        body: {
-          userId: user.id,
-          planType: plan.type || 'standard',
-          amount: plan.price,
-          description: `Подписка ${plan.name} - EVERLIV`,
-          userEmail: user.email
-        }
-      });
-
-      if (error) {
-        console.error('Error creating invoice:', error);
-        throw new Error('Ошибка создания счета для оплаты');
-      }
-
-      if (!invoiceData.success) {
-        throw new Error(invoiceData.error || 'Ошибка создания счета для оплаты');
-      }
-
-      console.log('Invoice created:', invoiceData);
-
-      // Redirect to payment URL
-      if (invoiceData.payment_url) {
-        // Store current plan info for return
-        sessionStorage.setItem('checkout_plan', JSON.stringify(plan));
-        
-        // Redirect to PayKeeper payment page
-        window.location.href = invoiceData.payment_url;
-      } else {
-        throw new Error('Не получена ссылка для оплаты');
-      }
+      // Store current plan info for return
+      sessionStorage.setItem('checkout_plan', JSON.stringify(plan));
+      sessionStorage.setItem('checkout_user', JSON.stringify({
+        id: user.id,
+        email: user.email,
+        planType: plan.type || 'standard'
+      }));
+      
+      // Redirect to PayKeeper payment page
+      window.location.href = 'https://payment.alfabank.ru/shortlink/ePOnVto9';
 
     } catch (error: any) {
       console.error("Payment error:", error);
-      toast.error(error.message || "Произошла ошибка при создании счета для оплаты");
+      toast.error("Произошла ошибка при переходе к оплате");
       setLoading(false);
     }
   };
@@ -118,6 +87,7 @@ const Checkout = () => {
           const planData = JSON.parse(storedPlan);
           // Update location state or handle plan display
           sessionStorage.removeItem('checkout_plan');
+          sessionStorage.removeItem('checkout_user');
         } catch (e) {
           console.error('Error parsing stored plan:', e);
         }
@@ -191,7 +161,7 @@ const Checkout = () => {
                 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Оплата через PayKeeper</CardTitle>
+                    <CardTitle>Оплата через Альфа-Банк</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="mb-6">
@@ -221,7 +191,7 @@ const Checkout = () => {
                       className="w-full" 
                       disabled={loading}
                     >
-                      {loading ? "Обработка..." : `Перейти к оплате ${plan.price} ₽`}
+                      {loading ? "Перенаправление..." : `Перейти к оплате ${plan.price} ₽`}
                     </Button>
                   </CardContent>
                 </Card>
