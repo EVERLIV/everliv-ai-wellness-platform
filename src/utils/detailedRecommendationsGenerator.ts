@@ -1,4 +1,3 @@
-
 import { CachedAnalytics } from '@/types/analytics';
 
 export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
@@ -135,7 +134,7 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
       specialist: 'Кардиолог',
       urgency: 'within_month' as const,
       reason: 'Оценка сердечно-сосудистого риска при повышенном холестерине',
-      whatToExpect: 'ЭКГ, эхокардиография, расчет риска SCORE, назначение статинов при необходимости',
+      whatToExpected: 'ЭКГ, эхокардиография, расчет риска SCORE, назначение статинов при необходимости',
       preparation: [
         'Принесите результаты липидного профиля',
         'Измерьте давление дома 7 дней подряд',
@@ -150,7 +149,7 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
       specialist: 'Эндокринолог',
       urgency: 'within_3_months' as const,
       reason: 'Профилактика метаболических нарушений',
-      whatToExpect: 'Оценка углеводного обмена, функции щитовидной железы, рекомендации по питанию',
+      whatToExpected: 'Оценка углеводного обмена, функции щитовидной железы, рекомендации по питанию',
       preparation: [
         'Анализы натощак: глюкоза, HbA1c, ТТГ, Т4 свободный',
         'Ведите дневник питания 7 дней',
@@ -165,7 +164,7 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
       specialist: 'Диетолог-нутрициолог',
       urgency: 'within_month' as const,
       reason: 'Составление индивидуального плана питания',
-      whatToExpect: 'Анализ текущего рациона, расчет КБЖУ, план питания, рекомендации по добавкам',
+      whatToExpected: 'Анализ текущего рациона, расчет КБЖУ, план питания, рекомендации по добавкам',
       preparation: [
         'Ведите дневник питания 7 дней',
         'Принесите результаты анализов',

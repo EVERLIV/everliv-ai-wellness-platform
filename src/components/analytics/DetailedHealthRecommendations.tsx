@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -55,7 +54,7 @@ interface SpecialistRecommendation {
   specialist: string;
   urgency: 'immediate' | 'within_month' | 'within_3_months' | 'annual';
   reason: string;
-  whatToExpected: string;
+  whatToExpect: string;
   preparation: string[];
   estimatedCost: string;
   frequency: string;
