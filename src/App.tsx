@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -23,6 +24,7 @@ import AIDoctorGeneralPage from "./pages/AIDoctorGeneralPage";
 import AIDoctorPersonalPage from "./pages/AIDoctorPersonalPage";
 import LabAnalyses from "./pages/LabAnalyses";
 import Analytics from "./pages/Analytics";
+import AnalysisDetails from "./pages/AnalysisDetails";
 
 // Import new pages
 import AccountSettings from "./pages/AccountSettings";
