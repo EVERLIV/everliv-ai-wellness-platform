@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Send, Bot, User, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Message {
   id: string;
@@ -23,6 +24,7 @@ const TrialChat: React.FC = () => {
   const [gender, setGender] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const maxMessages = 5;
+  const { user } = useAuth();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -73,7 +75,20 @@ const TrialChat: React.FC = () => {
             role: msg.role,
             content: msg.content
           })),
-          systemPrompt: `You are Everliv, an AI health assistant. Provide medical information and wellness guidance. Keep responses helpful and professional. Always recommend consulting healthcare professionals for specific concerns. Respond in Russian. Patient is ${age} years old, gender: ${gender}.`
+          systemPrompt: `Вы - ИИ-доктор Everliv, который предоставляет ТОЛЬКО общие медицинские консультации и информацию о здоровье. 
+
+ВАЖНЫЕ ОГРАНИЧЕНИЯ:
+- Отвечайте ТОЛЬКО на медицинские вопросы о здоровье, симптомах, профилактике
+- Давайте ОБЩИЕ рекомендации, избегайте конкретных диагнозов
+- Всегда рекомендуйте консультацию с врачом для точного диагноза
+- Если вопрос НЕ медицинский - вежливо перенаправьте на медицинские темы
+- Отвечайте на русском языке
+- Будьте краткими и понятными
+- Подчеркивайте, что это бесплатная базовая консультация
+
+Пациент: ${age} лет, пол: ${gender}.
+
+Помните: вы предоставляете общую медицинскую информацию, а не заменяете консультацию врача.`
         }
       });
 
@@ -88,12 +103,15 @@ const TrialChat: React.FC = () => {
 
       setMessages(prev => [...prev, assistantMessage]);
 
+      // Проверяем, достиг ли пользователь лимита
       if (messageCount + 1 >= maxMessages) {
         setTimeout(() => {
           const limitMessage: Message = {
             id: 'limit-reached',
             role: 'assistant',
-            content: 'Вы достигли лимита бесплатных вопросов. Зарегистрируйтесь для продолжения общения и получения персональных рекомендаций!',
+            content: user 
+              ? 'Вы достигли лимита бесплатных вопросов. Для получения неограниченных консультаций и персонального ИИ-доктора оформите подписку!'
+              : 'Вы достигли лимита бесплатных вопросов. Зарегистрируйтесь для продолжения общения и получения персональных рекомендаций!',
             timestamp: new Date()
           };
           setMessages(prev => [...prev, limitMessage]);
@@ -101,7 +119,7 @@ const TrialChat: React.FC = () => {
       }
 
     } catch (error) {
-      console.error('Error calling AI Doctor:', error);
+      console.error('Ошибка вызова ИИ-доктора:', error);
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         role: 'assistant',
@@ -278,18 +296,31 @@ const TrialChat: React.FC = () => {
           <div className="bg-accent border border-primary/20 rounded-2xl p-6">
             <p className="text-foreground font-semibold mb-3 text-lg">Лимит бесплатных вопросов исчерпан!</p>
             <p className="text-muted-foreground">
-              Зарегистрируйтесь для неограниченного общения с ИИ-доктором
+              {user 
+                ? 'Оформите подписку для неограниченного общения с персональным ИИ-доктором'
+                : 'Зарегистрируйтесь для неограниченного общения с ИИ-доктором'
+              }
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/signup">
-              <Button size="lg" className="bg-primary hover:bg-primary/90 px-8">
-                Зарегистрироваться бесплатно
-              </Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="outline" size="lg" className="px-8">Войти в аккаунт</Button>
-            </Link>
+            {user ? (
+              <Link to="/pricing">
+                <Button size="lg" className="bg-primary hover:bg-primary/90 px-8">
+                  Оформить подписку
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/signup">
+                  <Button size="lg" className="bg-primary hover:bg-primary/90 px-8">
+                    Зарегистрироваться бесплатно
+                  </Button>
+                </Link>
+                <Link to="/login">
+                  <Button variant="outline" size="lg" className="px-8">Войти в аккаунт</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       ) : (
