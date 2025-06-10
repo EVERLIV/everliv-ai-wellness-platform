@@ -5,8 +5,6 @@ import Header from "@/components/Header";
 import MinimalFooter from "@/components/MinimalFooter";
 import AnalyticsHeader from "@/components/analytics/AnalyticsHeader";
 import AnalyticsSummary from "@/components/analytics/AnalyticsSummary";
-import BiomarkersList from "@/components/analytics/BiomarkersList";
-import BiomarkerDetails from "@/components/analytics/BiomarkerDetails";
 import HealthOverviewCards from "@/components/analytics/HealthOverviewCards";
 import HealthImprovementActions from "@/components/analytics/HealthImprovementActions";
 import RecommendedTests from "@/components/analytics/RecommendedTests";
@@ -28,16 +26,6 @@ interface HealthData {
       stable: number;
     };
   };
-  biomarkers: Array<{
-    id: string;
-    name: string;
-    value: number;
-    unit: string;
-    status: 'optimal' | 'good' | 'attention' | 'risk';
-    trend: 'up' | 'down' | 'stable';
-    referenceRange: string;
-    lastMeasured: string;
-  }>;
   healthImprovementActions: Array<{
     id: string;
     category: string;
@@ -104,7 +92,6 @@ interface HealthData {
 const Analytics: React.FC = () => {
   const { user } = useAuth();
   const [healthData, setHealthData] = useState<HealthData | null>(null);
-  const [selectedBiomarker, setSelectedBiomarker] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [doctorQuestion, setDoctorQuestion] = useState("");
   const [doctorResponse, setDoctorResponse] = useState("");
@@ -170,18 +157,6 @@ const Analytics: React.FC = () => {
           stable: 4
         }
       },
-      biomarkers: [
-        {
-          id: '1',
-          name: 'Холестерин общий',
-          value: 5.2,
-          unit: 'ммоль/л',
-          status: 'attention',
-          trend: 'up',
-          referenceRange: '3.3-5.2',
-          lastMeasured: '2024-01-15'
-        }
-      ],
       healthImprovementActions: [
         {
           id: '1',
@@ -190,19 +165,40 @@ const Analytics: React.FC = () => {
           priority: 'high',
           actions: [
             'Исключить трансжиры и ограничить насыщенные жиры',
-            'Добавить 25-30г клетчатки в день'
+            'Добавить 25-30г клетчатки в день',
+            'Увеличить физическую активность до 150 минут в неделю'
           ],
           expectedResult: 'Снижение холестерина на 10-15% за 2-3 месяца'
+        },
+        {
+          id: '2',
+          category: 'Обмен веществ',
+          title: 'Контроль уровня глюкозы',
+          priority: 'medium',
+          actions: [
+            'Снизить потребление простых углеводов',
+            'Регулярное питание небольшими порциями',
+            'Контроль веса'
+          ],
+          expectedResult: 'Стабилизация уровня глюкозы в норме'
         }
       ],
       recommendedTests: [
         {
           id: '1',
-          name: 'Расширенный анализ крови',
-          frequency: 'Каждые 3-6 месяцев',
+          name: 'Расширенная липидограмма',
+          frequency: 'Каждые 3 месяца',
           priority: 'high',
-          reason: 'Базовая оценка состояния здоровья',
-          includes: ['Общий анализ', 'Биохимия', 'Липидный профиль']
+          reason: 'Контроль эффективности диеты и лечения',
+          includes: ['Общий холестерин', 'ЛПНП', 'ЛПВП', 'Триглицериды', 'Коэффициент атерогенности']
+        },
+        {
+          id: '2',
+          name: 'Гликированный гемоглобин',
+          frequency: 'Каждые 6 месяцев',
+          priority: 'medium',
+          reason: 'Оценка долгосрочного контроля глюкозы',
+          includes: ['HbA1c', 'Глюкоза натощак']
         }
       ],
       specialistConsultations: [
@@ -210,9 +206,17 @@ const Analytics: React.FC = () => {
           id: '1',
           specialist: 'Кардиолог',
           urgency: 'В течение месяца',
-          reason: 'Повышенный холестерин',
-          purpose: 'Оценка рисков, назначение лечения',
-          preparation: 'Принести результаты анализов'
+          reason: 'Повышенный риск сердечно-сосудистых заболеваний',
+          purpose: 'Оценка состояния сердечно-сосудистой системы и назначение лечения',
+          preparation: 'Принести результаты всех анализов за последние 6 месяцев'
+        },
+        {
+          id: '2',
+          specialist: 'Эндокринолог',
+          urgency: 'В течение 2-3 месяцев',
+          reason: 'Нарушения углеводного обмена',
+          purpose: 'Исключение диабета и метаболического синдрома',
+          preparation: 'Сдать анализы натощак, ведите дневник питания'
         }
       ],
       keyHealthIndicators: [
@@ -225,6 +229,30 @@ const Analytics: React.FC = () => {
               target: '< 5.2 ммоль/л',
               importance: 'Основной фактор риска атеросклероза',
               frequency: 'Каждые 3-6 месяцев'
+            },
+            {
+              name: 'Артериальное давление',
+              target: '< 130/80 мм рт.ст.',
+              importance: 'Риск инфаркта и инсульта',
+              frequency: 'Ежедневно при гипертонии'
+            }
+          ]
+        },
+        {
+          id: '2',
+          category: 'Обмен веществ',
+          indicators: [
+            {
+              name: 'Глюкоза натощак',
+              target: '3.9-6.0 ммоль/л',
+              importance: 'Ранняя диагностика диабета',
+              frequency: 'Каждые 6-12 месяцев'
+            },
+            {
+              name: 'ИМТ',
+              target: '18.5-24.9',
+              importance: 'Контроль веса и метаболизма',
+              frequency: 'Еженедельно'
             }
           ]
         }
@@ -236,8 +264,29 @@ const Analytics: React.FC = () => {
           recommendations: [
             {
               advice: 'Средиземноморская диета',
-              benefit: 'Снижение холестерина и воспаления',
-              howTo: 'Больше рыбы, оливкового масла, орехов'
+              benefit: 'Снижение холестерина и воспаления на 20-30%',
+              howTo: 'Больше рыбы (2-3 раза в неделю), оливковое масло, орехи, овощи'
+            },
+            {
+              advice: 'Ограничение соли',
+              benefit: 'Снижение артериального давления',
+              howTo: 'Не более 5г соли в день, используйте специи вместо соли'
+            }
+          ]
+        },
+        {
+          id: '2',
+          category: 'Физическая активность',
+          recommendations: [
+            {
+              advice: 'Кардио-тренировки',
+              benefit: 'Улучшение работы сердца и снижение холестерина',
+              howTo: '150 минут умеренной активности в неделю (ходьба, плавание)'
+            },
+            {
+              advice: 'Силовые упражнения',
+              benefit: 'Улучшение метаболизма и контроль веса',
+              howTo: '2-3 раза в неделю упражнения с весом или сопротивлением'
             }
           ]
         }
@@ -247,8 +296,8 @@ const Analytics: React.FC = () => {
           id: '1',
           factor: 'Повышенный холестерин',
           level: 'medium',
-          description: 'Умеренное превышение нормы',
-          mitigation: 'Коррекция диеты и образа жизни'
+          description: 'Умеренное превышение нормы ЛПНП',
+          mitigation: 'Диета и физическая активность в течение 3 месяцев'
         }
       ],
       supplements: [
@@ -256,8 +305,8 @@ const Analytics: React.FC = () => {
           id: '1',
           name: 'Омега-3',
           dosage: '1000-2000 мг/день',
-          benefit: 'Поддержка сердца и мозга',
-          timing: 'С едой'
+          benefit: 'Снижение триглицеридов и воспаления',
+          timing: 'С едой, желательно с ужином'
         }
       ]
     };
@@ -285,18 +334,6 @@ const Analytics: React.FC = () => {
     } finally {
       setIsProcessingQuestion(false);
     }
-  };
-
-  // Convert health improvement actions to recommendations format for BiomarkerDetails
-  const convertToRecommendations = (actions: HealthData['healthImprovementActions']) => {
-    return actions.map(action => ({
-      id: action.id,
-      category: action.category,
-      title: action.title,
-      description: action.expectedResult,
-      action: action.actions.join('. '),
-      priority: action.priority
-    }));
   };
 
   if (!user) {
@@ -340,27 +377,27 @@ const Analytics: React.FC = () => {
           )}
 
           {/* Health Improvement Actions */}
-          {healthData?.healthImprovementActions && (
+          {healthData?.healthImprovementActions && healthData.healthImprovementActions.length > 0 && (
             <HealthImprovementActions actions={healthData.healthImprovementActions} />
           )}
 
           {/* Recommended Tests */}
-          {healthData?.recommendedTests && (
+          {healthData?.recommendedTests && healthData.recommendedTests.length > 0 && (
             <RecommendedTests tests={healthData.recommendedTests} />
           )}
 
           {/* Specialist Consultations */}
-          {healthData?.specialistConsultations && (
+          {healthData?.specialistConsultations && healthData.specialistConsultations.length > 0 && (
             <SpecialistConsultations consultations={healthData.specialistConsultations} />
           )}
 
           {/* Key Health Indicators */}
-          {healthData?.keyHealthIndicators && (
+          {healthData?.keyHealthIndicators && healthData.keyHealthIndicators.length > 0 && (
             <KeyHealthIndicators indicators={healthData.keyHealthIndicators} />
           )}
 
           {/* Lifestyle Recommendations */}
-          {healthData?.lifestyleRecommendations && (
+          {healthData?.lifestyleRecommendations && healthData.lifestyleRecommendations.length > 0 && (
             <LifestyleRecommendations recommendations={healthData.lifestyleRecommendations} />
           )}
 
@@ -373,26 +410,6 @@ const Analytics: React.FC = () => {
             doctorResponse={doctorResponse}
             isProcessingQuestion={isProcessingQuestion}
           />
-          
-          {/* Biomarkers List and Details */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1">
-              <BiomarkersList 
-                biomarkers={healthData?.biomarkers || []}
-                selectedBiomarker={selectedBiomarker}
-                onSelectBiomarker={setSelectedBiomarker}
-              />
-            </div>
-            
-            <div className="lg:col-span-2">
-              <BiomarkerDetails 
-                biomarker={healthData?.biomarkers.find(b => b.id === selectedBiomarker)}
-                recommendations={healthData?.healthImprovementActions ? convertToRecommendations(healthData.healthImprovementActions) : []}
-                riskFactors={healthData?.riskFactors || []}
-                supplements={healthData?.supplements || []}
-              />
-            </div>
-          </div>
         </div>
       </div>
       <MinimalFooter />
