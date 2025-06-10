@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, Settings, CreditCard, HelpCircle, LogOut, Crown } from "lucide-react";
+import { Settings, CreditCard, HelpCircle, LogOut, Crown } from "lucide-react";
 
 const UserProfileDropdown: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -87,13 +87,6 @@ const UserProfileDropdown: React.FC = () => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          onClick={() => navigate('/profile')}
-          className="cursor-pointer"
-        >
-          <User className="mr-2 h-4 w-4" />
-          <span>Профиль</span>
-        </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={() => navigate('/settings')}
           className="cursor-pointer"

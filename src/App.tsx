@@ -29,7 +29,6 @@ import HealthProfile from "./pages/HealthProfile";
 import NutritionDiary from "./pages/NutritionDiary";
 import Analytics from "./pages/Analytics";
 import LabAnalyses from "./pages/LabAnalyses";
-import UserProfile from "./pages/UserProfile";
 import AccountSettings from "./pages/AccountSettings";
 import UserSubscription from "./pages/UserSubscription";
 import Checkout from "./pages/Checkout";
@@ -115,14 +114,6 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <LabAnalyses />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <UserProfile />
                   </ProtectedRoute>
                 }
               />
