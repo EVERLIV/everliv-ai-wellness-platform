@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSearchParams } from "react-router-dom";
@@ -119,36 +120,32 @@ const Analytics: React.FC = () => {
   const [searchParams] = useSearchParams();
   const analysisId = searchParams.get('id');
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
   const [doctorQuestion, setDoctorQuestion] = useState("");
   const [doctorResponse, setDoctorResponse] = useState("");
   const [isProcessingQuestion, setIsProcessingQuestion] = useState(false);
 
-  const { analytics, generateAnalytics, isGenerating, loadingStep } = useCachedAnalytics();
+  const { analytics, generateAnalytics, isGenerating, loadingStep, isLoading: isLoadingAnalytics } = useCachedAnalytics();
 
   console.log('Analytics page debug:', {
     isGenerating,
     loadingStep,
-    analytics,
+    analytics: !!analytics,
     analysisId,
-    isLoading
+    isLoadingAnalysis,
+    isLoadingAnalytics,
+    user: !!user
   });
 
   useEffect(() => {
-    if (user) {
-      if (analysisId) {
-        loadAnalysisDetails();
-      } else {
-        setIsLoading(false);
-      }
-    } else {
-      setIsLoading(false);
+    if (user && analysisId) {
+      loadAnalysisDetails();
     }
   }, [user, analysisId]);
 
   const loadAnalysisDetails = async () => {
     try {
-      setIsLoading(true);
+      setIsLoadingAnalysis(true);
       
       const { data: analysis, error } = await supabase
         .from('medical_analyses')
@@ -173,7 +170,7 @@ const Analytics: React.FC = () => {
       toast.error('Ошибка загрузки данных анализа');
       setAnalysisData(null);
     } finally {
-      setIsLoading(false);
+      setIsLoadingAnalysis(false);
     }
   };
 
@@ -354,24 +351,22 @@ const Analytics: React.FC = () => {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col bg-slate-50">
-        <Header />
-        <div className="flex-grow flex items-center justify-center pt-16">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            <p className="text-gray-500">
-              {analysisId ? 'Загрузка данных анализа...' : 'Загрузка аналитики...'}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Если есть analysisId, показываем детали конкретного анализа
   if (analysisId) {
+    if (isLoadingAnalysis) {
+      return (
+        <div className="min-h-screen flex flex-col bg-slate-50">
+          <Header />
+          <div className="flex-grow flex items-center justify-center pt-16">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+              <p className="text-gray-500">Загрузка данных анализа...</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (!analysisData) {
       return (
         <div className="min-h-screen flex flex-col bg-slate-50">
@@ -399,7 +394,6 @@ const Analytics: React.FC = () => {
       <div className="min-h-screen flex flex-col bg-slate-50">
         <Header />
         <div className="pt-16">
-          {/* Заголовок страницы */}
           <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 border-b border-gray-200">
             <div className="container mx-auto px-4 py-8 max-w-7xl">
               <div className="flex items-center justify-between mb-6">
@@ -441,7 +435,6 @@ const Analytics: React.FC = () => {
             </div>
           </div>
 
-          {/* Список биомаркеров */}
           <div className="container mx-auto px-4 py-8 max-w-7xl">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {analysisData.biomarkers.map((biomarker, index) => (
@@ -460,7 +453,6 @@ const Analytics: React.FC = () => {
                   
                   <CardContent>
                     <div className="space-y-4">
-                      {/* Значение */}
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-1">Значение</p>
                         <div className="flex items-baseline space-x-2">
@@ -473,13 +465,11 @@ const Analytics: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Референсные значения */}
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-1">Норма (РФ Минздрав)</p>
                         <p className="text-sm text-gray-600 font-medium">{biomarker.referenceRange}</p>
                       </div>
 
-                      {/* Описание */}
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-1">Описание</p>
                         <p className="text-xs text-gray-600 leading-relaxed">
@@ -514,7 +504,7 @@ const Analytics: React.FC = () => {
 
   // Показываем индикатор загрузки если идет генерация
   if (isGenerating) {
-    console.log('Showing loading indicator:', { isGenerating, loadingStep });
+    console.log('Showing loading indicator for analytics generation');
     return (
       <div className="min-h-screen flex flex-col bg-slate-50">
         <Header />

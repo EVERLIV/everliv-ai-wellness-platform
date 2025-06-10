@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,30 +13,35 @@ export const useCachedAnalytics = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string>('');
 
-  console.log('useCachedAnalytics state:', {
+  console.log('useCachedAnalytics hook state:', {
     isGenerating,
     loadingStep,
-    analytics: !!analytics,
-    isLoading
+    hasAnalytics: !!analytics,
+    isLoading,
+    hasUser: !!user
   });
 
   useEffect(() => {
     if (user) {
+      console.log('User found, loading cached analytics...');
       loadCachedAnalytics();
     } else {
+      console.log('No user, stopping loading');
       setIsLoading(false);
+      setAnalytics(null);
     }
   }, [user]);
 
   const loadCachedAnalytics = async () => {
     if (!user) {
+      console.log('No user in loadCachedAnalytics');
       setIsLoading(false);
       return;
     }
 
     try {
+      console.log('Starting to load cached analytics for user:', user.id);
       setIsLoading(true);
-      setLoadingStep('Загрузка кэшированной аналитики...');
       
       const { data, error } = await supabase
         .from('user_analytics')
@@ -49,27 +55,29 @@ export const useCachedAnalytics = () => {
         return;
       }
 
+      console.log('Cached analytics query result:', { data });
+
       if (data && data.analytics_data) {
         try {
-          // Safely parse the analytics data
           const analyticsData = typeof data.analytics_data === 'string' 
             ? JSON.parse(data.analytics_data) 
             : data.analytics_data;
           
+          console.log('Successfully parsed analytics data:', analyticsData);
           setAnalytics(analyticsData as CachedAnalytics);
         } catch (parseError) {
           console.error('Error parsing analytics data:', parseError);
           setAnalytics(null);
         }
       } else {
+        console.log('No cached analytics found');
         setAnalytics(null);
       }
     } catch (error) {
-      console.error('Error loading cached analytics:', error);
+      console.error('Error in loadCachedAnalytics:', error);
       setAnalytics(null);
     } finally {
       setIsLoading(false);
-      setLoadingStep('');
     }
   };
 
@@ -84,7 +92,6 @@ export const useCachedAnalytics = () => {
       setIsGenerating(true);
       setLoadingStep('Загрузка данных анализов...');
 
-      // Загружаем данные для генерации аналитики
       const [analysesResponse, chatsResponse] = await Promise.all([
         supabase
           .from('medical_analyses')
@@ -105,20 +112,17 @@ export const useCachedAnalytics = () => {
         console.error('Error loading chats:', chatsResponse.error);
       }
 
-      // Cast the Supabase data to our interface types
       const analyses = (analysesResponse.data || []) as AnalysisRecord[];
       const chats = (chatsResponse.data || []) as ChatRecord[];
 
-      console.log('Data loaded, starting analysis...');
+      console.log('Data loaded - analyses:', analyses.length, 'chats:', chats.length);
       setLoadingStep('Анализ данных и генерация отчета...');
       
-      // Генерируем аналитику
       const generatedAnalytics = await generateAnalyticsData(analyses, chats);
+      console.log('Analytics generated:', generatedAnalytics);
 
-      console.log('Analytics generated, saving...');
       setLoadingStep('Сохранение результатов...');
 
-      // Сохраняем в кэш
       const { error: upsertError } = await supabase
         .from('user_analytics')
         .upsert({
