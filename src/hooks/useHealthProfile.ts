@@ -103,8 +103,9 @@ export const useHealthProfile = () => {
         return;
       }
 
-      if (data && data.profile_data) {
-        setHealthProfile({ ...defaultHealthProfile, ...data.profile_data });
+      if (data?.profile_data) {
+        const profileData = data.profile_data as any;
+        setHealthProfile({ ...defaultHealthProfile, ...profileData });
       }
     } catch (error) {
       console.error('Error loading health profile:', error);
@@ -126,7 +127,7 @@ export const useHealthProfile = () => {
         .from('health_profiles')
         .upsert({
           user_id: user.id,
-          profile_data: healthProfile,
+          profile_data: healthProfile as any,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'user_id'
