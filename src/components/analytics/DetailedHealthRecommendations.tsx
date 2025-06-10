@@ -55,7 +55,7 @@ interface SpecialistRecommendation {
   specialist: string;
   urgency: 'immediate' | 'within_month' | 'within_3_months' | 'annual';
   reason: string;
-  whatToExpect: string;
+  whatToExpected: string;
   preparation: string[];
   estimatedCost: string;
   frequency: string;
@@ -296,7 +296,7 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
                   </div>
                   
                   <div>
-                    <strong>Где купить:</strong> {supplement.whereToBy}
+                    <strong>Где купить:</strong> {supplement.whereToBuy}
                   </div>
                   
                   {supplement.interactions && (

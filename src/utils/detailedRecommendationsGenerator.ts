@@ -99,7 +99,7 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
       benefit: 'Укрепляет иммунитет, улучшает настроение, здоровье костей',
       duration: '3-6 месяцев до нормализации, далее поддерживающая доза',
       cost: '400-600 руб/месяц',
-      whereToBy: 'Аптеки, iHerb, Solgar, Now Foods',
+      whereToBuy: 'Аптеки, iHerb, Solgar, Now Foods',
       interactions: 'Увеличивает всасывание кальция',
       sideEffects: 'При превышении дозы: тошнота, камни в почках'
     },
@@ -111,7 +111,7 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
       benefit: 'Снижает воспаление, улучшает работу сердца и мозга',
       duration: 'Постоянно',
       cost: '800-1200 руб/месяц',
-      whereToBy: 'Nordic Naturals, Solgar, аптеки',
+      whereToBuy: 'Nordic Naturals, Solgar, аптеки',
       interactions: 'Разжижает кровь, осторожно с антикоагулянтами',
       sideEffects: 'Рыбный запах изо рта, расстройство желудка'
     },
@@ -123,7 +123,7 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
       benefit: 'Улучшает сон, снижает стресс, расслабляет мышцы',
       duration: '2-3 месяца, затем перерыв',
       cost: '300-500 руб/месяц',
-      whereToBy: 'Now Foods, Solgar, аптеки',
+      whereToBuy: 'Now Foods, Solgar, аптеки',
       interactions: 'Может снижать всасывание некоторых антибиотиков',
       sideEffects: 'Расслабление кишечника при превышении дозы'
     }
