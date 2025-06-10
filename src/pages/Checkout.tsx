@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Shield, Check, ArrowLeft, AlertCircle, CreditCard } from 'lucide-react';
@@ -13,10 +13,15 @@ import { supabase } from "@/integrations/supabase/client";
 const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const { subscription } = useSubscription();
+  const { subscription, refetch } = useSubscription();
   const [loading, setLoading] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
+  
+  // Check if user returned from payment
+  const paymentSuccess = searchParams.get('payment') === 'success';
+  const paymentCanceled = searchParams.get('payment') === 'canceled';
   
   // Get plan from location state or use default
   const plan = location.state?.plan || {
@@ -26,12 +31,26 @@ const Checkout = () => {
     annual: false
   };
 
+  // Check for payment status on component mount
+  useEffect(() => {
+    if (paymentSuccess) {
+      setOrderComplete(true);
+      toast.success('Оплата прошла успешно!');
+      // Refresh subscription data
+      if (refetch) {
+        refetch();
+      }
+    } else if (paymentCanceled) {
+      toast.info('Оплата была отменена');
+    }
+  }, [paymentSuccess, paymentCanceled, refetch]);
+
   // Redirect to pricing if no plan is selected
   useEffect(() => {
-    if (!location.state?.plan) {
+    if (!location.state?.plan && !paymentSuccess && !paymentCanceled) {
       navigate('/pricing');
     }
-  }, [location.state, navigate]);
+  }, [location.state, navigate, paymentSuccess, paymentCanceled]);
 
   const handlePayment = async () => {
     if (!user) {
@@ -57,36 +76,21 @@ const Checkout = () => {
         throw new Error('Ошибка создания счета для оплаты');
       }
 
+      if (!invoiceData.success) {
+        throw new Error(invoiceData.error || 'Ошибка создания счета для оплаты');
+      }
+
       console.log('Invoice created:', invoiceData);
 
-      // Initialize PayKeeper widget
-      if (window.PayKeeperWidget) {
-        window.PayKeeperWidget.init({
-          invoice_id: invoiceData.invoice_id,
-          onSuccess: () => {
-            console.log('Payment successful');
-            setOrderComplete(true);
-            toast.success('Оплата прошла успешно!');
-          },
-          onError: (error: any) => {
-            console.error('Payment error:', error);
-            toast.error('Ошибка при оплате');
-            setLoading(false);
-          },
-          onCancel: () => {
-            console.log('Payment cancelled');
-            toast.info('Оплата отменена');
-            setLoading(false);
-          }
-        });
-      } else {
-        // Fallback: redirect to PayKeeper payment page
-        const paymentUrl = `https://paykeeper.alfabank.ru/bill/${invoiceData.invoice_id}/`;
-        window.open(paymentUrl, '_blank');
+      // Redirect to payment URL
+      if (invoiceData.payment_url) {
+        // Store current plan info for return
+        sessionStorage.setItem('checkout_plan', JSON.stringify(plan));
         
-        // Show message about checking payment status
-        toast.info('Окно оплаты открыто в новой вкладке. После успешной оплаты вернитесь на эту страницу.');
-        setLoading(false);
+        // Redirect to PayKeeper payment page
+        window.location.href = invoiceData.payment_url;
+      } else {
+        throw new Error('Не получена ссылка для оплаты');
       }
 
     } catch (error: any) {
@@ -96,17 +100,21 @@ const Checkout = () => {
     }
   };
 
-  // Load PayKeeper widget script
+  // If returning from payment, restore plan info
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://paykeeper.alfabank.ru/widget/widget.js';
-    script.async = true;
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
+    if ((paymentSuccess || paymentCanceled) && !location.state?.plan) {
+      const storedPlan = sessionStorage.getItem('checkout_plan');
+      if (storedPlan) {
+        try {
+          const planData = JSON.parse(storedPlan);
+          // Update location state or handle plan display
+          sessionStorage.removeItem('checkout_plan');
+        } catch (e) {
+          console.error('Error parsing stored plan:', e);
+        }
+      }
+    }
+  }, [paymentSuccess, paymentCanceled, location.state]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -204,7 +212,7 @@ const Checkout = () => {
                       className="w-full" 
                       disabled={loading}
                     >
-                      {loading ? "Обработка..." : `Оплатить ${plan.price} ₽`}
+                      {loading ? "Обработка..." : `Перейти к оплате ${plan.price} ₽`}
                     </Button>
                   </CardContent>
                 </Card>
@@ -289,7 +297,7 @@ const Checkout = () => {
           
           <div className="mt-8 text-sm text-gray-500 text-center">
             <p>
-              Нажимая кнопку «Оплатить», вы соглашаетесь с <Link to="/payment-info" className="text-everliv-600 hover:underline">условиями оплаты</Link> и <Link to="/privacy" className="text-everliv-600 hover:underline">политикой конфиденциальности</Link>.
+              Нажимая кнопку «Перейти к оплате», вы соглашаетесь с <Link to="/payment-info" className="text-everliv-600 hover:underline">условиями оплаты</Link> и <Link to="/privacy" className="text-everliv-600 hover:underline">политикой конфиденциальности</Link>.
             </p>
           </div>
         </div>

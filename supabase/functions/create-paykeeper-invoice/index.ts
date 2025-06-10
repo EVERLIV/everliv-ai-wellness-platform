@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -61,7 +62,17 @@ const handler = async (req: Request): Promise<Response> => {
     const invoiceResult = await response.json();
     console.log('PayKeeper invoice created:', invoiceResult);
 
-    return new Response(JSON.stringify(invoiceResult), {
+    // Return structured response with payment URL
+    const paymentResponse = {
+      success: true,
+      invoice_id: invoiceResult.invoice_id,
+      order_id: invoiceData.orderid,
+      payment_url: invoiceResult.invoice_url || `https://payment.alfabank.ru/shortlink/${invoiceResult.shortlink_id}`,
+      amount: amount,
+      description: description
+    };
+
+    return new Response(JSON.stringify(paymentResponse), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -72,7 +83,10 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error('Error creating PayKeeper invoice:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        success: false,
+        error: error.message 
+      }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
