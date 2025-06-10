@@ -92,7 +92,7 @@ const Analytics: React.FC = () => {
   
   // Состояния для кэшированной аналитики
   const [analytics, setAnalytics] = useState<CachedAnalytics | null>(null);
-  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(true);
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string>('');
   
@@ -221,7 +221,7 @@ const Analytics: React.FC = () => {
           user_id: user.id,
           analytics_data: generatedAnalytics as any,
           updated_at: new Date().toISOString()
-        });
+        } as any);
 
       if (upsertError) {
         console.error('Error saving analytics:', upsertError);
@@ -267,8 +267,10 @@ const Analytics: React.FC = () => {
         let biomarkers: Biomarker[] = [];
         try {
           const results = analysis.results as any;
-          if (results && typeof results === 'object' && results.markers) {
-            biomarkers = results.markers as Biomarker[];
+          if (results && typeof results === 'object') {
+            if (results.markers && Array.isArray(results.markers)) {
+              biomarkers = results.markers as Biomarker[];
+            }
           }
         } catch (error) {
           console.error('Error parsing biomarkers:', error);
@@ -456,7 +458,7 @@ const Analytics: React.FC = () => {
     );
   }
 
-  // Показываем начальную загрузку
+  // Показываем начальную загрузку только для общей аналитики
   if (isLoadingAnalytics) {
     console.log('Rendering initial loading');
     return (
