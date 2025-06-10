@@ -1,188 +1,281 @@
 
 import React, { useState, useEffect } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { ArrowLeft, Calendar, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { getMedicalAnalysisById } from "@/services/ai/medical-analysis";
-import MedicalAnalysisResults from "@/components/medical-analysis/MedicalAnalysisResults";
-import { Card, CardContent } from "@/components/ui/card";
+import Header from "@/components/Header";
+import MinimalFooter from "@/components/MinimalFooter";
+import AnalyticsHeader from "@/components/analytics/AnalyticsHeader";
+import AnalyticsSummary from "@/components/analytics/AnalyticsSummary";
+import BiomarkersList from "@/components/analytics/BiomarkersList";
+import BiomarkerDetails from "@/components/analytics/BiomarkerDetails";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const Analytics = () => {
-  const navigate = useNavigate();
+interface HealthData {
+  overview: {
+    healthScore: number;
+    riskLevel: string;
+    lastUpdated: string;
+  };
+  biomarkers: Array<{
+    id: string;
+    name: string;
+    value: number;
+    unit: string;
+    status: 'optimal' | 'good' | 'attention' | 'risk';
+    trend: 'up' | 'down' | 'stable';
+    referenceRange: string;
+    lastMeasured: string;
+  }>;
+  recommendations: Array<{
+    id: string;
+    category: string;
+    title: string;
+    description: string;
+    priority: 'high' | 'medium' | 'low';
+    action: string;
+  }>;
+  riskFactors: Array<{
+    id: string;
+    factor: string;
+    level: 'high' | 'medium' | 'low';
+    description: string;
+    mitigation: string;
+  }>;
+  supplements: Array<{
+    id: string;
+    name: string;
+    dosage: string;
+    benefit: string;
+    timing: string;
+  }>;
+}
+
+const Analytics: React.FC = () => {
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
-  const analysisId = searchParams.get('id');
-  
-  const [analysisData, setAnalysisData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [healthData, setHealthData] = useState<HealthData | null>(null);
+  const [selectedBiomarker, setSelectedBiomarker] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [doctorQuestion, setDoctorQuestion] = useState("");
+  const [doctorResponse, setDoctorResponse] = useState("");
+  const [isProcessingQuestion, setIsProcessingQuestion] = useState(false);
 
   useEffect(() => {
-    const loadAnalysisData = async () => {
-      if (!analysisId || !user) {
-        setLoading(false);
-        return;
+    if (user) {
+      loadHealthData();
+    }
+  }, [user]);
+
+  const loadHealthData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Загружаем данные анализов пользователя
+      const { data: analyses, error } = await supabase
+        .from('medical_analyses')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+
+      // Генерируем комплексную аналитику на основе данных
+      if (analyses && analyses.length > 0) {
+        await generateHealthAnalytics(analyses);
+      } else {
+        // Используем демо-данные если анализов нет
+        setHealthData(generateDemoHealthData());
       }
-
-      try {
-        setLoading(true);
-        const data = await getMedicalAnalysisById(analysisId, user.id);
-        setAnalysisData(data);
-      } catch (error) {
-        console.error("Ошибка загрузки анализа:", error);
-        setError("Не удалось загрузить данные анализа");
-        toast.error("Не удалось загрузить анализ");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadAnalysisData();
-  }, [analysisId, user]);
-
-  const getAnalysisTypeLabel = (type: string) => {
-    const types = {
-      blood: "Анализ крови",
-      urine: "Анализ мочи", 
-      biochemistry: "Биохимический анализ",
-      hormones: "Гормональная панель",
-      vitamins: "Витамины и микроэлементы",
-      immunology: "Иммунологические исследования",
-      oncology: "Онкомаркеры",
-      cardiology: "Кардиологические маркеры",
-      other: "Другой анализ"
-    };
-    return types[type] || type;
+    } catch (error) {
+      console.error('Error loading health data:', error);
+      toast.error('Ошибка загрузки данных аналитики');
+      setHealthData(generateDemoHealthData());
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header />
-        
-        <div className="flex-grow pt-16">
-          <div className="container mx-auto px-4 py-6 max-w-7xl">
-            <div className="animate-pulse space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="h-8 w-20 bg-gray-200 rounded"></div>
-                <div className="h-8 w-64 bg-gray-200 rounded"></div>
-              </div>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className="h-6 w-48 bg-gray-200 rounded"></div>
-                    <div className="h-4 w-full bg-gray-200 rounded"></div>
-                    <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
+  const generateHealthAnalytics = async (analyses: any[]) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-health-analytics', {
+        body: { analyses, userId: user?.id }
+      });
 
-        <Footer />
+      if (error) throw error;
+      
+      setHealthData(data.healthData);
+    } catch (error) {
+      console.error('Error generating analytics:', error);
+      setHealthData(generateDemoHealthData());
+    }
+  };
+
+  const generateDemoHealthData = (): HealthData => {
+    return {
+      overview: {
+        healthScore: 78,
+        riskLevel: 'medium',
+        lastUpdated: new Date().toISOString()
+      },
+      biomarkers: [
+        {
+          id: '1',
+          name: 'Холестерин общий',
+          value: 5.2,
+          unit: 'ммоль/л',
+          status: 'attention',
+          trend: 'up',
+          referenceRange: '3.3-5.2',
+          lastMeasured: '2024-01-15'
+        },
+        {
+          id: '2',
+          name: 'Глюкоза',
+          value: 4.8,
+          unit: 'ммоль/л',
+          status: 'optimal',
+          trend: 'stable',
+          referenceRange: '3.9-5.9',
+          lastMeasured: '2024-01-15'
+        },
+        {
+          id: '3',
+          name: 'Витамин D',
+          value: 28,
+          unit: 'нг/мл',
+          status: 'risk',
+          trend: 'down',
+          referenceRange: '30-100',
+          lastMeasured: '2024-01-10'
+        }
+      ],
+      recommendations: [
+        {
+          id: '1',
+          category: 'Питание',
+          title: 'Увеличить потребление омега-3',
+          description: 'Включите в рацион жирную рыбу 2-3 раза в неделю',
+          priority: 'high',
+          action: 'Добавить в план питания'
+        },
+        {
+          id: '2',
+          category: 'Активность',
+          title: 'Кардио тренировки',
+          description: 'Минимум 150 минут умеренной активности в неделю',
+          priority: 'medium',
+          action: 'Создать план тренировок'
+        }
+      ],
+      riskFactors: [
+        {
+          id: '1',
+          factor: 'Дефицит витамина D',
+          level: 'high',
+          description: 'Низкий уровень витамина D может влиять на иммунитет',
+          mitigation: 'Прием добавок и увеличение времени на солнце'
+        }
+      ],
+      supplements: [
+        {
+          id: '1',
+          name: 'Витамин D3',
+          dosage: '2000 МЕ',
+          benefit: 'Поддержка иммунитета и костей',
+          timing: 'Утром с едой'
+        }
+      ]
+    };
+  };
+
+  const handleDoctorQuestion = async () => {
+    if (!doctorQuestion.trim()) return;
+    
+    setIsProcessingQuestion(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-doctor-analytics', {
+        body: {
+          question: doctorQuestion,
+          healthData: healthData,
+          userId: user?.id
+        }
+      });
+
+      if (error) throw error;
+      
+      setDoctorResponse(data.response);
+    } catch (error) {
+      console.error('Error processing doctor question:', error);
+      toast.error('Ошибка обработки вопроса');
+    } finally {
+      setIsProcessingQuestion(false);
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Для доступа к аналитике необходимо войти в систему</p>
       </div>
     );
   }
 
-  if (error || !analysisData) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-slate-50">
         <Header />
-        
-        <div className="flex-grow pt-16">
-          <div className="container mx-auto px-4 py-6 max-w-7xl">
-            <div className="flex items-center gap-4 mb-6">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => navigate("/lab-analyses")}
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Назад к анализам
-              </Button>
-            </div>
-
-            <Card className="text-center py-12">
-              <CardContent>
-                <div className="text-6xl mb-4">❌</div>
-                <h3 className="text-xl font-semibold mb-2">Анализ не найден</h3>
-                <p className="text-gray-600 mb-6">
-                  {error || "Не удалось найти указанный анализ"}
-                </p>
-                <Button onClick={() => navigate("/lab-analyses")}>
-                  Вернуться к списку анализов
-                </Button>
-              </CardContent>
-            </Card>
+        <div className="flex-grow flex items-center justify-center pt-16">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            <p className="text-gray-500">Загрузка аналитики здоровья...</p>
           </div>
         </div>
-
-        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
-      
-      <div className="flex-grow pt-16">
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-6">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate("/lab-analyses")}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Назад к анализам
-            </Button>
-            
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                <FileText className="h-6 w-6 text-blue-600" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {getAnalysisTypeLabel(analysisData.analysis_type)}
-                </h1>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Calendar className="h-4 w-4" />
-                  <span>{new Date(analysisData.created_at).toLocaleDateString('ru-RU', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}</span>
-                </div>
-              </div>
+      <div className="pt-16">
+        <AnalyticsHeader 
+          healthScore={healthData?.overview.healthScore || 0}
+          riskLevel={healthData?.overview.riskLevel || 'unknown'}
+        />
+        
+        <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
+          {/* Общая сводка */}
+          <AnalyticsSummary 
+            healthData={healthData}
+            onDoctorQuestion={handleDoctorQuestion}
+            doctorQuestion={doctorQuestion}
+            setDoctorQuestion={setDoctorQuestion}
+            doctorResponse={doctorResponse}
+            isProcessingQuestion={isProcessingQuestion}
+          />
+          
+          {/* Список биомаркеров и детали */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1">
+              <BiomarkersList 
+                biomarkers={healthData?.biomarkers || []}
+                selectedBiomarker={selectedBiomarker}
+                onSelectBiomarker={setSelectedBiomarker}
+              />
             </div>
-          </div>
-
-          {/* Результаты анализа */}
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-6">
-              <MedicalAnalysisResults
-                results={analysisData.results}
-                isAnalyzing={false}
-                apiError={null}
-                onBack={() => navigate("/lab-analyses")}
+            
+            <div className="lg:col-span-2">
+              <BiomarkerDetails 
+                biomarker={healthData?.biomarkers.find(b => b.id === selectedBiomarker)}
+                recommendations={healthData?.recommendations || []}
+                riskFactors={healthData?.riskFactors || []}
+                supplements={healthData?.supplements || []}
               />
             </div>
           </div>
         </div>
       </div>
-
-      <Footer />
+      <MinimalFooter />
     </div>
   );
 };
