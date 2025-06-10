@@ -31,13 +31,13 @@ const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex">
-            <DesktopNavigation user={user} isAdmin={isAdmin} />
+            <DesktopNavigation />
           </div>
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
-              <UserProfileDropdown user={user} isAdmin={isAdmin} onSignOut={handleSignOut} />
+              <UserProfileDropdown />
             ) : (
               <>
                 <Link to="/login">
@@ -53,7 +53,7 @@ const Header: React.FC = () => {
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
             {user && (
-              <UserProfileDropdown user={user} isAdmin={isAdmin} onSignOut={handleSignOut} />
+              <UserProfileDropdown />
             )}
             <Button
               variant="ghost"

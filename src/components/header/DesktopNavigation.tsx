@@ -11,18 +11,21 @@ import {
   NavigationMenuContent, 
   NavigationMenuLink 
 } from "@/components/ui/navigation-menu";
+import { useAuth } from "@/contexts/AuthContext";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
-interface DesktopNavigationProps {
-  user: any;
-  isAdmin: boolean;
-  handleSignOut: () => Promise<void>;
-}
+const DesktopNavigation: React.FC = () => {
+  const { user } = useAuth();
+  const { isAdmin } = useIsAdmin();
+  const navigate = useNavigate();
 
-const DesktopNavigation: React.FC<DesktopNavigationProps> = ({
-  user,
-  isAdmin,
-  handleSignOut
-}) => {
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
+
   return (
     <div className="hidden md:flex items-center space-x-4">
       <NavigationMenu>
