@@ -372,7 +372,7 @@ const AnalysisDetails: React.FC = () => {
       <MinimalFooter />
       
       {/* Стили для печати */}
-      <style jsx>{`
+      <style>{`
         @media print {
           body { -webkit-print-color-adjust: exact; }
           .print\\:hidden { display: none !important; }
