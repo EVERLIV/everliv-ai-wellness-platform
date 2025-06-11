@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Brain, 
   TestTube, 
@@ -12,14 +13,16 @@ import {
 } from 'lucide-react';
 
 const ServicesGrid = () => {
+  const { user } = useAuth();
+
   const services = [
     {
       icon: <TestTube className="h-8 w-8" />,
       title: "Анализ крови с ИИ",
       description: "Загрузите результаты анализов и получите персонализированную расшифровку с рекомендациями от искусственного интеллекта",
-      image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=800&q=80",
+      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
       features: ["Детальная расшифровка", "Персональные рекомендации", "Отслеживание динамики", "Уведомления о рисках"],
-      link: "/blood-analysis"
+      link: user ? "/blood-analysis" : "/signup"
     },
     {
       icon: <MessageSquare className="h-8 w-8" />,
@@ -27,23 +30,23 @@ const ServicesGrid = () => {
       description: "Персональный медицинский консультант на базе искусственного интеллекта для ответов на ваши вопросы о здоровье",
       image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?auto=format&fit=crop&w=800&q=80",
       features: ["24/7 доступность", "Медицинские консультации", "История общения", "Персонализированные советы"],
-      link: "/ai-doctor"
+      link: user ? "/ai-doctor" : "/signup"
     },
     {
       icon: <BarChart3 className="h-8 w-8" />,
       title: "Аналитика здоровья",
       description: "Комплексный анализ ваших показателей здоровья с построением графиков и трендов для долгосрочного мониторинга",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
       features: ["Графики и тренды", "Прогнозирование", "Сравнение с нормами", "Экспорт данных"],
-      link: "/analytics"
+      link: user ? "/analytics" : "/signup"
     },
     {
       icon: <Brain className="h-8 w-8" />,
       title: "Профиль здоровья",
       description: "Создайте детальный профиль своего здоровья для получения максимально точных рекомендаций",
-      image: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=800&q=80",
+      image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=800&q=80",
       features: ["Полная анкета здоровья", "Медицинская история", "Факторы риска", "Цели здоровья"],
-      link: "/health-profile"
+      link: user ? "/health-profile" : "/signup"
     }
   ];
 
@@ -93,7 +96,7 @@ const ServicesGrid = () => {
                 
                 <Link to={service.link}>
                   <Button className="w-full group">
-                    Попробовать сервис
+                    {user ? 'Попробовать сервис' : 'Зарегистрироваться'}
                     <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
@@ -112,9 +115,9 @@ const ServicesGrid = () => {
                 Выбрать тариф
               </Button>
             </Link>
-            <Link to="/signup">
+            <Link to={user ? "/dashboard" : "/signup"}>
               <Button size="lg" variant="outline">
-                Начать бесплатно
+                {user ? 'Перейти в панель' : 'Начать бесплатно'}
               </Button>
             </Link>
           </div>

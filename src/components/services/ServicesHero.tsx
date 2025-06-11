@@ -2,8 +2,11 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ServicesHero = () => {
+  const { user } = useAuth();
+
   return (
     <section className="bg-gradient-to-br from-primary to-secondary py-20 text-white">
       <div className="container mx-auto px-4">
@@ -20,9 +23,9 @@ const ServicesHero = () => {
                 Выбрать тариф
               </Button>
             </Link>
-            <Link to="/dashboard">
+            <Link to={user ? "/dashboard" : "/signup"}>
               <Button size="lg" variant="outline" className="border-white text-green-400 hover:bg-white hover:text-primary">
-                Попробовать бесплатно
+                {user ? 'Перейти в панель' : 'Попробовать бесплатно'}
               </Button>
             </Link>
           </div>

@@ -2,8 +2,11 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ServicesCTA = () => {
+  const { user } = useAuth();
+
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4 text-center">
@@ -12,9 +15,9 @@ const ServicesCTA = () => {
           Присоединитесь к тысячам пользователей, которые уже улучшили свое здоровье с помощью наших сервисов
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Link to="/signup">
+          <Link to={user ? "/dashboard" : "/signup"}>
             <Button size="lg" className="bg-primary hover:bg-primary/90">
-              Начать бесплатно
+              {user ? 'Перейти в панель' : 'Начать бесплатно'}
             </Button>
           </Link>
           <Link to="/pricing">
