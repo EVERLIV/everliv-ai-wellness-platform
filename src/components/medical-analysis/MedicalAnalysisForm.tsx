@@ -110,7 +110,7 @@ const MedicalAnalysisForm: React.FC<MedicalAnalysisFormProps> = ({
       <Button
         type="submit"
         className="w-full"
-        disabled={isAnalyzing || (inputMethod === "photo" && !canUsePhotoAnalysis)}
+        disabled={isAnalyzing}
       >
         {isAnalyzing ? "Анализирую..." : "Анализировать"}
       </Button>
