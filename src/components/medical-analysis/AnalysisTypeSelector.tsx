@@ -14,9 +14,9 @@ const AnalysisTypeSelector: React.FC<AnalysisTypeSelectorProps> = ({
 }) => {
   return (
     <div>
-      <Label htmlFor="analysisType">Тип анализа</Label>
+      <Label htmlFor="analysis-type-select">Тип анализа</Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
+        <SelectTrigger id="analysis-type-select">
           <SelectValue placeholder="Выберите тип анализа" />
         </SelectTrigger>
         <SelectContent>

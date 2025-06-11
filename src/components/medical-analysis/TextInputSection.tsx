@@ -16,9 +16,9 @@ const TextInputSection: React.FC<TextInputSectionProps> = ({
 }) => {
   return (
     <div>
-      <Label htmlFor="analysisText">Результаты анализа</Label>
+      <Label htmlFor="analysis-text-input">Результаты анализа</Label>
       <Textarea
-        id="analysisText"
+        id="analysis-text-input"
         placeholder="Введите результаты вашего анализа..."
         value={value}
         onChange={(e) => onChange(e.target.value)}

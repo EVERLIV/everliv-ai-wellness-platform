@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, X, Camera } from "lucide-react";
 import { toast } from "sonner";
+import { Label } from "@/components/ui/label";
 
 interface PhotoUploadSectionProps {
   selectedPhoto: File | null;
@@ -66,8 +67,8 @@ const PhotoUploadSection: React.FC<PhotoUploadSectionProps> = ({
           <div className="text-center">
             <Upload className="mx-auto h-12 w-12 text-gray-400" />
             <div className="mt-4">
-              <label
-                htmlFor="photo-upload"
+              <Label
+                htmlFor="photo-upload-input"
                 className={`cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${
                   canUsePhotoAnalysis 
                     ? "bg-emerald-600 hover:bg-emerald-700" 
@@ -76,9 +77,9 @@ const PhotoUploadSection: React.FC<PhotoUploadSectionProps> = ({
               >
                 <Upload className="h-4 w-4 mr-2" />
                 Загрузить фото
-              </label>
+              </Label>
               <input
-                id="photo-upload"
+                id="photo-upload-input"
                 type="file"
                 className="hidden"
                 accept="image/*"

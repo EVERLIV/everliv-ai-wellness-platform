@@ -45,21 +45,29 @@ const MedicalAnalysisForm: React.FC<MedicalAnalysisFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    console.log('Form submission:', { inputMethod, text: text.trim(), selectedPhoto: !!selectedPhoto });
+
+    // Валидация в зависимости от выбранного метода ввода
     if (inputMethod === "text") {
       if (!text.trim()) {
         toast.error("Пожалуйста, введите результаты анализа");
         return;
       }
-      await onAnalyze({ text, photoUrl: "", analysisType });
+      // Отправляем только текст
+      await onAnalyze({ text: text.trim(), photoUrl: "", analysisType });
     } else if (inputMethod === "photo") {
       if (!selectedPhoto) {
         toast.error("Пожалуйста, загрузите фото анализа");
         return;
       }
 
+      console.log('Submitting photo analysis:', selectedPhoto.name);
+      
       const reader = new FileReader();
       reader.onload = async () => {
         const base64 = reader.result as string;
+        console.log('Photo converted to base64, starting analysis...');
+        // Отправляем только фото
         await onAnalyze({ 
           text: "", 
           photoUrl: base64, 
