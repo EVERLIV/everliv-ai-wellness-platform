@@ -39,28 +39,44 @@ export const useLabAnalysesData = () => {
     }
 
     try {
-      const { data, error } = await supabase
+      // First, get all medical analyses
+      const { data: analysesData, error: analysesError } = await supabase
         .from('medical_analyses')
-        .select(`
-          id,
-          analysis_type,
-          created_at,
-          summary,
-          input_method,
-          biomarkers (count)
-        `)
+        .select('id, analysis_type, created_at, summary, input_method')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (analysesError) throw analysesError;
 
-      const formattedData: AnalysisItem[] = (data || []).map(item => ({
+      // Then get biomarker counts for each analysis
+      const analysisIds = analysesData?.map(analysis => analysis.id) || [];
+      
+      let biomarkerCounts: { [key: string]: number } = {};
+      
+      if (analysisIds.length > 0) {
+        const { data: biomarkerData, error: biomarkerError } = await supabase
+          .from('biomarkers')
+          .select('analysis_id')
+          .in('analysis_id', analysisIds);
+
+        if (biomarkerError) {
+          console.error('Error fetching biomarkers:', biomarkerError);
+        } else {
+          // Count biomarkers per analysis
+          biomarkerCounts = biomarkerData?.reduce((acc: { [key: string]: number }, biomarker) => {
+            acc[biomarker.analysis_id] = (acc[biomarker.analysis_id] || 0) + 1;
+            return acc;
+          }, {}) || {};
+        }
+      }
+
+      const formattedData: AnalysisItem[] = (analysesData || []).map(item => ({
         id: item.id,
         analysis_type: item.analysis_type,
         created_at: item.created_at,
         summary: item.summary || '',
-        markers_count: item.biomarkers?.[0]?.count || 0,
-        input_method: item.input_method || 'text'
+        markers_count: biomarkerCounts[item.id] || 0,
+        input_method: (item.input_method as 'text' | 'photo') || 'text'
       }));
 
       setAnalysisHistory(formattedData);

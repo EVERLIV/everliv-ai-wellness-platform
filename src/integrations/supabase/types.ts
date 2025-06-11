@@ -65,6 +65,44 @@ export type Database = {
           },
         ]
       }
+      biomarkers: {
+        Row: {
+          analysis_id: string
+          created_at: string
+          id: string
+          name: string
+          reference_range: string | null
+          status: string | null
+          value: string | null
+        }
+        Insert: {
+          analysis_id: string
+          created_at?: string
+          id?: string
+          name: string
+          reference_range?: string | null
+          status?: string | null
+          value?: string | null
+        }
+        Update: {
+          analysis_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          reference_range?: string | null
+          status?: string | null
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "biomarkers_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "medical_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_posts: {
         Row: {
           author_id: string
@@ -232,7 +270,9 @@ export type Database = {
           analysis_type: string
           created_at: string
           id: string
+          input_method: string | null
           results: Json
+          summary: string | null
           updated_at: string
           user_id: string
         }
@@ -240,7 +280,9 @@ export type Database = {
           analysis_type: string
           created_at?: string
           id?: string
+          input_method?: string | null
           results: Json
+          summary?: string | null
           updated_at?: string
           user_id: string
         }
@@ -248,7 +290,9 @@ export type Database = {
           analysis_type?: string
           created_at?: string
           id?: string
+          input_method?: string | null
           results?: Json
+          summary?: string | null
           updated_at?: string
           user_id?: string
         }
