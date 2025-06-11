@@ -62,12 +62,9 @@ const LabAnalyses = () => {
         results={results}
         isAnalyzing={isAnalyzing}
         apiError={apiError}
-        analysisHistory={analysisHistory}
-        loadingHistory={loadingHistory}
         onBack={handleBackToList}
         onAnalyze={analyzeMedicalTest}
         onTabChange={setActiveTab}
-        onViewAnalysis={handleViewAnalysis}
         onNewAnalysisComplete={handleNewAnalysisComplete}
       />
     );

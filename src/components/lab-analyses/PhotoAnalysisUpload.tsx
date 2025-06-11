@@ -2,10 +2,9 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Camera, Crown, Lock } from "lucide-react";
+import { Camera, Crown, Lock, Upload, X } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { toast } from "sonner";
-import PhotoUploadCard from "./PhotoUploadCard";
 
 interface PhotoAnalysisUploadProps {
   onPhotoSelect: (file: File) => void;
@@ -34,6 +33,13 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
       return;
     }
     onPhotoSelect(file);
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileSelect(file);
+    }
   };
 
   if (!isPremium) {
@@ -81,13 +87,57 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <PhotoUploadCard
-          selectedPhoto={selectedPhoto}
-          photoPreviewUrl={photoPreviewUrl}
-          onPhotoSelect={handleFileSelect}
-          onPhotoRemove={onPhotoRemove}
-          disabled={disabled || isAnalyzing}
-        />
+        {!selectedPhoto ? (
+          <div className="space-y-4">
+            <div className="border-2 border-dashed border-emerald-300 rounded-lg p-8 text-center bg-emerald-50/30">
+              <Camera className="h-12 w-12 mx-auto text-emerald-400 mb-4" />
+              <p className="text-sm text-gray-600 mb-4">
+                Загрузите четкое фото или скан ваших результатов анализа
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById('photo-upload-input')?.click()}
+                disabled={disabled || isAnalyzing}
+                className="flex items-center gap-2"
+              >
+                <Upload className="h-4 w-4" />
+                Выбрать файл
+              </Button>
+              <input
+                id="photo-upload-input"
+                type="file"
+                accept="image/*"
+                onChange={handleFileInputChange}
+                className="hidden"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="relative border-2 border-emerald-200 rounded-lg p-4 bg-emerald-50/30">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={onPhotoRemove}
+                className="absolute top-2 right-2 h-8 w-8 p-0 bg-white hover:bg-gray-100 rounded-full shadow-sm"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+              {photoPreviewUrl && (
+                <img
+                  src={photoPreviewUrl}
+                  alt="Предварительный просмотр анализа"
+                  className="max-w-full max-h-64 mx-auto rounded shadow-sm"
+                />
+              )}
+              <p className="text-xs text-gray-500 text-center mt-2">
+                {selectedPhoto.name} ({((selectedPhoto.size || 0) / 1024).toFixed(1)} KB)
+              </p>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
