@@ -14,6 +14,7 @@ interface NewAnalysisFormProps {
   apiError: any;
   analysisHistory: any[];
   loadingHistory: boolean;
+  onBack: () => void;
   onAnalyze: (data: any) => Promise<void>;
   onTabChange: (tab: string) => void;
   onViewAnalysis: (analysisId: string) => void;
@@ -27,6 +28,7 @@ const NewAnalysisForm: React.FC<NewAnalysisFormProps> = ({
   apiError,
   analysisHistory,
   loadingHistory,
+  onBack,
   onAnalyze,
   onTabChange,
   onViewAnalysis,
