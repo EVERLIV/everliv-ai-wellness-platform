@@ -35,7 +35,7 @@ const LabAnalyses = () => {
   } = useMedicalAnalysis();
 
   const handleViewAnalysis = (analysisId: string) => {
-    navigate(`/analytics?id=${analysisId}`);
+    navigate(`/analysis-details?id=${analysisId}`);
   };
 
   const handleNewAnalysisComplete = () => {
