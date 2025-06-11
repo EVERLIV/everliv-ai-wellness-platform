@@ -138,8 +138,8 @@ const TrialChat: React.FC = () => {
       <div className="w-full max-w-lg mx-auto text-center py-20">
         {/* Logo and title */}
         <div className="mb-12">
-          <div className="w-20 h-20 mx-auto mb-8 bg-primary rounded-full shadow-lg flex items-center justify-center">
-            <Bot className="w-10 h-10 text-white" />
+          <div className="w-12 h-12 mx-auto mb-8 bg-primary rounded-full shadow-lg flex items-center justify-center">
+            <Bot className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-5xl font-bold text-foreground mb-3">
             Ваш ИИ-доктор
@@ -150,7 +150,7 @@ const TrialChat: React.FC = () => {
           <p className="text-lg text-muted-foreground">⭐ Обучен лучшими врачами</p>
         </div>
 
-        {/* Introduction text */}
+        {/* Introduction text as chat bubble */}
         <div className="bg-card rounded-2xl p-8 mb-10 shadow-soft text-left border">
           <p className="text-foreground mb-4 text-lg">
             Привет! Я Everliv - ваш персональный ИИ-доктор.
