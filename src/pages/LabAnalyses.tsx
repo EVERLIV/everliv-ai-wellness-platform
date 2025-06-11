@@ -75,7 +75,10 @@ const LabAnalyses = () => {
       <Header />
       
       <div className="flex-grow pt-16">
-        <LabAnalysesHeader onAddNewAnalysis={() => setShowNewAnalysis(true)} />
+        <LabAnalysesHeader 
+          onAddNewAnalysis={() => setShowNewAnalysis(true)}
+          currentMonthAnalysesCount={statistics.currentMonthAnalyses}
+        />
         
         <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
           <LabAnalysesStats statistics={statistics} />
