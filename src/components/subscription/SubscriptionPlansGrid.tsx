@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Loader2 } from 'lucide-react';
 import { Subscription } from '@/types/subscription';
 import { toast } from 'sonner';
@@ -33,26 +34,29 @@ const SubscriptionPlansGrid = ({ subscription }: SubscriptionPlansGridProps) => 
     {
       type: "basic",
       name: "Базовый",
-      price: "990 ₽",
-      period: "месяц",
+      price: "Бесплатно",
+      period: "",
       description: "Доступ к основным функциям",
       features: [
-        "Отслеживание протоколов",
-        "Базовые рекомендации",
-        "Доступ к сообществу"
+        "1 анализ крови в месяц с AI-интерпретацией",
+        "99 сообщений с базовым AI-доктором",
+        "Ведение дневника питания",
+        "Базовые рекомендации по здоровью"
       ]
     },
     {
       type: "premium",
       name: "Премиум",
-      price: "4990 ₽",
+      price: "999 ₽",
       period: "месяц",
       description: "Максимальная поддержка для вашего здоровья",
       featured: true,
       features: [
-        "Все функции базового плана",
-        "Комплексный AI-анализ",
-        "Консультации со специалистами",
+        "15 анализов крови в месяц с расширенной AI-интерпретацией",
+        "199 сообщений с персональным AI-доктором",
+        "Полный профиль здоровья с историей",
+        "Расширенная аналитика и тренды здоровья",
+        "Персонализированные протоколы оздоровления",
         "Приоритетная поддержка"
       ]
     }
@@ -67,24 +71,27 @@ const SubscriptionPlansGrid = ({ subscription }: SubscriptionPlansGridProps) => 
             className={`
               ${plan.featured ? 'border-primary shadow-lg scale-105 lg:scale-100' : 'border'}
               ${subscription?.plan_type === plan.type && subscription?.status === 'active' ? 'border-evergreen-500 ring-1 ring-evergreen-500' : ''}
-              transition-all duration-200 hover:shadow-md
+              transition-all duration-200 hover:shadow-md relative
             `}
           >
-            {plan.featured && (
-              <div className="bg-primary text-white text-center py-2 text-sm font-medium rounded-t-lg">
-                Популярный выбор
-              </div>
-            )}
             {subscription?.plan_type === plan.type && subscription?.status === 'active' && (
               <div className="bg-evergreen-500 text-white text-center py-2 text-sm font-medium rounded-t-lg">
                 Ваш текущий план
               </div>
             )}
-            <CardHeader className={`${plan.featured ? 'bg-primary/5' : ''} p-4 sm:p-6`}>
+            <CardHeader className={`${plan.featured ? 'bg-primary/5' : ''} p-4 sm:p-6 relative`}>
+              {plan.featured && (
+                <Badge 
+                  variant="default" 
+                  className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs px-2 py-1"
+                >
+                  Популярный выбор
+                </Badge>
+              )}
               <CardTitle className="text-lg sm:text-xl">{plan.name}</CardTitle>
               <CardDescription className="flex flex-col sm:flex-row sm:items-end gap-1">
                 <span className="text-xl sm:text-2xl font-bold text-foreground">{plan.price}</span>
-                <span className="text-sm text-muted-foreground">/{plan.period}</span>
+                {plan.period && <span className="text-sm text-muted-foreground">/{plan.period}</span>}
               </CardDescription>
               <p className="text-sm text-muted-foreground mt-2">{plan.description}</p>
             </CardHeader>
