@@ -1,24 +1,30 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Camera, Upload, Crown, Lock } from "lucide-react";
+import { Camera, Crown, Lock } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { toast } from "sonner";
+import PhotoUploadCard from "./PhotoUploadCard";
 
 interface PhotoAnalysisUploadProps {
   onPhotoSelect: (file: File) => void;
   isAnalyzing: boolean;
   disabled?: boolean;
+  selectedPhoto?: File | null;
+  photoPreviewUrl?: string;
+  onPhotoRemove?: () => void;
 }
 
 const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
   onPhotoSelect,
   isAnalyzing,
-  disabled = false
+  disabled = false,
+  selectedPhoto = null,
+  photoPreviewUrl = "",
+  onPhotoRemove = () => {}
 }) => {
   const { subscription } = useSubscription();
-  const [dragActive, setDragActive] = useState(false);
   
   const isPremium = subscription?.plan_type === 'premium' || subscription?.plan_type === 'standard';
 
@@ -27,39 +33,7 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
       toast.error("Функция загрузки фото доступна только для Premium подписки");
       return;
     }
-
-    // Проверяем тип файла
-    if (!file.type.startsWith('image/')) {
-      toast.error("Пожалуйста, выберите изображение");
-      return;
-    }
-
-    // Проверяем размер файла (максимум 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("Размер файла не должен превышать 10MB");
-      return;
-    }
-
     onPhotoSelect(file);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragActive(false);
-    
-    if (!isPremium || disabled || isAnalyzing) return;
-    
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      handleFileSelect(file);
-    }
-  };
-
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileSelect(file);
-    }
   };
 
   if (!isPremium) {
@@ -107,45 +81,13 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div
-          className={`
-            border-2 border-dashed rounded-lg p-8 text-center transition-colors
-            ${dragActive ? 'border-emerald-400 bg-emerald-100' : 'border-emerald-300 hover:border-emerald-400'}
-            ${disabled || isAnalyzing ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-          `}
-          onDrop={handleDrop}
-          onDragOver={(e) => {
-            e.preventDefault();
-            if (!disabled && !isAnalyzing) setDragActive(true);
-          }}
-          onDragLeave={() => setDragActive(false)}
-        >
-          <Upload className="h-12 w-12 mx-auto text-emerald-400 mb-4" />
-          <p className="text-gray-600 mb-4">
-            Перетащите фото анализа сюда или нажмите для выбора
-          </p>
-          <p className="text-sm text-gray-500 mb-4">
-            Поддерживаются форматы: JPG, PNG, WebP (до 10MB)
-          </p>
-          
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileInputChange}
-            className="hidden"
-            id="photo-upload"
-            disabled={disabled || isAnalyzing}
-          />
-          
-          <Button
-            variant="outline"
-            className="border-emerald-300 text-emerald-700 hover:bg-emerald-100"
-            onClick={() => document.getElementById('photo-upload')?.click()}
-            disabled={disabled || isAnalyzing}
-          >
-            {isAnalyzing ? "Обработка..." : "Выбрать фото"}
-          </Button>
-        </div>
+        <PhotoUploadCard
+          selectedPhoto={selectedPhoto}
+          photoPreviewUrl={photoPreviewUrl}
+          onPhotoSelect={handleFileSelect}
+          onPhotoRemove={onPhotoRemove}
+          disabled={disabled || isAnalyzing}
+        />
       </CardContent>
     </Card>
   );
