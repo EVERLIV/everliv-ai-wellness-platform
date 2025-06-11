@@ -25,12 +25,9 @@ const MedicalAnalysisForm: React.FC<MedicalAnalysisFormProps> = ({
   const { canUseFeature } = useSubscription();
   const canUsePhotoAnalysis = canUseFeature(FEATURES.PHOTO_BLOOD_ANALYSIS);
 
-  console.log("MedicalAnalysisForm - Photo analysis access:", canUsePhotoAnalysis);
-
   const handlePhotoSelect = (file: File) => {
     setSelectedPhoto(file);
     
-    // Создаем превью
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
@@ -48,14 +45,11 @@ const MedicalAnalysisForm: React.FC<MedicalAnalysisFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("Form submission:", { inputMethod, hasText: !!text.trim(), hasPhoto: !!selectedPhoto });
-
     if (inputMethod === "text") {
       if (!text.trim()) {
         toast.error("Пожалуйста, введите результаты анализа");
         return;
       }
-      console.log("Submitting text analysis:", text.substring(0, 50) + "...");
       await onAnalyze({ text, photoUrl: "", analysisType });
     } else if (inputMethod === "photo") {
       if (!selectedPhoto) {
@@ -63,27 +57,17 @@ const MedicalAnalysisForm: React.FC<MedicalAnalysisFormProps> = ({
         return;
       }
 
-      console.log("Submitting photo analysis:", selectedPhoto.name);
-
-      // Конвертируем файл в base64 синхронно
-      try {
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(selectedPhoto);
-        });
-        
-        console.log("Photo converted to base64, starting analysis...");
+      // Конвертируем файл в base64
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result as string;
         await onAnalyze({ 
           text: "", 
           photoUrl: base64, 
           analysisType 
         });
-      } catch (error) {
-        console.error("Error converting photo to base64:", error);
-        toast.error("Ошибка при обработке фото");
-      }
+      };
+      reader.readAsDataURL(selectedPhoto);
     }
   };
 
