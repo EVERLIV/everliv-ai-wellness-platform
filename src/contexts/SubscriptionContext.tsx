@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
 import { useAuth } from "@/contexts/AuthContext";
@@ -58,10 +59,24 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       const planType = subscription.plan_type;
       console.log("Active subscription found:", planType);
       
-      // Проверяем доступ к функции по плану
-      const hasAccess = PLAN_FEATURES[planType]?.[featureName] === true;
-      console.log(`Feature ${featureName} access for ${planType}:`, hasAccess);
-      return hasAccess;
+      // Ищем функцию в PLAN_FEATURES и проверяем доступ по плану
+      const feature = Object.values(PLAN_FEATURES).find(f => 
+        Object.keys(PLAN_FEATURES).some(key => key === featureName)
+      );
+      
+      if (feature) {
+        const hasAccess = feature.includedIn[planType] === true;
+        console.log(`Feature ${featureName} access for ${planType}:`, hasAccess);
+        return hasAccess;
+      }
+      
+      // Если функция не найдена в PLAN_FEATURES, проверяем по старой логике
+      // Для photo_blood_analysis даем доступ только premium пользователям
+      if (featureName === 'photo_blood_analysis') {
+        const hasAccess = planType === 'premium';
+        console.log(`Photo blood analysis access for ${planType}:`, hasAccess);
+        return hasAccess;
+      }
     }
     
     // Проверяем пробный период
@@ -76,10 +91,13 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     
     if (hasTrialUsage) return true;
     
-    // Базовый доступ (если функция доступна в базовом плане)
-    const basicAccess = PLAN_FEATURES.basic?.[featureName] === true;
-    console.log(`Basic access for ${featureName}:`, basicAccess);
-    return basicAccess;
+    // Базовый доступ для некоторых функций
+    if (featureName === 'photo_blood_analysis') {
+      return false; // Фото анализ только для premium
+    }
+    
+    console.log(`No access granted for ${featureName}`);
+    return false;
   };
 
   const hasFeatureTrial = (featureName: string): boolean => {
