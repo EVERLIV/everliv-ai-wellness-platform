@@ -35,6 +35,7 @@ import AnalysisDetails from "./pages/AnalysisDetails";
 import AccountSettings from "./pages/AccountSettings";
 import UserSubscription from "./pages/UserSubscription";
 import Checkout from "./pages/Checkout";
+import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -62,6 +63,7 @@ const App = () => (
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/features" element={<Features />} />
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/support" element={<Support />} />
               
               {/* Protected routes */}
               <Route
