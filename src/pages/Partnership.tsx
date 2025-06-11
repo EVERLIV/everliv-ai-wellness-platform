@@ -12,7 +12,7 @@ const Partnership = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow pt-24">
+      <main className="flex-grow pt-32">
         <PartnershipHero />
         
         <section className="py-12 bg-white">
