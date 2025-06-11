@@ -21,7 +21,7 @@ const ServicesHero = () => {
               </Button>
             </Link>
             <Link to="/dashboard">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
+              <Button size="lg" variant="outline" className="border-white text-green-400 hover:bg-white hover:text-primary">
                 Попробовать бесплатно
               </Button>
             </Link>
