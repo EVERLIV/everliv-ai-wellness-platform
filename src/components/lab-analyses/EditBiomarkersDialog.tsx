@@ -74,14 +74,22 @@ const EditBiomarkersDialog: React.FC<EditBiomarkersDialogProps> = ({
     try {
       setIsLoading(true);
 
+      // Convert markers to plain objects compatible with Json type
+      const plainMarkers = markers.map(marker => ({
+        name: marker.name,
+        value: marker.value,
+        unit: marker.unit || null,
+        status: marker.status
+      }));
+
       const updatedResults = {
         ...analysis.results,
-        markers: markers
+        markers: plainMarkers
       };
 
       const { error } = await supabase
         .from('medical_analyses')
-        .update({ results: updatedResults })
+        .update({ results: updatedResults as any })
         .eq('id', analysis.id);
 
       if (error) {
