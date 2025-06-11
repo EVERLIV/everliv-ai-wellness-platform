@@ -11,8 +11,6 @@ interface NewAnalysisViewProps {
   results: any;
   isAnalyzing: boolean;
   apiError: string | null;
-  analysisHistory: any[];
-  loadingHistory: boolean;
   onBack: () => void;
   onAnalyze: (data: {
     text: string;
@@ -21,7 +19,6 @@ interface NewAnalysisViewProps {
     analysisType: string;
   }) => Promise<void>;
   onTabChange: (tab: string) => void;
-  onViewAnalysis: (analysisId: string) => void;
   onNewAnalysisComplete: () => void;
 }
 
@@ -30,12 +27,9 @@ const NewAnalysisView: React.FC<NewAnalysisViewProps> = ({
   results,
   isAnalyzing,
   apiError,
-  analysisHistory,
-  loadingHistory,
   onBack,
   onAnalyze,
   onTabChange,
-  onViewAnalysis,
   onNewAnalysisComplete,
 }) => {
   return (
@@ -43,7 +37,7 @@ const NewAnalysisView: React.FC<NewAnalysisViewProps> = ({
       <Header />
       
       <div className="flex-grow pt-16">
-        {/* Header section similar to LabAnalysesHeader */}
+        {/* Header section */}
         <div className="bg-gradient-to-br from-emerald-50 via-white to-emerald-50 border-b border-gray-200">
           <div className="container mx-auto px-4 py-6 max-w-7xl">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -90,12 +84,9 @@ const NewAnalysisView: React.FC<NewAnalysisViewProps> = ({
             results={results}
             isAnalyzing={isAnalyzing}
             apiError={apiError}
-            analysisHistory={analysisHistory}
-            loadingHistory={loadingHistory}
             onBack={onBack}
             onAnalyze={onAnalyze}
             onTabChange={onTabChange}
-            onViewAnalysis={onViewAnalysis}
             onNewAnalysisComplete={onNewAnalysisComplete}
           />
         </div>
