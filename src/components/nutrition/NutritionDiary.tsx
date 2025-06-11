@@ -29,31 +29,54 @@ const NutritionDiary: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-2 md:px-4 py-4 md:py-6 max-w-6xl">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-4">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-900">Дневник Питания</h1>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-3">
           <input
             type="date"
             value={selectedDate.toISOString().split('T')[0]}
             onChange={(e) => setSelectedDate(new Date(e.target.value))}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm w-full md:w-auto"
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
           />
         </div>
       </div>
 
-      <Tabs defaultValue="diary" className="space-y-4 md:space-y-6">
-        <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full max-w-md mx-auto md:mx-0">
-          <TabsTrigger value="diary" className="text-xs md:text-sm">Дневник</TabsTrigger>
-          <TabsTrigger value="goals" className="text-xs md:text-sm">Цели</TabsTrigger>
-          <TabsTrigger value="analytics" className="text-xs md:text-sm">Аналитика</TabsTrigger>
-          <TabsTrigger value="recommendations" className="text-xs md:text-sm">Советы</TabsTrigger>
+      <Tabs defaultValue="diary" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 h-auto p-1 bg-gray-100 rounded-xl">
+          <TabsTrigger 
+            value="diary" 
+            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-3 px-4 text-sm font-medium transition-all duration-200"
+          >
+            <span className="hidden sm:inline">Дневник</span>
+            <span className="sm:hidden">📝</span>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="goals"
+            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-3 px-4 text-sm font-medium transition-all duration-200"
+          >
+            <span className="hidden sm:inline">Цели</span>
+            <span className="sm:hidden">🎯</span>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="analytics"
+            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-3 px-4 text-sm font-medium transition-all duration-200"
+          >
+            <span className="hidden sm:inline">Аналитика</span>
+            <span className="sm:hidden">📊</span>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="recommendations"
+            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-3 px-4 text-sm font-medium transition-all duration-200"
+          >
+            <span className="hidden sm:inline">Советы</span>
+            <span className="sm:hidden">💡</span>
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="diary" className="space-y-4 md:space-y-6">
+        <TabsContent value="diary" className="space-y-6 mt-6">
           <DailyProgress selectedDate={selectedDate} />
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {(['breakfast', 'lunch', 'dinner', 'snack'] as const).map((mealType) => {
               const mealEntries = getMealEntries(mealType);
               const summary = mealSummary[mealType];
@@ -109,15 +132,15 @@ const NutritionDiary: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="goals">
+        <TabsContent value="goals" className="mt-6">
           <NutritionGoals />
         </TabsContent>
 
-        <TabsContent value="analytics">
+        <TabsContent value="analytics" className="mt-6">
           <NutritionCharts />
         </TabsContent>
 
-        <TabsContent value="recommendations">
+        <TabsContent value="recommendations" className="mt-6">
           <PersonalizedRecommendations />
         </TabsContent>
       </Tabs>
