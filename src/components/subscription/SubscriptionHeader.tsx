@@ -5,8 +5,8 @@ import { ArrowLeft, Crown } from 'lucide-react';
 
 const SubscriptionHeader = () => {
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-100 border-b border-gray-200">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border-b border-border">
+      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4 w-full sm:w-auto">
             <Button 
@@ -23,14 +23,14 @@ const SubscriptionHeader = () => {
             </Button>
             
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <Crown className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center shadow-lg">
+                <Crown className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-1">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-1">
                   Подписки
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   Выберите подходящий план для доступа ко всем возможностям
                 </p>
               </div>

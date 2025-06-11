@@ -33,7 +33,7 @@ import Analytics from "./pages/Analytics";
 import LabAnalyses from "./pages/LabAnalyses";
 import AnalysisDetails from "./pages/AnalysisDetails";
 import AccountSettings from "./pages/AccountSettings";
-import UserSubscription from "./pages/UserSubscription";
+import SubscriptionPage from "./pages/SubscriptionPage";
 import Checkout from "./pages/Checkout";
 import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
@@ -158,7 +158,7 @@ const App = () => (
                 path="/subscription"
                 element={
                   <ProtectedRoute>
-                    <UserSubscription />
+                    <SubscriptionPage />
                   </ProtectedRoute>
                 }
               />

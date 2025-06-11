@@ -28,12 +28,12 @@ const SubscriptionPage = () => {
 
   if (authLoading || subscriptionLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <div className="flex-grow pt-16 flex items-center justify-center">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-everliv-600 mx-auto mb-4" />
-            <p className="text-sm sm:text-base">Загрузка данных подписки...</p>
+            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-sm sm:text-base text-muted-foreground">Загрузка данных подписки...</p>
           </div>
         </div>
         <MinimalFooter />
@@ -46,7 +46,7 @@ const SubscriptionPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <div className="flex-grow pt-16">
         <SubscriptionHeader />
@@ -60,22 +60,24 @@ const SubscriptionPage = () => {
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="mb-6 sm:mb-8">
-              <TabsList className="grid w-full grid-cols-3 bg-white rounded-lg p-1 shadow-sm">
+              <TabsList className="grid w-full grid-cols-3 bg-card rounded-lg p-1 shadow-sm max-w-md mx-auto sm:max-w-full">
                 <TabsTrigger 
                   value="plans" 
-                  className="text-xs sm:text-sm px-2 sm:px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-white"
+                  className="text-xs sm:text-sm px-2 sm:px-4 py-2 sm:py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
                 >
-                  Возможности
+                  <span className="hidden sm:inline">Возможности</span>
+                  <span className="sm:hidden">План</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="info" 
-                  className="text-xs sm:text-sm px-2 sm:px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-white"
+                  className="text-xs sm:text-sm px-2 sm:px-4 py-2 sm:py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
                 >
-                  Информация
+                  <span className="hidden sm:inline">Информация</span>
+                  <span className="sm:hidden">Инфо</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="payment" 
-                  className="text-xs sm:text-sm px-2 sm:px-4 py-2 data-[state=active]:bg-primary data-[state=active]:text-white"
+                  className="text-xs sm:text-sm px-2 sm:px-4 py-2 sm:py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
                 >
                   Оплата
                 </TabsTrigger>
@@ -87,31 +89,31 @@ const SubscriptionPage = () => {
             </TabsContent>
 
             <TabsContent value="info" className="mt-0">
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h3 className="text-lg font-semibold mb-4">Информация о подписках</h3>
-                <div className="space-y-4 text-gray-600">
-                  <p>EVERLIV предлагает два типа подписок для различных потребностей:</p>
-                  <ul className="list-disc pl-6 space-y-2">
-                    <li><strong>Базовый план</strong> - идеально подходит для начинающих пользователей</li>
-                    <li><strong>Премиум план</strong> - для тех, кто хочет получить максимум от платформы</li>
+              <div className="bg-card rounded-lg p-4 sm:p-6 shadow-sm border">
+                <h3 className="text-lg sm:text-xl font-semibold mb-4">Информация о подписках</h3>
+                <div className="space-y-4 text-muted-foreground">
+                  <p className="text-sm sm:text-base">EVERLIV предлагает два типа подписок для различных потребностей:</p>
+                  <ul className="list-disc pl-6 space-y-2 text-sm sm:text-base">
+                    <li><strong className="text-foreground">Базовый план</strong> - идеально подходит для начинающих пользователей</li>
+                    <li><strong className="text-foreground">Премиум план</strong> - для тех, кто хочет получить максимум от платформы</li>
                   </ul>
-                  <p>Все подписки включают доступ к AI-консультациям и персональным рекомендациям.</p>
+                  <p className="text-sm sm:text-base">Все подписки включают доступ к AI-консультациям и персональным рекомендациям.</p>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="payment" className="mt-0">
-              <div className="bg-white rounded-lg p-6 shadow-sm">
-                <h3 className="text-lg font-semibold mb-4">Способы оплаты</h3>
-                <div className="space-y-4 text-gray-600">
-                  <p>Мы принимаем следующие способы оплаты:</p>
-                  <ul className="list-disc pl-6 space-y-2">
+              <div className="bg-card rounded-lg p-4 sm:p-6 shadow-sm border">
+                <h3 className="text-lg sm:text-xl font-semibold mb-4">Способы оплаты</h3>
+                <div className="space-y-4 text-muted-foreground">
+                  <p className="text-sm sm:text-base">Мы принимаем следующие способы оплаты:</p>
+                  <ul className="list-disc pl-6 space-y-2 text-sm sm:text-base">
                     <li>Банковские карты (Visa, MasterCard, МИР)</li>
                     <li>Электронные кошельки</li>
                     <li>Банковские переводы</li>
                   </ul>
-                  <p>Все платежи защищены современными технологиями шифрования.</p>
-                  <p className="text-sm text-gray-500 mt-4">
+                  <p className="text-sm sm:text-base">Все платежи защищены современными технологиями шифрования.</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground/80 mt-4">
                     При возникновении вопросов по оплате обращайтесь в службу поддержки.
                   </p>
                 </div>
