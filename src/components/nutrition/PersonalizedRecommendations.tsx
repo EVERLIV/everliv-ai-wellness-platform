@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Heart, Activity, Zap, Apple } from "lucide-react";
+import { Loader2, Heart, Activity, Zap, Apple, BookOpen } from "lucide-react";
 import { useNutritionGoals } from "@/hooks/useNutritionGoals";
 import { useFoodEntries } from "@/hooks/useFoodEntries";
 import { useProfile } from "@/hooks/useProfile";
@@ -13,15 +13,18 @@ import { usePersonalizedRecommendations } from "@/hooks/usePersonalizedRecommend
 
 const PersonalizedRecommendations: React.FC = () => {
   const { goals } = useNutritionGoals();
-  const { getDailyTotals } = useFoodEntries(new Date());
+  const { getDailyTotals, entries } = useFoodEntries(new Date());
   const { profileData } = useProfile();
   const { recommendations, isLoading, generateRecommendations } = usePersonalizedRecommendations();
 
   const dailyTotals = getDailyTotals();
 
+  // Проверяем, есть ли данные для генерации рекомендаций
+  const hasNutritionData = entries.length > 0 && (dailyTotals.calories > 0 || dailyTotals.protein > 0 || dailyTotals.carbs > 0 || dailyTotals.fat > 0);
+
   const handleGenerateRecommendations = async () => {
     console.log('Generating recommendations with data:', { profileData, goals, dailyTotals });
-    if (profileData && goals) {
+    if (profileData && goals && hasNutritionData) {
       await generateRecommendations({
         profile: profileData,
         goals,
@@ -29,14 +32,6 @@ const PersonalizedRecommendations: React.FC = () => {
       });
     }
   };
-
-  useEffect(() => {
-    // Автоматически генерируем рекомендации при загрузке, если есть все необходимые данные
-    if (profileData && goals && !recommendations && !isLoading) {
-      console.log('Auto-generating recommendations on load');
-      handleGenerateRecommendations();
-    }
-  }, [profileData, goals]);
 
   if (isLoading) {
     return (
@@ -47,17 +42,77 @@ const PersonalizedRecommendations: React.FC = () => {
     );
   }
 
+  // Если нет данных в дневнике питания, показываем соответствующее сообщение
+  if (!hasNutritionData) {
+    return (
+      <Card className="mx-2 md:mx-0">
+        <CardContent className="pt-6">
+          <div className="text-center py-12">
+            <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-6" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              Заполните дневник питания
+            </h3>
+            <p className="text-gray-600 mb-6 text-sm md:text-base max-w-md mx-auto">
+              Чтобы получить персональные рекомендации по питанию, добавьте записи о вашем рационе. 
+              ИИ проанализирует ваши данные и предложит индивидуальные советы.
+            </p>
+            <p className="text-sm text-gray-500">
+              Добавьте хотя бы несколько приемов пищи, чтобы активировать рекомендации
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Если данные есть, но рекомендации еще не сгенерированы
   if (!recommendations) {
     return (
       <Card className="mx-2 md:mx-0">
         <CardContent className="pt-6">
           <div className="text-center py-8">
-            <p className="text-gray-600 mb-4 text-sm md:text-base">
-              Для получения персональных рекомендаций необходимо заполнить профиль и установить цели питания.
+            <Apple className="h-12 w-12 text-green-500 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Готовы получить персональные рекомендации?
+            </h3>
+            <p className="text-gray-600 mb-6 text-sm md:text-base">
+              На основе ваших записей о питании ИИ создаст индивидуальные рекомендации по продуктам, 
+              витаминам и образу жизни.
             </p>
-            <Button onClick={handleGenerateRecommendations} disabled={!profileData || !goals} className="w-full md:w-auto">
-              Получить рекомендации
+            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="text-center">
+                  <div className="font-medium text-gray-900">{dailyTotals.calories}</div>
+                  <div className="text-gray-600">ккал</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-medium text-blue-600">{dailyTotals.protein.toFixed(1)}г</div>
+                  <div className="text-gray-600">белки</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-medium text-green-600">{dailyTotals.carbs.toFixed(1)}г</div>
+                  <div className="text-gray-600">углеводы</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-medium text-orange-600">{dailyTotals.fat.toFixed(1)}г</div>
+                  <div className="text-gray-600">жиры</div>
+                </div>
+              </div>
+            </div>
+            <Button 
+              onClick={handleGenerateRecommendations} 
+              disabled={!profileData || !goals} 
+              className="w-full md:w-auto"
+              size="lg"
+            >
+              <Zap className="h-4 w-4 mr-2" />
+              Получить персональные рекомендации
             </Button>
+            {(!profileData || !goals) && (
+              <p className="text-sm text-gray-500 mt-3">
+                Заполните профиль и установите цели питания для получения рекомендаций
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
