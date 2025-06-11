@@ -57,7 +57,6 @@ const MedicalAnalysisForm: React.FC<MedicalAnalysisFormProps> = ({
         return;
       }
 
-      // Конвертируем файл в base64
       const reader = new FileReader();
       reader.onload = async () => {
         const base64 = reader.result as string;
