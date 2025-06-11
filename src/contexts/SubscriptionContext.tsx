@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,7 +45,46 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const [isTrialActive, setIsTrialActive] = useState<boolean>(false);
   const [trialExpiresAt, setTrialExpiresAt] = useState<Date | null>(null);
   const [trialTimeRemaining, setTrialTimeRemaining] = useState<string | null>(null);
-  const { hasFeatureTrial, canUseFeature } = useSubscriptionHelpers(featureTrials);
+
+  // Обновленная логика проверки доступа к функциям
+  const canUseFeature = (featureName: string): boolean => {
+    console.log("Checking feature access:", { featureName, subscription, isTrialActive });
+    
+    // Если пользователя нет, доступа нет
+    if (!user) return false;
+    
+    // Проверяем активную подписку
+    if (subscription && subscription.status === 'active') {
+      const planType = subscription.plan_type;
+      console.log("Active subscription found:", planType);
+      
+      // Проверяем доступ к функции по плану
+      const hasAccess = PLAN_FEATURES[planType]?.[featureName] === true;
+      console.log(`Feature ${featureName} access for ${planType}:`, hasAccess);
+      return hasAccess;
+    }
+    
+    // Проверяем пробный период
+    if (isTrialActive) {
+      console.log("Trial is active, granting access");
+      return true;
+    }
+    
+    // Проверяем пробное использование функции
+    const hasTrialUsage = hasFeatureTrial(featureName);
+    console.log(`Feature trial for ${featureName}:`, hasTrialUsage);
+    
+    if (hasTrialUsage) return true;
+    
+    // Базовый доступ (если функция доступна в базовом плане)
+    const basicAccess = PLAN_FEATURES.basic?.[featureName] === true;
+    console.log(`Basic access for ${featureName}:`, basicAccess);
+    return basicAccess;
+  };
+
+  const hasFeatureTrial = (featureName: string): boolean => {
+    return featureTrials.some(trial => trial.feature_name === featureName);
+  };
 
   // Calculate time remaining for trial
   useEffect(() => {
@@ -98,11 +136,13 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       
       try {
         const data = await fetchSubscriptionData(user.id);
+        console.log("Loaded subscription data:", data);
         setSubscription(data.subscription);
         setFeatureTrials(data.featureTrials);
         
         // Check trial status
         const trialStatus = await checkTrialStatusService(user.id);
+        console.log("Trial status:", trialStatus);
         setIsTrialActive(trialStatus.isActive);
         if (trialStatus.expiresAt) {
           setTrialExpiresAt(new Date(trialStatus.expiresAt));

@@ -26,8 +26,16 @@ const MedicalAnalysisForm: React.FC<MedicalAnalysisFormProps> = ({
   const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
 
-  const { canUseFeature } = useSubscription();
+  const { canUseFeature, subscription, isTrialActive } = useSubscription();
   const canUsePhotoAnalysis = canUseFeature(FEATURES.PHOTO_BLOOD_ANALYSIS);
+
+  // Отладочная информация
+  console.log("MedicalAnalysisForm - Subscription debug:", {
+    subscription,
+    isTrialActive,
+    canUsePhotoAnalysis,
+    feature: FEATURES.PHOTO_BLOOD_ANALYSIS
+  });
 
   const handlePhotoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -149,6 +157,13 @@ const MedicalAnalysisForm: React.FC<MedicalAnalysisFormProps> = ({
 
           <TabsContent value="photo" className="mt-4">
             <div className="space-y-4">
+              {/* Показываем статус подписки для отладки */}
+              <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
+                Статус: {subscription?.plan_type || 'basic'} | 
+                Пробный период: {isTrialActive ? 'активен' : 'неактивен'} | 
+                Доступ к фото: {canUsePhotoAnalysis ? 'есть' : 'нет'}
+              </div>
+
               {!canUsePhotoAnalysis && (
                 <Card className="border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50">
                   <CardContent className="p-4">
