@@ -15,7 +15,7 @@ const ChatTypeSelector: React.FC = () => {
   const hasPremiumAccess = canUseFeature('personal_ai_doctor');
 
   const handleBasicChatClick = () => {
-    navigate("/"); // Переход на главную страницу с базовым чатом
+    navigate("/ai-doctor/basic"); // Переход на отдельную страницу базового чата
   };
 
   const handlePremiumChatClick = () => {

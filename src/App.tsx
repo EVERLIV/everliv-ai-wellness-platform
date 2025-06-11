@@ -24,6 +24,8 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Features from "./pages/Features";
 import AIDoctorPage from "./pages/AIDoctorPage";
+import AIDoctorPersonalPage from "./pages/AIDoctorPersonalPage";
+import AIDoctorBasicPage from "./pages/AIDoctorBasicPage";
 import BloodAnalysisPage from "./pages/BloodAnalysisPage";
 import HealthProfile from "./pages/HealthProfile";
 import NutritionDiary from "./pages/NutritionDiary";
@@ -75,6 +77,22 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <AIDoctorPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ai-doctor/personal"
+                element={
+                  <ProtectedRoute>
+                    <AIDoctorPersonalPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ai-doctor/basic"
+                element={
+                  <ProtectedRoute>
+                    <AIDoctorBasicPage />
                   </ProtectedRoute>
                 }
               />
