@@ -3,10 +3,10 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Bot } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ChatMessages from "./ChatMessages";
-import ChatInput from "./ChatInput";
-import SuggestedQuestions from "./SuggestedQuestions";
-import { usePersonalAIDoctorChatWithId } from "./usePersonalAIDoctorChatWithId";
+import ChatMessages from "@/components/dashboard/ai-doctor/ChatMessages";
+import ChatInput from "@/components/dashboard/ai-doctor/ChatInput";
+import SuggestedQuestions from "@/components/dashboard/ai-doctor/SuggestedQuestions";
+import { usePersonalAIDoctorChatWithId } from "@/components/dashboard/ai-doctor/usePersonalAIDoctorChatWithId";
 import { getSuggestedQuestions } from "@/services/ai/ai-doctor-service";
 
 interface PersonalAIDoctorChatWithIdProps {
