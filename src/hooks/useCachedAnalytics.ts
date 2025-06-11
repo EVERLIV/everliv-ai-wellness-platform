@@ -12,13 +12,17 @@ export const useCachedAnalytics = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string>('');
+  const [hasHealthProfile, setHasHealthProfile] = useState(false);
+  const [hasAnalyses, setHasAnalyses] = useState(false);
 
   console.log('useCachedAnalytics hook state:', {
     isGenerating,
     loadingStep,
     hasAnalytics: !!analytics,
     isLoading,
-    hasUser: !!user
+    hasUser: !!user,
+    hasHealthProfile,
+    hasAnalyses
   });
 
   useEffect(() => {
@@ -32,6 +36,46 @@ export const useCachedAnalytics = () => {
     }
   }, [user]);
 
+  const checkDataAvailability = async (): Promise<{ hasProfile: boolean, analysesCount: number }> => {
+    if (!user) return { hasProfile: false, analysesCount: 0 };
+
+    try {
+      // Проверяем профиль здоровья
+      const { data: profileData, error: profileError } = await supabase
+        .from('health_profiles')
+        .select('profile_data')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('Error checking health profile:', profileError);
+      }
+
+      const hasProfile = !!(profileData?.profile_data && 
+        profileData.profile_data.age && 
+        profileData.profile_data.gender && 
+        profileData.profile_data.height && 
+        profileData.profile_data.weight);
+
+      // Проверяем анализы
+      const { data: analysesData, error: analysesError } = await supabase
+        .from('medical_analyses')
+        .select('id')
+        .eq('user_id', user.id);
+
+      if (analysesError) {
+        console.error('Error checking analyses:', analysesError);
+      }
+
+      const analysesCount = analysesData?.length || 0;
+
+      return { hasProfile, analysesCount };
+    } catch (error) {
+      console.error('Error checking data availability:', error);
+      return { hasProfile: false, analysesCount: 0 };
+    }
+  };
+
   const loadCachedAnalytics = async () => {
     if (!user) {
       console.log('No user in loadCachedAnalytics');
@@ -43,6 +87,18 @@ export const useCachedAnalytics = () => {
       console.log('Starting to load cached analytics for user:', user.id);
       setIsLoading(true);
       
+      // Проверяем доступность данных
+      const { hasProfile, analysesCount } = await checkDataAvailability();
+      setHasHealthProfile(hasProfile);
+      setHasAnalyses(analysesCount > 0);
+
+      // Если нет необходимых данных, не загружаем аналитику
+      if (!hasProfile || analysesCount === 0) {
+        console.log('Insufficient data for analytics:', { hasProfile, analysesCount });
+        setAnalytics(null);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('user_analytics')
         .select('analytics_data, updated_at')
@@ -90,6 +146,26 @@ export const useCachedAnalytics = () => {
     try {
       console.log('Starting analytics generation...');
       setIsGenerating(true);
+      setLoadingStep('Проверка данных...');
+
+      // Проверяем доступность данных
+      const { hasProfile, analysesCount } = await checkDataAvailability();
+      setHasHealthProfile(hasProfile);
+      setHasAnalyses(analysesCount > 0);
+
+      if (!hasProfile || analysesCount === 0) {
+        let message = 'Для генерации аналитики необходимо: ';
+        const missing = [];
+        if (!hasProfile) missing.push('заполнить профиль здоровья');
+        if (analysesCount === 0) missing.push('добавить хотя бы один анализ крови');
+        message += missing.join(' и ');
+        
+        toast.error(message);
+        setIsGenerating(false);
+        setLoadingStep('');
+        return;
+      }
+
       setLoadingStep('Загрузка данных анализов...');
 
       const [analysesResponse, chatsResponse] = await Promise.all([
@@ -118,7 +194,13 @@ export const useCachedAnalytics = () => {
       console.log('Data loaded - analyses:', analyses.length, 'chats:', chats.length);
       setLoadingStep('Анализ данных и генерация отчета...');
       
-      const generatedAnalytics = await generateAnalyticsData(analyses, chats);
+      const generatedAnalytics = await generateAnalyticsData(analyses, chats, hasProfile);
+      
+      if (!generatedAnalytics) {
+        toast.error('Недостаточно данных для генерации аналитики');
+        return;
+      }
+
       console.log('Analytics generated:', generatedAnalytics);
 
       setLoadingStep('Сохранение результатов...');
@@ -155,6 +237,8 @@ export const useCachedAnalytics = () => {
     isLoading,
     isGenerating,
     loadingStep,
+    hasHealthProfile,
+    hasAnalyses,
     generateAnalytics,
     refreshAnalytics: loadCachedAnalytics
   };

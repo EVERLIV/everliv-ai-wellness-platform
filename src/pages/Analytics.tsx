@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import AnalyticsPageLayout from "@/components/analytics/AnalyticsPageLayout";
 import AnalyticsLoadingIndicator from "@/components/analytics/AnalyticsLoadingIndicator";
 import AnalyticsEmptyState from "@/components/analytics/AnalyticsEmptyState";
+import AnalyticsDataRequiredState from "@/components/analytics/AnalyticsDataRequiredState";
 import AnalyticsContent from "@/components/analytics/AnalyticsContent";
 import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 
@@ -18,6 +19,8 @@ const Analytics: React.FC = () => {
     isLoading: isLoadingAnalytics,
     isGenerating,
     loadingStep,
+    hasHealthProfile,
+    hasAnalyses,
     generateAnalytics
   } = useCachedAnalytics();
 
@@ -27,7 +30,9 @@ const Analytics: React.FC = () => {
     hasAnalytics: !!analytics,
     isLoadingAnalytics,
     isGenerating,
-    loadingStep
+    loadingStep,
+    hasHealthProfile,
+    hasAnalyses
   });
 
   // Проверка пользователя
@@ -69,7 +74,20 @@ const Analytics: React.FC = () => {
     );
   }
 
-  // Если аналитика не сгенерирована
+  // Если нет необходимых данных
+  if (!hasHealthProfile || !hasAnalyses) {
+    console.log('Rendering data required state');
+    return (
+      <AnalyticsPageLayout>
+        <AnalyticsDataRequiredState 
+          hasHealthProfile={hasHealthProfile}
+          hasAnalyses={hasAnalyses}
+        />
+      </AnalyticsPageLayout>
+    );
+  }
+
+  // Если аналитика не сгенерирована, но данные есть
   if (!analytics) {
     console.log('Rendering no analytics state');
     return (

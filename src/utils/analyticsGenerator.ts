@@ -3,13 +3,20 @@ import { CachedAnalytics, AnalysisRecord, ChatRecord } from '@/types/analytics';
 
 export const generateAnalyticsData = async (
   analyses: AnalysisRecord[], 
-  chats: ChatRecord[]
-): Promise<CachedAnalytics> => {
+  chats: ChatRecord[],
+  hasHealthProfile: boolean = false
+): Promise<CachedAnalytics | null> => {
+  
+  // Check if we have minimum required data
+  if (!hasHealthProfile || analyses.length === 0) {
+    return null;
+  }
+
   const totalAnalyses = analyses.length;
   const totalConsultations = chats.length;
 
-  // Определяем уровень риска
-  let riskLevel = 'low';
+  // Определяем уровень риска на основе реальных данных
+  let riskLevel = 'низкий';
   let totalRiskMarkers = 0;
   let totalOptimalMarkers = 0;
   let totalMarkers = 0;
@@ -19,13 +26,26 @@ export const generateAnalyticsData = async (
     const results = latestAnalysis.results;
     
     if (results?.riskLevel) {
-      riskLevel = results.riskLevel;
+      // Переводим на русский
+      switch (results.riskLevel) {
+        case 'high':
+          riskLevel = 'высокий';
+          break;
+        case 'medium':
+          riskLevel = 'средний';
+          break;
+        case 'low':
+          riskLevel = 'низкий';
+          break;
+        default:
+          riskLevel = 'не определен';
+      }
     } else if (results?.markers) {
       analyses.forEach(analysis => {
         if (analysis.results?.markers) {
           analysis.results.markers.forEach((marker) => {
             totalMarkers++;
-            if (marker.status === 'optimal' || marker.status === 'good') {
+            if (marker.status === 'optimal' || marker.status === 'good' || marker.status === 'normal') {
               totalOptimalMarkers++;
             } else if (marker.status === 'attention' || marker.status === 'risk' || marker.status === 'high' || marker.status === 'low') {
               totalRiskMarkers++;
@@ -35,13 +55,21 @@ export const generateAnalyticsData = async (
       });
 
       const riskPercentage = totalMarkers > 0 ? totalRiskMarkers / totalMarkers : 0;
-      if (riskPercentage >= 0.5) riskLevel = 'high';
-      else if (riskPercentage >= 0.2) riskLevel = 'medium';
+      if (riskPercentage >= 0.5) {
+        riskLevel = 'высокий';
+      } else if (riskPercentage >= 0.2) {
+        riskLevel = 'средний';
+      } else {
+        riskLevel = 'низкий';
+      }
     }
   }
 
-  // Вычисляем индекс здоровья
-  const healthScore = totalMarkers > 0 ? Math.round((totalOptimalMarkers / totalMarkers) * 100) : 75;
+  // Вычисляем реальный индекс здоровья на основе биомаркеров
+  let healthScore = 50; // базовый балл
+  if (totalMarkers > 0) {
+    healthScore = Math.round((totalOptimalMarkers / totalMarkers) * 100);
+  }
 
   // Проверяем недавнюю активность
   const weekAgo = new Date();
@@ -63,7 +91,7 @@ export const generateAnalyticsData = async (
   analyses.slice(0, 3).forEach(analysis => {
     const timeAgo = getTimeAgo(analysis.created_at);
     recentActivities.push({
-      title: `Анализ загружен`,
+      title: `Анализ крови загружен`,
       time: timeAgo,
       icon: 'FileText',
       iconColor: 'text-blue-500',

@@ -6,34 +6,47 @@ import { Button } from "@/components/ui/button";
 import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 
 const DashboardHealthSummary = () => {
-  const { analytics, isLoading, isGenerating, generateAnalytics } = useCachedAnalytics();
+  const { 
+    analytics, 
+    isLoading, 
+    isGenerating, 
+    hasHealthProfile, 
+    hasAnalyses, 
+    generateAnalytics 
+  } = useCachedAnalytics();
 
   const getRiskLevelText = (level: string) => {
-    switch (level) {
-      case 'high': return 'Высокий риск';
-      case 'medium': return 'Умеренный риск';
-      case 'low': return 'Низкий риск';
-      default: return 'Не определен';
-    }
+    // Уровень риска уже приходит на русском из аналитики
+    return level || 'Не определен';
   };
 
   const getRiskLevelColor = (level: string) => {
     switch (level) {
-      case 'high': return 'text-red-600 bg-red-50 border-red-200';
-      case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'low': return 'text-green-600 bg-green-50 border-green-200';
+      case 'высокий': return 'text-red-600 bg-red-50 border-red-200';
+      case 'средний': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      case 'низкий': return 'text-green-600 bg-green-50 border-green-200';
       default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
 
   const getRecommendationMessage = () => {
-    if (!analytics || analytics.totalAnalyses === 0) {
+    if (!hasHealthProfile || !hasAnalyses) {
+      return {
+        icon: AlertTriangle,
+        color: 'text-amber-600',
+        bg: 'bg-amber-50 border-amber-200',
+        title: 'Заполните данные',
+        message: 'Для получения анализа здоровья заполните профиль здоровья и добавьте анализ крови'
+      };
+    }
+
+    if (!analytics) {
       return {
         icon: FileText,
         color: 'text-blue-600',
         bg: 'bg-blue-50 border-blue-200',
-        title: 'Начните с анализов',
-        message: 'Загрузите первый анализ крови для получения персональных рекомендаций'
+        title: 'Сгенерируйте аналитику',
+        message: 'Данные готовы для анализа. Сгенерируйте персональную аналитику здоровья'
       };
     }
 
@@ -47,7 +60,7 @@ const DashboardHealthSummary = () => {
       };
     }
 
-    if (analytics.riskLevel === 'high') {
+    if (analytics.riskLevel === 'высокий') {
       return {
         icon: AlertTriangle,
         color: 'text-red-600',
@@ -80,7 +93,7 @@ const DashboardHealthSummary = () => {
             variant="outline"
             size="sm"
             onClick={generateAnalytics}
-            disabled={isGenerating}
+            disabled={isGenerating || !hasHealthProfile || !hasAnalyses}
             className="gap-2"
           >
             <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
@@ -105,35 +118,54 @@ const DashboardHealthSummary = () => {
         ) : !analytics ? (
           <div className="text-center py-6">
             <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Нет данных</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {(!hasHealthProfile || !hasAnalyses) ? 'Данных нет' : 'Аналитика не сгенерирована'}
+            </h3>
             <p className="text-sm text-gray-500 mb-4">
-              Для получения персональной сводки здоровья нажмите "Обновить"
+              {(!hasHealthProfile || !hasAnalyses) 
+                ? 'Для получения сводки здоровья необходимо заполнить профиль и добавить анализы'
+                : 'Для получения персональной сводки здоровья нажмите "Обновить"'
+              }
             </p>
-            <Button onClick={generateAnalytics} disabled={isGenerating}>
-              {isGenerating ? 'Генерация...' : 'Сгенерировать аналитику'}
-            </Button>
+            {(hasHealthProfile && hasAnalyses) && (
+              <Button onClick={generateAnalytics} disabled={isGenerating}>
+                {isGenerating ? 'Генерация...' : 'Сгенерировать аналитику'}
+              </Button>
+            )}
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600 mb-1">
-                  {analytics.totalAnalyses}
+                  {analytics.totalAnalyses || 0}
                 </div>
                 <div className="text-sm text-gray-500">Анализов</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600 mb-1">
-                  {analytics.totalConsultations}
+                  {analytics.totalConsultations || 0}
                 </div>
                 <div className="text-sm text-gray-500">Консультаций</div>
               </div>
             </div>
 
-            {analytics.riskLevel && analytics.totalAnalyses > 0 && (
+            {/* Балл здоровья */}
+            <div className="mb-4 p-3 rounded-lg border bg-blue-50 border-blue-200">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-blue-700">Балл здоровья:</span>
+                <span className="text-lg font-bold text-blue-600">
+                  {analytics.healthScore || 0}/100
+                </span>
+              </div>
+            </div>
+
+            {/* Уровень риска */}
+            {analytics.riskLevel && (
               <div className={`mb-4 p-3 rounded-lg border ${getRiskLevelColor(analytics.riskLevel)}`}>
-                <div className="text-sm font-medium">
-                  Уровень риска: {getRiskLevelText(analytics.riskLevel)}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Риск:</span>
+                  <span className="font-medium">{getRiskLevelText(analytics.riskLevel)}</span>
                 </div>
                 {analytics.lastAnalysisDate && (
                   <div className="text-xs mt-1 opacity-75">
@@ -153,7 +185,16 @@ const DashboardHealthSummary = () => {
                   <p className="text-sm text-gray-700 mb-3">
                     {recommendation.message}
                   </p>
-                  {analytics.totalAnalyses === 0 && (
+                  {!hasHealthProfile && (
+                    <Button 
+                      size="sm" 
+                      onClick={() => window.location.href = '/health-profile'}
+                      className="bg-amber-600 hover:bg-amber-700 mr-2"
+                    >
+                      Заполнить профиль
+                    </Button>
+                  )}
+                  {!hasAnalyses && (
                     <Button 
                       size="sm" 
                       onClick={() => window.location.href = '/lab-analyses'}
