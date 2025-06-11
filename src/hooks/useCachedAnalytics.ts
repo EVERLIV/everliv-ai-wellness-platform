@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -54,7 +53,7 @@ export const useCachedAnalytics = () => {
 
       let hasProfile = false;
       if (profileData?.profile_data) {
-        const profileInfo = profileData.profile_data as HealthProfileData;
+        const profileInfo = profileData.profile_data as unknown as HealthProfileData;
         hasProfile = !!(profileInfo.age && 
           profileInfo.gender && 
           profileInfo.height && 
