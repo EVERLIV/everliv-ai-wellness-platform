@@ -45,7 +45,7 @@ export const generateAnalyticsData = async (
         if (analysis.results?.markers) {
           analysis.results.markers.forEach((marker) => {
             totalMarkers++;
-            if (marker.status === 'optimal' || marker.status === 'good' || marker.status === 'normal') {
+            if (marker.status === 'optimal' || marker.status === 'good') {
               totalOptimalMarkers++;
             } else if (marker.status === 'attention' || marker.status === 'risk' || marker.status === 'high' || marker.status === 'low') {
               totalRiskMarkers++;

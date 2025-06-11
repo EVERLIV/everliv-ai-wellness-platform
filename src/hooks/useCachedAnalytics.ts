@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CachedAnalytics, AnalysisRecord, ChatRecord } from '@/types/analytics';
 import { generateAnalyticsData } from '@/utils/analyticsGenerator';
+import { HealthProfileData } from './useHealthProfile';
 
 export const useCachedAnalytics = () => {
   const { user } = useAuth();
@@ -51,11 +52,14 @@ export const useCachedAnalytics = () => {
         console.error('Error checking health profile:', profileError);
       }
 
-      const hasProfile = !!(profileData?.profile_data && 
-        profileData.profile_data.age && 
-        profileData.profile_data.gender && 
-        profileData.profile_data.height && 
-        profileData.profile_data.weight);
+      let hasProfile = false;
+      if (profileData?.profile_data) {
+        const profileInfo = profileData.profile_data as HealthProfileData;
+        hasProfile = !!(profileInfo.age && 
+          profileInfo.gender && 
+          profileInfo.height && 
+          profileInfo.weight);
+      }
 
       // Проверяем анализы
       const { data: analysesData, error: analysesError } = await supabase
