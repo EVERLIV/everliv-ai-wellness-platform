@@ -62,26 +62,28 @@ const MedicalAnalysisForm: React.FC<MedicalAnalysisFormProps> = ({
         toast.error("Пожалуйста, загрузите фото анализа");
         return;
       }
-      
-      if (!canUsePhotoAnalysis) {
-        toast.error("Анализ фото доступен только в Premium подписке");
-        return;
-      }
 
       console.log("Submitting photo analysis:", selectedPhoto.name);
 
-      // Конвертируем файл в base64
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64 = reader.result as string;
+      // Конвертируем файл в base64 синхронно
+      try {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(selectedPhoto);
+        });
+        
         console.log("Photo converted to base64, starting analysis...");
         await onAnalyze({ 
           text: "", 
           photoUrl: base64, 
           analysisType 
         });
-      };
-      reader.readAsDataURL(selectedPhoto);
+      } catch (error) {
+        console.error("Error converting photo to base64:", error);
+        toast.error("Ошибка при обработке фото");
+      }
     }
   };
 
