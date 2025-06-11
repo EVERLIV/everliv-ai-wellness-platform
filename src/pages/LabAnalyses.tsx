@@ -80,13 +80,14 @@ const LabAnalyses = () => {
       <div className="flex-grow pt-16">
         <LabAnalysesHeader onAddNewAnalysis={() => setShowNewAnalysis(true)} />
         
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
           <LabAnalysesStats statistics={statistics} />
           <AnalysisHistory
             analysisHistory={analysisHistory}
             loadingHistory={loadingHistory}
             onViewAnalysis={handleViewAnalysis}
             onAddNewAnalysis={() => setShowNewAnalysis(true)}
+            onRefresh={refreshHistory}
           />
           <MedicalDataDisclaimer />
         </div>
