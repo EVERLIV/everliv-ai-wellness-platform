@@ -1,247 +1,70 @@
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
+import { createContext, useContext } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { PLAN_FEATURES } from "@/constants/subscription-features";
-import { useSubscriptionHelpers } from "@/hooks/use-subscription-helpers";
-import { 
-  fetchSubscriptionData, 
-  recordFeatureTrialService, 
-  purchaseSubscriptionService,
-  cancelSubscriptionService,
-  upgradeSubscriptionService,
-  checkTrialStatusService
-} from "@/services/subscription-service";
-import { 
-  getCurrentMonthUsage, 
-  incrementUsage, 
-  checkUsageLimit 
-} from "@/services/usage-tracking-service";
-import { toast } from "sonner";
-
-interface SubscriptionContextType {
-  subscription: Subscription | null;
-  isLoading: boolean;
-  featureTrials: FeatureTrial[];
-  hasFeatureTrial: (featureName: string) => boolean;
-  canUseFeature: (featureName: string) => boolean;
-  recordFeatureTrial: (featureName: string) => Promise<void>;
-  purchaseSubscription: (planType: SubscriptionPlan) => Promise<void>;
-  cancelSubscription: () => Promise<void>;
-  upgradeSubscription: (newPlanType: SubscriptionPlan) => Promise<void>;
-  checkFeatureUsage: (featureType: string) => Promise<{ canUse: boolean; currentUsage: number; limit: number }>;
-  incrementFeatureUsage: (featureType: string) => Promise<void>;
-  isTrialActive: boolean;
-  trialExpiresAt: Date | null;
-  trialTimeRemaining: string | null;
-}
+import { SubscriptionContextType, SubscriptionProviderProps } from "@/types/subscription-context";
+import { useSubscriptionState } from "@/hooks/use-subscription-state";
+import { useTrialTimer } from "@/hooks/use-trial-timer";
+import { useFeatureAccess } from "@/hooks/use-feature-access";
+import { useSubscriptionActions } from "@/hooks/use-subscription-actions";
+import { useSubscriptionData } from "@/hooks/use-subscription-data";
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
-export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
+export const SubscriptionProvider = ({ children }: SubscriptionProviderProps) => {
   const { user } = useAuth();
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [featureTrials, setFeatureTrials] = useState<FeatureTrial[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isTrialActive, setIsTrialActive] = useState<boolean>(false);
-  const [trialExpiresAt, setTrialExpiresAt] = useState<Date | null>(null);
-  const [trialTimeRemaining, setTrialTimeRemaining] = useState<string | null>(null);
+  
+  const {
+    subscription,
+    setSubscription,
+    featureTrials,
+    setFeatureTrials,
+    isLoading,
+    setIsLoading,
+    isTrialActive,
+    setIsTrialActive,
+    trialExpiresAt,
+    setTrialExpiresAt,
+    trialTimeRemaining,
+    setTrialTimeRemaining
+  } = useSubscriptionState();
 
-  // Обновленная логика проверки доступа к функциям
-  const canUseFeature = (featureName: string): boolean => {
-    console.log("Checking feature access:", { featureName, subscription, isTrialActive });
-    
-    // Если пользователя нет, доступа нет
-    if (!user) return false;
-    
-    // Проверяем активную подписку
-    if (subscription && subscription.status === 'active') {
-      const planType = subscription.plan_type;
-      console.log("Active subscription found:", planType);
-      
-      // Ищем функцию в PLAN_FEATURES и проверяем доступ по плану
-      const feature = Object.values(PLAN_FEATURES).find(f => 
-        Object.keys(PLAN_FEATURES).some(key => key === featureName)
-      );
-      
-      if (feature) {
-        const hasAccess = feature.includedIn[planType] === true;
-        console.log(`Feature ${featureName} access for ${planType}:`, hasAccess);
-        return hasAccess;
-      }
-      
-      // Если функция не найдена в PLAN_FEATURES, проверяем по старой логике
-      // Для photo_blood_analysis даем доступ только premium пользователям
-      if (featureName === 'photo_blood_analysis') {
-        const hasAccess = planType === 'premium';
-        console.log(`Photo blood analysis access for ${planType}:`, hasAccess);
-        return hasAccess;
-      }
-    }
-    
-    // Проверяем пробный период
-    if (isTrialActive) {
-      console.log("Trial is active, granting access");
-      return true;
-    }
-    
-    // Проверяем пробное использование функции
-    const hasTrialUsage = hasFeatureTrial(featureName);
-    console.log(`Feature trial for ${featureName}:`, hasTrialUsage);
-    
-    if (hasTrialUsage) return true;
-    
-    // Базовый доступ для некоторых функций
-    if (featureName === 'photo_blood_analysis') {
-      return false; // Фото анализ только для premium
-    }
-    
-    console.log(`No access granted for ${featureName}`);
-    return false;
-  };
-
-  const hasFeatureTrial = (featureName: string): boolean => {
-    return featureTrials.some(trial => trial.feature_name === featureName);
-  };
+  // Load subscription data when user changes
+  useSubscriptionData(
+    setSubscription,
+    setFeatureTrials,
+    setIsLoading,
+    setIsTrialActive,
+    setTrialExpiresAt
+  );
 
   // Calculate time remaining for trial
-  useEffect(() => {
-    if (!trialExpiresAt) {
-      setTrialTimeRemaining(null);
-      return;
-    }
-    
-    const calculateTimeRemaining = () => {
-      const now = new Date();
-      const expiresAt = new Date(trialExpiresAt);
-      const diffMs = expiresAt.getTime() - now.getTime();
-      
-      if (diffMs <= 0) {
-        setIsTrialActive(false);
-        setTrialTimeRemaining("Истек");
-        return;
-      }
-      
-      const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-      const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      
-      if (diffHrs > 0) {
-        setTrialTimeRemaining(`${diffHrs} ч ${diffMins} мин`);
-      } else {
-        setTrialTimeRemaining(`${diffMins} мин`);
-      }
-    };
-    
-    calculateTimeRemaining();
-    const timer = setInterval(calculateTimeRemaining, 60000);
-    
-    return () => clearInterval(timer);
-  }, [trialExpiresAt]);
+  useTrialTimer(trialExpiresAt, setIsTrialActive, setTrialTimeRemaining);
 
-  // Fetch subscription data when user changes
-  useEffect(() => {
-    const loadSubscriptionData = async () => {
-      if (!user) {
-        setSubscription(null);
-        setFeatureTrials([]);
-        setIsLoading(false);
-        setIsTrialActive(false);
-        setTrialExpiresAt(null);
-        return;
-      }
+  // Feature access logic
+  const { hasFeatureTrial, canUseFeature } = useFeatureAccess(
+    subscription,
+    featureTrials,
+    isTrialActive,
+    user
+  );
 
-      setIsLoading(true);
-      
-      try {
-        const data = await fetchSubscriptionData(user.id);
-        console.log("Loaded subscription data:", data);
-        setSubscription(data.subscription);
-        setFeatureTrials(data.featureTrials);
-        
-        // Check trial status
-        const trialStatus = await checkTrialStatusService(user.id);
-        console.log("Trial status:", trialStatus);
-        setIsTrialActive(trialStatus.isActive);
-        if (trialStatus.expiresAt) {
-          setTrialExpiresAt(new Date(trialStatus.expiresAt));
-        }
-      } catch (error) {
-        console.error("Error loading subscription data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadSubscriptionData();
-  }, [user]);
-
-  const recordFeatureTrial = async (featureName: string): Promise<void> => {
-    if (!user) return;
-
-    if (hasFeatureTrial(featureName)) {
-      return;
-    }
-
-    try {
-      const newTrial = await recordFeatureTrialService(user.id, featureName);
-      setFeatureTrials([...featureTrials, newTrial]);
-    } catch (error) {
-      console.error("Error recording feature trial:", error);
-    }
-  };
-
-  const purchaseSubscription = async (planType: SubscriptionPlan): Promise<void> => {
-    if (!user) return;
-
-    try {
-      const newSubscription = await purchaseSubscriptionService(user.id, planType);
-      setSubscription(newSubscription);
-    } catch (error) {
-      console.error("Error purchasing subscription:", error);
-    }
-  };
-
-  const cancelSubscription = async (): Promise<void> => {
-    if (!subscription) return;
-
-    try {
-      await cancelSubscriptionService(subscription.id);
-      setSubscription({...subscription, status: 'canceled'});
-    } catch (error) {
-      console.error("Error canceling subscription:", error);
-    }
-  };
-
-  const upgradeSubscription = async (newPlanType: SubscriptionPlan): Promise<void> => {
-    if (!subscription || !user) return;
-
-    try {
-      const updatedSubscription = await upgradeSubscriptionService(user.id, subscription.id, newPlanType);
-      setSubscription(updatedSubscription);
-    } catch (error) {
-      console.error("Error upgrading subscription:", error);
-    }
-  };
-
-  const checkFeatureUsage = async (featureType: string) => {
-    if (!user) {
-      return { canUse: false, currentUsage: 0, limit: 0 };
-    }
-
-    const planType = subscription?.plan_type || 'basic';
-    return await checkUsageLimit(user.id, featureType, planType);
-  };
-
-  const incrementFeatureUsage = async (featureType: string): Promise<void> => {
-    if (!user) return;
-
-    try {
-      await incrementUsage(user.id, featureType);
-    } catch (error) {
-      console.error("Error incrementing feature usage:", error);
-      throw error;
-    }
-  };
+  // Subscription actions
+  const {
+    recordFeatureTrial,
+    purchaseSubscription,
+    cancelSubscription,
+    upgradeSubscription,
+    checkFeatureUsage,
+    incrementFeatureUsage
+  } = useSubscriptionActions(
+    user,
+    subscription,
+    featureTrials,
+    setFeatureTrials,
+    setSubscription,
+    hasFeatureTrial
+  );
 
   const contextValue = {
     subscription,
