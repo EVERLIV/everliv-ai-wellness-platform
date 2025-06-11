@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import MinimalFooter from "@/components/MinimalFooter";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, HelpCircle } from "lucide-react";
 import SupportOptions from "@/components/support/SupportOptions";
 import SupportContactForm from "@/components/support/SupportContactForm";
 import SupportFAQ from "@/components/support/SupportFAQ";
@@ -17,19 +17,42 @@ const Support: React.FC = () => {
       <Header />
       
       <div className="flex-grow pt-16">
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          <div className="flex items-center gap-4 mb-6">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Назад
-            </Button>
-            <h1 className="text-2xl font-semibold text-gray-900">Поддержка</h1>
+        {/* Header styled like Analytics page */}
+        <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 border-b border-gray-200">
+          <div className="container mx-auto px-4 py-6 max-w-7xl">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate("/dashboard")}
+                  className="flex items-center gap-2 hover:bg-gray-100 px-2 sm:px-3"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline">Назад к панели</span>
+                  <span className="sm:hidden">Назад</span>
+                </Button>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-xl flex items-center justify-center shadow-sm">
+                    <HelpCircle className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                      Поддержка
+                    </h1>
+                    <p className="text-sm sm:text-base text-gray-600 hidden sm:block">
+                      Помощь и консультации по использованию платформы
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
 
+        {/* Content */}
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
           <div className="grid gap-6">
             <SupportOptions />
             <SupportContactForm />
