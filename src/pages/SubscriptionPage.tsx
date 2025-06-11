@@ -74,27 +74,14 @@ const SubscriptionPage = () => {
       ]
     },
     {
-      type: "standard",
-      name: "Стандарт",
-      price: "2490 ₽",
-      period: "месяц",
-      description: "Все базовые функции + расширенный анализ",
-      featured: true,
-      features: [
-        "Все функции базового плана",
-        "Анализ крови с AI",
-        "Тест биологического возраста",
-        "Персонализированные протоколы"
-      ]
-    },
-    {
       type: "premium",
       name: "Премиум",
       price: "4990 ₽",
       period: "месяц",
       description: "Максимальная поддержка для вашего здоровья",
+      featured: true,
       features: [
-        "Все функции стандартного плана",
+        "Все функции базового плана",
         "Комплексный AI-анализ",
         "Консультации со специалистами",
         "Приоритетная поддержка"
@@ -125,15 +112,14 @@ const SubscriptionPage = () => {
               <div className="flex items-center gap-2 mt-2">
                 <CheckCircle className="h-5 w-5 text-evergreen-500" />
                 <span>
-                  План "{subscription.plan_type === 'basic' ? 'Базовый' : 
-                         subscription.plan_type === 'standard' ? 'Стандарт' : 'Премиум'}" 
+                  План "{subscription.plan_type === 'basic' ? 'Базовый' : 'Премиум'}" 
                   активен до {new Date(subscription.expires_at).toLocaleDateString('ru-RU')}
                 </span>
               </div>
             </div>
           )}
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             {plans.map((plan, index) => (
               <Card 
                 key={index} 
