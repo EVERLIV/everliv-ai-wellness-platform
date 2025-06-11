@@ -51,41 +51,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col bg-white">
-      {/* Простой заголовок */}
-      <div className="flex items-center gap-3 p-3 border-b bg-white">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onBack}
-          className="flex items-center gap-2 px-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {!isMobile && <span className="text-sm">Назад</span>}
-        </Button>
-        
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-purple-100 rounded-lg flex items-center justify-center">
-            <Bot className="h-4 w-4 text-purple-600" />
-          </div>
-          <div>
-            <h1 className={`font-semibold text-gray-900 ${isMobile ? 'text-base' : 'text-lg'}`}>
-              {isMobile ? 'ИИ Доктор' : 'Премиум ИИ Доктор'}
-            </h1>
-            {!isMobile && (
-              <p className="text-xs text-gray-600">
-                Персональные консультации
-                {remainingMessages !== null && (
-                  <span className="ml-1 text-purple-600 font-medium">
-                    ({remainingMessages} сообщений)
-                  </span>
-                )}
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-
+    <div className="h-full flex flex-col bg-white rounded-lg shadow-sm border">
       {/* Область чата */}
       <div className="flex-1 flex flex-col min-h-0">
         <ScrollArea className="flex-1 p-4">
