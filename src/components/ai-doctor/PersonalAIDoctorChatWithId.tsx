@@ -1,22 +1,27 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Bot } from "lucide-react";
+import { ArrowLeft, Bot, MessageSquare, Plus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessages from "@/components/dashboard/ai-doctor/ChatMessages";
 import ChatInput from "@/components/dashboard/ai-doctor/ChatInput";
 import SuggestedQuestions from "@/components/dashboard/ai-doctor/SuggestedQuestions";
-import { usePersonalAIDoctorChatWithId } from "@/components/dashboard/ai-doctor/usePersonalAIDoctorChatWithId";
+import { usePersonalAIDoctorChatWithId } from "./usePersonalAIDoctorChatWithId";
 import { getSuggestedQuestions } from "@/services/ai/ai-doctor-service";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PersonalAIDoctorChatWithIdProps {
-  chatId: string | undefined;
+  chatId?: string;
   onBack: () => void;
+  onCreateNewChat?: () => void;
+  onShowChatHistory?: () => void;
 }
 
 const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({ 
   chatId, 
-  onBack 
+  onBack,
+  onCreateNewChat,
+  onShowChatHistory
 }) => {
   const {
     messages,
@@ -30,17 +35,15 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
     messagesEndRef
   } = usePersonalAIDoctorChatWithId(chatId);
 
-  // Get suggested questions
+  const isMobile = useIsMobile();
   const suggestedQuestions = getSuggestedQuestions({});
-
-  // Показываем быстрые сообщения если нет сообщений или есть только приветственное сообщение от ИИ
   const showSuggestedQuestions = messages.length === 0 || (messages.length === 1 && messages[0].role === 'assistant');
 
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2" />
           <p className="text-gray-600">Загрузка чата...</p>
         </div>
       </div>
@@ -49,39 +52,42 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
 
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Компактный заголовок */}
-      <div className="flex items-center gap-3 p-4 border-b bg-white">
+      {/* Простой заголовок */}
+      <div className="flex items-center gap-3 p-3 border-b bg-white">
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={onBack}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 px-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">Назад</span>
+          {!isMobile && <span className="text-sm">Назад</span>}
         </Button>
         
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-            <Bot className="h-5 w-5 text-purple-600" />
+          <div className="w-7 h-7 bg-purple-100 rounded-lg flex items-center justify-center">
+            <Bot className="h-4 w-4 text-purple-600" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-gray-900">Премиум ИИ Доктор</h1>
-            <p className="text-sm text-gray-600">
-              Персональные консультации
-              {remainingMessages !== null && (
-                <span className="ml-2 text-xs font-medium text-purple-600">
-                  ({remainingMessages} сообщений)
-                </span>
-              )}
-            </p>
+            <h1 className={`font-semibold text-gray-900 ${isMobile ? 'text-base' : 'text-lg'}`}>
+              {isMobile ? 'ИИ Доктор' : 'Премиум ИИ Доктор'}
+            </h1>
+            {!isMobile && (
+              <p className="text-xs text-gray-600">
+                Персональные консультации
+                {remainingMessages !== null && (
+                  <span className="ml-1 text-purple-600 font-medium">
+                    ({remainingMessages} сообщений)
+                  </span>
+                )}
+              </p>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Chat Interface */}
+      {/* Область чата */}
       <div className="flex-1 flex flex-col min-h-0">
-        {/* Messages Area with Scroll */}
         <ScrollArea className="flex-1 p-4">
           <ChatMessages 
             messages={messages} 
@@ -89,7 +95,6 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
             messagesEndRef={messagesEndRef}
           />
           
-          {/* Показываем быстрые сообщения когда нет пользовательских сообщений */}
           {showSuggestedQuestions && (
             <div className="mt-4">
               <SuggestedQuestions 
@@ -100,14 +105,41 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           )}
         </ScrollArea>
         
-        {/* Input Area */}
-        <div className="p-4 border-t bg-white">
+        {/* Область ввода с кнопками управления */}
+        <div className="p-4 border-t bg-white space-y-3">
           <ChatInput
             inputText={inputText}
             setInputText={setInputText}
             isProcessing={isProcessing}
             onSubmit={handleSubmit}
           />
+          
+          {/* Кнопки управления чатом */}
+          <div className="flex items-center justify-center gap-4 pt-2">
+            {onCreateNewChat && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onCreateNewChat}
+                className="text-xs text-gray-600 hover:text-gray-800 px-3 py-1 h-auto"
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Новый чат
+              </Button>
+            )}
+            
+            {onShowChatHistory && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onShowChatHistory}
+                className="text-xs text-gray-600 hover:text-gray-800 px-3 py-1 h-auto"
+              >
+                <MessageSquare className="h-3 w-3 mr-1" />
+                История чатов
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>
