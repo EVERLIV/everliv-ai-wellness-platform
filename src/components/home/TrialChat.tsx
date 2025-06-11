@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -135,51 +136,51 @@ const TrialChat: React.FC = () => {
 
   if (showAgeGenderForm) {
     return (
-      <div className="w-full max-w-lg mx-auto text-center py-20">
+      <div className="w-full max-w-sm mx-auto text-center py-8 px-4">
         {/* Logo and title */}
-        <div className="mb-12">
-          <div className="w-12 h-12 mx-auto mb-8 bg-primary rounded-full shadow-lg flex items-center justify-center">
-            <Bot className="w-6 h-6 text-white" />
+        <div className="mb-6">
+          <div className="w-8 h-8 mx-auto mb-4 bg-primary rounded-full shadow-lg flex items-center justify-center">
+            <Bot className="w-4 h-4 text-white" />
           </div>
-          <h1 className="text-5xl font-bold text-foreground mb-3">
+          <h1 className="text-2xl font-bold text-foreground mb-2">
             Ваш ИИ-доктор
           </h1>
-          <h2 className="text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-2xl font-bold text-foreground mb-3">
             готов принять вас.
           </h2>
-          <p className="text-lg text-muted-foreground">⭐ Обучен лучшими врачами</p>
+          <p className="text-sm text-muted-foreground">⭐ Обучен лучшими врачами</p>
         </div>
 
         {/* Introduction text as chat bubble */}
-        <div className="bg-card rounded-2xl p-8 mb-10 shadow-soft text-left border">
-          <p className="text-foreground mb-4 text-lg">
+        <div className="bg-card rounded-xl p-4 mb-6 shadow-soft text-left border">
+          <p className="text-foreground mb-3 text-sm">
             Привет! Я Everliv - ваш персональный ИИ-доктор.
           </p>
-          <p className="text-foreground mb-4 text-lg">
+          <p className="text-foreground mb-3 text-sm">
             Как ИИ-доктор, мой сервис быстрый и бесплатный. Я уже помог людям в более чем 11,196,516 консультациях!
           </p>
-          <p className="text-foreground mb-4 text-lg">
+          <p className="text-foreground mb-3 text-sm">
             Когда мы закончим консультацию, вы сможете получить персональные рекомендации по вашему здоровью!
           </p>
-          <p className="text-foreground text-lg">
+          <p className="text-foreground text-sm">
             Пожалуйста, сообщите мне ваш возраст и биологический пол для начала.
           </p>
         </div>
 
         {/* Age and gender form */}
-        <div className="space-y-6 mb-10">
+        <div className="space-y-3 mb-6">
           <input
             type="text"
             placeholder="Возраст (18+)"
             value={age}
             onChange={(e) => setAge(e.target.value)}
-            className="w-full px-6 py-4 border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-primary bg-background text-lg"
+            className="w-full px-4 py-3 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-sm"
           />
-          <div className="flex gap-4">
+          <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setGender('Female')}
-              className={`flex-1 py-4 px-6 rounded-xl border text-lg font-medium transition-all duration-300 ${
+              className={`flex-1 py-3 px-4 rounded-lg border text-sm font-medium transition-all duration-300 ${
                 gender === 'Female'
                   ? 'bg-primary text-primary-foreground border-primary shadow-md'
                   : 'bg-background text-foreground border-input hover:bg-accent'
@@ -190,7 +191,7 @@ const TrialChat: React.FC = () => {
             <button
               type="button"
               onClick={() => setGender('Male')}
-              className={`flex-1 py-4 px-6 rounded-xl border text-lg font-medium transition-all duration-300 ${
+              className={`flex-1 py-3 px-4 rounded-lg border text-sm font-medium transition-all duration-300 ${
                 gender === 'Male'
                   ? 'bg-primary text-primary-foreground border-primary shadow-md'
                   : 'bg-background text-foreground border-input hover:bg-accent'
@@ -204,20 +205,20 @@ const TrialChat: React.FC = () => {
         <Button 
           onClick={handleAgeGenderSubmit}
           disabled={!age || !gender}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 py-4 rounded-xl text-lg font-medium h-auto"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-lg text-sm font-medium h-auto w-full"
         >
           Начать ✈️
         </Button>
 
         {/* Footer disclaimer */}
-        <div className="mt-16 flex items-center justify-center">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-card rounded-lg px-4 py-3 border shadow-sm">
-            <Check className="w-4 h-4 text-primary flex-shrink-0" />
+        <div className="mt-8 flex items-center justify-center">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-card rounded-lg px-3 py-2 border shadow-sm">
+            <Check className="w-3 h-3 text-primary flex-shrink-0" />
             <span>Соблюдаем Федеральный закон от 21.11.2011 № 323-ФЗ</span>
           </div>
         </div>
 
-        <div className="mt-10 text-sm text-muted-foreground text-center max-w-md mx-auto">
+        <div className="mt-6 text-xs text-muted-foreground text-center max-w-xs mx-auto">
           Всегда обсуждайте результаты Everliv с врачом. Everliv - это ИИ-доктор, а не лицензированный врач, 
           не занимается медицинской практикой и не предоставляет медицинские консультации или уход за пациентами. 
           Используя Everliv, вы соглашаетесь с нашими{' '}
