@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -11,7 +12,7 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Убираем автоматический лоадинг
+  const [isLoading, setIsLoading] = useState(false);
   const [medicalContext, setMedicalContext] = useState('');
   const [userAnalyses, setUserAnalyses] = useState([]);
   const { user } = useAuth();
@@ -40,7 +41,7 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
   // Если у пользователя премиум - лимита нет, иначе показываем оставшиеся сообщения
   const remainingMessages = canUsePersonalAIDoctor ? null : messageLimit - messagesUsed;
 
-  // Загружаем чат и сообщения - убираем долгий лоадинг
+  // Загружаем чат и сообщения
   useEffect(() => {
     if (chatId && user) {
       loadChatData();
@@ -187,7 +188,7 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
   }, [isProcessing, canUsePersonalAIDoctor, messagesUsed, messageLimit]);
 
   const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim() || !chatId) return;
+    if (!content.trim()) return;
     
     // Check message limit только для пользователей без премиума
     if (!canUsePersonalAIDoctor && messagesUsed >= messageLimit) {
@@ -206,10 +207,12 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
     setIsProcessing(true);
     setInputText('');
     
-    // Сохраняем сообщение пользователя в базу
-    await saveMessage(userMessage);
+    // Сохраняем сообщение пользователя в базу только если есть chatId
+    if (chatId) {
+      await saveMessage(userMessage);
+    }
     
-    // Update message count only for users without premium
+    // Update message count только для пользователей без премиума
     if (!canUsePersonalAIDoctor && user) {
       const newCount = messagesUsed + 1;
       setMessagesUsed(newCount);
@@ -231,8 +234,10 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
       
       setMessages(prev => [...prev, botResponse]);
       
-      // Сохраняем ответ ИИ в базу
-      await saveMessage(botResponse);
+      // Сохраняем ответ ИИ в базу только если есть chatId
+      if (chatId) {
+        await saveMessage(botResponse);
+      }
       
     } catch (error) {
       console.error('Ошибка отправки сообщения:', error);
@@ -245,7 +250,9 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
       };
       
       setMessages(prev => [...prev, errorMessage]);
-      await saveMessage(errorMessage);
+      if (chatId) {
+        await saveMessage(errorMessage);
+      }
     } finally {
       setIsProcessing(false);
     }
