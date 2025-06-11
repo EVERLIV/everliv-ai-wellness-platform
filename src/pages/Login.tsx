@@ -49,12 +49,12 @@ const Login = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       
-      <div className="flex-grow flex items-center justify-center pt-24 pb-16 px-4">
+      <div className="flex-grow flex items-center justify-center px-4" style={{ paddingTop: '8rem', paddingBottom: '4rem' }}>
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Вход в систему</CardTitle>
             <CardDescription className="text-center">
-              Добро пожаловать! Пожалуйста, войдите в свой аккаунт.
+              Войдите в свой аккаунт EVERLIV
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -82,7 +82,7 @@ const Login = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <Label htmlFor="password">Пароль</Label>
-                  <Link to="/forgot-password" className="text-sm text-everliv-600 hover:underline">
+                  <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                     Забыли пароль?
                   </Link>
                 </div>
@@ -98,7 +98,7 @@ const Login = () => {
               
               <Button 
                 type="submit" 
-                className="w-full bg-everliv-600 hover:bg-everliv-700"
+                className="w-full"
                 disabled={isLoading}
               >
                 {isLoading ? 'Вход...' : 'Войти'}
@@ -108,7 +108,7 @@ const Login = () => {
             <div className="mt-6 text-center">
               <p className="text-gray-600">
                 Нет аккаунта?{" "}
-                <Link to="/signup" className="text-everliv-600 hover:underline font-medium">
+                <Link to="/signup" className="text-primary hover:underline font-medium">
                   Зарегистрироваться
                 </Link>
               </p>
