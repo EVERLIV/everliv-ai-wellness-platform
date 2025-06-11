@@ -78,8 +78,9 @@ const LabAnalyses = () => {
       <Header />
       
       <div className="flex-grow pt-16">
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
-          <LabAnalysesHeader onAddNewAnalysis={() => setShowNewAnalysis(true)} />
+        <LabAnalysesHeader onAddNewAnalysis={() => setShowNewAnalysis(true)} />
+        
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
           <LabAnalysesStats statistics={statistics} />
           <AnalysisHistory
             analysisHistory={analysisHistory}
