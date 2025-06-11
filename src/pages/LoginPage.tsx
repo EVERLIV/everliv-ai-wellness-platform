@@ -61,7 +61,7 @@ const LoginPage = () => {
               <div className="space-y-4">
                 <div className="space-y-2 my-[60px]">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="your@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
+                  <Input id="email" type="email" placeholder="your@email.com" value={email} onChange={e => setEmail(e.target.value)} required className="py-0 my-0" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Пароль</Label>
