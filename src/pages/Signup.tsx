@@ -11,7 +11,7 @@ import { Clock, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Signup = () => {
-  const [fullName, setFullName] = useState('');
+  const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -23,7 +23,7 @@ const Signup = () => {
     
     setErrorMessage(null);
     
-    if (!fullName || !email || !password) {
+    if (!nickname || !email || !password) {
       setErrorMessage('Пожалуйста, заполните все поля');
       return;
     }
@@ -37,16 +37,10 @@ const Signup = () => {
       setErrorMessage('Пароль должен содержать не менее 6 символов');
       return;
     }
-
-    // Split full name into first and last name
-    const nameParts = fullName.trim().split(' ');
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
     
     try {
       await signUp(email, password, { 
-        first_name: firstName,
-        last_name: lastName
+        nickname: nickname
       });
       toast.success('Регистрация успешна! Проверьте вашу электронную почту для подтверждения.');
     } catch (error: any) {
@@ -90,13 +84,13 @@ const Signup = () => {
     
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="name">Имя и фамилия</Label>
+          <Label htmlFor="nickname">Никнейм</Label>
           <Input
-            id="name"
+            id="nickname"
             type="text"
-            placeholder="Иван Иванов"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Ваш никнейм"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
             required
           />
         </div>
