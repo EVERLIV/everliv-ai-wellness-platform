@@ -76,7 +76,7 @@ const MedicalAnalysisForm: React.FC<MedicalAnalysisFormProps> = ({
       }
       console.log("Submitting text analysis:", text.substring(0, 50) + "...");
       await onAnalyze({ text, photoUrl: "", analysisType });
-    } else {
+    } else if (inputMethod === "photo") {
       if (!selectedPhoto) {
         toast.error("Пожалуйста, загрузите фото анализа");
         return;
