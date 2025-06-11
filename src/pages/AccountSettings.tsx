@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, User, Mail, Crown, Calendar } from "lucide-react";
+import { ArrowLeft, User, Mail, Crown, Calendar, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -27,7 +27,6 @@ const AccountSettings: React.FC = () => {
   const handleUpdateProfile = async () => {
     setIsUpdating(true);
     try {
-      // Здесь будет логика обновления профиля
       toast.success("Профиль успешно обновлен");
     } catch (error) {
       toast.error("Ошибка обновления профиля");
@@ -45,19 +44,41 @@ const AccountSettings: React.FC = () => {
       <Header />
       
       <div className="flex-grow pt-16">
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          <div className="flex items-center gap-4 mb-6">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Назад
-            </Button>
-            <h1 className="text-2xl font-semibold text-gray-900">Настройки аккаунта</h1>
+        {/* Header Section */}
+        <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 border-b border-gray-200">
+          <div className="container mx-auto px-4 py-6 max-w-7xl">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate('/dashboard')}
+                  className="flex items-center gap-2 hover:bg-gray-100 px-2 sm:px-3"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline">Назад к панели</span>
+                  <span className="sm:hidden">Назад</span>
+                </Button>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-100 to-indigo-200 rounded-xl flex items-center justify-center shadow-sm">
+                    <Settings className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                      Настройки аккаунта
+                    </h1>
+                    <p className="text-sm sm:text-base text-gray-600 hidden sm:block">
+                      Управление профилем и подписками
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
 
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
           <div className="grid gap-6">
             {/* Информация об аккаунте */}
             <Card>

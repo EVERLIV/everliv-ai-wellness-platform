@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import MinimalFooter from '@/components/MinimalFooter';
 import SubscriptionHeader from '@/components/subscription/SubscriptionHeader';
 import CurrentSubscriptionBanner from '@/components/subscription/CurrentSubscriptionBanner';
 import SubscriptionPlansGrid from '@/components/subscription/SubscriptionPlansGrid';
@@ -17,7 +17,6 @@ const SubscriptionPage = () => {
   const { subscription, isLoading: subscriptionLoading } = useSubscription();
   const navigate = useNavigate();
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
       toast.error('Для доступа к подпискам необходимо войти в систему');
@@ -25,43 +24,46 @@ const SubscriptionPage = () => {
     }
   }, [user, authLoading, navigate]);
 
-  // Show loading state while checking auth and subscription
   if (authLoading || subscriptionLoading) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gray-50">
         <Header />
         <div className="flex-grow pt-16 flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin text-everliv-600 mx-auto mb-4" />
-            <p>Загрузка данных подписки...</p>
+            <p className="text-sm sm:text-base">Загрузка данных подписки...</p>
           </div>
         </div>
-        <Footer />
+        <MinimalFooter />
       </div>
     );
   }
 
-  // After loading, if still no user, don't render anything
   if (!user) {
     return null;
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <div className="flex-grow pt-16 bg-gray-50">
+      <div className="flex-grow pt-16">
         <SubscriptionHeader />
         
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl">
           {subscription && subscription.status === 'active' && (
-            <CurrentSubscriptionBanner subscription={subscription} />
+            <div className="mb-6 sm:mb-8">
+              <CurrentSubscriptionBanner subscription={subscription} />
+            </div>
           )}
           
           <SubscriptionPlansGrid subscription={subscription} />
-          <SubscriptionFooterInfo />
+          
+          <div className="text-center mt-8 sm:mt-12">
+            <SubscriptionFooterInfo />
+          </div>
         </div>
       </div>
-      <Footer />
+      <MinimalFooter />
     </div>
   );
 };
