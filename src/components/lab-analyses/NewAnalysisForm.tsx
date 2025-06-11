@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Camera } from "lucide-react";
 import MedicalAnalysisForm from "@/components/medical-analysis/MedicalAnalysisForm";
 import MedicalAnalysisResults from "@/components/medical-analysis/MedicalAnalysisResults";
-import PhotoAnalysisUpload from "./PhotoAnalysisUpload";
 import AnalysisHistory from "./AnalysisHistory";
 
 interface NewAnalysisFormProps {
@@ -36,31 +35,6 @@ const NewAnalysisForm: React.FC<NewAnalysisFormProps> = ({
   onViewAnalysis,
   onNewAnalysisComplete,
 }) => {
-  const [inputMethod, setInputMethod] = useState<"text" | "photo">("text");
-  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
-
-  const handlePhotoSelect = (file: File) => {
-    setSelectedPhoto(file);
-    setInputMethod("photo");
-  };
-
-  const handleAnalyzePhoto = async () => {
-    if (!selectedPhoto) return;
-    
-    // Конвертируем файл в base64 для передачи
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = reader.result as string;
-      await onAnalyze({
-        text: "",
-        photoUrl: base64,
-        inputMethod: "photo",
-        analysisType: "blood"
-      });
-    };
-    reader.readAsDataURL(selectedPhoto);
-  };
-
   return (
     <div className="space-y-8">
       <Card className="mb-8">
@@ -70,59 +44,10 @@ const NewAnalysisForm: React.FC<NewAnalysisFormProps> = ({
         <CardContent>
           {activeTab === "input" && (
             <div className="space-y-6">
-              <Tabs value={inputMethod} onValueChange={(value) => setInputMethod(value as "text" | "photo")}>
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="text" className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Ввод текста
-                  </TabsTrigger>
-                  <TabsTrigger value="photo" className="flex items-center gap-2">
-                    <Camera className="h-4 w-4" />
-                    Фото анализа
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="text" className="mt-6">
-                  <MedicalAnalysisForm 
-                    onAnalyze={(data) => onAnalyze({...data, inputMethod: "text"})}
-                    isAnalyzing={isAnalyzing}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="photo" className="mt-6">
-                  <div className="space-y-4">
-                    <PhotoAnalysisUpload
-                      onPhotoSelect={handlePhotoSelect}
-                      isAnalyzing={isAnalyzing}
-                    />
-                    
-                    {selectedPhoto && (
-                      <Card className="bg-emerald-50 border-emerald-200">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <Camera className="h-5 w-5 text-emerald-600" />
-                              <div>
-                                <p className="font-medium text-emerald-900">{selectedPhoto.name}</p>
-                                <p className="text-sm text-emerald-700">
-                                  {(selectedPhoto.size / 1024 / 1024).toFixed(2)} MB
-                                </p>
-                              </div>
-                            </div>
-                            <Button
-                              onClick={handleAnalyzePhoto}
-                              disabled={isAnalyzing}
-                              className="bg-emerald-600 hover:bg-emerald-700"
-                            >
-                              {isAnalyzing ? "Анализирую..." : "Анализировать"}
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
-                </TabsContent>
-              </Tabs>
+              <MedicalAnalysisForm 
+                onAnalyze={(data) => onAnalyze({...data, inputMethod: "text"})}
+                isAnalyzing={isAnalyzing}
+              />
             </div>
           )}
           
