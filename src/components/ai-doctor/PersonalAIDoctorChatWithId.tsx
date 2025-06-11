@@ -39,12 +39,14 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
   const suggestedQuestions = getSuggestedQuestions({});
   const showSuggestedQuestions = messages.length === 0 || (messages.length === 1 && messages[0].role === 'assistant');
 
-  if (isLoading) {
+  // Убираем долгий лоадинг - показываем контент сразу
+  if (isLoading && !chatId) {
+    // Только если нет chatId показываем быструю загрузку
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2" />
-          <p className="text-gray-600">Загрузка чата...</p>
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2" />
+          <p className="text-gray-600 text-sm">Подготовка чата...</p>
         </div>
       </div>
     );

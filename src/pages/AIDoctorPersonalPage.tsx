@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -39,6 +38,7 @@ const AIDoctorPersonalPage = () => {
     }
   }, [user?.id, hasPersonalAIDoctorAccess]);
 
+  // Функции для управления чатами - используем существующие
   const handleSelectChat = (chatId: string) => {
     setSelectedChatId(chatId);
     if (isMobile) {

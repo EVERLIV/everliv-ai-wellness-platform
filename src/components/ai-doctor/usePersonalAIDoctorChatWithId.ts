@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -12,7 +11,7 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // Убираем автоматический лоадинг
   const [medicalContext, setMedicalContext] = useState('');
   const [userAnalyses, setUserAnalyses] = useState([]);
   const { user } = useAuth();
@@ -41,10 +40,13 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
   // Если у пользователя премиум - лимита нет, иначе показываем оставшиеся сообщения
   const remainingMessages = canUsePersonalAIDoctor ? null : messageLimit - messagesUsed;
 
-  // Загружаем чат и сообщения
+  // Загружаем чат и сообщения - убираем долгий лоадинг
   useEffect(() => {
     if (chatId && user) {
       loadChatData();
+    } else if (!chatId) {
+      // Если нет chatId, сразу показываем приветственное сообщение
+      initializeEmptyChat();
     }
   }, [chatId, user]);
 
@@ -52,6 +54,31 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const initializeEmptyChat = async () => {
+    if (!user) return;
+    
+    try {
+      // Загружаем медицинский контекст
+      const context = await getUserMedicalContext(user);
+      setMedicalContext(context);
+      
+      const analyses = await getMedicalAnalysesHistory(user.id);
+      setUserAnalyses(analyses);
+
+      // Добавляем приветственное сообщение без сохранения в базу
+      const welcomeMessage: Message = {
+        id: uuidv4(),
+        role: 'assistant',
+        content: 'Здравствуйте! Я персональный ИИ-доктор EVERLIV. Я помню нашу историю общения и имею доступ к вашим медицинским анализам для более точных рекомендаций. Как дела с вашим здоровьем?',
+        timestamp: new Date()
+      };
+      
+      setMessages([welcomeMessage]);
+    } catch (error) {
+      console.error('Ошибка инициализации чата:', error);
+    }
+  };
 
   const loadChatData = async () => {
     if (!chatId || !user) return;
@@ -182,7 +209,7 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
     // Сохраняем сообщение пользователя в базу
     await saveMessage(userMessage);
     
-    // Update message count только для пользователей без премиума
+    // Update message count only for users without premium
     if (!canUsePersonalAIDoctor && user) {
       const newCount = messagesUsed + 1;
       setMessagesUsed(newCount);
