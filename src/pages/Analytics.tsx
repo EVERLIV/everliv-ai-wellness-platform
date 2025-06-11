@@ -202,13 +202,14 @@ const Analytics: React.FC = () => {
         />
         
         <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold text-gray-900">Персональная аналитика здоровья</h2>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">Персональная аналитика здоровья</h2>
             <Button
               variant="outline"
               onClick={generateAnalytics}
               disabled={isGenerating}
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
+              size="sm"
             >
               <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
               {isGenerating ? 'Обновление...' : 'Обновить аналитику'}

@@ -23,39 +23,45 @@ const HealthProfileHeader: React.FC<HealthProfileHeaderProps> = ({
 
   return (
     <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 border-b border-gray-200">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <CurrentIcon className="h-8 w-8 text-blue-600" />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Профиль здоровья
-              </h1>
-              <p className="text-gray-600">
-                {currentSectionTitle}
-              </p>
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center space-x-3 w-full sm:w-auto">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/dashboard')}
+              className="gap-2 px-2 sm:px-3"
+              size="sm"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">К дашборду</span>
+              <span className="sm:hidden">Назад</span>
+            </Button>
+            
+            <div className="flex items-center space-x-3">
+              <CurrentIcon className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              <div>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                  Профиль здоровья
+                </h1>
+                <p className="text-sm sm:text-base text-gray-600 hidden sm:block">
+                  {currentSectionTitle}
+                </p>
+              </div>
             </div>
           </div>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/dashboard')}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            К дашборду
-          </Button>
         </div>
         
         {/* Progress */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm text-gray-600">
-            <span>Прогресс заполнения</span>
+            <span className="hidden sm:inline">Прогресс заполнения</span>
+            <span className="sm:hidden">Прогресс</span>
             <span>{Math.round(progress)}%</span>
           </div>
           <Progress value={progress} className="h-2" />
           <div className="flex justify-between text-xs text-gray-500">
             <span>Раздел {currentSection + 1} из {totalSections}</span>
-            <span>{currentSectionTitle}</span>
+            <span className="hidden sm:inline">{currentSectionTitle}</span>
           </div>
         </div>
       </div>

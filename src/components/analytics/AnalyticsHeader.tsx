@@ -1,82 +1,81 @@
 
 import React from "react";
-import { TrendingUp, Activity, AlertTriangle, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, BarChart3 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 
 interface AnalyticsHeaderProps {
   healthScore: number;
   riskLevel: string;
 }
 
-const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({ healthScore, riskLevel }) => {
-  const getRiskLevelIcon = (level: string) => {
-    switch (level) {
-      case 'low':
-        return <CheckCircle className="h-6 w-6 text-green-500" />;
-      case 'medium':
-        return <Activity className="h-6 w-6 text-yellow-500" />;
-      case 'high':
-        return <AlertTriangle className="h-6 w-6 text-red-500" />;
-      default:
-        return <Activity className="h-6 w-6 text-gray-500" />;
-    }
-  };
+const AnalyticsHeader: React.FC<AnalyticsHeaderProps> = ({
+  healthScore,
+  riskLevel
+}) => {
+  const navigate = useNavigate();
 
-  const getRiskLevelText = (level: string) => {
-    switch (level) {
-      case 'low':
-        return 'Низкий риск';
-      case 'medium':
-        return 'Умеренный риск';
-      case 'high':
-        return 'Высокий риск';
+  const getRiskLevelColor = (level: string) => {
+    switch (level.toLowerCase()) {
+      case 'низкий':
+        return 'bg-green-100 text-green-800';
+      case 'средний':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'высокий':
+        return 'bg-red-100 text-red-800';
       default:
-        return 'Не определен';
+        return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-yellow-600';
-    return 'text-red-600';
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 border-b border-gray-200">
-      <div className="container mx-auto px-4 py-12 max-w-7xl">
-        <div className="text-center space-y-6">
-          <div className="flex items-center justify-center space-x-3">
-            <TrendingUp className="h-8 w-8 text-blue-600" />
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-              Аналитика здоровья
-            </h1>
-          </div>
-          
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Комплексный анализ ваших биомаркеров, персональные рекомендации и 
-            консультации с ИИ-доктором EVERLIV
-          </p>
-
-          {/* Показатели здоровья */}
-          <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-8 mt-8">
-            <div className="flex items-center space-x-3 bg-white rounded-xl px-6 py-4 shadow-sm border">
-              <div className="text-center">
-                <div className={`text-3xl font-bold ${getScoreColor(healthScore)}`}>
-                  {healthScore}
-                </div>
-                <div className="text-sm text-gray-500">Общий балл здоровья</div>
+    <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 border-b border-gray-200">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate("/dashboard")}
+              className="flex items-center gap-2 hover:bg-gray-100 px-2 sm:px-3"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Назад к панели</span>
+              <span className="sm:hidden">Назад</span>
+            </Button>
+            
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-xl flex items-center justify-center shadow-sm">
+                <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
               </div>
-            </div>
-
-            <div className="flex items-center space-x-3 bg-white rounded-xl px-6 py-4 shadow-sm border">
-              {getRiskLevelIcon(riskLevel)}
-              <div className="text-center">
-                <div className="font-semibold text-gray-900">
-                  {getRiskLevelText(riskLevel)}
-                </div>
-                <div className="text-sm text-gray-500">Уровень риска</div>
+              <div>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                  Аналитика здоровья
+                </h1>
+                <p className="text-sm sm:text-base text-gray-600 hidden sm:block">
+                  Персональная оценка и рекомендации
+                </p>
               </div>
             </div>
           </div>
+
+          {healthScore > 0 && (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Балл здоровья:</span>
+                <Badge variant="secondary" className="font-semibold">
+                  {healthScore}/100
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Риск:</span>
+                <Badge className={getRiskLevelColor(riskLevel)}>
+                  {riskLevel}
+                </Badge>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

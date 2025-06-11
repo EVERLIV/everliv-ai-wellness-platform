@@ -1,20 +1,15 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { Menu, X } from "lucide-react";
 import Logo from "./header/Logo";
 import UserProfileDropdown from "./header/UserProfileDropdown";
-import MobileMenu from "./header/MobileMenu";
 
 const Header: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { isAdmin } = useIsAdmin();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -33,7 +28,7 @@ const Header: React.FC = () => {
             {user ? (
               <UserProfileDropdown />
             ) : (
-              <div className="hidden md:flex items-center space-x-4">
+              <div className="flex items-center space-x-4">
                 <Link to="/login">
                   <Button variant="ghost" size="sm">Войти</Button>
                 </Link>
@@ -42,30 +37,9 @@ const Header: React.FC = () => {
                 </Link>
               </div>
             )}
-            
-            {/* Mobile Menu Button */}
-            <div className="md:hidden">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2"
-              >
-                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
-            </div>
           </div>
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      <MobileMenu
-        isOpen={isMobileMenuOpen}
-        setIsOpen={setIsMobileMenuOpen}
-        user={user}
-        isAdmin={isAdmin}
-        handleSignOut={handleSignOut}
-      />
     </header>
   );
 };
