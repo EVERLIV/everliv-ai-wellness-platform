@@ -79,8 +79,8 @@ const AIDoctorPersonalPage = () => {
         <div className="flex-grow pt-16 flex flex-col">
           {/* Header */}
           <div className="bg-gradient-to-br from-purple-50 via-white to-amber-50 border-b border-gray-200">
-            <div className="container mx-auto px-4 py-4 max-w-7xl">
-              <div className="flex items-center gap-3">
+            <div className="container mx-auto px-3 py-3 max-w-7xl">
+              <div className="flex items-center gap-2">
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -91,28 +91,28 @@ const AIDoctorPersonalPage = () => {
                       setShowChatHistory(true);
                     }
                   }}
-                  className="flex items-center gap-2 hover:bg-gray-100"
+                  className="flex items-center gap-1 hover:bg-gray-100 px-2"
                 >
                   <MessageSquare className="h-4 w-4" />
-                  <span>{showChatHistory ? "Назад" : "Чаты"}</span>
+                  <span className="text-sm">{showChatHistory ? "К выбору" : "Чаты"}</span>
                 </Button>
                 
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-100 to-amber-200 rounded-lg flex items-center justify-center shadow-sm">
-                    <Crown className="h-5 w-5 text-purple-600" />
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 bg-gradient-to-br from-purple-100 to-amber-200 rounded-lg flex items-center justify-center shadow-sm">
+                    <Crown className="h-4 w-4 text-purple-600" />
                   </div>
                   <div>
-                    <h1 className="text-lg font-bold text-gray-900">
+                    <h1 className="text-base font-bold text-gray-900">
                       Премиум ИИ-Доктор
                     </h1>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       {hasPersonalAIDoctorAccess ? (
-                        <Badge variant="outline" className="text-amber-600 border-amber-300 text-xs">
+                        <Badge variant="outline" className="text-amber-600 border-amber-300 text-xs px-2 py-0">
                           <Crown className="h-3 w-3 mr-1" />
                           Премиум
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs">
+                        <Badge variant="outline" className="text-orange-600 border-orange-300 text-xs px-2 py-0">
                           Пробная версия
                         </Badge>
                       )}

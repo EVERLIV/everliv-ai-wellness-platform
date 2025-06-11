@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -199,73 +198,66 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center">
-            <MessageSquare className="h-5 w-5 mr-2" />
-            История чатов
-          </CardTitle>
-          <Button onClick={createNewChat} size="sm">
-            <Plus className="h-4 w-4 mr-1" />
-            Новый чат
-          </Button>
-        </div>
-      </CardHeader>
+    <div className="h-full flex flex-col bg-white">
+      {/* Убрали Card wrapper для десктопа и убрали заголовок */}
+      <div className="p-4 border-b flex items-center justify-end">
+        <Button onClick={createNewChat} size="sm">
+          <Plus className="h-4 w-4 mr-1" />
+          Новый чат
+        </Button>
+      </div>
       
-      <CardContent className="p-0">
-        <ScrollArea className="h-[calc(100vh-200px)]">
-          <div className="p-4 space-y-2">
-            {isLoading ? (
-              <div className="text-center text-gray-500 py-8">Загрузка...</div>
-            ) : chats.length === 0 ? (
-              <div className="text-center text-gray-500 py-8">
-                <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>Нет сохраненных чатов</p>
-                <Button onClick={createNewChat} variant="outline" className="mt-4">
-                  Создать первый чат
-                </Button>
-              </div>
-            ) : (
-              chats.map((chat) => (
-                <div
-                  key={chat.id}
-                  onClick={() => onSelectChat(chat.id)}
-                  className={`group p-3 rounded-lg border cursor-pointer transition-colors ${
-                    selectedChatId === chat.id 
-                      ? 'bg-blue-50 border-blue-200' 
-                      : 'hover:bg-gray-50'
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm truncate">{chat.title}</h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-gray-500 flex items-center">
-                          <Clock className="h-3 w-3 mr-1" />
-                          {formatDate(chat.updated_at)}
-                        </span>
-                        <Badge variant="outline" className="text-xs">
-                          {chat.message_count} сообщ.
-                        </Badge>
-                      </div>
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-2">
+          {isLoading ? (
+            <div className="text-center text-gray-500 py-8">Загрузка...</div>
+          ) : chats.length === 0 ? (
+            <div className="text-center text-gray-500 py-8">
+              <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>Нет сохраненных чатов</p>
+              <Button onClick={createNewChat} variant="outline" className="mt-4">
+                Создать первый чат
+              </Button>
+            </div>
+          ) : (
+            chats.map((chat) => (
+              <div
+                key={chat.id}
+                onClick={() => onSelectChat(chat.id)}
+                className={`group p-3 rounded-lg border cursor-pointer transition-colors ${
+                  selectedChatId === chat.id 
+                    ? 'bg-blue-50 border-blue-200' 
+                    : 'hover:bg-gray-50'
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-sm truncate">{chat.title}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-gray-500 flex items-center">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {formatDate(chat.updated_at)}
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        {chat.message_count} сообщ.
+                      </Badge>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => deleteChat(chat.id, e)}
-                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => deleteChat(chat.id, e)}
+                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
                 </div>
-              ))
-            )}
-          </div>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+              </div>
+            ))
+          )}
+        </div>
+      </ScrollArea>
+    </div>
   );
 };
 
