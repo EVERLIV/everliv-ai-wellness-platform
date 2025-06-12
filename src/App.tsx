@@ -31,6 +31,8 @@ import AnalysisDetails from "@/pages/AnalysisDetails";
 import SubscriptionPage from "@/pages/SubscriptionPage";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AdminUsers from "@/pages/admin/AdminUsers";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +72,8 @@ function App() {
                 <Route path="/support" element={<AccountSettings />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/analysis-details" element={<AnalysisDetails />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
               </Routes>
             </SubscriptionProvider>
           </AuthProvider>

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import MinimalFooter from '@/components/MinimalFooter';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -81,7 +81,7 @@ const ResetPasswordPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <div className="flex-grow flex items-center justify-center bg-gray-50 py-16 px-4">
+      <div className="flex-grow flex items-center justify-center bg-gray-50 py-24 px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Сброс пароля</CardTitle>
@@ -126,7 +126,7 @@ const ResetPasswordPage = () => {
           </CardContent>
         </Card>
       </div>
-      <Footer />
+      <MinimalFooter />
     </div>
   );
 };
