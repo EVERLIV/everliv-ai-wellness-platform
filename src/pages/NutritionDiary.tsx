@@ -9,15 +9,13 @@ const NutritionDiaryPage: React.FC = () => {
   const [showCalendar, setShowCalendar] = useState(false);
 
   const handleQuickAdd = () => {
+    // Передаем сигнал в основной компонент для открытия быстрого добавления
     setShowQuickAdd(true);
-    // Можно добавить логику для быстрого добавления
-    console.log("Открыть быстрое добавление");
   };
 
   const handleCalendarClick = () => {
+    // Передаем сигнал в основной компонент для открытия календаря
     setShowCalendar(true);
-    // Можно добавить логику для календаря
-    console.log("Открыть календарь питания");
   };
 
   return (
@@ -29,7 +27,12 @@ const NutritionDiaryPage: React.FC = () => {
         />
       }
     >
-      <NutritionDiary />
+      <NutritionDiary 
+        triggerQuickAdd={showQuickAdd}
+        onQuickAddHandled={() => setShowQuickAdd(false)}
+        triggerCalendar={showCalendar}
+        onCalendarHandled={() => setShowCalendar(false)}
+      />
     </PageLayoutWithHeader>
   );
 };

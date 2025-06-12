@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Calendar as CalendarIcon } from "lucide-react";
@@ -14,7 +15,19 @@ import { useFoodEntries } from "@/hooks/useFoodEntries";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
-const NutritionDiary: React.FC = () => {
+interface NutritionDiaryProps {
+  triggerQuickAdd?: boolean;
+  onQuickAddHandled?: () => void;
+  triggerCalendar?: boolean;
+  onCalendarHandled?: () => void;
+}
+
+const NutritionDiary: React.FC<NutritionDiaryProps> = ({
+  triggerQuickAdd,
+  onQuickAddHandled,
+  triggerCalendar,
+  onCalendarHandled
+}) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showMealEntry, setShowMealEntry] = useState(false);
   const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('breakfast');
@@ -22,6 +35,22 @@ const NutritionDiary: React.FC = () => {
 
   const { getSummaryByMealType, entries, deleteEntry } = useFoodEntries(selectedDate);
   const mealSummary = getSummaryByMealType();
+
+  // Обработка триггера быстрого добавления из заголовка
+  useEffect(() => {
+    if (triggerQuickAdd) {
+      handleQuickAdd();
+      onQuickAddHandled?.();
+    }
+  }, [triggerQuickAdd]);
+
+  // Обработка триггера календаря из заголовка
+  useEffect(() => {
+    if (triggerCalendar) {
+      setShowCalendar(true);
+      onCalendarHandled?.();
+    }
+  }, [triggerCalendar]);
 
   const handleAddMeal = (mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack') => {
     setSelectedMealType(mealType);

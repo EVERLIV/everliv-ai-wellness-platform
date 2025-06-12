@@ -51,24 +51,6 @@ const NutritionDiaryHeader: React.FC<NutritionDiaryHeaderProps> = ({
     return caloriesAchieved && proteinAchieved;
   };
 
-  const handleCalendarClick = () => {
-    if (onCalendarClick) {
-      onCalendarClick();
-    } else {
-      // Показать календарь для выбора даты
-      console.log("Открыть календарь питания");
-    }
-  };
-
-  const handleQuickAdd = () => {
-    if (onQuickAdd) {
-      onQuickAdd();
-    } else {
-      // Открыть быстрое добавление
-      console.log("Быстрое добавление блюда");
-    }
-  };
-
   return (
     <div className="bg-gradient-to-br from-primary/10 via-white to-secondary/10 border-b border-gray-200">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
@@ -105,14 +87,14 @@ const NutritionDiaryHeader: React.FC<NutritionDiaryHeaderProps> = ({
               variant="outline" 
               className="gap-2 w-full sm:w-auto"
               size="sm"
-              onClick={handleCalendarClick}
+              onClick={onCalendarClick}
             >
               <Calendar className="h-4 w-4" />
               <span className="sm:hidden">Календарь</span>
               <span className="hidden sm:inline">Календарь питания</span>
             </Button>
             <Button 
-              onClick={handleQuickAdd}
+              onClick={onQuickAdd}
               className="gap-2 bg-primary hover:bg-secondary text-white w-full sm:w-auto"
               size="sm"
             >
