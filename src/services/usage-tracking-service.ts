@@ -34,6 +34,13 @@ export const getCurrentMonthUsage = async (userId: string, featureType: string):
   return data?.usage_count || 0;
 };
 
+// Новая функция для получения общего использования анализов (текст + фото)
+export const getTotalAnalysisUsage = async (userId: string): Promise<number> => {
+  const textUsage = await getCurrentMonthUsage(userId, 'lab_analyses');
+  const photoUsage = await getCurrentMonthUsage(userId, 'photo_lab_analyses');
+  return textUsage + photoUsage;
+};
+
 export const incrementUsage = async (userId: string, featureType: string): Promise<void> => {
   const now = new Date();
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -87,20 +94,57 @@ export const incrementUsage = async (userId: string, featureType: string): Promi
 export const checkUsageLimit = async (
   userId: string, 
   featureType: string, 
-  planType: string
-): Promise<{ canUse: boolean; currentUsage: number; limit: number }> => {
-  const currentUsage = await getCurrentMonthUsage(userId, featureType);
+  planType: string,
+  inputMethod?: 'text' | 'photo'
+): Promise<{ canUse: boolean; currentUsage: number; limit: number; message?: string }> => {
   
+  // Для премиум плана - общий лимит на все анализы
+  if (planType === 'premium' && (featureType === 'lab_analyses' || featureType === 'photo_lab_analyses')) {
+    const totalUsage = await getTotalAnalysisUsage(userId);
+    const limit = 15;
+    
+    return {
+      canUse: totalUsage < limit,
+      currentUsage: totalUsage,
+      limit,
+      message: `Использовано ${totalUsage} из ${limit} анализов в месяц (текст + фото)`
+    };
+  }
+  
+  // Для базового плана - раздельные лимиты
+  if (planType === 'basic') {
+    if (featureType === 'photo_lab_analyses') {
+      const photoUsage = await getCurrentMonthUsage(userId, 'photo_lab_analyses');
+      const limit = 1;
+      return {
+        canUse: photoUsage < limit,
+        currentUsage: photoUsage,
+        limit,
+        message: `Использовано ${photoUsage} из ${limit} фото-анализов в месяц`
+      };
+    }
+    
+    if (featureType === 'lab_analyses') {
+      const textUsage = await getCurrentMonthUsage(userId, 'lab_analyses');
+      const limit = 5;
+      return {
+        canUse: textUsage < limit,
+        currentUsage: textUsage,
+        limit,
+        message: `Использовано ${textUsage} из ${limit} текстовых анализов в месяц`
+      };
+    }
+  }
+  
+  // Для других функций - стандартная логика
+  const currentUsage = await getCurrentMonthUsage(userId, featureType);
   let limit = 0;
   
-  // Определяем лимит в зависимости от типа плана и функции
   switch (planType) {
     case 'basic':
-      if (featureType === 'lab_analyses') limit = 1;
       if (featureType === 'chat_messages') limit = 99;
       break;
     case 'premium':
-      if (featureType === 'lab_analyses') limit = 15;
       if (featureType === 'chat_messages') limit = 199;
       break;
   }

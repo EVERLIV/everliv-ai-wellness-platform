@@ -5,17 +5,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { FEATURES } from "@/constants/subscription-features";
 import { analyzeMedicalTestWithAI, MedicalAnalysisResults } from "@/services/ai/medical-analysis";
+import { checkUsageLimit, incrementUsage } from "@/services/usage-tracking-service";
 
 export const useMedicalAnalysis = () => {
   const { user } = useAuth();
-  const { canUseFeature, recordFeatureTrial } = useSubscription();
+  const { subscription } = useSubscription();
   const [results, setResults] = useState<MedicalAnalysisResults | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState("input");
   const [apiError, setApiError] = useState<string | null>(null);
-
-  const canUseBloodAnalysis = canUseFeature(FEATURES.BLOOD_ANALYSIS);
-  const canUsePhotoAnalysis = canUseFeature(FEATURES.PHOTO_BLOOD_ANALYSIS);
 
   const convertBlobToBase64 = async (blobUrl: string): Promise<string> => {
     try {
@@ -57,17 +55,29 @@ export const useMedicalAnalysis = () => {
       return;
     }
 
+    // Проверяем лимиты использования
+    const planType = subscription?.plan_type || 'basic';
+    const featureType = inputMethod === "photo" ? FEATURES.PHOTO_BLOOD_ANALYSIS : FEATURES.BLOOD_ANALYSIS;
+    
+    try {
+      const usageCheck = await checkUsageLimit(user.id, featureType, planType, inputMethod);
+      
+      if (!usageCheck.canUse) {
+        toast.error(`Лимит исчерпан. ${usageCheck.message || 'Оформите подписку для продолжения.'}`);
+        return;
+      }
+      
+      console.log(`Доступно использований: ${usageCheck.limit - usageCheck.currentUsage}. ${usageCheck.message}`);
+    } catch (error) {
+      console.error("Ошибка проверки лимитов:", error);
+      toast.error("Не удалось проверить лимиты использования");
+      return;
+    }
+
     setIsAnalyzing(true);
     setApiError(null);
     
     try {
-      // Записываем использование функции
-      if (inputMethod === "text" && canUseBloodAnalysis) {
-        await recordFeatureTrial(FEATURES.BLOOD_ANALYSIS);
-      } else if (inputMethod === "photo" && canUsePhotoAnalysis) {
-        await recordFeatureTrial(FEATURES.PHOTO_BLOOD_ANALYSIS);
-      }
-
       let base64Image: string | undefined;
       
       if (inputMethod === "photo" && photoUrl) {
@@ -83,6 +93,7 @@ export const useMedicalAnalysis = () => {
       console.log("Анализируем медицинский тест:", {
         analysisType,
         method: inputMethod,
+        planType,
         hasText: inputMethod === "text" && text.length > 0,
         hasImage: inputMethod === "photo" && !!base64Image
       });
@@ -93,6 +104,9 @@ export const useMedicalAnalysis = () => {
         analysisType,
         userId: user.id
       });
+
+      // Увеличиваем счетчик использования только после успешного анализа
+      await incrementUsage(user.id, featureType);
 
       setResults(analysisResults);
       setActiveTab("results");

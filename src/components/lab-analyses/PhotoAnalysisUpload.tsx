@@ -25,11 +25,12 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
 }) => {
   const { subscription } = useSubscription();
   
-  const isPremium = subscription?.plan_type === 'premium' || subscription?.plan_type === 'standard';
+  const planType = subscription?.plan_type || 'basic';
+  const hasPhotoAccess = planType === 'premium' || planType === 'basic';
 
   const handleFileSelect = (file: File) => {
-    if (!isPremium) {
-      toast.error("Функция загрузки фото доступна только для Premium подписки");
+    if (!hasPhotoAccess) {
+      toast.error("Функция загрузки фото недоступна для вашего плана");
       return;
     }
     onPhotoSelect(file);
@@ -42,7 +43,7 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
     }
   };
 
-  if (!isPremium) {
+  if (!hasPhotoAccess) {
     return (
       <Card className="border-dashed border-gray-300 bg-gray-50/50">
         <CardHeader className="text-center pb-2">
@@ -56,7 +57,7 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
             <Camera className="h-12 w-12 mx-auto text-gray-300 mb-4" />
             <div className="flex items-center justify-center gap-2 mb-3">
               <Crown className="h-5 w-5 text-amber-500" />
-              <span className="font-medium text-gray-700">Premium функция</span>
+              <span className="font-medium text-gray-700">Требуется подписка</span>
             </div>
             <p className="text-gray-500 mb-4">
               Загружайте фото ваших анализов для автоматического распознавания показателей
@@ -66,13 +67,18 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
               onClick={() => toast.info("Перенаправление на страницу подписки...")}
             >
               <Crown className="h-4 w-4 mr-2" />
-              Получить Premium
+              Оформить подписку
             </Button>
           </div>
         </CardContent>
       </Card>
     );
   }
+
+  const isPremium = planType === 'premium';
+  const limitText = isPremium 
+    ? "15 анализов в месяц (текст + фото)" 
+    : "1 фото-анализ в месяц";
 
   return (
     <Card className="border-dashed border-emerald-300 bg-emerald-50/50">
@@ -82,9 +88,12 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
           Загрузка фото анализа
           <div className="flex items-center gap-1 bg-gradient-to-r from-amber-100 to-orange-100 px-2 py-1 rounded-full">
             <Crown className="h-3 w-3 text-amber-600" />
-            <span className="text-xs font-medium text-amber-700">Pro</span>
+            <span className="text-xs font-medium text-amber-700">
+              {isPremium ? 'Premium' : 'Basic'}
+            </span>
           </div>
         </CardTitle>
+        <p className="text-xs text-muted-foreground mt-1">{limitText}</p>
       </CardHeader>
       <CardContent>
         {!selectedPhoto ? (
