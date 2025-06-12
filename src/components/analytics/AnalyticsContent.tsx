@@ -98,8 +98,7 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
       />
 
       <HealthOverviewCards 
-        trendsAnalysis={analytics.trendsAnalysis}
-        totalAnalyses={analytics.totalAnalyses}
+        analytics={analytics}
       />
 
       <DetailedHealthRecommendations

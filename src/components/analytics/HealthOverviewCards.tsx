@@ -2,19 +2,14 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Activity } from "lucide-react";
+import { CachedAnalytics } from "@/types/analytics";
 
 interface HealthOverviewCardsProps {
-  trendsAnalysis: {
-    improving: number;
-    worsening: number;
-    stable: number;
-  };
-  totalAnalyses: number;
+  analytics: CachedAnalytics;
 }
 
 const HealthOverviewCards: React.FC<HealthOverviewCardsProps> = ({
-  trendsAnalysis,
-  totalAnalyses
+  analytics
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -24,7 +19,7 @@ const HealthOverviewCards: React.FC<HealthOverviewCardsProps> = ({
             <TrendingUp className="h-8 w-8 text-green-500" />
             <div>
               <p className="text-2xl font-bold text-green-600">
-                {trendsAnalysis.improving}
+                {analytics.trendsAnalysis.improving}
               </p>
               <p className="text-sm text-gray-600">Улучшающихся показателей</p>
             </div>
@@ -38,7 +33,7 @@ const HealthOverviewCards: React.FC<HealthOverviewCardsProps> = ({
             <TrendingDown className="h-8 w-8 text-red-500" />
             <div>
               <p className="text-2xl font-bold text-red-600">
-                {trendsAnalysis.worsening}
+                {analytics.trendsAnalysis.worsening}
               </p>
               <p className="text-sm text-gray-600">Ухудшающихся показателей</p>
             </div>
@@ -52,7 +47,7 @@ const HealthOverviewCards: React.FC<HealthOverviewCardsProps> = ({
             <Activity className="h-8 w-8 text-blue-500" />
             <div>
               <p className="text-2xl font-bold text-blue-600">
-                {totalAnalyses}
+                {analytics.totalAnalyses}
               </p>
               <p className="text-sm text-gray-600">Всего анализов</p>
             </div>
