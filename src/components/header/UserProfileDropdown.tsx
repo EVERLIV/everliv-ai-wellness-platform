@@ -102,7 +102,7 @@ const UserProfileDropdown: React.FC = () => {
           <span>Подписка</span>
         </DropdownMenuItem>
         <DropdownMenuItem 
-          onClick={() => navigate('/support')}
+          onClick={() => navigate('/contact')}
           className="cursor-pointer"
         >
           <HelpCircle className="mr-2 h-4 w-4" />
