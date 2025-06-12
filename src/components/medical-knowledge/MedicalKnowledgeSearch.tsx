@@ -31,21 +31,30 @@ const MedicalKnowledgeSearch: React.FC<MedicalKnowledgeSearchProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg border p-6 mb-6">
-      <div className="flex flex-col md:flex-row gap-4">
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+          Поиск медицинской информации
+        </h2>
+        <p className="text-gray-600">
+          Найдите информацию о симптомах, заболеваниях и методах лечения
+        </p>
+      </div>
+      
+      <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-1">
           <Input
             placeholder="Поиск по симптомам, заболеваниям, ключевым словам..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full"
+            className="h-12 text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
         
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full md:w-48">
-            <Filter className="h-4 w-4 mr-2" />
+          <SelectTrigger className="w-full lg:w-64 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+            <Filter className="h-4 w-4 mr-2 text-gray-400" />
             <SelectValue placeholder="Все категории" />
           </SelectTrigger>
           <SelectContent>
@@ -61,10 +70,10 @@ const MedicalKnowledgeSearch: React.FC<MedicalKnowledgeSearchProps> = ({
         <Button 
           onClick={handleSearch} 
           disabled={isLoading}
-          className="w-full md:w-auto"
+          className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white font-medium"
         >
-          <Search className="h-4 w-4 mr-2" />
-          Найти
+          <Search className="h-5 w-5 mr-2" />
+          {isLoading ? 'Поиск...' : 'Найти'}
         </Button>
       </div>
     </div>
