@@ -1,9 +1,14 @@
 
 import React from "react";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 interface MedicalHistorySectionProps {
   data: any;
@@ -11,130 +16,250 @@ interface MedicalHistorySectionProps {
 }
 
 const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onChange }) => {
-  const familyHistoryOptions = [
-    "Сердечно-сосудистые заболевания", "Диабет", "Рак", "Гипертония", 
-    "Инсульт", "Заболевания щитовидной железы", "Психические расстройства", 
-    "Остеопороз", "Астма", "Аллергии", "Другое"
-  ];
-
-  const allergyOptions = [
-    "Пищевые аллергии", "Пыльца", "Пыль", "Шерсть животных", 
-    "Лекарственные препараты", "Латекс", "Химические вещества", "Другое"
-  ];
-
-  const handleArrayChange = (field: string, value: string, checked: boolean) => {
-    const currentArray = data[field] || [];
+  const handleFamilyHistoryChange = (condition: string, checked: boolean) => {
+    const currentHistory = data.familyHistory || [];
+    let newHistory;
+    
     if (checked) {
-      onChange({ [field]: [...currentArray, value] });
+      newHistory = [...currentHistory, condition];
     } else {
-      onChange({ [field]: currentArray.filter((item: string) => item !== value) });
+      newHistory = currentHistory.filter((h: string) => h !== condition);
     }
+    
+    onChange({ familyHistory: newHistory });
+  };
+
+  const handleAllergyChange = (allergy: string, checked: boolean) => {
+    const currentAllergies = data.allergies || [];
+    let newAllergies;
+    
+    if (checked) {
+      newAllergies = [...currentAllergies, allergy];
+    } else {
+      newAllergies = currentAllergies.filter((a: string) => a !== allergy);
+    }
+    
+    onChange({ allergies: newAllergies });
+  };
+
+  const handleMedicationChange = (medication: string, checked: boolean) => {
+    const currentMedications = data.medications || [];
+    let newMedications;
+    
+    if (checked) {
+      newMedications = [...currentMedications, medication];
+    } else {
+      newMedications = currentMedications.filter((m: string) => m !== medication);
+    }
+    
+    onChange({ medications: newMedications });
+  };
+
+  const handleSurgeryChange = (surgery: string, checked: boolean) => {
+    const currentSurgeries = data.previousSurgeries || [];
+    let newSurgeries;
+    
+    if (checked) {
+      newSurgeries = [...currentSurgeries, surgery];
+    } else {
+      newSurgeries = currentSurgeries.filter((s: string) => s !== surgery);
+    }
+    
+    onChange({ previousSurgeries: newSurgeries });
   };
 
   return (
     <div className="space-y-6">
       {/* Семейная история */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">Семейная история заболеваний (выберите все подходящие)</Label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {familyHistoryOptions.map((condition) => (
+        <Label className="text-sm font-medium">Семейная история заболеваний</Label>
+        <div className="grid grid-cols-1 gap-2">
+          {[
+            'Сердечно-сосудистые заболевания',
+            'Диабет',
+            'Рак',
+            'Гипертония',
+            'Остеопороз',
+            'Психические заболевания',
+            'Аутоиммунные заболевания'
+          ].map((condition) => (
             <div key={condition} className="flex items-center space-x-2">
               <Checkbox
                 id={condition}
                 checked={(data.familyHistory || []).includes(condition)}
-                onCheckedChange={(checked) => handleArrayChange('familyHistory', condition, checked as boolean)}
+                onCheckedChange={(checked) => handleFamilyHistoryChange(condition, !!checked)}
               />
-              <Label htmlFor={condition} className="text-sm">{condition}</Label>
+              <Label htmlFor={condition}>{condition}</Label>
             </div>
           ))}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="other_family_history"
+              checked={(data.familyHistory || []).includes('other')}
+              onCheckedChange={(checked) => handleFamilyHistoryChange('other', !!checked)}
+            />
+            <Label htmlFor="other_family_history">Другое</Label>
+          </div>
         </div>
+        
+        {(data.familyHistory || []).includes('other') && (
+          <div className="mt-3">
+            <Input
+              placeholder="Укажите другие заболевания в семейной истории"
+              value={data.familyHistoryOther || ''}
+              onChange={(e) => onChange({ familyHistoryOther: e.target.value })}
+            />
+          </div>
+        )}
       </div>
 
       {/* Аллергии */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">Аллергии (выберите все подходящие)</Label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {allergyOptions.map((allergy) => (
+        <Label className="text-sm font-medium">Аллергии</Label>
+        <div className="grid grid-cols-1 gap-2">
+          {[
+            'Пищевые аллергии',
+            'Лекарственные аллергии',
+            'Пыльца',
+            'Пылевые клещи',
+            'Животные',
+            'Латекс',
+            'Насекомые'
+          ].map((allergy) => (
             <div key={allergy} className="flex items-center space-x-2">
               <Checkbox
                 id={allergy}
                 checked={(data.allergies || []).includes(allergy)}
-                onCheckedChange={(checked) => handleArrayChange('allergies', allergy, checked as boolean)}
+                onCheckedChange={(checked) => handleAllergyChange(allergy, !!checked)}
               />
-              <Label htmlFor={allergy} className="text-sm">{allergy}</Label>
+              <Label htmlFor={allergy}>{allergy}</Label>
             </div>
           ))}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="other_allergy"
+              checked={(data.allergies || []).includes('other')}
+              onCheckedChange={(checked) => handleAllergyChange('other', !!checked)}
+            />
+            <Label htmlFor="other_allergy">Другое</Label>
+          </div>
         </div>
+        
+        {(data.allergies || []).includes('other') && (
+          <div className="mt-3">
+            <Input
+              placeholder="Укажите другие аллергии"
+              value={data.allergiesOther || ''}
+              onChange={(e) => onChange({ allergiesOther: e.target.value })}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Текущие лекарства */}
+      {/* Принимаемые медикаменты */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">Текущие лекарства и добавки</Label>
-        <Textarea
-          placeholder="Перечислите все лекарства, витамины и добавки, которые вы принимаете..."
-          value={(data.medications || []).join('\n')}
-          onChange={(e) => onChange({ medications: e.target.value.split('\n').filter(Boolean) })}
-          className="min-h-[100px]"
-        />
-        <div className="text-xs text-gray-600">
-          Укажите название, дозировку и частоту приема каждого препарата
+        <Label className="text-sm font-medium">Принимаемые медикаменты</Label>
+        <div className="grid grid-cols-1 gap-2">
+          {[
+            'Обезболивающие',
+            'Антибиотики',
+            'Витамины',
+            'Антидепрессанты',
+            'Препараты для сердца',
+            'Препараты от давления',
+            'Гормональные препараты'
+          ].map((medication) => (
+            <div key={medication} className="flex items-center space-x-2">
+              <Checkbox
+                id={medication}
+                checked={(data.medications || []).includes(medication)}
+                onCheckedChange={(checked) => handleMedicationChange(medication, !!checked)}
+              />
+              <Label htmlFor={medication}>{medication}</Label>
+            </div>
+          ))}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="other_medication"
+              checked={(data.medications || []).includes('other')}
+              onCheckedChange={(checked) => handleMedicationChange('other', !!checked)}
+            />
+            <Label htmlFor="other_medication">Другое</Label>
+          </div>
         </div>
+        
+        {(data.medications || []).includes('other') && (
+          <div className="mt-3">
+            <Input
+              placeholder="Укажите другие принимаемые медикаменты"
+              value={data.medicationsOther || ''}
+              onChange={(e) => onChange({ medicationsOther: e.target.value })}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Перенесенные операции */}
+      {/* Предыдущие операции */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">Перенесенные операции</Label>
-        <Textarea
-          placeholder="Перечислите все операции и их даты..."
-          value={(data.previousSurgeries || []).join('\n')}
-          onChange={(e) => onChange({ previousSurgeries: e.target.value.split('\n').filter(Boolean) })}
-          className="min-h-[80px]"
-        />
+        <Label className="text-sm font-medium">Предыдущие операции</Label>
+        <div className="grid grid-cols-1 gap-2">
+          {[
+            'Аппендэктомия',
+            'Операции на сердце',
+            'Ортопедические операции',
+            'Гинекологические операции',
+            'Операции на желудочно-кишечном тракте',
+            'Нейрохирургические операции'
+          ].map((surgery) => (
+            <div key={surgery} className="flex items-center space-x-2">
+              <Checkbox
+                id={surgery}
+                checked={(data.previousSurgeries || []).includes(surgery)}
+                onCheckedChange={(checked) => handleSurgeryChange(surgery, !!checked)}
+              />
+              <Label htmlFor={surgery}>{surgery}</Label>
+            </div>
+          ))}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="other_surgery"
+              checked={(data.previousSurgeries || []).includes('other')}
+              onCheckedChange={(checked) => handleSurgeryChange('other', !!checked)}
+            />
+            <Label htmlFor="other_surgery">Другое</Label>
+          </div>
+        </div>
+        
+        {(data.previousSurgeries || []).includes('other') && (
+          <div className="mt-3">
+            <Input
+              placeholder="Укажите другие операции"
+              value={data.previousSurgeriesOther || ''}
+              onChange={(e) => onChange({ previousSurgeriesOther: e.target.value })}
+            />
+          </div>
+        )}
       </div>
 
       {/* Последний медосмотр */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">Последний полный медицинский осмотр</Label>
-        <RadioGroup 
-          value={data.lastCheckup} 
-          onValueChange={(value) => onChange({ lastCheckup: value })}
-          className="grid grid-cols-1 gap-3"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="less_than_6_months" id="less_than_6_months" />
-            <Label htmlFor="less_than_6_months">Менее 6 месяцев назад</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="6_to_12_months" id="6_to_12_months" />
-            <Label htmlFor="6_to_12_months">6-12 месяцев назад</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="1_to_2_years" id="1_to_2_years" />
-            <Label htmlFor="1_to_2_years">1-2 года назад</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="2_to_5_years" id="2_to_5_years" />
-            <Label htmlFor="2_to_5_years">2-5 лет назад</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="more_than_5_years" id="more_than_5_years" />
-            <Label htmlFor="more_than_5_years">Более 5 лет назад</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="never" id="checkup_never" />
-            <Label htmlFor="checkup_never">Никогда не проходил(а)</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      {/* Важная информация */}
-      <div className="bg-red-50 rounded-lg p-4">
-        <h4 className="font-medium text-red-900 mb-2">Важно!</h4>
-        <p className="text-sm text-red-700">
-          Эта информация будет использована только для предоставления персонализированных 
-          рекомендаций и не заменяет консультацию с врачом. При серьезных проблемах со здоровьем 
-          обязательно обратитесь к медицинскому специалисту.
-        </p>
+        <Label className="text-sm font-medium">Дата последнего медицинского осмотра</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-full justify-start text-left font-normal">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {data.lastCheckup ? format(new Date(data.lastCheckup), "dd MMMM yyyy", { locale: ru }) : "Выберите дату"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={data.lastCheckup ? new Date(data.lastCheckup) : undefined}
+              onSelect={(date) => onChange({ lastCheckup: date ? date.toISOString().split('T')[0] : '' })}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   );

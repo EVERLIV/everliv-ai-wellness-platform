@@ -50,10 +50,6 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ data, onChang
               <RadioGroupItem value="female" id="female" />
               <Label htmlFor="female">Женский</Label>
             </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="other" id="other" />
-              <Label htmlFor="other">Другой</Label>
-            </div>
           </RadioGroup>
         </div>
 

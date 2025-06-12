@@ -3,6 +3,7 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 
 interface MentalHealthSectionProps {
   data: any;
@@ -83,7 +84,21 @@ const MentalHealthSection: React.FC<MentalHealthSectionProps> = ({ data, onChang
             <RadioGroupItem value="severe_fluctuations" id="severe_fluctuations" />
             <Label htmlFor="severe_fluctuations">Серьезные нарушения настроения</Label>
           </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="other" id="other_mood" />
+            <Label htmlFor="other_mood">Другое</Label>
+          </div>
         </RadioGroup>
+        
+        {data.moodChanges === 'other' && (
+          <div className="mt-3">
+            <Input
+              placeholder="Опишите изменения настроения"
+              value={data.moodChangesOther || ''}
+              onChange={(e) => onChange({ moodChangesOther: e.target.value })}
+            />
+          </div>
+        )}
       </div>
 
       {/* Поддержка психического здоровья */}
@@ -118,7 +133,21 @@ const MentalHealthSection: React.FC<MentalHealthSectionProps> = ({ data, onChang
             <RadioGroupItem value="support_groups" id="support_groups" />
             <Label htmlFor="support_groups">Группы поддержки</Label>
           </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="other" id="other_support" />
+            <Label htmlFor="other_support">Другое</Label>
+          </div>
         </RadioGroup>
+        
+        {data.mentalHealthSupport === 'other' && (
+          <div className="mt-3">
+            <Input
+              placeholder="Опишите вид поддержки"
+              value={data.mentalHealthSupportOther || ''}
+              onChange={(e) => onChange({ mentalHealthSupportOther: e.target.value })}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
