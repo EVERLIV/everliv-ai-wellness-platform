@@ -52,6 +52,20 @@ const DashboardHeader = ({ userName }: DashboardHeaderProps) => {
             <p className="text-gray-500">
               Управляйте своим здоровьем с помощью персонализированной аналитики
             </p>
+            
+            {/* Дисклеймер */}
+            <div className="text-xs text-gray-400 bg-gray-50 rounded-lg px-3 py-2 mt-2 inline-block">
+              <p>
+                Сервис находится в альфа-разработке, спасибо за поддержку! 
+                {" "}
+                <a 
+                  href="/contact" 
+                  className="text-primary hover:underline font-medium"
+                >
+                  Рассказать о баге
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </div>
