@@ -18,7 +18,6 @@ const Analytics: React.FC = () => {
     analytics,
     isLoading: isLoadingAnalytics,
     isGenerating,
-    loadingStep,
     hasHealthProfile,
     hasAnalyses,
     generateAnalytics
@@ -30,7 +29,6 @@ const Analytics: React.FC = () => {
     hasAnalytics: !!analytics,
     isLoadingAnalytics,
     isGenerating,
-    loadingStep,
     hasHealthProfile,
     hasAnalyses
   });
@@ -53,7 +51,7 @@ const Analytics: React.FC = () => {
       <AnalyticsPageLayout>
         <AnalyticsLoadingIndicator 
           isGenerating={isGenerating}
-          loadingStep={loadingStep}
+          loadingStep="Генерация аналитики..."
         />
       </AnalyticsPageLayout>
     );

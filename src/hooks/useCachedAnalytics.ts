@@ -57,7 +57,9 @@ export const useCachedAnalytics = () => {
       }
 
       if (data?.analytics_data) {
-        setAnalytics(data.analytics_data as CachedAnalytics);
+        // Безопасное приведение типа через unknown
+        const analyticsData = data.analytics_data as unknown as CachedAnalytics;
+        setAnalytics(analyticsData);
       }
     } catch (error) {
       console.error('Error loading cached analytics:', error);
@@ -96,8 +98,17 @@ export const useCachedAnalytics = () => {
         .eq('user_id', user.id)
         .maybeSingle();
 
-      const analyses = analysesData || [];
-      const chats = chatsData || [];
+      // Безопасное приведение типов
+      const analyses = (analysesData || []).map(item => ({
+        created_at: item.created_at,
+        results: item.results as any // Используем any для совместимости с generateAnalyticsData
+      }));
+      
+      const chats = (chatsData || []).map(item => ({
+        created_at: item.created_at,
+        title: item.title
+      }));
+      
       const healthProfile = healthProfileData?.profile_data;
 
       // Генерируем новую аналитику
