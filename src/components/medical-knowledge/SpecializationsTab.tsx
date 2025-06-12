@@ -15,17 +15,17 @@ const SpecializationsTab: React.FC<SpecializationsTabProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center py-12 md:py-20">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-lg text-gray-600">Загрузка информации о специалистах...</p>
+          <Loader2 className="h-10 w-10 md:h-12 md:w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-base md:text-lg text-gray-600">Загрузка информации о специалистах...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
       {specializations.map((specialization) => (
         <MedicalSpecializationCard
           key={specialization.id}

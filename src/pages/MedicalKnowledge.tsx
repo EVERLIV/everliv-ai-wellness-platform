@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Header from "@/components/Header";
+import MinimalFooter from "@/components/MinimalFooter";
 import MedicalKnowledgeSearch from '@/components/medical-knowledge/MedicalKnowledgeSearch';
 import MedicalKnowledgeHeader from '@/components/medical-knowledge/MedicalKnowledgeHeader';
 import ArticlesTab from '@/components/medical-knowledge/ArticlesTab';
@@ -54,58 +56,73 @@ const MedicalKnowledge: React.FC = () => {
   const displayedArticles = hasSearched ? searchResults : articles;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <MedicalKnowledgeHeader
-        articlesCount={articles.length}
-        categoriesCount={categories.length}
-        specializationsCount={specializations.length}
-      />
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Header />
+      
+      <div className="flex-grow pt-16">
+        <MedicalKnowledgeHeader
+          articlesCount={articles.length}
+          categoriesCount={categories.length}
+          specializationsCount={specializations.length}
+        />
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="space-y-8">
-          <MedicalKnowledgeSearch
-            categories={categories}
-            onSearch={handleSearch}
-            isLoading={isSearching}
-          />
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
+          <div className="space-y-6 md:space-y-8">
+            <MedicalKnowledgeSearch
+              categories={categories}
+              onSearch={handleSearch}
+              isLoading={isSearching}
+            />
 
-          <Tabs defaultValue="articles" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
-              <TabsTrigger value="articles" className="text-base">Статьи</TabsTrigger>
-              <TabsTrigger value="categories" className="text-base">Категории</TabsTrigger>
-              <TabsTrigger value="doctors" className="text-base">Специалисты</TabsTrigger>
-            </TabsList>
+            <Tabs defaultValue="articles" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 mb-6 md:mb-8 h-auto">
+                <TabsTrigger value="articles" className="text-sm md:text-base py-2 md:py-2.5">
+                  <span className="hidden sm:inline">Статьи</span>
+                  <span className="sm:hidden">Статьи</span>
+                </TabsTrigger>
+                <TabsTrigger value="categories" className="text-sm md:text-base py-2 md:py-2.5">
+                  <span className="hidden sm:inline">Категории</span>
+                  <span className="sm:hidden">Категории</span>
+                </TabsTrigger>
+                <TabsTrigger value="doctors" className="text-sm md:text-base py-2 md:py-2.5">
+                  <span className="hidden sm:inline">Специалисты</span>
+                  <span className="sm:hidden">Врачи</span>
+                </TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="articles" className="space-y-8">
-              <ArticlesTab
-                isLoading={isLoading}
-                isSearching={isSearching}
-                hasSearched={hasSearched}
-                displayedArticles={displayedArticles}
-                onResetSearch={handleResetSearch}
-                onArticleSelect={handleArticleSelect}
-              />
-            </TabsContent>
+              <TabsContent value="articles" className="space-y-6 md:space-y-8">
+                <ArticlesTab
+                  isLoading={isLoading}
+                  isSearching={isSearching}
+                  hasSearched={hasSearched}
+                  displayedArticles={displayedArticles}
+                  onResetSearch={handleResetSearch}
+                  onArticleSelect={handleArticleSelect}
+                />
+              </TabsContent>
 
-            <TabsContent value="categories" className="space-y-8">
-              <CategoriesTab
-                isLoading={isLoading}
-                categories={categories}
-                getArticleCountByCategory={getArticleCountByCategory}
-                onCategorySelect={handleCategorySelect}
-              />
-            </TabsContent>
+              <TabsContent value="categories" className="space-y-6 md:space-y-8">
+                <CategoriesTab
+                  isLoading={isLoading}
+                  categories={categories}
+                  getArticleCountByCategory={getArticleCountByCategory}
+                  onCategorySelect={handleCategorySelect}
+                />
+              </TabsContent>
 
-            <TabsContent value="doctors" className="space-y-8">
-              <SpecializationsTab
-                isLoading={isLoading}
-                specializations={specializations}
-              />
-            </TabsContent>
-          </Tabs>
+              <TabsContent value="doctors" className="space-y-6 md:space-y-8">
+                <SpecializationsTab
+                  isLoading={isLoading}
+                  specializations={specializations}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
+
+      <MinimalFooter />
     </div>
   );
 };

@@ -24,10 +24,10 @@ const ArticlesTab: React.FC<ArticlesTabProps> = ({
 }) => {
   if (isLoading || isSearching) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center py-12 md:py-20">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-lg text-gray-600">
+          <Loader2 className="h-10 w-10 md:h-12 md:w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-base md:text-lg text-gray-600">
             {isSearching ? 'Поиск статей...' : 'Загрузка медицинских статей...'}
           </p>
         </div>
@@ -38,26 +38,27 @@ const ArticlesTab: React.FC<ArticlesTabProps> = ({
   return (
     <>
       {hasSearched && (
-        <div className="flex items-center justify-between bg-blue-50 rounded-lg p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-blue-50 rounded-lg p-4 md:p-6 gap-4">
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-1">
+            <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-1">
               Результаты поиска
             </h3>
-            <p className="text-gray-600">
+            <p className="text-sm md:text-base text-gray-600">
               Найдено {displayedArticles.length} статей по вашему запросу
             </p>
           </div>
           <Button
             variant="outline"
             onClick={onResetSearch}
-            className="bg-white"
+            className="bg-white w-full sm:w-auto"
+            size="sm"
           >
             Показать все статьи
           </Button>
         </div>
       )}
       
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
         {displayedArticles.map((article) => (
           <MedicalArticleCard
             key={article.id}
@@ -68,13 +69,13 @@ const ArticlesTab: React.FC<ArticlesTabProps> = ({
       </div>
 
       {displayedArticles.length === 0 && hasSearched && (
-        <div className="text-center py-20">
-          <div className="max-w-md mx-auto">
-            <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-medium text-gray-900 mb-2">
+        <div className="text-center py-12 md:py-20">
+          <div className="max-w-md mx-auto px-4">
+            <FileText className="h-12 w-12 md:h-16 md:w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg md:text-xl font-medium text-gray-900 mb-2">
               Статьи не найдены
             </h3>
-            <p className="text-gray-500">
+            <p className="text-sm md:text-base text-gray-500">
               По вашему запросу ничего не найдено. Попробуйте изменить условия поиска.
             </p>
           </div>
