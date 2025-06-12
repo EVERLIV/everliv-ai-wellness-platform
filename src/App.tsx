@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useState } from "react";
 
 // Import pages
 import Index from "./pages/Index";
@@ -38,139 +39,150 @@ import Checkout from "./pages/Checkout";
 import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const App = () => {
+  // Create QueryClient inside the component to ensure proper React context
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        retry: 1,
+        refetchOnWindowFocus: false,
+      },
+    },
+  }));
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <SubscriptionProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/services" element={<ServicesPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<RegistrationPage />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/science" element={<Science />} />
-              <Route path="/partnership" element={<Partnership />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/features" element={<Features />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/support" element={<Support />} />
-              
-              {/* Protected routes */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/ai-doctor"
-                element={
-                  <ProtectedRoute>
-                    <AIDoctorPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/ai-doctor/personal"
-                element={
-                  <ProtectedRoute>
-                    <AIDoctorPersonalPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/ai-doctor/basic"
-                element={
-                  <ProtectedRoute>
-                    <AIDoctorBasicPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/blood-analysis"
-                element={
-                  <ProtectedRoute>
-                    <BloodAnalysisPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/health-profile"
-                element={
-                  <ProtectedRoute>
-                    <HealthProfile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/nutrition-diary"
-                element={
-                  <ProtectedRoute>
-                    <NutritionDiary />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/analytics"
-                element={
-                  <ProtectedRoute>
-                    <Analytics />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/lab-analyses"
-                element={
-                  <ProtectedRoute>
-                    <LabAnalyses />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/analysis-details"
-                element={
-                  <ProtectedRoute>
-                    <AnalysisDetails />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <AccountSettings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/subscription"
-                element={
-                  <ProtectedRoute>
-                    <SubscriptionPage />
-                  </ProtectedRoute>
-                }
-              />
-              
-              {/* Catch all route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </SubscriptionProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <SubscriptionProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<RegistrationPage />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/science" element={<Science />} />
+                <Route path="/partnership" element={<Partnership />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/features" element={<Features />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/support" element={<Support />} />
+                
+                {/* Protected routes */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/ai-doctor"
+                  element={
+                    <ProtectedRoute>
+                      <AIDoctorPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/ai-doctor/personal"
+                  element={
+                    <ProtectedRoute>
+                      <AIDoctorPersonalPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/ai-doctor/basic"
+                  element={
+                    <ProtectedRoute>
+                      <AIDoctorBasicPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/blood-analysis"
+                  element={
+                    <ProtectedRoute>
+                      <BloodAnalysisPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/health-profile"
+                  element={
+                    <ProtectedRoute>
+                      <HealthProfile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/nutrition-diary"
+                  element={
+                    <ProtectedRoute>
+                      <NutritionDiary />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/analytics"
+                  element={
+                    <ProtectedRoute>
+                      <Analytics />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/lab-analyses"
+                  element={
+                    <ProtectedRoute>
+                      <LabAnalyses />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/analysis-details"
+                  element={
+                    <ProtectedRoute>
+                      <AnalysisDetails />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <AccountSettings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/subscription"
+                  element={
+                    <ProtectedRoute>
+                      <SubscriptionPage />
+                    </ProtectedRoute>
+                  }
+                />
+                
+                {/* Catch all route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </SubscriptionProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
