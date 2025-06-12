@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit3, Heart, Activity, Brain, Apple, Moon, Stethoscope } from "lucide-react";
 import { HealthProfileData } from "@/hooks/useHealthProfile";
+import { translateValue } from "@/utils/healthProfileTranslations";
 
 interface HealthProfileDisplayProps {
   healthProfile: HealthProfileData;
@@ -57,7 +58,7 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
             <div>
               <div className="text-sm text-gray-500">Пол</div>
               <div className="font-medium">
-                {healthProfile.gender === 'male' ? 'Мужской' : 'Женский'}
+                {translateValue('gender', healthProfile.gender)}
               </div>
             </div>
             <div>
@@ -93,7 +94,9 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <div className="text-sm text-gray-500">Физическая активность</div>
-              <div className="font-medium">{healthProfile.physicalActivity || 'Не указано'}</div>
+              <div className="font-medium">
+                {healthProfile.physicalActivity ? translateValue('physicalActivity', healthProfile.physicalActivity) : 'Не указано'}
+              </div>
             </div>
             <div>
               <div className="text-sm text-gray-500">Частота тренировок</div>
@@ -101,7 +104,9 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
             </div>
             <div>
               <div className="text-sm text-gray-500">Уровень физической подготовки</div>
-              <div className="font-medium">{healthProfile.fitnessLevel || 'Не указано'}</div>
+              <div className="font-medium">
+                {healthProfile.fitnessLevel ? translateValue('fitnessLevel', healthProfile.fitnessLevel) : 'Не указано'}
+              </div>
             </div>
           </div>
           {healthProfile.chronicConditions && healthProfile.chronicConditions.length > 0 && (
@@ -137,11 +142,15 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
             </div>
             <div>
               <div className="text-sm text-gray-500">Изменения настроения</div>
-              <div className="font-medium">{healthProfile.moodChanges || 'Не указано'}</div>
+              <div className="font-medium">
+                {healthProfile.moodChanges ? translateValue('moodChanges', healthProfile.moodChanges) : 'Не указано'}
+              </div>
             </div>
             <div>
               <div className="text-sm text-gray-500">Поддержка</div>
-              <div className="font-medium">{healthProfile.mentalHealthSupport || 'Не указано'}</div>
+              <div className="font-medium">
+                {healthProfile.mentalHealthSupport ? translateValue('mentalHealthSupport', healthProfile.mentalHealthSupport) : 'Не указано'}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -159,15 +168,21 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <div className="text-sm text-gray-500">Курение</div>
-              <div className="font-medium">{healthProfile.smokingStatus || 'Не указано'}</div>
+              <div className="font-medium">
+                {healthProfile.smokingStatus ? translateValue('smokingStatus', healthProfile.smokingStatus) : 'Не указано'}
+              </div>
             </div>
             <div>
               <div className="text-sm text-gray-500">Алкоголь</div>
-              <div className="font-medium">{healthProfile.alcoholConsumption || 'Не указано'}</div>
+              <div className="font-medium">
+                {healthProfile.alcoholConsumption ? translateValue('alcoholConsumption', healthProfile.alcoholConsumption) : 'Не указано'}
+              </div>
             </div>
             <div>
               <div className="text-sm text-gray-500">Тип питания</div>
-              <div className="font-medium">{healthProfile.dietType || 'Не указано'}</div>
+              <div className="font-medium">
+                {healthProfile.dietType ? translateValue('dietType', healthProfile.dietType) : 'Не указано'}
+              </div>
             </div>
             <div>
               <div className="text-sm text-gray-500">Потребление воды</div>
@@ -193,7 +208,9 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
             </div>
             <div>
               <div className="text-sm text-gray-500">Качество сна</div>
-              <div className="font-medium">{healthProfile.sleepQuality || 'Не указано'}</div>
+              <div className="font-medium">
+                {healthProfile.sleepQuality ? translateValue('sleepQuality', healthProfile.sleepQuality) : 'Не указано'}
+              </div>
             </div>
           </div>
           {healthProfile.sleepIssues && healthProfile.sleepIssues.length > 0 && (

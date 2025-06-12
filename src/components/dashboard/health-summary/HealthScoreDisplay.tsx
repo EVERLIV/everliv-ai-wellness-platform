@@ -18,6 +18,24 @@ const HealthScoreDisplay: React.FC<HealthScoreDisplayProps> = ({ analytics }) =>
     }
   };
 
+  const translateRiskLevel = (level: string) => {
+    switch (level.toLowerCase()) {
+      case 'high':
+      case 'высокий':
+        return 'высокий';
+      case 'medium':
+      case 'средний':
+        return 'средний';
+      case 'low':
+      case 'низкий':
+        return 'низкий';
+      default:
+        return level;
+    }
+  };
+
+  const translatedRiskLevel = translateRiskLevel(analytics.riskLevel);
+
   return (
     <>
       <div className="grid grid-cols-2 gap-4 mb-6">
@@ -40,18 +58,16 @@ const HealthScoreDisplay: React.FC<HealthScoreDisplayProps> = ({ analytics }) =>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-blue-700">Балл здоровья:</span>
-            {analytics.scoreExplanation && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <HelpCircle className="h-4 w-4 text-blue-600" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs">{analytics.scoreExplanation}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <HelpCircle className="h-4 w-4 text-blue-600" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs">{analytics.scoreExplanation || 'Балл рассчитывается на основе профиля здоровья'}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <span className="text-lg font-bold text-blue-600">
             {analytics.healthScore || 0}/100
@@ -61,10 +77,10 @@ const HealthScoreDisplay: React.FC<HealthScoreDisplayProps> = ({ analytics }) =>
 
       {/* Уровень риска */}
       {analytics.riskLevel && (
-        <div className={`mb-4 p-3 rounded-lg border ${getRiskLevelColor(analytics.riskLevel)}`}>
+        <div className={`mb-4 p-3 rounded-lg border ${getRiskLevelColor(translatedRiskLevel)}`}>
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">Уровень риска:</span>
-            <span className="font-medium">{analytics.riskLevel}</span>
+            <span className="font-medium">{translatedRiskLevel}</span>
           </div>
           {analytics.riskDescription && (
             <div className="text-xs opacity-90">
