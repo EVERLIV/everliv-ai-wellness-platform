@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import MedicalArticleCard from './MedicalArticleCard';
+import MedicalArticleDetail from './MedicalArticleDetail';
 import { MedicalArticle } from '@/types/medical';
 import { Loader2, FileText } from 'lucide-react';
 
@@ -22,6 +23,31 @@ const ArticlesTab: React.FC<ArticlesTabProps> = ({
   onResetSearch,
   onArticleSelect
 }) => {
+  const [selectedArticle, setSelectedArticle] = useState<MedicalArticle | null>(null);
+
+  const handleArticleSelect = (articleId: string) => {
+    const article = displayedArticles.find(a => a.id === articleId);
+    if (article) {
+      setSelectedArticle(article);
+      onArticleSelect(articleId);
+    }
+  };
+
+  const handleBackToList = () => {
+    setSelectedArticle(null);
+  };
+
+  // Если выбрана статья, показываем детальный вид
+  if (selectedArticle) {
+    return (
+      <MedicalArticleDetail 
+        article={selectedArticle} 
+        onBack={handleBackToList}
+      />
+    );
+  }
+
+  // Иначе показываем список статей
   if (isLoading || isSearching) {
     return (
       <div className="flex items-center justify-center py-12 md:py-20">
@@ -63,7 +89,7 @@ const ArticlesTab: React.FC<ArticlesTabProps> = ({
           <MedicalArticleCard
             key={article.id}
             article={article}
-            onSelect={onArticleSelect}
+            onSelect={handleArticleSelect}
           />
         ))}
       </div>
