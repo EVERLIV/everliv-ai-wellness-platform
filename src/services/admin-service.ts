@@ -22,6 +22,11 @@ export async function checkAdminAccess(): Promise<boolean> {
   return !!data;
 }
 
+export interface PlanFeatureDetail {
+  name: string;
+  description: string;
+}
+
 export interface AdminUser {
   id: string;
   email: string;
@@ -31,6 +36,7 @@ export interface AdminUser {
   subscription_type?: string;
   subscription_expires_at?: string;
   subscription_id?: string;
+  subscription_status?: string;
 }
 
 export interface AdminSubscriptionPlan {
@@ -39,7 +45,7 @@ export interface AdminSubscriptionPlan {
   name: string;
   price: number;
   description: string;
-  features: any;
+  features: PlanFeatureDetail[];
   limits: any;
   is_active: boolean;
   is_popular: boolean;
@@ -92,7 +98,7 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
     // Объединяем данные
     const users: AdminUser[] = data.map(profile => {
       const authUser = authUsers.users.find(u => u.id === profile.id);
-      const subscription = profile.subscriptions?.[0];
+      const subscription = Array.isArray(profile.subscriptions) ? profile.subscriptions[0] : null;
       
       return {
         id: profile.id,
@@ -102,7 +108,8 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
         created_at: profile.created_at,
         subscription_type: subscription?.plan_type,
         subscription_expires_at: subscription?.expires_at,
-        subscription_id: subscription?.id
+        subscription_id: subscription?.id,
+        subscription_status: subscription?.status
       };
     });
 
@@ -233,5 +240,93 @@ export async function fetchSubscriptionPlans(): Promise<AdminSubscriptionPlan[]>
   } catch (error) {
     console.error('Error in fetchSubscriptionPlans:', error);
     throw error;
+  }
+}
+
+export async function createSubscriptionPlan(planData: Omit<AdminSubscriptionPlan, 'id'>): Promise<AdminSubscriptionPlan | null> {
+  try {
+    const isAdmin = await checkAdminAccess();
+    if (!isAdmin) {
+      throw new Error("У вас нет прав администратора");
+    }
+
+    const { data, error } = await supabase
+      .from('subscription_plans')
+      .insert(planData)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating subscription plan:', error);
+      toast.error("Ошибка создания тарифного плана");
+      return null;
+    }
+
+    toast.success("Тарифный план создан");
+    return data;
+  } catch (error) {
+    console.error('Error in createSubscriptionPlan:', error);
+    if (error instanceof Error) {
+      toast.error(error.message);
+    }
+    return null;
+  }
+}
+
+export async function updateSubscriptionPlan(planId: string, updates: Partial<AdminSubscriptionPlan>): Promise<boolean> {
+  try {
+    const isAdmin = await checkAdminAccess();
+    if (!isAdmin) {
+      throw new Error("У вас нет прав администратора");
+    }
+
+    const { error } = await supabase
+      .from('subscription_plans')
+      .update(updates)
+      .eq('id', planId);
+
+    if (error) {
+      console.error('Error updating subscription plan:', error);
+      toast.error("Ошибка обновления тарифного плана");
+      return false;
+    }
+
+    toast.success("Тарифный план обновлен");
+    return true;
+  } catch (error) {
+    console.error('Error in updateSubscriptionPlan:', error);
+    if (error instanceof Error) {
+      toast.error(error.message);
+    }
+    return false;
+  }
+}
+
+export async function deleteSubscriptionPlan(planId: string): Promise<boolean> {
+  try {
+    const isAdmin = await checkAdminAccess();
+    if (!isAdmin) {
+      throw new Error("У вас нет прав администратора");
+    }
+
+    const { error } = await supabase
+      .from('subscription_plans')
+      .delete()
+      .eq('id', planId);
+
+    if (error) {
+      console.error('Error deleting subscription plan:', error);
+      toast.error("Ошибка удаления тарифного плана");
+      return false;
+    }
+
+    toast.success("Тарифный план удален");
+    return true;
+  } catch (error) {
+    console.error('Error in deleteSubscriptionPlan:', error);
+    if (error instanceof Error) {
+      toast.error(error.message);
+    }
+    return false;
   }
 }
