@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -22,16 +21,18 @@ interface Biomarker {
   status: string;
 }
 
+interface AnalysisResults {
+  markers?: Biomarker[];
+  [key: string]: any;
+}
+
 interface EditBiomarkersDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   analysis: {
     id: string;
     analysis_type: string;
-    results?: {
-      markers?: Biomarker[];
-      [key: string]: any;
-    };
+    results?: AnalysisResults;
   };
   onSave: () => void;
 }
@@ -68,29 +69,33 @@ const EditBiomarkersDialog: React.FC<EditBiomarkersDialogProps> = ({
         return;
       }
 
-      if (fullAnalysis?.results?.markers) {
-        setMarkers([...fullAnalysis.results.markers]);
-      } else {
-        // Если нет данных в results.markers, пробуем загрузить из таблицы biomarkers
-        const { data: biomarkers, error: biomarkersError } = await supabase
-          .from('biomarkers')
-          .select('*')
-          .eq('analysis_id', analysis.id);
+      // Проверяем и парсим результаты анализа
+      if (fullAnalysis?.results && typeof fullAnalysis.results === 'object') {
+        const results = fullAnalysis.results as AnalysisResults;
+        if (results.markers && Array.isArray(results.markers)) {
+          setMarkers([...results.markers]);
+        } else {
+          // Если нет данных в results.markers, пробуем загрузить из таблицы biomarkers
+          const { data: biomarkers, error: biomarkersError } = await supabase
+            .from('biomarkers')
+            .select('*')
+            .eq('analysis_id', analysis.id);
 
-        if (biomarkersError) {
-          console.error('Error loading biomarkers:', biomarkersError);
-          toast.error("Не удалось загрузить биомаркеры");
-          return;
-        }
+          if (biomarkersError) {
+            console.error('Error loading biomarkers:', biomarkersError);
+            toast.error("Не удалось загрузить биомаркеры");
+            return;
+          }
 
-        if (biomarkers && biomarkers.length > 0) {
-          const markersData = biomarkers.map(b => ({
-            name: b.name,
-            value: b.value || '',
-            unit: '',
-            status: b.status || 'normal'
-          }));
-          setMarkers(markersData);
+          if (biomarkers && biomarkers.length > 0) {
+            const markersData = biomarkers.map(b => ({
+              name: b.name,
+              value: b.value || '',
+              unit: '',
+              status: b.status || 'normal'
+            }));
+            setMarkers(markersData);
+          }
         }
       }
     } catch (error) {
@@ -145,8 +150,13 @@ const EditBiomarkersDialog: React.FC<EditBiomarkersDialogProps> = ({
         return;
       }
 
+      // Создаем новый объект результатов
+      const currentResults = (currentAnalysis.results && typeof currentAnalysis.results === 'object') 
+        ? currentAnalysis.results as AnalysisResults 
+        : {};
+
       const updatedResults = {
-        ...currentAnalysis.results,
+        ...currentResults,
         markers: plainMarkers
       };
 
