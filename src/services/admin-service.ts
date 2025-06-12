@@ -84,15 +84,21 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
       console.error('Error fetching subscriptions:', subscriptionsError);
     }
 
-    // Получаем emails пользователей
-    const { data: authUsersResponse, error: authError } = await supabase.auth.admin.listUsers();
-    
-    if (authError) {
-      console.error('Error fetching auth users:', authError);
-      throw new Error("Ошибка получения данных пользователей");
+    // Получаем emails пользователей через admin API
+    let authUsers: any[] = [];
+    try {
+      const { data: authUsersResponse, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) {
+        console.error('Error fetching auth users:', authError);
+        // Продолжаем без email данных, если не удалось получить
+      } else {
+        authUsers = authUsersResponse?.users || [];
+      }
+    } catch (error) {
+      console.error('Failed to fetch auth users:', error);
+      // Продолжаем без email данных
     }
-
-    const authUsers = authUsersResponse?.users || [];
 
     // Объединяем данные
     const users: AdminUser[] = profiles.map(profile => {

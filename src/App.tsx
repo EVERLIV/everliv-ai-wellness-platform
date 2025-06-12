@@ -23,6 +23,9 @@ import AccountSettings from "@/pages/AccountSettings";
 import LabAnalyses from "@/pages/LabAnalyses";
 import Analytics from "@/pages/Analytics";
 import AIDoctorPage from "@/pages/AIDoctorPage";
+import AIDoctorChatPage from "@/pages/AIDoctorChatPage";
+import AIDoctorBasicPage from "@/pages/AIDoctorBasicPage";
+import AIDoctorPersonalPage from "@/pages/AIDoctorPersonalPage";
 import ServicesPage from "@/pages/ServicesPage";
 import Pricing from "@/pages/Pricing";
 import Partnership from "@/pages/Partnership";
@@ -66,6 +69,9 @@ function App() {
                 <Route path="/lab-analyses" element={<LabAnalyses />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/ai-doctor" element={<AIDoctorPage />} />
+                <Route path="/ai-doctor/basic" element={<AIDoctorBasicPage />} />
+                <Route path="/ai-doctor/personal" element={<AIDoctorPersonalPage />} />
+                <Route path="/ai-doctor/chat/:chatId" element={<AIDoctorChatPage />} />
                 <Route path="/services" element={<ServicesPage />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/partnership" element={<Partnership />} />
