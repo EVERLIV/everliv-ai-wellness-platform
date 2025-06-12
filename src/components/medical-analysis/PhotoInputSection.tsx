@@ -49,20 +49,14 @@ const PhotoInputSection: React.FC<PhotoInputSectionProps> = ({
       return;
     }
 
-    // Устанавливаем файл в input и вызываем обработчик
+    // Устанавливаем файл в input и вызываем событие change
     if (fileInputRef.current) {
       const dt = new DataTransfer();
       dt.items.add(file);
       fileInputRef.current.files = dt.files;
       
-      // Создаем событие change
-      const event = new Event('change', { bubbles: true });
-      Object.defineProperty(event, 'target', {
-        writable: false,
-        value: fileInputRef.current
-      });
-      
-      onPhotoUpload(event as React.ChangeEvent<HTMLInputElement>);
+      // Вызываем событие change на элементе input
+      fileInputRef.current.dispatchEvent(new Event('change', { bubbles: true }));
     }
   };
 
