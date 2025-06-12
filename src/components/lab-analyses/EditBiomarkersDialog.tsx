@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -13,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getStatusText } from "@/utils/biomarkerUtils";
 
 interface Biomarker {
   name: string;
@@ -184,9 +186,9 @@ const EditBiomarkersDialog: React.FC<EditBiomarkersDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh]">
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] mx-auto">
         <DialogHeader>
-          <DialogTitle>Редактировать биомаркеры</DialogTitle>
+          <DialogTitle className="text-lg md:text-xl">Редактировать биомаркеры</DialogTitle>
         </DialogHeader>
         
         {isLoadingMarkers ? (
@@ -194,19 +196,19 @@ const EditBiomarkersDialog: React.FC<EditBiomarkersDialogProps> = ({
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : (
-          <ScrollArea className="max-h-[50vh] pr-4">
-            <div className="space-y-4">
+          <ScrollArea className="max-h-[50vh] pr-2 md:pr-4">
+            <div className="space-y-3 md:space-y-4">
               {markers.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <p>Биомаркеры не найдены</p>
                 </div>
               ) : (
                 markers.map((marker, index) => (
-                  <div key={index} className="p-4 border rounded-lg space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label className="font-medium">{marker.name}</Label>
+                  <div key={index} className="p-3 md:p-4 border rounded-lg space-y-2 md:space-y-3">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <Label className="font-medium text-sm md:text-base">{marker.name}</Label>
                       <Badge className={`text-xs ${getStatusColor(marker.status)}`}>
-                        {marker.status}
+                        {getStatusText(marker.status)}
                       </Badge>
                     </div>
                     
@@ -216,10 +218,11 @@ const EditBiomarkersDialog: React.FC<EditBiomarkersDialogProps> = ({
                           value={marker.value}
                           onChange={(e) => updateMarkerValue(index, e.target.value)}
                           placeholder="Значение"
+                          className="text-sm md:text-base"
                         />
                       </div>
                       {marker.unit && (
-                        <div className="flex items-center px-3 text-sm text-gray-500 bg-gray-50 rounded-md">
+                        <div className="flex items-center px-2 md:px-3 text-xs md:text-sm text-gray-500 bg-gray-50 rounded-md whitespace-nowrap">
                           {marker.unit}
                         </div>
                       )}
@@ -231,11 +234,15 @@ const EditBiomarkersDialog: React.FC<EditBiomarkersDialogProps> = ({
           </ScrollArea>
         )}
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
             Отмена
           </Button>
-          <Button onClick={handleSave} disabled={isLoading || isLoadingMarkers || markers.length === 0}>
+          <Button 
+            onClick={handleSave} 
+            disabled={isLoading || isLoadingMarkers || markers.length === 0}
+            className="w-full sm:w-auto"
+          >
             {isLoading ? "Сохранение..." : "Сохранить"}
           </Button>
         </DialogFooter>

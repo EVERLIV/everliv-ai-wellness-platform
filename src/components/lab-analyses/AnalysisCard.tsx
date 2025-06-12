@@ -5,6 +5,7 @@ import AnalysisCardHeader from "./AnalysisCardHeader";
 import AnalysisCardStats from "./AnalysisCardStats";
 import AnalysisCardActions from "./AnalysisCardActions";
 import EditBiomarkersDialog from "./EditBiomarkersDialog";
+import { getStatusText } from "@/utils/biomarkerUtils";
 
 interface AnalysisCardProps {
   analysis: {

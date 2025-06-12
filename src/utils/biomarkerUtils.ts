@@ -11,6 +11,21 @@ export interface BiomarkerResult {
   recommendationsRu: string[];
 }
 
+export const getStatusText = (status: string): string => {
+  const statusMap: { [key: string]: string } = {
+    'optimal': 'Оптимально',
+    'good': 'Хорошо',
+    'normal': 'Норма',
+    'attention': 'Внимание',
+    'high': 'Повышено',
+    'low': 'Понижено',
+    'critical': 'Критично',
+    'risk': 'Риск',
+    'unknown': 'Не определен'
+  };
+  return statusMap[status] || statusMap['unknown'];
+};
+
 export const analyzeBiomarker = (
   biomarkerCode: string,
   value: number,
