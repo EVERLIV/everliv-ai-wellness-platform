@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, MessageSquare, TrendingUp, Settings, TestTube2, Crown, Apple, Heart, User, BarChart3 } from "lucide-react";
+import { FileText, MessageSquare, TrendingUp, Settings, TestTube2, Crown, Apple, Heart, User, BarChart3, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 
@@ -59,6 +59,16 @@ const DashboardQuickActions = () => {
       description: "Заполните подробную информацию о вашем здоровье для персональных рекомендаций",
       premium: false,
       status: healthProfileComplete ? "complete" : "incomplete"
+    },
+    {
+      title: "База знаний",
+      subtitle: "Медицинская информация",
+      icon: BookOpen,
+      iconColor: "text-blue-600",
+      iconBg: "bg-blue-50",
+      path: "/medical-knowledge",
+      description: "Изучайте информацию о симптомах, заболеваниях и методах лечения",
+      premium: false
     },
     {
       title: "Доктор EVERLIV",

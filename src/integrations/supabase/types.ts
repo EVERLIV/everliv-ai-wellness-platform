@@ -139,6 +139,33 @@ export type Database = {
         }
         Relationships: []
       }
+      doctor_specializations: {
+        Row: {
+          common_conditions: string[] | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          required_education: string | null
+        }
+        Insert: {
+          common_conditions?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          required_education?: string | null
+        }
+        Update: {
+          common_conditions?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          required_education?: string | null
+        }
+        Relationships: []
+      }
       feature_trials: {
         Row: {
           data: Json | null
@@ -298,6 +325,89 @@ export type Database = {
         }
         Relationships: []
       }
+      medical_articles: {
+        Row: {
+          article_type: string
+          author: string | null
+          category_id: string | null
+          content: string
+          created_at: string
+          excerpt: string | null
+          id: string
+          medical_review_status: string | null
+          published: boolean | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          views_count: number | null
+        }
+        Insert: {
+          article_type: string
+          author?: string | null
+          category_id?: string | null
+          content: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          medical_review_status?: string | null
+          published?: boolean | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Update: {
+          article_type?: string
+          author?: string | null
+          category_id?: string | null
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          medical_review_status?: string | null
+          published?: boolean | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "medical_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medical_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       nutrition_goals: {
         Row: {
           created_at: string
@@ -392,6 +502,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      patient_reviews: {
+        Row: {
+          article_id: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_published: boolean | null
+          is_verified: boolean | null
+          patient_name: string | null
+          rating: number | null
+          review_text: string
+        }
+        Insert: {
+          article_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_published?: boolean | null
+          is_verified?: boolean | null
+          patient_name?: string | null
+          rating?: number | null
+          review_text: string
+        }
+        Update: {
+          article_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_published?: boolean | null
+          is_verified?: boolean | null
+          patient_name?: string | null
+          rating?: number | null
+          review_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_reviews_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "medical_articles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
