@@ -98,7 +98,8 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
     // Объединяем данные
     const users: AdminUser[] = data.map(profile => {
       const authUser = authUsers.users.find(u => u.id === profile.id);
-      const subscription = Array.isArray(profile.subscriptions) ? profile.subscriptions[0] : null;
+      const subscriptions = profile.subscriptions as any[];
+      const subscription = Array.isArray(subscriptions) && subscriptions.length > 0 ? subscriptions[0] : null;
       
       return {
         id: profile.id,
@@ -236,7 +237,20 @@ export async function fetchSubscriptionPlans(): Promise<AdminSubscriptionPlan[]>
       throw new Error("Ошибка загрузки тарифных планов");
     }
 
-    return data || [];
+    // Convert database data to our TypeScript interface
+    const plans: AdminSubscriptionPlan[] = (data || []).map(plan => ({
+      id: plan.id,
+      type: plan.type,
+      name: plan.name,
+      price: plan.price,
+      description: plan.description,
+      features: Array.isArray(plan.features) ? plan.features as PlanFeatureDetail[] : [],
+      limits: plan.limits,
+      is_active: plan.is_active,
+      is_popular: plan.is_popular
+    }));
+
+    return plans;
   } catch (error) {
     console.error('Error in fetchSubscriptionPlans:', error);
     throw error;
@@ -250,9 +264,21 @@ export async function createSubscriptionPlan(planData: Omit<AdminSubscriptionPla
       throw new Error("У вас нет прав администратора");
     }
 
+    // Convert features to Json format for database
+    const dbPlanData = {
+      type: planData.type,
+      name: planData.name,
+      price: planData.price,
+      description: planData.description,
+      features: planData.features as any, // Cast to Json
+      limits: planData.limits,
+      is_active: planData.is_active,
+      is_popular: planData.is_popular
+    };
+
     const { data, error } = await supabase
       .from('subscription_plans')
-      .insert(planData)
+      .insert(dbPlanData)
       .select()
       .single();
 
@@ -262,8 +288,21 @@ export async function createSubscriptionPlan(planData: Omit<AdminSubscriptionPla
       return null;
     }
 
+    // Convert back to our TypeScript interface
+    const result: AdminSubscriptionPlan = {
+      id: data.id,
+      type: data.type,
+      name: data.name,
+      price: data.price,
+      description: data.description,
+      features: Array.isArray(data.features) ? data.features as PlanFeatureDetail[] : [],
+      limits: data.limits,
+      is_active: data.is_active,
+      is_popular: data.is_popular
+    };
+
     toast.success("Тарифный план создан");
-    return data;
+    return result;
   } catch (error) {
     console.error('Error in createSubscriptionPlan:', error);
     if (error instanceof Error) {
@@ -280,9 +319,15 @@ export async function updateSubscriptionPlan(planId: string, updates: Partial<Ad
       throw new Error("У вас нет прав администратора");
     }
 
+    // Convert updates to database format
+    const dbUpdates: any = { ...updates };
+    if (dbUpdates.features) {
+      dbUpdates.features = dbUpdates.features as any; // Cast to Json
+    }
+
     const { error } = await supabase
       .from('subscription_plans')
-      .update(updates)
+      .update(dbUpdates)
       .eq('id', planId);
 
     if (error) {
