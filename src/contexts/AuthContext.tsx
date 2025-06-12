@@ -13,6 +13,7 @@ type AuthContextType = {
   signUp: (email: string, password: string, userData: { nickname: string }) => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,6 +65,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (!mounted) return;
             toast.info('Вы вышли из системы');
             navigate('/');
+          }, 0);
+        } else if (event === 'PASSWORD_RECOVERY') {
+          setIsLoading(false);
+          setTimeout(() => {
+            if (!mounted) return;
+            toast.info('Перенаправляем на страницу сброса пароля');
+            navigate('/reset-password');
           }, 0);
         } else if (event === 'INITIAL_SESSION') {
           // Don't redirect if we already have a session and user is browsing
@@ -168,8 +176,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const updatePassword = async (newPassword: string) => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      if (error) throw error;
+      toast.success('Пароль успешно обновлен');
+      return Promise.resolve();
+    } catch (error: any) {
+      console.error('Update password error:', error);
+      toast.error(error.message || 'Ошибка обновления пароля');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, signIn, signUp, signOut, resetPassword }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      isLoading, 
+      signIn, 
+      signUp, 
+      signOut, 
+      resetPassword, 
+      updatePassword 
+    }}>
       {children}
     </AuthContext.Provider>
   );

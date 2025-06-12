@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -9,14 +9,30 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const { updatePassword } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Проверяем наличие токена в URL
+  useEffect(() => {
+    const accessToken = searchParams.get('access_token');
+    const refreshToken = searchParams.get('refresh_token');
+    
+    if (!accessToken || !refreshToken) {
+      toast({
+        title: "Ошибка",
+        description: "Недействительная ссылка для сброса пароля. Пожалуйста, запросите новую ссылку.",
+        variant: "destructive"
+      });
+      navigate('/forgot-password');
+    }
+  }, [searchParams, navigate, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,18 +58,14 @@ const ResetPasswordPage = () => {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: password
-      });
-
-      if (error) throw error;
-
+      await updatePassword(password);
+      
       toast({
         title: "Успешно",
         description: "Ваш пароль был успешно обновлен",
       });
       
-      navigate('/login');
+      navigate('/dashboard');
     } catch (error: any) {
       console.error('Error resetting password:', error);
       toast({
@@ -87,6 +99,7 @@ const ResetPasswordPage = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Введите новый пароль"
                     required
                   />
                 </div>
@@ -97,6 +110,7 @@ const ResetPasswordPage = () => {
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Подтвердите новый пароль"
                     required
                   />
                 </div>

@@ -29,6 +29,8 @@ import Partnership from "@/pages/Partnership";
 import Contact from "@/pages/Contact";
 import AnalysisDetails from "@/pages/AnalysisDetails";
 import SubscriptionPage from "@/pages/SubscriptionPage";
+import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
+import ResetPasswordPage from "@/pages/ResetPasswordPage";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +57,8 @@ function App() {
                 <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/account-settings" element={<AccountSettings />} />
                 <Route path="/settings" element={<AccountSettings />} />
                 <Route path="/lab-analyses" element={<LabAnalyses />} />
