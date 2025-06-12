@@ -85,16 +85,18 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
     }
 
     // Получаем emails пользователей
-    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+    const { data: authUsersResponse, error: authError } = await supabase.auth.admin.listUsers();
     
     if (authError) {
       console.error('Error fetching auth users:', authError);
       throw new Error("Ошибка получения данных пользователей");
     }
 
+    const authUsers = authUsersResponse?.users || [];
+
     // Объединяем данные
     const users: AdminUser[] = profiles.map(profile => {
-      const authUser = authUsers?.users?.find(u => u.id === profile.id);
+      const authUser = authUsers.find(u => u.id === profile.id);
       const userSubscriptions = subscriptions?.filter(sub => sub.user_id === profile.id) || [];
       const subscription = userSubscriptions.length > 0 ? userSubscriptions[0] : null;
       
