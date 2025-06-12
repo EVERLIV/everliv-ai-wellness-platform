@@ -1,6 +1,8 @@
 
 import React from "react";
 import { CachedAnalytics } from "@/types/analytics";
+import { HelpCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface HealthScoreDisplayProps {
   analytics: CachedAnalytics;
@@ -36,7 +38,21 @@ const HealthScoreDisplay: React.FC<HealthScoreDisplayProps> = ({ analytics }) =>
       {/* Балл здоровья */}
       <div className="mb-4 p-3 rounded-lg border bg-blue-50 border-blue-200">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-blue-700">Балл здоровья:</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-blue-700">Балл здоровья:</span>
+            {analytics.scoreExplanation && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <HelpCircle className="h-4 w-4 text-blue-600" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">{analytics.scoreExplanation}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
           <span className="text-lg font-bold text-blue-600">
             {analytics.healthScore || 0}/100
           </span>

@@ -8,6 +8,7 @@ export interface HealthProfileAnalysis {
   recommendations: string[];
   strengths: string[];
   concerns: string[];
+  scoreExplanation: string;
 }
 
 export const analyzeHealthProfile = async (healthProfile: any): Promise<HealthProfileAnalysis> => {
@@ -17,21 +18,33 @@ export const analyzeHealthProfile = async (healthProfile: any): Promise<HealthPr
     const messages = [
       {
         role: "system",
-        content: `Вы - эксперт по здоровью. Проанализируйте профиль здоровья и предоставьте оценку на русском языке.
+        content: `Вы - эксперт по здоровью. Проанализируйте профиль здоровья и предоставьте оценку СТРОГО на русском языке.
+
+ВАЖНО: 
+- Уровень риска должен быть ТОЛЬКО: "низкий", "средний" или "высокий" (на русском!)
+- Балл здоровья рассчитывается по следующей логике:
+  * 80-100: отличное здоровье, активный образ жизни, нет хронических заболеваний
+  * 60-79: хорошее здоровье, есть области для улучшения
+  * 40-59: среднее здоровье, требуется внимание к нескольким аспектам
+  * 20-39: ниже среднего, множественные факторы риска
+  * 0-19: критическое состояние, требует медицинского вмешательства
+
+Учитывайте: возраст, ИМТ, физическую активность, питание, сон, стресс, вредные привычки, хронические заболевания.
         
-        Верните JSON в следующем формате:
-        {
-          "healthScore": number (0-100),
-          "riskLevel": "низкий" | "средний" | "высокий",
-          "riskDescription": "подробное описание уровня риска",
-          "recommendations": ["рекомендация1", "рекомендация2"],
-          "strengths": ["сильная сторона1", "сильная сторона2"],
-          "concerns": ["проблема1", "проблема2"]
-        }`
+Верните JSON в следующем формате:
+{
+  "healthScore": number (0-100),
+  "riskLevel": "низкий" | "средний" | "высокий",
+  "riskDescription": "подробное описание уровня риска на русском языке",
+  "recommendations": ["рекомендация1", "рекомендация2", "рекомендация3"],
+  "strengths": ["сильная сторона1", "сильная сторона2"],
+  "concerns": ["проблема1", "проблема2"],
+  "scoreExplanation": "объяснение того, как был рассчитан балл здоровья"
+}`
       },
       {
         role: "user",
-        content: `Проанализируйте профиль здоровья: ${JSON.stringify(healthProfile)}`
+        content: `Проанализируйте профиль здоровья и дайте оценку СТРОГО на русском языке: ${JSON.stringify(healthProfile)}`
       }
     ];
     
@@ -39,13 +52,26 @@ export const analyzeHealthProfile = async (healthProfile: any): Promise<HealthPr
       model: "gpt-4o",
       messages: messages as any,
       temperature: 0.3,
-      max_tokens: 1500,
+      max_tokens: 2000,
     });
     
     const aiResponse = response.choices[0].message.content || "";
     
     try {
-      return JSON.parse(aiResponse);
+      const result = JSON.parse(aiResponse);
+      
+      // Проверяем, что уровень риска на русском языке
+      if (!['низкий', 'средний', 'высокий'].includes(result.riskLevel)) {
+        // Если ИИ вернул на английском, переводим
+        const riskMapping: Record<string, string> = {
+          'low': 'низкий',
+          'medium': 'средний',
+          'high': 'высокий'
+        };
+        result.riskLevel = riskMapping[result.riskLevel] || 'средний';
+      }
+      
+      return result;
     } catch (error) {
       console.error("Failed to parse AI response:", error);
       return {
@@ -54,7 +80,8 @@ export const analyzeHealthProfile = async (healthProfile: any): Promise<HealthPr
         riskDescription: "Недостаточно данных для точной оценки",
         recommendations: ["Заполните профиль здоровья полностью"],
         strengths: [],
-        concerns: []
+        concerns: [],
+        scoreExplanation: "Базовая оценка из-за недостатка данных"
       };
     }
   } catch (error) {

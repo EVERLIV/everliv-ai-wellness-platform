@@ -6,6 +6,7 @@ export interface CachedAnalytics {
   recommendations?: string[];
   strengths?: string[];
   concerns?: string[];
+  scoreExplanation?: string;
   totalAnalyses: number;
   totalConsultations: number;
   lastAnalysisDate?: string;

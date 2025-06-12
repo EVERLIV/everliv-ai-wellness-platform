@@ -29,7 +29,8 @@ export const generateAnalyticsData = async (
       riskDescription: 'Ошибка анализа профиля здоровья',
       recommendations: [],
       strengths: [],
-      concerns: []
+      concerns: [],
+      scoreExplanation: 'Не удалось рассчитать балл здоровья'
     };
   }
 
@@ -87,6 +88,7 @@ export const generateAnalyticsData = async (
     recommendations: healthAnalysis.recommendations,
     strengths: healthAnalysis.strengths,
     concerns: healthAnalysis.concerns,
+    scoreExplanation: healthAnalysis.scoreExplanation,
     totalAnalyses,
     totalConsultations,
     lastAnalysisDate: analyses[0]?.created_at,
