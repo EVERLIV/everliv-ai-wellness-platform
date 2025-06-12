@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Camera, Upload, Plus, Loader2 } from "lucide-react";
 import { useFoodEntries } from "@/hooks/useFoodEntries";
 import { useFoodImageAnalysis } from "@/hooks/useFoodImageAnalysis";
+import { toast } from "sonner";
 
 interface MealEntryProps {
   mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
@@ -62,6 +63,26 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
     }
   };
 
+  const requestCameraPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          facingMode: 'environment' // Задняя камера для съемки еды
+        } 
+      });
+      
+      // Останавливаем поток после получения разрешения
+      stream.getTracks().forEach(track => track.stop());
+      
+      toast.success("Доступ к камере получен!");
+      return true;
+    } catch (error) {
+      console.error('Camera permission denied:', error);
+      toast.error("Доступ к камере отклонен. Проверьте настройки браузера.");
+      return false;
+    }
+  };
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -80,28 +101,35 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
     }
   };
 
+  const handleCameraMode = async () => {
+    const hasPermission = await requestCameraPermission();
+    if (hasPermission) {
+      setEntryMode('camera');
+    }
+  };
+
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] mx-auto overflow-hidden">
+      <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] mx-auto overflow-hidden">
         <DialogHeader>
-          <DialogTitle className="text-lg md:text-xl">Добавить {mealTitles[mealType]}</DialogTitle>
+          <DialogTitle className="text-lg">Добавить {mealTitles[mealType]}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 md:space-y-6 overflow-y-auto max-h-[70vh] px-1">
+        <div className="space-y-4 overflow-y-auto max-h-[60vh] px-1">
           {/* Выбор способа добавления */}
-          <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
+          <div className="flex flex-col gap-2">
             <Button
               variant={entryMode === 'manual' ? 'default' : 'outline'}
               onClick={() => setEntryMode('manual')}
-              className="flex-1 h-auto py-3 text-sm"
+              className="w-full h-auto py-3 text-sm"
             >
               <Plus className="h-4 w-4 mr-2" />
               Вручную
             </Button>
             <Button
               variant={entryMode === 'camera' ? 'default' : 'outline'}
-              onClick={() => setEntryMode('camera')}
-              className="flex-1 h-auto py-3 text-sm"
+              onClick={handleCameraMode}
+              className="w-full h-auto py-3 text-sm"
             >
               <Camera className="h-4 w-4 mr-2" />
               Камера
@@ -109,7 +137,7 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
             <Button
               variant={entryMode === 'upload' ? 'default' : 'outline'}
               onClick={() => setEntryMode('upload')}
-              className="flex-1 h-auto py-3 text-sm"
+              className="w-full h-auto py-3 text-sm"
             >
               <Upload className="h-4 w-4 mr-2" />
               Загрузить
@@ -118,69 +146,69 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
 
           {/* Ручной ввод */}
           {entryMode === 'manual' && (
-            <div className="space-y-3 md:space-y-4">
+            <div className="space-y-3">
               <div>
-                <Label htmlFor="food_name" className="text-sm md:text-base">Название блюда</Label>
+                <Label htmlFor="food_name" className="text-sm">Название блюда</Label>
                 <Input
                   id="food_name"
                   value={foodData.food_name}
                   onChange={(e) => setFoodData({...foodData, food_name: e.target.value})}
                   placeholder="Например: Греческий салат"
-                  className="mt-1 text-sm md:text-base"
+                  className="mt-1 text-sm"
                 />
               </div>
               <div>
-                <Label htmlFor="portion_size" className="text-sm md:text-base">Размер порции</Label>
+                <Label htmlFor="portion_size" className="text-sm">Размер порции</Label>
                 <Input
                   id="portion_size"
                   value={foodData.portion_size}
                   onChange={(e) => setFoodData({...foodData, portion_size: e.target.value})}
                   placeholder="Например: 200г"
-                  className="mt-1 text-sm md:text-base"
+                  className="mt-1 text-sm"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3 md:gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="calories" className="text-sm md:text-base">Калории</Label>
+                  <Label htmlFor="calories" className="text-sm">Калории</Label>
                   <Input
                     id="calories"
                     type="number"
                     value={foodData.calories}
                     onChange={(e) => setFoodData({...foodData, calories: Number(e.target.value)})}
-                    className="mt-1 text-sm md:text-base"
+                    className="mt-1 text-sm"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="protein" className="text-sm md:text-base">Белки (г)</Label>
+                  <Label htmlFor="protein" className="text-sm">Белки (г)</Label>
                   <Input
                     id="protein"
                     type="number"
                     step="0.1"
                     value={foodData.protein}
                     onChange={(e) => setFoodData({...foodData, protein: Number(e.target.value)})}
-                    className="mt-1 text-sm md:text-base"
+                    className="mt-1 text-sm"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="carbs" className="text-sm md:text-base">Углеводы (г)</Label>
+                  <Label htmlFor="carbs" className="text-sm">Углеводы (г)</Label>
                   <Input
                     id="carbs"
                     type="number"
                     step="0.1"
                     value={foodData.carbs}
                     onChange={(e) => setFoodData({...foodData, carbs: Number(e.target.value)})}
-                    className="mt-1 text-sm md:text-base"
+                    className="mt-1 text-sm"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="fat" className="text-sm md:text-base">Жиры (г)</Label>
+                  <Label htmlFor="fat" className="text-sm">Жиры (г)</Label>
                   <Input
                     id="fat"
                     type="number"
                     step="0.1"
                     value={foodData.fat}
                     onChange={(e) => setFoodData({...foodData, fat: Number(e.target.value)})}
-                    className="mt-1 text-sm md:text-base"
+                    className="mt-1 text-sm"
                   />
                 </div>
               </div>
@@ -189,7 +217,7 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
 
           {/* Загрузка изображения */}
           {(entryMode === 'camera' || entryMode === 'upload') && (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 md:p-8 text-center">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <input
                 type="file"
                 accept="image/*"
@@ -202,20 +230,20 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
               <Label htmlFor="image-upload" className="cursor-pointer">
                 <div className="space-y-2">
                   {isAnalyzing ? (
-                    <Loader2 className="h-8 w-8 md:h-12 md:w-12 mx-auto text-blue-500 animate-spin" />
+                    <Loader2 className="h-10 w-10 mx-auto text-blue-500 animate-spin" />
                   ) : entryMode === 'camera' ? (
-                    <Camera className="h-8 w-8 md:h-12 md:w-12 mx-auto text-gray-400" />
+                    <Camera className="h-10 w-10 mx-auto text-gray-400" />
                   ) : (
-                    <Upload className="h-8 w-8 md:h-12 md:w-12 mx-auto text-gray-400" />
+                    <Upload className="h-10 w-10 mx-auto text-gray-400" />
                   )}
-                  <p className="text-gray-600 text-sm md:text-base">
+                  <p className="text-gray-600 text-sm">
                     {isAnalyzing 
                       ? 'Анализируем изображение...'
                       : entryMode === 'camera' 
                         ? 'Сфотографировать блюдо' 
                         : 'Загрузить фото блюда'}
                   </p>
-                  <p className="text-xs md:text-sm text-gray-500">
+                  <p className="text-xs text-gray-500">
                     ИИ автоматически определит состав БЖУ
                   </p>
                 </div>
@@ -225,13 +253,13 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
         </div>
 
         {/* Кнопки действий */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 border-t">
-          <Button variant="outline" onClick={onClose} className="flex-1 text-sm md:text-base" disabled={isSaving}>
+        <div className="flex flex-col gap-2 pt-4 border-t">
+          <Button variant="outline" onClick={onClose} className="w-full text-sm" disabled={isSaving}>
             Отмена
           </Button>
           <Button 
             onClick={handleSave} 
-            className="flex-1 text-sm md:text-base" 
+            className="w-full text-sm" 
             disabled={isSaving || !foodData.food_name.trim()}
           >
             {isSaving ? (

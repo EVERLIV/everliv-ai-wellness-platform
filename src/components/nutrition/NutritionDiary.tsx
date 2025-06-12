@@ -1,20 +1,24 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Calendar as CalendarIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import NutritionGoals from "./NutritionGoals";
 import DailyProgress from "./DailyProgress";
 import MealEntry from "./MealEntry";
 import NutritionCharts from "./NutritionCharts";
 import PersonalizedRecommendations from "./PersonalizedRecommendations";
 import { useFoodEntries } from "@/hooks/useFoodEntries";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 const NutritionDiary: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showMealEntry, setShowMealEntry] = useState(false);
   const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('breakfast');
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const { getSummaryByMealType, entries, deleteEntry } = useFoodEntries(selectedDate);
   const mealSummary = getSummaryByMealType();
@@ -22,6 +26,18 @@ const NutritionDiary: React.FC = () => {
   const handleAddMeal = (mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack') => {
     setSelectedMealType(mealType);
     setShowMealEntry(true);
+  };
+
+  const handleQuickAdd = () => {
+    setSelectedMealType('breakfast');
+    setShowMealEntry(true);
+  };
+
+  const handleCalendarSelect = (date: Date | undefined) => {
+    if (date) {
+      setSelectedDate(date);
+      setShowCalendar(false);
+    }
   };
 
   const getMealEntries = (mealType: string) => {
@@ -32,12 +48,22 @@ const NutritionDiary: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <input
-            type="date"
-            value={selectedDate.toISOString().split('T')[0]}
-            onChange={(e) => setSelectedDate(new Date(e.target.value))}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-          />
+          <Popover open={showCalendar} onOpenChange={setShowCalendar}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-auto justify-start text-left font-normal">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {format(selectedDate, "d MMMM yyyy", { locale: ru })}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleCalendarSelect}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
