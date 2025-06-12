@@ -94,7 +94,7 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
 
     // Объединяем данные
     const users: AdminUser[] = profiles.map(profile => {
-      const authUser = authUsers.users.find(u => u.id === profile.id);
+      const authUser = authUsers?.users?.find(u => u.id === profile.id);
       const userSubscriptions = subscriptions?.filter(sub => sub.user_id === profile.id) || [];
       const subscription = userSubscriptions.length > 0 ? userSubscriptions[0] : null;
       
