@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -17,7 +18,7 @@ import NutritionDiary from "@/pages/NutritionDiary";
 import HealthProfile from "@/pages/HealthProfile";
 import MedicalKnowledge from "@/pages/MedicalKnowledge";
 import Login from "@/pages/Login";
-import SignUp from "@/pages/SignUp";
+import Signup from "@/pages/Signup";
 import AccountSettings from "@/pages/AccountSettings";
 import AIDoctor from "@/pages/AIDoctor";
 import LabAnalyses from "@/pages/LabAnalyses";
@@ -49,7 +50,7 @@ function App() {
                 <Route path="/health-profile" element={<HealthProfile />} />
                 <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<SignUp />} />
+                <Route path="/signup" element={<Signup />} />
                 <Route path="/account-settings" element={<AccountSettings />} />
                 <Route path="/ai-doctor" element={<AIDoctor />} />
                 <Route path="/lab-analyses" element={<LabAnalyses />} />
