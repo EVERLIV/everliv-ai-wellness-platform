@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import MinimalFooter from "@/components/MinimalFooter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
@@ -187,7 +187,7 @@ const AdminUsers = () => {
             <Skeleton className="h-96 w-full rounded-lg" />
           </div>
         </main>
-        <Footer />
+        <MinimalFooter />
       </div>
     );
   }
@@ -205,7 +205,7 @@ const AdminUsers = () => {
             </Link>
           </div>
         </main>
-        <Footer />
+        <MinimalFooter />
       </div>
     );
   }
@@ -237,7 +237,7 @@ const AdminUsers = () => {
           />
         </div>
       </main>
-      <Footer />
+      <MinimalFooter />
 
       {/* Dialog components */}
       <UserEditDialog 
