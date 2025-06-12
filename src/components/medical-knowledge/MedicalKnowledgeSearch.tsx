@@ -18,10 +18,10 @@ const MedicalKnowledgeSearch: React.FC<MedicalKnowledgeSearchProps> = ({
   isLoading
 }) => {
   const [query, setQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const handleSearch = () => {
-    onSearch(query, selectedCategory || undefined);
+    onSearch(query, selectedCategory === 'all' ? undefined : selectedCategory);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -49,7 +49,7 @@ const MedicalKnowledgeSearch: React.FC<MedicalKnowledgeSearchProps> = ({
             <SelectValue placeholder="Все категории" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Все категории</SelectItem>
+            <SelectItem value="all">Все категории</SelectItem>
             {categories.map((category) => (
               <SelectItem key={category.id} value={category.id}>
                 {category.name}
