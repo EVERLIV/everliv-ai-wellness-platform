@@ -59,32 +59,29 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
       throw new Error("У вас нет прав администратора");
     }
 
-    // Получаем пользователей с их профилями и подписками
-    const { data, error } = await supabase
+    // Получаем пользователей с их профилями
+    const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
-      .select(`
-        id,
-        first_name,
-        last_name,
-        created_at,
-        subscriptions (
-          id,
-          plan_type,
-          expires_at,
-          status
-        )
-      `);
+      .select('id, first_name, last_name, created_at');
 
-    if (error) {
-      console.error('Error fetching users:', error);
-      throw new Error("Ошибка загрузки пользователей");
+    if (profilesError) {
+      console.error('Error fetching profiles:', profilesError);
+      throw new Error("Ошибка загрузки профилей пользователей");
     }
 
-    // Получаем email из auth.users через отдельный запрос
-    const userIds = data?.map(user => user.id) || [];
-    
-    if (userIds.length === 0) {
+    if (!profiles || profiles.length === 0) {
       return [];
+    }
+
+    // Получаем подписки отдельно
+    const userIds = profiles.map(profile => profile.id);
+    const { data: subscriptions, error: subscriptionsError } = await supabase
+      .from('subscriptions')
+      .select('user_id, id, plan_type, expires_at, status')
+      .in('user_id', userIds);
+
+    if (subscriptionsError) {
+      console.error('Error fetching subscriptions:', subscriptionsError);
     }
 
     // Получаем emails пользователей
@@ -96,10 +93,10 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
     }
 
     // Объединяем данные
-    const users: AdminUser[] = data.map(profile => {
+    const users: AdminUser[] = profiles.map(profile => {
       const authUser = authUsers.users.find(u => u.id === profile.id);
-      const subscriptions = profile.subscriptions as any[];
-      const subscription = Array.isArray(subscriptions) && subscriptions.length > 0 ? subscriptions[0] : null;
+      const userSubscriptions = subscriptions?.filter(sub => sub.user_id === profile.id) || [];
+      const subscription = userSubscriptions.length > 0 ? userSubscriptions[0] : null;
       
       return {
         id: profile.id,
@@ -244,7 +241,7 @@ export async function fetchSubscriptionPlans(): Promise<AdminSubscriptionPlan[]>
       name: plan.name,
       price: plan.price,
       description: plan.description,
-      features: Array.isArray(plan.features) ? plan.features as PlanFeatureDetail[] : [],
+      features: Array.isArray(plan.features) ? (plan.features as unknown as PlanFeatureDetail[]) : [],
       limits: plan.limits,
       is_active: plan.is_active,
       is_popular: plan.is_popular
@@ -295,7 +292,7 @@ export async function createSubscriptionPlan(planData: Omit<AdminSubscriptionPla
       name: data.name,
       price: data.price,
       description: data.description,
-      features: Array.isArray(data.features) ? data.features as PlanFeatureDetail[] : [],
+      features: Array.isArray(data.features) ? (data.features as unknown as PlanFeatureDetail[]) : [],
       limits: data.limits,
       is_active: data.is_active,
       is_popular: data.is_popular
