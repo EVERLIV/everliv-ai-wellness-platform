@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import { PLAN_FEATURES } from "@/constants/subscription-features";
+import { FEATURE_DESCRIPTIONS } from "@/constants/subscription-features";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertCircle, Clock, CreditCard, ChevronRight, Shield, ArrowRight } from "lucide-react";
@@ -29,11 +29,11 @@ const SubscriptionManagement = () => {
   const getPlanPrice = (planType: 'basic' | 'standard' | 'premium') => {
     switch (planType) {
       case 'basic':
-        return 790;
+        return 0;
       case 'standard':
         return 1490;
       case 'premium':
-        return 1990;
+        return 999;
       default:
         return 0;
     }
@@ -200,7 +200,7 @@ const SubscriptionManagement = () => {
                 <div className="mb-4">
                   <h4 className="font-medium mb-2">Доступные функции вашего плана:</h4>
                   <ul className="space-y-2">
-                    {Object.entries(PLAN_FEATURES).map(([key, feature]) => (
+                    {Object.entries(FEATURE_DESCRIPTIONS).map(([key, feature]) => (
                       <li key={key} className={`flex items-start gap-2 ${
                         feature.includedIn[subscription.plan_type as 'basic' | 'standard' | 'premium'] 
                           ? 'text-gray-800' 
@@ -310,16 +310,16 @@ const SubscriptionManagement = () => {
           </CardFooter>
         </Card>
       ) : (
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           {/* Basic Plan */}
           <Card>
             <CardHeader>
               <CardTitle>Базовый</CardTitle>
-              <CardDescription>790 ₽/месяц</CardDescription>
+              <CardDescription>Бесплатно</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {Object.entries(PLAN_FEATURES).map(([key, feature]) => (
+                {Object.entries(FEATURE_DESCRIPTIONS).map(([key, feature]) => (
                   <li key={key} className={`flex items-start gap-2 ${
                     feature.includedIn.basic ? 'text-gray-800' : 'text-gray-400'
                   }`}>
@@ -345,52 +345,18 @@ const SubscriptionManagement = () => {
             </CardFooter>
           </Card>
           
-          {/* Standard Plan */}
+          {/* Premium Plan */}
           <Card className="border-everliv-600 ring-2 ring-everliv-600/20 relative">
             <div className="bg-everliv-600 text-white text-xs font-semibold px-3 py-1 absolute right-0 top-0 rounded-bl">
               Популярный выбор
             </div>
             <CardHeader>
-              <CardTitle>Стандарт</CardTitle>
-              <CardDescription>1490 ₽/месяц</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {Object.entries(PLAN_FEATURES).map(([key, feature]) => (
-                  <li key={key} className={`flex items-start gap-2 ${
-                    feature.includedIn.standard ? 'text-gray-800' : 'text-gray-400'
-                  }`}>
-                    {feature.includedIn.standard ? (
-                      <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 flex-shrink-0" />
-                    ) : (
-                      <AlertCircle className="h-5 w-5 text-gray-300 mt-0.5 flex-shrink-0" />
-                    )}
-                    <span>{feature.name}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                className="w-full bg-everliv-600 hover:bg-everliv-700 flex items-center gap-1" 
-                onClick={() => handlePurchase('standard')}
-                disabled={isProcessing}
-              >
-                <CreditCard className="h-4 w-4" />
-                Выбрать Стандарт
-              </Button>
-            </CardFooter>
-          </Card>
-          
-          {/* Premium Plan */}
-          <Card>
-            <CardHeader>
               <CardTitle>Премиум</CardTitle>
-              <CardDescription>1990 ₽/месяц</CardDescription>
+              <CardDescription>999 ₽/месяц</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {Object.entries(PLAN_FEATURES).map(([key, feature]) => (
+                {Object.entries(FEATURE_DESCRIPTIONS).map(([key, feature]) => (
                   <li key={key} className={`flex items-start gap-2 ${
                     feature.includedIn.premium ? 'text-gray-800' : 'text-gray-400'
                   }`}>
@@ -406,7 +372,7 @@ const SubscriptionManagement = () => {
             </CardContent>
             <CardFooter>
               <Button 
-                className="w-full flex items-center gap-1" 
+                className="w-full bg-everliv-600 hover:bg-everliv-700 flex items-center gap-1" 
                 onClick={() => handlePurchase('premium')}
                 disabled={isProcessing}
               >

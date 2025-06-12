@@ -1,6 +1,6 @@
 
 import { FeatureTrial } from "@/types/subscription";
-import { PLAN_FEATURES } from "@/constants/subscription-features";
+import { FEATURE_DESCRIPTIONS } from "@/constants/subscription-features";
 
 export const useSubscriptionHelpers = (featureTrials: FeatureTrial[]) => {
   const hasFeatureTrial = (featureName: string): boolean => {
@@ -14,7 +14,7 @@ export const useSubscriptionHelpers = (featureTrials: FeatureTrial[]) => {
     }
 
     // Если есть активная подписка, проверяем включена ли функция в план
-    const feature = PLAN_FEATURES[featureName as keyof typeof PLAN_FEATURES];
+    const feature = FEATURE_DESCRIPTIONS[featureName as keyof typeof FEATURE_DESCRIPTIONS];
     if (!feature) return false;
 
     return feature.includedIn[planType as keyof typeof feature.includedIn] || false;

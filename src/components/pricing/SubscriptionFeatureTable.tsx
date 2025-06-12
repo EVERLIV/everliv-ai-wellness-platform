@@ -1,7 +1,7 @@
 
 import React from "react";
 import { CheckCircle, XCircle } from "lucide-react";
-import { PLAN_FEATURES } from "@/constants/subscription-features";
+import { FEATURE_DESCRIPTIONS } from "@/constants/subscription-features";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const SubscriptionFeatureTable = () => {
@@ -37,7 +37,7 @@ const SubscriptionFeatureTable = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {Object.entries(PLAN_FEATURES).map(([key, feature]) => (
+                  {Object.entries(FEATURE_DESCRIPTIONS).map(([key, feature]) => (
                     <tr key={key}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <div>
