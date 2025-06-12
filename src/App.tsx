@@ -26,6 +26,9 @@ import AIDoctorPage from "@/pages/AIDoctorPage";
 import ServicesPage from "@/pages/ServicesPage";
 import Pricing from "@/pages/Pricing";
 import Partnership from "@/pages/Partnership";
+import Contact from "@/pages/Contact";
+import AnalysisDetails from "@/pages/AnalysisDetails";
+import SubscriptionPage from "@/pages/SubscriptionPage";
 
 const queryClient = new QueryClient();
 
@@ -43,7 +46,7 @@ function App() {
                 <Route path="/profile" element={<UserProfile />} />
                 <Route path="/blood-analysis" element={<BloodAnalysis />} />
                 <Route path="/comprehensive-analysis" element={<ComprehensiveAnalysis />} />
-                <Route path="/subscription" element={<UserSubscription />} />
+                <Route path="/subscription" element={<SubscriptionPage />} />
                 <Route path="/my-protocols" element={<MyProtocols />} />
                 <Route path="/protocol/:id" element={<ProtocolTracking />} />
                 <Route path="/protocol-dashboard" element={<ProtocolTrackingDashboard />} />
@@ -61,6 +64,8 @@ function App() {
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/partnership" element={<Partnership />} />
                 <Route path="/support" element={<AccountSettings />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/analysis-details" element={<AnalysisDetails />} />
               </Routes>
             </SubscriptionProvider>
           </AuthProvider>

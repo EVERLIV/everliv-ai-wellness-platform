@@ -64,49 +64,49 @@ const SubscriptionPlansGrid = ({ subscription }: SubscriptionPlansGridProps) => 
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
         {plans.map((plan, index) => (
           <Card 
             key={index} 
             className={`
-              ${plan.featured ? 'border-primary shadow-lg scale-105 lg:scale-100' : 'border'}
+              ${plan.featured ? 'border-primary shadow-lg ring-1 ring-primary/20' : 'border'}
               ${subscription?.plan_type === plan.type && subscription?.status === 'active' ? 'border-evergreen-500 ring-1 ring-evergreen-500' : ''}
               transition-all duration-200 hover:shadow-md relative
             `}
           >
             {subscription?.plan_type === plan.type && subscription?.status === 'active' && (
-              <div className="bg-evergreen-500 text-white text-center py-2 text-sm font-medium rounded-t-lg">
+              <div className="bg-evergreen-500 text-white text-center py-1 text-xs font-medium rounded-t-lg">
                 Ваш текущий план
               </div>
             )}
-            <CardHeader className={`${plan.featured ? 'bg-primary/5' : ''} p-4 sm:p-6 relative`}>
+            <CardHeader className={`${plan.featured ? 'bg-primary/5' : ''} p-3 sm:p-4 relative`}>
               {plan.featured && (
                 <Badge 
                   variant="default" 
-                  className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs px-2 py-1"
+                  className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs px-2 py-0.5"
                 >
-                  Популярный выбор
+                  Популярный
                 </Badge>
               )}
-              <CardTitle className="text-lg sm:text-xl">{plan.name}</CardTitle>
+              <CardTitle className="text-base sm:text-lg">{plan.name}</CardTitle>
               <CardDescription className="flex flex-col sm:flex-row sm:items-end gap-1">
-                <span className="text-xl sm:text-2xl font-bold text-foreground">{plan.price}</span>
-                {plan.period && <span className="text-sm text-muted-foreground">/{plan.period}</span>}
+                <span className="text-lg sm:text-xl font-bold text-foreground">{plan.price}</span>
+                {plan.period && <span className="text-xs text-muted-foreground">/{plan.period}</span>}
               </CardDescription>
-              <p className="text-sm text-muted-foreground mt-2">{plan.description}</p>
+              <p className="text-xs text-muted-foreground mt-1">{plan.description}</p>
             </CardHeader>
-            <CardContent className="p-4 sm:p-6 pt-2 sm:pt-4">
-              <ul className="space-y-2 sm:space-y-3 mb-6">
+            <CardContent className="p-3 sm:p-4 pt-1 sm:pt-2">
+              <ul className="space-y-1 sm:space-y-2 mb-4">
                 {plan.features.map((feature, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm sm:text-base">{feature}</span>
+                    <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-primary shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-sm">{feature}</span>
                   </li>
                 ))}
               </ul>
               <Button 
                 className={`
-                  w-full text-sm sm:text-base py-2 sm:py-3
+                  w-full text-xs sm:text-sm py-2
                   ${plan.featured ? '' : 'bg-white text-primary hover:text-white border border-primary'}
                   ${subscription?.plan_type === plan.type && subscription?.status === 'active' ? 'bg-evergreen-50 text-evergreen-700 border-evergreen-500 hover:bg-evergreen-100' : ''}
                 `}
@@ -115,7 +115,7 @@ const SubscriptionPlansGrid = ({ subscription }: SubscriptionPlansGridProps) => 
               >
                 {selectedPlan === plan.type ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                     Обработка...
                   </>
                 ) : subscription?.plan_type === plan.type && subscription?.status === 'active' ? (
