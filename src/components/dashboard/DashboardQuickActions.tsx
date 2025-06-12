@@ -30,14 +30,14 @@ const DashboardQuickActions = () => {
       premium: false
     },
     {
-      title: "Аналитика здоровья",
-      subtitle: "Комплексный анализ",
-      icon: BarChart3,
-      iconColor: "text-purple-600",
-      iconBg: "bg-purple-50",
-      path: "/analytics",
-      description: "Персональная аналитика здоровья на основе ваших данных с рекомендациями ИИ-доктора",
-      premium: false
+      title: "Доктор EVERLIV",
+      subtitle: "Персональный ИИ-доктор",
+      icon: MessageSquare,
+      iconColor: "text-blue-600",
+      iconBg: "bg-blue-50",
+      path: "/ai-doctor",
+      description: "Персональные медицинские консультации с доступом к вашей истории и анализам",
+      premium: true
     },
     {
       title: "Дневник питания",
@@ -61,6 +61,16 @@ const DashboardQuickActions = () => {
       status: healthProfileComplete ? "complete" : "incomplete"
     },
     {
+      title: "Аналитика здоровья",
+      subtitle: "Комплексный анализ",
+      icon: BarChart3,
+      iconColor: "text-purple-600",
+      iconBg: "bg-purple-50",
+      path: "/analytics",
+      description: "Персональная аналитика здоровья на основе ваших данных с рекомендациями ИИ-доктора",
+      premium: false
+    },
+    {
       title: "База знаний",
       subtitle: "В разработке",
       icon: BookOpen,
@@ -70,16 +80,6 @@ const DashboardQuickActions = () => {
       description: "Изучайте информацию о симптомах, заболеваниях и методах лечения",
       premium: false,
       status: "development"
-    },
-    {
-      title: "Доктор EVERLIV",
-      subtitle: "Персональный ИИ-доктор",
-      icon: MessageSquare,
-      iconColor: "text-blue-600",
-      iconBg: "bg-blue-50",
-      path: "/ai-doctor",
-      description: "Персональные медицинские консультации с доступом к вашей истории и анализам",
-      premium: true
     }
   ];
 

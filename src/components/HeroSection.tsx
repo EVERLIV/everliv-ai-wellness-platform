@@ -1,82 +1,132 @@
 
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from 'react-router-dom';
-import { Search, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ChevronRight, BarChart3, Stethoscope, BookOpen, Sparkles } from "lucide-react";
 
-export default function HeroSection() {
+const HeroSection = () => {
   return (
-    <div className="bg-white pt-32 pb-8">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6 font-heading">
-            Трансформируйте здоровье. 
-            <span className="text-primary block mt-2">Побеждайте старение.</span> 
-            <span className="block mt-2">Живите без ограничений.</span>
-          </h1>
-          <p className="text-md md:text-lg text-gray-600 mb-10 max-w-2xl mx-auto">
-            Отслеживайте прогресс. Обретайте энергию. Избавляйтесь от хронических болезней. 
-            Присоединяйтесь к движению, сочетающему передовую науку, древнюю мудрость и ИИ-аналитику.
-          </p>
-          
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-            <Link to="/signup">
-              <Button size="lg" className="rounded-full bg-primary hover:bg-secondary text-white px-8">
-                Начать бесплатную оценку здоровья
-              </Button>
-            </Link>
-            <Link to="/blood-analysis">
-              <Button size="lg" variant="outline" className="rounded-full border-primary text-primary hover:bg-primary hover:text-white px-8">
-                Узнайте свой биологический возраст
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+    <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%23f1f5f9" fill-opacity="0.4" fill-rule="evenodd"%3E%3Ccircle cx="3" cy="3" r="3"/%3E%3Ccircle cx="13" cy="13" r="3"/%3E%3C/g%3E%3C/svg%3E')] opacity-40"></div>
+      
+      <div className="relative container mx-auto px-4 py-20 lg:py-28">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Column - Content */}
+          <div className="space-y-8">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium border border-emerald-200">
+                <Sparkles className="h-4 w-4" />
+                Персонализированное здравоохранение с ИИ
+              </div>
+              
+              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                Ваше здоровье в 
+                <span className="text-emerald-600"> надежных руках</span>
+              </h1>
+              
+              <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
+                Искусственный интеллект для анализа здоровья, персональные рекомендации 
+                и научно обоснованные протоколы для достижения оптимального самочувствия
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link to="/signup">
+                <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 text-lg">
+                  Начать бесплатно
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              
+              <Link to="/dashboard">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="bg-white/80 backdrop-blur-sm border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 px-8 py-4 text-lg font-medium"
+                >
+                  Панель управления
+                </Button>
+              </Link>
+            </div>
+
+            {/* Features row */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="h-5 w-5 text-emerald-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Анализ данных</h3>
+                  <p className="text-sm text-gray-600">ИИ-анализ биомаркеров</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Stethoscope className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">ИИ-доктор</h3>
+                  <p className="text-sm text-gray-600">24/7 консультации</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <BookOpen className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">База знаний</h3>
+                  <p className="text-sm text-gray-600">Научные материалы</p>
+                </div>
+              </div>
+            </div>
           </div>
-          
-          {/* Stats Section */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-            <div className="flex flex-col items-center bg-gray-50 rounded-lg p-4 hover:shadow-md transition-all">
-              <div className="text-2xl font-bold text-primary mb-1">100+</div>
-              <div className="text-xs text-gray-500">Типов анализов</div>
+
+          {/* Right Column - Visual */}
+          <div className="relative">
+            <div className="relative bg-gradient-to-br from-emerald-50 to-blue-50 rounded-3xl p-8 border border-gray-200 shadow-xl">
+              {/* Mock dashboard preview */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-32 h-4 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="w-20 h-4 bg-emerald-300 rounded animate-pulse"></div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white p-4 rounded-xl shadow-sm">
+                    <div className="w-8 h-8 bg-emerald-100 rounded-lg mb-2"></div>
+                    <div className="w-20 h-3 bg-gray-200 rounded mb-1"></div>
+                    <div className="w-16 h-2 bg-gray-100 rounded"></div>
+                  </div>
+                  
+                  <div className="bg-white p-4 rounded-xl shadow-sm">
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg mb-2"></div>
+                    <div className="w-20 h-3 bg-gray-200 rounded mb-1"></div>
+                    <div className="w-16 h-2 bg-gray-100 rounded"></div>
+                  </div>
+                </div>
+                
+                <div className="bg-white p-4 rounded-xl shadow-sm">
+                  <div className="w-24 h-3 bg-gray-200 rounded mb-3"></div>
+                  <div className="space-y-2">
+                    <div className="w-full h-2 bg-gray-100 rounded"></div>
+                    <div className="w-3/4 h-2 bg-gray-100 rounded"></div>
+                    <div className="w-1/2 h-2 bg-gray-100 rounded"></div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="flex flex-col items-center bg-gray-50 rounded-lg p-4 hover:shadow-md transition-all">
-              <div className="text-2xl font-bold text-primary mb-1">25k+</div>
-              <div className="text-xs text-gray-500">Пользователей платформы</div>
-            </div>
-            <div className="flex flex-col items-center bg-gray-50 rounded-lg p-4 hover:shadow-md transition-all">
-              <div className="text-2xl font-bold text-primary mb-1">24/7</div>
-              <div className="text-xs text-gray-500">Персональная поддержка</div>
-            </div>
-            <div className="flex flex-col items-center bg-gray-50 rounded-lg p-4 hover:shadow-md transition-all">
-              <div className="text-2xl font-bold text-primary mb-1">97%</div>
-              <div className="text-xs text-gray-500">Точность диагностики</div>
-            </div>
-          </div>
-          
-          {/* Search Area */}
-          <div className="relative max-w-lg mx-auto mb-8">
-            <div className="flex items-center border border-gray-300 rounded-full overflow-hidden shadow-sm">
-              <input 
-                type="text"
-                placeholder="Симптомы, заболевания или то, что вас беспокоит..."
-                className="px-5 py-4 flex-grow text-sm outline-none"
-              />
-              <Button className="rounded-full bg-primary hover:bg-secondary h-12 w-12 flex items-center justify-center mr-1">
-                <Search className="h-5 w-5" />
-              </Button>
-            </div>
-            <p className="text-xs text-gray-400 mt-2 text-center">
-              Проконсультируйтесь с AI-специалистом о вашем здоровье сейчас
-            </p>
-          </div>
-          
-          <div className="border-t border-gray-200 pt-6 mt-6">
-            <div className="flex justify-center">
-              <img src="/lovable-uploads/1c7a38e9-8ae4-48ca-913e-142d38f7d302.png" alt="Decorative icon" className="h-6 w-6" />
-            </div>
+            
+            {/* Floating elements */}
+            <div className="absolute -top-4 -right-4 w-16 h-16 bg-emerald-200 rounded-full opacity-60 animate-pulse"></div>
+            <div className="absolute -bottom-4 -left-4 w-12 h-12 bg-blue-200 rounded-full opacity-60 animate-pulse"></div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
-}
+};
+
+export default HeroSection;

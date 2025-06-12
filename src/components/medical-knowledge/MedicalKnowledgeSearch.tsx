@@ -31,31 +31,31 @@ const MedicalKnowledgeSearch: React.FC<MedicalKnowledgeSearchProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 md:p-8">
-      <div className="mb-4 md:mb-6">
-        <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-2">
+    <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4">
+      <div className="mb-3">
+        <h2 className="text-lg font-semibold text-gray-900 mb-1">
           Поиск медицинской информации
         </h2>
-        <p className="text-sm md:text-base text-gray-600">
+        <p className="text-sm text-gray-600">
           Найдите информацию о симптомах, заболеваниях и методах лечения
         </p>
       </div>
       
-      <div className="flex flex-col gap-3 md:gap-4">
+      <div className="flex flex-col gap-3">
         <div className="flex-1">
           <Input
             placeholder="Поиск по симптомам, заболеваниям, ключевым словам..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="h-10 md:h-12 text-sm md:text-base border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+            className="h-9 text-sm border-gray-200 focus:border-blue-500 focus:ring-blue-500"
           />
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-full sm:w-64 h-10 md:h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-              <Filter className="h-4 w-4 mr-2 text-gray-400" />
+            <SelectTrigger className="w-full sm:w-48 h-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+              <Filter className="h-3 w-3 mr-2 text-gray-400" />
               <SelectValue placeholder="Все категории" />
             </SelectTrigger>
             <SelectContent>
@@ -71,9 +71,9 @@ const MedicalKnowledgeSearch: React.FC<MedicalKnowledgeSearchProps> = ({
           <Button 
             onClick={handleSearch} 
             disabled={isLoading}
-            className="h-10 md:h-12 px-6 md:px-8 bg-blue-600 hover:bg-blue-700 text-white font-medium w-full sm:w-auto"
+            className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium w-full sm:w-auto"
           >
-            <Search className="h-4 md:h-5 w-4 md:w-5 mr-2" />
+            <Search className="h-3 w-3 mr-2" />
             {isLoading ? 'Поиск...' : 'Найти'}
           </Button>
         </div>

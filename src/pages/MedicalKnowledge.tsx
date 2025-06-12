@@ -67,8 +67,8 @@ const MedicalKnowledge: React.FC = () => {
         />
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
-          <div className="space-y-6 md:space-y-8">
+        <div className="container mx-auto px-4 py-4 max-w-7xl">
+          <div className="space-y-4">
             <MedicalKnowledgeSearch
               categories={categories}
               onSearch={handleSearch}
@@ -76,22 +76,19 @@ const MedicalKnowledge: React.FC = () => {
             />
 
             <Tabs defaultValue="articles" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6 md:mb-8 h-auto">
-                <TabsTrigger value="articles" className="text-sm md:text-base py-2 md:py-2.5">
-                  <span className="hidden sm:inline">Статьи</span>
-                  <span className="sm:hidden">Статьи</span>
+              <TabsList className="grid w-full grid-cols-3 mb-4 h-auto">
+                <TabsTrigger value="articles" className="text-sm py-2">
+                  Статьи
                 </TabsTrigger>
-                <TabsTrigger value="categories" className="text-sm md:text-base py-2 md:py-2.5">
-                  <span className="hidden sm:inline">Категории</span>
-                  <span className="sm:hidden">Категории</span>
+                <TabsTrigger value="categories" className="text-sm py-2">
+                  Категории
                 </TabsTrigger>
-                <TabsTrigger value="doctors" className="text-sm md:text-base py-2 md:py-2.5">
-                  <span className="hidden sm:inline">Специалисты</span>
-                  <span className="sm:hidden">Врачи</span>
+                <TabsTrigger value="doctors" className="text-sm py-2">
+                  Специалисты
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="articles" className="space-y-6 md:space-y-8">
+              <TabsContent value="articles" className="space-y-4">
                 <ArticlesTab
                   isLoading={isLoading}
                   isSearching={isSearching}
@@ -102,7 +99,7 @@ const MedicalKnowledge: React.FC = () => {
                 />
               </TabsContent>
 
-              <TabsContent value="categories" className="space-y-6 md:space-y-8">
+              <TabsContent value="categories" className="space-y-4">
                 <CategoriesTab
                   isLoading={isLoading}
                   categories={categories}
@@ -111,7 +108,7 @@ const MedicalKnowledge: React.FC = () => {
                 />
               </TabsContent>
 
-              <TabsContent value="doctors" className="space-y-6 md:space-y-8">
+              <TabsContent value="doctors" className="space-y-4">
                 <SpecializationsTab
                   isLoading={isLoading}
                   specializations={specializations}
