@@ -49,14 +49,21 @@ const PhotoInputSection: React.FC<PhotoInputSectionProps> = ({
       return;
     }
 
-    // Создаем fake event для совместимости с существующим обработчиком
-    const fakeEvent = {
-      target: {
-        files: [file]
-      }
-    } as React.ChangeEvent<HTMLInputElement>;
-
-    onPhotoUpload(fakeEvent);
+    // Устанавливаем файл в input и вызываем обработчик
+    if (fileInputRef.current) {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      fileInputRef.current.files = dt.files;
+      
+      // Создаем событие change
+      const event = new Event('change', { bubbles: true });
+      Object.defineProperty(event, 'target', {
+        writable: false,
+        value: fileInputRef.current
+      });
+      
+      onPhotoUpload(event as React.ChangeEvent<HTMLInputElement>);
+    }
   };
 
   const handleDragEnter = (e: React.DragEvent) => {
