@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Camera, Crown, Lock, Upload, X } from "lucide-react";
@@ -24,15 +24,39 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
   onPhotoRemove = () => {}
 }) => {
   const { subscription } = useSubscription();
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const planType = subscription?.plan_type || 'basic';
   const hasPhotoAccess = planType === 'premium' || planType === 'basic';
+
+  const validateFile = (file: File): boolean => {
+    // Проверяем тип файла
+    if (!file.type.startsWith('image/')) {
+      toast.error("Пожалуйста, выберите файл изображения");
+      return false;
+    }
+
+    // Проверяем размер файла (максимум 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      toast.error("Файл слишком большой. Максимальный размер: 10MB");
+      return false;
+    }
+
+    return true;
+  };
 
   const handleFileSelect = (file: File) => {
     if (!hasPhotoAccess) {
       toast.error("Функция загрузки фото недоступна для вашего плана");
       return;
     }
+
+    if (!validateFile(file)) {
+      return;
+    }
+
     onPhotoSelect(file);
   };
 
@@ -41,6 +65,46 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
     if (file) {
       handleFileSelect(file);
     }
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    if (!hasPhotoAccess || disabled || isAnalyzing) {
+      return;
+    }
+
+    const files = Array.from(e.dataTransfer.files);
+    const imageFile = files.find(file => file.type.startsWith('image/'));
+    
+    if (imageFile) {
+      handleFileSelect(imageFile);
+    } else {
+      toast.error("Пожалуйста, перетащите файл изображения");
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
   if (!hasPhotoAccess) {
@@ -98,27 +162,67 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
       <CardContent>
         {!selectedPhoto ? (
           <div className="space-y-4">
-            <div className="border-2 border-dashed border-emerald-300 rounded-lg p-8 text-center bg-emerald-50/30">
-              <Camera className="h-12 w-12 mx-auto text-emerald-400 mb-4" />
-              <p className="text-sm text-gray-600 mb-4">
-                Загрузите четкое фото или скан ваших результатов анализа
-              </p>
+            <div 
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                isDragOver 
+                  ? 'border-emerald-500 bg-emerald-100/50' 
+                  : 'border-emerald-300 bg-emerald-50/30'
+              } ${
+                disabled || isAnalyzing 
+                  ? 'cursor-not-allowed opacity-50' 
+                  : 'cursor-pointer hover:border-emerald-400 hover:bg-emerald-100/30'
+              }`}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onClick={!disabled && !isAnalyzing ? handleUploadClick : undefined}
+            >
+              <Camera className={`h-12 w-12 mx-auto mb-4 ${
+                isDragOver ? 'text-emerald-600' : 'text-emerald-400'
+              }`} />
+              
+              {isDragOver ? (
+                <p className="text-sm text-emerald-700 font-medium mb-4">
+                  Отпустите файл для загрузки
+                </p>
+              ) : (
+                <>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Перетащите фото сюда или нажмите для выбора файла
+                  </p>
+                  <p className="text-xs text-gray-500 mb-4">
+                    Поддерживаются форматы: JPG, PNG, WEBP (до 10MB)
+                  </p>
+                </>
+              )}
+              
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => document.getElementById('photo-upload-input')?.click()}
                 disabled={disabled || isAnalyzing}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 pointer-events-none"
               >
-                <Upload className="h-4 w-4" />
-                Выбрать файл
+                {isAnalyzing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    Загрузка...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4" />
+                    Выбрать файл
+                  </>
+                )}
               </Button>
+              
               <input
-                id="photo-upload-input"
+                ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 onChange={handleFileInputChange}
                 className="hidden"
+                disabled={disabled || isAnalyzing}
               />
             </div>
           </div>
@@ -130,7 +234,7 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={onPhotoRemove}
-                className="absolute top-2 right-2 h-8 w-8 p-0 bg-white hover:bg-gray-100 rounded-full shadow-sm"
+                className="absolute top-2 right-2 h-8 w-8 p-0 bg-white hover:bg-gray-100 rounded-full shadow-sm z-10"
               >
                 <X className="h-4 w-4" />
               </Button>

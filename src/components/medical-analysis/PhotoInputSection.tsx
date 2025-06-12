@@ -1,9 +1,10 @@
 
-import React from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Upload, AlertCircle } from "lucide-react";
+import { Upload, AlertCircle, Camera } from "lucide-react";
 import { ANALYSIS_TYPES } from "./AnalysisTypeSelector";
+import { toast } from "sonner";
 
 interface PhotoInputSectionProps {
   photoFile: File | null;
@@ -22,7 +23,81 @@ const PhotoInputSection: React.FC<PhotoInputSectionProps> = ({
   uploadError,
   onPhotoUpload
 }) => {
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const selectedAnalysisType = ANALYSIS_TYPES.find(type => type.value === analysisType);
+
+  const validateFile = (file: File): boolean => {
+    // Проверяем тип файла
+    if (!file.type.startsWith('image/')) {
+      toast.error("Пожалуйста, выберите файл изображения");
+      return false;
+    }
+
+    // Проверяем размер файла (максимум 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      toast.error("Файл слишком большой. Максимальный размер: 10MB");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleFileSelect = (file: File) => {
+    if (!validateFile(file)) {
+      return;
+    }
+
+    // Создаем fake event для совместимости с существующим обработчиком
+    const fakeEvent = {
+      target: {
+        files: [file]
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+
+    onPhotoUpload(fakeEvent);
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    if (photoUploading) {
+      return;
+    }
+
+    const files = Array.from(e.dataTransfer.files);
+    const imageFile = files.find(file => file.type.startsWith('image/'));
+    
+    if (imageFile) {
+      handleFileSelect(imageFile);
+    } else {
+      toast.error("Пожалуйста, перетащите файл изображения");
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className="space-y-4">
@@ -34,34 +109,72 @@ const PhotoInputSection: React.FC<PhotoInputSectionProps> = ({
           Загрузите четкое фото или скан ваших результатов для автоматического распознавания
         </p>
         
-        <div className="flex items-center gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => document.getElementById('medicalPhotoInput')?.click()}
-            className="flex items-center gap-2"
-            disabled={photoUploading}
+        {!photoUrl ? (
+          <div 
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+              isDragOver 
+                ? 'border-primary bg-primary/5' 
+                : 'border-gray-200 bg-gray-50'
+            } ${
+              photoUploading 
+                ? 'cursor-not-allowed opacity-50' 
+                : 'cursor-pointer hover:border-gray-300 hover:bg-gray-100'
+            }`}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onClick={!photoUploading ? handleUploadClick : undefined}
           >
-            {photoUploading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                Загрузка...
-              </>
+            <Camera className={`h-12 w-12 mx-auto mb-4 ${
+              isDragOver ? 'text-primary' : 'text-gray-400'
+            }`} />
+            
+            {isDragOver ? (
+              <p className="text-sm text-primary font-medium mb-4">
+                Отпустите файл для загрузки
+              </p>
             ) : (
               <>
-                <Upload className="h-4 w-4" />
-                Выбрать файл
+                <p className="text-sm text-gray-600 mb-4">
+                  Перетащите фото сюда или нажмите для выбора файла
+                </p>
+                <p className="text-xs text-gray-500 mb-4">
+                  Поддерживаются форматы: JPG, PNG, WEBP (до 10MB)
+                </p>
               </>
             )}
-          </Button>
-          <input
-            id="medicalPhotoInput"
-            type="file"
-            accept="image/*"
-            onChange={onPhotoUpload}
-            className="hidden"
-          />
-        </div>
+            
+            <Button
+              type="button"
+              variant="outline"
+              disabled={photoUploading}
+              className="flex items-center gap-2 pointer-events-none"
+            >
+              {photoUploading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  Загрузка...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4" />
+                  Выбрать файл
+                </>
+              )}
+            </Button>
+          </div>
+        ) : null}
+        
+        <input
+          ref={fileInputRef}
+          id="medicalPhotoInput"
+          type="file"
+          accept="image/*"
+          onChange={onPhotoUpload}
+          className="hidden"
+          disabled={photoUploading}
+        />
         
         {uploadError && (
           <Alert variant="destructive" className="mt-3">
