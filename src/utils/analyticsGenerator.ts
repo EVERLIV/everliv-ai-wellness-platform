@@ -1,74 +1,36 @@
-
 import { CachedAnalytics, AnalysisRecord, ChatRecord } from '@/types/analytics';
+import { analyzeHealthProfile } from '@/services/ai/health-profile-analysis';
 
 export const generateAnalyticsData = async (
   analyses: AnalysisRecord[], 
   chats: ChatRecord[],
-  hasHealthProfile: boolean = false
+  hasHealthProfile: boolean = false,
+  healthProfileData?: any
 ): Promise<CachedAnalytics | null> => {
   
   // Check if we have minimum required data
-  if (!hasHealthProfile || analyses.length === 0) {
+  if (!hasHealthProfile || !healthProfileData) {
     return null;
   }
 
   const totalAnalyses = analyses.length;
   const totalConsultations = chats.length;
 
-  // Определяем уровень риска на основе реальных данных
-  let riskLevel = 'низкий';
-  let totalRiskMarkers = 0;
-  let totalOptimalMarkers = 0;
-  let totalMarkers = 0;
-
-  if (analyses.length > 0) {
-    const latestAnalysis = analyses[0];
-    const results = latestAnalysis.results;
-    
-    if (results?.riskLevel) {
-      // Переводим на русский
-      switch (results.riskLevel) {
-        case 'high':
-          riskLevel = 'высокий';
-          break;
-        case 'medium':
-          riskLevel = 'средний';
-          break;
-        case 'low':
-          riskLevel = 'низкий';
-          break;
-        default:
-          riskLevel = 'не определен';
-      }
-    } else if (results?.markers) {
-      analyses.forEach(analysis => {
-        if (analysis.results?.markers) {
-          analysis.results.markers.forEach((marker) => {
-            totalMarkers++;
-            if (marker.status === 'optimal' || marker.status === 'good') {
-              totalOptimalMarkers++;
-            } else if (marker.status === 'attention' || marker.status === 'risk' || marker.status === 'high' || marker.status === 'low') {
-              totalRiskMarkers++;
-            }
-          });
-        }
-      });
-
-      const riskPercentage = totalMarkers > 0 ? totalRiskMarkers / totalMarkers : 0;
-      if (riskPercentage >= 0.5) {
-        riskLevel = 'высокий';
-      } else if (riskPercentage >= 0.2) {
-        riskLevel = 'средний';
-      } else {
-        riskLevel = 'низкий';
-      }
-    }
-  }
-
-  // Вычисляем реальный индекс здоровья на основе биомаркеров
-  let healthScore = 50; // базовый балл
-  if (totalMarkers > 0) {
-    healthScore = Math.round((totalOptimalMarkers / totalMarkers) * 100);
+  // Анализируем профиль здоровья с помощью ИИ
+  let healthAnalysis;
+  try {
+    healthAnalysis = await analyzeHealthProfile(healthProfileData);
+  } catch (error) {
+    console.error('Error analyzing health profile:', error);
+    // Возвращаем базовые данные в случае ошибки
+    healthAnalysis = {
+      healthScore: 50,
+      riskLevel: 'средний',
+      riskDescription: 'Ошибка анализа профиля здоровья',
+      recommendations: [],
+      strengths: [],
+      concerns: []
+    };
   }
 
   // Проверяем недавнюю активность
@@ -119,16 +81,20 @@ export const generateAnalyticsData = async (
   });
 
   return {
-    healthScore,
-    riskLevel,
+    healthScore: healthAnalysis.healthScore,
+    riskLevel: healthAnalysis.riskLevel,
+    riskDescription: healthAnalysis.riskDescription,
+    recommendations: healthAnalysis.recommendations,
+    strengths: healthAnalysis.strengths,
+    concerns: healthAnalysis.concerns,
     totalAnalyses,
     totalConsultations,
     lastAnalysisDate: analyses[0]?.created_at,
     hasRecentActivity,
     trendsAnalysis: {
-      improving: Math.max(1, Math.floor(totalOptimalMarkers * 0.6)),
-      worsening: Math.max(0, Math.floor(totalRiskMarkers * 0.4)),
-      stable: Math.max(1, totalMarkers - Math.floor(totalOptimalMarkers * 0.6) - Math.floor(totalRiskMarkers * 0.4))
+      improving: Math.max(1, healthAnalysis.strengths?.length || 1),
+      worsening: Math.max(0, healthAnalysis.concerns?.length || 0),
+      stable: Math.max(1, 3 - (healthAnalysis.strengths?.length || 0) - (healthAnalysis.concerns?.length || 0))
     },
     recentActivities: recentActivities.slice(0, 4),
     lastUpdated: new Date().toISOString()

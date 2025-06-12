@@ -2,6 +2,10 @@
 export interface CachedAnalytics {
   healthScore: number;
   riskLevel: string;
+  riskDescription?: string;
+  recommendations?: string[];
+  strengths?: string[];
+  concerns?: string[];
   totalAnalyses: number;
   totalConsultations: number;
   lastAnalysisDate?: string;

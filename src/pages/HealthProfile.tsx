@@ -20,11 +20,15 @@ import MedicalHistorySection from "@/components/health-profile/MedicalHistorySec
 import HealthProfileHeader from "@/components/health-profile/HealthProfileHeader";
 import SectionNavigation from "@/components/health-profile/SectionNavigation";
 import NavigationControls from "@/components/health-profile/NavigationControls";
+import HealthProfileDisplay from "@/components/health-profile/HealthProfileDisplay";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
+import { useHealthProfileStatus } from "@/hooks/useHealthProfileStatus";
 
 const HealthProfile: React.FC = () => {
   const [currentSection, setCurrentSection] = useState(0);
+  const [isEditMode, setIsEditMode] = useState(false);
   const { healthProfile, isLoading, updateHealthProfile, saveHealthProfile } = useHealthProfile();
+  const { isComplete } = useHealthProfileStatus();
 
   const sections = [
     { 
@@ -70,6 +74,36 @@ const HealthProfile: React.FC = () => {
     setCurrentSection(Math.min(sections.length - 1, currentSection + 1));
   };
 
+  const handleEdit = () => {
+    setIsEditMode(true);
+  };
+
+  const handleSave = async () => {
+    await saveHealthProfile();
+    setIsEditMode(false);
+  };
+
+  // Если профиль заполнен и не в режиме редактирования, показываем режим просмотра
+  if (isComplete && !isEditMode) {
+    return (
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        <Header />
+        
+        <div className="pt-16 flex-grow">
+          <div className="container mx-auto px-4 py-8 max-w-4xl">
+            <HealthProfileDisplay 
+              healthProfile={healthProfile}
+              onEdit={handleEdit}
+            />
+          </div>
+        </div>
+        
+        <MinimalFooter />
+      </div>
+    );
+  }
+
+  // Режим редактирования или первоначального заполнения
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
@@ -105,7 +139,7 @@ const HealthProfile: React.FC = () => {
             isLoading={isLoading}
             onPrevious={handlePrevious}
             onNext={handleNext}
-            onSave={saveHealthProfile}
+            onSave={isEditMode ? handleSave : saveHealthProfile}
           />
 
           <SectionNavigation

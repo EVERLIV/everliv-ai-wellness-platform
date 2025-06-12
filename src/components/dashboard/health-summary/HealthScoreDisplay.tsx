@@ -7,10 +7,6 @@ interface HealthScoreDisplayProps {
 }
 
 const HealthScoreDisplay: React.FC<HealthScoreDisplayProps> = ({ analytics }) => {
-  const getRiskLevelText = (level: string) => {
-    return level || 'Не определен';
-  };
-
   const getRiskLevelColor = (level: string) => {
     switch (level) {
       case 'высокий': return 'text-red-600 bg-red-50 border-red-200';
@@ -50,12 +46,17 @@ const HealthScoreDisplay: React.FC<HealthScoreDisplayProps> = ({ analytics }) =>
       {/* Уровень риска */}
       {analytics.riskLevel && (
         <div className={`mb-4 p-3 rounded-lg border ${getRiskLevelColor(analytics.riskLevel)}`}>
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Риск:</span>
-            <span className="font-medium">{getRiskLevelText(analytics.riskLevel)}</span>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium">Уровень риска:</span>
+            <span className="font-medium">{analytics.riskLevel}</span>
           </div>
+          {analytics.riskDescription && (
+            <div className="text-xs opacity-90">
+              {analytics.riskDescription}
+            </div>
+          )}
           {analytics.lastAnalysisDate && (
-            <div className="text-xs mt-1 opacity-75">
+            <div className="text-xs mt-2 opacity-75">
               Последний анализ: {new Date(analytics.lastAnalysisDate).toLocaleDateString('ru-RU')}
             </div>
           )}
