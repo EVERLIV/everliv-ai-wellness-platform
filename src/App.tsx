@@ -20,11 +20,7 @@ import MedicalKnowledge from "@/pages/MedicalKnowledge";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import AccountSettings from "@/pages/AccountSettings";
-import AIDoctor from "@/pages/AIDoctor";
 import LabAnalyses from "@/pages/LabAnalyses";
-import FoodRecognition from "@/pages/FoodRecognition";
-import PaykeeperSuccess from "@/pages/PaykeeperSuccess";
-import PaykeeperFail from "@/pages/PaykeeperFail";
 
 const queryClient = new QueryClient();
 
@@ -52,11 +48,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/account-settings" element={<AccountSettings />} />
-                <Route path="/ai-doctor" element={<AIDoctor />} />
                 <Route path="/lab-analyses" element={<LabAnalyses />} />
-                <Route path="/food-recognition" element={<FoodRecognition />} />
-                <Route path="/paykeeper/success" element={<PaykeeperSuccess />} />
-                <Route path="/paykeeper/fail" element={<PaykeeperFail />} />
               </Routes>
             </BrowserRouter>
           </TooltipProvider>

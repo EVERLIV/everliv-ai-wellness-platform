@@ -14,10 +14,10 @@ export interface MedicalArticle {
   content: string;
   excerpt?: string;
   category_id?: string;
-  article_type: 'symptom' | 'disease' | 'guide' | 'faq' | 'doctor_info';
+  article_type: string; // Changed from strict union to string to match database
   tags?: string[];
   author?: string;
-  medical_review_status: 'pending' | 'approved' | 'rejected';
+  medical_review_status: string; // Changed from strict union to string to match database
   published: boolean;
   views_count: number;
   created_at: string;
