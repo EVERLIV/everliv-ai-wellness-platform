@@ -38,13 +38,26 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const getStatusCounts = () => {
-    if (!analysis.results?.markers) return { optimal: 0, attention: 0, risk: 0, total: 0 };
+    // Получаем маркеры из results
+    const markers = analysis.results?.markers || [];
     
-    const markers = analysis.results.markers;
+    if (markers.length === 0) {
+      return { optimal: 0, attention: 0, risk: 0, total: 0 };
+    }
+    
     return {
-      optimal: markers.filter(m => m.status === 'optimal' || m.status === 'good' || m.status === 'normal').length,
+      optimal: markers.filter(m => 
+        m.status === 'optimal' || 
+        m.status === 'good' || 
+        m.status === 'normal'
+      ).length,
       attention: markers.filter(m => m.status === 'attention').length,
-      risk: markers.filter(m => m.status === 'risk' || m.status === 'high' || m.status === 'low' || m.status === 'critical').length,
+      risk: markers.filter(m => 
+        m.status === 'risk' || 
+        m.status === 'high' || 
+        m.status === 'low' || 
+        m.status === 'critical'
+      ).length,
       total: markers.length
     };
   };
@@ -52,6 +65,7 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({
   const statusCounts = getStatusCounts();
   
   const calculateRiskLevel = () => {
+    // Сначала проверяем есть ли уже вычисленный riskLevel
     if (analysis.results?.riskLevel) {
       return analysis.results.riskLevel;
     }

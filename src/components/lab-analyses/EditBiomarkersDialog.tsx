@@ -44,12 +44,62 @@ const EditBiomarkersDialog: React.FC<EditBiomarkersDialogProps> = ({
 }) => {
   const [markers, setMarkers] = useState<Biomarker[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMarkers, setIsLoadingMarkers] = useState(false);
 
   useEffect(() => {
-    if (analysis.results?.markers) {
-      setMarkers([...analysis.results.markers]);
+    if (open && analysis.id) {
+      loadBiomarkersData();
     }
-  }, [analysis]);
+  }, [open, analysis.id]);
+
+  const loadBiomarkersData = async () => {
+    setIsLoadingMarkers(true);
+    try {
+      // Загружаем полные данные анализа из базы данных
+      const { data: fullAnalysis, error } = await supabase
+        .from('medical_analyses')
+        .select('*')
+        .eq('id', analysis.id)
+        .single();
+
+      if (error) {
+        console.error('Error loading analysis:', error);
+        toast.error("Не удалось загрузить данные анализа");
+        return;
+      }
+
+      if (fullAnalysis?.results?.markers) {
+        setMarkers([...fullAnalysis.results.markers]);
+      } else {
+        // Если нет данных в results.markers, пробуем загрузить из таблицы biomarkers
+        const { data: biomarkers, error: biomarkersError } = await supabase
+          .from('biomarkers')
+          .select('*')
+          .eq('analysis_id', analysis.id);
+
+        if (biomarkersError) {
+          console.error('Error loading biomarkers:', biomarkersError);
+          toast.error("Не удалось загрузить биомаркеры");
+          return;
+        }
+
+        if (biomarkers && biomarkers.length > 0) {
+          const markersData = biomarkers.map(b => ({
+            name: b.name,
+            value: b.value || '',
+            unit: '',
+            status: b.status || 'normal'
+          }));
+          setMarkers(markersData);
+        }
+      }
+    } catch (error) {
+      console.error('Unexpected error loading markers:', error);
+      toast.error("Произошла ошибка при загрузке данных");
+    } finally {
+      setIsLoadingMarkers(false);
+    }
+  };
 
   const updateMarkerValue = (index: number, newValue: string) => {
     const updatedMarkers = [...markers];
@@ -82,8 +132,21 @@ const EditBiomarkersDialog: React.FC<EditBiomarkersDialogProps> = ({
         status: marker.status
       }));
 
+      // Загружаем текущие результаты
+      const { data: currentAnalysis, error: fetchError } = await supabase
+        .from('medical_analyses')
+        .select('results')
+        .eq('id', analysis.id)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching current analysis:', fetchError);
+        toast.error("Не удалось загрузить текущие данные");
+        return;
+      }
+
       const updatedResults = {
-        ...analysis.results,
+        ...currentAnalysis.results,
         markers: plainMarkers
       };
 
@@ -116,41 +179,53 @@ const EditBiomarkersDialog: React.FC<EditBiomarkersDialogProps> = ({
           <DialogTitle>Редактировать биомаркеры</DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="max-h-[50vh] pr-4">
-          <div className="space-y-4">
-            {markers.map((marker, index) => (
-              <div key={index} className="p-4 border rounded-lg space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="font-medium">{marker.name}</Label>
-                  <Badge className={`text-xs ${getStatusColor(marker.status)}`}>
-                    {marker.status}
-                  </Badge>
-                </div>
-                
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <Input
-                      value={marker.value}
-                      onChange={(e) => updateMarkerValue(index, e.target.value)}
-                      placeholder="Значение"
-                    />
-                  </div>
-                  {marker.unit && (
-                    <div className="flex items-center px-3 text-sm text-gray-500 bg-gray-50 rounded-md">
-                      {marker.unit}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
+        {isLoadingMarkers ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
-        </ScrollArea>
+        ) : (
+          <ScrollArea className="max-h-[50vh] pr-4">
+            <div className="space-y-4">
+              {markers.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>Биомаркеры не найдены</p>
+                </div>
+              ) : (
+                markers.map((marker, index) => (
+                  <div key={index} className="p-4 border rounded-lg space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="font-medium">{marker.name}</Label>
+                      <Badge className={`text-xs ${getStatusColor(marker.status)}`}>
+                        {marker.status}
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <Input
+                          value={marker.value}
+                          onChange={(e) => updateMarkerValue(index, e.target.value)}
+                          placeholder="Значение"
+                        />
+                      </div>
+                      {marker.unit && (
+                        <div className="flex items-center px-3 text-sm text-gray-500 bg-gray-50 rounded-md">
+                          {marker.unit}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+        )}
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Отмена
           </Button>
-          <Button onClick={handleSave} disabled={isLoading}>
+          <Button onClick={handleSave} disabled={isLoading || isLoadingMarkers || markers.length === 0}>
             {isLoading ? "Сохранение..." : "Сохранить"}
           </Button>
         </DialogFooter>
