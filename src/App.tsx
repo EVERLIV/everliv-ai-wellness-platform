@@ -23,6 +23,9 @@ import AccountSettings from "@/pages/AccountSettings";
 import LabAnalyses from "@/pages/LabAnalyses";
 import Analytics from "@/pages/Analytics";
 import AIDoctorPage from "@/pages/AIDoctorPage";
+import ServicesPage from "@/pages/ServicesPage";
+import Pricing from "@/pages/Pricing";
+import Partnership from "@/pages/Partnership";
 
 const queryClient = new QueryClient();
 
@@ -50,9 +53,14 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/account-settings" element={<AccountSettings />} />
+                <Route path="/settings" element={<AccountSettings />} />
                 <Route path="/lab-analyses" element={<LabAnalyses />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/ai-doctor" element={<AIDoctorPage />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/partnership" element={<Partnership />} />
+                <Route path="/support" element={<AccountSettings />} />
               </Routes>
             </SubscriptionProvider>
           </AuthProvider>
