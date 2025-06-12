@@ -77,31 +77,52 @@ export const useCachedAnalytics = () => {
     try {
       setIsGenerating(true);
       
-      // Получаем данные анализов
-      const { data: analysesData } = await supabase
+      // Получаем РЕАЛЬНЫЕ данные анализов пользователя
+      const { data: analysesData, error: analysesError } = await supabase
         .from('medical_analyses')
         .select('created_at, results')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
+      if (analysesError) {
+        console.error('Error fetching analyses:', analysesError);
+        throw analysesError;
+      }
+
       // Получаем данные чатов
-      const { data: chatsData } = await supabase
+      const { data: chatsData, error: chatsError } = await supabase
         .from('ai_doctor_chats')
         .select('created_at, title')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
+      if (chatsError) {
+        console.error('Error fetching chats:', chatsError);
+        throw chatsError;
+      }
+
       // Получаем данные профиля здоровья
-      const { data: healthProfileData } = await supabase
+      const { data: healthProfileData, error: profileError } = await supabase
         .from('health_profiles')
         .select('profile_data')
         .eq('user_id', user.id)
         .maybeSingle();
 
+      if (profileError) {
+        console.error('Error fetching health profile:', profileError);
+        throw profileError;
+      }
+
+      console.log('Real user data for analytics:', {
+        analysesCount: analysesData?.length || 0,
+        chatsCount: chatsData?.length || 0,
+        hasProfile: !!healthProfileData
+      });
+
       // Безопасное приведение типов
       const analyses = (analysesData || []).map(item => ({
         created_at: item.created_at,
-        results: item.results as any // Используем any для совместимости с generateAnalyticsData
+        results: item.results as any
       }));
       
       const chats = (chatsData || []).map(item => ({
@@ -111,7 +132,7 @@ export const useCachedAnalytics = () => {
       
       const healthProfile = healthProfileData?.profile_data;
 
-      // Генерируем новую аналитику
+      // Генерируем новую аналитику с реальными данными
       const newAnalytics = await generateAnalyticsData(
         analyses, 
         chats, 

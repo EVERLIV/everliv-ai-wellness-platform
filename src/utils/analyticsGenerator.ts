@@ -1,3 +1,4 @@
+
 import { CachedAnalytics, AnalysisRecord, ChatRecord } from '@/types/analytics';
 import { analyzeHealthProfile } from '@/services/ai/health-profile-analysis';
 
@@ -13,8 +14,15 @@ export const generateAnalyticsData = async (
     return null;
   }
 
+  // Используем реальное количество анализов из переданного массива
   const totalAnalyses = analyses.length;
   const totalConsultations = chats.length;
+
+  console.log('Generating analytics with real data:', {
+    totalAnalyses,
+    totalConsultations,
+    hasHealthProfile
+  });
 
   // Анализируем профиль здоровья с помощью ИИ
   let healthAnalysis;
@@ -89,8 +97,8 @@ export const generateAnalyticsData = async (
     strengths: healthAnalysis.strengths,
     concerns: healthAnalysis.concerns,
     scoreExplanation: healthAnalysis.scoreExplanation,
-    totalAnalyses,
-    totalConsultations,
+    totalAnalyses,  // Используем реальное количество
+    totalConsultations,  // Используем реальное количество
     lastAnalysisDate: analyses[0]?.created_at,
     hasRecentActivity,
     trendsAnalysis: {
