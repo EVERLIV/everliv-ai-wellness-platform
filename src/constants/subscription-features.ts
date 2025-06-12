@@ -5,7 +5,9 @@ export const FEATURES = {
   CHAT_MESSAGES: "chat_messages",
   NUTRITION_DIARY: "nutrition_diary",
   HEALTH_PROFILE: "health_profile",
-  ANALYTICS: "analytics"
+  ANALYTICS: "analytics",
+  BIOLOGICAL_AGE_TEST: "biological_age_test",
+  COMPREHENSIVE_AI_ANALYSIS: "comprehensive_ai_analysis"
 } as const;
 
 // Лимиты использования для каждого плана
@@ -16,7 +18,9 @@ export const PLAN_FEATURES = {
     chat_messages: 99,
     nutrition_diary: true,
     health_profile: true,
-    analytics: false
+    analytics: false,
+    biological_age_test: 1, // 1 тест в месяц
+    comprehensive_ai_analysis: 0 // недоступен в базовом плане
   },
   premium: {
     lab_analyses: 15, // общий лимит для текста и фото вместе
@@ -24,7 +28,9 @@ export const PLAN_FEATURES = {
     chat_messages: 199,
     nutrition_diary: true,
     health_profile: true,
-    analytics: true
+    analytics: true,
+    biological_age_test: 5, // 5 тестов в месяц
+    comprehensive_ai_analysis: 3 // 3 анализа в месяц
   }
 } as const;
 
@@ -35,7 +41,6 @@ export const FEATURE_DESCRIPTIONS = {
     description: "AI-интерпретация результатов анализов крови",
     includedIn: {
       basic: true,
-      standard: true,
       premium: true
     }
   },
@@ -44,7 +49,6 @@ export const FEATURE_DESCRIPTIONS = {
     description: "Загрузка и анализ фотографий медицинских анализов",
     includedIn: {
       basic: true,
-      standard: true,
       premium: true
     }
   },
@@ -53,7 +57,6 @@ export const FEATURE_DESCRIPTIONS = {
     description: "Консультации с персональным AI-доктором",
     includedIn: {
       basic: true,
-      standard: true,
       premium: true
     }
   },
@@ -62,7 +65,6 @@ export const FEATURE_DESCRIPTIONS = {
     description: "Отслеживание питания и калорий",
     includedIn: {
       basic: true,
-      standard: true,
       premium: true
     }
   },
@@ -71,7 +73,6 @@ export const FEATURE_DESCRIPTIONS = {
     description: "Персональный профиль с медицинской историей",
     includedIn: {
       basic: true,
-      standard: true,
       premium: true
     }
   },
@@ -80,7 +81,22 @@ export const FEATURE_DESCRIPTIONS = {
     description: "Детальная аналитика и тренды здоровья",
     includedIn: {
       basic: false,
-      standard: true,
+      premium: true
+    }
+  },
+  biological_age_test: {
+    name: "Тест на биологический возраст",
+    description: "Определение биологического возраста на основе данных о здоровье",
+    includedIn: {
+      basic: true,
+      premium: true
+    }
+  },
+  comprehensive_ai_analysis: {
+    name: "Комплексный AI анализ",
+    description: "Полная оценка здоровья с персонализированными рекомендациями",
+    includedIn: {
+      basic: false,
       premium: true
     }
   }
@@ -97,7 +113,8 @@ export const SUBSCRIPTION_PLANS = {
       "1 анализ фото в месяц", 
       "99 сообщений с AI-доктором",
       "Ведение дневника питания",
-      "Базовый профиль здоровья"
+      "Базовый профиль здоровья",
+      "1 тест биологического возраста в месяц"
     ]
   },
   premium: {
@@ -109,6 +126,8 @@ export const SUBSCRIPTION_PLANS = {
       "199 сообщений с персональным AI-доктором",
       "Полный профиль здоровья с историей",
       "Расширенная аналитика и тренды",
+      "5 тестов биологического возраста в месяц",
+      "3 комплексных AI анализа в месяц",
       "Персональные протоколы оздоровления",
       "Приоритетная поддержка"
     ]
