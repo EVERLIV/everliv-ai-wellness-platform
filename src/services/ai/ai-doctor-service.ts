@@ -106,34 +106,159 @@ You are an AI Medical Analysis Expert specializing in laboratory diagnostics, bl
 Осторожный: Всегда подчеркивайте важность профессиональной медицинской консультации`;
 
 /**
- * Fetches medical context for the current user to enhance AI responses
+ * Fetches comprehensive medical context for the current user including health profile and analyses
  */
 export async function getUserMedicalContext(user: User | null): Promise<string> {
   if (!user) return "";
   
   try {
     // Check cache first
-    if (profileCache.has(user.id)) {
-      const cachedProfile = profileCache.get(user.id);
-      return formatMedicalContext(cachedProfile);
+    const cacheKey = `${user.id}_medical_context`;
+    if (profileCache.has(cacheKey)) {
+      return profileCache.get(cacheKey);
     }
     
-    // Fetch user profile data
-    const { data: profile, error } = await supabase
+    console.log('Fetching comprehensive medical context for user:', user.id);
+    
+    // Fetch user basic profile
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
     
-    if (error) {
-      console.error("Error fetching user medical context:", error);
-      return "";
+    if (profileError) {
+      console.error("Error fetching user profile:", profileError);
     }
+
+    // Fetch health profile
+    const { data: healthProfile, error: healthProfileError } = await supabase
+      .from('health_profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
     
-    // Cache the profile data
-    profileCache.set(user.id, profile);
+    if (healthProfileError && healthProfileError.code !== 'PGRST116') {
+      console.error("Error fetching health profile:", healthProfileError);
+    }
+
+    // Fetch recent medical analyses
+    const { data: analyses, error: analysesError } = await supabase
+      .from('medical_analyses')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(5);
     
-    return formatMedicalContext(profile);
+    if (analysesError) {
+      console.error("Error fetching medical analyses:", analysesError);
+    }
+
+    // Build comprehensive context
+    const contextParts = [];
+    
+    // Basic profile information
+    if (profile) {
+      contextParts.push("=== ПРОФИЛЬ ПАЦИЕНТА ===");
+      if (profile.first_name || profile.last_name) {
+        contextParts.push(`Имя: ${profile.first_name || ''} ${profile.last_name || ''}`.trim());
+      }
+      if (profile.gender) contextParts.push(`Пол: ${profile.gender}`);
+      if (profile.date_of_birth) {
+        const age = calculateAge(profile.date_of_birth);
+        contextParts.push(`Возраст: ${age} лет (дата рождения: ${profile.date_of_birth})`);
+      }
+      if (profile.height) contextParts.push(`Рост: ${profile.height} см`);
+      if (profile.weight) contextParts.push(`Вес: ${profile.weight} кг`);
+      
+      if (profile.medical_conditions && profile.medical_conditions.length > 0) {
+        contextParts.push(`Хронические заболевания: ${profile.medical_conditions.join(', ')}`);
+      }
+      
+      if (profile.allergies && profile.allergies.length > 0) {
+        contextParts.push(`Аллергии: ${profile.allergies.join(', ')}`);
+      }
+      
+      if (profile.medications && profile.medications.length > 0) {
+        contextParts.push(`Текущие препараты: ${profile.medications.join(', ')}`);
+      }
+
+      if (profile.goals && profile.goals.length > 0) {
+        contextParts.push(`Цели здоровья: ${profile.goals.join(', ')}`);
+      }
+    }
+
+    // Health profile information
+    if (healthProfile?.profile_data) {
+      contextParts.push("\n=== РАСШИРЕННЫЙ ПРОФИЛЬ ЗДОРОВЬЯ ===");
+      const healthData = healthProfile.profile_data;
+      
+      if (healthData.lifestyle) {
+        const lifestyle = healthData.lifestyle;
+        if (lifestyle.smoking) contextParts.push(`Курение: ${lifestyle.smoking}`);
+        if (lifestyle.alcohol) contextParts.push(`Алкоголь: ${lifestyle.alcohol}`);
+        if (lifestyle.exercise) contextParts.push(`Физическая активность: ${lifestyle.exercise}`);
+        if (lifestyle.sleep) contextParts.push(`Режим сна: ${lifestyle.sleep}`);
+        if (lifestyle.stress) contextParts.push(`Уровень стресса: ${lifestyle.stress}`);
+      }
+      
+      if (healthData.nutrition) {
+        const nutrition = healthData.nutrition;
+        if (nutrition.diet_type) contextParts.push(`Тип питания: ${nutrition.diet_type}`);
+        if (nutrition.supplements) contextParts.push(`Добавки: ${nutrition.supplements.join(', ')}`);
+        if (nutrition.food_allergies) contextParts.push(`Пищевые аллергии: ${nutrition.food_allergies.join(', ')}`);
+      }
+      
+      if (healthData.family_history) {
+        contextParts.push(`Семейный анамнез: ${healthData.family_history.join(', ')}`);
+      }
+      
+      if (healthData.symptoms) {
+        contextParts.push(`Текущие симптомы: ${healthData.symptoms.join(', ')}`);
+      }
+    }
+
+    // Recent medical analyses
+    if (analyses && analyses.length > 0) {
+      contextParts.push("\n=== ПОСЛЕДНИЕ МЕДИЦИНСКИЕ АНАЛИЗЫ ===");
+      
+      analyses.forEach((analysis, index) => {
+        const date = new Date(analysis.created_at).toLocaleDateString('ru-RU');
+        const type = getAnalysisTypeLabel(analysis.analysis_type);
+        
+        contextParts.push(`\n${index + 1}. ${type} от ${date}:`);
+        
+        if (analysis.summary) {
+          contextParts.push(`   Заключение: ${analysis.summary}`);
+        }
+        
+        if (analysis.results?.markers) {
+          const normalMarkers = analysis.results.markers.filter(m => m.status === 'normal').length;
+          const abnormalMarkers = analysis.results.markers.filter(m => m.status !== 'normal').length;
+          contextParts.push(`   Показателей в норме: ${normalMarkers}, отклонений: ${abnormalMarkers}`);
+          
+          // Добавляем ключевые отклонения
+          const keyAbnormalities = analysis.results.markers
+            .filter(m => m.status !== 'normal')
+            .slice(0, 5) // Берем первые 5 отклонений
+            .map(m => `${m.name}: ${m.value} ${m.unit || ''} (норма: ${m.reference_range || 'не указана'})`)
+            .join(', ');
+          
+          if (keyAbnormalities) {
+            contextParts.push(`   Ключевые отклонения: ${keyAbnormalities}`);
+          }
+        }
+      });
+    }
+
+    const fullContext = contextParts.join('\n');
+    
+    // Cache the result
+    profileCache.set(cacheKey, fullContext);
+    
+    console.log('Generated medical context length:', fullContext.length);
+    return fullContext;
+    
   } catch (error) {
     console.error("Error in getUserMedicalContext:", error);
     return "";
@@ -200,8 +325,10 @@ export async function processPersonalAIDoctorMessage(
   medicalContext: string = ""
 ): Promise<Message> {
   try {
-    // Подготавливаем расширенный медицинский контекст
-    const enhancedContext = await buildEnhancedMedicalContext(user, userAnalyses, medicalContext);
+    // Получаем полный медицинский контекст пользователя
+    const fullMedicalContext = await getUserMedicalContext(user);
+    
+    console.log('Sending to AI with context length:', fullMedicalContext.length);
     
     // Форматируем историю для ИИ
     const formattedHistory = conversationHistory.map(msg => ({
@@ -209,11 +336,11 @@ export async function processPersonalAIDoctorMessage(
       content: msg.content
     }));
     
-    // Вызываем edge функцию для персонального ИИ-доктора с новым промтом
+    // Вызываем edge функцию для персонального ИИ-доктора
     const { data, error } = await supabase.functions.invoke('ai-doctor-personal', {
       body: {
         message,
-        medicalContext: enhancedContext,
+        medicalContext: fullMedicalContext,
         conversationHistory: formattedHistory,
         userAnalyses: userAnalyses.slice(0, 3),
         systemPrompt: PERSONAL_AI_DOCTOR_PROMPT
@@ -246,43 +373,8 @@ export async function processPersonalAIDoctorMessage(
 async function buildEnhancedMedicalContext(user: User | null, userAnalyses: any[], basicContext: string): Promise<string> {
   if (!user) return "";
   
-  const contextParts = [basicContext];
-  
-  // Добавляем информацию об анализах
-  if (userAnalyses.length > 0) {
-    contextParts.push("\nПоследние медицинские анализы пользователя:");
-    
-    userAnalyses.slice(0, 3).forEach((analysis, index) => {
-      const date = new Date(analysis.created_at).toLocaleDateString('ru-RU');
-      const type = getAnalysisTypeLabel(analysis.analysis_type);
-      
-      contextParts.push(`${index + 1}. ${type} от ${date}:`);
-      
-      if (analysis.results?.markers) {
-        const normalMarkers = analysis.results.markers.filter(m => m.status === 'normal').length;
-        const abnormalMarkers = analysis.results.markers.filter(m => m.status !== 'normal').length;
-        contextParts.push(`   - Показателей в норме: ${normalMarkers}`);
-        contextParts.push(`   - Отклонений: ${abnormalMarkers}`);
-        
-        // Добавляем ключевые отклонения
-        const keyAbnormalities = analysis.results.markers
-          .filter(m => m.status !== 'normal')
-          .slice(0, 3)
-          .map(m => `${m.name}: ${m.value} (${m.status})`)
-          .join(', ');
-        
-        if (keyAbnormalities) {
-          contextParts.push(`   - Ключевые отклонения: ${keyAbnormalities}`);
-        }
-      }
-      
-      if (analysis.results?.summary) {
-        contextParts.push(`   - Краткое резюме: ${analysis.results.summary.substring(0, 200)}...`);
-      }
-    });
-  }
-  
-  return contextParts.join('\n');
+  // Используем новую функцию getUserMedicalContext вместо basicContext
+  return await getUserMedicalContext(user);
 }
 
 function getAnalysisTypeLabel(type: string): string {
