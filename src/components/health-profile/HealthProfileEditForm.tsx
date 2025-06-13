@@ -10,6 +10,7 @@ import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Save, X, Heart, Activity, Brain, Apple, Moon, Stethoscope } from "lucide-react";
 import { HealthProfileData } from "@/hooks/useHealthProfile";
+import MedicalHistorySection from "./MedicalHistorySection";
 
 interface HealthProfileEditFormProps {
   healthProfile: HealthProfileData;
@@ -355,17 +356,10 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="lastCheckup">Последний медосмотр</Label>
-              <Input
-                id="lastCheckup"
-                type="date"
-                value={healthProfile.lastCheckup}
-                onChange={(e) => onChange({ lastCheckup: e.target.value })}
-              />
-            </div>
-          </div>
+          <MedicalHistorySection
+            data={healthProfile}
+            onChange={onChange}
+          />
         </CardContent>
       </Card>
     </div>
