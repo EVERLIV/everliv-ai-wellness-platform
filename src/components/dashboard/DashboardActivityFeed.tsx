@@ -19,6 +19,14 @@ const DashboardActivityFeed = () => {
     }
   };
 
+  const handleRefresh = () => {
+    generateAnalytics();
+  };
+
+  const handleGenerateAnalytics = () => {
+    generateAnalytics();
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -30,7 +38,7 @@ const DashboardActivityFeed = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={generateAnalytics}
+            onClick={handleRefresh}
             disabled={isGenerating}
             className="gap-2"
           >
@@ -58,7 +66,7 @@ const DashboardActivityFeed = () => {
             <p className="text-xs text-gray-400 mb-4">Начните использовать EVERLIV для отслеживания активности</p>
             <Button 
               size="sm" 
-              onClick={generateAnalytics} 
+              onClick={handleGenerateAnalytics} 
               disabled={isGenerating}
             >
               {isGenerating ? 'Обновление...' : 'Обновить данные'}
