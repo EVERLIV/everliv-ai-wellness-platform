@@ -93,7 +93,7 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
     tests
   } = generateDetailedRecommendations(analytics, healthProfile);
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = (priority: 'high' | 'medium' | 'low') => {
     switch (priority) {
       case 'high':
         return 'bg-red-100 text-red-700 border-red-200';
@@ -106,7 +106,7 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
     }
   };
 
-  const getRiskColor = (level: string) => {
+  const getRiskColor = (level: 'high' | 'medium' | 'low') => {
     switch (level) {
       case 'high':
         return 'bg-red-50 border-red-200';
@@ -119,7 +119,7 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
     }
   };
 
-  const getUrgencyColor = (urgency: string) => {
+  const getUrgencyColor = (urgency: 'immediate' | 'within_month' | 'within_3_months' | 'annual') => {
     switch (urgency) {
       case 'immediate':
         return 'bg-red-100 text-red-700';
@@ -134,7 +134,7 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
     }
   };
 
-  const getUrgencyText = (urgency: string) => {
+  const getUrgencyText = (urgency: 'immediate' | 'within_month' | 'within_3_months' | 'annual') => {
     switch (urgency) {
       case 'immediate':
         return 'Срочно';
@@ -146,6 +146,32 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
         return 'Раз в год';
       default:
         return 'По показаниям';
+    }
+  };
+
+  const getPriorityText = (priority: 'high' | 'medium' | 'low') => {
+    switch (priority) {
+      case 'high':
+        return 'Высокий приоритет';
+      case 'medium':
+        return 'Средний приоритет';
+      case 'low':
+        return 'Низкий приоритет';
+      default:
+        return 'Обычный приоритет';
+    }
+  };
+
+  const getRiskText = (level: 'high' | 'medium' | 'low') => {
+    switch (level) {
+      case 'high':
+        return 'Высокий риск';
+      case 'medium':
+        return 'Средний риск';
+      case 'low':
+        return 'Низкий риск';
+      default:
+        return 'Обычный риск';
     }
   };
 
@@ -187,8 +213,7 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
                     </span>
                   </div>
                   <Badge className={getPriorityColor(rec.priority)}>
-                    {rec.priority === 'high' ? 'Высокий приоритет' : 
-                     rec.priority === 'medium' ? 'Средний приоритет' : 'Низкий приоритет'}
+                    {getPriorityText(rec.priority)}
                   </Badge>
                 </div>
                 
@@ -245,8 +270,7 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
                 <div className="flex items-start justify-between mb-3">
                   <h4 className="font-semibold text-gray-900">{risk.factor}</h4>
                   <Badge variant="outline" className={getPriorityColor(risk.level)}>
-                    {risk.level === 'high' ? 'Высокий риск' : 
-                     risk.level === 'medium' ? 'Средний риск' : 'Низкий риск'}
+                    {getRiskText(risk.level)}
                   </Badge>
                 </div>
                 
@@ -413,8 +437,7 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
                     <h4 className="font-semibold text-indigo-900">{test.testName}</h4>
                     <div className="flex gap-2 mt-1">
                       <Badge className={getPriorityColor(test.priority)}>
-                        {test.priority === 'high' ? 'Высокий приоритет' : 
-                         test.priority === 'medium' ? 'Средний приоритет' : 'Низкий приоритет'}
+                        {getPriorityText(test.priority)}
                       </Badge>
                       <Badge variant="outline">
                         {test.frequency}
