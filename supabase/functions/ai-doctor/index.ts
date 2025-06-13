@@ -21,11 +21,14 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    // Build messages array for OpenAI
-    const messages = [
-      {
-        role: 'system',
-        content: systemPrompt || `You are a General AI Health Assistant providing basic medical information and wellness guidance.
+    console.log('Processing AI doctor request');
+    console.log('Medical context length:', medicalContext?.length || 0);
+    console.log('Medical context preview:', medicalContext?.substring(0, 200) || 'No context');
+
+    // Build enhanced system prompt with user context
+    let enhancedSystemPrompt = systemPrompt || `You are a helpful AI health assistant providing general medical information and wellness guidance.
+
+ВАЖНО: Если у вас есть информация о пользователе, ВСЕГДА используйте её для персонализированных ответов.
 
 🔍 Your Capabilities:
 - Provide general health information and wellness tips
@@ -45,23 +48,27 @@ serve(async (req) => {
 - Educational approach
 - Always recommend consulting healthcare professionals for specific concerns
 - Keep responses concise and actionable
-- Emphasize the value of professional medical consultation
+- Emphasize the value of professional medical consultation`;
 
-Remember: You provide general wellness guidance, not detailed medical analysis. For comprehensive health assessments, users need our premium AI Doctor service.`
+    // Build messages array for OpenAI
+    const messages = [
+      {
+        role: 'system',
+        content: enhancedSystemPrompt
       }
     ];
 
-    // Add medical context if available
-    if (medicalContext) {
+    // Add comprehensive medical context if available
+    if (medicalContext && medicalContext.trim()) {
       messages.push({
         role: 'system',
-        content: `Patient Context: ${medicalContext}`
+        content: `ИНФОРМАЦИЯ О ПАЦИЕНТЕ:\n\n${medicalContext}\n\nИспользуйте эту информацию для персонализированных ответов. Если пользователь спрашивает о своих данных (рост, вес, привычки курения и т.д.), отвечайте на основе предоставленной информации.`
       });
     }
 
     // Add conversation history
     if (conversationHistory && conversationHistory.length > 0) {
-      const recentHistory = conversationHistory.slice(-6); // Last 6 messages for context
+      const recentHistory = conversationHistory.slice(-10); // Last 10 messages for context
       messages.push(...recentHistory);
     }
 
@@ -71,6 +78,8 @@ Remember: You provide general wellness guidance, not detailed medical analysis. 
       content: message
     });
 
+    console.log('Sending request to OpenAI with', messages.length, 'messages');
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -78,19 +87,22 @@ Remember: You provide general wellness guidance, not detailed medical analysis. 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: messages,
-        temperature: 0.7,
-        max_tokens: 1000,
+        temperature: 0.3,
+        max_tokens: 1500,
       }),
     });
 
     if (!response.ok) {
+      console.error('OpenAI API error:', response.status, response.statusText);
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
     const data = await response.json();
     const aiResponse = data.choices[0].message.content;
+
+    console.log('Successfully processed AI doctor request');
 
     return new Response(JSON.stringify({ response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

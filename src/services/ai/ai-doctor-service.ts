@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Message, SuggestedQuestion } from "@/components/dashboard/ai-doctor/types";
 import { v4 as uuidv4 } from "uuid";
@@ -115,6 +114,7 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
     // Check cache first
     const cacheKey = `${user.id}_medical_context`;
     if (profileCache.has(cacheKey)) {
+      console.log('Using cached medical context for user:', user.id);
       return profileCache.get(cacheKey);
     }
     
@@ -129,6 +129,21 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
     
     if (profileError) {
       console.error("Error fetching user profile:", profileError);
+      console.log("Attempting to fetch without single() modifier...");
+      
+      // Try again without single() in case there's no profile yet
+      const { data: profileArray, error: profileArrayError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id);
+      
+      if (profileArrayError) {
+        console.error("Error fetching user profile array:", profileArrayError);
+      } else {
+        console.log("Profile array result:", profileArray);
+      }
+    } else {
+      console.log("Successfully fetched profile:", profile);
     }
 
     // Fetch health profile
@@ -140,6 +155,8 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
     
     if (healthProfileError && healthProfileError.code !== 'PGRST116') {
       console.error("Error fetching health profile:", healthProfileError);
+    } else {
+      console.log("Health profile result:", healthProfile);
     }
 
     // Fetch recent medical analyses
@@ -152,6 +169,8 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
     
     if (analysesError) {
       console.error("Error fetching medical analyses:", analysesError);
+    } else {
+      console.log("Medical analyses result:", analyses);
     }
 
     // Build comprehensive context
@@ -171,21 +190,23 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
       if (profile.height) contextParts.push(`Рост: ${profile.height} см`);
       if (profile.weight) contextParts.push(`Вес: ${profile.weight} кг`);
       
-      if (profile.medical_conditions && profile.medical_conditions.length > 0) {
+      if (profile.medical_conditions && Array.isArray(profile.medical_conditions) && profile.medical_conditions.length > 0) {
         contextParts.push(`Хронические заболевания: ${profile.medical_conditions.join(', ')}`);
       }
       
-      if (profile.allergies && profile.allergies.length > 0) {
+      if (profile.allergies && Array.isArray(profile.allergies) && profile.allergies.length > 0) {
         contextParts.push(`Аллергии: ${profile.allergies.join(', ')}`);
       }
       
-      if (profile.medications && profile.medications.length > 0) {
+      if (profile.medications && Array.isArray(profile.medications) && profile.medications.length > 0) {
         contextParts.push(`Текущие препараты: ${profile.medications.join(', ')}`);
       }
 
-      if (profile.goals && profile.goals.length > 0) {
+      if (profile.goals && Array.isArray(profile.goals) && profile.goals.length > 0) {
         contextParts.push(`Цели здоровья: ${profile.goals.join(', ')}`);
       }
+    } else {
+      console.log("No profile found for user:", user.id);
     }
 
     // Health profile information
@@ -250,6 +271,8 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
           contextParts.push(`Текущие препараты: ${healthData.medications.join(', ')}`);
         }
       }
+    } else {
+      console.log("No health profile found for user:", user.id);
     }
 
     // Recent medical analyses
@@ -278,30 +301,35 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
           }
           
           // Safely access markers if they exist and results is an object
-          if (results && typeof results === 'object' && !Array.isArray(results) && results.markers && Array.isArray(results.markers)) {
-            const normalMarkers = results.markers.filter((m: any) => m.status === 'normal').length;
-            const abnormalMarkers = results.markers.filter((m: any) => m.status !== 'normal').length;
-            contextParts.push(`   Показателей в норме: ${normalMarkers}, отклонений: ${abnormalMarkers}`);
-            
-            // Добавляем ключевые отклонения
-            const keyAbnormalities = results.markers
-              .filter((m: any) => m.status !== 'normal')
-              .slice(0, 5) // Берем первые 5 отклонений
-              .map((m: any) => `${m.name}: ${m.value} ${m.unit || ''} (норма: ${m.reference_range || 'не указана'})`)
-              .join(', ');
-            
-            if (keyAbnormalities) {
-              contextParts.push(`   Ключевые отклонения: ${keyAbnormalities}`);
+          if (results && typeof results === 'object' && !Array.isArray(results)) {
+            if (results.markers && Array.isArray(results.markers)) {
+              const normalMarkers = results.markers.filter((m: any) => m.status === 'normal').length;
+              const abnormalMarkers = results.markers.filter((m: any) => m.status !== 'normal').length;
+              contextParts.push(`   Показателей в норме: ${normalMarkers}, отклонений: ${abnormalMarkers}`);
+              
+              // Добавляем ключевые отклонения
+              const keyAbnormalities = results.markers
+                .filter((m: any) => m.status !== 'normal')
+                .slice(0, 5) // Берем первые 5 отклонений
+                .map((m: any) => `${m.name}: ${m.value} ${m.unit || ''} (норма: ${m.reference_range || 'не указана'})`)
+                .join(', ');
+              
+              if (keyAbnormalities) {
+                contextParts.push(`   Ключевые отклонения: ${keyAbnormalities}`);
+              }
             }
           }
         }
       });
+    } else {
+      console.log("No medical analyses found for user:", user.id);
     }
 
     const fullContext = contextParts.join('\n');
     
-    // Cache the result
+    // Cache the result for 5 minutes
     profileCache.set(cacheKey, fullContext);
+    setTimeout(() => profileCache.delete(cacheKey), 5 * 60 * 1000);
     
     console.log('Generated medical context length:', fullContext.length);
     console.log('Medical context preview:', fullContext.substring(0, 500));
@@ -452,6 +480,11 @@ export async function processAIDoctorMessage(
   try {
     // Get medical context
     const medicalContext = await getUserMedicalContext(user);
+    
+    console.log('Medical context for AI request:', medicalContext.length > 0 ? 'Available' : 'Empty');
+    if (medicalContext.length > 0) {
+      console.log('Medical context preview:', medicalContext.substring(0, 200));
+    }
     
     // Prepare conversation history for the AI
     const formattedHistory = conversationHistory.map(msg => ({
