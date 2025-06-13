@@ -119,6 +119,16 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
               </div>
             </div>
           )}
+          {healthProfile.currentSymptoms && healthProfile.currentSymptoms.length > 0 && (
+            <div className="mt-4">
+              <div className="text-sm text-gray-500 mb-2">Текущие симптомы</div>
+              <div className="flex flex-wrap gap-2">
+                {healthProfile.currentSymptoms.map((symptom, index) => (
+                  <Badge key={index} variant="outline" className="bg-yellow-50">{symptom}</Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -188,6 +198,10 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
               <div className="text-sm text-gray-500">Потребление воды</div>
               <div className="font-medium">{healthProfile.waterIntake} стаканов/день</div>
             </div>
+            <div>
+              <div className="text-sm text-gray-500">Потребление кофеина</div>
+              <div className="font-medium">{healthProfile.caffeineIntake} чашек/день</div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -223,6 +237,70 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
               </div>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Медицинская история */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Stethoscope className="h-5 w-5 text-orange-500" />
+            Медицинская история
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {healthProfile.familyHistory && healthProfile.familyHistory.length > 0 && (
+              <div>
+                <div className="text-sm text-gray-500 mb-2">Семейная история</div>
+                <div className="flex flex-wrap gap-2">
+                  {healthProfile.familyHistory.map((history, index) => (
+                    <Badge key={index} variant="outline" className="bg-orange-50">{history}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {healthProfile.allergies && healthProfile.allergies.length > 0 && (
+              <div>
+                <div className="text-sm text-gray-500 mb-2">Аллергии</div>
+                <div className="flex flex-wrap gap-2">
+                  {healthProfile.allergies.map((allergy, index) => (
+                    <Badge key={index} variant="outline" className="bg-red-50">{allergy}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {healthProfile.medications && healthProfile.medications.length > 0 && (
+              <div>
+                <div className="text-sm text-gray-500 mb-2">Текущие препараты</div>
+                <div className="flex flex-wrap gap-2">
+                  {healthProfile.medications.map((medication, index) => (
+                    <Badge key={index} variant="outline" className="bg-blue-50">{medication}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {healthProfile.previousSurgeries && healthProfile.previousSurgeries.length > 0 && (
+              <div>
+                <div className="text-sm text-gray-500 mb-2">Предыдущие операции</div>
+                <div className="flex flex-wrap gap-2">
+                  {healthProfile.previousSurgeries.map((surgery, index) => (
+                    <Badge key={index} variant="outline" className="bg-purple-50">{surgery}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {healthProfile.lastCheckup && (
+              <div>
+                <div className="text-sm text-gray-500">Последний медосмотр</div>
+                <div className="font-medium">{healthProfile.lastCheckup}</div>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>
