@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, MessageSquare, TrendingDown, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 
 const DashboardActivityFeed = () => {
   const { analytics, isLoading, isGenerating, generateAnalytics } = useCachedAnalytics();
+  const hasGeneratedRef = useRef(false);
 
   const getIconComponent = (iconName: string) => {
     switch (iconName) {
@@ -20,10 +21,12 @@ const DashboardActivityFeed = () => {
   };
 
   const handleRefresh = () => {
+    hasGeneratedRef.current = false;
     generateAnalytics();
   };
 
   const handleGenerateAnalytics = () => {
+    hasGeneratedRef.current = false;
     generateAnalytics();
   };
 
@@ -49,6 +52,10 @@ const DashboardActivityFeed = () => {
       <CardContent>
         {isLoading ? (
           <div className="space-y-4">
+            <div className="text-center py-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+              <p className="text-sm text-gray-600">Загружаем данные...</p>
+            </div>
             {[1, 2].map((i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
