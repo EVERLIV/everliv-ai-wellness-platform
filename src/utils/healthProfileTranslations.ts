@@ -17,6 +17,10 @@ export const translateHealthProfileData = {
 
   // Уровень физической подготовки
   fitnessLevel: {
+    'beginner': 'Начинающий',
+    'intermediate': 'Средний',
+    'advanced': 'Продвинутый',
+    'athlete': 'Спортсмен',
     'poor': 'Плохая',
     'fair': 'Удовлетворительная',
     'good': 'Хорошая',
