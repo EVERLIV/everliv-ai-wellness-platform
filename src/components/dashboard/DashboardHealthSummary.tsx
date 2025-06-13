@@ -20,10 +20,10 @@ const DashboardHealthSummary = () => {
 
   // Автоматически генерируем реальные данные при монтировании компонента
   useEffect(() => {
-    if (hasHealthProfile && hasAnalyses && !isLoading && !isGenerating && !analytics) {
+    if (hasHealthProfile && hasAnalyses && !isLoading && !isGenerating) {
       generateRealTimeAnalytics();
     }
-  }, [hasHealthProfile, hasAnalyses, isLoading, isGenerating, analytics, generateRealTimeAnalytics]);
+  }, [hasHealthProfile, hasAnalyses, isLoading, isGenerating, generateRealTimeAnalytics]);
 
   return (
     <Card>
