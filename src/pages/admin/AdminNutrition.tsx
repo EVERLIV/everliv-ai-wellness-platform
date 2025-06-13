@@ -2,9 +2,9 @@
 import React from "react";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Navigate } from "react-router-dom";
-import AdminOverview from "@/components/admin/dashboard/AdminOverview";
+import NutritionManagement from "@/components/admin/nutrition/NutritionManagement";
 
-const AdminDashboard = () => {
+const AdminNutrition = () => {
   const { isAdmin, isLoading } = useIsAdmin();
 
   if (isLoading) {
@@ -15,7 +15,7 @@ const AdminDashboard = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <AdminOverview />;
+  return <NutritionManagement />;
 };
 
-export default AdminDashboard;
+export default AdminNutrition;

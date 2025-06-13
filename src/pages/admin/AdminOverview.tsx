@@ -4,7 +4,7 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Navigate } from "react-router-dom";
 import AdminOverview from "@/components/admin/dashboard/AdminOverview";
 
-const AdminDashboard = () => {
+const AdminOverviewPage = () => {
   const { isAdmin, isLoading } = useIsAdmin();
 
   if (isLoading) {
@@ -18,4 +18,4 @@ const AdminDashboard = () => {
   return <AdminOverview />;
 };
 
-export default AdminDashboard;
+export default AdminOverviewPage;
