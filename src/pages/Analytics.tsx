@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, TrendingUp, AlertTriangle, Target, Activity, RefreshCw } from "lucide-react";
 import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
-import MainLayout from "@/components/layout/MainLayout";
+import PageLayout from "@/components/PageLayout";
 import DetailedHealthRecommendations from "@/components/analytics/DetailedHealthRecommendations";
 
 const Analytics = () => {
@@ -82,19 +82,19 @@ const Analytics = () => {
 
   if (isLoading || isLoadingProfile) {
     return (
-      <MainLayout>
+      <PageLayout title="Аналитика здоровья" description="Персональные insights на основе ваших данных" fullWidth>
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             {renderLoadingState()}
           </div>
         </div>
-      </MainLayout>
+      </PageLayout>
     );
   }
 
   if (!analytics) {
     return (
-      <MainLayout>
+      <PageLayout title="Аналитика здоровья" description="Персональные insights на основе ваших данных" fullWidth>
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-8">
@@ -114,12 +114,12 @@ const Analytics = () => {
             {renderEmptyState()}
           </div>
         </div>
-      </MainLayout>
+      </PageLayout>
     );
   }
 
   return (
-    <MainLayout>
+    <PageLayout title="Аналитика здоровья" description="Персональные insights на основе ваших данных" fullWidth>
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
@@ -247,13 +247,13 @@ const Analytics = () => {
             <TabsContent value="recommendations">
               <DetailedHealthRecommendations 
                 analytics={analytics} 
-                healthProfile={healthProfile?.profile_data}
+                healthProfile={healthProfile}
               />
             </TabsContent>
           </Tabs>
         </div>
       </div>
-    </MainLayout>
+    </PageLayout>
   );
 };
 
