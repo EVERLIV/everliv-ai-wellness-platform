@@ -34,8 +34,16 @@ import AnalysisDetails from "@/pages/AnalysisDetails";
 import SubscriptionPage from "@/pages/SubscriptionPage";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import AdminDashboardLayout from "@/components/admin/AdminDashboardLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminUsers from "@/pages/admin/AdminUsers";
+import AdminAIChat from "@/pages/admin/AdminAIChat";
+import AdminNutrition from "@/pages/admin/AdminNutrition";
+import AdminHealthRecommendations from "@/pages/admin/AdminHealthRecommendations";
+import AdminHealthProfiles from "@/pages/admin/AdminHealthProfiles";
+import AdminAnalytics from "@/pages/admin/AdminAnalytics";
+import AdminContent from "@/pages/admin/AdminContent";
+import AdminSettings from "@/pages/admin/AdminSettings";
 
 const queryClient = new QueryClient();
 
@@ -78,8 +86,19 @@ function App() {
                 <Route path="/support" element={<AccountSettings />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/analysis-details" element={<AnalysisDetails />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/users" element={<AdminUsers />} />
+                
+                {/* Admin routes */}
+                <Route path="/admin" element={<AdminDashboardLayout />}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="users" element={<AdminUsers />} />
+                  <Route path="ai-chat" element={<AdminAIChat />} />
+                  <Route path="nutrition" element={<AdminNutrition />} />
+                  <Route path="health-recommendations" element={<AdminHealthRecommendations />} />
+                  <Route path="health-profiles" element={<AdminHealthProfiles />} />
+                  <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="content" element={<AdminContent />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
               </Routes>
             </SubscriptionProvider>
           </AuthProvider>
