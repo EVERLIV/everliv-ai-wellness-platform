@@ -14,6 +14,8 @@ import {
   User,
   Activity
 } from "lucide-react";
+import { generateDetailedRecommendations } from "@/utils/detailedRecommendationsGenerator";
+import { CachedAnalytics } from "@/types/analytics";
 
 interface DetailedRecommendation {
   id: string;
@@ -74,20 +76,23 @@ interface TestRecommendation {
 }
 
 interface DetailedHealthRecommendationsProps {
-  recommendations: DetailedRecommendation[];
-  riskFactors: RiskFactor[];
-  supplements: Supplement[];
-  specialists: SpecialistRecommendation[];
-  tests: TestRecommendation[];
+  analytics: CachedAnalytics;
+  healthProfile?: any;
 }
 
 const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps> = ({
-  recommendations = [],
-  riskFactors = [],
-  supplements = [],
-  specialists = [],
-  tests = []
+  analytics,
+  healthProfile
 }) => {
+  // Генерируем персонализированные рекомендации на основе профиля здоровья
+  const {
+    recommendations,
+    riskFactors,
+    supplements,
+    specialists,
+    tests
+  } = generateDetailedRecommendations(analytics, healthProfile);
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
@@ -146,6 +151,22 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
 
   return (
     <div className="space-y-8">
+      {/* Информация о персонализации */}
+      {healthProfile && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 mb-2">
+              <User className="h-5 w-5 text-blue-600" />
+              <h3 className="font-semibold text-blue-900">Персонализированные рекомендации</h3>
+            </div>
+            <p className="text-sm text-blue-700">
+              Рекомендации адаптированы на основе вашего профиля здоровья, включая образ жизни, 
+              физическую активность, питание и медицинские показания.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Персональные рекомендации */}
       <Card>
         <CardHeader>

@@ -1,6 +1,33 @@
-import { CachedAnalytics } from '@/types/analytics';
 
-export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
+import { CachedAnalytics } from '@/types/analytics';
+import { translateValue } from '@/utils/healthProfileTranslations';
+
+interface HealthProfileData {
+  smokingStatus?: string;
+  alcoholConsumption?: string;
+  physicalActivity?: string;
+  dietType?: string;
+  sleepQuality?: string;
+  moodChanges?: string;
+  height?: number;
+  weight?: number;
+  age?: number;
+  medicalConditions?: string[];
+  medications?: string[];
+  allergies?: string[];
+}
+
+export const generateDetailedRecommendations = (analytics: CachedAnalytics, healthProfile?: HealthProfileData) => {
+  const bmi = healthProfile?.height && healthProfile?.weight 
+    ? (healthProfile.weight / Math.pow(healthProfile.height / 100, 2)).toFixed(1)
+    : null;
+
+  const isNonSmoker = healthProfile?.smokingStatus === 'never';
+  const isLightDrinker = healthProfile?.alcoholConsumption === 'never' || healthProfile?.alcoholConsumption === 'rarely';
+  const isActiveLifestyle = healthProfile?.physicalActivity === 'active' || healthProfile?.physicalActivity === 'very_active';
+  const hasGoodSleep = healthProfile?.sleepQuality === 'good' || healthProfile?.sleepQuality === 'excellent';
+  
+  // Базовые рекомендации, адаптированные под профиль
   const recommendations = [
     {
       id: 'vitamin-d-boost',
@@ -31,7 +58,9 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
         '3. Употребляйте 25-30г клетчатки ежедневно (овощи, фрукты, цельнозерновые)',
         '4. Добавьте 30г орехов в день (грецкие, миндаль)',
         '5. Готовьте на оливковом масле extra virgin',
-        '6. Кардио тренировки 150 минут в неделю средней интенсивности'
+        isActiveLifestyle 
+          ? '6. Продолжайте текущий уровень физической активности'
+          : '6. Кардио тренировки 150 минут в неделю средней интенсивности'
       ],
       expectedResult: 'Снижение общего холестерина на 10-15% через 2-3 месяца',
       timeframe: '2-4 месяца',
@@ -41,9 +70,16 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
       id: 'stress-management',
       category: 'Психическое здоровье',
       title: 'Управление стрессом и сном',
-      priority: 'medium' as const,
-      description: 'Хронический стресс влияет на все системы организма',
-      specificActions: [
+      priority: hasGoodSleep ? 'low' as const : 'medium' as const,
+      description: hasGoodSleep 
+        ? 'Поддержание хорошего качества сна и дальнейшее улучшение стрессоустойчивости'
+        : 'Хронический стресс влияет на все системы организма',
+      specificActions: hasGoodSleep ? [
+        '1. Продолжайте соблюдать режим сна',
+        '2. Практикуйте медитацию 10-15 минут ежедневно для профилактики стресса',
+        '3. Поддерживайте ритуал перед сном',
+        '4. Практикуйте дыхательные упражнения при стрессе (4-7-8)'
+      ] : [
         '1. Практикуйте медитацию 10-15 минут ежедневно (приложение Headspace или Calm)',
         '2. Ложитесь спать в одно время (22:00-23:00)',
         '3. Откажитесь от экранов за 1 час до сна',
@@ -51,44 +87,62 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
         '5. Поддерживайте температуру в спальне 18-20°C',
         '6. Практикуйте дыхательные упражнения при стрессе (4-7-8)'
       ],
-      expectedResult: 'Улучшение качества сна и стрессоустойчивости через 2-4 недели',
+      expectedResult: hasGoodSleep 
+        ? 'Поддержание отличного качества сна и повышение стрессоустойчивости'
+        : 'Улучшение качества сна и стрессоустойчивости через 2-4 недели',
       timeframe: '1-2 месяца',
       cost: '300-500 руб/месяц (приложения для медитации)'
     }
   ];
 
+  // Адаптируем факторы риска под профиль
   const riskFactors = [
     {
       id: 'cardiovascular-risk',
       factor: 'Риск сердечно-сосудистых заболеваний',
-      level: 'medium' as const,
-      description: 'Сочетание повышенного холестерина и малоподвижного образа жизни',
-      currentImpact: 'Увеличенный риск инфаркта и инсульта в 1.5-2 раза',
+      level: (isNonSmoker && isLightDrinker && isActiveLifestyle) ? 'low' as const : 'medium' as const,
+      description: isNonSmoker && isLightDrinker 
+        ? 'Низкий базовый риск благодаря отсутствию курения и умеренному потреблению алкоголя'
+        : 'Сочетание повышенного холестерина и образа жизни',
+      currentImpact: (isNonSmoker && isLightDrinker && isActiveLifestyle)
+        ? 'Минимальный дополнительный риск при соблюдении рекомендаций'
+        : 'Увеличенный риск инфаркта и инсульта в 1.5-2 раза',
       mitigation: [
-        'Кардио тренировки 150 минут в неделю',
+        isActiveLifestyle 
+          ? 'Поддерживайте текущий уровень физической активности'
+          : 'Кардио тренировки 150 минут в неделю',
         'Средиземноморская диета',
         'Контроль артериального давления ежедневно',
-        'Отказ от курения (если курите)',
-        'Ограничение алкоголя до 1-2 порций в неделю'
+        ...(isNonSmoker ? [] : ['Отказ от курения']),
+        isLightDrinker 
+          ? 'Продолжайте умеренное потребление алкоголя'
+          : 'Ограничение алкоголя до 1-2 порций в неделю'
       ],
       monitoringFrequency: 'Липидный профиль каждые 3 месяца, ЭКГ раз в год'
     },
     {
       id: 'metabolic-syndrome',
       factor: 'Предрасположенность к метаболическому синдрому',
-      level: 'low' as const,
-      description: 'Небольшое превышение нормы глюкозы натощак',
+      level: bmi && parseFloat(bmi) > 25 ? 'medium' as const : 'low' as const,
+      description: bmi 
+        ? `При ИМТ ${bmi} ${parseFloat(bmi) > 25 ? 'рекомендуется контроль веса' : 'вес в норме'}`
+        : 'Небольшое превышение нормы глюкозы натощак',
       currentImpact: 'Повышенный риск развития диабета 2 типа',
       mitigation: [
         'Снижение потребления простых углеводов',
-        'Регулярные физические нагрузки',
-        'Контроль веса (ИМТ 18.5-24.9)',
+        isActiveLifestyle 
+          ? 'Поддерживайте текущий уровень физической активности'
+          : 'Регулярные физические нагрузки',
+        bmi && parseFloat(bmi) > 25 
+          ? 'Снижение веса до ИМТ 18.5-24.9'
+          : 'Поддержание текущего веса (ИМТ в норме)',
         'Увеличение потребления клетчатки'
       ],
       monitoringFrequency: 'Глюкоза натощак каждые 6 месяцев, HbA1c раз в год'
     }
   ];
 
+  // Персонализированные добавки с учетом аллергий
   const supplements = [
     {
       id: 'vitamin-d3',
@@ -110,16 +164,22 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
       benefit: 'Снижает воспаление, улучшает работу сердца и мозга',
       duration: 'Постоянно',
       cost: '800-1200 руб/месяц',
-      whereToBuy: 'Nordic Naturals, Solgar, аптеки',
+      whereToBuy: healthProfile?.allergies?.includes('рыба') || healthProfile?.allergies?.includes('морепродукты')
+        ? 'Веганская омега-3 из водорослей (Algae Omega, V-Omega 3)'
+        : 'Nordic Naturals, Solgar, аптеки',
       interactions: 'Разжижает кровь, осторожно с антикоагулянтами',
-      sideEffects: 'Рыбный запах изо рта, расстройство желудка'
+      sideEffects: healthProfile?.allergies?.includes('рыба') 
+        ? 'При аллергии на рыбу используйте веганские варианты'
+        : 'Рыбный запах изо рта, расстройство желудка'
     },
     {
       id: 'magnesium',
       name: 'Магний (глицинат)',
       dosage: '200-400 мг',
-      timing: 'Вечером за час до сна',
-      benefit: 'Улучшает сон, снижает стресс, расслабляет мышцы',
+      timing: hasGoodSleep ? 'Вечером для поддержания качества сна' : 'Вечером за час до сна',
+      benefit: hasGoodSleep 
+        ? 'Поддерживает хорошее качество сна, снижает стресс'
+        : 'Улучшает сон, снижает стресс, расслабляет мышцы',
       duration: '2-3 месяца, затем перерыв',
       cost: '300-500 руб/месяц',
       whereToBuy: 'Now Foods, Solgar, аптеки',
@@ -132,7 +192,9 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
     {
       id: 'cardiologist',
       specialist: 'Кардиолог',
-      urgency: 'within_month' as const,
+      urgency: (isNonSmoker && isLightDrinker && isActiveLifestyle) 
+        ? 'within_3_months' as const 
+        : 'within_month' as const,
       reason: 'Оценка сердечно-сосудистого риска при повышенном холестерине',
       whatToExpected: 'ЭКГ, эхокардиография, расчет риска SCORE, назначение статинов при необходимости',
       preparation: [
@@ -142,7 +204,9 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
         'Не пейте кофе за 2 часа до приема'
       ],
       estimatedCost: '2000-3500 руб за консультацию',
-      frequency: 'Раз в 6 месяцев при наличии факторов риска'
+      frequency: (isNonSmoker && isLightDrinker) 
+        ? 'Раз в год для профилактики при низком риске'
+        : 'Раз в 6 месяцев при наличии факторов риска'
     },
     {
       id: 'endocrinologist',
@@ -163,12 +227,17 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
       id: 'nutritionist',
       specialist: 'Диетолог-нутрициолог',
       urgency: 'within_month' as const,
-      reason: 'Составление индивидуального плана питания',
+      reason: healthProfile?.dietType 
+        ? `Оптимизация ${translateValue('dietType', healthProfile.dietType).toLowerCase()} питания`
+        : 'Составление индивидуального плана питания',
       whatToExpected: 'Анализ текущего рациона, расчет КБЖУ, план питания, рекомендации по добавкам',
       preparation: [
         'Ведите дневник питания 7 дней',
         'Принесите результаты анализов',
         'Подготовьте список любимых и нелюбимых продуктов',
+        healthProfile?.allergies?.length 
+          ? `Составьте полный список аллергий: ${healthProfile.allergies.join(', ')}`
+          : 'Опишите пищевые аллергии и непереносимости',
         'Опишите режим дня и физической активности'
       ],
       estimatedCost: '3000-5000 руб за консультацию',
@@ -185,8 +254,8 @@ export const generateDetailedRecommendations = (analytics: CachedAnalytics) => {
       reason: 'Контроль метаболических показателей и эффективности рекомендаций',
       preparation: [
         'Голодание 12-14 часов',
-        'Не курить 2 часа до анализа',
-        'Исключить алкоголь за 24 часа',
+        isNonSmoker ? 'Не употребляйте кофеин за 2 часа до анализа' : 'Не курить 2 часа до анализа',
+        isLightDrinker ? 'Исключить алкоголь за 24 часа (если употребляете)' : 'Исключить алкоголь за 24 часа',
         'Не принимать витамины утром в день анализа'
       ],
       expectedCost: '2000-3000 руб',
