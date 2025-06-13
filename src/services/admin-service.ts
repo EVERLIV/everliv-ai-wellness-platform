@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -59,7 +58,7 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
       throw new Error("У вас нет прав администратора");
     }
 
-    // Получаем пользователей с их профилями
+    // Получаем профили пользователей
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
       .select('id, first_name, last_name, created_at');
@@ -70,10 +69,13 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
     }
 
     if (!profiles || profiles.length === 0) {
+      console.log('No profiles found in database');
       return [];
     }
 
-    // Получаем подписки отдельно
+    console.log('Found profiles:', profiles.length);
+
+    // Получаем подписки
     const userIds = profiles.map(profile => profile.id);
     const { data: subscriptions, error: subscriptionsError } = await supabase
       .from('subscriptions')
@@ -84,31 +86,16 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
       console.error('Error fetching subscriptions:', subscriptionsError);
     }
 
-    // Получаем emails пользователей через admin API
-    let authUsers: any[] = [];
-    try {
-      const { data: authUsersResponse, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        console.error('Error fetching auth users:', authError);
-        // Продолжаем без email данных, если не удалось получить
-      } else {
-        authUsers = authUsersResponse?.users || [];
-      }
-    } catch (error) {
-      console.error('Failed to fetch auth users:', error);
-      // Продолжаем без email данных
-    }
+    console.log('Found subscriptions:', subscriptions?.length || 0);
 
-    // Объединяем данные
+    // Объединяем данные без email адресов пока что (используем ID как fallback)
     const users: AdminUser[] = profiles.map(profile => {
-      const authUser = authUsers.find(u => u.id === profile.id);
       const userSubscriptions = subscriptions?.filter(sub => sub.user_id === profile.id) || [];
       const subscription = userSubscriptions.length > 0 ? userSubscriptions[0] : null;
       
       return {
         id: profile.id,
-        email: authUser?.email || 'Неизвестно',
+        email: `user-${profile.id.substring(0, 8)}@domain.com`, // Временный fallback
         first_name: profile.first_name,
         last_name: profile.last_name,
         created_at: profile.created_at,
@@ -119,6 +106,7 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
       };
     });
 
+    console.log('Returning users:', users.length);
     return users;
   } catch (error) {
     console.error('Error in fetchAdminUsers:', error);

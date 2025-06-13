@@ -32,6 +32,12 @@ const UsersList = ({
   onCancelSubscription,
   onInviteUser,
 }: UsersListProps) => {
+  console.log('UsersList render:', { 
+    usersCount: users.length, 
+    filteredUsersCount: filteredUsers.length, 
+    isLoading 
+  });
+
   return (
     <>
       <div className="flex justify-between items-center mb-6">
@@ -93,10 +99,27 @@ const UsersList = ({
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.length === 0 ? (
+                {filteredUsers.length === 0 && !isLoading ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
-                      {searchQuery ? "Пользователи не найдены" : "Нет данных о пользователях"}
+                    <td colSpan={7} className="px-6 py-8 text-center">
+                      <div className="text-gray-500">
+                        {searchQuery ? (
+                          <div>
+                            <p className="text-lg font-medium mb-2">Пользователи не найдены</p>
+                            <p className="text-sm">Попробуйте изменить критерии поиска</p>
+                          </div>
+                        ) : users.length === 0 ? (
+                          <div>
+                            <p className="text-lg font-medium mb-2">Пользователи не зарегистрированы</p>
+                            <p className="text-sm">Пока что в системе нет зарегистрированных пользователей</p>
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="text-lg font-medium mb-2">Результаты не найдены</p>
+                            <p className="text-sm">По вашему запросу ничего не найдено</p>
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ) : (
@@ -112,7 +135,7 @@ const UsersList = ({
                             <div className="text-sm font-medium text-gray-900">
                               {user.first_name && user.last_name 
                                 ? `${user.first_name} ${user.last_name}` 
-                                : "Без имени"}
+                                : user.first_name || user.last_name || "Без имени"}
                             </div>
                           </div>
                         </div>
@@ -175,6 +198,9 @@ const UsersList = ({
           <div>
             <p className="text-sm text-gray-700">
               Всего пользователей: <span className="font-medium">{filteredUsers.length}</span>
+              {searchQuery && users.length !== filteredUsers.length && (
+                <span className="text-gray-500"> из {users.length}</span>
+              )}
             </p>
           </div>
         </div>
