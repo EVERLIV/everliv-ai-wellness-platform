@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Message, SuggestedQuestion } from "@/components/dashboard/ai-doctor/types";
 import { v4 as uuidv4 } from "uuid";
@@ -108,7 +109,10 @@ You are an AI Medical Analysis Expert specializing in laboratory diagnostics, bl
  * Fetches comprehensive medical context for the current user including health profile and analyses
  */
 export async function getUserMedicalContext(user: User | null): Promise<string> {
-  if (!user) return "";
+  if (!user) {
+    console.log('No user provided to getUserMedicalContext');
+    return "";
+  }
   
   try {
     // Check cache first
@@ -120,57 +124,62 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
     
     console.log('Fetching comprehensive medical context for user:', user.id);
     
-    // Fetch user basic profile
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-    
-    if (profileError) {
-      console.error("Error fetching user profile:", profileError);
-      console.log("Attempting to fetch without single() modifier...");
-      
-      // Try again without single() in case there's no profile yet
-      const { data: profileArray, error: profileArrayError } = await supabase
+    // Fetch user basic profile with better error handling
+    let profile = null;
+    try {
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user.id);
+        .eq('id', user.id)
+        .maybeSingle();
       
-      if (profileArrayError) {
-        console.error("Error fetching user profile array:", profileArrayError);
+      if (profileError) {
+        console.error("Error fetching user profile:", profileError);
       } else {
-        console.log("Profile array result:", profileArray);
+        profile = profileData;
+        console.log("Successfully fetched profile:", profile ? 'found' : 'not found');
       }
-    } else {
-      console.log("Successfully fetched profile:", profile);
+    } catch (error) {
+      console.error("Exception fetching profile:", error);
     }
 
-    // Fetch health profile
-    const { data: healthProfile, error: healthProfileError } = await supabase
-      .from('health_profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    
-    if (healthProfileError && healthProfileError.code !== 'PGRST116') {
-      console.error("Error fetching health profile:", healthProfileError);
-    } else {
-      console.log("Health profile result:", healthProfile);
+    // Fetch health profile with better error handling
+    let healthProfile = null;
+    try {
+      const { data: healthProfileData, error: healthProfileError } = await supabase
+        .from('health_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (healthProfileError && healthProfileError.code !== 'PGRST116') {
+        console.error("Error fetching health profile:", healthProfileError);
+      } else {
+        healthProfile = healthProfileData;
+        console.log("Health profile result:", healthProfile ? 'found' : 'not found');
+      }
+    } catch (error) {
+      console.error("Exception fetching health profile:", error);
     }
 
-    // Fetch recent medical analyses
-    const { data: analyses, error: analysesError } = await supabase
-      .from('medical_analyses')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(5);
-    
-    if (analysesError) {
-      console.error("Error fetching medical analyses:", analysesError);
-    } else {
-      console.log("Medical analyses result:", analyses);
+    // Fetch recent medical analyses with better error handling
+    let analyses = [];
+    try {
+      const { data: analysesData, error: analysesError } = await supabase
+        .from('medical_analyses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+      
+      if (analysesError) {
+        console.error("Error fetching medical analyses:", analysesError);
+      } else {
+        analyses = analysesData || [];
+        console.log("Medical analyses result:", analyses.length, 'found');
+      }
+    } catch (error) {
+      console.error("Exception fetching medical analyses:", error);
     }
 
     // Build comprehensive context
@@ -207,6 +216,8 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
       }
     } else {
       console.log("No profile found for user:", user.id);
+      contextParts.push("=== ПРОФИЛЬ ПАЦИЕНТА ===");
+      contextParts.push("Профиль пользователя не заполнен");
     }
 
     // Health profile information

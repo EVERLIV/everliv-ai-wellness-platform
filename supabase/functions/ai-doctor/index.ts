@@ -22,8 +22,9 @@ serve(async (req) => {
     }
 
     console.log('Processing AI doctor request');
+    console.log('Medical context received:', medicalContext ? 'YES' : 'NO');
     console.log('Medical context length:', medicalContext?.length || 0);
-    console.log('Medical context preview:', medicalContext?.substring(0, 200) || 'No context');
+    console.log('Medical context preview:', medicalContext?.substring(0, 300) || 'No context');
 
     // Build enhanced system prompt with user context
     let enhancedSystemPrompt = systemPrompt || `You are a helpful AI health assistant providing general medical information and wellness guidance.
@@ -60,10 +61,13 @@ serve(async (req) => {
 
     // Add comprehensive medical context if available
     if (medicalContext && medicalContext.trim()) {
+      console.log('Adding medical context to AI prompt');
       messages.push({
         role: 'system',
-        content: `ИНФОРМАЦИЯ О ПАЦИЕНТЕ:\n\n${medicalContext}\n\nИспользуйте эту информацию для персонализированных ответов. Если пользователь спрашивает о своих данных (рост, вес, привычки курения и т.д.), отвечайте на основе предоставленной информации.`
+        content: `ИНФОРМАЦИЯ О ПАЦИЕНТЕ:\n\n${medicalContext}\n\nИспользуйте эту информацию для персонализированных ответов. Если пользователь спрашивает о своих данных (рост, вес, привычки курения и т.д.), отвечайте на основе предоставленной информации. ОБЯЗАТЕЛЬНО ссылайтесь на конкретные данные из профиля.`
       });
+    } else {
+      console.log('No medical context provided');
     }
 
     // Add conversation history
@@ -79,6 +83,7 @@ serve(async (req) => {
     });
 
     console.log('Sending request to OpenAI with', messages.length, 'messages');
+    console.log('Full prompt context includes medical data:', messages.some(m => m.content.includes('ИНФОРМАЦИЯ О ПАЦИЕНТЕ')));
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -103,6 +108,7 @@ serve(async (req) => {
     const aiResponse = data.choices[0].message.content;
 
     console.log('Successfully processed AI doctor request');
+    console.log('AI response length:', aiResponse.length);
 
     return new Response(JSON.stringify({ response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
