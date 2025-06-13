@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Message, SuggestedQuestion } from "@/components/dashboard/ai-doctor/types";
 import { v4 as uuidv4 } from "uuid";
@@ -135,7 +136,7 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
       .from('health_profiles')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
     
     if (healthProfileError && healthProfileError.code !== 'PGRST116') {
       console.error("Error fetching health profile:", healthProfileError);
@@ -201,33 +202,52 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
         console.error("Error parsing health profile data:", e);
       }
       
-      if (healthData && typeof healthData === 'object') {
+      if (healthData && typeof healthData === 'object' && !Array.isArray(healthData)) {
+        // Lifestyle information
         if (healthData.lifestyle && typeof healthData.lifestyle === 'object') {
           const lifestyle = healthData.lifestyle;
-          if (lifestyle.smoking) contextParts.push(`Курение: ${lifestyle.smoking}`);
-          if (lifestyle.alcohol) contextParts.push(`Алкоголь: ${lifestyle.alcohol}`);
-          if (lifestyle.exercise) contextParts.push(`Физическая активность: ${lifestyle.exercise}`);
-          if (lifestyle.sleep) contextParts.push(`Режим сна: ${lifestyle.sleep}`);
-          if (lifestyle.stress) contextParts.push(`Уровень стресса: ${lifestyle.stress}`);
+          if (lifestyle.smokingStatus) contextParts.push(`Курение: ${lifestyle.smokingStatus}`);
+          if (lifestyle.alcoholConsumption) contextParts.push(`Алкоголь: ${lifestyle.alcoholConsumption}`);
+          if (lifestyle.physicalActivity) contextParts.push(`Физическая активность: ${lifestyle.physicalActivity}`);
+          if (lifestyle.sleepHours) contextParts.push(`Сон: ${lifestyle.sleepHours} часов`);
+          if (lifestyle.sleepQuality) contextParts.push(`Качество сна: ${lifestyle.sleepQuality}`);
+          if (lifestyle.stressLevel) contextParts.push(`Уровень стресса: ${lifestyle.stressLevel}/10`);
         }
         
+        // Nutrition information
         if (healthData.nutrition && typeof healthData.nutrition === 'object') {
           const nutrition = healthData.nutrition;
-          if (nutrition.diet_type) contextParts.push(`Тип питания: ${nutrition.diet_type}`);
-          if (nutrition.supplements && Array.isArray(nutrition.supplements)) {
-            contextParts.push(`Добавки: ${nutrition.supplements.join(', ')}`);
-          }
-          if (nutrition.food_allergies && Array.isArray(nutrition.food_allergies)) {
-            contextParts.push(`Пищевые аллергии: ${nutrition.food_allergies.join(', ')}`);
-          }
+          if (nutrition.dietType) contextParts.push(`Тип питания: ${nutrition.dietType}`);
+          if (nutrition.waterIntake) contextParts.push(`Потребление воды: ${nutrition.waterIntake} стаканов в день`);
+          if (nutrition.caffeineIntake) contextParts.push(`Кофеин: ${nutrition.caffeineIntake} чашек в день`);
         }
         
-        if (healthData.family_history && Array.isArray(healthData.family_history)) {
-          contextParts.push(`Семейный анамнез: ${healthData.family_history.join(', ')}`);
+        // Handle different possible structures for health data
+        if (healthData.smokingStatus) contextParts.push(`Курение: ${healthData.smokingStatus}`);
+        if (healthData.alcoholConsumption) contextParts.push(`Алкоголь: ${healthData.alcoholConsumption}`);
+        if (healthData.physicalActivity) contextParts.push(`Физическая активность: ${healthData.physicalActivity}`);
+        if (healthData.sleepHours) contextParts.push(`Сон: ${healthData.sleepHours} часов`);
+        if (healthData.stressLevel) contextParts.push(`Уровень стресса: ${healthData.stressLevel}/10`);
+        if (healthData.dietType) contextParts.push(`Тип питания: ${healthData.dietType}`);
+        
+        if (healthData.familyHistory && Array.isArray(healthData.familyHistory)) {
+          contextParts.push(`Семейный анамнез: ${healthData.familyHistory.join(', ')}`);
         }
         
-        if (healthData.symptoms && Array.isArray(healthData.symptoms)) {
-          contextParts.push(`Текущие симптомы: ${healthData.symptoms.join(', ')}`);
+        if (healthData.currentSymptoms && Array.isArray(healthData.currentSymptoms)) {
+          contextParts.push(`Текущие симптомы: ${healthData.currentSymptoms.join(', ')}`);
+        }
+
+        if (healthData.chronicConditions && Array.isArray(healthData.chronicConditions)) {
+          contextParts.push(`Хронические заболевания: ${healthData.chronicConditions.join(', ')}`);
+        }
+
+        if (healthData.allergies && Array.isArray(healthData.allergies)) {
+          contextParts.push(`Аллергии: ${healthData.allergies.join(', ')}`);
+        }
+
+        if (healthData.medications && Array.isArray(healthData.medications)) {
+          contextParts.push(`Текущие препараты: ${healthData.medications.join(', ')}`);
         }
       }
     }
@@ -284,6 +304,7 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
     profileCache.set(cacheKey, fullContext);
     
     console.log('Generated medical context length:', fullContext.length);
+    console.log('Medical context preview:', fullContext.substring(0, 500));
     return fullContext;
     
   } catch (error) {
@@ -356,6 +377,7 @@ export async function processPersonalAIDoctorMessage(
     const fullMedicalContext = await getUserMedicalContext(user);
     
     console.log('Sending to AI with context length:', fullMedicalContext.length);
+    console.log('Medical context content:', fullMedicalContext.substring(0, 300));
     
     // Форматируем историю для ИИ
     const formattedHistory = conversationHistory.map(msg => ({
