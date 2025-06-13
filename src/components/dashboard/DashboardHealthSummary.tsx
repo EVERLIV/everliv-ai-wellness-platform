@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 import HealthSummaryHeader from "./health-summary/HealthSummaryHeader";
@@ -15,25 +15,38 @@ const DashboardHealthSummary = () => {
     isGenerating, 
     hasHealthProfile, 
     hasAnalyses, 
-    generateAnalytics 
+    generateRealTimeAnalytics 
   } = useCachedAnalytics();
+
+  // Автоматически генерируем реальные данные при монтировании компонента
+  useEffect(() => {
+    if (hasHealthProfile && hasAnalyses && !isLoading && !isGenerating && !analytics) {
+      generateRealTimeAnalytics();
+    }
+  }, [hasHealthProfile, hasAnalyses, isLoading, isGenerating, analytics, generateRealTimeAnalytics]);
 
   return (
     <Card>
       <HealthSummaryHeader
-        onRefresh={generateAnalytics}
+        onRefresh={generateRealTimeAnalytics}
         isGenerating={isGenerating}
         hasHealthProfile={hasHealthProfile}
         hasAnalyses={hasAnalyses}
       />
       <CardContent>
-        {isLoading ? (
-          <HealthSummaryLoading />
+        {isLoading || isGenerating ? (
+          <div className="space-y-4">
+            <div className="text-center py-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+              <p className="text-sm text-gray-600">Загружаем данные...</p>
+            </div>
+            <HealthSummaryLoading />
+          </div>
         ) : !analytics ? (
           <HealthSummaryEmptyState
             hasHealthProfile={hasHealthProfile}
             hasAnalyses={hasAnalyses}
-            onGenerate={generateAnalytics}
+            onGenerate={generateRealTimeAnalytics}
             isGenerating={isGenerating}
           />
         ) : (

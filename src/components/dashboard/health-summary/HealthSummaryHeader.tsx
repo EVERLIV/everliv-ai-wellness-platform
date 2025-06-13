@@ -3,6 +3,7 @@ import React from "react";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, RefreshCw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface HealthSummaryHeaderProps {
   onRefresh: () => void;
@@ -20,10 +21,17 @@ const HealthSummaryHeader: React.FC<HealthSummaryHeaderProps> = ({
   return (
     <CardHeader className="pb-3">
       <div className="flex items-center justify-between">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Heart className="h-5 w-5 text-red-500" />
-          Сводка здоровья
-        </CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Heart className="h-5 w-5 text-red-500" />
+            Сводка здоровья
+          </CardTitle>
+          {hasHealthProfile && hasAnalyses && (
+            <Badge variant="secondary" className="text-xs">
+              Реальное время
+            </Badge>
+          )}
+        </div>
         <Button
           variant="outline"
           size="sm"
