@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, TrendingUp, AlertTriangle, Target, Activity, RefreshCw } from "lucide-react";
 import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
-import PageLayout from "@/components/PageLayout";
+import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
+import AnalyticsPageHeader from "@/components/analytics/AnalyticsPageHeader";
 import DetailedHealthRecommendations from "@/components/analytics/DetailedHealthRecommendations";
 
 const Analytics = () => {
@@ -82,59 +83,79 @@ const Analytics = () => {
 
   if (isLoading || isLoadingProfile) {
     return (
-      <PageLayout title="Аналитика здоровья" description="Персональные insights на основе ваших данных" fullWidth>
+      <PageLayoutWithHeader
+        headerComponent={
+          <AnalyticsPageHeader 
+            healthScore={analytics?.healthScore || 0}
+            riskLevel={analytics?.riskLevel || "unknown"}
+          />
+        }
+        fullWidth
+      >
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             {renderLoadingState()}
           </div>
         </div>
-      </PageLayout>
+      </PageLayoutWithHeader>
     );
   }
 
   if (!analytics) {
     return (
-      <PageLayout title="Аналитика здоровья" description="Персональные insights на основе ваших данных" fullWidth>
+      <PageLayoutWithHeader
+        headerComponent={
+          <AnalyticsPageHeader 
+            healthScore={0}
+            riskLevel="unknown"
+          />
+        }
+        fullWidth
+      >
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Аналитика здоровья</h1>
-                <p className="text-gray-600 mt-2">Персональные insights на основе ваших данных</p>
+                <Button onClick={handleRefreshAnalytics} disabled={isGenerating}>
+                  {isGenerating ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                  )}
+                  {isGenerating ? 'Генерируем...' : 'Сгенерировать аналитику'}
+                </Button>
               </div>
-              <Button onClick={handleRefreshAnalytics} disabled={isGenerating}>
+            </div>
+            {renderEmptyState()}
+          </div>
+        </div>
+      </PageLayoutWithHeader>
+    );
+  }
+
+  return (
+    <PageLayoutWithHeader
+      headerComponent={
+        <AnalyticsPageHeader 
+          healthScore={analytics.healthScore}
+          riskLevel={analytics.riskLevel}
+        />
+      }
+      fullWidth
+    >
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <Button onClick={handleRefreshAnalytics} disabled={isGenerating} variant="outline">
                 {isGenerating ? (
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 ) : (
                   <RefreshCw className="h-4 w-4 mr-2" />
                 )}
-                {isGenerating ? 'Генерируем...' : 'Сгенерировать аналитику'}
+                Обновить
               </Button>
             </div>
-            {renderEmptyState()}
-          </div>
-        </div>
-      </PageLayout>
-    );
-  }
-
-  return (
-    <PageLayout title="Аналитика здоровья" description="Персональные insights на основе ваших данных" fullWidth>
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Аналитика здоровья</h1>
-              <p className="text-gray-600 mt-2">Персональные insights на основе ваших данных</p>
-            </div>
-            <Button onClick={handleRefreshAnalytics} disabled={isGenerating} variant="outline">
-              {isGenerating ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <RefreshCw className="h-4 w-4 mr-2" />
-              )}
-              Обновить
-            </Button>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -253,7 +274,7 @@ const Analytics = () => {
           </Tabs>
         </div>
       </div>
-    </PageLayout>
+    </PageLayoutWithHeader>
   );
 };
 
