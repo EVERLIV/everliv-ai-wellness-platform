@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 import HealthSummaryHeader from "./health-summary/HealthSummaryHeader";
@@ -18,9 +18,12 @@ const DashboardHealthSummary = () => {
     generateRealTimeAnalytics 
   } = useCachedAnalytics();
 
-  // Автоматически генерируем реальные данные при монтировании компонента
+  const hasGeneratedRef = useRef(false);
+
+  // Автоматически генерируем реальные данные при монтировании компонента только один раз
   useEffect(() => {
-    if (hasHealthProfile && hasAnalyses && !isLoading && !isGenerating) {
+    if (hasHealthProfile && hasAnalyses && !isLoading && !isGenerating && !hasGeneratedRef.current) {
+      hasGeneratedRef.current = true;
       generateRealTimeAnalytics();
     }
   }, [hasHealthProfile, hasAnalyses, isLoading, isGenerating, generateRealTimeAnalytics]);
@@ -28,7 +31,10 @@ const DashboardHealthSummary = () => {
   return (
     <Card>
       <HealthSummaryHeader
-        onRefresh={generateRealTimeAnalytics}
+        onRefresh={() => {
+          hasGeneratedRef.current = false;
+          generateRealTimeAnalytics();
+        }}
         isGenerating={isGenerating}
         hasHealthProfile={hasHealthProfile}
         hasAnalyses={hasAnalyses}
@@ -46,7 +52,10 @@ const DashboardHealthSummary = () => {
           <HealthSummaryEmptyState
             hasHealthProfile={hasHealthProfile}
             hasAnalyses={hasAnalyses}
-            onGenerate={generateRealTimeAnalytics}
+            onGenerate={() => {
+              hasGeneratedRef.current = false;
+              generateRealTimeAnalytics();
+            }}
             isGenerating={isGenerating}
           />
         ) : (
