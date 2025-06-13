@@ -78,6 +78,7 @@ export const useHealthProfile = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [healthProfile, setHealthProfile] = useState<HealthProfileData>(defaultHealthProfile);
 
   useEffect(() => {
@@ -140,6 +141,7 @@ export const useHealthProfile = () => {
       }
 
       toast.success('Профиль здоровья успешно сохранен');
+      setIsEditMode(false);
       navigate('/dashboard');
     } catch (error) {
       console.error('Error saving health profile:', error);
@@ -153,10 +155,16 @@ export const useHealthProfile = () => {
     setHealthProfile(prev => ({ ...prev, ...updates }));
   };
 
+  const setEditMode = (editMode: boolean) => {
+    setIsEditMode(editMode);
+  };
+
   return {
     healthProfile,
     isLoading,
+    isEditMode,
     updateHealthProfile,
-    saveHealthProfile
+    saveHealthProfile,
+    setEditMode
   };
 };
