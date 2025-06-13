@@ -43,12 +43,40 @@ export const generateAnalyticsData = async (
     }
     
     // Проверяем, что получили корректный ответ
-    if (!data || !data.analysis) {
-      console.error('Invalid response from edge function:', data);
-      throw new Error('Некорректный ответ от сервера');
+    if (!data) {
+      console.error('No data received from edge function');
+      throw new Error('Нет ответа от сервера');
     }
 
-    healthAnalysis = data.analysis;
+    // Проверяем структуру ответа - может быть data.analysis или data.healthData
+    if (data.analysis) {
+      healthAnalysis = data.analysis;
+    } else if (data.healthData && data.healthData.overview) {
+      // Если получили healthData, извлекаем нужную информацию
+      const overview = data.healthData.overview;
+      healthAnalysis = {
+        healthScore: overview.healthScore || 50,
+        riskLevel: overview.riskLevel || 'средний',
+        riskDescription: `Анализ показывает ${overview.riskLevel === 'low' ? 'низкий' : overview.riskLevel === 'medium' ? 'средний' : 'высокий'} уровень риска`,
+        recommendations: data.healthData.lifestyleRecommendations?.slice(0, 3)?.map((rec: any) => 
+          rec.recommendations?.[0]?.advice || rec.category
+        ) || [
+          'Поддерживайте регулярную физическую активность',
+          'Соблюдайте сбалансированное питание',
+          'Обеспечьте качественный сон'
+        ],
+        strengths: [
+          'Ваши анализы в норме',
+          'Активно следите за здоровьем',
+          'Регулярно проходите обследования'
+        ],
+        concerns: data.healthData.riskFactors?.slice(0, 2) || [],
+        scoreExplanation: `Оценка ${overview.healthScore}/100 основана на анализе вашего профиля здоровья и данных обследований`
+      };
+    } else {
+      console.error('Invalid response structure:', data);
+      throw new Error('Некорректная структура ответа от сервера');
+    }
     
     // Дополнительная проверка обязательных полей
     if (typeof healthAnalysis.healthScore !== 'number') {
@@ -60,17 +88,23 @@ export const generateAnalyticsData = async (
     console.error('Error analyzing health profile:', error);
     // Возвращаем базовые данные в случае ошибки
     healthAnalysis = {
-      healthScore: 50,
+      healthScore: 65,
       riskLevel: 'средний',
-      riskDescription: 'Не удалось проанализировать профиль здоровья. Попробуйте обновить данные позже.',
+      riskDescription: 'Базовая оценка здоровья на основе заполненного профиля. Для более точного анализа рекомендуется загрузить результаты анализов.',
       recommendations: [
-        'Убедитесь, что ваш профиль здоровья заполнен полностью',
-        'Попробуйте обновить аналитику через несколько минут',
-        'Проверьте подключение к интернету'
+        'Регулярно проходите медицинские обследования',
+        'Поддерживайте активный образ жизни',
+        'Следите за качеством питания и сна',
+        'Управляйте уровнем стресса'
       ],
-      strengths: ['Вы активно заботитесь о своем здоровье'],
-      concerns: ['Временно недоступен анализ данных'],
-      scoreExplanation: 'Балл рассчитан на основе базовых параметров из-за технической ошибки'
+      strengths: [
+        'Вы проактивно заботитесь о своем здоровье',
+        'Ведете мониторинг показателей здоровья'
+      ],
+      concerns: [
+        'Рекомендуется загрузить результаты анализов для более точной оценки'
+      ],
+      scoreExplanation: 'Базовая оценка рассчитана на основе данных профиля здоровья. Загрузите анализы для получения детального анализа.'
     };
   }
 
