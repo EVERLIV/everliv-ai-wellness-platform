@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -260,7 +259,14 @@ const Analytics = () => {
 
               {analytics.lastUpdated && (
                 <div className="text-xs text-gray-400 text-center">
-                  Обновлено: {new Date(analytics.lastUpdated).toLocaleString('ru-RU')}
+                  Последнее обновление: {new Date(analytics.lastUpdated).toLocaleString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                  })}
                 </div>
               )}
             </TabsContent>
