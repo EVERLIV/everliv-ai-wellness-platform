@@ -189,8 +189,8 @@ const Analytics = () => {
     >
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <Button onClick={handleRefreshAnalytics} disabled={isGenerating} variant="outline">
                 {isGenerating ? (
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -200,7 +200,7 @@ const Analytics = () => {
                 {activeTab === "overview" ? "Обновить данные" : "Обновить"}
               </Button>
               {activeTab === "overview" && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs w-fit">
                   Данные в реальном времени
                 </Badge>
               )}
@@ -208,27 +208,41 @@ const Analytics = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="overview">Обзор</TabsTrigger>
-              <TabsTrigger value="recommendations">Детальные рекомендации</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-6 h-auto p-1">
+              <TabsTrigger 
+                value="overview" 
+                className="text-xs sm:text-sm px-2 sm:px-4 py-2 sm:py-3 data-[state=active]:text-blue-600"
+              >
+                <span className="hidden sm:inline">Обзор</span>
+                <span className="sm:hidden">Обзор</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="recommendations" 
+                className="text-xs sm:text-sm px-2 sm:px-4 py-2 sm:py-3 data-[state=active]:text-blue-600"
+              >
+                <span className="hidden sm:inline">Детальные рекомендации</span>
+                <span className="sm:hidden">Рекомендации</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
               {/* Общий балл здоровья */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-blue-500" />
-                    Общий балл здоровья
-                    <Badge variant="secondary" className="text-xs ml-auto">
+                  <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-blue-500" />
+                      <span className="text-lg sm:text-xl">Общий балл здоровья</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs w-fit">
                       Актуальные данные
                     </Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center gap-6">
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-blue-600 mb-2">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                    <div className="text-center sm:text-left">
+                      <div className="text-3xl sm:text-4xl font-bold text-blue-600 mb-2">
                         {analytics.healthScore}/100
                       </div>
                       <Badge className={getRiskLevelColor(analytics.riskLevel)}>
@@ -237,8 +251,8 @@ const Analytics = () => {
                       </Badge>
                     </div>
                     <div className="flex-1">
-                      <p className="text-gray-700 mb-3">{analytics.scoreExplanation}</p>
-                      <p className="text-sm text-gray-600">{analytics.riskDescription}</p>
+                      <p className="text-gray-700 mb-3 text-sm sm:text-base">{analytics.scoreExplanation}</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{analytics.riskDescription}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -248,7 +262,7 @@ const Analytics = () => {
               {analytics.strengths && analytics.strengths.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-green-700">
+                    <CardTitle className="flex items-center gap-2 text-green-700 text-lg sm:text-xl">
                       <Target className="h-5 w-5" />
                       Ваши сильные стороны
                     </CardTitle>
@@ -257,8 +271,8 @@ const Analytics = () => {
                     <ul className="space-y-2">
                       {analytics.strengths.map((strength, index) => (
                         <li key={index} className="flex items-start gap-2">
-                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                          <span className="text-gray-700">{strength}</span>
+                          <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-gray-700 text-sm sm:text-base">{strength}</span>
                         </li>
                       ))}
                     </ul>
@@ -270,7 +284,7 @@ const Analytics = () => {
               {analytics.concerns && analytics.concerns.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-amber-700">
+                    <CardTitle className="flex items-center gap-2 text-amber-700 text-lg sm:text-xl">
                       <AlertTriangle className="h-5 w-5" />
                       Области для улучшения
                     </CardTitle>
@@ -279,8 +293,8 @@ const Analytics = () => {
                     <ul className="space-y-2">
                       {analytics.concerns.map((concern, index) => (
                         <li key={index} className="flex items-start gap-2">
-                          <div className="w-2 h-2 bg-amber-500 rounded-full mt-2"></div>
-                          <span className="text-gray-700">{concern}</span>
+                          <div className="w-2 h-2 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-gray-700 text-sm sm:text-base">{concern}</span>
                         </li>
                       ))}
                     </ul>
@@ -292,7 +306,7 @@ const Analytics = () => {
               {analytics.recommendations && analytics.recommendations.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-blue-700">
+                    <CardTitle className="flex items-center gap-2 text-blue-700 text-lg sm:text-xl">
                       <Target className="h-5 w-5" />
                       Основные рекомендации
                     </CardTitle>
@@ -301,8 +315,8 @@ const Analytics = () => {
                     <ul className="space-y-3">
                       {analytics.recommendations.map((recommendation, index) => (
                         <li key={index} className="flex items-start gap-2">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                          <span className="text-gray-700">{recommendation}</span>
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                          <span className="text-gray-700 text-sm sm:text-base">{recommendation}</span>
                         </li>
                       ))}
                     </ul>
@@ -323,7 +337,7 @@ const Analytics = () => {
               )}
             </TabsContent>
 
-            <TabsContent value="recommendations">
+            <TabsContent value="recommendations" className="space-y-6">
               <DetailedHealthRecommendations 
                 analytics={analytics} 
                 healthProfile={healthProfile}
