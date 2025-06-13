@@ -37,7 +37,7 @@ const AnalyticsPageHeader: React.FC<AnalyticsPageHeaderProps> = ({
       case 'низкий':
         return 'Низкий риск';
       default:
-        return 'Оценка здоровья';
+        return 'Неизвестно';
     }
   };
 
@@ -92,7 +92,7 @@ const AnalyticsPageHeader: React.FC<AnalyticsPageHeaderProps> = ({
                 <Brain className="h-5 w-5 text-secondary" />
               </div>
               <div>
-                <p className="text-gray-600 text-sm">Уровень риска</p>
+                <p className="text-gray-600 text-sm">Статус риска</p>
                 <span className={`text-sm font-medium px-2 py-1 rounded-full ${getRiskLevelColor(riskLevel)}`}>
                   {getRiskLevelText(riskLevel)}
                 </span>
