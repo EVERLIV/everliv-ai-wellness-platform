@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 
 export function useIsAdmin() {
   const { user } = useAuth();
@@ -17,16 +16,19 @@ export function useIsAdmin() {
       }
 
       try {
-        const { data, error } = await supabase.rpc('is_admin', { 
-          user_uuid: user.id 
-        });
+        // Проверяем админа по email адресу
+        const adminEmails = [
+          '1111hoaandrey@gmail.com',
+          'admin@everliv.ru'
+        ];
         
-        if (error) {
-          console.error('Error checking admin status:', error);
-          setIsAdmin(false);
-        } else {
-          setIsAdmin(!!data);
-        }
+        const isUserAdmin = adminEmails.includes(user.email || '');
+        setIsAdmin(isUserAdmin);
+        
+        console.log('Admin check:', {
+          userEmail: user.email,
+          isAdmin: isUserAdmin
+        });
       } catch (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
