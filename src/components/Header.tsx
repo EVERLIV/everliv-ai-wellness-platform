@@ -26,7 +26,14 @@ const Header: React.FC = () => {
           {/* Right side menu */}
           <div className="flex items-center space-x-2">
             {user ? (
-              <UserProfileDropdown />
+              <>
+                <div className="hidden md:flex items-center space-x-2">
+                  <Link to="/dashboard">
+                    <Button variant="outline" size="sm">Панель Управления</Button>
+                  </Link>
+                </div>
+                <UserProfileDropdown />
+              </>
             ) : (
               <div className="flex items-center space-x-4">
                 <Link to="/login">

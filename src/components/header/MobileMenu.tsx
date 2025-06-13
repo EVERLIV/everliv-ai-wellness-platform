@@ -57,13 +57,13 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
         
         {user ? (
           <>
+            <Link to="/dashboard" className="text-primary font-medium">Панель Управления</Link>
             {isAdmin && (
               <Link to="/admin" className="text-primary font-medium flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Админ-панель
               </Link>
             )}
-            <Link to="/dashboard" className="hover:text-gray-600">Личный кабинет</Link>
             <Button variant="outline" size="sm" onClick={handleSignOut}>Выйти</Button>
           </>
         ) : (

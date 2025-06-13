@@ -102,6 +102,9 @@ const DesktopNavigation: React.FC = () => {
       
       {user && (
         <>
+          <Link to="/dashboard">
+            <Button variant="outline" size="sm">Панель Управления</Button>
+          </Link>
           {isAdmin && (
             <Link to="/admin">
               <Button variant="default" size="sm" className="flex items-center gap-2">
@@ -110,9 +113,6 @@ const DesktopNavigation: React.FC = () => {
               </Button>
             </Link>
           )}
-          <Link to="/dashboard" className="hover:text-gray-600">
-            <Button variant="outline" size="sm">Личный кабинет</Button>
-          </Link>
           <Button variant="outline" size="sm" onClick={handleSignOut}>Выйти</Button>
         </>
       )}

@@ -34,9 +34,11 @@ const HomeHeader: React.FC = () => {
           <div className="flex items-center space-x-2">
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
-                <Link to="/dashboard">
-                  <Button variant="ghost" size="sm" className="text-primary hover:text-primary/90 hover:bg-primary/10">Панель управления</Button>
-                </Link>
+                <>
+                  <Link to="/dashboard">
+                    <Button variant="outline" size="sm" className="text-primary hover:text-primary/90 hover:bg-primary/10">Панель Управления</Button>
+                  </Link>
+                </>
               ) : (
                 <>
                   <Link to="/login">
@@ -74,7 +76,7 @@ const HomeHeader: React.FC = () => {
             <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200">
               {user ? (
                 <Link to="/dashboard">
-                  <Button variant="ghost" size="sm" className="w-full text-primary hover:text-primary/90 hover:bg-primary/10">Панель управления</Button>
+                  <Button variant="outline" size="sm" className="w-full text-primary hover:text-primary/90 hover:bg-primary/10">Панель Управления</Button>
                 </Link>
               ) : (
                 <>
