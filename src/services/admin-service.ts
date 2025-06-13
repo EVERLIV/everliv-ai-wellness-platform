@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -9,16 +10,13 @@ export async function checkAdminAccess(): Promise<boolean> {
     throw new Error("Пользователь не авторизован");
   }
 
-  const { data, error } = await supabase.rpc('is_admin', { 
-    user_uuid: user.id 
-  });
+  // Проверяем админа по email адресу
+  const adminEmails = [
+    '1111hoaandrey@gmail.com',
+    'admin@everliv.ru'
+  ];
   
-  if (error) {
-    console.error('Error checking admin status:', error);
-    throw new Error("Ошибка проверки прав администратора");
-  }
-  
-  return !!data;
+  return adminEmails.includes(user.email || '');
 }
 
 export interface PlanFeatureDetail {
@@ -52,11 +50,7 @@ export interface AdminSubscriptionPlan {
 
 export async function fetchAdminUsers(): Promise<AdminUser[]> {
   try {
-    // Проверяем права администратора
-    const isAdmin = await checkAdminAccess();
-    if (!isAdmin) {
-      throw new Error("У вас нет прав администратора");
-    }
+    console.log('Starting fetchAdminUsers');
 
     // Получаем профили пользователей
     const { data: profiles, error: profilesError } = await supabase
@@ -75,6 +69,16 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
 
     console.log('Found profiles:', profiles.length);
 
+    // Получаем email адреса из auth.users через admin API
+    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+    
+    if (authError) {
+      console.error('Error fetching auth users:', authError);
+      // Если не удается получить email из auth, продолжаем с временными
+    }
+
+    console.log('Found auth users:', authUsers?.users?.length || 0);
+
     // Получаем подписки
     const userIds = profiles.map(profile => profile.id);
     const { data: subscriptions, error: subscriptionsError } = await supabase
@@ -88,14 +92,23 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
 
     console.log('Found subscriptions:', subscriptions?.length || 0);
 
-    // Объединяем данные без email адресов пока что (используем ID как fallback)
+    // Создаем карту email адресов для быстрого поиска
+    const emailMap = new Map();
+    if (authUsers?.users) {
+      authUsers.users.forEach(user => {
+        emailMap.set(user.id, user.email);
+      });
+    }
+
+    // Объединяем данные
     const users: AdminUser[] = profiles.map(profile => {
       const userSubscriptions = subscriptions?.filter(sub => sub.user_id === profile.id) || [];
       const subscription = userSubscriptions.length > 0 ? userSubscriptions[0] : null;
+      const email = emailMap.get(profile.id) || `user-${profile.id.substring(0, 8)}@domain.com`;
       
       return {
         id: profile.id,
-        email: `user-${profile.id.substring(0, 8)}@domain.com`, // Временный fallback
+        email: email,
         first_name: profile.first_name,
         last_name: profile.last_name,
         created_at: profile.created_at,
