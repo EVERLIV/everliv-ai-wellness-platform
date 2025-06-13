@@ -56,7 +56,7 @@ export const generateAnalyticsData = async (
       const overview = data.healthData.overview;
       healthAnalysis = {
         healthScore: overview.healthScore || 50,
-        riskLevel: overview.riskLevel || 'средний',
+        riskLevel: normalizeRiskLevel(overview.riskLevel || 'medium'),
         riskDescription: `Анализ показывает ${overview.riskLevel === 'low' ? 'низкий' : overview.riskLevel === 'medium' ? 'средний' : 'высокий'} уровень риска`,
         recommendations: data.healthData.lifestyleRecommendations?.slice(0, 3)?.map((rec: any) => 
           rec.recommendations?.[0]?.advice || rec.category
@@ -84,13 +84,17 @@ export const generateAnalyticsData = async (
       throw new Error('Некорректный балл здоровья');
     }
     
+    // Нормализуем уровень риска
+    healthAnalysis.riskLevel = normalizeRiskLevel(healthAnalysis.riskLevel);
+    
   } catch (error) {
     console.error('Error analyzing health profile:', error);
-    // Возвращаем базовые данные в случае ошибки
+    // Возвращаем базовые данные в случае ошибки с реалистичной оценкой риска
+    const defaultRiskLevel = calculateDefaultRiskLevel(healthProfileData);
     healthAnalysis = {
-      healthScore: 65,
-      riskLevel: 'средний',
-      riskDescription: 'Базовая оценка здоровья на основе заполненного профиля. Для более точного анализа рекомендуется загрузить результаты анализов.',
+      healthScore: calculateDefaultHealthScore(healthProfileData),
+      riskLevel: defaultRiskLevel,
+      riskDescription: `Базовая оценка здоровья на основе заполненного профиля. Для более точного анализа рекомендуется загрузить результаты анализов.`,
       recommendations: [
         'Регулярно проходите медицинские обследования',
         'Поддерживайте активный образ жизни',
@@ -175,6 +179,83 @@ export const generateAnalyticsData = async (
     recentActivities: recentActivities.slice(0, 4),
     lastUpdated: new Date().toISOString()
   };
+};
+
+// Функция для нормализации уровня риска
+const normalizeRiskLevel = (riskLevel: string): string => {
+  if (!riskLevel) return 'средний';
+  
+  const level = riskLevel.toLowerCase();
+  
+  if (level.includes('низк') || level === 'low') return 'низкий';
+  if (level.includes('высок') || level === 'high') return 'высокий';
+  if (level.includes('средн') || level === 'medium') return 'средний';
+  
+  return 'средний';
+};
+
+// Функция для расчета базового уровня риска на основе профиля
+const calculateDefaultRiskLevel = (healthProfile: any): string => {
+  let riskFactors = 0;
+  
+  // Проверяем факторы риска
+  if (healthProfile.smokingStatus === 'regular' || healthProfile.smokingStatus === 'occasional') {
+    riskFactors += 2;
+  }
+  
+  if (healthProfile.physicalActivity === 'sedentary') {
+    riskFactors += 1;
+  }
+  
+  if (healthProfile.alcoholConsumption === 'heavy') {
+    riskFactors += 1;
+  }
+  
+  if (healthProfile.sleepHours < 6) {
+    riskFactors += 1;
+  }
+  
+  if (healthProfile.stressLevel > 7) {
+    riskFactors += 1;
+  }
+  
+  if (healthProfile.age > 50) {
+    riskFactors += 1;
+  }
+  
+  // Определяем уровень риска
+  if (riskFactors >= 3) return 'высокий';
+  if (riskFactors >= 1) return 'средний';
+  return 'низкий';
+};
+
+// Функция для расчета базового балла здоровья
+const calculateDefaultHealthScore = (healthProfile: any): number => {
+  let score = 80; // Базовый балл
+  
+  // Вычитаем за негативные факторы
+  if (healthProfile.smokingStatus === 'regular') score -= 15;
+  else if (healthProfile.smokingStatus === 'occasional') score -= 8;
+  
+  if (healthProfile.physicalActivity === 'sedentary') score -= 10;
+  else if (healthProfile.physicalActivity === 'light') score -= 5;
+  
+  if (healthProfile.alcoholConsumption === 'heavy') score -= 10;
+  else if (healthProfile.alcoholConsumption === 'moderate') score -= 3;
+  
+  if (healthProfile.sleepHours < 6) score -= 8;
+  else if (healthProfile.sleepHours < 7) score -= 4;
+  
+  if (healthProfile.stressLevel > 7) score -= 8;
+  else if (healthProfile.stressLevel > 5) score -= 4;
+  
+  // Добавляем за позитивные факторы
+  if (healthProfile.exerciseFrequency >= 5) score += 5;
+  else if (healthProfile.exerciseFrequency >= 3) score += 3;
+  
+  if (healthProfile.waterIntake >= 8) score += 3;
+  
+  return Math.max(30, Math.min(100, score));
 };
 
 export const getTimeAgo = (dateString: string): string => {
