@@ -35,20 +35,42 @@ export const generateAnalyticsData = async (
       }
     });
 
-    if (error) throw error;
+    console.log('Edge function response:', { data, error });
+
+    if (error) {
+      console.error('Edge function error:', error);
+      throw error;
+    }
     
+    // Проверяем, что получили корректный ответ
+    if (!data || !data.analysis) {
+      console.error('Invalid response from edge function:', data);
+      throw new Error('Некорректный ответ от сервера');
+    }
+
     healthAnalysis = data.analysis;
+    
+    // Дополнительная проверка обязательных полей
+    if (typeof healthAnalysis.healthScore !== 'number') {
+      console.error('Invalid healthScore in response:', healthAnalysis);
+      throw new Error('Некорректный балл здоровья');
+    }
+    
   } catch (error) {
     console.error('Error analyzing health profile:', error);
     // Возвращаем базовые данные в случае ошибки
     healthAnalysis = {
       healthScore: 50,
       riskLevel: 'средний',
-      riskDescription: 'Ошибка анализа профиля здоровья',
-      recommendations: ['Попробуйте обновить аналитику позже'],
-      strengths: [],
-      concerns: ['Не удалось проанализировать данные'],
-      scoreExplanation: 'Не удалось рассчитать балл здоровья'
+      riskDescription: 'Не удалось проанализировать профиль здоровья. Попробуйте обновить данные позже.',
+      recommendations: [
+        'Убедитесь, что ваш профиль здоровья заполнен полностью',
+        'Попробуйте обновить аналитику через несколько минут',
+        'Проверьте подключение к интернету'
+      ],
+      strengths: ['Вы активно заботитесь о своем здоровье'],
+      concerns: ['Временно недоступен анализ данных'],
+      scoreExplanation: 'Балл рассчитан на основе базовых параметров из-за технической ошибки'
     };
   }
 
@@ -103,9 +125,9 @@ export const generateAnalyticsData = async (
     healthScore: healthAnalysis.healthScore,
     riskLevel: healthAnalysis.riskLevel,
     riskDescription: healthAnalysis.riskDescription,
-    recommendations: healthAnalysis.recommendations,
-    strengths: healthAnalysis.strengths,
-    concerns: healthAnalysis.concerns,
+    recommendations: healthAnalysis.recommendations || [],
+    strengths: healthAnalysis.strengths || [],
+    concerns: healthAnalysis.concerns || [],
     scoreExplanation: healthAnalysis.scoreExplanation,
     totalAnalyses,  // Используем реальное количество
     totalConsultations,  // Используем реальное количество
