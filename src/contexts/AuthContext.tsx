@@ -48,8 +48,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (!mounted) return;
             toast.success('Успешный вход в систему');
             
-            // Only navigate if on auth pages or home page
-            if (location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/') {
+            // Only navigate if on auth pages or home page, but NOT on admin pages
+            const isOnAuthPages = location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/';
+            const isOnAdminPages = location.pathname.startsWith('/admin');
+            
+            if (isOnAuthPages && !isOnAdminPages) {
               // Check if this is first login ever for this user
               const isFirstLogin = !session?.user?.last_sign_in_at;
               if (isFirstLogin) {
@@ -74,7 +77,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             navigate('/reset-password');
           }, 0);
         } else if (event === 'INITIAL_SESSION') {
-          // Don't redirect if we already have a session and user is browsing
+          // Don't redirect if we already have a session and user is browsing admin pages
           setIsLoading(false);
         }
       }
@@ -90,8 +93,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(false);
       setIsInitialized(true);
       
-      // Only navigate on initial load if coming from auth pages
-      if (session && !isInitialized && (location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/')) {
+      // Only navigate on initial load if coming from auth pages and NOT on admin pages
+      const isOnAuthPages = location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/';
+      const isOnAdminPages = location.pathname.startsWith('/admin');
+      
+      if (session && !isInitialized && isOnAuthPages && !isOnAdminPages) {
         navigate('/dashboard');
       }
     });
