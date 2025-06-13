@@ -84,8 +84,13 @@ export const generateAnalyticsData = async (
       throw new Error('Некорректный балл здоровья');
     }
     
-    // Нормализуем уровень риска
+    // Принудительно нормализуем уровень риска
     healthAnalysis.riskLevel = normalizeRiskLevel(healthAnalysis.riskLevel);
+    
+    // Убеждаемся, что у нас есть корректный уровень риска
+    if (!healthAnalysis.riskLevel || healthAnalysis.riskLevel === 'unknown') {
+      healthAnalysis.riskLevel = calculateDefaultRiskLevel(healthProfileData);
+    }
     
   } catch (error) {
     console.error('Error analyzing health profile:', error);
@@ -94,7 +99,7 @@ export const generateAnalyticsData = async (
     healthAnalysis = {
       healthScore: calculateDefaultHealthScore(healthProfileData),
       riskLevel: defaultRiskLevel,
-      riskDescription: `Базовая оценка здоровья на основе заполненного профиля. Для более точного анализа рекомендуется загрузить результаты анализов.`,
+      riskDescription: `Базовая оценка здоровья на основе заполненного профиля. Уровень риска: ${defaultRiskLevel}.`,
       recommendations: [
         'Регулярно проходите медицинские обследования',
         'Поддерживайте активный образ жизни',
@@ -167,8 +172,8 @@ export const generateAnalyticsData = async (
     strengths: healthAnalysis.strengths || [],
     concerns: healthAnalysis.concerns || [],
     scoreExplanation: healthAnalysis.scoreExplanation,
-    totalAnalyses,  // Используем реальное количество
-    totalConsultations,  // Используем реальное количество
+    totalAnalyses,
+    totalConsultations,
     lastAnalysisDate: analyses[0]?.created_at,
     hasRecentActivity,
     trendsAnalysis: {
@@ -183,13 +188,13 @@ export const generateAnalyticsData = async (
 
 // Функция для нормализации уровня риска
 const normalizeRiskLevel = (riskLevel: string): string => {
-  if (!riskLevel) return 'средний';
+  if (!riskLevel || riskLevel === 'unknown') return 'средний';
   
-  const level = riskLevel.toLowerCase();
+  const level = riskLevel.toLowerCase().trim();
   
-  if (level.includes('низк') || level === 'low') return 'низкий';
-  if (level.includes('высок') || level === 'high') return 'высокий';
-  if (level.includes('средн') || level === 'medium') return 'средний';
+  if (level.includes('низк') || level === 'low' || level === 'минимальный') return 'низкий';
+  if (level.includes('высок') || level === 'high' || level === 'критический') return 'высокий';
+  if (level.includes('средн') || level === 'medium' || level === 'умеренный') return 'средний';
   
   return 'средний';
 };

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -17,14 +18,26 @@ const Analytics = () => {
     isGenerating, 
     hasHealthProfile, 
     hasAnalyses, 
-    generateAnalytics 
+    generateAnalytics,
+    generateRealTimeAnalytics 
   } = useCachedAnalytics();
   
   const { healthProfile, isLoading: isLoadingProfile } = useHealthProfile();
   const [activeTab, setActiveTab] = useState("overview");
 
+  // Автоматически генерируем реальные данные при открытии вкладки "Обзор"
+  useEffect(() => {
+    if (activeTab === "overview" && hasHealthProfile && !isLoading && !isGenerating) {
+      generateRealTimeAnalytics();
+    }
+  }, [activeTab, hasHealthProfile]);
+
   const handleRefreshAnalytics = async () => {
-    await generateAnalytics();
+    if (activeTab === "overview") {
+      await generateRealTimeAnalytics();
+    } else {
+      await generateAnalytics();
+    }
   };
 
   const getRiskLevelColor = (level: string) => {
@@ -93,7 +106,14 @@ const Analytics = () => {
       >
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
-            {renderLoadingState()}
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-500" />
+                <p className="text-gray-600">
+                  {isGenerating ? 'Генерируем персональную аналитику...' : 'Загружаем данные...'}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </PageLayoutWithHeader>
@@ -125,7 +145,32 @@ const Analytics = () => {
                 </Button>
               </div>
             </div>
-            {renderEmptyState()}
+            <div className="text-center py-12">
+              <Activity className="h-16 w-16 text-gray-400 mx-auto mb-6" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Недостаточно данных для аналитики
+              </h3>
+              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                {!hasHealthProfile && !hasAnalyses 
+                  ? "Заполните профиль здоровья и загрузите анализы крови для получения персональной аналитики"
+                  : !hasHealthProfile 
+                  ? "Заполните профиль здоровья для получения персональной аналитики"
+                  : "Загрузите анализы крови для получения персональной аналитики"
+                }
+              </p>
+              <div className="flex gap-4 justify-center">
+                {!hasHealthProfile && (
+                  <Button onClick={() => window.location.href = '/health-profile'}>
+                    Заполнить профиль здоровья
+                  </Button>
+                )}
+                {!hasAnalyses && (
+                  <Button variant="outline" onClick={() => window.location.href = '/lab-analyses'}>
+                    Загрузить анализы
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </PageLayoutWithHeader>
@@ -152,8 +197,13 @@ const Analytics = () => {
                 ) : (
                   <RefreshCw className="h-4 w-4 mr-2" />
                 )}
-                Обновить
+                {activeTab === "overview" ? "Обновить данные" : "Обновить"}
               </Button>
+              {activeTab === "overview" && (
+                <Badge variant="secondary" className="text-xs">
+                  Данные в реальном времени
+                </Badge>
+              )}
             </div>
           </div>
 
@@ -170,6 +220,9 @@ const Analytics = () => {
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5 text-blue-500" />
                     Общий балл здоровья
+                    <Badge variant="secondary" className="text-xs ml-auto">
+                      Актуальные данные
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -264,8 +317,7 @@ const Analytics = () => {
                     month: '2-digit', 
                     year: 'numeric',
                     hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
+                    minute: '2-digit'
                   })}
                 </div>
               )}

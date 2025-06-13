@@ -57,7 +57,6 @@ export const useCachedAnalytics = () => {
       }
 
       if (data?.analytics_data) {
-        // Безопасное приведение типа через unknown
         const analyticsData = data.analytics_data as unknown as CachedAnalytics;
         setAnalytics(analyticsData);
       }
@@ -68,7 +67,7 @@ export const useCachedAnalytics = () => {
     }
   };
 
-  const generateAnalytics = async () => {
+  const generateAnalytics = async (forceRealTime: boolean = false) => {
     if (!user || !hasHealthProfile) {
       toast.error('Сначала заполните профиль здоровья');
       return;
@@ -76,6 +75,8 @@ export const useCachedAnalytics = () => {
 
     try {
       setIsGenerating(true);
+      
+      console.log('Generating analytics in real-time mode:', forceRealTime);
       
       // Получаем РЕАЛЬНЫЕ данные анализов пользователя
       const { data: analysesData, error: analysesError } = await supabase
@@ -119,7 +120,6 @@ export const useCachedAnalytics = () => {
         hasProfile: !!healthProfileData
       });
 
-      // Безопасное приведение типов
       const analyses = (analysesData || []).map(item => ({
         created_at: item.created_at,
         results: item.results as any
@@ -141,14 +141,16 @@ export const useCachedAnalytics = () => {
       );
 
       if (newAnalytics) {
-        // Сохраняем в кэш
-        await supabase
-          .from('user_analytics')
-          .upsert({
-            user_id: user.id,
-            analytics_data: newAnalytics as any,
-            updated_at: new Date().toISOString()
-          });
+        // Сохраняем в кэш только если это не режим реального времени
+        if (!forceRealTime) {
+          await supabase
+            .from('user_analytics')
+            .upsert({
+              user_id: user.id,
+              analytics_data: newAnalytics as any,
+              updated_at: new Date().toISOString()
+            });
+        }
 
         setAnalytics(newAnalytics);
         toast.success('Аналитика обновлена');
@@ -161,12 +163,15 @@ export const useCachedAnalytics = () => {
     }
   };
 
+  const generateRealTimeAnalytics = () => generateAnalytics(true);
+
   return {
     analytics,
     isLoading,
     isGenerating,
     hasHealthProfile,
     hasAnalyses,
-    generateAnalytics
+    generateAnalytics,
+    generateRealTimeAnalytics
   };
 };
