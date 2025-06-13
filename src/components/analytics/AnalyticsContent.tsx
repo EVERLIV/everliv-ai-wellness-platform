@@ -7,7 +7,6 @@ import HealthOverviewCards from "./HealthOverviewCards";
 import DetailedHealthRecommendations from "./DetailedHealthRecommendations";
 import AnalyticsSummary from "./AnalyticsSummary";
 import AnalyticsActions from "./AnalyticsActions";
-import { generateDetailedRecommendations } from "@/utils/detailedRecommendationsGenerator";
 import { CachedAnalytics } from "@/types/analytics";
 
 interface AnalyticsContentProps {
@@ -88,8 +87,6 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
     supplements: []
   };
 
-  const detailedRecommendations = generateDetailedRecommendations(analytics);
-
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
       <AnalyticsActions 
@@ -102,11 +99,7 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
       />
 
       <DetailedHealthRecommendations
-        recommendations={detailedRecommendations.recommendations}
-        riskFactors={detailedRecommendations.riskFactors}
-        supplements={detailedRecommendations.supplements}
-        specialists={detailedRecommendations.specialists}
-        tests={detailedRecommendations.tests}
+        analytics={analytics}
       />
 
       <AnalyticsSummary 
