@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Message, SuggestedQuestion } from "@/components/dashboard/ai-doctor/types";
 import { v4 as uuidv4 } from "uuid";
@@ -191,30 +190,40 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
     // Health profile information
     if (healthProfile?.profile_data) {
       contextParts.push("\n=== РАСШИРЕННЫЙ ПРОФИЛЬ ЗДОРОВЬЯ ===");
-      const healthData = healthProfile.profile_data;
       
-      if (healthData.lifestyle) {
-        const lifestyle = healthData.lifestyle;
-        if (lifestyle.smoking) contextParts.push(`Курение: ${lifestyle.smoking}`);
-        if (lifestyle.alcohol) contextParts.push(`Алкоголь: ${lifestyle.alcohol}`);
-        if (lifestyle.exercise) contextParts.push(`Физическая активность: ${lifestyle.exercise}`);
-        if (lifestyle.sleep) contextParts.push(`Режим сна: ${lifestyle.sleep}`);
-        if (lifestyle.stress) contextParts.push(`Уровень стресса: ${lifestyle.stress}`);
-      }
+      // Safely parse the JSON data
+      const healthData = typeof healthProfile.profile_data === 'string' 
+        ? JSON.parse(healthProfile.profile_data) 
+        : healthProfile.profile_data;
       
-      if (healthData.nutrition) {
-        const nutrition = healthData.nutrition;
-        if (nutrition.diet_type) contextParts.push(`Тип питания: ${nutrition.diet_type}`);
-        if (nutrition.supplements) contextParts.push(`Добавки: ${nutrition.supplements.join(', ')}`);
-        if (nutrition.food_allergies) contextParts.push(`Пищевые аллергии: ${nutrition.food_allergies.join(', ')}`);
-      }
-      
-      if (healthData.family_history) {
-        contextParts.push(`Семейный анамнез: ${healthData.family_history.join(', ')}`);
-      }
-      
-      if (healthData.symptoms) {
-        contextParts.push(`Текущие симптомы: ${healthData.symptoms.join(', ')}`);
+      if (healthData && typeof healthData === 'object') {
+        if (healthData.lifestyle && typeof healthData.lifestyle === 'object') {
+          const lifestyle = healthData.lifestyle;
+          if (lifestyle.smoking) contextParts.push(`Курение: ${lifestyle.smoking}`);
+          if (lifestyle.alcohol) contextParts.push(`Алкоголь: ${lifestyle.alcohol}`);
+          if (lifestyle.exercise) contextParts.push(`Физическая активность: ${lifestyle.exercise}`);
+          if (lifestyle.sleep) contextParts.push(`Режим сна: ${lifestyle.sleep}`);
+          if (lifestyle.stress) contextParts.push(`Уровень стресса: ${lifestyle.stress}`);
+        }
+        
+        if (healthData.nutrition && typeof healthData.nutrition === 'object') {
+          const nutrition = healthData.nutrition;
+          if (nutrition.diet_type) contextParts.push(`Тип питания: ${nutrition.diet_type}`);
+          if (nutrition.supplements && Array.isArray(nutrition.supplements)) {
+            contextParts.push(`Добавки: ${nutrition.supplements.join(', ')}`);
+          }
+          if (nutrition.food_allergies && Array.isArray(nutrition.food_allergies)) {
+            contextParts.push(`Пищевые аллергии: ${nutrition.food_allergies.join(', ')}`);
+          }
+        }
+        
+        if (healthData.family_history && Array.isArray(healthData.family_history)) {
+          contextParts.push(`Семейный анамнез: ${healthData.family_history.join(', ')}`);
+        }
+        
+        if (healthData.symptoms && Array.isArray(healthData.symptoms)) {
+          contextParts.push(`Текущие симптомы: ${healthData.symptoms.join(', ')}`);
+        }
       }
     }
 
@@ -232,20 +241,25 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
           contextParts.push(`   Заключение: ${analysis.summary}`);
         }
         
-        if (analysis.results?.markers) {
-          const normalMarkers = analysis.results.markers.filter(m => m.status === 'normal').length;
-          const abnormalMarkers = analysis.results.markers.filter(m => m.status !== 'normal').length;
-          contextParts.push(`   Показателей в норме: ${normalMarkers}, отклонений: ${abnormalMarkers}`);
+        if (analysis.results && typeof analysis.results === 'object') {
+          const results = analysis.results;
           
-          // Добавляем ключевые отклонения
-          const keyAbnormalities = analysis.results.markers
-            .filter(m => m.status !== 'normal')
-            .slice(0, 5) // Берем первые 5 отклонений
-            .map(m => `${m.name}: ${m.value} ${m.unit || ''} (норма: ${m.reference_range || 'не указана'})`)
-            .join(', ');
-          
-          if (keyAbnormalities) {
-            contextParts.push(`   Ключевые отклонения: ${keyAbnormalities}`);
+          // Safely access markers if they exist
+          if (results.markers && Array.isArray(results.markers)) {
+            const normalMarkers = results.markers.filter((m: any) => m.status === 'normal').length;
+            const abnormalMarkers = results.markers.filter((m: any) => m.status !== 'normal').length;
+            contextParts.push(`   Показателей в норме: ${normalMarkers}, отклонений: ${abnormalMarkers}`);
+            
+            // Добавляем ключевые отклонения
+            const keyAbnormalities = results.markers
+              .filter((m: any) => m.status !== 'normal')
+              .slice(0, 5) // Берем первые 5 отклонений
+              .map((m: any) => `${m.name}: ${m.value} ${m.unit || ''} (норма: ${m.reference_range || 'не указана'})`)
+              .join(', ');
+            
+            if (keyAbnormalities) {
+              contextParts.push(`   Ключевые отклонения: ${keyAbnormalities}`);
+            }
           }
         }
       });
