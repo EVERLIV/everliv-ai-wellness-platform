@@ -70,14 +70,15 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
     console.log('Found profiles:', profiles.length);
 
     // Получаем email адреса из auth.users через admin API
-    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+    const { data: authUsersResponse, error: authError } = await supabase.auth.admin.listUsers();
     
     if (authError) {
       console.error('Error fetching auth users:', authError);
       // Если не удается получить email из auth, продолжаем с временными
     }
 
-    console.log('Found auth users:', authUsers?.users?.length || 0);
+    const authUsers = authUsersResponse?.users || [];
+    console.log('Found auth users:', authUsers.length);
 
     // Получаем подписки
     const userIds = profiles.map(profile => profile.id);
@@ -93,12 +94,12 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
     console.log('Found subscriptions:', subscriptions?.length || 0);
 
     // Создаем карту email адресов для быстрого поиска
-    const emailMap = new Map();
-    if (authUsers?.users) {
-      authUsers.users.forEach(user => {
+    const emailMap = new Map<string, string>();
+    authUsers.forEach(user => {
+      if (user.id && user.email) {
         emailMap.set(user.id, user.email);
-      });
-    }
+      }
+    });
 
     // Объединяем данные
     const users: AdminUser[] = profiles.map(profile => {
