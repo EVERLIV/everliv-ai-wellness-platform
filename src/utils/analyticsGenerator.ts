@@ -1,6 +1,6 @@
 
 import { CachedAnalytics, AnalysisRecord, ChatRecord } from '@/types/analytics';
-import { analyzeHealthProfile } from '@/services/ai/health-profile-analysis';
+import { supabase } from '@/integrations/supabase/client';
 
 export const generateAnalyticsData = async (
   analyses: AnalysisRecord[], 
@@ -24,10 +24,20 @@ export const generateAnalyticsData = async (
     hasHealthProfile
   });
 
-  // Анализируем профиль здоровья с помощью ИИ
+  // Анализируем профиль здоровья через edge-функцию
   let healthAnalysis;
   try {
-    healthAnalysis = await analyzeHealthProfile(healthProfileData);
+    const { data, error } = await supabase.functions.invoke('generate-health-analytics', {
+      body: {
+        healthProfile: healthProfileData,
+        analyses: analyses,
+        chats: chats
+      }
+    });
+
+    if (error) throw error;
+    
+    healthAnalysis = data.analysis;
   } catch (error) {
     console.error('Error analyzing health profile:', error);
     // Возвращаем базовые данные в случае ошибки
@@ -35,9 +45,9 @@ export const generateAnalyticsData = async (
       healthScore: 50,
       riskLevel: 'средний',
       riskDescription: 'Ошибка анализа профиля здоровья',
-      recommendations: [],
+      recommendations: ['Попробуйте обновить аналитику позже'],
       strengths: [],
-      concerns: [],
+      concerns: ['Не удалось проанализировать данные'],
       scoreExplanation: 'Не удалось рассчитать балл здоровья'
     };
   }
