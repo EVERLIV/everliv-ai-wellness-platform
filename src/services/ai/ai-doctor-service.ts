@@ -192,9 +192,14 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
       contextParts.push("\n=== РАСШИРЕННЫЙ ПРОФИЛЬ ЗДОРОВЬЯ ===");
       
       // Safely parse the JSON data
-      const healthData = typeof healthProfile.profile_data === 'string' 
-        ? JSON.parse(healthProfile.profile_data) 
-        : healthProfile.profile_data;
+      let healthData: any = null;
+      try {
+        healthData = typeof healthProfile.profile_data === 'string' 
+          ? JSON.parse(healthProfile.profile_data) 
+          : healthProfile.profile_data;
+      } catch (e) {
+        console.error("Error parsing health profile data:", e);
+      }
       
       if (healthData && typeof healthData === 'object') {
         if (healthData.lifestyle && typeof healthData.lifestyle === 'object') {
@@ -241,11 +246,19 @@ export async function getUserMedicalContext(user: User | null): Promise<string> 
           contextParts.push(`   Заключение: ${analysis.summary}`);
         }
         
-        if (analysis.results && typeof analysis.results === 'object') {
-          const results = analysis.results;
+        if (analysis.results) {
+          // Safely handle the results JSON
+          let results: any = null;
+          try {
+            results = typeof analysis.results === 'string' 
+              ? JSON.parse(analysis.results) 
+              : analysis.results;
+          } catch (e) {
+            console.error("Error parsing analysis results:", e);
+          }
           
-          // Safely access markers if they exist
-          if (results.markers && Array.isArray(results.markers)) {
+          // Safely access markers if they exist and results is an object
+          if (results && typeof results === 'object' && !Array.isArray(results) && results.markers && Array.isArray(results.markers)) {
             const normalMarkers = results.markers.filter((m: any) => m.status === 'normal').length;
             const abnormalMarkers = results.markers.filter((m: any) => m.status !== 'normal').length;
             contextParts.push(`   Показателей в норме: ${normalMarkers}, отклонений: ${abnormalMarkers}`);
