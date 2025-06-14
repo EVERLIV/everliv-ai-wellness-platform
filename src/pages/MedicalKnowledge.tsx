@@ -16,7 +16,6 @@ const MedicalKnowledge: React.FC = () => {
   const [searchResults, setSearchResults] = useState<MedicalArticle[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const handleSearch = async (query: string, categoryId?: string) => {
     setIsSearching(true);
@@ -32,21 +31,18 @@ const MedicalKnowledge: React.FC = () => {
   };
 
   const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategory(categoryId);
     const categoryArticles = articles.filter(article => article.category_id === categoryId);
     setSearchResults(categoryArticles);
     setHasSearched(true);
   };
 
   const handleArticleSelect = (articleId: string) => {
-    // TODO: Navigate to article detail page
     console.log('Selected article:', articleId);
   };
 
   const handleResetSearch = () => {
     setHasSearched(false);
     setSearchResults([]);
-    setSelectedCategory(null);
   };
 
   const getArticleCountByCategory = (categoryId: string) => {
@@ -66,7 +62,6 @@ const MedicalKnowledge: React.FC = () => {
           specializationsCount={specializations.length}
         />
 
-        {/* Main Content */}
         <div className="container mx-auto px-4 py-4 max-w-7xl">
           <div className="space-y-4">
             <MedicalKnowledgeSearch

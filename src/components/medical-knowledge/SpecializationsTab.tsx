@@ -1,8 +1,8 @@
 
 import React from 'react';
 import MedicalSpecializationCard from './MedicalSpecializationCard';
+import LoadingState from './LoadingState';
 import { DoctorSpecialization } from '@/types/medical';
-import { Loader2 } from 'lucide-react';
 
 interface SpecializationsTabProps {
   isLoading: boolean;
@@ -15,12 +15,10 @@ const SpecializationsTab: React.FC<SpecializationsTabProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12 md:py-20">
-        <div className="text-center">
-          <Loader2 className="h-10 w-10 md:h-12 md:w-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-base md:text-lg text-gray-600">Загрузка информации о специалистах...</p>
-        </div>
-      </div>
+      <LoadingState 
+        message="Загрузка специализаций..."
+        size="md"
+      />
     );
   }
 

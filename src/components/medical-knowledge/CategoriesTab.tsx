@@ -1,8 +1,8 @@
 
 import React from 'react';
 import MedicalCategoryCard from './MedicalCategoryCard';
+import LoadingState from './LoadingState';
 import { MedicalCategory } from '@/types/medical';
-import { Loader2 } from 'lucide-react';
 
 interface CategoriesTabProps {
   isLoading: boolean;
@@ -19,12 +19,10 @@ const CategoriesTab: React.FC<CategoriesTabProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12 md:py-20">
-        <div className="text-center">
-          <Loader2 className="h-10 w-10 md:h-12 md:w-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-base md:text-lg text-gray-600">Загрузка категорий...</p>
-        </div>
-      </div>
+      <LoadingState 
+        message="Загрузка категорий..."
+        size="md"
+      />
     );
   }
 
