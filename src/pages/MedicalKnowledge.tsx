@@ -10,14 +10,12 @@ import CategoriesTab from '@/components/medical-knowledge/CategoriesTab';
 import SpecializationsTab from '@/components/medical-knowledge/SpecializationsTab';
 import { useMedicalKnowledge } from '@/hooks/useMedicalKnowledge';
 import { MedicalArticle } from '@/types/medical';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const MedicalKnowledge: React.FC = () => {
   const { categories, articles, specializations, isLoading, searchArticles } = useMedicalKnowledge();
   const [searchResults, setSearchResults] = useState<MedicalArticle[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const isMobile = useIsMobile();
 
   const handleSearch = async (query: string, categoryId?: string) => {
     setIsSearching(true);
@@ -33,7 +31,17 @@ const MedicalKnowledge: React.FC = () => {
   };
 
   const handleCategorySelect = (categoryId: string) => {
-    const categoryArticles = articles.filter(article => article.category_id === categoryId);
+    // Строгая фильтрация статей по категории
+    const categoryArticles = articles
+      .filter(article => article.category_id === categoryId)
+      .reduce((acc, current) => {
+        const existingIndex = acc.findIndex(item => item.id === current.id);
+        if (existingIndex === -1) {
+          acc.push(current);
+        }
+        return acc;
+      }, [] as MedicalArticle[]);
+    
     setSearchResults(categoryArticles);
     setHasSearched(true);
   };
@@ -48,7 +56,16 @@ const MedicalKnowledge: React.FC = () => {
   };
 
   const getArticleCountByCategory = (categoryId: string) => {
-    return articles.filter(article => article.category_id === categoryId).length;
+    // Подсчитываем уникальные статьи по категории с точной фильтрацией
+    const uniqueArticles = articles.reduce((acc, current) => {
+      const existingIndex = acc.findIndex(item => item.id === current.id);
+      if (existingIndex === -1) {
+        acc.push(current);
+      }
+      return acc;
+    }, [] as MedicalArticle[]);
+    
+    return uniqueArticles.filter(article => article.category_id === categoryId).length;
   };
 
   const displayedArticles = hasSearched ? searchResults : articles;
@@ -64,7 +81,7 @@ const MedicalKnowledge: React.FC = () => {
           specializationsCount={specializations.length}
         />
 
-        <div className="container mx-auto px-4 py-4 sm:py-6 max-w-7xl">
+        <div className="container mx-auto px-4 py-4 max-w-7xl">
           <div className="space-y-4">
             <MedicalKnowledgeSearch
               categories={categories}
@@ -73,15 +90,15 @@ const MedicalKnowledge: React.FC = () => {
             />
 
             <Tabs defaultValue="articles" className="w-full">
-              <TabsList className={`grid w-full grid-cols-3 mb-4 h-auto ${isMobile ? 'text-xs' : ''}`}>
+              <TabsList className="grid w-full grid-cols-3 mb-4 h-auto">
                 <TabsTrigger value="articles" className="text-sm py-2">
-                  {isMobile ? 'Статьи' : 'Статьи'}
+                  Статьи
                 </TabsTrigger>
                 <TabsTrigger value="categories" className="text-sm py-2">
-                  {isMobile ? 'Категории' : 'Категории'}
+                  Категории
                 </TabsTrigger>
                 <TabsTrigger value="doctors" className="text-sm py-2">
-                  {isMobile ? 'Врачи' : 'Специалисты'}
+                  Специалисты
                 </TabsTrigger>
               </TabsList>
 
