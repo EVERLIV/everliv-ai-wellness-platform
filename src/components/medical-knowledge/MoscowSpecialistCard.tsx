@@ -31,16 +31,16 @@ const MoscowSpecialistCard: React.FC<MoscowSpecialistCardProps> = ({
   return (
     <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 border-0 bg-white group h-full">
       <CardHeader className="pb-3">
-        <div className="flex items-start gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-3">
           {specialist.photo_url && (
             <img 
               src={specialist.photo_url}
               alt={specialist.name}
-              className="w-16 h-16 rounded-full object-cover"
+              className="w-16 h-16 rounded-full object-cover self-center sm:self-start flex-shrink-0"
             />
           )}
-          <div className="flex-1">
-            <CardTitle className="text-lg group-hover:text-blue-600 transition-colors mb-1">
+          <div className="flex-1 text-center sm:text-left">
+            <CardTitle className="text-lg group-hover:text-blue-600 transition-colors mb-1 break-words">
               {specialist.name}
             </CardTitle>
             {specialist.specialization?.name && (
@@ -50,7 +50,7 @@ const MoscowSpecialistCard: React.FC<MoscowSpecialistCardProps> = ({
             )}
             
             {specialist.rating && (
-              <div className="flex items-center gap-1">
+              <div className="flex items-center justify-center sm:justify-start gap-1">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                 <span className="text-sm font-medium">{specialist.rating}</span>
                 {specialist.reviews_count && (
@@ -71,46 +71,46 @@ const MoscowSpecialistCard: React.FC<MoscowSpecialistCardProps> = ({
           </p>
         )}
 
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 gap-2">
           {specialist.experience_years && (
             <div className="flex items-center gap-2 text-xs text-gray-600">
-              <Award className="h-3 w-3" />
+              <Award className="h-3 w-3 flex-shrink-0" />
               <span>Опыт: {specialist.experience_years} лет</span>
             </div>
           )}
 
           {specialist.education && (
             <div className="flex items-center gap-2 text-xs text-gray-600">
-              <GraduationCap className="h-3 w-3" />
+              <GraduationCap className="h-3 w-3 flex-shrink-0" />
               <span className="line-clamp-1">{specialist.education}</span>
             </div>
           )}
 
           {specialist.workplace && (
             <div className="flex items-center gap-2 text-xs text-gray-600">
-              <Building className="h-3 w-3" />
+              <Building className="h-3 w-3 flex-shrink-0" />
               <span className="line-clamp-1">{specialist.workplace}</span>
             </div>
           )}
 
           {specialist.metro_station && (
             <div className="flex items-center gap-2 text-xs text-gray-600">
-              <MapPin className="h-3 w-3" />
+              <MapPin className="h-3 w-3 flex-shrink-0" />
               <span>м. {specialist.metro_station}</span>
             </div>
           )}
 
           {specialist.working_hours && (
             <div className="flex items-center gap-2 text-xs text-gray-600">
-              <Clock className="h-3 w-3" />
+              <Clock className="h-3 w-3 flex-shrink-0" />
               <span>{specialist.working_hours}</span>
             </div>
           )}
 
           {specialist.languages && specialist.languages.length > 0 && (
             <div className="flex items-center gap-2 text-xs text-gray-600">
-              <Languages className="h-3 w-3" />
-              <span>{specialist.languages.join(', ')}</span>
+              <Languages className="h-3 w-3 flex-shrink-0" />
+              <span className="line-clamp-1">{specialist.languages.join(', ')}</span>
             </div>
           )}
         </div>
@@ -118,7 +118,7 @@ const MoscowSpecialistCard: React.FC<MoscowSpecialistCardProps> = ({
         {specialist.services && specialist.services.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {specialist.services.slice(0, 3).map((service, index) => (
-              <Badge key={index} variant="secondary" className="text-xs">
+              <Badge key={index} variant="secondary" className="text-xs break-words">
                 {service}
               </Badge>
             ))}
@@ -130,14 +130,14 @@ const MoscowSpecialistCard: React.FC<MoscowSpecialistCardProps> = ({
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2 border-t">
-          <div className="text-sm font-medium text-green-600">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t">
+          <div className="text-sm font-medium text-green-600 text-center sm:text-left">
             {formatPrice(specialist.consultation_price)}
           </div>
           <Button 
             size="sm" 
             onClick={() => onSelect(specialist.id)}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
           >
             Подробнее
           </Button>

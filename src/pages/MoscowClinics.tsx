@@ -6,9 +6,10 @@ import MinimalFooter from "@/components/MinimalFooter";
 import { useMoscowSpecialists } from '@/hooks/useMoscowSpecialists';
 import { useMedicalKnowledge } from '@/hooks/useMedicalKnowledge';
 import MoscowSpecialistCard from '@/components/medical-knowledge/MoscowSpecialistCard';
+import AISpecialistSearch from '@/components/medical-knowledge/AISpecialistSearch';
 import LoadingState from '@/components/medical-knowledge/LoadingState';
 import EmptyState from '@/components/medical-knowledge/EmptyState';
-import { Users, MapPin } from 'lucide-react';
+import { Users, MapPin, Search } from 'lucide-react';
 
 const MoscowClinics: React.FC = () => {
   const { specialists, isLoading } = useMoscowSpecialists();
@@ -42,16 +43,16 @@ const MoscowClinics: React.FC = () => {
       
       <div className="flex-grow pt-16">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-12">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-8 sm:py-12">
           <div className="container mx-auto px-4 max-w-7xl">
             <div className="text-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
                 Специалисты Москвы
               </h1>
-              <p className="text-xl md:text-2xl text-blue-100 mb-6">
+              <p className="text-lg sm:text-xl md:text-2xl text-blue-100 mb-6">
                 Найдите лучших врачей в столице
               </p>
-              <div className="flex items-center justify-center gap-8 text-blue-100">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-blue-100">
                 <div className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
                   <span>{specialists.length} специалистов</span>
@@ -65,29 +66,71 @@ const MoscowClinics: React.FC = () => {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <Tabs defaultValue="all" className="w-full">
-            <TabsList className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 mb-6 h-auto">
-              <TabsTrigger 
-                value="all" 
-                className="text-sm py-2"
-                onClick={() => setSelectedSpecialization('all')}
-              >
-                Все специалисты
+        <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl">
+          <Tabs defaultValue="search" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6 h-auto">
+              <TabsTrigger value="search" className="text-sm py-2 flex items-center gap-2">
+                <Search className="h-4 w-4" />
+                <span className="hidden sm:inline">Поиск с ИИ</span>
+                <span className="sm:hidden">ИИ</span>
               </TabsTrigger>
-              {specializations.slice(0, 4).map((spec) => (
-                <TabsTrigger 
-                  key={spec.id}
-                  value={spec.id} 
-                  className="text-sm py-2"
-                  onClick={() => setSelectedSpecialization(spec.id)}
-                >
-                  {spec.name}
-                </TabsTrigger>
-              ))}
+              <TabsTrigger value="all" className="text-sm py-2 flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Все специалисты</span>
+                <span className="sm:hidden">Все</span>
+              </TabsTrigger>
             </TabsList>
 
+            <TabsContent value="search" className="space-y-6">
+              <AISpecialistSearch onSpecialistSelect={handleSpecialistSelect} />
+            </TabsContent>
+
             <TabsContent value="all" className="space-y-6">
+              {/* Фильтры по специализации для мобильных */}
+              <div className="block lg:hidden">
+                <select 
+                  value={selectedSpecialization}
+                  onChange={(e) => setSelectedSpecialization(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                >
+                  <option value="all">Все специализации</option>
+                  {specializations.slice(0, 8).map((spec) => (
+                    <option key={spec.id} value={spec.id}>
+                      {spec.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Фильтры для десктопа */}
+              <div className="hidden lg:block">
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setSelectedSpecialization('all')}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      selectedSpecialization === 'all'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    Все специалисты
+                  </button>
+                  {specializations.slice(0, 8).map((spec) => (
+                    <button
+                      key={spec.id}
+                      onClick={() => setSelectedSpecialization(spec.id)}
+                      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                        selectedSpecialization === spec.id
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {spec.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {filteredSpecialists.length === 0 ? (
                 <EmptyState
                   icon={Users}
@@ -95,7 +138,7 @@ const MoscowClinics: React.FC = () => {
                   description="По выбранным критериям специалисты не найдены."
                 />
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                   {filteredSpecialists.map((specialist) => (
                     <MoscowSpecialistCard
                       key={specialist.id}
@@ -106,28 +149,6 @@ const MoscowClinics: React.FC = () => {
                 </div>
               )}
             </TabsContent>
-
-            {specializations.slice(0, 4).map((spec) => (
-              <TabsContent key={spec.id} value={spec.id} className="space-y-6">
-                {filteredSpecialists.length === 0 ? (
-                  <EmptyState
-                    icon={Users}
-                    title={`${spec.name} не найдены`}
-                    description={`В данный момент нет доступных специалистов по направлению "${spec.name}".`}
-                  />
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredSpecialists.map((specialist) => (
-                      <MoscowSpecialistCard
-                        key={specialist.id}
-                        specialist={specialist}
-                        onSelect={handleSpecialistSelect}
-                      />
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-            ))}
           </Tabs>
         </div>
       </div>

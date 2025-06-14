@@ -35,7 +35,7 @@ const MedicalSpecializationCard: React.FC<MedicalSpecializationCardProps> = ({
           <h4 className="text-xs font-medium text-gray-700 mb-2">Основные заболевания:</h4>
           <div className="flex flex-wrap gap-1">
             {specialization.common_conditions.slice(0, 2).map((condition, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
+              <Badge key={index} variant="outline" className="text-xs break-words">
                 {condition}
               </Badge>
             ))}
@@ -48,16 +48,16 @@ const MedicalSpecializationCard: React.FC<MedicalSpecializationCardProps> = ({
         </div>
       )}
 
-      <div className="flex items-center justify-between text-xs text-gray-500 mt-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gray-500 mt-auto">
         {specialization.avg_consultation_duration && (
           <div className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
+            <Clock className="h-3 w-3 flex-shrink-0" />
             <span>{specialization.avg_consultation_duration} мин</span>
           </div>
         )}
         {specialization.specialists_count !== undefined && (
           <div className="flex items-center gap-1">
-            <Users className="h-3 w-3" />
+            <Users className="h-3 w-3 flex-shrink-0" />
             <span>{specialization.specialists_count} врачей</span>
           </div>
         )}
