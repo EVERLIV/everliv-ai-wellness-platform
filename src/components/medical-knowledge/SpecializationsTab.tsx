@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import MedicalSpecializationCard from './MedicalSpecializationCard';
+import SpecializationDetail from './SpecializationDetail';
 import LoadingState from './LoadingState';
 import { DoctorSpecialization } from '@/types/medical';
 
@@ -13,11 +14,40 @@ const SpecializationsTab: React.FC<SpecializationsTabProps> = ({
   isLoading,
   specializations
 }) => {
+  const [selectedSpecialization, setSelectedSpecialization] = useState<DoctorSpecialization | null>(null);
+
+  const handleSpecializationSelect = (specializationId: string) => {
+    const specialization = specializations.find(s => s.id === specializationId);
+    if (specialization) {
+      setSelectedSpecialization(specialization);
+    }
+  };
+
+  const handleBackToList = () => {
+    setSelectedSpecialization(null);
+  };
+
+  const handleFindSpecialists = (specializationId: string) => {
+    // Navigate to Moscow specialists page with filter
+    window.location.href = `/moscow-clinics?specialization=${specializationId}`;
+  };
+
   if (isLoading) {
     return (
       <LoadingState 
         message="Загрузка специализаций..."
         size="md"
+      />
+    );
+  }
+
+  // Если выбрана специализация, показываем детальный вид
+  if (selectedSpecialization) {
+    return (
+      <SpecializationDetail 
+        specialization={selectedSpecialization}
+        onBack={handleBackToList}
+        onFindSpecialists={handleFindSpecialists}
       />
     );
   }
@@ -39,6 +69,7 @@ const SpecializationsTab: React.FC<SpecializationsTabProps> = ({
         <MedicalSpecializationCard
           key={`spec-${specialization.id}`}
           specialization={specialization}
+          onSelect={handleSpecializationSelect}
         />
       ))}
     </div>

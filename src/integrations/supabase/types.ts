@@ -141,28 +141,46 @@ export type Database = {
       }
       doctor_specializations: {
         Row: {
+          avg_consultation_duration: number | null
           common_conditions: string[] | null
           created_at: string
           description: string | null
+          detailed_description: string | null
+          health_areas: string[] | null
           id: string
           name: string
           required_education: string | null
+          specialists_count: number | null
+          treatment_methods: string[] | null
+          typical_consultations: string[] | null
         }
         Insert: {
+          avg_consultation_duration?: number | null
           common_conditions?: string[] | null
           created_at?: string
           description?: string | null
+          detailed_description?: string | null
+          health_areas?: string[] | null
           id?: string
           name: string
           required_education?: string | null
+          specialists_count?: number | null
+          treatment_methods?: string[] | null
+          typical_consultations?: string[] | null
         }
         Update: {
+          avg_consultation_duration?: number | null
           common_conditions?: string[] | null
           created_at?: string
           description?: string | null
+          detailed_description?: string | null
+          health_areas?: string[] | null
           id?: string
           name?: string
           required_education?: string | null
+          specialists_count?: number | null
+          treatment_methods?: string[] | null
+          typical_consultations?: string[] | null
         }
         Relationships: []
       }
@@ -407,6 +425,86 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      moscow_specialists: {
+        Row: {
+          achievements: string[] | null
+          address: string | null
+          bio: string | null
+          consultation_price: number | null
+          created_at: string | null
+          education: string | null
+          email: string | null
+          experience_years: number | null
+          id: string
+          languages: string[] | null
+          metro_station: string | null
+          name: string
+          phone: string | null
+          photo_url: string | null
+          rating: number | null
+          reviews_count: number | null
+          services: string[] | null
+          specialization_id: string | null
+          updated_at: string | null
+          working_hours: string | null
+          workplace: string | null
+        }
+        Insert: {
+          achievements?: string[] | null
+          address?: string | null
+          bio?: string | null
+          consultation_price?: number | null
+          created_at?: string | null
+          education?: string | null
+          email?: string | null
+          experience_years?: number | null
+          id?: string
+          languages?: string[] | null
+          metro_station?: string | null
+          name: string
+          phone?: string | null
+          photo_url?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          services?: string[] | null
+          specialization_id?: string | null
+          updated_at?: string | null
+          working_hours?: string | null
+          workplace?: string | null
+        }
+        Update: {
+          achievements?: string[] | null
+          address?: string | null
+          bio?: string | null
+          consultation_price?: number | null
+          created_at?: string | null
+          education?: string | null
+          email?: string | null
+          experience_years?: number | null
+          id?: string
+          languages?: string[] | null
+          metro_station?: string | null
+          name?: string
+          phone?: string | null
+          photo_url?: string | null
+          rating?: number | null
+          reviews_count?: number | null
+          services?: string[] | null
+          specialization_id?: string | null
+          updated_at?: string | null
+          working_hours?: string | null
+          workplace?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moscow_specialists_specialization_id_fkey"
+            columns: ["specialization_id"]
+            isOneToOne: false
+            referencedRelation: "doctor_specializations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       nutrition_goals: {
         Row: {
@@ -705,6 +803,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      specialist_reviews: {
+        Row: {
+          consultation_date: string | null
+          created_at: string | null
+          id: string
+          is_published: boolean | null
+          is_verified: boolean | null
+          patient_name: string | null
+          rating: number | null
+          review_text: string | null
+          specialist_id: string | null
+        }
+        Insert: {
+          consultation_date?: string | null
+          created_at?: string | null
+          id?: string
+          is_published?: boolean | null
+          is_verified?: boolean | null
+          patient_name?: string | null
+          rating?: number | null
+          review_text?: string | null
+          specialist_id?: string | null
+        }
+        Update: {
+          consultation_date?: string | null
+          created_at?: string | null
+          id?: string
+          is_published?: boolean | null
+          is_verified?: boolean | null
+          patient_name?: string | null
+          rating?: number | null
+          review_text?: string | null
+          specialist_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "specialist_reviews_specialist_id_fkey"
+            columns: ["specialist_id"]
+            isOneToOne: false
+            referencedRelation: "moscow_specialists"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscription_plans: {
         Row: {
