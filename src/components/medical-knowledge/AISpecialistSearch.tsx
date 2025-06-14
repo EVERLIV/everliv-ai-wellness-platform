@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Loader2, X } from 'lucide-react';
+import { Search, Loader2, X, AlertCircle } from 'lucide-react';
 import { useSpecialistSearch } from '@/hooks/useSpecialistSearch';
 import SpecialistSearchCard from './SpecialistSearchCard';
 import EmptyState from './EmptyState';
@@ -16,7 +16,7 @@ const AISpecialistSearch: React.FC<AISpecialistSearchProps> = ({
   onSpecialistSelect
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const { searchSpecialists, isSearching, searchResults, clearResults } = useSpecialistSearch();
+  const { searchSpecialists, isSearching, searchResults, error, clearResults } = useSpecialistSearch();
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -83,10 +83,25 @@ const AISpecialistSearch: React.FC<AISpecialistSearchProps> = ({
             </Button>
           </div>
           
-          {searchQuery && (
-            <p className="text-sm text-gray-600 mt-2">
-              Например: "болит голова", "проблемы с сердцем", "нужен кардиолог"
-            </p>
+          {!searchQuery && (
+            <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-700">
+                <strong>Примеры запросов:</strong>
+              </p>
+              <ul className="text-sm text-blue-600 mt-1 space-y-1">
+                <li>• "болит голова и кружится"</li>
+                <li>• "проблемы с сердцем"</li>
+                <li>• "нужен хороший кардиолог"</li>
+                <li>• "депрессия и тревожность"</li>
+              </ul>
+            </div>
+          )}
+
+          {error && (
+            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -114,7 +129,7 @@ const AISpecialistSearch: React.FC<AISpecialistSearchProps> = ({
         </div>
       )}
 
-      {searchResults.length === 0 && !isSearching && searchQuery && (
+      {!isSearching && !error && searchResults.length === 0 && searchQuery && (
         <EmptyState
           icon={Search}
           title="Специалисты не найдены"

@@ -18,10 +18,29 @@ serve(async (req) => {
     const { query, specialists } = await req.json();
 
     if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+      console.error('OpenAI API key not configured');
+      return new Response(JSON.stringify({ 
+        error: 'OpenAI API key not configured',
+        results: [] 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!query || !specialists || specialists.length === 0) {
+      console.log('Invalid input:', { query, specialistsCount: specialists?.length });
+      return new Response(JSON.stringify({ 
+        error: 'Invalid input data',
+        results: [] 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     console.log('Searching specialists for query:', query);
+    console.log('Available specialists:', specialists.length);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -34,13 +53,21 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `Ты помощник для поиска медицинских специалистов. Проанализируй запрос пользователя и найди 3-5 наиболее подходящих специалистов из предоставленного списка.
+            content: `Ты помощник для поиска медицинских специалистов в Москве. 
 
-Для каждого специалиста создай краткую выжимку (2-3 предложения) о том, почему он подходит для запроса пользователя.
+Проанализируй запрос пользователя и найди 3-5 наиболее подходящих специалистов из предоставленного списка.
 
-Оцени релевантность каждого специалиста по шкале от 0 до 100.
+Для каждого подходящего специалиста создай:
+1. Оценку релевантности от 0 до 100
+2. Краткое объяснение (2-3 предложения) почему этот специалист подходит
 
-Верни результат в формате JSON:
+Учитывай:
+- Специализацию врача
+- Симптомы или проблемы пользователя
+- Опыт и квалификацию
+- Отзывы и рейтинг
+
+Верни результат ТОЛЬКО в формате JSON:
 {
   "results": [
     {
@@ -55,8 +82,8 @@ serve(async (req) => {
             role: 'user',
             content: `Запрос пользователя: "${query}"
 
-Список специалистов:
-${JSON.stringify(specialists, null, 2)}`
+Доступные специалисты:
+${JSON.stringify(specialists.slice(0, 20), null, 2)}`
           }
         ],
         temperature: 0.3,
@@ -65,6 +92,8 @@ ${JSON.stringify(specialists, null, 2)}`
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`OpenAI API error: ${response.status} - ${errorText}`);
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
@@ -78,7 +107,30 @@ ${JSON.stringify(specialists, null, 2)}`
       parsedResult = JSON.parse(aiResult);
     } catch (e) {
       console.error('Failed to parse AI response:', e);
-      throw new Error('Invalid AI response format');
+      console.error('AI response was:', aiResult);
+      
+      // Fallback: return basic search results
+      const fallbackResults = specialists
+        .filter(s => 
+          s.name?.toLowerCase().includes(query.toLowerCase()) ||
+          s.specialization?.name?.toLowerCase().includes(query.toLowerCase()) ||
+          s.bio?.toLowerCase().includes(query.toLowerCase())
+        )
+        .slice(0, 3)
+        .map(specialist => ({
+          specialist,
+          relevanceScore: 75,
+          summary: `Специалист подходит по запросу "${query}"`
+        }));
+
+      return new Response(JSON.stringify({ results: fallbackResults }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Ensure results is an array
+    if (!parsedResult.results || !Array.isArray(parsedResult.results)) {
+      parsedResult = { results: [] };
     }
 
     return new Response(JSON.stringify(parsedResult), {
@@ -86,7 +138,10 @@ ${JSON.stringify(specialists, null, 2)}`
     });
   } catch (error) {
     console.error('Error in search-specialists function:', error);
-    return new Response(JSON.stringify({ error: error.message, results: [] }), {
+    return new Response(JSON.stringify({ 
+      error: error.message, 
+      results: [] 
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
