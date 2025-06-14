@@ -13,6 +13,18 @@ export const useMedicalKnowledge = () => {
     loadMedicalData();
   }, []);
 
+  // Функция для удаления дубликатов по ID
+  const removeDuplicatesById = <T extends { id: string }>(items: T[]): T[] => {
+    const seen = new Set<string>();
+    return items.filter(item => {
+      if (seen.has(item.id)) {
+        return false;
+      }
+      seen.add(item.id);
+      return true;
+    });
+  };
+
   const loadMedicalData = async () => {
     try {
       setIsLoading(true);
@@ -40,9 +52,10 @@ export const useMedicalKnowledge = () => {
         .select('*')
         .order('name');
 
-      setCategories(categoriesData || []);
-      setArticles(articlesData || []);
-      setSpecializations(specializationsData || []);
+      // Удаляем дубликаты перед установкой состояния
+      setCategories(removeDuplicatesById(categoriesData || []));
+      setArticles(removeDuplicatesById(articlesData || []));
+      setSpecializations(removeDuplicatesById(specializationsData || []));
     } catch (error) {
       console.error('Error loading medical data:', error);
     } finally {
@@ -70,7 +83,9 @@ export const useMedicalKnowledge = () => {
       }
 
       const { data } = await queryBuilder.order('created_at', { ascending: false });
-      return data || [];
+      
+      // Удаляем дубликаты из результатов поиска
+      return removeDuplicatesById(data || []);
     } catch (error) {
       console.error('Error searching articles:', error);
       return [];

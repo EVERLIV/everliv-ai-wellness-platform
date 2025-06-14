@@ -27,8 +27,13 @@ const ArticlesTab: React.FC<ArticlesTabProps> = ({
 }) => {
   const [selectedArticle, setSelectedArticle] = useState<MedicalArticle | null>(null);
 
+  // Фильтрация уникальных статей
+  const uniqueArticles = displayedArticles.filter((article, index, self) => 
+    index === self.findIndex(a => a.id === article.id)
+  );
+
   const handleArticleSelect = (articleId: string) => {
-    const article = displayedArticles.find(a => a.id === articleId);
+    const article = uniqueArticles.find(a => a.id === articleId);
     if (article) {
       setSelectedArticle(article);
       onArticleSelect(articleId);
@@ -68,7 +73,7 @@ const ArticlesTab: React.FC<ArticlesTabProps> = ({
               Результаты поиска
             </h3>
             <p className="text-sm md:text-base text-gray-600">
-              Найдено {displayedArticles.length} статей по вашему запросу
+              Найдено {uniqueArticles.length} статей по вашему запросу
             </p>
           </div>
           <Button
@@ -82,7 +87,7 @@ const ArticlesTab: React.FC<ArticlesTabProps> = ({
         </div>
       )}
       
-      {displayedArticles.length === 0 && hasSearched ? (
+      {uniqueArticles.length === 0 && hasSearched ? (
         <EmptyState
           icon={FileText}
           title="Статьи не найдены"
@@ -90,7 +95,7 @@ const ArticlesTab: React.FC<ArticlesTabProps> = ({
         />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-          {displayedArticles.map((article) => (
+          {uniqueArticles.map((article) => (
             <MedicalArticleCard
               key={article.id}
               article={article}
