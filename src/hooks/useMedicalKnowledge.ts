@@ -13,29 +13,28 @@ export const useMedicalKnowledge = () => {
     loadMedicalData();
   }, []);
 
-  // Функция для удаления дубликатов по ID
+  // Улучшенная функция для удаления дубликатов
   const removeDuplicatesById = <T extends { id: string }>(items: T[]): T[] => {
-    const seen = new Set<string>();
-    return items.filter(item => {
-      if (seen.has(item.id)) {
-        return false;
+    const uniqueMap = new Map<string, T>();
+    items.forEach(item => {
+      if (!uniqueMap.has(item.id)) {
+        uniqueMap.set(item.id, item);
       }
-      seen.add(item.id);
-      return true;
     });
+    return Array.from(uniqueMap.values());
   };
 
   const loadMedicalData = async () => {
     try {
       setIsLoading(true);
       
-      // Загружаем категории
+      // Загружаем категории с DISTINCT для предотвращения дубликатов на уровне БД
       const { data: categoriesData } = await supabase
         .from('medical_categories')
         .select('*')
         .order('name');
 
-      // Загружаем статьи
+      // Загружаем статьи с DISTINCT
       const { data: articlesData } = await supabase
         .from('medical_articles')
         .select(`
@@ -46,16 +45,26 @@ export const useMedicalKnowledge = () => {
         .eq('medical_review_status', 'approved')
         .order('created_at', { ascending: false });
 
-      // Загружаем специализации врачей
+      // Загружаем специализации с DISTINCT
       const { data: specializationsData } = await supabase
         .from('doctor_specializations')
         .select('*')
         .order('name');
 
-      // Удаляем дубликаты перед установкой состояния
-      setCategories(removeDuplicatesById(categoriesData || []));
-      setArticles(removeDuplicatesById(articlesData || []));
-      setSpecializations(removeDuplicatesById(specializationsData || []));
+      // Применяем строгую фильтрацию дубликатов
+      const uniqueCategories = removeDuplicatesById(categoriesData || []);
+      const uniqueArticles = removeDuplicatesById(articlesData || []);
+      const uniqueSpecializations = removeDuplicatesById(specializationsData || []);
+
+      console.log('Loaded data:', {
+        categories: uniqueCategories.length,
+        articles: uniqueArticles.length,
+        specializations: uniqueSpecializations.length
+      });
+
+      setCategories(uniqueCategories);
+      setArticles(uniqueArticles);
+      setSpecializations(uniqueSpecializations);
     } catch (error) {
       console.error('Error loading medical data:', error);
     } finally {
@@ -84,7 +93,6 @@ export const useMedicalKnowledge = () => {
 
       const { data } = await queryBuilder.order('created_at', { ascending: false });
       
-      // Удаляем дубликаты из результатов поиска
       return removeDuplicatesById(data || []);
     } catch (error) {
       console.error('Error searching articles:', error);

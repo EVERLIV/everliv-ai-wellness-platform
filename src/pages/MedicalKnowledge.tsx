@@ -31,12 +31,17 @@ const MedicalKnowledge: React.FC = () => {
   };
 
   const handleCategorySelect = (categoryId: string) => {
-    // Фильтруем статьи по категории и удаляем дубликаты
+    // Строгая фильтрация статей по категории
     const categoryArticles = articles
       .filter(article => article.category_id === categoryId)
-      .filter((article, index, self) => 
-        index === self.findIndex(a => a.id === article.id)
-      );
+      .reduce((acc, current) => {
+        const existingIndex = acc.findIndex(item => item.id === current.id);
+        if (existingIndex === -1) {
+          acc.push(current);
+        }
+        return acc;
+      }, [] as MedicalArticle[]);
+    
     setSearchResults(categoryArticles);
     setHasSearched(true);
   };
@@ -51,10 +56,15 @@ const MedicalKnowledge: React.FC = () => {
   };
 
   const getArticleCountByCategory = (categoryId: string) => {
-    // Подсчитываем уникальные статьи по категории
-    const uniqueArticles = articles.filter((article, index, self) => 
-      index === self.findIndex(a => a.id === article.id)
-    );
+    // Подсчитываем уникальные статьи по категории с точной фильтрацией
+    const uniqueArticles = articles.reduce((acc, current) => {
+      const existingIndex = acc.findIndex(item => item.id === current.id);
+      if (existingIndex === -1) {
+        acc.push(current);
+      }
+      return acc;
+    }, [] as MedicalArticle[]);
+    
     return uniqueArticles.filter(article => article.category_id === categoryId).length;
   };
 
