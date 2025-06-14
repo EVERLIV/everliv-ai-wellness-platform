@@ -1,24 +1,20 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from '@/contexts/AuthContext';
-import Home from './pages/Home';
+import MainPage from './pages/MainPage';
 import MedicalKnowledge from './pages/MedicalKnowledge';
-import MedicalArticleDetailPage from './pages/MedicalArticleDetailPage';
+import MedicalArticleDetail from './components/medical-knowledge/MedicalArticleDetail';
 import MoscowClinics from './pages/MoscowClinics';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
-          <Route path="/medical-knowledge/article/:articleId" element={<MedicalArticleDetailPage />} />
-          <Route path="/moscow-clinics" element={<MoscowClinics />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
+        <Route path="/medical-knowledge/article/:articleId" element={<MedicalArticleDetail />} />
+        <Route path="/moscow-clinics" element={<MoscowClinics />} />
+      </Routes>
+    </Router>
   );
 }
 
