@@ -35,6 +35,7 @@ import AnalysisDetails from "@/pages/AnalysisDetails";
 import SubscriptionPage from "@/pages/SubscriptionPage";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import AuthConfirm from "@/pages/AuthConfirm";
 import AdminDashboardLayout from "@/components/admin/AdminDashboardLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminUsers from "@/pages/admin/AdminUsers";
@@ -74,6 +75,7 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/auth/confirm" element={<AuthConfirm />} />
                 <Route path="/account-settings" element={<AccountSettings />} />
                 <Route path="/settings" element={<AccountSettings />} />
                 <Route path="/lab-analyses" element={<LabAnalyses />} />
