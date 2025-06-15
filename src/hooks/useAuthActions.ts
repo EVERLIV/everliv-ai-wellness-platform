@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { getResetPasswordUrl, getAuthConfirmUrl } from '@/config/constants';
 
 export const useAuthActions = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +33,7 @@ export const useAuthActions = () => {
         password,
         options: {
           data: userData,
-          emailRedirectTo: `https://everliv.online/auth/confirm`
+          emailRedirectTo: getAuthConfirmUrl()
         }
       });
       
@@ -67,7 +68,7 @@ export const useAuthActions = () => {
       setIsLoading(true);
       console.log('Attempting password reset for email:', email);
       
-      const redirectTo = `https://everliv.online/reset-password`;
+      const redirectTo = getResetPasswordUrl();
       console.log('Redirect URL:', redirectTo);
       
       const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
