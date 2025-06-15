@@ -17,21 +17,47 @@ const ResetPasswordPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isValidToken, setIsValidToken] = useState(false);
+  const [isCheckingToken, setIsCheckingToken] = useState(true);
   const [searchParams] = useSearchParams();
   const { updatePassword } = useAuthActions();
   const navigate = useNavigate();
 
   // Проверяем наличие токена в URL и устанавливаем сессию
   useEffect(() => {
-    const checkToken = async () => {
-      const accessToken = searchParams.get('access_token');
-      const refreshToken = searchParams.get('refresh_token');
-      const type = searchParams.get('type');
+    const checkTokenFromUrl = async () => {
+      console.log('Checking URL for recovery tokens...');
       
-      console.log('URL parameters:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
+      // Получаем все параметры из URL
+      const currentUrl = window.location.href;
+      console.log('Current URL:', currentUrl);
+      
+      let accessToken: string | null = null;
+      let refreshToken: string | null = null;
+      let type: string | null = null;
+      
+      // Проверяем, есть ли токены в URL (могут быть в hash или query)
+      if (currentUrl.includes('access_token=')) {
+        const urlParams = new URLSearchParams(currentUrl.split('#')[1] || currentUrl.split('?')[1]);
+        accessToken = urlParams.get('access_token');
+        refreshToken = urlParams.get('refresh_token');
+        type = urlParams.get('type');
+      } else {
+        // Проверяем searchParams
+        accessToken = searchParams.get('access_token');
+        refreshToken = searchParams.get('refresh_token');
+        type = searchParams.get('type');
+      }
+      
+      console.log('Token check results:', { 
+        hasAccessToken: !!accessToken, 
+        hasRefreshToken: !!refreshToken, 
+        type 
+      });
       
       if (accessToken && refreshToken && type === 'recovery') {
         try {
+          console.log('Setting session with recovery tokens...');
+          
           // Устанавливаем сессию с полученными токенами
           const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
@@ -45,6 +71,9 @@ const ResetPasswordPage = () => {
           } else {
             console.log('Session set successfully:', data);
             setIsValidToken(true);
+            
+            // Очищаем URL от токенов для безопасности
+            window.history.replaceState({}, document.title, '/reset-password');
           }
         } catch (error) {
           console.error('Error processing tokens:', error);
@@ -52,13 +81,15 @@ const ResetPasswordPage = () => {
           navigate('/forgot-password');
         }
       } else {
-        console.log('Missing or invalid URL parameters for password reset');
+        console.log('No valid recovery tokens found in URL');
         toast.error('Недействительная ссылка для сброса пароля. Пожалуйста, запросите новую ссылку.');
         navigate('/forgot-password');
       }
+      
+      setIsCheckingToken(false);
     };
 
-    checkToken();
+    checkTokenFromUrl();
   }, [searchParams, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,14 +120,14 @@ const ResetPasswordPage = () => {
     }
   };
 
-  if (!isValidToken) {
+  if (isCheckingToken) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
         <div className="flex-grow flex items-center justify-center bg-gray-50 py-24 px-4">
           <Card className="w-full max-w-md">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center text-red-600">Проверка ссылки...</CardTitle>
+              <CardTitle className="text-2xl text-center">Проверка ссылки...</CardTitle>
               <CardDescription className="text-center">
                 Проверяем действительность ссылки для сброса пароля
               </CardDescription>
@@ -108,6 +139,36 @@ const ResetPasswordPage = () => {
               <p className="text-gray-600">
                 Пожалуйста, подождите...
               </p>
+            </CardContent>
+          </Card>
+        </div>
+        <MinimalFooter />
+      </div>
+    );
+  }
+
+  if (!isValidToken) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-grow flex items-center justify-center bg-gray-50 py-24 px-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl text-center text-red-600">Ссылка недействительна</CardTitle>
+              <CardDescription className="text-center">
+                Ссылка для восстановления пароля недействительна или истекла
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <div className="flex items-center justify-center mb-4">
+                <AlertCircle className="h-12 w-12 text-red-500" />
+              </div>
+              <p className="text-gray-600 mb-4">
+                Пожалуйста, запросите новую ссылку для восстановления пароля
+              </p>
+              <Button onClick={() => navigate('/forgot-password')} className="w-full">
+                Запросить новую ссылку
+              </Button>
             </CardContent>
           </Card>
         </div>
