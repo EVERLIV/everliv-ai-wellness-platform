@@ -5,10 +5,9 @@ import { FEATURE_DESCRIPTIONS } from "@/constants/subscription-features";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const SubscriptionFeatureTable = () => {
-  const planTypes = ['basic', 'standard', 'premium'] as const;
+  const planTypes = ['basic', 'premium'] as const;
   const planNames = {
     basic: 'Базовый',
-    standard: 'Стандарт',
     premium: 'Премиум'
   };
 

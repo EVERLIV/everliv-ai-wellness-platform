@@ -52,7 +52,7 @@ export default function PricingSection() {
       description: "Идеально для тех, кто начинает следить за своим здоровьем",
       price: annual ? "790" : "990",
       period: annual ? "руб./месяц при годовой оплате" : "руб./месяц",
-      buttonText: "Выбрать базовый",
+      buttonText: "Начать бесплатно",
       features: basicFeatures,
     },
     {
@@ -150,9 +150,9 @@ export default function PricingSection() {
           <p className="text-gray-600 mb-6">
             Мы предлагаем специальные корпоративные тарифы для компаний любого размера, желающих заботиться о здоровье своих сотрудников.
           </p>
-          <Link to="/corporate">
+          <Link to="/contact">
             <Button variant="outline" className="border-everliv-600 text-everliv-600 hover:bg-everliv-50">
-              Узнать о корпоративных тарифах
+              Связаться с нами
             </Button>
           </Link>
         </div>
