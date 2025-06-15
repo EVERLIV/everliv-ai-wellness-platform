@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -27,7 +26,6 @@ const ResetPasswordPage = () => {
     const checkTokenFromUrl = async () => {
       console.log('Checking URL for recovery tokens...');
       
-      // Получаем весь URL включая hash
       const fullUrl = window.location.href;
       console.log('Full URL:', fullUrl);
       
@@ -69,7 +67,37 @@ const ResetPasswordPage = () => {
         }
       }
       
-      if (accessToken && refreshToken && type === 'recovery') {
+      // Проверяем старый формат токена (для совместимости)
+      const token = searchParams.get('token');
+      const tokenType = searchParams.get('type');
+      
+      if (token && tokenType === 'recovery') {
+        try {
+          console.log('Found old format recovery token, attempting to exchange...');
+          
+          // Пытаемся обменять токен на сессию
+          const { data, error } = await supabase.auth.verifyOtp({
+            token_hash: token,
+            type: 'recovery'
+          });
+          
+          if (error) {
+            console.error('Error verifying recovery token:', error);
+            toast.error('Недействительная ссылка для сброса пароля');
+            navigate('/forgot-password');
+          } else {
+            console.log('Recovery token verified successfully:', data);
+            setIsValidToken(true);
+            
+            // Очищаем URL от токенов
+            window.history.replaceState({}, document.title, '/reset-password');
+          }
+        } catch (error) {
+          console.error('Error processing recovery token:', error);
+          toast.error('Ошибка обработки токена восстановления');
+          navigate('/forgot-password');
+        }
+      } else if (accessToken && refreshToken && type === 'recovery') {
         try {
           console.log('Setting session with recovery tokens...');
           
