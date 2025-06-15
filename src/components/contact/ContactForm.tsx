@@ -1,44 +1,55 @@
 
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Star, Bug } from "lucide-react";
+import { useSupportRequests } from "@/hooks/useSupportRequests";
 
 const ContactForm = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
+  const { createSupportRequest } = useSupportRequests();
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleRatingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    const formData = new FormData(e.target as HTMLFormElement);
     
-    // Simulate form submission
-    setTimeout(() => {
-      toast.success("Сообщение успешно отправлено! Спасибо за обратную связь.");
-      setIsSubmitting(false);
-      // Reset form
-      (e.target as HTMLFormElement).reset();
-      setRating(0);
-    }, 1500);
-  };
-
-  const handleRatingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
     if (rating === 0) {
-      toast.error("Пожалуйста, выберите оценку");
       return;
     }
-    setIsSubmitting(true);
+
+    const requestData = {
+      user_name: formData.get('ratingName') as string || 'Анонимный пользователь',
+      user_email: formData.get('ratingEmail') as string || 'no-email@example.com',
+      subject: `Оценка приложения: ${rating}/10`,
+      message: formData.get('ratingComment') as string || `Пользователь поставил оценку ${rating}/10`,
+      request_type: 'rating' as const,
+      rating: rating,
+      rating_comment: formData.get('ratingComment') as string,
+    };
+
+    await createSupportRequest.mutateAsync(requestData);
+    (e.target as HTMLFormElement).reset();
+    setRating(0);
+  };
+
+  const handleBugSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
     
-    setTimeout(() => {
-      toast.success(`Спасибо за оценку ${rating}/10! Ваше мнение важно для нас.`);
-      setIsSubmitting(false);
-      (e.target as HTMLFormElement).reset();
-      setRating(0);
-    }, 1000);
+    const requestData = {
+      user_name: formData.get('userName') as string,
+      user_email: formData.get('userEmail') as string,
+      subject: formData.get('problemType') as string,
+      message: formData.get('problemDescription') as string,
+      request_type: 'bug' as const,
+      problem_type: formData.get('problemType') as string,
+      browser_info: formData.get('browserInfo') as string,
+    };
+
+    await createSupportRequest.mutateAsync(requestData);
+    (e.target as HTMLFormElement).reset();
   };
   
   return (
@@ -61,6 +72,27 @@ const ContactForm = () => {
             <p className="text-gray-600 mb-6">Ваша оценка поможет нам улучшить сервис</p>
             
             <form onSubmit={handleRatingSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label htmlFor="ratingName" className="text-gray-700 font-medium">Ваше имя</label>
+                  <Input
+                    id="ratingName"
+                    name="ratingName"
+                    type="text"
+                    placeholder="Введите ваше имя"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="ratingEmail" className="text-gray-700 font-medium">Email</label>
+                  <Input
+                    id="ratingEmail"
+                    name="ratingEmail"
+                    type="email"
+                    placeholder="your@email.com"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-4">
                 <label className="text-gray-700 font-medium">Оценка по 10-балльной шкале</label>
                 <div className="flex gap-2 justify-center">
@@ -106,9 +138,9 @@ const ContactForm = () => {
               <Button 
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
-                disabled={isSubmitting || rating === 0}
+                disabled={createSupportRequest.isPending || rating === 0}
               >
-                {isSubmitting ? "Отправка..." : "Отправить оценку"}
+                {createSupportRequest.isPending ? "Отправка..." : "Отправить оценку"}
               </Button>
             </form>
           </div>
@@ -119,7 +151,7 @@ const ContactForm = () => {
             <h2 className="text-xl font-bold mb-4 text-gray-900">Сообщить о проблеме</h2>
             <p className="text-gray-600 mb-6">Опишите проблему или баг, который вы обнаружили</p>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleBugSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label htmlFor="userName" className="text-gray-700 font-medium">Ваше имя</label>
@@ -185,9 +217,9 @@ const ContactForm = () => {
               <Button 
                 type="submit"
                 className="w-full bg-red-600 hover:bg-red-700 text-white" 
-                disabled={isSubmitting}
+                disabled={createSupportRequest.isPending}
               >
-                {isSubmitting ? "Отправка..." : "Сообщить о проблеме"}
+                {createSupportRequest.isPending ? "Отправка..." : "Сообщить о проблеме"}
               </Button>
             </form>
           </div>
