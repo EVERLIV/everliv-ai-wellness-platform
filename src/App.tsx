@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -47,7 +48,6 @@ import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 import AdminContent from "@/pages/admin/AdminContent";
 import AdminSettings from "@/pages/admin/AdminSettings";
 import Welcome from "@/pages/Welcome";
-import AdminSupport from "@/pages/admin/AdminSupport";
 
 const queryClient = new QueryClient();
 
@@ -99,7 +99,6 @@ function App() {
                 <Route path="/admin" element={<AdminDashboardLayout />}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="users" element={<AdminUsers />} />
-                  <Route path="support" element={<AdminSupport />} />
                   <Route path="ai-chat" element={<AdminAIChat />} />
                   <Route path="nutrition" element={<AdminNutrition />} />
                   <Route path="health-recommendations" element={<AdminHealthRecommendations />} />

@@ -11,8 +11,7 @@ import {
   UserCheck,
   Settings,
   BarChart3,
-  FileText,
-  HeadphonesIcon
+  FileText
 } from "lucide-react";
 
 const navigation = [
@@ -27,12 +26,6 @@ const navigation = [
     href: "/admin/users",
     icon: Users,
     description: "Управление аккаунтами"
-  },
-  {
-    name: "Тех Поддержка",
-    href: "/admin/support",
-    icon: HeadphonesIcon,
-    description: "Обращения пользователей"
   },
   {
     name: "ИИ Чат",

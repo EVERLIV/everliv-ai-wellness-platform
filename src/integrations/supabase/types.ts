@@ -929,66 +929,6 @@ export type Database = {
         }
         Relationships: []
       }
-      support_requests: {
-        Row: {
-          admin_notes: string | null
-          browser_info: string | null
-          created_at: string
-          id: string
-          message: string
-          priority: string
-          problem_type: string | null
-          rating: number | null
-          rating_comment: string | null
-          request_type: string
-          resolved_at: string | null
-          resolved_by: string | null
-          status: string
-          subject: string
-          updated_at: string
-          user_email: string
-          user_name: string
-        }
-        Insert: {
-          admin_notes?: string | null
-          browser_info?: string | null
-          created_at?: string
-          id?: string
-          message: string
-          priority?: string
-          problem_type?: string | null
-          rating?: number | null
-          rating_comment?: string | null
-          request_type: string
-          resolved_at?: string | null
-          resolved_by?: string | null
-          status?: string
-          subject: string
-          updated_at?: string
-          user_email: string
-          user_name: string
-        }
-        Update: {
-          admin_notes?: string | null
-          browser_info?: string | null
-          created_at?: string
-          id?: string
-          message?: string
-          priority?: string
-          problem_type?: string | null
-          rating?: number | null
-          rating_comment?: string | null
-          request_type?: string
-          resolved_at?: string | null
-          resolved_by?: string | null
-          status?: string
-          subject?: string
-          updated_at?: string
-          user_email?: string
-          user_name?: string
-        }
-        Relationships: []
-      }
       usage_tracking: {
         Row: {
           created_at: string
