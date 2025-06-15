@@ -27,32 +27,47 @@ const ResetPasswordPage = () => {
     const checkTokenFromUrl = async () => {
       console.log('Checking URL for recovery tokens...');
       
-      // Получаем все параметры из URL
-      const currentUrl = window.location.href;
-      console.log('Current URL:', currentUrl);
+      // Получаем весь URL включая hash
+      const fullUrl = window.location.href;
+      console.log('Full URL:', fullUrl);
       
       let accessToken: string | null = null;
       let refreshToken: string | null = null;
       let type: string | null = null;
       
-      // Проверяем, есть ли токены в URL (могут быть в hash или query)
-      if (currentUrl.includes('access_token=')) {
-        const urlParams = new URLSearchParams(currentUrl.split('#')[1] || currentUrl.split('?')[1]);
-        accessToken = urlParams.get('access_token');
-        refreshToken = urlParams.get('refresh_token');
-        type = urlParams.get('type');
-      } else {
-        // Проверяем searchParams
+      // Проверяем hash параметры (приоритет)
+      if (window.location.hash) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        accessToken = hashParams.get('access_token');
+        refreshToken = hashParams.get('refresh_token');
+        type = hashParams.get('type');
+        console.log('Found tokens in hash:', { hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, type });
+      }
+      
+      // Если не найдены в hash, проверяем query параметры
+      if (!accessToken) {
         accessToken = searchParams.get('access_token');
         refreshToken = searchParams.get('refresh_token');
         type = searchParams.get('type');
+        console.log('Found tokens in query:', { hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, type });
       }
       
-      console.log('Token check results:', { 
-        hasAccessToken: !!accessToken, 
-        hasRefreshToken: !!refreshToken, 
-        type 
-      });
+      // Проверяем, есть ли токены во всем URL (на случай неправильного парсинга)
+      if (!accessToken && fullUrl.includes('access_token=')) {
+        try {
+          const urlMatch = fullUrl.match(/access_token=([^&]+)/);
+          const refreshMatch = fullUrl.match(/refresh_token=([^&]+)/);
+          const typeMatch = fullUrl.match(/type=([^&]+)/);
+          
+          if (urlMatch) accessToken = urlMatch[1];
+          if (refreshMatch) refreshToken = refreshMatch[1];
+          if (typeMatch) type = typeMatch[1];
+          
+          console.log('Found tokens via regex:', { hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, type });
+        } catch (error) {
+          console.error('Error parsing URL tokens:', error);
+        }
+      }
       
       if (accessToken && refreshToken && type === 'recovery') {
         try {
@@ -72,7 +87,7 @@ const ResetPasswordPage = () => {
             console.log('Session set successfully:', data);
             setIsValidToken(true);
             
-            // Очищаем URL от токенов для безопасности
+            // Очищаем URL от токенов и перенаправляем на чистую страницу
             window.history.replaceState({}, document.title, '/reset-password');
           }
         } catch (error) {
@@ -81,7 +96,7 @@ const ResetPasswordPage = () => {
           navigate('/forgot-password');
         }
       } else {
-        console.log('No valid recovery tokens found in URL');
+        console.log('No valid recovery tokens found');
         toast.error('Недействительная ссылка для сброса пароля. Пожалуйста, запросите новую ссылку.');
         navigate('/forgot-password');
       }
