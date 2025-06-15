@@ -32,6 +32,9 @@ const DashboardHeader = ({ userName }: DashboardHeaderProps) => {
   // Получаем имя из профиля или используем fallback
   const displayName = profileData?.first_name || userName || "Пользователь";
 
+  // Проверяем, работаем ли мы в режиме разработки
+  const isDevelopment = import.meta.env.DEV;
+
   return (
     <div className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -43,7 +46,7 @@ const DashboardHeader = ({ userName }: DashboardHeaderProps) => {
               </h1>
               <div className="flex items-center gap-2 text-sm text-gray-500 bg-white px-3 py-1 rounded-full border">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Онлайн</span>
+                <span>Онлайн{isDevelopment ? " (разработка)" : ""}</span>
               </div>
             </div>
             <p className="text-gray-600 text-lg">
