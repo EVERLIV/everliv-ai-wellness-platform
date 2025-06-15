@@ -7,42 +7,47 @@ import MinimalFooter from '@/components/MinimalFooter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { useAuthActions } from '@/hooks/useAuthActions';
+import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
+import { AlertCircle } from 'lucide-react';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { resetPassword } = useAuth();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { resetPassword } = useAuthActions();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email) {
-      toast({
-        title: "Ошибка",
-        description: "Введите email адрес",
-        variant: "destructive"
-      });
+      setErrorMessage('Введите email адрес');
+      return;
+    }
+
+    // Простая валидация email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMessage('Введите корректный email адрес');
       return;
     }
 
     setIsLoading(true);
+    setErrorMessage(null);
 
     try {
+      console.log('Starting password reset process for:', email);
       await resetPassword(email);
+      console.log('Password reset process completed successfully');
       setIsSubmitted(true);
+      toast.success('Письмо для восстановления пароля отправлено');
     } catch (error: any) {
       console.error('Error requesting password reset:', error);
-      toast({
-        title: "Ошибка",
-        description: error.message || "Не удалось отправить запрос на сброс пароля",
-        variant: "destructive"
-      });
+      setErrorMessage(error.message || "Не удалось отправить запрос на сброс пароля");
+      toast.error(error.message || "Ошибка при отправке письма");
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +80,10 @@ const ForgotPasswordPage = () => {
                 </div>
                 <Button 
                   variant="outline" 
-                  onClick={() => setIsSubmitted(false)}
+                  onClick={() => {
+                    setIsSubmitted(false);
+                    setErrorMessage(null);
+                  }}
                   className="w-full"
                 >
                   Отправить повторно
@@ -87,33 +95,47 @@ const ForgotPasswordPage = () => {
                 </Link>
               </div>
             ) : (
-              <form onSubmit={handleSubmit}>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                      id="email" 
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="example@email.com"
-                      required
-                    />
+              <>
+                {errorMessage && (
+                  <div className="bg-red-50 p-3 rounded-lg mb-4 border border-red-100">
+                    <div className="flex items-center">
+                      <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+                      <p className="text-sm text-red-700">{errorMessage}</p>
+                    </div>
                   </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Отправка...' : 'Отправить инструкции'}
-                  </Button>
-                  <Link to="/login">
-                    <Button variant="ghost" className="w-full">
-                      Вернуться к входу
+                )}
+                
+                <form onSubmit={handleSubmit}>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input 
+                        id="email" 
+                        type="email"
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setErrorMessage(null); // Очищаем ошибку при вводе
+                        }}
+                        placeholder="example@email.com"
+                        required
+                      />
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full" 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'Отправка...' : 'Отправить инструкции'}
                     </Button>
-                  </Link>
-                </div>
-              </form>
+                    <Link to="/login">
+                      <Button variant="ghost" className="w-full">
+                        Вернуться к входу
+                      </Button>
+                    </Link>
+                  </div>
+                </form>
+              </>
             )}
           </CardContent>
         </Card>

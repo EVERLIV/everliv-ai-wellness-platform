@@ -65,14 +65,47 @@ export const useAuthActions = () => {
   const resetPassword = async (email: string) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      console.log('Attempting password reset for email:', email);
+      console.log('Current origin:', window.location.origin);
+      
+      const redirectTo = `${window.location.origin}/reset-password`;
+      console.log('Redirect URL:', redirectTo);
+      
+      const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectTo,
       });
-      if (error) throw error;
+      
+      console.log('Password reset response:', { error, data });
+      
+      if (error) {
+        console.error('Password reset error details:', {
+          message: error.message,
+          status: error.status,
+          code: error.code,
+          details: error
+        });
+        throw error;
+      }
+      
+      console.log('Password reset email sent successfully');
       return Promise.resolve();
     } catch (error: any) {
       console.error('Reset password error:', error);
-      throw error;
+      
+      // Предоставим более понятные сообщения об ошибках
+      let errorMessage = 'Не удалось отправить письмо для восстановления пароля';
+      
+      if (error.message?.includes('SMTP')) {
+        errorMessage = 'Проблема с настройками почты. Обратитесь к администратору.';
+      } else if (error.message?.includes('Invalid')) {
+        errorMessage = 'Неверный email адрес';
+      } else if (error.message?.includes('rate limit')) {
+        errorMessage = 'Слишком много запросов. Попробуйте позже.';
+      } else if (error.message?.includes('User not found')) {
+        errorMessage = 'Пользователь с таким email не найден';
+      }
+      
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false);
     }
