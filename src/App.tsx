@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -46,6 +45,7 @@ import AdminHealthProfiles from "@/pages/admin/AdminHealthProfiles";
 import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 import AdminContent from "@/pages/admin/AdminContent";
 import AdminSettings from "@/pages/admin/AdminSettings";
+import Welcome from "@/pages/Welcome";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +59,7 @@ function App() {
             <SubscriptionProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/welcome" element={<Welcome />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/profile" element={<UserProfile />} />
                 <Route path="/blood-analysis" element={<BloodAnalysis />} />
