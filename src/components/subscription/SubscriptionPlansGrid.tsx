@@ -16,16 +16,23 @@ const SubscriptionPlansGrid = ({ subscription }: SubscriptionPlansGridProps) => 
   const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
-  const handleSelectPlan = (planType: string) => {
+  const handleSelectPlan = (planType: string, planName: string, price: number) => {
     setSelectedPlan(planType);
     if (subscription?.plan_type === planType && subscription?.status === 'active') {
       toast.info('У вас уже есть активная подписка на этот план');
+      setSelectedPlan(null);
       return;
     }
     
     navigate('/checkout', { 
       state: { 
-        plan: { type: planType } 
+        plan: { 
+          type: planType,
+          name: planName,
+          price: price,
+          period: "месяц",
+          annual: false
+        } 
       } 
     });
   };
@@ -34,7 +41,7 @@ const SubscriptionPlansGrid = ({ subscription }: SubscriptionPlansGridProps) => 
     {
       type: "basic",
       name: "Базовый",
-      price: "Бесплатно",
+      price: 0,
       period: "",
       description: "Доступ к основным функциям",
       features: [
@@ -47,7 +54,7 @@ const SubscriptionPlansGrid = ({ subscription }: SubscriptionPlansGridProps) => 
     {
       type: "premium",
       name: "Премиум",
-      price: "999 ₽",
+      price: 999,
       period: "месяц",
       description: "Максимальная поддержка для вашего здоровья",
       featured: true,
@@ -90,7 +97,9 @@ const SubscriptionPlansGrid = ({ subscription }: SubscriptionPlansGridProps) => 
               )}
               <CardTitle className="text-base sm:text-lg">{plan.name}</CardTitle>
               <CardDescription className="flex flex-col sm:flex-row sm:items-end gap-1">
-                <span className="text-lg sm:text-xl font-bold text-foreground">{plan.price}</span>
+                <span className="text-lg sm:text-xl font-bold text-foreground">
+                  {plan.price === 0 ? 'Бесплатно' : `${plan.price} ₽`}
+                </span>
                 {plan.period && <span className="text-xs text-muted-foreground">/{plan.period}</span>}
               </CardDescription>
               <p className="text-xs text-muted-foreground mt-1">{plan.description}</p>
@@ -110,7 +119,7 @@ const SubscriptionPlansGrid = ({ subscription }: SubscriptionPlansGridProps) => 
                   ${plan.featured ? '' : 'bg-white text-primary hover:text-white border border-primary'}
                   ${subscription?.plan_type === plan.type && subscription?.status === 'active' ? 'bg-evergreen-50 text-evergreen-700 border-evergreen-500 hover:bg-evergreen-100' : ''}
                 `}
-                onClick={() => handleSelectPlan(plan.type)}
+                onClick={() => handleSelectPlan(plan.type, plan.name, plan.price)}
                 disabled={selectedPlan === plan.type || (subscription?.plan_type === plan.type && subscription?.status === 'active')}
               >
                 {selectedPlan === plan.type ? (
