@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -35,6 +36,7 @@ import SubscriptionPage from "@/pages/SubscriptionPage";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import AuthConfirm from "@/pages/AuthConfirm";
+import Checkout from "@/pages/Checkout";
 import AdminDashboardLayout from "@/components/admin/AdminDashboardLayout";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminUsers from "@/pages/admin/AdminUsers";
@@ -65,6 +67,7 @@ function App() {
                 <Route path="/blood-analysis" element={<BloodAnalysis />} />
                 <Route path="/comprehensive-analysis" element={<ComprehensiveAnalysis />} />
                 <Route path="/subscription" element={<SubscriptionPage />} />
+                <Route path="/checkout" element={<Checkout />} />
                 <Route path="/my-protocols" element={<MyProtocols />} />
                 <Route path="/protocol/:id" element={<ProtocolTracking />} />
                 <Route path="/protocol-dashboard" element={<ProtocolTrackingDashboard />} />
