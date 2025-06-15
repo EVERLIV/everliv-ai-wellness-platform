@@ -19,7 +19,7 @@ const handler = async (req: Request): Promise<Response> => {
     const callbackToken = Deno.env.get('PAYKEEPER_CALLBACK_TOKEN')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log('Webhook received, method:', req.method);
+    console.log('Successful payment webhook received, method:', req.method);
     console.log('Headers:', Object.fromEntries(req.headers.entries()));
 
     let webhookData: Record<string, string> = {};
@@ -69,10 +69,8 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    // Extract payment data (adapt field names based on Alfa Bank's format)
+    // Extract payment data - webhook is only sent for successful payments
     const {
-      status,
-      state,
       sum,
       amount,
       payerEmail,
@@ -89,19 +87,7 @@ const handler = async (req: Request): Promise<Response> => {
       orderId
     } = webhookData;
 
-    // Determine payment status
-    const paymentStatus = status || state;
-    const isSuccessful = paymentStatus === 'paid' || 
-                        paymentStatus === 'success' || 
-                        paymentStatus === 'DEPOSITED' ||
-                        paymentStatus === '2'; // Alfa Bank success code
-
-    if (!isSuccessful) {
-      console.log('Payment not completed, status:', paymentStatus);
-      return new Response('Payment not completed', { status: 200 });
-    }
-
-    // Extract payment data
+    // Extract required payment data
     const paymentAmount = parseFloat(sum || amount || '0');
     const userEmail = payerEmail || payer_email || email;
     const paymentDateStr = paymentDate || payment_date || date;
@@ -112,7 +98,6 @@ const handler = async (req: Request): Promise<Response> => {
       amount: paymentAmount,
       paymentDate: paymentDateStr,
       service_name,
-      status: paymentStatus,
       orderId: orderId_final
     });
 
