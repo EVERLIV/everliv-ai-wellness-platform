@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
-export function useIsAdmin() {
+export function useSecureAdminCheck() {
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -17,7 +17,7 @@ export function useIsAdmin() {
       }
 
       try {
-        // Безопасная серверная проверка через RPC функцию
+        // Используем серверную функцию для проверки админских прав
         const { data, error } = await supabase.rpc('is_admin', {
           user_uuid: user.id
         });

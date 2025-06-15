@@ -32,7 +32,7 @@ const DashboardHeader = ({ userName }: DashboardHeaderProps) => {
   // Получаем имя из профиля или используем fallback
   const displayName = profileData?.first_name || userName || "Пользователь";
 
-  // Проверяем, работаем ли мы в режиме разработки
+  // Только для разработки показываем статус
   const isDevelopment = import.meta.env.DEV;
 
   return (

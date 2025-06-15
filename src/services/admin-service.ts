@@ -1,8 +1,7 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-// Проверка прав администратора
+// Безопасная проверка прав администратора через серверную функцию
 export async function checkAdminAccess(): Promise<boolean> {
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -10,13 +9,22 @@ export async function checkAdminAccess(): Promise<boolean> {
     throw new Error("Пользователь не авторизован");
   }
 
-  // Проверяем админа по email адресу
-  const adminEmails = [
-    '1111hoaandrey@gmail.com',
-    'admin@everliv.ru'
-  ];
-  
-  return adminEmails.includes(user.email || '');
+  try {
+    // Используем серверную RPC функцию для проверки
+    const { data, error } = await supabase.rpc('is_admin', {
+      user_uuid: user.id
+    });
+    
+    if (error) {
+      console.error('Error checking admin access:', error);
+      return false;
+    }
+    
+    return data || false;
+  } catch (error) {
+    console.error('Error in admin access check:', error);
+    return false;
+  }
 }
 
 export interface PlanFeatureDetail {
@@ -50,8 +58,6 @@ export interface AdminSubscriptionPlan {
 
 export async function fetchAdminUsers(): Promise<AdminUser[]> {
   try {
-    console.log('Starting fetchAdminUsers');
-
     // Получаем профили пользователей
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
@@ -63,11 +69,8 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
     }
 
     if (!profiles || profiles.length === 0) {
-      console.log('No profiles found in database');
       return [];
     }
-
-    console.log('Found profiles:', profiles.length);
 
     // Получаем email адреса из auth.users через admin API
     const { data: authUsersResponse, error: authError } = await supabase.auth.admin.listUsers();
@@ -78,7 +81,6 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
     }
 
     const authUsers = authUsersResponse?.users || [];
-    console.log('Found auth users:', authUsers.length);
 
     // Получаем подписки
     const userIds = profiles.map(profile => profile.id);
@@ -90,8 +92,6 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
     if (subscriptionsError) {
       console.error('Error fetching subscriptions:', subscriptionsError);
     }
-
-    console.log('Found subscriptions:', subscriptions?.length || 0);
 
     // Создаем карту email адресов для быстрого поиска
     const emailMap = new Map<string, string>();
@@ -120,7 +120,6 @@ export async function fetchAdminUsers(): Promise<AdminUser[]> {
       };
     });
 
-    console.log('Returning users:', users.length);
     return users;
   } catch (error) {
     console.error('Error in fetchAdminUsers:', error);
