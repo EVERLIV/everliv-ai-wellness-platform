@@ -2,7 +2,7 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import LandingPage from './LandingPage';
+import Home from './Home';
 import SEO from '@/components/SEO';
 
 const Index = () => {
@@ -28,7 +28,7 @@ const Index = () => {
         keywords="персонализированная медицина, долголетие, биохакинг, анализ крови, биомаркеры, ИИ врач, протоколы здоровья, превентивная медицина, антиэйджинг, оптимальное здоровье, EVERLIV"
         url="https://everliv.online/"
       />
-      <LandingPage />
+      <Home />
     </>
   );
 };
