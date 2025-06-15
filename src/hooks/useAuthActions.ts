@@ -32,7 +32,7 @@ export const useAuthActions = () => {
         password,
         options: {
           data: userData,
-          emailRedirectTo: `${window.location.origin}/auth/confirm`
+          emailRedirectTo: `https://everliv.online/auth/confirm`
         }
       });
       
@@ -66,9 +66,8 @@ export const useAuthActions = () => {
     try {
       setIsLoading(true);
       console.log('Attempting password reset for email:', email);
-      console.log('Current origin:', window.location.origin);
       
-      const redirectTo = `${window.location.origin}/reset-password`;
+      const redirectTo = `https://everliv.online/reset-password`;
       console.log('Redirect URL:', redirectTo);
       
       const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
