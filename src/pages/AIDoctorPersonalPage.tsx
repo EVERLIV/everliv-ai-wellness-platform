@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -79,7 +80,7 @@ const AIDoctorPersonalPage = () => {
     if (isMobile) {
       setShowChatHistory(true);
     } else {
-      navigate("/ai-doctor");
+      navigate("/dashboard");
     }
   };
 
@@ -102,11 +103,11 @@ const AIDoctorPersonalPage = () => {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => navigate("/ai-doctor")}
+                  onClick={() => navigate("/dashboard")}
                   className="flex items-center gap-2 hover:bg-gray-100 px-2 sm:px-3"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline">Назад к выбору</span>
+                  <span className="hidden sm:inline">Назад к панели</span>
                   <span className="sm:hidden">Назад</span>
                 </Button>
                 
