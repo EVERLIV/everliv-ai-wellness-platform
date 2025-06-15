@@ -7,9 +7,10 @@ import MinimalFooter from '@/components/MinimalFooter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthActions } from '@/hooks/useAuthActions';
 import { toast } from 'sonner';
 import { AlertCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
@@ -17,23 +18,47 @@ const ResetPasswordPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isValidToken, setIsValidToken] = useState(false);
   const [searchParams] = useSearchParams();
-  const { updatePassword } = useAuth();
+  const { updatePassword } = useAuthActions();
   const navigate = useNavigate();
 
-  // Проверяем наличие токена в URL
+  // Проверяем наличие токена в URL и устанавливаем сессию
   useEffect(() => {
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    const type = searchParams.get('type');
-    
-    if (accessToken && refreshToken && type === 'recovery') {
-      setIsValidToken(true);
-      // Устанавливаем сессию с полученными токенами
-      // Supabase автоматически обработает это при загрузке страницы
-    } else {
-      toast.error('Недействительная ссылка для сброса пароля. Пожалуйста, запросите новую ссылку.');
-      navigate('/forgot-password');
-    }
+    const checkToken = async () => {
+      const accessToken = searchParams.get('access_token');
+      const refreshToken = searchParams.get('refresh_token');
+      const type = searchParams.get('type');
+      
+      console.log('URL parameters:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
+      
+      if (accessToken && refreshToken && type === 'recovery') {
+        try {
+          // Устанавливаем сессию с полученными токенами
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) {
+            console.error('Error setting session:', error);
+            toast.error('Недействительная ссылка для сброса пароля');
+            navigate('/forgot-password');
+          } else {
+            console.log('Session set successfully:', data);
+            setIsValidToken(true);
+          }
+        } catch (error) {
+          console.error('Error processing tokens:', error);
+          toast.error('Ошибка обработки токена восстановления');
+          navigate('/forgot-password');
+        }
+      } else {
+        console.log('Missing or invalid URL parameters for password reset');
+        toast.error('Недействительная ссылка для сброса пароля. Пожалуйста, запросите новую ссылку.');
+        navigate('/forgot-password');
+      }
+    };
+
+    checkToken();
   }, [searchParams, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,24 +96,18 @@ const ResetPasswordPage = () => {
         <div className="flex-grow flex items-center justify-center bg-gray-50 py-24 px-4">
           <Card className="w-full max-w-md">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center text-red-600">Ошибка</CardTitle>
+              <CardTitle className="text-2xl text-center text-red-600">Проверка ссылки...</CardTitle>
               <CardDescription className="text-center">
-                Недействительная ссылка для сброса пароля
+                Проверяем действительность ссылки для сброса пароля
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
               <div className="flex items-center justify-center mb-4">
-                <AlertCircle className="h-12 w-12 text-red-500" />
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
               </div>
-              <p className="text-gray-600 mb-4">
-                Эта ссылка недействительна или истекла. Пожалуйста, запросите новую ссылку для сброса пароля.
+              <p className="text-gray-600">
+                Пожалуйста, подождите...
               </p>
-              <Button 
-                onClick={() => navigate('/forgot-password')}
-                className="w-full"
-              >
-                Запросить новую ссылку
-              </Button>
             </CardContent>
           </Card>
         </div>
