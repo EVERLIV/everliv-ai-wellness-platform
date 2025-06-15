@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -70,8 +71,14 @@ const Checkout = () => {
       
       sessionStorage.setItem('everliv_payment_info', JSON.stringify(paymentInfo));
       
-      // Redirect to static PayKeeper payment page
-      window.location.href = 'https://payment.alfabank.ru/shortlink/ePOnVto9';
+      // Create the payment URL with user ID as clientid parameter
+      const baseUrl = 'https://payment.alfabank.ru/shortlink/ePOnVto9';
+      const paymentUrl = `${baseUrl}?clientid=${user.id}&amount=${plan.price}&description=${encodeURIComponent(`Подписка ${plan.name} - EVERLIV`)}`;
+      
+      console.log('Redirecting to payment with user ID:', user.id);
+      
+      // Redirect to payment page with user ID
+      window.location.href = paymentUrl;
 
     } catch (error: any) {
       console.error("Payment error:", error);
@@ -136,6 +143,12 @@ const Checkout = () => {
                         <span>Стоимость:</span> 
                         <span className="font-medium">{plan.price} ₽</span>
                       </p>
+                      {user && (
+                        <p className="flex justify-between">
+                          <span>ID пользователя:</span> 
+                          <span className="font-medium text-xs">{user.id}</span>
+                        </p>
+                      )}
                     </div>
                     <div className="flex justify-between font-bold">
                       <span>Итого:</span>
@@ -167,7 +180,7 @@ const Checkout = () => {
                       <h3 className="font-medium mb-2">Безопасная оплата</h3>
                       <p className="text-sm text-gray-600">
                         Оплата происходит через защищенный сервис Альфа-Банка. 
-                        Мы не храним данные ваших карт.
+                        Мы не храним данные ваших карт. Ваш ID будет передан для отслеживания платежа.
                       </p>
                     </div>
                     
