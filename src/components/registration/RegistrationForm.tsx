@@ -49,19 +49,19 @@ const RegistrationForm = () => {
 
   if (linkSent) {
     return (
-      <div className="text-center">
-        <div className="flex justify-center mb-4">
+      <div className="text-center space-y-6">
+        <div className="flex justify-center mb-6">
           <Mail className="h-12 w-12 text-green-500" />
         </div>
-        <h2 className="text-2xl font-bold mb-2">Ссылка отправлена!</h2>
-        <p className="text-gray-600 mb-6">
+        <h2 className="text-2xl font-bold mb-4">Ссылка отправлена!</h2>
+        <p className="text-gray-600 mb-8 leading-relaxed">
           Мы отправили ссылку для подтверждения на {email}. 
           Проверьте вашу почту и перейдите по ссылке для завершения регистрации.
         </p>
         <Button 
           onClick={() => setLinkSent(false)} 
           variant="outline" 
-          className="w-full"
+          className="w-full h-12"
         >
           Отправить другую ссылку
         </Button>
@@ -70,19 +70,19 @@ const RegistrationForm = () => {
   }
 
   return (
-    <>
+    <div className="space-y-6">
       {errorMessage && (
-        <div className="bg-red-50 p-3 rounded-lg mb-6 border border-red-100">
-          <div className="flex items-center">
-            <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+        <div className="bg-red-50 p-4 rounded-lg border border-red-100 mb-6">
+          <div className="flex items-center space-x-3">
+            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
             <p className="text-sm text-red-700">{errorMessage}</p>
           </div>
         </div>
       )}
     
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="nickname">Никнейм</Label>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="space-y-3">
+          <Label htmlFor="nickname" className="text-base font-medium">Никнейм</Label>
           <Input
             id="nickname"
             type="text"
@@ -90,10 +90,12 @@ const RegistrationForm = () => {
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             required
+            className="h-12 text-base"
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+        
+        <div className="space-y-3">
+          <Label htmlFor="email" className="text-base font-medium">Email</Label>
           <Input
             id="email"
             type="email"
@@ -101,21 +103,23 @@ const RegistrationForm = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className="h-12 text-base"
           />
-          <p className="text-xs text-gray-500">
+          <p className="text-sm text-gray-500 mt-2">
             Мы отправим ссылку для подтверждения без пароля
           </p>
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-start space-x-3 py-4">
           <Checkbox 
             id="terms" 
             checked={agreedToTerms}
             onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+            className="mt-1"
           />
           <label
             htmlFor="terms"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            className="text-sm font-medium leading-relaxed peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
             Я принимаю <a href="/terms" className="text-everliv-600 hover:underline">условия использования</a> и <a href="/privacy" className="text-everliv-600 hover:underline">политику конфиденциальности</a>
           </label>
@@ -123,13 +127,13 @@ const RegistrationForm = () => {
         
         <Button 
           type="submit" 
-          className="w-full bg-everliv-600 hover:bg-everliv-700"
+          className="w-full h-12 text-base font-medium bg-everliv-600 hover:bg-everliv-700"
           disabled={isLoading}
         >
           {isLoading ? 'Отправляем ссылку...' : 'Зарегистрироваться'}
         </Button>
       </form>
-    </>
+    </div>
   );
 };
 

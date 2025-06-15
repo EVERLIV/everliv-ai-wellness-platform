@@ -72,10 +72,29 @@ export const useAuthActions = () => {
     }
   };
 
+  // Для совместимости со старыми страницами - перенаправляем на magic link
+  const resetPassword = async (email: string) => {
+    return signInWithMagicLink(email);
+  };
+
+  // Для совместимости - перенаправляем на magic link
+  const signIn = async (email: string, password: string) => {
+    return signInWithMagicLink(email);
+  };
+
+  // Заглушка для updatePassword - показываем что функция недоступна
+  const updatePassword = async (password: string) => {
+    toast.error('Обновление пароля недоступно. Используйте вход по ссылке.');
+    throw new Error('Password update not available with magic link auth');
+  };
+
   return {
     isLoading,
     signInWithMagicLink,
     signUpWithMagicLink,
     signOut,
+    resetPassword,
+    signIn,
+    updatePassword,
   };
 };

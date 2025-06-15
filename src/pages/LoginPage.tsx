@@ -12,28 +12,27 @@ import { AlertCircle } from 'lucide-react';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { signIn } = useAuth();
+  const { signInWithMagicLink } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     
-    if (!email || !password) {
-      setErrorMessage('Пожалуйста, заполните все поля');
+    if (!email) {
+      setErrorMessage('Пожалуйста, введите email');
       return;
     }
     
     setIsLoading(true);
     try {
-      await signIn(email, password);
-      // Navigation will be handled by AuthContext
+      await signInWithMagicLink(email);
+      // Покажем сообщение об успешной отправке
     } catch (error: any) {
       console.error('Error during login:', error);
-      setErrorMessage(error.message || 'Ошибка при входе. Проверьте данные и попробуйте снова.');
+      setErrorMessage(error.message || 'Ошибка при отправке ссылки. Попробуйте снова.');
     } finally {
       setIsLoading(false);
     }
@@ -43,27 +42,27 @@ const LoginPage = () => {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       
-      <div className="flex-grow flex items-center justify-center px-4" style={{ paddingTop: '8rem', paddingBottom: '4rem' }}>
+      <div className="flex-grow flex items-center justify-center px-4 py-24">
         <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Вход в систему</CardTitle>
-            <CardDescription className="text-center">
-              Войдите в свой аккаунт EVERLIV
+          <CardHeader className="space-y-2 text-center pb-8">
+            <CardTitle className="text-2xl font-bold">Вход в систему</CardTitle>
+            <CardDescription className="text-lg">
+              Введите ваш email для получения ссылки для входа
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
             {errorMessage && (
-              <div className="bg-red-50 p-3 rounded-lg mb-6 border border-red-100">
-                <div className="flex items-center">
-                  <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+              <div className="bg-red-50 p-4 rounded-lg border border-red-100">
+                <div className="flex items-center space-x-3">
+                  <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
                   <p className="text-sm text-red-700">{errorMessage}</p>
                 </div>
               </div>
             )}
             
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+              <div className="space-y-3">
+                <Label htmlFor="email" className="text-base font-medium">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -71,35 +70,23 @@ const LoginPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  className="h-12 text-base"
                 />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label htmlFor="password">Пароль</Label>
-                  <Link to="/forgot-password" className="text-sm text-primary hover:underline">
-                    Забыли пароль?
-                  </Link>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <p className="text-sm text-gray-500 mt-2">
+                  Мы отправим вам ссылку для входа без пароля
+                </p>
               </div>
               
               <Button 
                 type="submit" 
-                className="w-full"
+                className="w-full h-12 text-base font-medium"
                 disabled={isLoading}
               >
-                {isLoading ? 'Вход...' : 'Войти'}
+                {isLoading ? 'Отправляем...' : 'Отправить ссылку для входа'}
               </Button>
             </form>
             
-            <div className="mt-6 text-center">
+            <div className="mt-8 text-center">
               <p className="text-gray-600">
                 Нет аккаунта?{" "}
                 <Link to="/signup" className="text-primary hover:underline font-medium">
