@@ -4,31 +4,32 @@ import { Navigate, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Mail } from 'lucide-react';
 import AuthLayout from '@/components/AuthLayout';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { signIn, isLoading, user } = useAuth();
+  const [linkSent, setLinkSent] = useState(false);
+  const { signInWithMagicLink, isLoading, user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     setErrorMessage(null);
     
-    if (!email || !password) {
-      setErrorMessage('Пожалуйста, заполните все поля');
+    if (!email) {
+      setErrorMessage('Пожалуйста, введите email');
       return;
     }
     
     try {
-      await signIn(email, password);
+      await signInWithMagicLink(email);
+      setLinkSent(true);
     } catch (error: any) {
       console.error("Login error:", error);
-      setErrorMessage(error.message || 'Неверный email или пароль');
+      setErrorMessage(error.message || 'Ошибка при отправке ссылки');
     }
   };
 
@@ -37,10 +38,37 @@ const Login = () => {
     return <Navigate to="/dashboard" />;
   }
 
+  if (linkSent) {
+    return (
+      <AuthLayout 
+        title="Ссылка отправлена!" 
+        description="Проверьте вашу почту для входа в систему."
+        type="login"
+      >
+        <div className="text-center">
+          <div className="flex justify-center mb-4">
+            <Mail className="h-12 w-12 text-green-500" />
+          </div>
+          <p className="text-gray-600 mb-6">
+            Мы отправили магическую ссылку на {email}. 
+            Проверьте вашу почту и перейдите по ссылке для входа.
+          </p>
+          <Button 
+            onClick={() => setLinkSent(false)} 
+            variant="outline" 
+            className="w-full"
+          >
+            Отправить другую ссылку
+          </Button>
+        </div>
+      </AuthLayout>
+    );
+  }
+
   return (
     <AuthLayout 
       title="Добро пожаловать!" 
-      description="Войдите в свой аккаунт для доступа к персональным рекомендациям по здоровью."
+      description="Введите ваш email для получения ссылки для входа без пароля."
       type="login"
     >
       {errorMessage && (
@@ -63,26 +91,9 @@ const Login = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Пароль</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        
-        <div className="text-right">
-          <Link 
-            to="/forgot-password" 
-            className="text-sm text-everliv-600 hover:underline"
-          >
-            Забыли пароль?
-          </Link>
+          <p className="text-xs text-gray-500">
+            Мы отправим вам ссылку для входа без пароля
+          </p>
         </div>
         
         <Button 
@@ -90,7 +101,7 @@ const Login = () => {
           className="w-full bg-everliv-600 hover:bg-everliv-700"
           disabled={isLoading}
         >
-          {isLoading ? 'Вход...' : 'Войти'}
+          {isLoading ? 'Отправляем...' : 'Получить ссылку для входа'}
         </Button>
       </form>
     </AuthLayout>

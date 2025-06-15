@@ -4,24 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Mail } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 const RegistrationForm = () => {
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { signUp, isLoading } = useAuth();
+  const [linkSent, setLinkSent] = useState(false);
+  const { signUpWithMagicLink, isLoading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     setErrorMessage(null);
     
-    if (!nickname || !email || !password) {
+    if (!nickname || !email) {
       setErrorMessage('Пожалуйста, заполните все поля');
       return;
     }
@@ -30,17 +30,13 @@ const RegistrationForm = () => {
       setErrorMessage('Пожалуйста, примите условия использования');
       return;
     }
-
-    if (password.length < 6) {
-      setErrorMessage('Пароль должен содержать не менее 6 символов');
-      return;
-    }
     
     try {
-      await signUp(email, password, { 
+      await signUpWithMagicLink(email, { 
         nickname: nickname
       });
-      toast.success('Регистрация успешна! Проверьте вашу электронную почту для подтверждения.');
+      setLinkSent(true);
+      toast.success('Ссылка для подтверждения отправлена на вашу почту!');
     } catch (error: any) {
       console.error("Signup error:", error);
       if (error.code === 'over_email_send_rate_limit') {
@@ -50,6 +46,28 @@ const RegistrationForm = () => {
       }
     }
   };
+
+  if (linkSent) {
+    return (
+      <div className="text-center">
+        <div className="flex justify-center mb-4">
+          <Mail className="h-12 w-12 text-green-500" />
+        </div>
+        <h2 className="text-2xl font-bold mb-2">Ссылка отправлена!</h2>
+        <p className="text-gray-600 mb-6">
+          Мы отправили ссылку для подтверждения на {email}. 
+          Проверьте вашу почту и перейдите по ссылке для завершения регистрации.
+        </p>
+        <Button 
+          onClick={() => setLinkSent(false)} 
+          variant="outline" 
+          className="w-full"
+        >
+          Отправить другую ссылку
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -84,20 +102,8 @@ const RegistrationForm = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Пароль</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-          />
           <p className="text-xs text-gray-500">
-            Пароль должен содержать не менее 6 символов
+            Мы отправим ссылку для подтверждения без пароля
           </p>
         </div>
         
@@ -120,7 +126,7 @@ const RegistrationForm = () => {
           className="w-full bg-everliv-600 hover:bg-everliv-700"
           disabled={isLoading}
         >
-          {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+          {isLoading ? 'Отправляем ссылку...' : 'Зарегистрироваться'}
         </Button>
       </form>
     </>

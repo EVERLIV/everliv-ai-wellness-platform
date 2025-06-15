@@ -5,11 +5,9 @@ export type AuthContextType = {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, userData: { nickname: string }) => Promise<void>;
+  signInWithMagicLink: (email: string) => Promise<void>;
+  signUpWithMagicLink: (email: string, userData: { nickname: string }) => Promise<void>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
-  updatePassword: (newPassword: string) => Promise<void>;
 };
 
 export type AuthState = {

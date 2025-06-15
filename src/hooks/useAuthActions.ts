@@ -3,34 +3,43 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { getResetPasswordUrl, getAuthConfirmUrl } from '@/config/constants';
+import { getAuthConfirmUrl } from '@/config/constants';
 
 export const useAuthActions = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const signIn = async (email: string, password: string) => {
+  const signInWithMagicLink = async (email: string) => {
     try {
       setIsLoading(true);
-      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      console.log('Sending magic link to email:', email);
+      
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email,
+        options: {
+          emailRedirectTo: getAuthConfirmUrl()
+        }
+      });
       
       if (error) throw error;
       
-      console.log('Login successful, navigation will be handled by auth state change');
+      toast.success('Магическая ссылка отправлена на вашу почту! Проверьте входящие сообщения.');
+      return Promise.resolve();
     } catch (error: any) {
-      console.error('Sign in error:', error);
-      toast.error(error.message || 'Ошибка входа');
-      setIsLoading(false);
+      console.error('Magic link error:', error);
+      toast.error(error.message || 'Ошибка отправки ссылки');
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const signUp = async (email: string, password: string, userData: { nickname: string }) => {
+  const signUpWithMagicLink = async (email: string, userData: { nickname: string }) => {
     try {
       setIsLoading(true);
       const { error } = await supabase.auth.signUp({ 
         email, 
-        password,
+        password: Math.random().toString(36), // Временный пароль, не используется
         options: {
           data: userData,
           emailRedirectTo: getAuthConfirmUrl()
@@ -39,7 +48,7 @@ export const useAuthActions = () => {
       
       if (error) throw error;
       
-      toast.success('Регистрация успешна! На вашу почту отправлено письмо для подтверждения.');
+      toast.success('Ссылка для подтверждения отправлена на вашу почту!');
       navigate('/welcome');
     } catch (error: any) {
       console.error('Sign up error:', error);
@@ -63,76 +72,10 @@ export const useAuthActions = () => {
     }
   };
 
-  const resetPassword = async (email: string) => {
-    try {
-      setIsLoading(true);
-      console.log('Attempting password reset for email:', email);
-      
-      const redirectTo = getResetPasswordUrl();
-      console.log('Redirect URL:', redirectTo);
-      
-      const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: redirectTo,
-      });
-      
-      console.log('Password reset response:', { error, data });
-      
-      if (error) {
-        console.error('Password reset error details:', {
-          message: error.message,
-          status: error.status,
-          code: error.code,
-          details: error
-        });
-        throw error;
-      }
-      
-      console.log('Password reset email sent successfully');
-      return Promise.resolve();
-    } catch (error: any) {
-      console.error('Reset password error:', error);
-      
-      // Предоставим более понятные сообщения об ошибках
-      let errorMessage = 'Не удалось отправить письмо для восстановления пароля';
-      
-      if (error.message?.includes('SMTP')) {
-        errorMessage = 'Проблема с настройками почты. Обратитесь к администратору.';
-      } else if (error.message?.includes('Invalid')) {
-        errorMessage = 'Неверный email адрес';
-      } else if (error.message?.includes('rate limit')) {
-        errorMessage = 'Слишком много запросов. Попробуйте позже.';
-      } else if (error.message?.includes('User not found')) {
-        errorMessage = 'Пользователь с таким email не найден';
-      }
-      
-      throw new Error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updatePassword = async (newPassword: string) => {
-    try {
-      setIsLoading(true);
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
-      });
-      if (error) throw error;
-      return Promise.resolve();
-    } catch (error: any) {
-      console.error('Update password error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return {
     isLoading,
-    signIn,
-    signUp,
+    signInWithMagicLink,
+    signUpWithMagicLink,
     signOut,
-    resetPassword,
-    updatePassword,
   };
 };
