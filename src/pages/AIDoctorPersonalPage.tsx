@@ -20,12 +20,22 @@ const AIDoctorPersonalPage = () => {
   const { canUseFeature } = useSubscription();
   const isMobile = useIsMobile();
   const [selectedChatId, setSelectedChatId] = useState<string | undefined>();
-  const [showChatHistory, setShowChatHistory] = useState(false); // Изначально показываем чат
+  const [showChatHistory, setShowChatHistory] = useState(false);
   const [messagesUsed, setMessagesUsed] = useState(0);
   const [isLimitReached, setIsLimitReached] = useState(false);
 
   const hasPersonalAIDoctorAccess = canUseFeature('personal_ai_doctor');
   const messageLimit = 3;
+
+  console.log('PersonalPage - User:', user?.email, 'Premium access:', hasPersonalAIDoctorAccess);
+
+  useEffect(() => {
+    // Если у пользователя НЕТ премиум доступа, отправляем на страницу выбора
+    if (!hasPersonalAIDoctorAccess) {
+      navigate("/ai-doctor");
+      return;
+    }
+  }, [hasPersonalAIDoctorAccess, navigate]);
 
   useEffect(() => {
     if (!hasPersonalAIDoctorAccess && user) {
@@ -40,17 +50,15 @@ const AIDoctorPersonalPage = () => {
     }
   }, [user?.id, hasPersonalAIDoctorAccess]);
 
-  // Исправленные функции для управления чатами
   const handleSelectChat = (chatId: string) => {
     setSelectedChatId(chatId);
-    setShowChatHistory(false); // Скрываем историю и показываем чат
+    setShowChatHistory(false);
   };
 
   const handleCreateNewChat = async () => {
     if (!user) return;
     
     try {
-      // Создаем новый чат через ChatHistory компонент
       const { data, error } = await supabase
         .from('ai_doctor_chats')
         .insert([{
@@ -63,17 +71,16 @@ const AIDoctorPersonalPage = () => {
       if (error) throw error;
       
       setSelectedChatId(data.id);
-      setShowChatHistory(false); // Переходим к новому чату
+      setShowChatHistory(false);
     } catch (error) {
       console.error('Ошибка создания чата:', error);
-      // Если не удалось создать чат в базе, создаем временный
       setSelectedChatId(undefined);
       setShowChatHistory(false);
     }
   };
 
   const handleShowChatHistory = () => {
-    setShowChatHistory(true); // Показываем историю чатов
+    setShowChatHistory(true);
   };
 
   const handleBackToHistory = () => {
@@ -89,7 +96,34 @@ const AIDoctorPersonalPage = () => {
     return null;
   }
 
-  // Общий layout для мобильной и десктопной версии
+  // Если нет премиум доступа, показываем сообщение о необходимости подписки
+  if (!hasPersonalAIDoctorAccess) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Header />
+        
+        <div className="flex-grow pt-16 flex items-center justify-center p-4">
+          <Card className="max-w-md mx-auto">
+            <CardContent className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Требуется премиум подписка</h3>
+              <p className="text-gray-600 mb-6 max-w-md mx-auto text-sm">
+                Для доступа к персональному ИИ-доктору необходима премиум подписка.
+              </p>
+              <Button onClick={() => navigate("/pricing")} className="bg-gradient-to-r from-purple-600 to-amber-500">
+                Обновить подписку
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <MinimalFooter />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -132,7 +166,6 @@ const AIDoctorPersonalPage = () => {
         {/* Chat Interface */}
         <div className="flex-1 flex flex-col min-h-0">
           {showChatHistory ? (
-            // Показываем историю чатов
             <div className="container mx-auto px-4 py-4 max-w-4xl flex-1 flex flex-col">
               <div className="flex-1 min-h-0">
                 <ChatHistory 
@@ -143,38 +176,16 @@ const AIDoctorPersonalPage = () => {
               </div>
             </div>
           ) : (
-            // Показываем чат
-            <>
-              {!hasPersonalAIDoctorAccess && isLimitReached ? (
-                <div className="h-full flex items-center justify-center p-4">
-                  <Card className="max-w-md mx-auto">
-                    <CardContent className="text-center py-12">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Lock className="h-8 w-8 text-gray-400" />
-                      </div>
-                      <h3 className="text-lg font-semibold mb-2">Лимит сообщений исчерпан</h3>
-                      <p className="text-gray-600 mb-6 max-w-md mx-auto text-sm">
-                        Вы использовали все бесплатные сообщения на сегодня. Обновите подписку для продолжения консультаций.
-                      </p>
-                      <Button onClick={() => navigate("/pricing")} className="bg-gradient-to-r from-purple-600 to-amber-500">
-                        Обновить подписку
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              ) : (
-                <div className="container mx-auto px-4 py-4 max-w-4xl flex-1 flex flex-col">
-                  <div className="flex-1 min-h-0">
-                    <PersonalAIDoctorChatWithId 
-                      chatId={selectedChatId}
-                      onBack={handleBackToHistory}
-                      onCreateNewChat={handleCreateNewChat}
-                      onShowChatHistory={handleShowChatHistory}
-                    />
-                  </div>
-                </div>
-              )}
-            </>
+            <div className="container mx-auto px-4 py-4 max-w-4xl flex-1 flex flex-col">
+              <div className="flex-1 min-h-0">
+                <PersonalAIDoctorChatWithId 
+                  chatId={selectedChatId}
+                  onBack={handleBackToHistory}
+                  onCreateNewChat={handleCreateNewChat}
+                  onShowChatHistory={handleShowChatHistory}
+                />
+              </div>
+            </div>
           )}
         </div>
       </div>

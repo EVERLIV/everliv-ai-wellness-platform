@@ -14,8 +14,10 @@ const ChatTypeSelector: React.FC = () => {
   const hasBasicAccess = true; // Все пользователи имеют базовый доступ
   const hasPremiumAccess = canUseFeature('personal_ai_doctor');
 
+  console.log('ChatTypeSelector - Premium access:', hasPremiumAccess);
+
   const handleBasicChatClick = () => {
-    navigate("/ai-doctor/basic"); // Переход на отдельную страницу базового чата
+    navigate("/ai-doctor/basic");
   };
 
   const handlePremiumChatClick = () => {
@@ -68,17 +70,16 @@ const ChatTypeSelector: React.FC = () => {
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="h-4 w-4 text-orange-500" />
-                <span>Без сохранения истории</span>
+                <span>Ограничено 3 сообщения в день</span>
               </div>
             </div>
 
             <Button 
               onClick={handleBasicChatClick}
               className="w-full"
-              variant={hasBasicAccess ? "default" : "outline"}
-              disabled={!hasBasicAccess}
+              variant="default"
             >
-              {hasBasicAccess ? "Начать базовую консультацию" : "Недоступно"}
+              Начать базовую консультацию
             </Button>
           </CardContent>
         </Card>
@@ -150,12 +151,7 @@ const ChatTypeSelector: React.FC = () => {
           </CardContent>
 
           {!hasPremiumAccess && (
-            <div className="absolute inset-0 bg-gray-100/50 flex items-center justify-center">
-              <div className="bg-white rounded-lg p-4 shadow-lg border border-gray-200 text-center">
-                <Lock className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">Требуется премиум подписка</p>
-              </div>
-            </div>
+            <div className="absolute inset-0 bg-gray-100/20 rounded-lg"></div>
           )}
         </Card>
       </div>
