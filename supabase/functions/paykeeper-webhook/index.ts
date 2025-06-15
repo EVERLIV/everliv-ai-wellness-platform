@@ -75,9 +75,12 @@ const handler = async (req: Request): Promise<Response> => {
       state,
       sum,
       amount,
-      clientid,
-      client_id,
-      user_id,
+      payerEmail,
+      payer_email,
+      email,
+      paymentDate,
+      payment_date,
+      date,
       service_name,
       orderid,
       order_id,
@@ -98,56 +101,56 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response('Payment not completed', { status: 200 });
     }
 
-    // Extract amount and user ID
+    // Extract payment data
     const paymentAmount = parseFloat(sum || amount || '0');
-    const userId = clientid || client_id || user_id;
+    const userEmail = payerEmail || payer_email || email;
+    const paymentDateStr = paymentDate || payment_date || date;
     const orderId_final = orderid || order_id || transaction_id || mdOrder || orderId;
 
     console.log('Processing successful payment:', {
-      userId,
+      email: userEmail,
       amount: paymentAmount,
+      paymentDate: paymentDateStr,
       service_name,
       status: paymentStatus,
       orderId: orderId_final
     });
 
-    // Try to determine user from stored payment info or userId
-    let finalUserId: string | null = null;
-    let planType = 'standard'; // Default plan
-
-    // Strategy 1: Use userId if it looks like a UUID
-    if (userId && typeof userId === 'string' && userId.length === 36 && userId.includes('-')) {
-      finalUserId = userId;
+    // Validate required fields
+    if (!userEmail) {
+      console.error('No payer email provided in webhook data');
+      return new Response('Payer email is required', { status: 400 });
     }
 
-    // Strategy 2: Try to find user by order ID or other means
-    if (!finalUserId && orderId_final) {
-      // You might want to store order information in a separate table
-      // For now, we'll log this case
-      console.log('Could not determine user from order ID:', orderId_final);
+    // Find user by email
+    const { data: userData, error: userError } = await supabase.auth.admin.listUsers();
+    
+    if (userError) {
+      console.error('Error fetching users:', userError);
+      return new Response('Error fetching user data', { status: 500 });
     }
 
-    // Strategy 3: Check for stored payment info in browser storage (this would be passed in the callback)
-    if (!finalUserId) {
-      console.error('Unable to identify user from webhook data. Available data:', {
-        userId,
-        clientid,
-        client_id,
-        user_id,
-        orderId: orderId_final
-      });
-      
-      // Return success to avoid retries, but log the issue
-      return new Response('Payment processed but user not identified', { status: 200 });
+    const user = userData.users.find(u => u.email === userEmail);
+    
+    if (!user) {
+      console.error('User not found with email:', userEmail);
+      return new Response('User not found', { status: 404 });
     }
+
+    const userId = user.id;
+    console.log('Found user ID:', userId, 'for email:', userEmail);
 
     // Determine plan type from amount or service_name
+    let planType = 'premium'; // Default to premium for paid subscriptions
+    
     if (service_name) {
       const serviceLower = service_name.toLowerCase();
-      if (serviceLower.includes('премиум') || serviceLower.includes('premium')) {
-        planType = 'premium';
-      } else if (serviceLower.includes('базовый') || serviceLower.includes('basic')) {
+      if (serviceLower.includes('базовый') || serviceLower.includes('basic')) {
         planType = 'basic';
+      } else if (serviceLower.includes('стандарт') || serviceLower.includes('standard')) {
+        planType = 'standard';
+      } else if (serviceLower.includes('премиум') || serviceLower.includes('premium')) {
+        planType = 'premium';
       }
     } else {
       // Determine by amount (adjust these values based on your pricing)
@@ -155,22 +158,40 @@ const handler = async (req: Request): Promise<Response> => {
         planType = 'premium';
       } else if (paymentAmount >= 2000) {
         planType = 'standard';
-      } else {
+      } else if (paymentAmount >= 1000) {
         planType = 'basic';
       }
     }
 
     console.log('Determined plan type:', planType, 'for amount:', paymentAmount);
 
-    // Calculate expiration date (1 month from now)
-    const expiresAt = new Date();
-    expiresAt.setMonth(expiresAt.getMonth() + 1);
+    // Calculate expiration date (30 days from payment date)
+    let expiresAt: Date;
+    
+    if (paymentDateStr) {
+      // Parse payment date and add 30 days
+      const paymentDateParsed = new Date(paymentDateStr);
+      if (!isNaN(paymentDateParsed.getTime())) {
+        expiresAt = new Date(paymentDateParsed);
+        expiresAt.setDate(expiresAt.getDate() + 30);
+      } else {
+        console.warn('Invalid payment date format:', paymentDateStr, 'using current date');
+        expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + 30);
+      }
+    } else {
+      // If no payment date provided, use current date + 30 days
+      expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+    }
+
+    console.log('Subscription will expire at:', expiresAt.toISOString());
 
     // Cancel any existing active subscription
     const { error: cancelError } = await supabase
       .from('subscriptions')
       .update({ status: 'canceled' })
-      .eq('user_id', finalUserId)
+      .eq('user_id', userId)
       .eq('status', 'active');
 
     if (cancelError) {
@@ -181,10 +202,11 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: subscription, error: subscriptionError } = await supabase
       .from('subscriptions')
       .insert({
-        user_id: finalUserId,
+        user_id: userId,
         plan_type: planType,
         status: 'active',
         expires_at: expiresAt.toISOString(),
+        started_at: paymentDateStr ? new Date(paymentDateStr).toISOString() : new Date().toISOString(),
       })
       .select()
       .single();
