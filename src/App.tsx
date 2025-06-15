@@ -17,6 +17,7 @@ import ProtocolTrackingDashboard from "@/pages/ProtocolTrackingDashboard";
 import NutritionDiary from "@/pages/NutritionDiary";
 import HealthProfile from "@/pages/HealthProfile";
 import MedicalKnowledge from "@/pages/MedicalKnowledge";
+import MoscowClinics from "@/pages/MoscowClinics";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import AccountSettings from "@/pages/AccountSettings";
@@ -68,6 +69,7 @@ function App() {
                 <Route path="/nutrition-diary" element={<NutritionDiary />} />
                 <Route path="/health-profile" element={<HealthProfile />} />
                 <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
+                <Route path="/moscow-clinics" element={<MoscowClinics />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />

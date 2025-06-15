@@ -15,7 +15,6 @@ export const useAuthActions = () => {
       
       if (error) throw error;
       
-      // Auth state change will handle the navigation
       console.log('Login successful, navigation will be handled by auth state change');
     } catch (error: any) {
       console.error('Sign in error:', error);
@@ -40,7 +39,6 @@ export const useAuthActions = () => {
       if (error) throw error;
       
       toast.success('Регистрация успешна! На вашу почту отправлено письмо для подтверждения.');
-      // Navigate to welcome page even before email confirmation for better UX
       navigate('/welcome');
     } catch (error: any) {
       console.error('Sign up error:', error);
@@ -71,11 +69,9 @@ export const useAuthActions = () => {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast.success('Инструкции по сбросу пароля отправлены на ваш email');
       return Promise.resolve();
     } catch (error: any) {
       console.error('Reset password error:', error);
-      toast.error(error.message || 'Ошибка отправки запроса на сброс пароля');
       throw error;
     } finally {
       setIsLoading(false);
@@ -89,11 +85,9 @@ export const useAuthActions = () => {
         password: newPassword
       });
       if (error) throw error;
-      toast.success('Пароль успешно обновлен');
       return Promise.resolve();
     } catch (error: any) {
       console.error('Update password error:', error);
-      toast.error(error.message || 'Ошибка обновления пароля');
       throw error;
     } finally {
       setIsLoading(false);
