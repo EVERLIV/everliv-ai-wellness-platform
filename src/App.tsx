@@ -7,6 +7,8 @@ import { Toaster } from "@/components/ui/toaster"
 
 import Index from './pages/Index';
 import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 import AuthConfirm from './pages/AuthConfirm';
 import Welcome from './pages/Welcome';
 import MedicalKnowledge from './pages/MedicalKnowledge';
@@ -16,6 +18,7 @@ import NutritionDiary from './pages/NutritionDiary';
 import BloodAnalysisPage from './pages/BloodAnalysisPage';
 import AnalysisDetails from './pages/AnalysisDetails';
 import BiologicalAgePage from './pages/BiologicalAgePage';
+import AIDoctorPage from './pages/AIDoctorPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminBlog from './pages/AdminBlog';
@@ -49,9 +52,12 @@ function App() {
                 <RealtimeNotifications />
                 <Routes>
                   <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/auth-confirm" element={<AuthConfirm />} />
                   <Route path="/welcome" element={<Welcome />} />
+                  <Route path="/ai-doctor" element={<AIDoctorPage />} />
                   <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
                   <Route path="/subscription" element={<SubscriptionPage />} />
                   <Route path="/profile" element={<UserProfile />} />
