@@ -70,7 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "EVERLIV <onboarding@resend.dev>",
+      from: "EVERLIV <noreply@updates.everliv.online>",
       to: [to],
       subject,
       html,

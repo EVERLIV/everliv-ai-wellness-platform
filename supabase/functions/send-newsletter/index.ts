@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 import { Resend } from "npm:resend@4.0.0";
@@ -118,7 +119,7 @@ const handler = async (req: Request): Promise<Response> => {
         );
 
         const emailResponse = await resend.emails.send({
-          from: "EVERLIV <onboarding@resend.dev>",
+          from: "EVERLIV <noreply@updates.everliv.online>",
           to: [subscription.email],
           subject: "EVERLIV Newsletter: Новые медицинские рекомендации",
           html,
