@@ -1,5 +1,5 @@
 
-import { SecureOpenAIService } from "./secure-openai-service";
+import { initializeOpenAI } from "./openai-client";
 
 export interface HealthProfileAnalysis {
   healthScore: number;
@@ -13,7 +13,12 @@ export interface HealthProfileAnalysis {
 
 export const analyzeHealthProfile = async (healthProfile: any): Promise<HealthProfileAnalysis> => {
   try {
-    const prompt = `Проанализируйте профиль здоровья и предоставьте оценку СТРОГО на русском языке.
+    const openai = initializeOpenAI();
+    
+    const messages = [
+      {
+        role: "system",
+        content: `Вы - эксперт по здоровью. Проанализируйте профиль здоровья и предоставьте оценку СТРОГО на русском языке.
 
 ВАЖНО: 
 - Уровень риска должен быть ТОЛЬКО: "низкий", "средний" или "высокий" (на русском!)
@@ -35,17 +40,25 @@ export const analyzeHealthProfile = async (healthProfile: any): Promise<HealthPr
   "strengths": ["сильная сторона1", "сильная сторона2"],
   "concerns": ["проблема1", "проблема2"],
   "scoreExplanation": "объяснение того, как был рассчитан балл здоровья"
-}
-
-Проанализируйте профиль здоровья: ${JSON.stringify(healthProfile)}`;
+}`
+      },
+      {
+        role: "user",
+        content: `Проанализируйте профиль здоровья и дайте оценку СТРОГО на русском языке: ${JSON.stringify(healthProfile)}`
+      }
+    ];
     
-    const response = await SecureOpenAIService.makeRequest('ai-medical-analysis', {
-      prompt,
-      temperature: 0.3
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: messages as any,
+      temperature: 0.3,
+      max_tokens: 2000,
     });
     
+    const aiResponse = response.choices[0].message.content || "";
+    
     try {
-      const result = JSON.parse(response.content);
+      const result = JSON.parse(aiResponse);
       
       // Проверяем, что уровень риска на русском языке
       if (!['низкий', 'средний', 'высокий'].includes(result.riskLevel)) {

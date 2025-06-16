@@ -1,38 +1,140 @@
 
-import React from 'react';
-import { Helmet } from 'react-helmet-async';
-import PageLayoutWithHeader from '@/components/PageLayoutWithHeader';
-import MedicalKnowledgeWithAI from '@/components/medical-knowledge/MedicalKnowledgeWithAI';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain } from 'lucide-react';
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Header from "@/components/Header";
+import MinimalFooter from "@/components/MinimalFooter";
+import MedicalKnowledgeSearch from '@/components/medical-knowledge/MedicalKnowledgeSearch';
+import MedicalKnowledgeHeader from '@/components/medical-knowledge/MedicalKnowledgeHeader';
+import ArticlesTab from '@/components/medical-knowledge/ArticlesTab';
+import CategoriesTab from '@/components/medical-knowledge/CategoriesTab';
+import SpecializationsTab from '@/components/medical-knowledge/SpecializationsTab';
+import { useMedicalKnowledge } from '@/hooks/useMedicalKnowledge';
+import { MedicalArticle } from '@/types/medical';
 
-const MedicalKnowledge = () => {
-  const headerComponent = (
-    <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-0 rounded-none">
-      <CardHeader className="text-center py-8">
-        <CardTitle className="flex items-center justify-center gap-3 text-3xl">
-          <Brain className="h-10 w-10 text-blue-600" />
-          Медицинская база знаний
-        </CardTitle>
-        <p className="text-gray-600 text-lg">
-          Исследуйте медицинские статьи и найдите специалистов с помощью AI поиска
-        </p>
-      </CardHeader>
-    </Card>
-  );
+const MedicalKnowledge: React.FC = () => {
+  const { categories, articles, specializations, isLoading, searchArticles } = useMedicalKnowledge();
+  const [searchResults, setSearchResults] = useState<MedicalArticle[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const handleSearch = async (query: string, categoryId?: string) => {
+    setIsSearching(true);
+    setHasSearched(true);
+    try {
+      const results = await searchArticles(query, categoryId);
+      setSearchResults(results);
+    } catch (error) {
+      console.error('Search error:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleCategorySelect = (categoryId: string) => {
+    // Строгая фильтрация статей по категории
+    const categoryArticles = articles
+      .filter(article => article.category_id === categoryId)
+      .reduce((acc, current) => {
+        const existingIndex = acc.findIndex(item => item.id === current.id);
+        if (existingIndex === -1) {
+          acc.push(current);
+        }
+        return acc;
+      }, [] as MedicalArticle[]);
+    
+    setSearchResults(categoryArticles);
+    setHasSearched(true);
+  };
+
+  const handleArticleSelect = (articleId: string) => {
+    console.log('Selected article:', articleId);
+  };
+
+  const handleResetSearch = () => {
+    setHasSearched(false);
+    setSearchResults([]);
+  };
+
+  const getArticleCountByCategory = (categoryId: string) => {
+    // Подсчитываем уникальные статьи по категории с точной фильтрацией
+    const uniqueArticles = articles.reduce((acc, current) => {
+      const existingIndex = acc.findIndex(item => item.id === current.id);
+      if (existingIndex === -1) {
+        acc.push(current);
+      }
+      return acc;
+    }, [] as MedicalArticle[]);
+    
+    return uniqueArticles.filter(article => article.category_id === categoryId).length;
+  };
+
+  const displayedArticles = hasSearched ? searchResults : articles;
 
   return (
-    <>
-      <Helmet>
-        <title>Медицинская база знаний с AI поиском - EverLiv</title>
-        <meta name="description" content="Исследуйте медицинские статьи и найдите специалистов с помощью традиционного и семантического поиска на базе ИИ" />
-        <meta name="keywords" content="медицинские статьи, врачи специалисты, семантический поиск, AI поиск, здоровье" />
-      </Helmet>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Header />
       
-      <PageLayoutWithHeader headerComponent={headerComponent}>
-        <MedicalKnowledgeWithAI />
-      </PageLayoutWithHeader>
-    </>
+      <div className="flex-grow pt-16">
+        <MedicalKnowledgeHeader
+          articlesCount={articles.length}
+          categoriesCount={categories.length}
+          specializationsCount={specializations.length}
+        />
+
+        <div className="container mx-auto px-4 py-4 max-w-7xl">
+          <div className="space-y-4">
+            <MedicalKnowledgeSearch
+              categories={categories}
+              onSearch={handleSearch}
+              isLoading={isSearching}
+            />
+
+            <Tabs defaultValue="articles" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 mb-4 h-auto">
+                <TabsTrigger value="articles" className="text-sm py-2">
+                  Статьи
+                </TabsTrigger>
+                <TabsTrigger value="categories" className="text-sm py-2">
+                  Категории
+                </TabsTrigger>
+                <TabsTrigger value="doctors" className="text-sm py-2">
+                  Специалисты
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="articles" className="space-y-4">
+                <ArticlesTab
+                  isLoading={isLoading}
+                  isSearching={isSearching}
+                  hasSearched={hasSearched}
+                  displayedArticles={displayedArticles}
+                  onResetSearch={handleResetSearch}
+                  onArticleSelect={handleArticleSelect}
+                />
+              </TabsContent>
+
+              <TabsContent value="categories" className="space-y-4">
+                <CategoriesTab
+                  isLoading={isLoading}
+                  categories={categories}
+                  getArticleCountByCategory={getArticleCountByCategory}
+                  onCategorySelect={handleCategorySelect}
+                />
+              </TabsContent>
+
+              <TabsContent value="doctors" className="space-y-4">
+                <SpecializationsTab
+                  isLoading={isLoading}
+                  specializations={specializations}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
+
+      <MinimalFooter />
+    </div>
   );
 };
 

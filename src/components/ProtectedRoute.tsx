@@ -1,8 +1,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { isDevelopmentMode, isStagingMode } from '@/utils/devMode';
-import { secureLogger } from '@/utils/secureLogger';
+import { isDevelopmentMode } from '@/utils/devMode';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -11,22 +10,22 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, isLoading } = useAuth();
 
-  secureLogger.debug('ProtectedRoute check', {
-    user_id: user?.id,
-    isLoading,
+  console.log('🔧 ProtectedRoute check:', {
     isDev: isDevelopmentMode(),
-    isStaging: isStagingMode(),
+    user: !!user,
+    isLoading,
     hostname: window.location.hostname
   });
 
-  // В настоящем dev режиме (только localhost) пропускаем проверку авторизации
+  // В dev режиме всегда пропускаем проверку авторизации - ПЕРВАЯ проверка!
   if (isDevelopmentMode()) {
-    secureLogger.debug('Development mode: Bypassing auth check');
+    console.log('🔧 Dev mode: Bypassing auth check');
     return <>{children}</>;
   }
 
   if (isLoading) {
-    secureLogger.debug('Auth is loading...');
+    console.log('🔧 Auth is loading...');
+    // Return a loading spinner while auth state is being determined
     return (
       <div className="h-screen flex justify-center items-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-evergreen-500"></div>
@@ -35,13 +34,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!user) {
-    secureLogger.info('No user found, redirecting to login');
+    console.log('🔧 No user found, redirecting to login');
     return <Navigate to="/login" />;
   }
 
-  secureLogger.debug('User authenticated, rendering children', {
-    user_id: user.id
-  });
+  console.log('🔧 User authenticated, rendering children');
   return <>{children}</>;
 };
 

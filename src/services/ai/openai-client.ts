@@ -1,17 +1,17 @@
 
-// This file is deprecated for security reasons
-// OpenAI API calls should only be made through Supabase Edge Functions
-// to prevent API key exposure on the client side
+import OpenAI from "openai";
 
-console.warn(
-  'OpenAI client is deprecated for security reasons. ' +
-  'Use SecureOpenAIService instead, which routes all requests through Edge Functions.'
-);
-
-// Stub implementation that throws an error
+// Initialize OpenAI client with API key
 export const initializeOpenAI = () => {
-  throw new Error(
-    'Direct OpenAI client access is disabled for security. ' +
-    'Use SecureOpenAIService for AI functionality.'
-  );
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY || "";
+  
+  if (!apiKey) {
+    console.error("OpenAI API key is not configured. Please set the OPENAI_API_KEY environment variable.");
+    throw new Error("OpenAI API key is not configured. Please add your API key to environment variables.");
+  }
+  
+  return new OpenAI({
+    apiKey: apiKey,
+    dangerouslyAllowBrowser: true // Note: This is for client-side use only
+  });
 };

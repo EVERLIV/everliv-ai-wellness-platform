@@ -2,28 +2,18 @@
 // Утилита для определения development окружения
 export const isDevelopmentMode = (): boolean => {
   const hostname = window.location.hostname;
-  
-  // SECURITY: Only allow dev mode on actual localhost - never on production domains
-  const isDev = hostname === 'localhost' || hostname === '127.0.0.1';
+  const isDev = hostname === 'localhost' || 
+                hostname === '127.0.0.1' ||
+                hostname.includes('preview--') ||
+                hostname.includes('.lovable.app') ||
+                hostname === 'int.everliv.online'; // Добавляем новый домен
   
   console.log('🔧 Dev mode check:', { hostname, isDev });
   return isDev;
 };
 
-// Определяем staging окружение отдельно
-export const isStagingMode = (): boolean => {
-  const hostname = window.location.hostname;
-  return hostname.includes('preview--') ||
-         hostname.includes('.lovable.app') ||
-         hostname === 'int.everliv.online';
-};
-
-// Создаем фиктивного пользователя только для настоящего dev режима
+// Создаем фиктивного пользователя для разработки
 export const createDevUser = () => {
-  if (!isDevelopmentMode()) {
-    throw new Error('Dev user creation only allowed in development mode');
-  }
-  
   return {
     id: 'dev-user-123',
     email: 'dev@test.com',
@@ -40,12 +30,8 @@ export const createDevUser = () => {
   };
 };
 
-// Создаем фиктивную сессию только для настоящего dev режима
+// Создаем фиктивную сессию для разработки
 export const createDevSession = () => {
-  if (!isDevelopmentMode()) {
-    throw new Error('Dev session creation only allowed in development mode');
-  }
-  
   const user = createDevUser();
   return {
     access_token: 'dev-access-token',
