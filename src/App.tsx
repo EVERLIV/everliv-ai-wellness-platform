@@ -33,6 +33,57 @@ import AdminNutrition from "./pages/admin/AdminNutrition";
 import AdminHealthProfiles from "./pages/admin/AdminHealthProfiles";
 import AdminHealthRecommendations from "./pages/admin/AdminHealthRecommendations";
 import AdminSettings from "./pages/admin/AdminSettings";
+
+// Import additional pages
+import Home from "./pages/Home";
+import LandingPage from "./pages/LandingPage";
+import Features from "./pages/Features";
+import HowItWorks from "./pages/HowItWorks";
+import Science from "./pages/Science";
+import Partnership from "./pages/Partnership";
+import FAQ from "./pages/FAQ";
+import Support from "./pages/Support";
+import TermsOfUse from "./pages/TermsOfUse";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Security from "./pages/Security";
+import HelpCenter from "./pages/HelpCenter";
+import ServicesPage from "./pages/ServicesPage";
+import BloodAnalysis from "./pages/BloodAnalysis";
+import HealthProfile from "./pages/HealthProfile";
+import Welcome from "./pages/Welcome";
+import NotFound from "./pages/NotFound";
+import Signup from "./pages/Signup";
+import MagicLinkLoginPage from "./pages/MagicLinkLoginPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import AuthConfirm from "./pages/AuthConfirm";
+import SubscriptionPage from "./pages/SubscriptionPage";
+import UserSubscription from "./pages/UserSubscription";
+import Checkout from "./pages/Checkout";
+import MoscowClinics from "./pages/MoscowClinics";
+import ProtocolTracking from "./pages/ProtocolTracking";
+import MyProtocols from "./pages/MyProtocols";
+import Community from "./pages/Community";
+import Webinars from "./pages/Webinars";
+
+// Import service pages
+import BloodAnalysisServicePage from "./pages/services/BloodAnalysisServicePage";
+import AIRecommendations from "./pages/services/AIRecommendations";
+import PersonalizedSupplements from "./pages/services/PersonalizedSupplements";
+import Fasting from "./pages/services/Fasting";
+import ColdTherapy from "./pages/services/ColdTherapy";
+import OxygenTherapy from "./pages/services/OxygenTherapy";
+import BreathingPractices from "./pages/services/BreathingPractices";
+
+// Import partnership pages
+import CorporateClients from "./pages/partnerships/CorporateClients";
+import MedicalInstitutions from "./pages/partnerships/MedicalInstitutions";
+import MedicalSpecialists from "./pages/partnerships/MedicalSpecialists";
+
+// Import admin pages
+import AdminPricing from "./pages/admin/AdminPricing";
+import AdminStatistics from "./pages/admin/AdminStatistics";
+import AdminBlog from "./pages/AdminBlog";
+
 import { SmartAuthProvider } from "./contexts/SmartAuthContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -53,17 +104,55 @@ const App = () => (
             <SubscriptionProvider>
               <RealtimeNotifications />
               <Routes>
+                {/* Public Routes */}
                 <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<RegistrationPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/landing" element={<LandingPage />} />
+                <Route path="/features" element={<Features />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/science" element={<Science />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/pricing" element={<Pricing />} />
+                <Route path="/partnership" element={<Partnership />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/support" element={<Support />} />
+                <Route path="/help" element={<HelpCenter />} />
+                <Route path="/terms" element={<TermsOfUse />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/security" element={<Security />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/specialists" element={<MedicalKnowledge />} />
-                
+                <Route path="/moscow-clinics" element={<MoscowClinics />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/webinars" element={<Webinars />} />
+
+                {/* Auth Routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/register" element={<RegistrationPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/magic-link" element={<MagicLinkLoginPage />} />
+                <Route path="/auth/confirm" element={<AuthConfirm />} />
+                <Route path="/welcome" element={<Welcome />} />
+
+                {/* Service Pages */}
+                <Route path="/services/blood-analysis" element={<BloodAnalysisServicePage />} />
+                <Route path="/services/ai-recommendations" element={<AIRecommendations />} />
+                <Route path="/services/supplements" element={<PersonalizedSupplements />} />
+                <Route path="/services/fasting" element={<Fasting />} />
+                <Route path="/services/cold-therapy" element={<ColdTherapy />} />
+                <Route path="/services/oxygen-therapy" element={<OxygenTherapy />} />
+                <Route path="/services/breathing" element={<BreathingPractices />} />
+
+                {/* Partnership Pages */}
+                <Route path="/partnerships/corporate" element={<CorporateClients />} />
+                <Route path="/partnerships/medical-institutions" element={<MedicalInstitutions />} />
+                <Route path="/partnerships/specialists" element={<MedicalSpecialists />} />
+
                 {/* Protected Routes */}
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
@@ -73,6 +162,16 @@ const App = () => (
                 <Route path="/profile" element={
                   <ProtectedRoute>
                     <UserProfile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/health-profile" element={
+                  <ProtectedRoute>
+                    <HealthProfile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/blood-analysis" element={
+                  <ProtectedRoute>
+                    <BloodAnalysis />
                   </ProtectedRoute>
                 } />
                 <Route path="/medical-analysis" element={
@@ -108,6 +207,31 @@ const App = () => (
                 <Route path="/nutrition-diary" element={
                   <ProtectedRoute>
                     <NutritionDiaryPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/protocols" element={
+                  <ProtectedRoute>
+                    <MyProtocols />
+                  </ProtectedRoute>
+                } />
+                <Route path="/protocol-tracking" element={
+                  <ProtectedRoute>
+                    <ProtocolTracking />
+                  </ProtectedRoute>
+                } />
+                <Route path="/subscription" element={
+                  <ProtectedRoute>
+                    <SubscriptionPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/user-subscription" element={
+                  <ProtectedRoute>
+                    <UserSubscription />
+                  </ProtectedRoute>
+                } />
+                <Route path="/checkout" element={
+                  <ProtectedRoute>
+                    <Checkout />
                   </ProtectedRoute>
                 } />
 
@@ -157,6 +281,24 @@ const App = () => (
                     <AdminSettings />
                   </ProtectedRoute>
                 } />
+                <Route path="/admin/pricing" element={
+                  <ProtectedRoute>
+                    <AdminPricing />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/statistics" element={
+                  <ProtectedRoute>
+                    <AdminStatistics />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/blog" element={
+                  <ProtectedRoute>
+                    <AdminBlog />
+                  </ProtectedRoute>
+                } />
+
+                {/* 404 Route */}
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </SubscriptionProvider>
           </SmartAuthProvider>
