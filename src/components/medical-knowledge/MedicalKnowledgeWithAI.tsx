@@ -48,6 +48,17 @@ const MedicalKnowledgeWithAI: React.FC = () => {
     setSelectedArticle(articleId);
   };
 
+  const getArticleCountByCategory = (categoryId: string) => {
+    return articles.filter(article => article.category_id === categoryId).length;
+  };
+
+  const handleCategorySelect = (categoryId: string) => {
+    // Фильтруем статьи по выбранной категории
+    const filteredArticles = articles.filter(article => article.category_id === categoryId);
+    setDisplayedArticles(filteredArticles);
+    setHasSearched(true);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
       {/* Заголовок с AI акцентом */}
@@ -84,13 +95,9 @@ const MedicalKnowledgeWithAI: React.FC = () => {
         <TabsContent value="articles">
           <div className="space-y-6">
             <MedicalKnowledgeSearch
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              selectedCategory={selectedCategory}
-              setSelectedCategory={setSelectedCategory}
               categories={categories}
               onSearch={handleSearch}
-              isSearching={isSearching}
+              isLoading={isSearching}
             />
             
             <ArticlesTab
@@ -108,6 +115,8 @@ const MedicalKnowledgeWithAI: React.FC = () => {
           <CategoriesTab 
             categories={categories}
             isLoading={isLoading}
+            getArticleCountByCategory={getArticleCountByCategory}
+            onCategorySelect={handleCategorySelect}
           />
         </TabsContent>
 

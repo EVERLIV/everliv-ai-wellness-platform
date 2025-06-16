@@ -4,8 +4,11 @@ import PageLayoutWithHeader from '@/components/PageLayoutWithHeader';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardTabs from '@/components/dashboard/DashboardTabs';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard = () => {
+  const { user } = useAuth();
+
   return (
     <ProtectedRoute>
       <Helmet>
@@ -13,9 +16,10 @@ const Dashboard = () => {
         <meta name="description" content="Ваш персональный дашборд здоровья с AI-рекомендациями" />
       </Helmet>
       
-      <PageLayoutWithHeader>
+      <PageLayoutWithHeader
+        headerComponent={<DashboardHeader userName={user?.email || 'Пользователь'} />}
+      >
         <div className="space-y-8">
-          <DashboardHeader />
           <DashboardTabs />
         </div>
       </PageLayoutWithHeader>
