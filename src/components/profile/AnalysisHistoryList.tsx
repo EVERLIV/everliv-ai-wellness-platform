@@ -49,7 +49,7 @@ const AnalysisHistoryList = ({ history, isLoading }: AnalysisHistoryListProps) =
                   {format(new Date(record.created_at), "d MMMM yyyy, HH:mm", { locale: ru })}
                 </TableCell>
                 <TableCell>{record.analysis_type}</TableCell>
-                <TableCell>{record.results?.status || "Завершен"}</TableCell>
+                <TableCell>{record.status === 'completed' ? 'Завершен' : record.status}</TableCell>
                 <TableCell className="text-right">
                   <Button variant="outline" size="sm" className="flex items-center gap-1">
                     Просмотр <ArrowRight className="h-4 w-4" />
