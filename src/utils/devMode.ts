@@ -5,7 +5,8 @@ export const isDevelopmentMode = (): boolean => {
   const isDev = hostname === 'localhost' || 
                 hostname === '127.0.0.1' ||
                 hostname.includes('preview--') ||
-                hostname.includes('.lovable.app');
+                hostname.includes('.lovable.app') ||
+                hostname === 'int.everliv.online'; // Добавляем новый домен
   
   console.log('🔧 Dev mode check:', { hostname, isDev });
   return isDev;
