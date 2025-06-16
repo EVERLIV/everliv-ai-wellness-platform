@@ -343,6 +343,38 @@ export type Database = {
         }
         Relationships: []
       }
+      medical_article_embeddings: {
+        Row: {
+          article_id: string
+          created_at: string
+          embedding: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_article_embeddings_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "medical_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medical_articles: {
         Row: {
           article_type: string
@@ -692,6 +724,41 @@ export type Database = {
           weight?: number | null
         }
         Relationships: []
+      }
+      protocol_embeddings: {
+        Row: {
+          created_at: string
+          embedding: string | null
+          id: string
+          protocol_features: Json | null
+          protocol_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          protocol_features?: Json | null
+          protocol_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          protocol_features?: Json | null
+          protocol_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protocol_embeddings_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "user_protocols"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       protocol_events: {
         Row: {
@@ -1046,6 +1113,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences_embeddings: {
+        Row: {
+          created_at: string
+          embedding: string | null
+          id: string
+          metadata: Json | null
+          preference_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          metadata?: Json | null
+          preference_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          metadata?: Json | null
+          preference_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_protocols: {
         Row: {
           added_at: string
@@ -1129,15 +1226,136 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      binary_quantize: {
+        Args: { "": string } | { "": unknown }
+        Returns: unknown
+      }
+      halfvec_avg: {
+        Args: { "": number[] }
+        Returns: unknown
+      }
+      halfvec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      halfvec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      halfvec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
       has_role: {
         Args:
           | { _user_id: string; _role: Database["public"]["Enums"]["app_role"] }
           | { user_id: number; role_name: string }
         Returns: boolean
       }
+      hnsw_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnsw_sparsevec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      hnswhandler: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
       is_admin: {
         Args: { user_uuid: string }
         Returns: boolean
+      }
+      ivfflat_bit_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflat_halfvec_support: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      ivfflathandler: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      l2_norm: {
+        Args: { "": unknown } | { "": unknown }
+        Returns: number
+      }
+      l2_normalize: {
+        Args: { "": string } | { "": unknown } | { "": unknown }
+        Returns: string
+      }
+      recommend_protocols_for_user: {
+        Args: {
+          user_id_param: string
+          match_threshold?: number
+          match_count?: number
+        }
+        Returns: {
+          protocol_id: string
+          title: string
+          description: string
+          category: string
+          similarity: number
+          recommendation_reason: string
+        }[]
+      }
+      search_medical_articles_by_embedding: {
+        Args: {
+          query_embedding: string
+          match_threshold?: number
+          match_count?: number
+        }
+        Returns: {
+          article_id: string
+          title: string
+          content: string
+          excerpt: string
+          similarity: number
+        }[]
+      }
+      sparsevec_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      sparsevec_send: {
+        Args: { "": unknown }
+        Returns: string
+      }
+      sparsevec_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
+      }
+      vector_avg: {
+        Args: { "": number[] }
+        Returns: string
+      }
+      vector_dims: {
+        Args: { "": string } | { "": unknown }
+        Returns: number
+      }
+      vector_norm: {
+        Args: { "": string }
+        Returns: number
+      }
+      vector_out: {
+        Args: { "": string }
+        Returns: unknown
+      }
+      vector_send: {
+        Args: { "": string }
+        Returns: string
+      }
+      vector_typmod_in: {
+        Args: { "": unknown[] }
+        Returns: number
       }
     }
     Enums: {
