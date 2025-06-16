@@ -11,7 +11,7 @@ import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 
 const UserProfile = () => {
   const [activeTab, setActiveTab] = useState("profile");
-  const { profile, isLoading: profileLoading, updateProfile } = useProfile();
+  const { profileData, isLoading: profileLoading, updateProfile } = useProfile();
   const { history, isLoading: historyLoading } = useAnalysisHistory();
 
   return (
@@ -52,7 +52,7 @@ const UserProfile = () => {
               </CardHeader>
               <CardContent>
                 <ProfileForm 
-                  profileData={profile}
+                  profileData={profileData}
                   isLoading={profileLoading}
                   isUpdating={false}
                   onUpdateProfile={updateProfile}
