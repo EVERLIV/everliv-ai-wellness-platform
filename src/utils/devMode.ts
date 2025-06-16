@@ -7,6 +7,7 @@ export const isDevelopmentMode = (): boolean => {
                 hostname.includes('preview--') ||
                 hostname.includes('.lovable.app');
   
+  console.log('🔧 Dev mode check:', { hostname, isDev });
   return isDev;
 };
 

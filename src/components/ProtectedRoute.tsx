@@ -10,6 +10,13 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, isLoading } = useAuth();
 
+  console.log('🔧 ProtectedRoute check:', {
+    isDev: isDevelopmentMode(),
+    user: !!user,
+    isLoading,
+    hostname: window.location.hostname
+  });
+
   // В dev режиме всегда пропускаем проверку авторизации - ПЕРВАЯ проверка!
   if (isDevelopmentMode()) {
     console.log('🔧 Dev mode: Bypassing auth check');
@@ -17,6 +24,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (isLoading) {
+    console.log('🔧 Auth is loading...');
     // Return a loading spinner while auth state is being determined
     return (
       <div className="h-screen flex justify-center items-center">
@@ -26,9 +34,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!user) {
+    console.log('🔧 No user found, redirecting to login');
     return <Navigate to="/login" />;
   }
 
+  console.log('🔧 User authenticated, rendering children');
   return <>{children}</>;
 };
 

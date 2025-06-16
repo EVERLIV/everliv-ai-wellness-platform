@@ -9,9 +9,14 @@ interface SmartAuthProviderProps {
 }
 
 export const SmartAuthProvider = ({ children }: SmartAuthProviderProps) => {
-  if (isDevelopmentMode()) {
+  const isDevMode = isDevelopmentMode();
+  console.log('🔧 SmartAuthProvider: Dev mode detected?', isDevMode);
+  
+  if (isDevMode) {
+    console.log('🔧 Using DevAuthProvider');
     return <DevAuthProvider>{children}</DevAuthProvider>;
   }
   
+  console.log('🔧 Using regular AuthProvider');
   return <AuthProvider>{children}</AuthProvider>;
 };

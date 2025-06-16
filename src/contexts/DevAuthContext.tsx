@@ -12,11 +12,13 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🔧 DevAuthProvider mounted');
     if (isDevelopmentMode()) {
       // В dev режиме автоматически авторизуем пользователя
       const devUser = createDevUser() as User;
       const devSession = createDevSession() as Session;
       
+      console.log('🔧 Setting dev user and session:', { devUser, devSession });
       setUser(devUser);
       setSession(devSession);
       setIsLoading(false);
@@ -68,6 +70,8 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
     console.log('🔧 Dev mode: Password update simulated');
     return Promise.resolve();
   };
+
+  console.log('🔧 DevAuthProvider rendering with:', { user: !!user, session: !!session, isLoading });
 
   return (
     <DevAuthContext.Provider value={{
