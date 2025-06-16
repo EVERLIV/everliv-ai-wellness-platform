@@ -33,10 +33,11 @@ import AdminNutrition from "./pages/admin/AdminNutrition";
 import AdminHealthProfiles from "./pages/admin/AdminHealthProfiles";
 import AdminHealthRecommendations from "./pages/admin/AdminHealthRecommendations";
 import AdminSettings from "./pages/admin/AdminSettings";
-import { AuthProvider } from "./contexts/AuthContext";
+import { SmartAuthProvider } from "./contexts/SmartAuthContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RealtimeNotifications from "./components/realtime/RealtimeNotifications";
+import DevModeIndicator from "./components/DevModeIndicator";
 
 const queryClient = new QueryClient();
 
@@ -46,8 +47,9 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <DevModeIndicator />
         <BrowserRouter>
-          <AuthProvider>
+          <SmartAuthProvider>
             <SubscriptionProvider>
               <RealtimeNotifications />
               <Routes>
@@ -157,7 +159,7 @@ const App = () => (
                 } />
               </Routes>
             </SubscriptionProvider>
-          </AuthProvider>
+          </SmartAuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
