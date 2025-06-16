@@ -34,9 +34,13 @@ export const useUserPresence = (roomId: string) => {
         const users: UserPresence[] = [];
         
         Object.keys(newState).forEach(key => {
-          const presences = newState[key] as UserPresence[];
+          const presences = newState[key] as any[];
           if (presences.length > 0) {
-            users.push(presences[0]);
+            // Extract the actual presence data from the first presence object
+            const presence = presences[0];
+            if (presence.user_id && presence.online_at) {
+              users.push(presence as UserPresence);
+            }
           }
         });
         

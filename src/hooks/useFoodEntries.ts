@@ -145,6 +145,7 @@ export const useFoodEntries = (selectedDate: Date) => {
     deleteEntry,
     getSummaryByMealType,
     getDailyTotals,
-    refetch: fetchEntries
+    refetch: fetchEntries,
+    refreshEntries: fetchEntries
   };
 };

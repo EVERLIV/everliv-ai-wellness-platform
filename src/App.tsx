@@ -7,22 +7,22 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
+import RegistrationPage from "./pages/RegistrationPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import Dashboard from "./pages/Dashboard";
-import Profile from "./pages/Profile";
+import UserProfile from "./pages/UserProfile";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Pricing from "./pages/Pricing";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
-import MedicalAnalysis from "./pages/MedicalAnalysis";
+import LabAnalyses from "./pages/LabAnalyses";
 import AnalysisDetails from "./pages/AnalysisDetails";
 import Analytics from "./pages/Analytics";
-import Specialists from "./pages/Specialists";
+import MedicalKnowledge from "./pages/MedicalKnowledge";
 import AIDoctorPage from "./pages/AIDoctorPage";
-import BasicAIDoctorPage from "./pages/BasicAIDoctorPage";
-import PersonalAIDoctorPage from "./pages/PersonalAIDoctorPage";
+import AIDoctorBasicPage from "./pages/AIDoctorBasicPage";
+import AIDoctorPersonalPage from "./pages/AIDoctorPersonalPage";
 import NutritionDiaryPage from "./pages/NutritionDiary";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -53,14 +53,14 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/register" element={<RegistrationPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
-                <Route path="/specialists" element={<Specialists />} />
+                <Route path="/specialists" element={<MedicalKnowledge />} />
                 
                 {/* Protected Routes */}
                 <Route path="/dashboard" element={
@@ -70,12 +70,12 @@ const App = () => (
                 } />
                 <Route path="/profile" element={
                   <ProtectedRoute>
-                    <Profile />
+                    <UserProfile />
                   </ProtectedRoute>
                 } />
                 <Route path="/medical-analysis" element={
                   <ProtectedRoute>
-                    <MedicalAnalysis />
+                    <LabAnalyses />
                   </ProtectedRoute>
                 } />
                 <Route path="/analysis/:id" element={
@@ -95,12 +95,12 @@ const App = () => (
                 } />
                 <Route path="/ai-doctor/basic" element={
                   <ProtectedRoute>
-                    <BasicAIDoctorPage />
+                    <AIDoctorBasicPage />
                   </ProtectedRoute>
                 } />
                 <Route path="/ai-doctor/personal" element={
                   <ProtectedRoute>
-                    <PersonalAIDoctorPage />
+                    <AIDoctorPersonalPage />
                   </ProtectedRoute>
                 } />
                 <Route path="/nutrition-diary" element={
