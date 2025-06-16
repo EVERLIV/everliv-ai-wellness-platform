@@ -38,12 +38,12 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <SmartAuthProvider>
-      <SubscriptionProvider>
-        <TooltipProvider>
-          <Toaster />
-          <DevModeIndicator />
-          <BrowserRouter>
+    <BrowserRouter>
+      <SmartAuthProvider>
+        <SubscriptionProvider>
+          <TooltipProvider>
+            <Toaster />
+            <DevModeIndicator />
             <Suspense fallback={<div>Loading...</div>}>
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -69,10 +69,10 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
-          </BrowserRouter>
-        </TooltipProvider>
-      </SubscriptionProvider>
-    </SmartAuthProvider>
+          </TooltipProvider>
+        </SubscriptionProvider>
+      </SmartAuthProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 
