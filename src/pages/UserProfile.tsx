@@ -6,9 +6,13 @@ import ProfileForm from '@/components/profile/ProfileForm';
 import AnalysisHistoryList from '@/components/profile/AnalysisHistoryList';
 import NewsletterSubscription from '@/components/newsletter/NewsletterSubscription';
 import { User, FileText, Mail, Settings } from 'lucide-react';
+import { useProfile } from '@/hooks/useProfile';
+import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 
 const UserProfile = () => {
   const [activeTab, setActiveTab] = useState("profile");
+  const { profile, isLoading: profileLoading, updateProfile } = useProfile();
+  const { history, isLoading: historyLoading } = useAnalysisHistory();
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -47,7 +51,12 @@ const UserProfile = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ProfileForm />
+                <ProfileForm 
+                  profileData={profile}
+                  isLoading={profileLoading}
+                  isUpdating={false}
+                  onUpdateProfile={updateProfile}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -61,7 +70,10 @@ const UserProfile = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <AnalysisHistoryList />
+                <AnalysisHistoryList 
+                  history={history || []}
+                  isLoading={historyLoading}
+                />
               </CardContent>
             </Card>
           </TabsContent>

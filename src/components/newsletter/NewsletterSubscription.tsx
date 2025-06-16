@@ -43,9 +43,9 @@ const NewsletterSubscription = () => {
     try {
       setIsLoadingData(true);
       const data = await getNewsletterSubscription(user!.id);
-      setSubscription(data);
       if (data) {
-        setFrequency(data.frequency);
+        setSubscription(data as SubscriptionType);
+        setFrequency(data.frequency as 'weekly' | 'monthly');
         setCategories(data.categories);
       }
     } catch (error) {

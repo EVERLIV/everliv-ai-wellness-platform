@@ -538,6 +538,39 @@ export type Database = {
           },
         ]
       }
+      newsletter_subscriptions: {
+        Row: {
+          categories: string[]
+          created_at: string
+          email: string
+          frequency: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          categories?: string[]
+          created_at?: string
+          email: string
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          categories?: string[]
+          created_at?: string
+          email?: string
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       nutrition_goals: {
         Row: {
           created_at: string
@@ -690,6 +723,7 @@ export type Database = {
           last_name: string | null
           medical_conditions: string[] | null
           medications: string[] | null
+          nickname: string | null
           updated_at: string
           weight: number | null
         }
@@ -705,6 +739,7 @@ export type Database = {
           last_name?: string | null
           medical_conditions?: string[] | null
           medications?: string[] | null
+          nickname?: string | null
           updated_at?: string
           weight?: number | null
         }
@@ -720,6 +755,7 @@ export type Database = {
           last_name?: string | null
           medical_conditions?: string[] | null
           medications?: string[] | null
+          nickname?: string | null
           updated_at?: string
           weight?: number | null
         }

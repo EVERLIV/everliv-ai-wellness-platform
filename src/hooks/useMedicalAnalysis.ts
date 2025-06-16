@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,6 +6,7 @@ import { FEATURES } from "@/constants/subscription-features";
 import { analyzeMedicalTestWithAI, MedicalAnalysisResults } from "@/services/ai/medical-analysis";
 import { checkUsageLimit, incrementUsage } from "@/services/usage-tracking-service";
 import { sendAnalysisResultsEmail } from "@/services/email-service";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useMedicalAnalysis = () => {
   const { user } = useAuth();
