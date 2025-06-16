@@ -10,34 +10,23 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [nickname, setNickname] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [linkSent, setLinkSent] = useState(false);
-  const { signUp, isLoading, user } = useAuth();
+  const { signUpWithMagicLink, isLoading, user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     setErrorMessage(null);
     
-    if (!email || !password) {
+    if (!email || !nickname) {
       setErrorMessage('Пожалуйста, заполните все поля');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setErrorMessage('Пароли не совпадают');
-      return;
-    }
-
-    if (password.length < 6) {
-      setErrorMessage('Пароль должен содержать минимум 6 символов');
       return;
     }
     
     try {
-      await signUp(email, password);
+      await signUpWithMagicLink(email, { nickname });
       setLinkSent(true);
     } catch (error: any) {
       console.error("Signup error:", error);
@@ -106,25 +95,13 @@ const Signup = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Пароль</Label>
+          <Label htmlFor="nickname">Имя пользователя</Label>
           <Input
-            id="password"
-            type="password"
-            placeholder="Минимум 6 символов"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            placeholder="Повторите пароль"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            id="nickname"
+            type="text"
+            placeholder="Введите ваше имя"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
             required
           />
         </div>
