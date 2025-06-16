@@ -42,11 +42,11 @@ function App() {
         <SecurityHeaders />
         <DevModeIndicator />
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-          <AuthProvider>
-            <SubscriptionProvider>
-              <Toaster />
-              <RealtimeNotifications />
-              <BrowserRouter>
+          <BrowserRouter>
+            <AuthProvider>
+              <SubscriptionProvider>
+                <Toaster />
+                <RealtimeNotifications />
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/dashboard" element={<Dashboard />} />
@@ -72,9 +72,9 @@ function App() {
                   <Route path="/admin/payments" element={<AdminStatistics />} />
                   <Route path="/admin/security" element={<AdminSecurity />} />
                 </Routes>
-              </BrowserRouter>
-            </SubscriptionProvider>
-          </AuthProvider>
+              </SubscriptionProvider>
+            </AuthProvider>
+          </BrowserRouter>
         </ThemeProvider>
       </QueryClientProvider>
     </HelmetProvider>
