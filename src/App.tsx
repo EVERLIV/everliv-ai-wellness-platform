@@ -29,6 +29,7 @@ import AdminStatistics from './pages/admin/AdminStatistics';
 import AdminContent from './pages/admin/AdminContent';
 import AdminSecurity from './pages/admin/AdminSecurity';
 import RealtimeNotifications from './components/realtime/RealtimeNotifications';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -51,32 +52,111 @@ function App() {
                 <Toaster />
                 <RealtimeNotifications />
                 <Routes>
+                  {/* Публичные страницы - без ProtectedRoute */}
                   <Route path="/" element={<Index />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/auth-confirm" element={<AuthConfirm />} />
                   <Route path="/welcome" element={<Welcome />} />
-                  <Route path="/ai-doctor" element={<AIDoctorPage />} />
-                  <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
-                  <Route path="/subscription" element={<SubscriptionPage />} />
-                  <Route path="/profile" element={<UserProfile />} />
-                  <Route path="/food-diary" element={<NutritionDiary />} />
-                  <Route path="/blood-test-analysis" element={<BloodAnalysisPage />} />
-                  <Route path="/medical-analysis/:analysisId" element={<AnalysisDetails />} />
-                  <Route path="/medical-analysis" element={<AnalysisDetails />} />
-                  <Route path="/biological-age" element={<BiologicalAgePage />} />
+                  
+                  {/* Приватные страницы пользователя - с ProtectedRoute */}
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/ai-doctor" element={
+                    <ProtectedRoute>
+                      <AIDoctorPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/medical-knowledge" element={
+                    <ProtectedRoute>
+                      <MedicalKnowledge />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/subscription" element={
+                    <ProtectedRoute>
+                      <SubscriptionPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/profile" element={
+                    <ProtectedRoute>
+                      <UserProfile />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/food-diary" element={
+                    <ProtectedRoute>
+                      <NutritionDiary />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/blood-test-analysis" element={
+                    <ProtectedRoute>
+                      <BloodAnalysisPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/medical-analysis/:analysisId" element={
+                    <ProtectedRoute>
+                      <AnalysisDetails />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/medical-analysis" element={
+                    <ProtectedRoute>
+                      <AnalysisDetails />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/biological-age" element={
+                    <ProtectedRoute>
+                      <BiologicalAgePage />
+                    </ProtectedRoute>
+                  } />
 
-                  {/* Admin Routes */}
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/users" element={<AdminUsers />} />
-                  <Route path="/admin/articles" element={<AdminBlog />} />
-                  <Route path="/admin/protocols" element={<AdminOverview />} />
-                  <Route path="/admin/specializations" element={<AdminSettings />} />
-                  <Route path="/admin/categories" element={<AdminContent />} />
-                  <Route path="/admin/subscriptions" element={<AdminPricing />} />
-                  <Route path="/admin/payments" element={<AdminStatistics />} />
-                  <Route path="/admin/security" element={<AdminSecurity />} />
+                  {/* Админские страницы - с ProtectedRoute */}
+                  <Route path="/admin" element={
+                    <ProtectedRoute>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/users" element={
+                    <ProtectedRoute>
+                      <AdminUsers />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/articles" element={
+                    <ProtectedRoute>
+                      <AdminBlog />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/protocols" element={
+                    <ProtectedRoute>
+                      <AdminOverview />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/specializations" element={
+                    <ProtectedRoute>
+                      <AdminSettings />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/categories" element={
+                    <ProtectedRoute>
+                      <AdminContent />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/subscriptions" element={
+                    <ProtectedRoute>
+                      <AdminPricing />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/payments" element={
+                    <ProtectedRoute>
+                      <AdminStatistics />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/security" element={
+                    <ProtectedRoute>
+                      <AdminSecurity />
+                    </ProtectedRoute>
+                  } />
                 </Routes>
               </SubscriptionProvider>
             </AuthProvider>
