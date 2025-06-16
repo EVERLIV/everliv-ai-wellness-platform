@@ -4,8 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, TrendingUp, TrendingDown, Minus, ArrowLeft } from "lucide-react";
+import { AlertCircle, TrendingUp, TrendingDown, Minus, ArrowLeft, Mail, Share } from "lucide-react";
 import { MedicalAnalysisResults as ResultsType } from "@/services/ai/medical-analysis";
+import { toast } from "sonner";
 
 interface MedicalAnalysisResultsProps {
   results: ResultsType | null;
@@ -15,6 +16,19 @@ interface MedicalAnalysisResultsProps {
 }
 
 const MedicalAnalysisResults = ({ results, isAnalyzing, apiError, onBack }: MedicalAnalysisResultsProps) => {
+  const handleShareResults = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Результаты медицинского анализа - EVERLIV',
+        text: `Получил результаты анализа "${results?.analysisType}" с ${results?.markers.length} показателями`,
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success('Ссылка скопирована в буфер обмена');
+    }
+  };
+
   if (apiError) {
     return (
       <div className="space-y-6">
@@ -93,12 +107,25 @@ const MedicalAnalysisResults = ({ results, isAnalyzing, apiError, onBack }: Medi
           <Badge variant={getRiskLevelColor(results.riskLevel)} className="px-3 py-1">
             {getRiskLevelText(results.riskLevel)}
           </Badge>
+          <Button variant="outline" onClick={handleShareResults} className="flex items-center gap-2">
+            <Share className="h-4 w-4" />
+            Поделиться
+          </Button>
           <Button variant="outline" onClick={onBack} className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
             Назад
           </Button>
         </div>
       </div>
+
+      {/* Уведомление об отправленном email */}
+      <Alert>
+        <Mail className="h-4 w-4" />
+        <AlertTitle>Результаты отправлены на почту</AlertTitle>
+        <AlertDescription>
+          Детальные результаты анализа были отправлены на вашу электронную почту для дальнейшего использования.
+        </AlertDescription>
+      </Alert>
 
       {/* Краткое резюме */}
       <Card>

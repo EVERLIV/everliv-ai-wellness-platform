@@ -6,6 +6,7 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { FEATURES } from "@/constants/subscription-features";
 import { analyzeMedicalTestWithAI, MedicalAnalysisResults } from "@/services/ai/medical-analysis";
 import { checkUsageLimit, incrementUsage } from "@/services/usage-tracking-service";
+import { sendAnalysisResultsEmail } from "@/services/email-service";
 
 export const useMedicalAnalysis = () => {
   const { user } = useAuth();
@@ -110,6 +111,36 @@ export const useMedicalAnalysis = () => {
 
       setResults(analysisResults);
       setActiveTab("results");
+      
+      // Отправляем email с результатами анализа
+      try {
+        // Получаем профиль пользователя для получения nickname
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('nickname')
+          .eq('id', user.id)
+          .single();
+
+        const userName = profile?.nickname || user.email?.split('@')[0] || 'Пользователь';
+        const resultsUrl = `${window.location.origin}/analysis/results`;
+        const keyFindings = analysisResults.markers
+          .filter(marker => marker.status !== 'normal')
+          .slice(0, 3)
+          .map(marker => `${marker.name}: ${marker.value} (${marker.status === 'high' ? 'выше нормы' : 'ниже нормы'})`);
+
+        await sendAnalysisResultsEmail(
+          user.email!,
+          userName,
+          analysisType,
+          resultsUrl,
+          keyFindings
+        );
+        
+        console.log('Analysis results email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send analysis results email:', emailError);
+        // Не прерываем процесс из-за ошибки email
+      }
       
       toast.success(`Анализ "${analysisType}" завершен! Обработано ${analysisResults.markers.length} показателей.`);
     } catch (error) {

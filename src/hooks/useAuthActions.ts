@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { getAuthConfirmUrl } from '@/config/constants';
+import { sendRegistrationConfirmationEmail } from '@/services/email-service';
 
 export const useAuthActions = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +48,19 @@ export const useAuthActions = () => {
       });
       
       if (error) throw error;
+
+      // Отправляем welcome email после успешной регистрации
+      try {
+        await sendRegistrationConfirmationEmail(
+          email,
+          userData.nickname,
+          getAuthConfirmUrl()
+        );
+        console.log('Welcome email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Не прерываем процесс регистрации из-за ошибки email
+      }
       
       toast.success('Ссылка для подтверждения отправлена на вашу почту!');
       navigate('/welcome');

@@ -1,88 +1,92 @@
-import { useState } from "react";
+
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, History, Calendar, Settings } from "lucide-react";
-import ProfileForm from "@/components/profile/ProfileForm";
-import ProfileSummary from "@/components/profile/ProfileSummary";
-import AnalysisHistoryList from "@/components/profile/AnalysisHistoryList";
-import { useProfile } from "@/hooks/useProfile";
-import { useAnalysisHistory } from "@/hooks/useAnalysisHistory";
-import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import ProfileForm from '@/components/profile/ProfileForm';
+import AnalysisHistoryList from '@/components/profile/AnalysisHistoryList';
+import NewsletterSubscription from '@/components/newsletter/NewsletterSubscription';
+import { User, FileText, Mail, Settings } from 'lucide-react';
 
 const UserProfile = () => {
   const [activeTab, setActiveTab] = useState("profile");
-  const { profileData, isLoading, isUpdating, updateProfile } = useProfile();
-  const { history, isLoading: isHistoryLoading } = useAnalysisHistory();
-  const { isAdmin } = useIsAdmin();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
-      
-      <div className="flex-grow pt-16">
-        <div className="bg-white border-b border-gray-200 my-[20px]">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Профиль пользователя</h1>
-            <div className="flex gap-2">
-              {isAdmin && (
-                <Link to="/admin">
-                  <Button variant="default" className="flex items-center gap-2">
-                    <Settings className="h-4 w-4" />
-                    Панель администратора
-                  </Button>
-                </Link>
-              )}
-              <Link to="/my-protocols">
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  Мои протоколы
-                </Button>
-              </Link>
-              <Link to="/dashboard">
-                <Button variant="outline" className="flex items-center gap-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  Назад к дашборду
-                </Button>
-              </Link>
-            </div>
-          </div>
+    <div className="container mx-auto py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Профиль пользователя</h1>
+          <p className="text-gray-600 mt-2">Управляйте своим профилем и настройками</p>
         </div>
-        
-        <div className="container mx-auto px-4 py-6 mb-10">
-          <ProfileSummary profileData={profileData} isLoading={isLoading} />
-          
-          <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-6">
-              <TabsTrigger value="profile" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Профиль здоровья
-              </TabsTrigger>
-              <TabsTrigger value="history" className="flex items-center gap-2">
-                <History className="h-4 w-4" />
-                История анализов
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="profile" className="mt-0 space-y-6">
-              <ProfileForm 
-                profileData={profileData}
-                isLoading={isLoading}
-                isUpdating={isUpdating}
-                onUpdateProfile={updateProfile}
-              />
-            </TabsContent>
-            
-            <TabsContent value="history" className="mt-0">
-              <AnalysisHistoryList history={history} isLoading={isHistoryLoading} />
-            </TabsContent>
-          </Tabs>
-        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Профиль
+            </TabsTrigger>
+            <TabsTrigger value="analyses" className="flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Анализы
+            </TabsTrigger>
+            <TabsTrigger value="newsletter" className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              Newsletter
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Настройки
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="profile" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Личная информация</CardTitle>
+                <CardDescription>
+                  Обновите свою личную информацию и настройки профиля
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ProfileForm />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analyses" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>История анализов</CardTitle>
+                <CardDescription>
+                  Просмотрите историю ваших медицинских анализов
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AnalysisHistoryList />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="newsletter" className="space-y-6">
+            <NewsletterSubscription />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Настройки уведомлений</CardTitle>
+                <CardDescription>
+                  Управляйте настройками уведомлений и приватности
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <p className="text-gray-500">Настройки будут добавлены в следующих обновлениях</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-      
-      <Footer />
     </div>
   );
 };
