@@ -10,8 +10,9 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, isLoading } = useAuth();
 
-  // В dev режиме всегда пропускаем проверку авторизации
+  // В dev режиме всегда пропускаем проверку авторизации - ПЕРВАЯ проверка!
   if (isDevelopmentMode()) {
+    console.log('🔧 Dev mode: Bypassing auth check');
     return <>{children}</>;
   }
 
