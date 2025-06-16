@@ -1,10 +1,11 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
+import { Suspense } from "react";
+
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import RegistrationPage from "./pages/RegistrationPage";
@@ -90,219 +91,228 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RealtimeNotifications from "./components/realtime/RealtimeNotifications";
 import DevModeIndicator from "./components/DevModeIndicator";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
+      <TooltipProvider delayDuration={0}>
         <Toaster />
         <Sonner />
         <DevModeIndicator />
-        <BrowserRouter>
-          <SmartAuthProvider>
-            <SubscriptionProvider>
-              <RealtimeNotifications />
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<Index />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/landing" element={<LandingPage />} />
-                <Route path="/features" element={<Features />} />
-                <Route path="/how-it-works" element={<HowItWorks />} />
-                <Route path="/science" element={<Science />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route path="/partnership" element={<Partnership />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/support" element={<Support />} />
-                <Route path="/help" element={<HelpCenter />} />
-                <Route path="/terms" element={<TermsOfUse />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/security" element={<Security />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:slug" element={<BlogPost />} />
-                <Route path="/specialists" element={<MedicalKnowledge />} />
-                <Route path="/moscow-clinics" element={<MoscowClinics />} />
-                <Route path="/services" element={<ServicesPage />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/webinars" element={<Webinars />} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <BrowserRouter>
+            <SmartAuthProvider>
+              <SubscriptionProvider>
+                <RealtimeNotifications />
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/landing" element={<LandingPage />} />
+                  <Route path="/features" element={<Features />} />
+                  <Route path="/how-it-works" element={<HowItWorks />} />
+                  <Route path="/science" element={<Science />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/pricing" element={<Pricing />} />
+                  <Route path="/partnership" element={<Partnership />} />
+                  <Route path="/faq" element={<FAQ />} />
+                  <Route path="/support" element={<Support />} />
+                  <Route path="/help" element={<HelpCenter />} />
+                  <Route path="/terms" element={<TermsOfUse />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/security" element={<Security />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/specialists" element={<MedicalKnowledge />} />
+                  <Route path="/moscow-clinics" element={<MoscowClinics />} />
+                  <Route path="/services" element={<ServicesPage />} />
+                  <Route path="/community" element={<Community />} />
+                  <Route path="/webinars" element={<Webinars />} />
 
-                {/* Auth Routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/register" element={<RegistrationPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
-                <Route path="/magic-link" element={<MagicLinkLoginPage />} />
-                <Route path="/auth/confirm" element={<AuthConfirm />} />
-                <Route path="/welcome" element={<Welcome />} />
+                  {/* Auth Routes */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/register" element={<RegistrationPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  <Route path="/magic-link" element={<MagicLinkLoginPage />} />
+                  <Route path="/auth/confirm" element={<AuthConfirm />} />
+                  <Route path="/welcome" element={<Welcome />} />
 
-                {/* Service Pages */}
-                <Route path="/services/blood-analysis" element={<BloodAnalysisServicePage />} />
-                <Route path="/services/ai-recommendations" element={<AIRecommendations />} />
-                <Route path="/services/supplements" element={<PersonalizedSupplements />} />
-                <Route path="/services/fasting" element={<Fasting />} />
-                <Route path="/services/cold-therapy" element={<ColdTherapy />} />
-                <Route path="/services/oxygen-therapy" element={<OxygenTherapy />} />
-                <Route path="/services/breathing" element={<BreathingPractices />} />
+                  {/* Service Pages */}
+                  <Route path="/services/blood-analysis" element={<BloodAnalysisServicePage />} />
+                  <Route path="/services/ai-recommendations" element={<AIRecommendations />} />
+                  <Route path="/services/supplements" element={<PersonalizedSupplements />} />
+                  <Route path="/services/fasting" element={<Fasting />} />
+                  <Route path="/services/cold-therapy" element={<ColdTherapy />} />
+                  <Route path="/services/oxygen-therapy" element={<OxygenTherapy />} />
+                  <Route path="/services/breathing" element={<BreathingPractices />} />
 
-                {/* Partnership Pages */}
-                <Route path="/partnerships/corporate" element={<CorporateClients />} />
-                <Route path="/partnerships/medical-institutions" element={<MedicalInstitutions />} />
-                <Route path="/partnerships/specialists" element={<MedicalSpecialists />} />
+                  {/* Partnership Pages */}
+                  <Route path="/partnerships/corporate" element={<CorporateClients />} />
+                  <Route path="/partnerships/medical-institutions" element={<MedicalInstitutions />} />
+                  <Route path="/partnerships/specialists" element={<MedicalSpecialists />} />
 
-                {/* Protected Routes */}
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/profile" element={
-                  <ProtectedRoute>
-                    <UserProfile />
-                  </ProtectedRoute>
-                } />
-                <Route path="/health-profile" element={
-                  <ProtectedRoute>
-                    <HealthProfile />
-                  </ProtectedRoute>
-                } />
-                <Route path="/blood-analysis" element={
-                  <ProtectedRoute>
-                    <BloodAnalysis />
-                  </ProtectedRoute>
-                } />
-                <Route path="/medical-analysis" element={
-                  <ProtectedRoute>
-                    <LabAnalyses />
-                  </ProtectedRoute>
-                } />
-                <Route path="/analysis/:id" element={
-                  <ProtectedRoute>
-                    <AnalysisDetails />
-                  </ProtectedRoute>
-                } />
-                <Route path="/analytics" element={
-                  <ProtectedRoute>
-                    <Analytics />
-                  </ProtectedRoute>
-                } />
-                <Route path="/ai-doctor" element={
-                  <ProtectedRoute>
-                    <AIDoctorPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="/ai-doctor/basic" element={
-                  <ProtectedRoute>
-                    <AIDoctorBasicPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="/ai-doctor/personal" element={
-                  <ProtectedRoute>
-                    <AIDoctorPersonalPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="/nutrition-diary" element={
-                  <ProtectedRoute>
-                    <NutritionDiaryPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="/protocols" element={
-                  <ProtectedRoute>
-                    <MyProtocols />
-                  </ProtectedRoute>
-                } />
-                <Route path="/protocol-tracking" element={
-                  <ProtectedRoute>
-                    <ProtocolTracking />
-                  </ProtectedRoute>
-                } />
-                <Route path="/subscription" element={
-                  <ProtectedRoute>
-                    <SubscriptionPage />
-                  </ProtectedRoute>
-                } />
-                <Route path="/user-subscription" element={
-                  <ProtectedRoute>
-                    <UserSubscription />
-                  </ProtectedRoute>
-                } />
-                <Route path="/checkout" element={
-                  <ProtectedRoute>
-                    <Checkout />
-                  </ProtectedRoute>
-                } />
+                  {/* Protected Routes */}
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/profile" element={
+                    <ProtectedRoute>
+                      <UserProfile />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/health-profile" element={
+                    <ProtectedRoute>
+                      <HealthProfile />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/blood-analysis" element={
+                    <ProtectedRoute>
+                      <BloodAnalysis />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/medical-analysis" element={
+                    <ProtectedRoute>
+                      <LabAnalyses />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/analysis/:id" element={
+                    <ProtectedRoute>
+                      <AnalysisDetails />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/analytics" element={
+                    <ProtectedRoute>
+                      <Analytics />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/ai-doctor" element={
+                    <ProtectedRoute>
+                      <AIDoctorPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/ai-doctor/basic" element={
+                    <ProtectedRoute>
+                      <AIDoctorBasicPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/ai-doctor/personal" element={
+                    <ProtectedRoute>
+                      <AIDoctorPersonalPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/nutrition-diary" element={
+                    <ProtectedRoute>
+                      <NutritionDiaryPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/protocols" element={
+                    <ProtectedRoute>
+                      <MyProtocols />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/protocol-tracking" element={
+                    <ProtectedRoute>
+                      <ProtocolTracking />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/subscription" element={
+                    <ProtectedRoute>
+                      <SubscriptionPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/user-subscription" element={
+                    <ProtectedRoute>
+                      <UserSubscription />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/checkout" element={
+                    <ProtectedRoute>
+                      <Checkout />
+                    </ProtectedRoute>
+                  } />
 
-                {/* Admin Routes */}
-                <Route path="/admin" element={
-                  <ProtectedRoute>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/users" element={
-                  <ProtectedRoute>
-                    <AdminUsers />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/analytics" element={
-                  <ProtectedRoute>
-                    <AdminAnalytics />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/content" element={
-                  <ProtectedRoute>
-                    <AdminContent />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/ai-chat" element={
-                  <ProtectedRoute>
-                    <AdminAIChat />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/nutrition" element={
-                  <ProtectedRoute>
-                    <AdminNutrition />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/health-profiles" element={
-                  <ProtectedRoute>
-                    <AdminHealthProfiles />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/health-recommendations" element={
-                  <ProtectedRoute>
-                    <AdminHealthRecommendations />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/settings" element={
-                  <ProtectedRoute>
-                    <AdminSettings />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/pricing" element={
-                  <ProtectedRoute>
-                    <AdminPricing />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/statistics" element={
-                  <ProtectedRoute>
-                    <AdminStatistics />
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/blog" element={
-                  <ProtectedRoute>
-                    <AdminBlog />
-                  </ProtectedRoute>
-                } />
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={
+                    <ProtectedRoute>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/users" element={
+                    <ProtectedRoute>
+                      <AdminUsers />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/analytics" element={
+                    <ProtectedRoute>
+                      <AdminAnalytics />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/content" element={
+                    <ProtectedRoute>
+                      <AdminContent />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/ai-chat" element={
+                    <ProtectedRoute>
+                      <AdminAIChat />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/nutrition" element={
+                    <ProtectedRoute>
+                      <AdminNutrition />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/health-profiles" element={
+                    <ProtectedRoute>
+                      <AdminHealthProfiles />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/health-recommendations" element={
+                    <ProtectedRoute>
+                      <AdminHealthRecommendations />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/settings" element={
+                    <ProtectedRoute>
+                      <AdminSettings />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/pricing" element={
+                    <ProtectedRoute>
+                      <AdminPricing />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/statistics" element={
+                    <ProtectedRoute>
+                      <AdminStatistics />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/blog" element={
+                    <ProtectedRoute>
+                      <AdminBlog />
+                    </ProtectedRoute>
+                  } />
 
-                {/* 404 Route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </SubscriptionProvider>
-          </SmartAuthProvider>
-        </BrowserRouter>
+                  {/* 404 Route */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </SubscriptionProvider>
+            </SmartAuthProvider>
+          </BrowserRouter>
+        </Suspense>
       </TooltipProvider>
     </QueryClientProvider>
   </HelmetProvider>
