@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/SmartAuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";

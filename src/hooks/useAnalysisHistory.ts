@@ -1,83 +1,69 @@
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useDevAuth } from '@/hooks/useDevAuth';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { FeatureTrial } from "@/types/database";
 
 export interface AnalysisRecord {
   id: string;
-  analysis_type: string;
   created_at: string;
-  status: string;
-  results?: any;
+  analysis_type: string;
+  results: any;
 }
 
 export const useAnalysisHistory = () => {
   const { user } = useAuth();
-  const { getDevUserId, isDev } = useDevAuth();
   const [history, setHistory] = useState<AnalysisRecord[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchHistory = async () => {
+  // For now we'll simulate analysis history since we don't have a dedicated table for it
+  // This would normally fetch from a real table in Supabase
+  const fetchHistory = async () => {
+    if (!user) return;
+    
+    try {
       setIsLoading(true);
       
-      // В dev режиме используем мок данные
-      if (isDev) {
-        const mockHistory: AnalysisRecord[] = [
-          {
-            id: 'dev-analysis-1',
-            analysis_type: 'Анализ крови',
-            created_at: new Date().toISOString(),
-            status: 'completed',
-            results: { summary: 'Отличные показатели здоровья!' }
-          },
-          {
-            id: 'dev-analysis-2',
-            analysis_type: 'Комплексный анализ',
-            created_at: new Date(Date.now() - 86400000).toISOString(),
-            status: 'completed',
-            results: { summary: 'Рекомендуется увеличить физическую активность.' }
-          }
-        ];
-        setHistory(mockHistory);
-        setIsLoading(false);
+      // Fetch feature trials for blood analysis as a proxy for analysis history
+      const { data, error } = await supabase
+        .from('feature_trials')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('feature_name', 'blood_analysis')
+        .order('used_at', { ascending: false });
+      
+      if (error) {
+        console.error("Error fetching analysis history:", error);
         return;
       }
-
-      // В продакшене используем настоящие данные из medical_analyses
-      if (user) {
-        try {
-          const { data, error } = await supabase
-            .from('medical_analyses')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
-
-          if (error) {
-            console.error('Error fetching history:', error);
-          } else {
-            const formattedHistory: AnalysisRecord[] = (data || []).map(item => ({
-              id: item.id,
-              analysis_type: item.analysis_type,
-              created_at: item.created_at,
-              status: 'completed',
-              results: item.results
-            }));
-            setHistory(formattedHistory);
-          }
-        } catch (error) {
-          console.error('Error in fetchHistory:', error);
-        }
-      }
+      
+      // Transform to our expected format
+      const analysisHistory = (data as FeatureTrial[]).map(record => ({
+        id: record.id,
+        created_at: record.used_at,
+        analysis_type: 'Анализ крови',
+        results: { status: 'Завершен' }
+      }));
+      
+      setHistory(analysisHistory);
+    } catch (error) {
+      console.error("Unexpected error fetching analysis history:", error);
+    } finally {
       setIsLoading(false);
-    };
-
-    fetchHistory();
-  }, [user, isDev]);
-
+    }
+  };
+  
+  useEffect(() => {
+    if (user) {
+      fetchHistory();
+    } else {
+      setHistory([]);
+    }
+  }, [user]);
+  
   return {
     history,
-    isLoading
+    isLoading,
+    fetchHistory
   };
 };

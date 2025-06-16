@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { isDevelopmentMode } from '@/utils/devMode';
-import { AuthProvider, useAuth as useRegularAuth } from '@/contexts/AuthContext';
-import { DevAuthProvider, useAuth as useDevAuth } from '@/contexts/DevAuthContext';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { DevAuthProvider } from '@/contexts/DevAuthContext';
 
 interface SmartAuthProviderProps {
   children: React.ReactNode;
@@ -19,15 +19,4 @@ export const SmartAuthProvider = ({ children }: SmartAuthProviderProps) => {
   
   console.log('🔧 Using regular AuthProvider');
   return <AuthProvider>{children}</AuthProvider>;
-};
-
-// Export a unified useAuth hook that works in both environments
-export const useAuth = () => {
-  const isDevMode = isDevelopmentMode();
-  
-  if (isDevMode) {
-    return useDevAuth();
-  }
-  
-  return useRegularAuth();
 };

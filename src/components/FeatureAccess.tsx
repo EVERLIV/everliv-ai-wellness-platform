@@ -1,6 +1,6 @@
 
 import { ReactNode } from "react";
-import { useAuth } from "@/contexts/SmartAuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, LockIcon } from "lucide-react";
