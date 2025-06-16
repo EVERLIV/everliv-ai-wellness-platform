@@ -4,10 +4,7 @@ export const isDevelopmentMode = (): boolean => {
   const hostname = window.location.hostname;
   
   // SECURITY: Only allow dev mode on actual localhost - never on production domains
-  const isDev = hostname === 'localhost' || 
-                hostname === '127.0.0.1' ||
-                hostname.startsWith('192.168.') ||
-                hostname.endsWith('.local');
+  const isDev = hostname === 'localhost' || hostname === '127.0.0.1';
   
   console.log('🔧 Dev mode check:', { hostname, isDev });
   return isDev;

@@ -16,15 +16,17 @@ const SecurityHeaders = () => {
       }
     };
 
-    // Content Security Policy (basic version)
+    // Enhanced Content Security Policy
     addMetaTag('Content-Security-Policy', 
       "default-src 'self'; " +
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co https://api.openai.com; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co; " +
       "style-src 'self' 'unsafe-inline'; " +
-      "img-src 'self' data: https:; " +
-      "connect-src 'self' https://api.openai.com https://*.supabase.co wss://*.supabase.co; " +
-      "font-src 'self' data:; " +
-      "frame-ancestors 'none';"
+      "img-src 'self' data: https: blob:; " +
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co; " +
+      "font-src 'self' data: https://fonts.googleapis.com https://fonts.gstatic.com; " +
+      "frame-ancestors 'none'; " +
+      "base-uri 'self'; " +
+      "form-action 'self';"
     );
 
     // X-Frame-Options
@@ -38,7 +40,15 @@ const SecurityHeaders = () => {
 
     // Permissions Policy
     addMetaTag('Permissions-Policy', 
-      'camera=(), microphone=(), geolocation=(), payment=()');
+      'camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()');
+
+    // X-XSS-Protection (for older browsers)
+    addMetaTag('X-XSS-Protection', '1; mode=block');
+
+    // Strict Transport Security (HSTS) - only add if HTTPS
+    if (window.location.protocol === 'https:') {
+      addMetaTag('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    }
 
     return () => {
       // Cleanup is not necessary for meta tags as they should persist
