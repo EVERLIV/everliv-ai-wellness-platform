@@ -1,79 +1,68 @@
 
-import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AIFeaturesSection from "./AIFeaturesSection";
-import VitalSignsCard from "./VitalSignsCard";
-import AppointmentsCard from "./AppointmentsCard";
-import AnalysisHistoryCard from "./AnalysisHistoryCard";
-import ProtocolsProgressCard from "./ProtocolsProgressCard";
-import AIRecommendationsCard from "./AIRecommendationsCard";
-import AIDoctorConsultation from "./AIDoctorConsultation";
+import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Activity, Brain, Target, BarChart3, Sparkles } from 'lucide-react';
+import DashboardHealthSummary from './DashboardHealthSummary';
+import QuickActionsCard from './QuickActionsCard';
+import AIFeaturesSection from './AIFeaturesSection';
+import AnalysisHistoryCard from './AnalysisHistoryCard';
+import ProtocolRecommendations from './ProtocolRecommendations';
 
-interface DashboardTabsProps {
-  patientData: any;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
-}
-
-const DashboardTabs: React.FC<DashboardTabsProps> = ({
-  patientData,
-  activeTab,
-  setActiveTab,
-}) => {
+const DashboardTabs = () => {
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-      <TabsList className="grid grid-cols-3 lg:grid-cols-5 mb-8 w-full max-w-4xl">
-        <TabsTrigger value="overview">Обзор</TabsTrigger>
-        <TabsTrigger value="protocols">Протоколы</TabsTrigger>
-        <TabsTrigger value="analytics">Аналитика</TabsTrigger>
-        <TabsTrigger value="ai">ИИ Ассистент</TabsTrigger>
-        <TabsTrigger value="doctor">ИИ-доктор</TabsTrigger>
+    <Tabs defaultValue="overview" className="space-y-6">
+      <TabsList className="grid w-full grid-cols-5">
+        <TabsTrigger value="overview" className="flex items-center gap-2">
+          <Activity className="h-4 w-4" />
+          Обзор
+        </TabsTrigger>
+        <TabsTrigger value="ai-recommendations" className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4" />
+          AI Рекомендации
+        </TabsTrigger>
+        <TabsTrigger value="ai-features" className="flex items-center gap-2">
+          <Brain className="h-4 w-4" />
+          AI Функции
+        </TabsTrigger>
+        <TabsTrigger value="protocols" className="flex items-center gap-2">
+          <Target className="h-4 w-4" />
+          Протоколы
+        </TabsTrigger>
+        <TabsTrigger value="analytics" className="flex items-center gap-2">
+          <BarChart3 className="h-4 w-4" />
+          Аналитика
+        </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="overview">
+      <TabsContent value="overview" className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <VitalSignsCard vitalSigns={patientData.vitalSigns} />
-            <AnalysisHistoryCard />
-            <AppointmentsCard
-              appointments={patientData.upcomingAppointments}
-            />
+          <div className="lg:col-span-2">
+            <DashboardHealthSummary />
           </div>
-          <div className="lg:col-span-1">
-            <ProtocolsProgressCard protocols={patientData.recentProtocols} />
+          <div className="space-y-6">
+            <QuickActionsCard />
+            <AnalysisHistoryCard />
           </div>
         </div>
       </TabsContent>
 
+      <TabsContent value="ai-recommendations">
+        <ProtocolRecommendations />
+      </TabsContent>
+
+      <TabsContent value="ai-features">
+        <AIFeaturesSection />
+      </TabsContent>
+
       <TabsContent value="protocols">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-semibold mb-4">Мои протоколы</h2>
-          <p>
-            Здесь будет отображаться информация о персональных протоколах,
-            которые были вам назначены для достижения оптимального здоровья.
-          </p>
+        <div className="text-center py-8">
+          <p className="text-gray-500">Раздел протоколов в разработке</p>
         </div>
       </TabsContent>
 
       <TabsContent value="analytics">
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-semibold mb-4">
-            Аналитика показателей
-          </h2>
-          <p>
-            В этом разделе вы сможете увидеть динамику изменения ваших
-            биомаркеров и других показателей здоровья.
-          </p>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="ai">
-        <AIFeaturesSection />
-      </TabsContent>
-      
-      <TabsContent value="doctor">
-        <div className="grid grid-cols-1 gap-6">
-          <AIDoctorConsultation />
+        <div className="text-center py-8">
+          <p className="text-gray-500">Подробная аналитика в разработке</p>
         </div>
       </TabsContent>
     </Tabs>
