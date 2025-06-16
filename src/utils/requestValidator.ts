@@ -15,8 +15,8 @@ export const validationSchemas = {
   medicalText: z.string().min(1).max(50000),
   searchQuery: z.string().min(2).max(500),
   pagination: z.object({
-    page: z.number().int().min(1).max(1000),
-    limit: z.number().int().min(1).max(100)
+    page: z.number().int().min(1).max(1000).default(1),
+    limit: z.number().int().min(1).max(100).default(20)
   }),
   userProfile: z.object({
     first_name: z.string().max(100).optional(),
@@ -97,7 +97,11 @@ export class RequestValidator {
    */
   static validatePagination(params: unknown): { page: number; limit: number } {
     try {
-      return validationSchemas.pagination.parse(params);
+      const result = validationSchemas.pagination.parse(params);
+      return {
+        page: result.page,
+        limit: result.limit
+      };
     } catch (error) {
       // Return safe defaults if validation fails
       return { page: 1, limit: 20 };

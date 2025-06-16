@@ -18,7 +18,7 @@ import AnalysisDetails from './pages/AnalysisDetails';
 import BiologicalAgePage from './pages/BiologicalAgePage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
-import AdminBlog from './pages/admin/AdminBlog';
+import AdminBlog from './pages/AdminBlog';
 import AdminOverview from './pages/admin/AdminOverview';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminPricing from './pages/admin/AdminPricing';
