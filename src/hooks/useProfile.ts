@@ -1,116 +1,108 @@
 
-import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useDevAuth } from '@/hooks/useDevAuth';
 
-export interface ProfileData {
+interface ProfileData {
   id: string;
-  first_name: string | null;
-  last_name: string | null;
-  date_of_birth: string | null;
-  gender: string | null;
-  height: number | null;
-  weight: number | null;
-  medical_conditions: string[] | null;
-  allergies: string[] | null;
-  medications: string[] | null;
-  goals: string[] | null;
+  nickname: string;
+  email: string;
+  created_at: string;
 }
 
 export const useProfile = () => {
   const { user } = useAuth();
+  const { getDevUser, isDev } = useDevAuth();
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const fetchProfile = async () => {
-    if (!user) return;
-
-    try {
+  useEffect(() => {
+    const fetchProfile = async () => {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching profile:", error);
-        toast({
-          title: "Ошибка",
-          description: "Не удалось загрузить данные профиля",
-          variant: "destructive"
-        });
+      
+      // В dev режиме используем мок данные
+      if (isDev) {
+        const devUser = getDevUser();
+        if (devUser) {
+          setProfileData({
+            id: devUser.id,
+            nickname: devUser.user_metadata?.nickname || 'Dev User',
+            email: devUser.email || 'dev@test.com',
+            created_at: devUser.created_at
+          });
+        }
+        setIsLoading(false);
         return;
       }
 
-      setProfileData(data as ProfileData);
-    } catch (error) {
-      console.error("Unexpected error fetching profile:", error);
-      toast({
-        title: "Ошибка",
-        description: "Произошла ошибка при загрузке профиля",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      // В продакшене используем настоящие данные
+      if (user) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
 
-  const updateProfile = async (updatedData: Partial<Omit<ProfileData, 'id'>>) => {
-    if (!user) return;
-
-    try {
-      setIsUpdating(true);
-      const { error } = await supabase
-        .from('profiles')
-        .update(updatedData)
-        .eq('id', user.id);
-
-      if (error) {
-        console.error("Error updating profile:", error);
-        toast({
-          title: "Ошибка",
-          description: "Не удалось обновить профиль",
-          variant: "destructive"
-        });
-        return false;
+          if (error && error.code !== 'PGRST116') {
+            console.error('Error fetching profile:', error);
+          } else if (data) {
+            setProfileData({
+              id: data.id,
+              nickname: data.nickname || user.email?.split('@')[0] || 'User',
+              email: user.email || '',
+              created_at: user.created_at
+            });
+          } else {
+            // Создаем профиль если не существует
+            setProfileData({
+              id: user.id,
+              nickname: user.email?.split('@')[0] || 'User',
+              email: user.email || '',
+              created_at: user.created_at
+            });
+          }
+        } catch (error) {
+          console.error('Error in fetchProfile:', error);
+        }
       }
+      setIsLoading(false);
+    };
 
-      // Update local state with new data
-      setProfileData(prev => prev ? { ...prev, ...updatedData } : null);
-      toast({
-        title: "Успешно",
-        description: "Профиль успешно обновлен"
-      });
-      return true;
-    } catch (error) {
-      console.error("Unexpected error updating profile:", error);
-      toast({
-        title: "Ошибка", 
-        description: "Произошла ошибка при обновлении профиля",
-        variant: "destructive"
-      });
-      return false;
-    } finally {
-      setIsUpdating(false);
+    fetchProfile();
+  }, [user, isDev, getDevUser]);
+
+  const updateProfile = async (updates: Partial<ProfileData>) => {
+    if (isDev) {
+      console.log('🔧 Dev mode: Profile update simulated', updates);
+      if (profileData) {
+        setProfileData({ ...profileData, ...updates });
+      }
+      return;
+    }
+
+    if (user && profileData) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            ...updates
+          });
+
+        if (!error) {
+          setProfileData({ ...profileData, ...updates });
+        }
+      } catch (error) {
+        console.error('Error updating profile:', error);
+      }
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      fetchProfile();
-    } else {
-      setProfileData(null);
-    }
-  }, [user]);
 
   return {
     profileData,
     isLoading,
-    isUpdating,
-    fetchProfile,
     updateProfile
   };
 };

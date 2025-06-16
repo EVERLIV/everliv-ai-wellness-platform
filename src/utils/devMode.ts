@@ -42,3 +42,8 @@ export const createDevSession = () => {
     user: user
   };
 };
+
+// Проверяем, нужно ли использовать dev данные для конкретного хука/компонента
+export const shouldUseDevData = (user: any): boolean => {
+  return isDevelopmentMode() && !user;
+};
