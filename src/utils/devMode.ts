@@ -6,7 +6,8 @@ export const isDevelopmentMode = (): boolean => {
                 hostname === '127.0.0.1' ||
                 hostname.includes('preview--') ||
                 hostname.includes('.lovable.app') ||
-                hostname === 'int.everliv.online'; // Добавляем новый домен
+                hostname.includes('.lovableproject.com') ||
+                hostname === 'int.everliv.online';
   
   console.log('🔧 Dev mode check:', { hostname, isDev });
   return isDev;
@@ -24,7 +25,8 @@ export const createDevUser = () => {
     aud: 'authenticated',
     role: 'authenticated',
     user_metadata: {
-      nickname: 'Dev User'
+      nickname: 'Dev User',
+      first_name: 'Иван'
     },
     app_metadata: {}
   };
