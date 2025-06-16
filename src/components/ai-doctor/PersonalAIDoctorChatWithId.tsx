@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Bot, MessageSquare, Plus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -7,6 +7,8 @@ import ChatMessages from "@/components/dashboard/ai-doctor/ChatMessages";
 import ChatInput from "@/components/dashboard/ai-doctor/ChatInput";
 import SuggestedQuestions from "@/components/dashboard/ai-doctor/SuggestedQuestions";
 import { usePersonalAIDoctorChatWithId } from "./usePersonalAIDoctorChatWithId";
+import { useRealtimeMessages } from "@/hooks/useRealtimeMessages";
+import { useUserPresence } from "@/hooks/useUserPresence";
 import { getSuggestedQuestions } from "@/services/ai/ai-doctor-service";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -35,13 +37,32 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
     messagesEndRef
   } = usePersonalAIDoctorChatWithId(chatId);
 
+  // Add realtime messages
+  const { realtimeMessages } = useRealtimeMessages(chatId);
+  
+  // Add user presence for this chat
+  const { onlineUsers, updatePresence } = useUserPresence(chatId || 'no-chat');
+
   const isMobile = useIsMobile();
   const suggestedQuestions = getSuggestedQuestions({});
-  const showSuggestedQuestions = messages.length === 0 || (messages.length === 1 && messages[0].role === 'assistant');
+  
+  // Combine regular messages with realtime messages
+  const allMessages = [...messages, ...realtimeMessages].sort((a, b) => 
+    new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  );
+  
+  const showSuggestedQuestions = allMessages.length === 0 || (allMessages.length === 1 && allMessages[0].role === 'assistant');
 
-  // Убираем долгий лоадинг - показываем контент сразу
+  // Update presence when typing
+  useEffect(() => {
+    if (inputText.trim()) {
+      updatePresence({ status: 'typing' });
+    } else {
+      updatePresence({ status: 'online' });
+    }
+  }, [inputText, updatePresence]);
+
   if (isLoading && !chatId) {
-    // Только если нет chatId показываем быструю загрузку
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
@@ -58,7 +79,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       <div className="flex-1 flex flex-col min-h-0">
         <ScrollArea className="flex-1 p-4">
           <ChatMessages 
-            messages={messages} 
+            messages={allMessages} 
             isProcessing={isProcessing}
             messagesEndRef={messagesEndRef}
           />
@@ -75,6 +96,14 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
         
         {/* Область ввода с кнопками управления */}
         <div className="p-4 border-t bg-white space-y-3">
+          {/* Show online users indicator */}
+          {onlineUsers.length > 1 && (
+            <div className="text-xs text-gray-500 flex items-center gap-1">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              {onlineUsers.length - 1} других пользователей онлайн
+            </div>
+          )}
+          
           <ChatInput
             inputText={inputText}
             setInputText={setInputText}

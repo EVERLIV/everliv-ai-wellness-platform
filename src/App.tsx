@@ -1,119 +1,167 @@
 
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
-import Index from "@/pages/Index";
-import Dashboard from "@/pages/Dashboard";
-import UserProfile from "@/pages/UserProfile";
-import BloodAnalysis from "@/pages/BloodAnalysis";
-import ComprehensiveAnalysis from "@/pages/ComprehensiveAnalysis";
-import UserSubscription from "@/pages/UserSubscription";
-import MyProtocols from "@/pages/MyProtocols";
-import ProtocolTracking from "@/pages/ProtocolTracking";
-import ProtocolTrackingDashboard from "@/pages/ProtocolTrackingDashboard";
-import NutritionDiary from "@/pages/NutritionDiary";
-import HealthProfile from "@/pages/HealthProfile";
-import MedicalKnowledge from "@/pages/MedicalKnowledge";
-import MoscowClinics from "@/pages/MoscowClinics";
-import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
-import AccountSettings from "@/pages/AccountSettings";
-import LabAnalyses from "@/pages/LabAnalyses";
-import Analytics from "@/pages/Analytics";
-import AIDoctorPage from "@/pages/AIDoctorPage";
-import AIDoctorChatPage from "@/pages/AIDoctorChatPage";
-import AIDoctorBasicPage from "@/pages/AIDoctorBasicPage";
-import AIDoctorPersonalPage from "@/pages/AIDoctorPersonalPage";
-import ServicesPage from "@/pages/ServicesPage";
-import Pricing from "@/pages/Pricing";
-import Partnership from "@/pages/Partnership";
-import Contact from "@/pages/Contact";
-import AnalysisDetails from "@/pages/AnalysisDetails";
-import SubscriptionPage from "@/pages/SubscriptionPage";
-import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
-import ResetPasswordPage from "@/pages/ResetPasswordPage";
-import AuthConfirm from "@/pages/AuthConfirm";
-import Checkout from "@/pages/Checkout";
-import AdminDashboardLayout from "@/components/admin/AdminDashboardLayout";
-import AdminDashboard from "@/pages/admin/AdminDashboard";
-import AdminUsers from "@/pages/admin/AdminUsers";
-import AdminAIChat from "@/pages/admin/AdminAIChat";
-import AdminNutrition from "@/pages/admin/AdminNutrition";
-import AdminHealthRecommendations from "@/pages/admin/AdminHealthRecommendations";
-import AdminHealthProfiles from "@/pages/admin/AdminHealthProfiles";
-import AdminAnalytics from "@/pages/admin/AdminAnalytics";
-import AdminContent from "@/pages/admin/AdminContent";
-import AdminSettings from "@/pages/admin/AdminSettings";
-import Welcome from "@/pages/Welcome";
+import { HelmetProvider } from 'react-helmet-async';
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Pricing from "./pages/Pricing";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
+import MedicalAnalysis from "./pages/MedicalAnalysis";
+import AnalysisDetails from "./pages/AnalysisDetails";
+import Analytics from "./pages/Analytics";
+import Specialists from "./pages/Specialists";
+import AIDoctorPage from "./pages/AIDoctorPage";
+import BasicAIDoctorPage from "./pages/BasicAIDoctorPage";
+import PersonalAIDoctorPage from "./pages/PersonalAIDoctorPage";
+import NutritionDiaryPage from "./pages/NutritionDiary";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminContent from "./pages/admin/AdminContent";
+import AdminAIChat from "./pages/admin/AdminAIChat";
+import AdminNutrition from "./pages/admin/AdminNutrition";
+import AdminHealthProfiles from "./pages/admin/AdminHealthProfiles";
+import AdminHealthRecommendations from "./pages/admin/AdminHealthRecommendations";
+import AdminSettings from "./pages/admin/AdminSettings";
+import { AuthProvider } from "./contexts/AuthContext";
+import { SubscriptionProvider } from "./contexts/SubscriptionContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import RealtimeNotifications from "./components/realtime/RealtimeNotifications";
 
 const queryClient = new QueryClient();
 
-function App() {
-  return (
+const App = () => (
+  <HelmetProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
+        <Sonner />
         <BrowserRouter>
           <AuthProvider>
             <SubscriptionProvider>
+              <RealtimeNotifications />
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/welcome" element={<Welcome />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<UserProfile />} />
-                <Route path="/blood-analysis" element={<BloodAnalysis />} />
-                <Route path="/comprehensive-analysis" element={<ComprehensiveAnalysis />} />
-                <Route path="/subscription" element={<SubscriptionPage />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/my-protocols" element={<MyProtocols />} />
-                <Route path="/protocol/:id" element={<ProtocolTracking />} />
-                <Route path="/protocol-dashboard" element={<ProtocolTrackingDashboard />} />
-                <Route path="/nutrition-diary" element={<NutritionDiary />} />
-                <Route path="/health-profile" element={<HealthProfile />} />
-                <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
-                <Route path="/moscow-clinics" element={<MoscowClinics />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
-                <Route path="/auth/confirm" element={<AuthConfirm />} />
-                <Route path="/account-settings" element={<AccountSettings />} />
-                <Route path="/settings" element={<AccountSettings />} />
-                <Route path="/lab-analyses" element={<LabAnalyses />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/ai-doctor" element={<AIDoctorPage />} />
-                <Route path="/ai-doctor/basic" element={<AIDoctorBasicPage />} />
-                <Route path="/ai-doctor/personal" element={<AIDoctorPersonalPage />} />
-                <Route path="/ai-doctor/chat/:chatId" element={<AIDoctorChatPage />} />
-                <Route path="/services" element={<ServicesPage />} />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route path="/partnership" element={<Partnership />} />
-                <Route path="/support" element={<AccountSettings />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route path="/analysis-details" element={<AnalysisDetails />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/specialists" element={<Specialists />} />
                 
-                {/* Admin routes */}
-                <Route path="/admin" element={<AdminDashboardLayout />}>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="users" element={<AdminUsers />} />
-                  <Route path="ai-chat" element={<AdminAIChat />} />
-                  <Route path="nutrition" element={<AdminNutrition />} />
-                  <Route path="health-recommendations" element={<AdminHealthRecommendations />} />
-                  <Route path="health-profiles" element={<AdminHealthProfiles />} />
-                  <Route path="analytics" element={<AdminAnalytics />} />
-                  <Route path="content" element={<AdminContent />} />
-                  <Route path="settings" element={<AdminSettings />} />
-                </Route>
+                {/* Protected Routes */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/medical-analysis" element={
+                  <ProtectedRoute>
+                    <MedicalAnalysis />
+                  </ProtectedRoute>
+                } />
+                <Route path="/analysis/:id" element={
+                  <ProtectedRoute>
+                    <AnalysisDetails />
+                  </ProtectedRoute>
+                } />
+                <Route path="/analytics" element={
+                  <ProtectedRoute>
+                    <Analytics />
+                  </ProtectedRoute>
+                } />
+                <Route path="/ai-doctor" element={
+                  <ProtectedRoute>
+                    <AIDoctorPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/ai-doctor/basic" element={
+                  <ProtectedRoute>
+                    <BasicAIDoctorPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/ai-doctor/personal" element={
+                  <ProtectedRoute>
+                    <PersonalAIDoctorPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="/nutrition-diary" element={
+                  <ProtectedRoute>
+                    <NutritionDiaryPage />
+                  </ProtectedRoute>
+                } />
+
+                {/* Admin Routes */}
+                <Route path="/admin" element={
+                  <ProtectedRoute>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/users" element={
+                  <ProtectedRoute>
+                    <AdminUsers />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/analytics" element={
+                  <ProtectedRoute>
+                    <AdminAnalytics />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/content" element={
+                  <ProtectedRoute>
+                    <AdminContent />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/ai-chat" element={
+                  <ProtectedRoute>
+                    <AdminAIChat />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/nutrition" element={
+                  <ProtectedRoute>
+                    <AdminNutrition />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/health-profiles" element={
+                  <ProtectedRoute>
+                    <AdminHealthProfiles />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/health-recommendations" element={
+                  <ProtectedRoute>
+                    <AdminHealthRecommendations />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/settings" element={
+                  <ProtectedRoute>
+                    <AdminSettings />
+                  </ProtectedRoute>
+                } />
               </Routes>
             </SubscriptionProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
-  );
-}
+  </HelmetProvider>
+);
 
 export default App;

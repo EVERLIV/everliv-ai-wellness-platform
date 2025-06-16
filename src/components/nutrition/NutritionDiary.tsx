@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ import MealEntry from "./MealEntry";
 import NutritionCharts from "./NutritionCharts";
 import PersonalizedRecommendations from "./PersonalizedRecommendations";
 import { useFoodEntries } from "@/hooks/useFoodEntries";
+import { useRealtimeFoodEntries } from "@/hooks/useRealtimeFoodEntries";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
@@ -33,8 +33,22 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
   const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('breakfast');
   const [showCalendar, setShowCalendar] = useState(false);
 
-  const { getSummaryByMealType, entries, deleteEntry } = useFoodEntries(selectedDate);
+  const { getSummaryByMealType, entries, deleteEntry, refreshEntries } = useFoodEntries(selectedDate);
+  const { realtimeEntries } = useRealtimeFoodEntries(selectedDate);
+  
+  // Combine regular entries with realtime entries
+  const allEntries = [...entries, ...realtimeEntries].filter((entry, index, self) => 
+    index === self.findIndex(e => e.id === entry.id)
+  );
+  
   const mealSummary = getSummaryByMealType();
+
+  // Refresh entries when realtime entries change
+  useEffect(() => {
+    if (realtimeEntries.length > 0) {
+      refreshEntries();
+    }
+  }, [realtimeEntries.length, refreshEntries]);
 
   // Обработка триггера быстрого добавления из заголовка
   useEffect(() => {
@@ -70,7 +84,7 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
   };
 
   const getMealEntries = (mealType: string) => {
-    return entries.filter(entry => entry.meal_type === mealType);
+    return allEntries.filter(entry => entry.meal_type === mealType);
   };
 
   return (
