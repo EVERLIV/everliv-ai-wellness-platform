@@ -7,7 +7,8 @@ import { RegistrationConfirmationEmail } from "./_templates/registration-confirm
 import { AnalysisResultsEmail } from "./_templates/analysis-results.tsx";
 import { MedicalNewsletterEmail } from "./_templates/medical-newsletter.tsx";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+// Используем SMTP API ключ для авторизованного домена
+const resend = new Resend(Deno.env.get("RESEND_SMTP_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

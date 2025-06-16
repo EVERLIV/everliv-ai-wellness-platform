@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 import { Resend } from "npm:resend@4.0.0";
@@ -6,7 +5,8 @@ import { renderAsync } from "npm:@react-email/components@0.0.22";
 import React from "npm:react@18.3.1";
 import { MedicalNewsletterEmail } from "../send-email/_templates/medical-newsletter.tsx";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+// Используем SMTP API ключ для авторизованного домена
+const resend = new Resend(Deno.env.get("RESEND_SMTP_API_KEY"));
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
