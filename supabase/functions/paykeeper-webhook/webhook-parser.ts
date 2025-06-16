@@ -16,6 +16,11 @@ export interface WebhookData {
   orderId?: string;
   token?: string;
   callback_token?: string;
+  // Поля для цифровой подписи
+  signature?: string;
+  approvalCode?: string;
+  approvedAmount?: string;
+  merchantId?: string;
 }
 
 export const parseWebhookData = async (req: Request): Promise<WebhookData> => {
@@ -70,4 +75,64 @@ export const verifyCallbackToken = (webhookData: WebhookData, req: Request, call
   }
   
   return true;
+};
+
+export const verifyDigitalSignature = async (webhookData: WebhookData, publicKey: string): Promise<boolean> => {
+  try {
+    // Если нет подписи, пропускаем проверку
+    if (!webhookData.signature) {
+      console.log('No digital signature found, skipping signature verification');
+      return true;
+    }
+
+    console.log('Verifying digital signature...');
+    
+    // Строим строку для подписи из основных параметров платежа
+    const signatureData = [
+      webhookData.sum || webhookData.amount || '',
+      webhookData.payerEmail || webhookData.payer_email || webhookData.email || '',
+      webhookData.approvalCode || '',
+      webhookData.merchantId || '',
+      webhookData.orderid || webhookData.order_id || webhookData.transaction_id || ''
+    ].join('|');
+
+    console.log('Signature data string:', signatureData);
+
+    // Импортируем публичный ключ
+    const publicKeyData = await crypto.subtle.importKey(
+      'spki',
+      new TextEncoder().encode(publicKey),
+      {
+        name: 'RSA-PSS',
+        hash: 'SHA-256'
+      },
+      false,
+      ['verify']
+    );
+
+    // Декодируем подпись из base64
+    const signatureBytes = Uint8Array.from(atob(webhookData.signature), c => c.charCodeAt(0));
+    
+    // Кодируем данные для проверки
+    const dataBytes = new TextEncoder().encode(signatureData);
+
+    // Проверяем подпись
+    const isValid = await crypto.subtle.verify(
+      {
+        name: 'RSA-PSS',
+        saltLength: 32
+      },
+      publicKeyData,
+      signatureBytes,
+      dataBytes
+    );
+
+    console.log('Digital signature verification result:', isValid);
+    return isValid;
+
+  } catch (error) {
+    console.error('Error verifying digital signature:', error);
+    // В случае ошибки верификации не блокируем платеж, но логируем
+    return true;
+  }
 };
