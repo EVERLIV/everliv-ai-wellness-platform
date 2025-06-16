@@ -67,25 +67,22 @@ export class InputSanitizer {
   /**
    * Validate file upload input with comprehensive security checks
    */
-  static validateFileUpload(file: File): { isValid: boolean; error?: string } {
+  static validateFileUpload(file: File, allowedTypes?: string[], maxSize?: number): string | null {
     if (!file) {
-      return { isValid: false, error: 'No file provided' };
+      return 'No file provided';
     }
 
+    const fileMaxSize = maxSize || this.MAX_FILE_SIZE;
+    const fileAllowedTypes = allowedTypes || this.ALLOWED_IMAGE_TYPES;
+
     // Check file size
-    if (file.size > this.MAX_FILE_SIZE) {
-      return { 
-        isValid: false, 
-        error: `File size exceeds ${this.MAX_FILE_SIZE / (1024 * 1024)}MB limit` 
-      };
+    if (file.size > fileMaxSize) {
+      return `File size exceeds ${fileMaxSize / (1024 * 1024)}MB limit`;
     }
 
     // Check file type
-    if (!this.ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      return { 
-        isValid: false, 
-        error: `File type ${file.type} not allowed. Allowed types: ${this.ALLOWED_IMAGE_TYPES.join(', ')}` 
-      };
+    if (!fileAllowedTypes.includes(file.type)) {
+      return `File type ${file.type} not allowed. Allowed types: ${fileAllowedTypes.join(', ')}`;
     }
 
     // Check file extension
@@ -93,10 +90,7 @@ export class InputSanitizer {
     const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
     
     if (!extension || !allowedExtensions.includes(extension)) {
-      return { 
-        isValid: false, 
-        error: `File extension .${extension} not allowed` 
-      };
+      return `File extension .${extension} not allowed`;
     }
 
     // Check for suspicious file names
@@ -105,13 +99,10 @@ export class InputSanitizer {
     ];
     
     if (suspiciousPatterns.some(pattern => pattern.test(file.name))) {
-      return { 
-        isValid: false, 
-        error: 'Suspicious file type detected' 
-      };
+      return 'Suspicious file type detected';
     }
 
-    return { isValid: true };
+    return null; // No error
   }
 
   /**

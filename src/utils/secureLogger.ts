@@ -6,6 +6,8 @@ interface LogContext {
   session_id?: string;
   endpoint?: string;
   timestamp?: string;
+  // Allow any additional properties for flexibility
+  [key: string]: any;
 }
 
 class SecureLogger {
