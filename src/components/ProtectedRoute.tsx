@@ -1,5 +1,5 @@
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/SmartAuthContext';
 import { Navigate } from 'react-router-dom';
 import { isDevelopmentMode } from '@/utils/devMode';
 
