@@ -1,36 +1,20 @@
 
-import { initializeOpenAI } from "./openai-client";
+import { SecureOpenAIService } from "./secure-openai-service";
 
 /**
  * Performs comprehensive health analysis
  */
 export const performComprehensiveAnalysisWithOpenAI = async (healthData: object) => {
   try {
-    const openai = initializeOpenAI();
+    const prompt = createComprehensiveAnalysisPrompt(healthData);
     
-    const messages = [
-      {
-        role: "system",
-        content: createComprehensiveAnalysisSystemPrompt()
-      },
-      {
-        role: "user",
-        content: createComprehensiveAnalysisPrompt(healthData)
-      }
-    ];
-    
-    // Make API call to OpenAI
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: messages as any,
-      temperature: 0.4,
-      max_tokens: 2000,
+    const response = await SecureOpenAIService.makeRequest('ai-medical-analysis', {
+      prompt,
+      temperature: 0.4
     });
     
-    const aiResponse = response.choices[0].message.content || "";
-    
     try {
-      return JSON.parse(aiResponse);
+      return JSON.parse(response.content);
     } catch (error) {
       console.error("Failed to parse comprehensive analysis AI response as JSON:", error);
       return {
@@ -111,7 +95,9 @@ export const createComprehensiveAnalysisSystemPrompt = () => {
  * Creates a comprehensive analysis prompt
  */
 export const createComprehensiveAnalysisPrompt = (healthData: object) => {
-  return `Проведите полный анализ здоровья на основе следующих данных о здоровье:
+  return `${createComprehensiveAnalysisSystemPrompt()}
+
+Проведите полный анализ здоровья на основе следующих данных о здоровье:
   
   ${JSON.stringify(healthData)}
   

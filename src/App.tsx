@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "./components/ui/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 
 import Index from './pages/Index';
@@ -10,21 +11,21 @@ import AuthConfirm from './pages/AuthConfirm';
 import Welcome from './pages/Welcome';
 import MedicalKnowledge from './pages/MedicalKnowledge';
 import SubscriptionPage from './pages/SubscriptionPage';
-import Profile from './pages/Profile';
-import FoodDiary from './pages/FoodDiary';
-import BloodTestAnalysisPage from './pages/BloodTestAnalysisPage';
-import MedicalAnalysisPage from './pages/MedicalAnalysisPage';
+import UserProfile from './pages/UserProfile';
+import NutritionDiary from './pages/NutritionDiary';
+import BloodAnalysisPage from './pages/BloodAnalysisPage';
+import AnalysisDetails from './pages/AnalysisDetails';
 import BiologicalAgePage from './pages/BiologicalAgePage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
-import AdminArticles from './pages/admin/AdminArticles';
-import AdminProtocols from './pages/admin/AdminProtocols';
-import AdminSpecializations from './pages/admin/AdminSpecializations';
-import AdminCategories from './pages/admin/AdminCategories';
-import AdminSubscriptions from './pages/admin/AdminSubscriptions';
-import AdminPayments from './pages/admin/AdminPayments';
+import AdminBlog from './pages/admin/AdminBlog';
+import AdminOverview from './pages/admin/AdminOverview';
+import AdminSettings from './pages/admin/AdminSettings';
+import AdminPricing from './pages/admin/AdminPricing';
+import AdminStatistics from './pages/admin/AdminStatistics';
+import AdminContent from './pages/admin/AdminContent';
 import AdminSecurity from './pages/admin/AdminSecurity';
-import RealtimeNotifications from './components/RealtimeNotifications';
+import RealtimeNotifications from './components/realtime/RealtimeNotifications';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -53,22 +54,22 @@ function App() {
                   <Route path="/welcome" element={<Welcome />} />
                   <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
                   <Route path="/subscription" element={<SubscriptionPage />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/food-diary" element={<FoodDiary />} />
-                  <Route path="/blood-test-analysis" element={<BloodTestAnalysisPage />} />
-                  <Route path="/medical-analysis/:analysisId" element={<MedicalAnalysisPage />} />
-                  <Route path="/medical-analysis" element={<MedicalAnalysisPage />} />
+                  <Route path="/profile" element={<UserProfile />} />
+                  <Route path="/food-diary" element={<NutritionDiary />} />
+                  <Route path="/blood-test-analysis" element={<BloodAnalysisPage />} />
+                  <Route path="/medical-analysis/:analysisId" element={<AnalysisDetails />} />
+                  <Route path="/medical-analysis" element={<AnalysisDetails />} />
                   <Route path="/biological-age" element={<BiologicalAgePage />} />
 
                   {/* Admin Routes */}
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/admin/users" element={<AdminUsers />} />
-                  <Route path="/admin/articles" element={<AdminArticles />} />
-                  <Route path="/admin/protocols" element={<AdminProtocols />} />
-                  <Route path="/admin/specializations" element={<AdminSpecializations />} />
-                  <Route path="/admin/categories" element={<AdminCategories />} />
-                  <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
-                  <Route path="/admin/payments" element={<AdminPayments />} />
+                  <Route path="/admin/articles" element={<AdminBlog />} />
+                  <Route path="/admin/protocols" element={<AdminOverview />} />
+                  <Route path="/admin/specializations" element={<AdminSettings />} />
+                  <Route path="/admin/categories" element={<AdminContent />} />
+                  <Route path="/admin/subscriptions" element={<AdminPricing />} />
+                  <Route path="/admin/payments" element={<AdminStatistics />} />
                   <Route path="/admin/security" element={<AdminSecurity />} />
                 </Routes>
               </BrowserRouter>

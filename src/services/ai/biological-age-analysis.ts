@@ -1,36 +1,20 @@
 
-import { initializeOpenAI } from "./openai-client";
+import { SecureOpenAIService } from "./secure-openai-service";
 
 /**
  * Analyzes biological age based on biomarkers
  */
 export const analyzeBiologicalAgeWithOpenAI = async (biomarkerData: object) => {
   try {
-    const openai = initializeOpenAI();
+    const prompt = createBiologicalAgePrompt(biomarkerData);
     
-    const messages = [
-      {
-        role: "system",
-        content: createBiologicalAgeSystemPrompt()
-      },
-      {
-        role: "user",
-        content: createBiologicalAgePrompt(biomarkerData)
-      }
-    ];
-    
-    // Make API call to OpenAI
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: messages as any,
-      temperature: 0.3,
-      max_tokens: 1500,
+    const response = await SecureOpenAIService.makeRequest('ai-medical-analysis', {
+      prompt,
+      temperature: 0.3
     });
     
-    const aiResponse = response.choices[0].message.content || "";
-    
     try {
-      return JSON.parse(aiResponse);
+      return JSON.parse(response.content);
     } catch (error) {
       console.error("Failed to parse biological age AI response as JSON:", error);
       return {
@@ -90,7 +74,9 @@ export const createBiologicalAgeSystemPrompt = () => {
  * Creates a biological age analysis prompt
  */
 export const createBiologicalAgePrompt = (biomarkerData: object) => {
-  return `Анализируйте следующие биомаркерные данные, чтобы оценить биологический возраст и предложить комплексные рекомендации по долговечности:
+  return `${createBiologicalAgeSystemPrompt()}
+
+Анализируйте следующие биомаркерные данные, чтобы оценить биологический возраст и предложить комплексные рекомендации по долговечности:
   
   ${JSON.stringify(biomarkerData)}
   
