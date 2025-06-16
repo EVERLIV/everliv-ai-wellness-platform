@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { secureLogger } from '@/utils/secureLogger';
+import { InputSanitizer } from '@/utils/inputSanitizer';
 
 interface SemanticSearchResult {
   article_id?: string;
@@ -26,18 +28,40 @@ export const useSemanticSearch = () => {
     matchThreshold: number = 0.7,
     matchCount: number = 10
   ) => {
-    if (!query.trim()) {
-      toast.error('Введите поисковый запрос');
+    // Validate and sanitize input
+    const validation = InputSanitizer.validateSearchQuery(query);
+    if (!validation.isValid) {
+      toast.error(validation.error || 'Invalid search query');
+      return;
+    }
+
+    // Check rate limiting
+    const rateLimit = InputSanitizer.checkRateLimit(
+      user?.id || 'anonymous', 
+      'semantic_search',
+      10, // 10 searches per minute
+      60 * 1000
+    );
+
+    if (!rateLimit.allowed) {
+      toast.error(`Rate limit exceeded. Try again in ${Math.ceil((rateLimit.resetTime - Date.now()) / 1000)} seconds`);
       return;
     }
 
     setIsSearching(true);
+    const searchStartTime = Date.now();
+
     try {
-      console.log('Searching medical articles:', query);
+      secureLogger.info('Starting medical articles search', {
+        user_id: user?.id,
+        query_length: validation.sanitized.length,
+        match_threshold: matchThreshold,
+        match_count: matchCount
+      });
 
       const { data, error } = await supabase.functions.invoke('semantic-search', {
         body: {
-          query: query,
+          query: validation.sanitized,
           search_type: 'medical_articles',
           match_threshold: matchThreshold,
           match_count: matchCount
@@ -47,13 +71,33 @@ export const useSemanticSearch = () => {
       if (error) throw error;
 
       if (data.success) {
-        setResults(data.results);
-        toast.success(`Найдено ${data.results.length} релевантных статей`);
+        // Sanitize results
+        const sanitizedResults = data.results.map((result: any) => ({
+          ...result,
+          title: InputSanitizer.sanitizeText(result.title || ''),
+          content: InputSanitizer.sanitizeText(result.content || ''),
+          excerpt: InputSanitizer.sanitizeText(result.excerpt || ''),
+          category: InputSanitizer.sanitizeText(result.category || '')
+        }));
+
+        setResults(sanitizedResults);
+        
+        secureLogger.info('Medical articles search completed', {
+          user_id: user?.id,
+          results_count: sanitizedResults.length,
+          search_duration: Date.now() - searchStartTime
+        });
+        
+        toast.success(`Найдено ${sanitizedResults.length} релевантных статей`);
       } else {
         throw new Error(data.error || 'Ошибка поиска');
       }
     } catch (error) {
-      console.error('Error searching articles:', error);
+      secureLogger.error('Error searching articles', {
+        user_id: user?.id,
+        error: (error as Error).message,
+        search_duration: Date.now() - searchStartTime
+      });
       toast.error('Ошибка при поиске статей');
       setResults([]);
     } finally {
@@ -71,18 +115,40 @@ export const useSemanticSearch = () => {
       return;
     }
 
-    if (!query.trim()) {
-      toast.error('Опишите ваши здоровые цели или интересы');
+    // Validate and sanitize input
+    const validation = InputSanitizer.validateSearchQuery(query);
+    if (!validation.isValid) {
+      toast.error(validation.error || 'Invalid search query');
+      return;
+    }
+
+    // Check rate limiting
+    const rateLimit = InputSanitizer.checkRateLimit(
+      user.id, 
+      'protocol_recommendations',
+      5, // 5 recommendation requests per minute
+      60 * 1000
+    );
+
+    if (!rateLimit.allowed) {
+      toast.error(`Rate limit exceeded. Try again in ${Math.ceil((rateLimit.resetTime - Date.now()) / 1000)} seconds`);
       return;
     }
 
     setIsSearching(true);
+    const searchStartTime = Date.now();
+
     try {
-      console.log('Getting protocol recommendations for:', query);
+      secureLogger.info('Getting protocol recommendations', {
+        user_id: user.id,
+        query_length: validation.sanitized.length,
+        match_threshold: matchThreshold,
+        match_count: matchCount
+      });
 
       const { data, error } = await supabase.functions.invoke('semantic-search', {
         body: {
-          query: query,
+          query: validation.sanitized,
           search_type: 'protocol_recommendations',
           match_threshold: matchThreshold,
           match_count: matchCount,
@@ -93,13 +159,33 @@ export const useSemanticSearch = () => {
       if (error) throw error;
 
       if (data.success) {
-        setResults(data.results);
-        toast.success(`Найдено ${data.results.length} рекомендованных протоколов`);
+        // Sanitize results
+        const sanitizedResults = data.results.map((result: any) => ({
+          ...result,
+          title: InputSanitizer.sanitizeText(result.title || ''),
+          description: InputSanitizer.sanitizeText(result.description || ''),
+          category: InputSanitizer.sanitizeText(result.category || ''),
+          recommendation_reason: InputSanitizer.sanitizeText(result.recommendation_reason || '')
+        }));
+
+        setResults(sanitizedResults);
+        
+        secureLogger.info('Protocol recommendations completed', {
+          user_id: user.id,
+          results_count: sanitizedResults.length,
+          search_duration: Date.now() - searchStartTime
+        });
+        
+        toast.success(`Найдено ${sanitizedResults.length} рекомендованных протоколов`);
       } else {
         throw new Error(data.error || 'Ошибка получения рекомендаций');
       }
     } catch (error) {
-      console.error('Error getting recommendations:', error);
+      secureLogger.error('Error getting recommendations', {
+        user_id: user.id,
+        error: (error as Error).message,
+        search_duration: Date.now() - searchStartTime
+      });
       toast.error('Ошибка при получении рекомендаций');
       setResults([]);
     } finally {
@@ -112,10 +198,39 @@ export const useSemanticSearch = () => {
     type: 'medical_article' | 'protocol' | 'user_preference',
     metadata: any
   ) => {
+    if (!user?.id && type === 'user_preference') {
+      toast.error('Необходимо войти в систему');
+      return null;
+    }
+
+    // Sanitize input text
+    const sanitizedText = type === 'medical_article' 
+      ? InputSanitizer.sanitizeMedicalData(text)
+      : InputSanitizer.sanitizeText(text, 10000);
+
+    // Check rate limiting
+    const rateLimit = InputSanitizer.checkRateLimit(
+      user?.id || 'anonymous', 
+      'generate_embedding',
+      20, // 20 embedding generations per minute
+      60 * 1000
+    );
+
+    if (!rateLimit.allowed) {
+      toast.error('Rate limit exceeded for embedding generation');
+      return null;
+    }
+
     try {
+      secureLogger.info('Generating embedding', {
+        user_id: user?.id,
+        type,
+        text_length: sanitizedText.length
+      });
+
       const { data, error } = await supabase.functions.invoke('generate-embeddings', {
         body: {
-          text: text,
+          text: sanitizedText,
           type: type,
           metadata: metadata
         }
@@ -124,13 +239,22 @@ export const useSemanticSearch = () => {
       if (error) throw error;
 
       if (data.success) {
-        console.log(`Generated embedding for ${type}:`, data.embedding_id);
+        secureLogger.info('Embedding generated successfully', {
+          user_id: user?.id,
+          type,
+          embedding_id: data.embedding_id,
+          dimensions: data.dimensions
+        });
         return data;
       } else {
         throw new Error(data.error || 'Ошибка генерации embedding');
       }
     } catch (error) {
-      console.error('Error generating embedding:', error);
+      secureLogger.error('Error generating embedding', {
+        user_id: user?.id,
+        type,
+        error: (error as Error).message
+      });
       toast.error('Ошибка при генерации векторного представления');
       return null;
     }
