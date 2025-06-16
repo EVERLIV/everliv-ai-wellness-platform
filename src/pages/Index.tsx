@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/SmartAuthContext';
 import { Navigate } from 'react-router-dom';
 import Home from './Home';
 import SEO from '@/components/SEO';

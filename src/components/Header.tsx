@@ -3,7 +3,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/SmartAuthContext";
 import Logo from "./header/Logo";
 import UserProfileDropdown from "./header/UserProfileDropdown";
 

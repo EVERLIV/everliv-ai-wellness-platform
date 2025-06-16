@@ -1,7 +1,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/SmartAuthContext";
 import { PLAN_FEATURES } from "@/constants/subscription-features";
 import { useSubscriptionHelpers } from "@/hooks/use-subscription-helpers";
 import { 
