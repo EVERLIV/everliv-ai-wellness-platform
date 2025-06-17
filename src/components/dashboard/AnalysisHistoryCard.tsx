@@ -23,7 +23,7 @@ const AnalysisHistoryCard = () => {
       <CardHeader className="pb-2 border-b">
         <CardTitle className="text-lg flex items-center">
           <FileBarChart className="h-5 w-5 mr-2 text-everliv-600" />
-          История анализов
+          Ваши Анализы
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
