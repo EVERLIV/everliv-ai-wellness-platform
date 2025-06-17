@@ -1,51 +1,45 @@
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { isDevelopmentMode } from "@/utils/devMode";
 
 export function useSecureAdminCheck() {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function checkAdminStatus() {
       if (!user) {
         setIsAdmin(false);
-        setIsSuperAdmin(false);
+        setIsLoading(false);
+        return;
+      }
+
+      // В dev режиме автоматически предоставляем админ права
+      if (isDevelopmentMode() && user.id === 'dev-admin-12345') {
+        console.log('🔧 Dev mode: Granting admin access');
+        setIsAdmin(true);
         setIsLoading(false);
         return;
       }
 
       try {
-        // Check basic admin status
-        const { data: adminData, error: adminError } = await supabase.rpc('is_admin', {
+        // Безопасная серверная проверка через RPC функцию
+        const { data, error } = await supabase.rpc('is_admin', {
           user_uuid: user.id
         });
         
-        if (adminError) {
-          console.error('Error checking admin status:', adminError);
+        if (error) {
+          console.error('Error checking admin status:', error);
           setIsAdmin(false);
-          setIsSuperAdmin(false);
         } else {
-          const isAdminUser = adminData || false;
-          setIsAdmin(isAdminUser);
-          
-          // If user is admin, check for super admin status
-          if (isAdminUser) {
-            // Check if user email is in a predefined super admin list
-            // You can configure this based on your needs
-            const superAdminEmails = ['admin@example.com']; // Configure as needed
-            setIsSuperAdmin(superAdminEmails.includes(user.email || ''));
-          } else {
-            setIsSuperAdmin(false);
-          }
+          setIsAdmin(data || false);
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
-        setIsSuperAdmin(false);
       } finally {
         setIsLoading(false);
       }
@@ -54,5 +48,5 @@ export function useSecureAdminCheck() {
     checkAdminStatus();
   }, [user]);
 
-  return { isAdmin, isSuperAdmin, isLoading };
+  return { isAdmin, isLoading };
 }
