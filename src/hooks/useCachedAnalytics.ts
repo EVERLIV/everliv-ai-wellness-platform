@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CachedAnalytics } from "@/types/analytics";
 import { generateAnalyticsData } from "@/utils/analyticsGenerator";
+import { generateEnhancedAnalytics } from "@/utils/enhancedAnalyticsGenerator";
 import { useHealthProfileStatus } from "./useHealthProfileStatus";
 
 export const useCachedAnalytics = () => {
@@ -61,49 +62,25 @@ export const useCachedAnalytics = () => {
         setAnalytics(analyticsData);
       }
     } catch (error) {
-      console.error('Error loading cached analytics:', error);
+      console.error('Unexpected error loading analytics:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const generateAnalytics = async (forceRealTime: boolean = false) => {
+  const generateRealTimeAnalytics = async () => {
     if (!user || !hasHealthProfile) {
-      toast.error('Сначала заполните профиль здоровья');
+      toast.error('Заполните профиль здоровья для генерации аналитики');
       return;
     }
 
     try {
       setIsGenerating(true);
       
-      console.log('Generating analytics in real-time mode:', forceRealTime);
-      
-      // Получаем РЕАЛЬНЫЕ данные анализов пользователя
-      const { data: analysesData, error: analysesError } = await supabase
-        .from('medical_analyses')
-        .select('created_at, results')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (analysesError) {
-        console.error('Error fetching analyses:', analysesError);
-        throw analysesError;
-      }
-
-      // Получаем данные чатов
-      const { data: chatsData, error: chatsError } = await supabase
-        .from('ai_doctor_chats')
-        .select('created_at, title')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (chatsError) {
-        console.error('Error fetching chats:', chatsError);
-        throw chatsError;
-      }
+      console.log('Starting real-time analytics generation...');
 
       // Получаем данные профиля здоровья
-      const { data: healthProfileData, error: profileError } = await supabase
+      const { data: healthProfile, error: profileError } = await supabase
         .from('health_profiles')
         .select('profile_data')
         .eq('user_id', user.id)
@@ -111,50 +88,124 @@ export const useCachedAnalytics = () => {
 
       if (profileError) {
         console.error('Error fetching health profile:', profileError);
-        throw profileError;
+        throw new Error('Ошибка загрузки профиля здоровья');
       }
 
-      console.log('Real user data for analytics:', {
-        analysesCount: analysesData?.length || 0,
-        chatsCount: chatsData?.length || 0,
-        hasProfile: !!healthProfileData
+      if (!healthProfile?.profile_data) {
+        throw new Error('Профиль здоровья не найден');
+      }
+
+      // Получаем анализы
+      const { data: analyses, error: analysesError } = await supabase
+        .from('medical_analyses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (analysesError) {
+        console.error('Error fetching analyses:', analysesError);
+      }
+
+      // Получаем чаты с ИИ-доктором
+      const { data: chats, error: chatsError } = await supabase
+        .from('ai_doctor_chats')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (chatsError) {
+        console.error('Error fetching chats:', chatsError);
+      }
+
+      console.log('Data fetched:', {
+        hasProfile: !!healthProfile,
+        analysesCount: analyses?.length || 0,
+        chatsCount: chats?.length || 0
       });
 
-      const analyses = (analysesData || []).map(item => ({
-        created_at: item.created_at,
-        results: item.results as any
-      }));
-      
-      const chats = (chatsData || []).map(item => ({
-        created_at: item.created_at,
-        title: item.title
-      }));
-      
-      const healthProfile = healthProfileData?.profile_data;
+      // Генерируем расширенную аналитику
+      const newAnalytics = await generateEnhancedAnalytics(
+        analyses || [],
+        chats || [],
+        true,
+        healthProfile.profile_data
+      );
 
-      // Генерируем новую аналитику с реальными данными
+      if (!newAnalytics) {
+        throw new Error('Не удалось сгенерировать аналитику');
+      }
+
+      console.log('Generated analytics:', newAnalytics);
+
+      // Сохраняем в базу данных
+      const { error: saveError } = await supabase
+        .from('user_analytics')
+        .upsert({
+          user_id: user.id,
+          analytics_data: newAnalytics,
+          updated_at: new Date().toISOString()
+        });
+
+      if (saveError) {
+        console.error('Error saving analytics:', saveError);
+        // Не прерываем процесс, просто логируем ошибку
+      }
+
+      setAnalytics(newAnalytics);
+      toast.success('Аналитика здоровья обновлена');
+
+    } catch (error) {
+      console.error('Error generating real-time analytics:', error);
+      toast.error(error instanceof Error ? error.message : 'Ошибка генерации аналитики');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const generateAnalytics = async () => {
+    if (!user) return;
+
+    try {
+      setIsGenerating(true);
+      
+      // Получаем данные для базовой аналитики
+      const { data: analyses, error: analysesError } = await supabase
+        .from('medical_analyses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      const { data: chats, error: chatsError } = await supabase
+        .from('ai_doctor_chats')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      // Используем базовый генератор для совместимости
       const newAnalytics = await generateAnalyticsData(
-        analyses, 
-        chats, 
-        hasHealthProfile,
-        healthProfile
+        analyses || [],
+        chats || [],
+        hasHealthProfile
       );
 
       if (newAnalytics) {
-        // Сохраняем в кэш только если это не режим реального времени
-        if (!forceRealTime) {
-          await supabase
-            .from('user_analytics')
-            .upsert({
-              user_id: user.id,
-              analytics_data: newAnalytics as any,
-              updated_at: new Date().toISOString()
-            });
+        // Сохраняем в базу данных
+        const { error: saveError } = await supabase
+          .from('user_analytics')
+          .upsert({
+            user_id: user.id,
+            analytics_data: newAnalytics,
+            updated_at: new Date().toISOString()
+          });
+
+        if (saveError) {
+          console.error('Error saving analytics:', saveError);
         }
 
         setAnalytics(newAnalytics);
         toast.success('Аналитика обновлена');
       }
+
     } catch (error) {
       console.error('Error generating analytics:', error);
       toast.error('Ошибка генерации аналитики');
@@ -162,8 +213,6 @@ export const useCachedAnalytics = () => {
       setIsGenerating(false);
     }
   };
-
-  const generateRealTimeAnalytics = () => generateAnalytics(true);
 
   return {
     analytics,
