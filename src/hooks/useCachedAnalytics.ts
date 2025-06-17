@@ -123,10 +123,21 @@ export const useCachedAnalytics = () => {
         chatsCount: chats?.length || 0
       });
 
+      // Преобразуем данные для совместимости с типами
+      const formattedAnalyses = (analyses || []).map(analysis => ({
+        created_at: analysis.created_at,
+        results: analysis.results as any // Type assertion for compatibility
+      }));
+
+      const formattedChats = (chats || []).map(chat => ({
+        created_at: chat.created_at,
+        title: chat.title
+      }));
+
       // Генерируем расширенную аналитику
       const newAnalytics = await generateEnhancedAnalytics(
-        analyses || [],
-        chats || [],
+        formattedAnalyses,
+        formattedChats,
         true,
         healthProfile.profile_data
       );
@@ -137,12 +148,12 @@ export const useCachedAnalytics = () => {
 
       console.log('Generated analytics:', newAnalytics);
 
-      // Сохраняем в базу данных
+      // Сохраняем в базу данных с правильным типированием
       const { error: saveError } = await supabase
         .from('user_analytics')
         .upsert({
           user_id: user.id,
-          analytics_data: newAnalytics,
+          analytics_data: newAnalytics as any, // Type assertion for JSON compatibility
           updated_at: new Date().toISOString()
         });
 
@@ -181,10 +192,21 @@ export const useCachedAnalytics = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
+      // Преобразуем данные для совместимости
+      const formattedAnalyses = (analyses || []).map(analysis => ({
+        created_at: analysis.created_at,
+        results: analysis.results as any
+      }));
+
+      const formattedChats = (chats || []).map(chat => ({
+        created_at: chat.created_at,
+        title: chat.title
+      }));
+
       // Используем базовый генератор для совместимости
       const newAnalytics = await generateAnalyticsData(
-        analyses || [],
-        chats || [],
+        formattedAnalyses,
+        formattedChats,
         hasHealthProfile
       );
 
@@ -194,7 +216,7 @@ export const useCachedAnalytics = () => {
           .from('user_analytics')
           .upsert({
             user_id: user.id,
-            analytics_data: newAnalytics,
+            analytics_data: newAnalytics as any,
             updated_at: new Date().toISOString()
           });
 

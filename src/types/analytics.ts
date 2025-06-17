@@ -24,6 +24,7 @@ export interface CachedAnalytics {
     iconBg: string;
   }>;
   lastUpdated: string;
+  [key: string]: any; // Add index signature for JSON compatibility
 }
 
 export interface AnalysisRecord {
@@ -37,9 +38,11 @@ export interface AnalysisRecord {
       status: 'optimal' | 'good' | 'attention' | 'risk' | 'high' | 'low';
     }>;
   };
+  [key: string]: any; // Add index signature for flexibility
 }
 
 export interface ChatRecord {
   created_at: string;
   title: string;
+  [key: string]: any; // Add index signature for flexibility
 }
