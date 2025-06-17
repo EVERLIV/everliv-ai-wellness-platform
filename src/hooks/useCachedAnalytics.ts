@@ -1,11 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHealthProfileStatus } from "./useHealthProfileStatus";
 import { useAnalyticsData } from "./useAnalyticsData";
 import { useAnalysesStatus } from "./useAnalysesStatus";
 import { generateRealTimeAnalyticsService } from "@/services/analytics/enhancedAnalyticsService";
 import { generateBasicAnalyticsService } from "@/services/analytics/basicAnalyticsService";
+import { realtimeAnalyticsService } from "@/services/analytics/realtimeAnalyticsService";
 
 export const useCachedAnalytics = () => {
   const { user } = useAuth();
@@ -13,6 +14,19 @@ export const useCachedAnalytics = () => {
   const { analytics, isLoading, setAnalytics } = useAnalyticsData();
   const { hasAnalyses } = useAnalysesStatus();
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Подписываемся на изменения в реальном времени
+  useEffect(() => {
+    if (!user || !hasHealthProfile) return;
+
+    console.log('Setting up realtime analytics for user:', user.id);
+    
+    realtimeAnalyticsService.subscribeToUserChanges(user.id, setAnalytics);
+
+    return () => {
+      realtimeAnalyticsService.unsubscribeFromUserChanges(user.id);
+    };
+  }, [user, hasHealthProfile, setAnalytics]);
 
   const generateRealTimeAnalytics = async () => {
     if (!user) return;

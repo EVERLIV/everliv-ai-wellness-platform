@@ -3,6 +3,44 @@ import { CachedAnalytics, AnalysisRecord, ChatRecord } from '@/types/analytics';
 import { EnhancedHealthAnalyzer, EnhancedHealthProfile } from '@/services/health-analytics/enhanced-health-analyzer';
 import { generateRecentActivities, checkRecentActivity } from './analytics/activityGenerator';
 
+const calculateAge = (dateOfBirth: string): number => {
+  if (!dateOfBirth) return 30;
+  const today = new Date();
+  const birthDate = new Date(dateOfBirth);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age > 0 ? age : 30;
+};
+
+const processHealthProfileValue = (value: any): any => {
+  // Если значение - это объект с полем customValue, возвращаем его
+  if (typeof value === 'object' && value?.customValue) {
+    return value.customValue;
+  }
+  
+  // Если значение - это массив, обрабатываем каждый элемент
+  if (Array.isArray(value)) {
+    return value.map(item => {
+      if (typeof item === 'object' && item?.customValue) {
+        return item.customValue;
+      }
+      return typeof item === 'object' ? item.value || item : item;
+    }).filter(Boolean);
+  }
+  
+  // Если это объект с полем value, возвращаем его
+  if (typeof value === 'object' && value?.value) {
+    return value.value;
+  }
+  
+  return value;
+};
+
 export const generateEnhancedAnalytics = async (
   analyses: AnalysisRecord[], 
   chats: ChatRecord[],
@@ -17,32 +55,33 @@ export const generateEnhancedAnalytics = async (
   const totalAnalyses = analyses.length;
   const totalConsultations = chats.length;
 
-  console.log('Generating enhanced analytics with:', {
+  console.log('Generating enhanced analytics with processed data:', {
     totalAnalyses,
     totalConsultations,
-    hasHealthProfile
+    hasHealthProfile,
+    profileData: healthProfileData
   });
 
   try {
     const analyzer = new EnhancedHealthAnalyzer();
     
-    // Преобразуем данные профиля в формат для анализатора
+    // Обрабатываем данные профиля и преобразуем их в нужный формат
     const enhancedProfile: EnhancedHealthProfile = {
       age: calculateAge(healthProfileData.dateOfBirth) || 30,
-      gender: healthProfileData.gender || 'not_specified',
+      gender: processHealthProfileValue(healthProfileData.gender) || 'not_specified',
       height: parseFloat(healthProfileData.height) || 170,
       weight: parseFloat(healthProfileData.weight) || 70,
-      smokingStatus: healthProfileData.smokingStatus || 'never',
-      physicalActivity: healthProfileData.physicalActivity || 'moderate',
-      alcoholConsumption: healthProfileData.alcoholConsumption || 'none',
+      smokingStatus: processHealthProfileValue(healthProfileData.smokingStatus) || 'never',
+      physicalActivity: processHealthProfileValue(healthProfileData.physicalActivity) || 'moderate',
+      alcoholConsumption: processHealthProfileValue(healthProfileData.alcoholConsumption) || 'none',
       sleepHours: parseFloat(healthProfileData.sleepHours) || 8,
       stressLevel: parseFloat(healthProfileData.stressLevel) || 5,
       exerciseFrequency: parseFloat(healthProfileData.exerciseFrequency) || 3,
       waterIntake: parseFloat(healthProfileData.waterIntake) || 8,
-      medicalConditions: healthProfileData.chronicDiseases || [],
-      familyHistory: healthProfileData.familyHistory || [],
-      allergies: healthProfileData.allergies || [],
-      medications: healthProfileData.medications || [],
+      medicalConditions: processHealthProfileValue(healthProfileData.chronicConditions) || [],
+      familyHistory: processHealthProfileValue(healthProfileData.familyHistory) || [],
+      allergies: processHealthProfileValue(healthProfileData.allergies) || [],
+      medications: processHealthProfileValue(healthProfileData.medications) || [],
       bloodPressure: healthProfileData.bloodPressure ? {
         systolic: healthProfileData.bloodPressure.systolic,
         diastolic: healthProfileData.bloodPressure.diastolic
@@ -51,6 +90,8 @@ export const generateEnhancedAnalytics = async (
       mentalHealthScore: healthProfileData.mentalHealthScore || 70
     };
 
+    console.log('Processed enhanced profile:', enhancedProfile);
+
     // Выполняем расширенный анализ здоровья
     const healthAnalysis = analyzer.calculateEnhancedHealthScore(enhancedProfile, analyses);
 
@@ -58,9 +99,9 @@ export const generateEnhancedAnalytics = async (
     const hasRecentActivity = checkRecentActivity(analyses);
     const recentActivities = generateRecentActivities(analyses, chats);
 
-    return {
+    const analytics: CachedAnalytics = {
       healthScore: healthAnalysis.totalScore,
-      riskLevel: healthAnalysis.riskLevel,
+      riskLevel: translateRiskLevel(healthAnalysis.riskLevel),
       riskDescription: generateRiskDescription(healthAnalysis),
       recommendations: healthAnalysis.recommendations.slice(0, 5).map(rec => rec.action),
       strengths: healthAnalysis.protectiveFactors.slice(0, 4),
@@ -79,84 +120,46 @@ export const generateEnhancedAnalytics = async (
       lastUpdated: new Date().toISOString()
     };
 
+    console.log('Generated analytics:', analytics);
+    return analytics;
+
   } catch (error) {
-    console.error('Error in enhanced analytics generation:', error);
-    return generateFallbackAnalytics(analyses, chats, healthProfileData);
+    console.error('Error in generateEnhancedAnalytics:', error);
+    return null;
   }
 };
 
-const calculateAge = (dateOfBirth: string): number | null => {
-  if (!dateOfBirth) return null;
-  const birthDate = new Date(dateOfBirth);
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
+const translateRiskLevel = (level: string): string => {
+  switch (level.toLowerCase()) {
+    case 'high': return 'высокий';
+    case 'medium': return 'средний';
+    case 'low': return 'низкий';
+    default: return level;
   }
-  return age;
 };
 
 const generateRiskDescription = (analysis: any): string => {
-  const { riskLevel, riskFactors } = analysis;
+  const riskLevel = analysis.riskLevel.toLowerCase();
   
-  if (riskLevel === 'критический') {
-    return `Обнаружены серьезные факторы риска, требующие немедленного медицинского внимания. Основные проблемы: ${riskFactors.slice(0, 2).join(', ')}.`;
-  } else if (riskLevel === 'высокий') {
-    return `Выявлены значимые факторы риска для здоровья. Рекомендуется консультация с врачом и корректировка образа жизни.`;
-  } else if (riskLevel === 'средний') {
-    return `Ваше здоровье в целом стабильно, но есть области для улучшения. Профилактические меры помогут снизить риски.`;
+  if (riskLevel === 'high') {
+    return 'Обнаружены показатели, требующие внимания. Рекомендуется консультация с врачом.';
+  } else if (riskLevel === 'medium') {
+    return 'Некоторые показатели могут быть улучшены. Следуйте рекомендациям для оптимизации здоровья.';
   } else {
-    return `Отличные показатели здоровья! Продолжайте поддерживать здоровый образ жизни.`;
+    return 'Большинство показателей в норме. Продолжайте поддерживать здоровый образ жизни.';
   }
 };
 
 const generateScoreExplanation = (analysis: any): string => {
-  const { breakdown, totalScore } = analysis;
+  const score = analysis.totalScore;
   
-  let explanation = `Ваш балл здоровья ${totalScore}/100 рассчитан на основе комплексного анализа: `;
-  
-  const factors = [];
-  if (breakdown.lifestyleScore !== 0) {
-    factors.push(`образ жизни (${breakdown.lifestyleScore > 0 ? '+' : ''}${breakdown.lifestyleScore})`);
+  if (score >= 80) {
+    return 'Отличные показатели здоровья! Вы находитесь в хорошей форме.';
+  } else if (score >= 60) {
+    return 'Хорошие показатели с потенциалом для улучшения.';
+  } else if (score >= 40) {
+    return 'Средние показатели. Есть области для значительного улучшения.';
+  } else {
+    return 'Низкие показатели. Рекомендуется обратиться к врачу для детального обследования.';
   }
-  if (breakdown.medicalConditionsImpact !== 0) {
-    factors.push(`медицинские состояния (${breakdown.medicalConditionsImpact})`);
-  }
-  if (breakdown.familyHistoryImpact !== 0) {
-    factors.push(`семейная история (${breakdown.familyHistoryImpact})`);
-  }
-  if (breakdown.labResultsScore !== 0) {
-    factors.push(`лабораторные показатели (${breakdown.labResultsScore > 0 ? '+' : ''}${breakdown.labResultsScore})`);
-  }
-  if (breakdown.ageAdjustment !== 0) {
-    factors.push(`возрастная корректировка (${breakdown.ageAdjustment > 0 ? '+' : ''}${breakdown.ageAdjustment})`);
-  }
-  
-  explanation += factors.join(', ') + '.';
-  
-  return explanation;
-};
-
-const generateFallbackAnalytics = (analyses: any[], chats: any[], healthProfileData: any): CachedAnalytics => {
-  return {
-    healthScore: 65,
-    riskLevel: 'средний',
-    riskDescription: 'Базовая оценка на основе заполненного профиля здоровья.',
-    recommendations: [
-      'Регулярно проходите медицинские обследования',
-      'Поддерживайте активный образ жизни',
-      'Следите за качеством питания и сна'
-    ],
-    strengths: ['Ведете мониторинг здоровья'],
-    concerns: ['Загрузите анализы для более точной оценки'],
-    scoreExplanation: 'Базовая оценка рассчитана на основе данных профиля здоровья.',
-    totalAnalyses: analyses.length,
-    totalConsultations: chats.length,
-    lastAnalysisDate: analyses[0]?.created_at,
-    hasRecentActivity: false,
-    trendsAnalysis: { improving: 1, worsening: 1, stable: 3 },
-    recentActivities: [],
-    lastUpdated: new Date().toISOString()
-  };
 };

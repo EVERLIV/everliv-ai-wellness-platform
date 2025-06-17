@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { CachedAnalytics } from "@/types/analytics";
 import { generateEnhancedAnalytics } from "@/utils/enhancedAnalyticsGenerator";
 import { fetchHealthProfileData, fetchAnalysesData, fetchChatsData, saveAnalyticsToDatabase } from "./analyticsDataService";
+import { prepareHealthProfileForAnalysis } from "@/utils/healthProfileUtils";
 
 export const generateRealTimeAnalyticsService = async (
   userId: string,
@@ -10,7 +11,7 @@ export const generateRealTimeAnalyticsService = async (
   setAnalytics: (analytics: CachedAnalytics) => void
 ) => {
   if (!hasHealthProfile) {
-    toast.error('Заполните профиль здоровья для генерации аналитики');
+    console.log('No health profile, skipping analytics generation');
     return false;
   }
 
@@ -18,16 +19,20 @@ export const generateRealTimeAnalyticsService = async (
     console.log('Starting real-time analytics generation...');
 
     // Получаем все необходимые данные
-    const [healthProfileData, analysesData, chatsData] = await Promise.all([
+    const [rawHealthProfileData, analysesData, chatsData] = await Promise.all([
       fetchHealthProfileData(userId),
       fetchAnalysesData(userId),
       fetchChatsData(userId)
     ]);
 
+    // Обрабатываем профиль здоровья для правильной работы с пользовательскими значениями
+    const healthProfileData = prepareHealthProfileForAnalysis(rawHealthProfileData);
+
     console.log('Data fetched:', {
       hasProfile: !!healthProfileData,
       analysesCount: analysesData.length,
-      chatsCount: chatsData.length
+      chatsCount: chatsData.length,
+      processedProfile: healthProfileData
     });
 
     // Генерируем расширенную аналитику

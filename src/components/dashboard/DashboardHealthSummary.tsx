@@ -1,6 +1,9 @@
 
 import React, { useEffect, useRef } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent }
+
+
+ from "@/components/ui/card";
 import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 import { useHealthProfileStatus } from "@/hooks/useHealthProfileStatus";
 import HealthSummaryHeader from "./health-summary/HealthSummaryHeader";
@@ -23,13 +26,14 @@ const DashboardHealthSummary = () => {
   const { isComplete, completionPercentage } = useHealthProfileStatus();
   const hasGeneratedRef = useRef(false);
 
-  // Автоматически генерируем реальные данные при монтировании компонента только один раз
+  // Автоматически генерируем аналитику только при первой загрузке если нет данных
   useEffect(() => {
-    if (hasHealthProfile && hasAnalyses && !isLoading && !isGenerating && !hasGeneratedRef.current) {
+    if (hasHealthProfile && hasAnalyses && !analytics && !isLoading && !isGenerating && !hasGeneratedRef.current) {
       hasGeneratedRef.current = true;
+      console.log('Auto-generating initial analytics...');
       generateRealTimeAnalytics();
     }
-  }, [hasHealthProfile, hasAnalyses, isLoading, isGenerating, generateRealTimeAnalytics]);
+  }, [hasHealthProfile, hasAnalyses, analytics, isLoading, isGenerating, generateRealTimeAnalytics]);
 
   return (
     <Card>
@@ -66,7 +70,7 @@ const DashboardHealthSummary = () => {
             <div className="text-center py-4">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
               <p className="text-sm text-gray-600">
-                {isGenerating ? 'Генерируем расширенную аналитику здоровья...' : 'Загружаем данные...'}
+                {isGenerating ? 'Обновляем аналитику здоровья...' : 'Загружаем данные...'}
               </p>
             </div>
             <HealthSummaryLoading />
