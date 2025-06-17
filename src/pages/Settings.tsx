@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -10,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { User, Crown, Mail, Bell, Settings } from "lucide-react";
+import { User, Crown, Mail, Bell, Settings as SettingsIcon } from "lucide-react";
 import { toast } from "sonner";
 
 const Settings: React.FC = () => {
