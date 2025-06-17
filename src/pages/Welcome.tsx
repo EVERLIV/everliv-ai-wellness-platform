@@ -2,14 +2,14 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { useSmartAuth } from '@/hooks/useSmartAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { CheckCircle, ArrowRight, BookText, LineChart, User, Calendar } from 'lucide-react';
 import Header from '@/components/Header';
 import MinimalFooter from '@/components/MinimalFooter';
 import AuthGuard from '@/components/security/AuthGuard';
 
 const Welcome = () => {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const firstName = user?.user_metadata?.first_name || 'Пользователь';
   

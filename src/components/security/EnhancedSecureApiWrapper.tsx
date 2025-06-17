@@ -1,6 +1,6 @@
 
 import React, { ReactNode, useEffect, useState } from 'react';
-import { useSmartAuth } from '@/hooks/useSmartAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useSecurity } from './SecurityProvider';
 import { toast } from 'sonner';
 
@@ -23,7 +23,7 @@ export const EnhancedSecureApiWrapper: React.FC<EnhancedSecureApiWrapperProps> =
   rateLimit,
   onSecurityViolation
 }) => {
-  const { user, isLoading: authLoading } = useSmartAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { checkRateLimit, reportSecurityEvent } = useSecurity();
   const [isAuthorized, setIsAuthorized] = useState(false);
 

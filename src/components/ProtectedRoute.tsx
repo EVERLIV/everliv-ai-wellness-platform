@@ -1,5 +1,5 @@
 
-import { useSmartAuth } from '@/hooks/useSmartAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, isLoading } = useSmartAuth();
+  const { user, isLoading } = useAuth();
 
   console.log('🔒 ProtectedRoute check:', {
     user: !!user,

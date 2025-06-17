@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertCircle, Mail } from 'lucide-react';
-import { useSmartAuth } from '@/hooks/useSmartAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { InputSanitizer } from '@/utils/inputSanitizer';
 import { useSecureInput } from '@/hooks/useSecureInput';
@@ -18,7 +18,7 @@ const RegistrationForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [linkSent, setLinkSent] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  const { signUpWithMagicLink, isLoading } = useSmartAuth();
+  const { signUpWithMagicLink, isLoading } = useAuth();
 
   const validateEmail = (emailValue: string) => {
     if (!emailValue) {

@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { useRealtimeAnalyses } from '@/hooks/useRealtimeAnalyses';
-import { useSmartAuth } from '@/hooks/useSmartAuth';
+import { useAuth } from '@/contexts/AuthContext';
 
 const RealtimeNotifications: React.FC = () => {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
   
   // This hook handles showing toast notifications for new analyses
   useRealtimeAnalyses();
