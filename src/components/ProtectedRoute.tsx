@@ -1,3 +1,4 @@
+
 import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { Navigate } from 'react-router-dom';
 
@@ -10,8 +11,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   console.log('🔒 ProtectedRoute check:', {
     user: !!user,
+    userEmail: user?.email,
+    userNickname: user?.user_metadata?.nickname,
     isLoading,
-    hostname: window.location.hostname
+    hostname: window.location.hostname,
+    pathname: window.location.pathname
   });
 
   if (isLoading) {
@@ -24,11 +28,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!user) {
-    console.log('🔒 No user found, redirecting to login');
+    console.log('🔒 No user found, redirecting to login from:', window.location.pathname);
     return <Navigate to="/login" />;
   }
 
-  console.log('🔒 User authenticated, rendering children');
+  console.log('🔒 User authenticated, rendering children for:', user.email);
   return <>{children}</>;
 };
 

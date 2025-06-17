@@ -16,6 +16,20 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
     
     if (isDevelopmentMode()) {
       console.log('🔧 Development mode: Enhanced dev features available');
+      
+      // Проверяем, есть ли сохраненная dev сессия
+      const savedDevSession = localStorage.getItem('dev-auth-session');
+      if (savedDevSession) {
+        try {
+          const parsedSession = JSON.parse(savedDevSession);
+          console.log('🔧 Restoring saved dev session:', parsedSession.user.email);
+          setUser(parsedSession.user);
+          setSession(parsedSession);
+        } catch (error) {
+          console.error('🔧 Error restoring dev session:', error);
+          localStorage.removeItem('dev-auth-session');
+        }
+      }
     }
     
     setIsLoading(false);
@@ -26,6 +40,8 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
     if (!isDevelopmentMode()) {
       throw new Error('Dev admin login only available in development mode');
     }
+    
+    console.log('🔧 Creating dev admin user...');
     
     // Создаем фиктивного администратора для разработки
     const mockAdminUser: User = {
@@ -52,18 +68,25 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
     };
 
     const mockSession: Session = {
-      access_token: 'dev-access-token',
-      refresh_token: 'dev-refresh-token',
+      access_token: 'dev-access-token-' + Date.now(),
+      refresh_token: 'dev-refresh-token-' + Date.now(),
       expires_in: 3600,
       expires_at: Math.floor(Date.now() / 1000) + 3600,
       token_type: 'bearer',
       user: mockAdminUser
     };
 
+    // Сохраняем сессию в localStorage для персистентности
+    localStorage.setItem('dev-auth-session', JSON.stringify(mockSession));
+    
     setUser(mockAdminUser);
     setSession(mockSession);
     
-    console.log('🔧 Dev admin logged in:', mockAdminUser);
+    console.log('🔧 Dev admin logged in successfully:', {
+      user: mockAdminUser.email,
+      id: mockAdminUser.id,
+      nickname: mockAdminUser.user_metadata?.nickname
+    });
   };
 
   const signInWithMagicLink = async (email: string) => {
@@ -85,9 +108,11 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
   };
 
   const signOut = async () => {
+    console.log('🔧 Dev mode: Signing out...');
+    localStorage.removeItem('dev-auth-session');
     setUser(null);
     setSession(null);
-    console.log('🔧 Dev mode: Signed out');
+    console.log('🔧 Dev mode: Signed out successfully');
   };
 
   const resetPassword = async (email: string) => {
@@ -102,7 +127,12 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
     throw new Error('Password update not available in dev mode');
   };
 
-  console.log('🔧 DevAuthProvider rendering:', { user: !!user, session: !!session, isLoading });
+  console.log('🔧 DevAuthProvider state:', { 
+    user: user?.email, 
+    session: !!session, 
+    isLoading,
+    hasLocalStorage: !!localStorage.getItem('dev-auth-session')
+  });
 
   return (
     <DevAuthContext.Provider value={{

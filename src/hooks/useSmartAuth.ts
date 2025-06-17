@@ -8,17 +8,33 @@ import { AuthContextType } from '@/types/auth';
 export const useSmartAuth = (): AuthContextType => {
   const isDevMode = isDevelopmentMode();
   
-  // Пытаемся получить контексты
+  // Получаем оба контекста
   const authContext = useContext(AuthContext);
   const devAuthContext = useContext(DevAuthContext);
   
-  // В dev режиме приоритет DevAuthContext, если доступен
+  console.log('🔧 useSmartAuth check:', { 
+    isDevMode, 
+    hasAuthContext: !!authContext, 
+    hasDevAuthContext: !!devAuthContext,
+    devUser: devAuthContext?.user?.email,
+    authUser: authContext?.user?.email
+  });
+  
+  // В dev режиме приоритет DevAuthContext
   if (isDevMode && devAuthContext) {
+    console.log('🔧 Using DevAuthContext:', {
+      user: devAuthContext.user?.email,
+      hasSession: !!devAuthContext.session
+    });
     return devAuthContext;
   }
   
   // В prod режиме или если DevAuthContext недоступен, используем AuthContext
   if (authContext) {
+    console.log('🔧 Using AuthContext:', {
+      user: authContext.user?.email,
+      hasSession: !!authContext.session
+    });
     return authContext;
   }
   
