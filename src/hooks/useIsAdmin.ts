@@ -1,10 +1,11 @@
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { isDevelopmentMode } from "@/utils/devMode";
 
 export function useIsAdmin() {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -12,6 +13,13 @@ export function useIsAdmin() {
     async function checkAdminStatus() {
       if (!user) {
         setIsAdmin(false);
+        setIsLoading(false);
+        return;
+      }
+
+      // В dev режиме автоматически предоставляем админ права
+      if (isDevelopmentMode() && user.id === 'dev-admin-12345') {
+        setIsAdmin(true);
         setIsLoading(false);
         return;
       }

@@ -1,12 +1,11 @@
-
 import React from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { Navigate } from 'react-router-dom';
 import Home from './Home';
 import SEO from '@/components/SEO';
 
 const Index = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useSmartAuth();
 
   if (isLoading) {
     return (

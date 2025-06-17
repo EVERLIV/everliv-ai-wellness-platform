@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 import Header from "@/components/Header";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";
@@ -9,7 +8,7 @@ import DashboardHealthSummary from "@/components/dashboard/DashboardHealthSummar
 import MinimalFooter from "@/components/MinimalFooter";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
