@@ -2,6 +2,7 @@
 import { CachedAnalytics, AnalysisRecord, ChatRecord } from '@/types/analytics';
 import { EnhancedHealthAnalyzer, EnhancedHealthProfile } from '@/services/health-analytics/enhanced-health-analyzer';
 import { generateRecentActivities, checkRecentActivity } from './analytics/activityGenerator';
+import { supabase } from '@/integrations/supabase/client';
 
 const calculateAge = (dateOfBirth: string): number => {
   if (!dateOfBirth) return 30;
@@ -41,11 +42,27 @@ const processHealthProfileValue = (value: any): any => {
   return value;
 };
 
-// Улучшенная функция расчета детального балла здоровья
-const calculateDetailedHealthScore = (profile: EnhancedHealthProfile, analyses: AnalysisRecord[]): number => {
+// Улучшенная функция расчета детального балла здоровья с учетом динамических данных
+const calculateDetailedHealthScore = async (profile: EnhancedHealthProfile, analyses: AnalysisRecord[], userId: string): Promise<number> => {
   let baseScore = 50; // Базовый балл
   let scoreAdjustments = 0;
   
+  // Пытаемся получить данные из динамической системы трекинга
+  try {
+    const { data: dynamicScore } = await supabase.rpc('calculate_dynamic_health_score', {
+      user_id_param: userId,
+      days_back: 7
+    });
+    
+    if (dynamicScore && dynamicScore > 0) {
+      // Если есть динамические данные, используем их как основу
+      return Math.round(dynamicScore * 100) / 100;
+    }
+  } catch (error) {
+    console.log('Dynamic score not available, using static calculation');
+  }
+  
+  // Если динамических данных нет, используем статический расчет
   // Физическая активность (0-15 баллов)
   const activityScore = getActivityScore(profile.physicalActivity, profile.exerciseFrequency);
   scoreAdjustments += activityScore;
@@ -257,10 +274,11 @@ export const generateEnhancedAnalytics = async (
   analyses: AnalysisRecord[], 
   chats: ChatRecord[],
   hasHealthProfile: boolean = false,
-  healthProfileData?: any
+  healthProfileData?: any,
+  userId?: string
 ): Promise<CachedAnalytics | null> => {
   
-  if (!hasHealthProfile || !healthProfileData) {
+  if (!hasHealthProfile || !healthProfileData || !userId) {
     return null;
   }
 
@@ -304,8 +322,8 @@ export const generateEnhancedAnalytics = async (
 
     console.log('Processed enhanced profile:', enhancedProfile);
 
-    // Используем улучшенный расчет балла здоровья
-    const detailedHealthScore = calculateDetailedHealthScore(enhancedProfile, analyses);
+    // Используем улучшенный расчет балла здоровья с динамическими данными
+    const detailedHealthScore = await calculateDetailedHealthScore(enhancedProfile, analyses, userId);
     
     // Выполняем расширенный анализ здоровья
     const healthAnalysis = analyzer.calculateEnhancedHealthScore(enhancedProfile, analyses);
@@ -315,7 +333,7 @@ export const generateEnhancedAnalytics = async (
     const recentActivities = generateRecentActivities(analyses, chats);
 
     const analytics: CachedAnalytics = {
-      healthScore: detailedHealthScore, // Используем детальный балл
+      healthScore: detailedHealthScore, // Используем детальный балл (может быть динамическим)
       riskLevel: translateRiskLevel(healthAnalysis.riskLevel),
       riskDescription: generateRiskDescription(healthAnalysis),
       recommendations: healthAnalysis.recommendations.slice(0, 5).map(rec => rec.action),

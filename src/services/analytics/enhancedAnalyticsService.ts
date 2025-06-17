@@ -36,12 +36,13 @@ export const generateRealTimeAnalyticsService = async (
       processedProfile: healthProfileData
     });
 
-    // Генерируем расширенную аналитику
+    // Генерируем расширенную аналитику с передачей userId для динамического расчета
     const newAnalytics = await generateEnhancedAnalytics(
       analysesData,
       chatsData,
       true,
-      healthProfileData
+      healthProfileData,
+      userId // Передаем userId для возможности использования динамического расчета
     );
 
     if (!newAnalytics) {

@@ -139,6 +139,66 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_health_metrics: {
+        Row: {
+          activity_level: number | null
+          alcohol_units: number | null
+          cigarettes_count: number | null
+          created_at: string
+          date: string
+          exercise_minutes: number | null
+          id: string
+          mood_level: number | null
+          notes: string | null
+          nutrition_quality: number | null
+          sleep_hours: number | null
+          sleep_quality: number | null
+          steps: number | null
+          stress_level: number | null
+          updated_at: string
+          user_id: string
+          water_intake: number | null
+        }
+        Insert: {
+          activity_level?: number | null
+          alcohol_units?: number | null
+          cigarettes_count?: number | null
+          created_at?: string
+          date?: string
+          exercise_minutes?: number | null
+          id?: string
+          mood_level?: number | null
+          notes?: string | null
+          nutrition_quality?: number | null
+          sleep_hours?: number | null
+          sleep_quality?: number | null
+          steps?: number | null
+          stress_level?: number | null
+          updated_at?: string
+          user_id: string
+          water_intake?: number | null
+        }
+        Update: {
+          activity_level?: number | null
+          alcohol_units?: number | null
+          cigarettes_count?: number | null
+          created_at?: string
+          date?: string
+          exercise_minutes?: number | null
+          id?: string
+          mood_level?: number | null
+          notes?: string | null
+          nutrition_quality?: number | null
+          sleep_hours?: number | null
+          sleep_quality?: number | null
+          steps?: number | null
+          stress_level?: number | null
+          updated_at?: string
+          user_id?: string
+          water_intake?: number | null
+        }
+        Relationships: []
+      }
       doctor_specializations: {
         Row: {
           avg_consultation_duration: number | null
@@ -1119,6 +1179,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achieved_at: string
+          achievement_name: string
+          achievement_type: string
+          data: Json | null
+          description: string | null
+          id: string
+          points: number
+          user_id: string
+        }
+        Insert: {
+          achieved_at?: string
+          achievement_name: string
+          achievement_type: string
+          data?: Json | null
+          description?: string | null
+          id?: string
+          points?: number
+          user_id: string
+        }
+        Update: {
+          achieved_at?: string
+          achievement_name?: string
+          achievement_type?: string
+          data?: Json | null
+          description?: string | null
+          id?: string
+          points?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_analytics: {
         Row: {
           analytics_data: Json
@@ -1138,6 +1231,57 @@ export type Database = {
           analytics_data?: Json
           created_at?: string
           id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_health_goals: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          goal_type: string
+          id: string
+          is_active: boolean
+          start_date: string
+          target_exercise_minutes: number | null
+          target_sleep_hours: number | null
+          target_steps: number | null
+          target_stress_level: number | null
+          target_water_intake: number | null
+          target_weight: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          goal_type?: string
+          id?: string
+          is_active?: boolean
+          start_date?: string
+          target_exercise_minutes?: number | null
+          target_sleep_hours?: number | null
+          target_steps?: number | null
+          target_stress_level?: number | null
+          target_water_intake?: number | null
+          target_weight?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          goal_type?: string
+          id?: string
+          is_active?: boolean
+          start_date?: string
+          target_exercise_minutes?: number | null
+          target_sleep_hours?: number | null
+          target_steps?: number | null
+          target_stress_level?: number | null
+          target_water_intake?: number | null
+          target_weight?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -1253,6 +1397,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_dynamic_health_score: {
+        Args: { user_id_param: string; days_back?: number }
+        Returns: number
+      }
       has_role: {
         Args:
           | { _user_id: string; _role: Database["public"]["Enums"]["app_role"] }
