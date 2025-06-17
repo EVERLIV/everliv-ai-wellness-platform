@@ -1,21 +1,17 @@
 
-// Secure development mode utilities with strict controls
+import { isLovableDevelopment } from './environmentDetection';
+
+// Use the enhanced environment detection
 export const isDevelopmentMode = (): boolean => {
-  const hostname = window.location.hostname;
-  
-  // Only allow true localhost for development mode
-  const isDev = hostname === 'localhost' || hostname === '127.0.0.1';
-  
-  console.log('🔧 Dev mode check:', { hostname, isDev });
-  return isDev;
+  return isLovableDevelopment();
 };
 
 // Remove the ability to create fake users - security risk
 export const createDevUser = () => {
-  throw new Error('Development user creation disabled for security');
+  throw new Error('Use environmentDetection.ts for dev user creation');
 };
 
-// Remove the ability to create fake sessions - security risk
+// Remove the ability to create fake sessions - security risk  
 export const createDevSession = () => {
-  throw new Error('Development session creation disabled for security');
+  throw new Error('Use environmentDetection.ts for dev session creation');
 };

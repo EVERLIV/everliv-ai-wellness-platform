@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { isLovableDevelopment } from "@/utils/environmentDetection";
 import { supabase } from "@/integrations/supabase/client";
 
-export function useSecureAdminCheck() {
+export function useDevModeAdminCheck() {
   const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
@@ -29,7 +29,7 @@ export function useSecureAdminCheck() {
       }
 
       try {
-        // Check basic admin status
+        // Check basic admin status via Supabase for production users
         const { data: adminData, error: adminError } = await supabase.rpc('is_admin', {
           user_uuid: user.id
         });
@@ -42,7 +42,7 @@ export function useSecureAdminCheck() {
           const isAdminUser = adminData || false;
           setIsAdmin(isAdminUser);
           
-          // If user is admin, check for super admin status
+          // Check for super admin status
           if (isAdminUser) {
             const superAdminEmails = ['admin@example.com']; // Configure as needed
             setIsSuperAdmin(superAdminEmails.includes(user.email || ''));
