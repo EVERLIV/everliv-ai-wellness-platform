@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useProfile } from "@/hooks/useProfile";
 import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
 import SettingsHeader from "@/components/settings/SettingsHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,10 +17,10 @@ import { toast } from "sonner";
 const Settings: React.FC = () => {
   const { user } = useAuth();
   const { subscription } = useSubscription();
-  const [isUpdating, setIsUpdating] = useState(false);
+  const { profileData, updateProfile, isUpdating } = useProfile();
   
   const [userSettings, setUserSettings] = useState({
-    nickname: user?.user_metadata?.full_name || "",
+    nickname: "",
     email: user?.email || "",
     emailNotifications: true,
     pushNotifications: true,
@@ -27,16 +29,28 @@ const Settings: React.FC = () => {
     weeklyReports: true
   });
 
+  // Загружаем данные профиля при инициализации
+  useEffect(() => {
+    if (profileData) {
+      setUserSettings(prev => ({
+        ...prev,
+        nickname: profileData.nickname || profileData.first_name || user?.user_metadata?.full_name || ""
+      }));
+    }
+  }, [profileData, user]);
+
   const handleUpdateProfile = async () => {
-    setIsUpdating(true);
-    try {
-      // Here you would normally update the profile via Supabase
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    if (!userSettings.nickname.trim()) {
+      toast.error("Пожалуйста, введите никнейм");
+      return;
+    }
+
+    const success = await updateProfile({
+      nickname: userSettings.nickname.trim()
+    });
+
+    if (success) {
       toast.success("Настройки успешно сохранены");
-    } catch (error) {
-      toast.error("Ошибка сохранения настроек");
-    } finally {
-      setIsUpdating(false);
     }
   };
 

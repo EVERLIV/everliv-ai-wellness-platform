@@ -8,6 +8,7 @@ export interface ProfileData {
   id: string;
   first_name: string | null;
   last_name: string | null;
+  nickname: string | null;
   date_of_birth: string | null;
   gender: string | null;
   height: number | null;
@@ -36,12 +37,32 @@ export const useProfile = () => {
         .single();
 
       if (error) {
-        console.error("Error fetching profile:", error);
-        toast({
-          title: "Ошибка",
-          description: "Не удалось загрузить данные профиля",
-          variant: "destructive"
-        });
+        if (error.code === 'PGRST116') {
+          // Профиль не найден, создаем новый
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: user.id,
+              nickname: user.user_metadata?.nickname || user.user_metadata?.full_name || '',
+              first_name: user.user_metadata?.full_name || ''
+            })
+            .select()
+            .single();
+
+          if (createError) {
+            console.error("Error creating profile:", createError);
+            return;
+          }
+
+          setProfileData(newProfile as ProfileData);
+        } else {
+          console.error("Error fetching profile:", error);
+          toast({
+            title: "Ошибка",
+            description: "Не удалось загрузить данные профиля",
+            variant: "destructive"
+          });
+        }
         return;
       }
 

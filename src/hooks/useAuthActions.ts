@@ -38,16 +38,38 @@ export const useAuthActions = () => {
   const signUpWithMagicLink = async (email: string, userData: { nickname: string }) => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signUp({ 
+      
+      const { data, error } = await supabase.auth.signUp({ 
         email, 
         password: Math.random().toString(36), // Временный пароль, не используется
         options: {
-          data: userData,
+          data: {
+            full_name: userData.nickname,
+            nickname: userData.nickname
+          },
           emailRedirectTo: getAuthConfirmUrl()
         }
       });
       
       if (error) throw error;
+
+      // Если пользователь создан, создаем запись в профиле
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            nickname: userData.nickname,
+            first_name: userData.nickname
+          }, {
+            onConflict: 'id'
+          });
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          // Не прерываем процесс регистрации из-за ошибки профиля
+        }
+      }
 
       // Отправляем welcome email после успешной регистрации
       try {
