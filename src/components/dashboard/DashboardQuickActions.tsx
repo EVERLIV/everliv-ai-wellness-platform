@@ -46,7 +46,7 @@ const DashboardQuickActions = () => {
       icon: FileText,
       color: "text-red-600",
       bgColor: "bg-red-50",
-      href: "/blood-analysis"
+      href: "/lab-analyses"
     },
     {
       title: "Дневник питания",

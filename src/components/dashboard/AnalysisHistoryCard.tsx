@@ -31,7 +31,7 @@ const AnalysisHistoryCard = () => {
           <FileText className="h-10 w-10 mx-auto text-gray-300 mb-2" />
           <p>У вас пока нет загруженных анализов</p>
           {canAnalyzeBlood ? (
-            <Link to="/blood-analysis">
+            <Link to="/lab-analyses">
               <Button 
                 size="sm" 
                 className="mt-4 flex items-center gap-2"

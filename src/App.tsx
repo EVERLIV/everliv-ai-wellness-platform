@@ -188,12 +188,12 @@ const App = () => (
                       <BloodAnalysis />
                     </ProtectedRoute>
                   } />
-                  <Route path="/medical-analysis" element={
+                  <Route path="/lab-analyses" element={
                     <ProtectedRoute>
                       <LabAnalyses />
                     </ProtectedRoute>
                   } />
-                  <Route path="/analysis/:id" element={
+                  <Route path="/analysis-details" element={
                     <ProtectedRoute>
                       <AnalysisDetails />
                     </ProtectedRoute>

@@ -34,7 +34,7 @@ const QuickActionsCard = () => {
               Мой профиль
             </Button>
           </Link>
-          <Link to="/blood-analysis">
+          <Link to="/lab-analyses">
             <Button variant="outline" className="w-full justify-start">
               <FileText className="h-4 w-4 mr-2" />
               Анализ крови
