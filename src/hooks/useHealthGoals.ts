@@ -45,8 +45,10 @@ export const useHealthGoals = () => {
 
       if (error) throw error;
       
-      setGoals(data || []);
-      const active = data?.find(goal => goal.is_active);
+      // Type assertion для приведения данных из Supabase к нашему типу
+      const typedGoals = (data || []) as HealthGoal[];
+      setGoals(typedGoals);
+      const active = typedGoals.find(goal => goal.is_active);
       setActiveGoal(active || null);
     } catch (error) {
       console.error('Error loading goals:', error);
