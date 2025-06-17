@@ -9,7 +9,7 @@ import {
   MessageSquare, 
   FileText, 
   Utensils, 
-  Calendar,
+  BookOpen,
   TrendingUp,
   Heart
 } from "lucide-react";
@@ -18,7 +18,7 @@ const DashboardQuickActions = () => {
   const quickActions = [
     {
       title: "Аналитика здоровья",
-      description: "Просмотр подробной аналитики здоровья",
+      description: "Получите персонализированную аналитику ваших биомаркеров, тенденций здоровья и рекомендаций на основе загруженных анализов",
       icon: BarChart3,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
@@ -26,7 +26,7 @@ const DashboardQuickActions = () => {
     },
     {
       title: "Профиль здоровья",
-      description: "Управление профилем здоровья",
+      description: "Создайте детальный профиль с информацией о вашем образе жизни, хронических заболеваниях и целях здоровья",
       icon: User,
       color: "text-green-600",
       bgColor: "bg-green-50",
@@ -34,7 +34,7 @@ const DashboardQuickActions = () => {
     },
     {
       title: "Доктор EVERLIV",
-      description: "Консультация с ИИ-врачом",
+      description: "Персональный ИИ-консультант, обученный на медицинских данных для ответов на вопросы о здоровье и самочувствии",
       icon: MessageSquare,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
@@ -42,7 +42,7 @@ const DashboardQuickActions = () => {
     },
     {
       title: "Анализ крови",
-      description: "Загрузка и анализ результатов",
+      description: "Загрузите результаты анализов крови для получения интерпретации биомаркеров и рекомендаций по улучшению показателей",
       icon: FileText,
       color: "text-red-600",
       bgColor: "bg-red-50",
@@ -50,19 +50,19 @@ const DashboardQuickActions = () => {
     },
     {
       title: "Дневник питания",
-      description: "Отслеживание питания и калорий",
+      description: "Отслеживайте калории, макронутриенты и получайте персональные рекомендации по питанию на основе ваших целей",
       icon: Utensils,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
       href: "/nutrition-diary"
     },
     {
-      title: "Мои протоколы",
-      description: "Персональные протоколы здоровья",
-      icon: Calendar,
+      title: "База Знаний",
+      description: "Научные статьи, медицинские исследования и экспертные материалы по вопросам здоровья и долголетия",
+      icon: BookOpen,
       color: "text-indigo-600",
       bgColor: "bg-indigo-50",
-      href: "/protocols"
+      href: "/medical-knowledge"
     }
   ];
 
@@ -79,7 +79,7 @@ const DashboardQuickActions = () => {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <p className="text-sm text-gray-600 mb-4">{action.description}</p>
+            <p className="text-sm text-gray-600 mb-4 leading-relaxed">{action.description}</p>
             <Link to={action.href}>
               <Button className="w-full" size="sm">
                 Перейти

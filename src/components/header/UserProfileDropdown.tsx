@@ -54,11 +54,11 @@ const UserProfileDropdown: React.FC = () => {
       }
     }
     
-    return null;
+    return 'Базовый'; // Показываем "Базовый" как план по умолчанию
   };
 
   const currentPlan = getCurrentPlan();
-  const hasActiveSubscription = currentPlan && currentPlan !== "Загрузка...";
+  const hasActiveSubscription = currentPlan && currentPlan !== "Загрузка..." && currentPlan !== "Базовый";
 
   return (
     <DropdownMenu>
@@ -78,12 +78,12 @@ const UserProfileDropdown: React.FC = () => {
             <p className="text-xs leading-none text-muted-foreground">
               {user?.email}
             </p>
-            {hasActiveSubscription && (
-              <div className="flex items-center gap-1 mt-1">
-                <Crown className="h-3 w-3 text-amber-600" />
-                <span className="text-xs text-amber-600 font-medium">{currentPlan}</span>
-              </div>
-            )}
+            <div className="flex items-center gap-1 mt-1">
+              {hasActiveSubscription && <Crown className="h-3 w-3 text-amber-600" />}
+              <span className={`text-xs font-medium ${hasActiveSubscription ? 'text-amber-600' : 'text-gray-500'}`}>
+                {currentPlan}
+              </span>
+            </div>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
