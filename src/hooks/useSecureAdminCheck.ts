@@ -34,23 +34,10 @@ export function useSecureAdminCheck() {
           
           // If user is admin, check for super admin status
           if (isAdminUser) {
-            // For now, we'll implement a simple check - you can enhance this later
-            // Check if user has super_admin role or is in a super_admins table
-            const { data: superAdminData, error: superAdminError } = await supabase
-              .from('user_roles')
-              .select('role')
-              .eq('user_id', user.id)
-              .eq('role', 'super_admin')
-              .single();
-            
-            if (!superAdminError && superAdminData) {
-              setIsSuperAdmin(true);
-            } else {
-              // Fallback: check if user email is in a predefined super admin list
-              // You can configure this based on your needs
-              const superAdminEmails = ['admin@example.com']; // Configure as needed
-              setIsSuperAdmin(superAdminEmails.includes(user.email || ''));
-            }
+            // Check if user email is in a predefined super admin list
+            // You can configure this based on your needs
+            const superAdminEmails = ['admin@example.com']; // Configure as needed
+            setIsSuperAdmin(superAdminEmails.includes(user.email || ''));
           } else {
             setIsSuperAdmin(false);
           }
