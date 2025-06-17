@@ -7,7 +7,7 @@ import MinimalFooter from '@/components/MinimalFooter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { AlertCircle, Mail } from 'lucide-react';
 
 const MagicLinkLoginPage = () => {
@@ -15,7 +15,7 @@ const MagicLinkLoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [linkSent, setLinkSent] = useState(false);
-  const { signInWithMagicLink, user } = useAuth();
+  const { signInWithMagicLink, user } = useSmartAuth();
 
   // Redirect if already logged in
   if (user) {

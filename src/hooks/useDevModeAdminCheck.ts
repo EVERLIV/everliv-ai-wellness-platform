@@ -1,11 +1,11 @@
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { isLovableDevelopment } from "@/utils/environmentDetection";
 import { supabase } from "@/integrations/supabase/client";
 
 export function useDevModeAdminCheck() {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

@@ -6,13 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Mail } from 'lucide-react';
 import AuthLayout from '@/components/AuthLayout';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [linkSent, setLinkSent] = useState(false);
-  const { signInWithMagicLink, isLoading, user } = useAuth();
+  const { signInWithMagicLink, isLoading, user } = useSmartAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

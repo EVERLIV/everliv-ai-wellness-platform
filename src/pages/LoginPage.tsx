@@ -7,14 +7,14 @@ import MinimalFooter from '@/components/MinimalFooter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { AlertCircle } from 'lucide-react';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { signInWithMagicLink } = useAuth();
+  const { signInWithMagicLink } = useSmartAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
