@@ -4,6 +4,7 @@ import { CachedAnalytics } from "@/types/analytics";
 import { generateEnhancedAnalytics } from "@/utils/enhancedAnalyticsGenerator";
 import { fetchHealthProfileData, fetchAnalysesData, fetchChatsData, saveAnalyticsToDatabase } from "./analyticsDataService";
 import { prepareHealthProfileForAnalysis } from "@/utils/healthProfileUtils";
+import { ensureAnalyticsConsistency, logAnalyticsDifferences } from "@/utils/analyticsConsistency";
 
 export const generateRealTimeAnalyticsService = async (
   userId: string,
@@ -16,7 +17,7 @@ export const generateRealTimeAnalyticsService = async (
   }
 
   try {
-    console.log('Starting real-time analytics generation...');
+    console.log('Starting real-time analytics generation for user:', userId);
 
     // Получаем все необходимые данные
     const [rawHealthProfileData, analysesData, chatsData] = await Promise.all([
@@ -28,7 +29,7 @@ export const generateRealTimeAnalyticsService = async (
     // Обрабатываем профиль здоровья для правильной работы с пользовательскими значениями
     const healthProfileData = prepareHealthProfileForAnalysis(rawHealthProfileData);
 
-    console.log('Data fetched:', {
+    console.log('Data fetched for user:', userId, {
       hasProfile: !!healthProfileData,
       analysesCount: analysesData.length,
       chatsCount: chatsData.length,
@@ -47,17 +48,23 @@ export const generateRealTimeAnalyticsService = async (
       throw new Error('Не удалось сгенерировать аналитику');
     }
 
-    console.log('Generated analytics:', newAnalytics);
+    // Обеспечиваем согласованность данных
+    const consistentAnalytics = ensureAnalyticsConsistency(newAnalytics);
+
+    console.log('Generated consistent analytics for user:', userId, consistentAnalytics);
+
+    // Логируем для отладки различий
+    logAnalyticsDifferences('enhancedAnalyticsService', consistentAnalytics, userId);
 
     // Сохраняем в базу данных
-    await saveAnalyticsToDatabase(userId, newAnalytics);
+    await saveAnalyticsToDatabase(userId, consistentAnalytics);
     
-    setAnalytics(newAnalytics);
+    setAnalytics(consistentAnalytics);
     toast.success('Аналитика здоровья обновлена');
     
     return true;
   } catch (error) {
-    console.error('Error generating real-time analytics:', error);
+    console.error('Error generating real-time analytics for user:', userId, error);
     toast.error(error instanceof Error ? error.message : 'Ошибка генерации аналитики');
     return false;
   }

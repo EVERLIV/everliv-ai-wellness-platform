@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { CachedAnalytics } from "@/types/analytics";
+import { ensureAnalyticsConsistency, logAnalyticsDifferences } from "@/utils/analyticsConsistency";
 
 export const useAnalyticsData = () => {
   const { user } = useAuth();
@@ -35,8 +36,13 @@ export const useAnalyticsData = () => {
       }
 
       if (data?.analytics_data) {
-        const analyticsData = data.analytics_data as unknown as CachedAnalytics;
-        setAnalytics(analyticsData);
+        const rawAnalytics = data.analytics_data as unknown as CachedAnalytics;
+        const consistentAnalytics = ensureAnalyticsConsistency(rawAnalytics);
+        
+        // Логируем данные для отладки
+        logAnalyticsDifferences('useAnalyticsData', consistentAnalytics, user.id);
+        
+        setAnalytics(consistentAnalytics);
       }
     } catch (error) {
       console.error('Unexpected error loading analytics:', error);
@@ -45,10 +51,21 @@ export const useAnalyticsData = () => {
     }
   };
 
+  const setAnalyticsWithConsistency = (newAnalytics: CachedAnalytics) => {
+    const consistentAnalytics = ensureAnalyticsConsistency(newAnalytics);
+    
+    // Логируем данные для отладки
+    if (user) {
+      logAnalyticsDifferences('setAnalytics', consistentAnalytics, user.id);
+    }
+    
+    setAnalytics(consistentAnalytics);
+  };
+
   return {
     analytics,
     isLoading,
-    setAnalytics,
+    setAnalytics: setAnalyticsWithConsistency,
     refreshAnalytics: loadCachedAnalytics
   };
 };

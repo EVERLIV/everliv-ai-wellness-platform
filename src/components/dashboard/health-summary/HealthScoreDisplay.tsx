@@ -36,6 +36,11 @@ const HealthScoreDisplay: React.FC<HealthScoreDisplayProps> = ({ analytics }) =>
 
   const translatedRiskLevel = translateRiskLevel(analytics.riskLevel);
 
+  // Форматируем балл здоровья с точностью до 2 знаков после запятой
+  const formattedHealthScore = typeof analytics.healthScore === 'number' 
+    ? analytics.healthScore.toFixed(2) 
+    : (analytics.healthScore || 0);
+
   return (
     <>
       <div className="grid grid-cols-2 gap-4 mb-6">
@@ -53,7 +58,7 @@ const HealthScoreDisplay: React.FC<HealthScoreDisplayProps> = ({ analytics }) =>
         </div>
       </div>
 
-      {/* Балл здоровья */}
+      {/* Детальный балл здоровья */}
       <div className="mb-4 p-3 rounded-lg border bg-blue-50 border-blue-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -64,14 +69,22 @@ const HealthScoreDisplay: React.FC<HealthScoreDisplayProps> = ({ analytics }) =>
                   <HelpCircle className="h-4 w-4 text-blue-600" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="max-w-xs">{analytics.scoreExplanation || 'Балл рассчитывается на основе профиля здоровья'}</p>
+                  <p className="max-w-xs">{analytics.scoreExplanation || 'Детальный балл рассчитывается на основе множества факторов: физической активности, питания, сна, стресса, вредных привычек и медицинских показателей'}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
           <span className="text-lg font-bold text-blue-600">
-            {analytics.healthScore || 0}/100
+            {formattedHealthScore}/100
           </span>
+        </div>
+        <div className="mt-2">
+          <div className="w-full bg-blue-200 rounded-full h-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+              style={{ width: `${Math.min(100, Math.max(0, parseFloat(formattedHealthScore.toString())))}%` }}
+            ></div>
+          </div>
         </div>
       </div>
 

@@ -5,11 +5,19 @@ export const processHealthProfileValue = (fieldName: string, value: any, customV
     return customValue;
   }
   
+  // Переводим "other" на русский язык, если нет кастомного значения
+  if (value === 'other') {
+    return 'Другое';
+  }
+  
   // Для массивов обрабатываем каждый элемент
   if (Array.isArray(value)) {
     return value.map(item => {
       if (typeof item === 'object' && item.value === 'other' && item.customValue) {
         return item.customValue;
+      }
+      if (typeof item === 'object' && item.value === 'other') {
+        return 'Другое';
       }
       return typeof item === 'object' ? item.value || item : item;
     });
@@ -51,4 +59,33 @@ export const prepareHealthProfileForAnalysis = (healthProfile: any): any => {
   });
   
   return processedProfile;
+};
+
+// Новая функция для отображения значений в UI
+export const displayHealthProfileValue = (value: any): string => {
+  if (value === 'other') {
+    return 'Другое';
+  }
+  
+  if (Array.isArray(value)) {
+    return value.map(item => {
+      if (typeof item === 'object' && item.value === 'other') {
+        return item.customValue || 'Другое';
+      }
+      if (typeof item === 'object') {
+        return item.customValue || item.value || item;
+      }
+      return item === 'other' ? 'Другое' : item;
+    }).join(', ');
+  }
+  
+  if (typeof value === 'object' && value.value === 'other') {
+    return value.customValue || 'Другое';
+  }
+  
+  if (typeof value === 'object') {
+    return value.customValue || value.value || value;
+  }
+  
+  return value;
 };
