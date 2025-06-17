@@ -1,44 +1,21 @@
 
-// Утилита для определения development окружения
+// Secure development mode utilities with strict controls
 export const isDevelopmentMode = (): boolean => {
   const hostname = window.location.hostname;
-  const isDev = hostname === 'localhost' || 
-                hostname === '127.0.0.1' ||
-                hostname.includes('preview--') ||
-                hostname.includes('.lovable.app') ||
-                hostname === 'int.everliv.online'; // Добавляем новый домен
+  
+  // Only allow true localhost for development mode
+  const isDev = hostname === 'localhost' || hostname === '127.0.0.1';
   
   console.log('🔧 Dev mode check:', { hostname, isDev });
   return isDev;
 };
 
-// Создаем фиктивного пользователя для разработки
+// Remove the ability to create fake users - security risk
 export const createDevUser = () => {
-  return {
-    id: 'dev-user-123',
-    email: 'dev@test.com',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    email_confirmed_at: new Date().toISOString(),
-    last_sign_in_at: new Date().toISOString(),
-    aud: 'authenticated',
-    role: 'authenticated',
-    user_metadata: {
-      nickname: 'Dev User'
-    },
-    app_metadata: {}
-  };
+  throw new Error('Development user creation disabled for security');
 };
 
-// Создаем фиктивную сессию для разработки
+// Remove the ability to create fake sessions - security risk
 export const createDevSession = () => {
-  const user = createDevUser();
-  return {
-    access_token: 'dev-access-token',
-    refresh_token: 'dev-refresh-token',
-    expires_in: 3600,
-    expires_at: Math.floor(Date.now() / 1000) + 3600,
-    token_type: 'bearer',
-    user: user
-  };
+  throw new Error('Development session creation disabled for security');
 };

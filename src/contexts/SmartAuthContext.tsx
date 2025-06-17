@@ -2,7 +2,6 @@
 import React from 'react';
 import { isDevelopmentMode } from '@/utils/devMode';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { DevAuthProvider } from '@/contexts/DevAuthContext';
 
 interface SmartAuthProviderProps {
   children: React.ReactNode;
@@ -10,13 +9,9 @@ interface SmartAuthProviderProps {
 
 export const SmartAuthProvider = ({ children }: SmartAuthProviderProps) => {
   const isDevMode = isDevelopmentMode();
-  console.log('🔧 SmartAuthProvider: Dev mode detected?', isDevMode);
+  console.log('🔧 SmartAuthProvider: Always using production auth for security');
   
-  if (isDevMode) {
-    console.log('🔧 Using DevAuthProvider');
-    return <DevAuthProvider>{children}</DevAuthProvider>;
-  }
-  
-  console.log('🔧 Using regular AuthProvider');
+  // Always use production authentication for security
+  console.log('🔧 Using secure AuthProvider');
   return <AuthProvider>{children}</AuthProvider>;
 };

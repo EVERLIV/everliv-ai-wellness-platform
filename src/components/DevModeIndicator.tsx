@@ -2,7 +2,7 @@
 import React from 'react';
 import { isDevelopmentMode } from '@/utils/devMode';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Settings } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 const DevModeIndicator = () => {
   if (!isDevelopmentMode()) {
@@ -10,10 +10,10 @@ const DevModeIndicator = () => {
   }
 
   return (
-    <Alert className="fixed top-0 left-0 right-0 z-50 bg-yellow-100 border-yellow-400 text-yellow-800 rounded-none">
-      <Settings className="h-4 w-4" />
+    <Alert className="fixed top-0 left-0 right-0 z-50 bg-red-100 border-red-400 text-red-800 rounded-none">
+      <Shield className="h-4 w-4" />
       <AlertDescription className="text-center">
-        🔧 Режим разработки: Вы автоматически авторизованы как тестовый пользователь
+        🔒 Development Mode: Enhanced security enabled - Authentication required
       </AlertDescription>
     </Alert>
   );

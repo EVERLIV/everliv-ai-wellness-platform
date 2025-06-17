@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { isDevelopmentMode, createDevUser, createDevSession } from '@/utils/devMode';
+import { isDevelopmentMode } from '@/utils/devMode';
 import { AuthContextType } from '@/types/auth';
 
 const DevAuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -12,66 +12,43 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log('🔧 DevAuthProvider mounted');
+    console.log('🔧 DevAuthProvider mounted - SECURITY: No auto-auth in dev mode');
+    
+    // Remove automatic authentication bypass for security
     if (isDevelopmentMode()) {
-      // В dev режиме автоматически авторизуем пользователя
-      const devUser = createDevUser() as User;
-      const devSession = createDevSession() as Session;
-      
-      console.log('🔧 Setting dev user and session:', { devUser, devSession });
-      setUser(devUser);
-      setSession(devSession);
+      console.log('🔧 Development mode: Authentication required');
       setIsLoading(false);
-      
-      console.log('🔧 Development mode: Auto-authorized as test user');
     } else {
       setIsLoading(false);
     }
   }, []);
 
-  // Заглушки для dev режима
+  // Remove all authentication bypasses
   const signInWithMagicLink = async (email: string) => {
-    if (isDevelopmentMode()) {
-      console.log('🔧 Dev mode: Magic link simulated for', email);
-      return Promise.resolve();
-    }
-    throw new Error('Not implemented in dev auth context');
+    throw new Error('Use production authentication context');
   };
 
   const signUpWithMagicLink = async (email: string, userData: { nickname: string }) => {
-    if (isDevelopmentMode()) {
-      console.log('🔧 Dev mode: Signup simulated for', email);
-      return Promise.resolve();
-    }
-    throw new Error('Not implemented in dev auth context');
+    throw new Error('Use production authentication context');
   };
 
   const signOut = async () => {
-    if (isDevelopmentMode()) {
-      setUser(null);
-      setSession(null);
-      console.log('🔧 Dev mode: Signed out');
-      return Promise.resolve();
-    }
-    throw new Error('Not implemented in dev auth context');
+    throw new Error('Use production authentication context');
   };
 
   const resetPassword = async (email: string) => {
-    console.log('🔧 Dev mode: Password reset simulated for', email);
-    return Promise.resolve();
+    throw new Error('Use production authentication context');
   };
 
   const signIn = async (email: string, password: string) => {
-    console.log('🔧 Dev mode: Sign in simulated for', email);
-    return Promise.resolve();
+    throw new Error('Use production authentication context');
   };
 
   const updatePassword = async (password: string) => {
-    console.log('🔧 Dev mode: Password update simulated');
-    return Promise.resolve();
+    throw new Error('Use production authentication context');
   };
 
-  console.log('🔧 DevAuthProvider rendering with:', { user: !!user, session: !!session, isLoading });
+  console.log('🔧 DevAuthProvider rendering with security enabled:', { user: !!user, session: !!session, isLoading });
 
   return (
     <DevAuthContext.Provider value={{
