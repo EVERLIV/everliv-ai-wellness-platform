@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -98,7 +97,8 @@ export const useHealthProfile = () => {
           return;
         }
 
-        setHealthProfile(data?.profile_data || null);
+        // Исправление типизации: приведение Json к HealthProfileData
+        setHealthProfile(data?.profile_data ? data.profile_data as HealthProfileData : null);
 
       } catch (error) {
         console.error('Error fetching health profile:', error);
@@ -121,11 +121,12 @@ export const useHealthProfile = () => {
     if (!user || !healthProfile) return;
 
     try {
+      // Исправление типизации: приведение HealthProfileData к Json
       const { error } = await supabase
         .from('health_profiles')
         .upsert({
           user_id: user.id,
-          profile_data: healthProfile
+          profile_data: healthProfile as any
         });
 
       if (error) {
