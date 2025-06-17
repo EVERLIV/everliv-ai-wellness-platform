@@ -175,52 +175,62 @@ export const useActivityFeed = () => {
     }
   }, [user]);
 
-  // Подписываемся на обновления в реальном времени
+  // Подписываемся на обновления в реальном времени с уникальными именами каналов
   useEffect(() => {
     if (!user) return;
 
     const channels: any[] = [];
 
-    // Подписка на анализы
-    const analysesChannel = supabase
-      .channel(`analyses_${user.id}`)
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'medical_analyses', filter: `user_id=eq.${user.id}` },
-        () => fetchActivities()
-      )
-      .subscribe();
+    try {
+      // Подписка на анализы
+      const analysesChannel = supabase
+        .channel(`activity_analyses_${user.id}_${Date.now()}`)
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'medical_analyses', filter: `user_id=eq.${user.id}` },
+          () => fetchActivities()
+        )
+        .subscribe();
 
-    // Подписка на записи о питании  
-    const foodChannel = supabase
-      .channel(`food_${user.id}`)
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'food_entries', filter: `user_id=eq.${user.id}` },
-        () => fetchActivities()
-      )
-      .subscribe();
+      // Подписка на записи о питании  
+      const foodChannel = supabase
+        .channel(`activity_food_${user.id}_${Date.now()}`)
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'food_entries', filter: `user_id=eq.${user.id}` },
+          () => fetchActivities()
+        )
+        .subscribe();
 
-    // Подписка на чаты
-    const chatsChannel = supabase
-      .channel(`chats_${user.id}`)
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'ai_doctor_chats', filter: `user_id=eq.${user.id}` },
-        () => fetchActivities()
-      )
-      .subscribe();
+      // Подписка на чаты
+      const chatsChannel = supabase
+        .channel(`activity_chats_${user.id}_${Date.now()}`)
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'ai_doctor_chats', filter: `user_id=eq.${user.id}` },
+          () => fetchActivities()
+        )
+        .subscribe();
 
-    // Подписка на профиль
-    const profileChannel = supabase
-      .channel(`profile_${user.id}`)
-      .on('postgres_changes',
-        { event: '*', schema: 'public', table: 'health_profiles', filter: `user_id=eq.${user.id}` },
-        () => fetchActivities()
-      )
-      .subscribe();
+      // Подписка на профиль
+      const profileChannel = supabase
+        .channel(`activity_profile_${user.id}_${Date.now()}`)
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'health_profiles', filter: `user_id=eq.${user.id}` },
+          () => fetchActivities()
+        )
+        .subscribe();
 
-    channels.push(analysesChannel, foodChannel, chatsChannel, profileChannel);
+      channels.push(analysesChannel, foodChannel, chatsChannel, profileChannel);
+    } catch (error) {
+      console.error('Error setting up realtime subscriptions:', error);
+    }
 
     return () => {
-      channels.forEach(channel => supabase.removeChannel(channel));
+      channels.forEach(channel => {
+        try {
+          supabase.removeChannel(channel);
+        } catch (error) {
+          console.error('Error removing channel:', error);
+        }
+      });
     };
   }, [user]);
 

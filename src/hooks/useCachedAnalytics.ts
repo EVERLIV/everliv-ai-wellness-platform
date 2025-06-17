@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHealthProfileStatus } from "./useHealthProfileStatus";
 import { useAnalyticsData } from "./useAnalyticsData";
@@ -14,17 +14,22 @@ export const useCachedAnalytics = () => {
   const { analytics, isLoading, setAnalytics } = useAnalyticsData();
   const { hasAnalyses } = useAnalysesStatus();
   const [isGenerating, setIsGenerating] = useState(false);
+  const subscriptionRef = useRef(false);
 
-  // Подписываемся на изменения в реальном времени
+  // Подписываемся на изменения в реальном времени только один раз
   useEffect(() => {
-    if (!user || !hasHealthProfile) return;
+    if (!user || !hasHealthProfile || subscriptionRef.current) return;
 
     console.log('Setting up realtime analytics for user:', user.id);
     
     realtimeAnalyticsService.subscribeToUserChanges(user.id, setAnalytics);
+    subscriptionRef.current = true;
 
     return () => {
-      realtimeAnalyticsService.unsubscribeFromUserChanges(user.id);
+      if (subscriptionRef.current) {
+        realtimeAnalyticsService.unsubscribeFromUserChanges(user.id);
+        subscriptionRef.current = false;
+      }
     };
   }, [user, hasHealthProfile, setAnalytics]);
 
