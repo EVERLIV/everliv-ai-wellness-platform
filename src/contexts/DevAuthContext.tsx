@@ -4,7 +4,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { isDevelopmentMode } from '@/utils/devMode';
 import { AuthContextType } from '@/types/auth';
 
-const DevAuthContext = createContext<AuthContextType | undefined>(undefined);
+export const DevAuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
