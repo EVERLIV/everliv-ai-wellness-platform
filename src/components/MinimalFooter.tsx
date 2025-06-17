@@ -3,6 +3,7 @@ import React from 'react';
 
 const MinimalFooter = () => {
   const currentYear = new Date().getFullYear();
+  const version = "1.0.1"; // Версия разработки
   
   return (
     <footer className="bg-white border-t border-gray-100 py-3">
@@ -12,8 +13,10 @@ const MinimalFooter = () => {
             <span className="text-primary font-medium">EVERLIV</span>
             <span>© {currentYear}</span>
           </div>
-          <div className="text-center sm:text-right">
+          <div className="flex items-center gap-2 text-center sm:text-right">
             <span>Платформа для здоровья на базе ИИ</span>
+            <span className="text-gray-300">•</span>
+            <span className="font-mono text-gray-500">v{version}</span>
           </div>
         </div>
       </div>
