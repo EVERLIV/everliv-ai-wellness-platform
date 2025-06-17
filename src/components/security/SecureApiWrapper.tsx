@@ -1,6 +1,6 @@
 
 import { ReactNode, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { InputSanitizer } from '@/utils/inputSanitizer';
 
 interface SecureApiWrapperProps {
@@ -14,7 +14,7 @@ export const SecureApiWrapper = ({
   requireAuth = true, 
   allowedActions = [] 
 }: SecureApiWrapperProps) => {
-  const { user, session } = useAuth();
+  const { user, session } = useSmartAuth();
 
   useEffect(() => {
     // Security monitoring

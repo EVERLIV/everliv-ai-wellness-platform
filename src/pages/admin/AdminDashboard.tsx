@@ -1,12 +1,12 @@
 
 import React from "react";
 import { useSecureAdminCheck } from "@/hooks/useSecureAdminCheck";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { Navigate } from "react-router-dom";
 import AdminOverview from "@/components/admin/dashboard/AdminOverview";
 
 const AdminDashboard = () => {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useSmartAuth();
   const { isAdmin, isLoading: adminLoading } = useSecureAdminCheck();
 
   // Wait for both auth and admin checks to complete

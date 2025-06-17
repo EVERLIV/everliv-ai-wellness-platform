@@ -1,7 +1,7 @@
 
 import { ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { useSecureAdminCheck } from '@/hooks/useSecureAdminCheck';
 import { toast } from 'sonner';
 
@@ -16,7 +16,7 @@ export const AdminSecurityGuard = ({
   requireSuperAdmin = false,
   redirectTo = '/dashboard' 
 }: AdminSecurityGuardProps) => {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useSmartAuth();
   const { isAdmin, isSuperAdmin, isLoading: adminLoading } = useSecureAdminCheck();
   const navigate = useNavigate();
 
