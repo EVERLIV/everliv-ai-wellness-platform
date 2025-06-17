@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -35,6 +34,7 @@ import AdminNutrition from "./pages/admin/AdminNutrition";
 import AdminHealthProfiles from "./pages/admin/AdminHealthProfiles";
 import AdminHealthRecommendations from "./pages/admin/AdminHealthRecommendations";
 import AdminSettings from "./pages/admin/AdminSettings";
+import Settings from "./pages/Settings";
 
 // Import additional pages
 import Home from "./pages/Home";
@@ -175,7 +175,7 @@ const App = () => (
                   } />
                   <Route path="/settings" element={
                     <ProtectedRoute>
-                      <UserProfile />
+                      <Settings />
                     </ProtectedRoute>
                   } />
                   <Route path="/health-profile" element={
