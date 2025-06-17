@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import RestrictedServicePlaceholder from '@/components/RestrictedServicePlaceholder';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { Navigate } from 'react-router-dom';
 
 const serviceInfo: Record<string, { name: string; description: string }> = {
@@ -28,7 +28,7 @@ const serviceInfo: Record<string, { name: string; description: string }> = {
 
 const RestrictedService = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   
   // If user is logged in, redirect to dashboard
   if (user) {

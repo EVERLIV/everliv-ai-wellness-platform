@@ -1,6 +1,6 @@
 
 import { ReactNode } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { 
   Card, 
   CardContent,
@@ -25,7 +25,7 @@ const AIFeatureAccess = ({
   description,
   children 
 }: AIFeatureAccessProps) => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const navigate = useNavigate();
   
   // Если пользователь не авторизован, показываем предложение войти
