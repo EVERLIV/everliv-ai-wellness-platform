@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit3, Heart, Activity, Brain, Apple, Moon, Stethoscope } from "lucide-react";
-import { HealthProfileData } from "@/hooks/useHealthProfile";
+import { HealthProfileData } from "@/types/healthProfile";
 import { translateValue } from "@/utils/healthProfileTranslations";
 
 interface HealthProfileDisplayProps {

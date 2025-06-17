@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Save, X, Heart, Activity, Brain, Apple, Moon, Stethoscope } from "lucide-react";
-import { HealthProfileData } from "@/hooks/useHealthProfile";
+import { HealthProfileData } from "@/types/healthProfile";
 import MedicalHistorySection from "./MedicalHistorySection";
 
 interface HealthProfileEditFormProps {

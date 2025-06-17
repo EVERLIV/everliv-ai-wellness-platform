@@ -1,5 +1,5 @@
 
-import { HealthProfileData } from '@/hooks/useHealthProfile';
+import { HealthProfileData } from '@/types/healthProfile';
 import { Supplement } from '@/types/detailedRecommendations';
 
 export const generateSupplementRecommendations = (healthProfile?: HealthProfileData): Supplement[] => {

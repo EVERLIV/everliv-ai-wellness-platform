@@ -1,6 +1,6 @@
 
 import { CachedAnalytics } from '@/types/analytics';
-import { HealthProfileData } from '@/hooks/useHealthProfile';
+import { HealthProfileData } from '@/types/healthProfile';
 import { DetailedRecommendationsResult } from '@/types/detailedRecommendations';
 import { generateRiskFactors } from './recommendations/riskFactorGenerator';
 import { generateSpecialistRecommendations } from './recommendations/specialistGenerator';

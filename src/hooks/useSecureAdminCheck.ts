@@ -7,12 +7,14 @@ import { isDevelopmentMode } from "@/utils/devMode";
 export function useSecureAdminCheck() {
   const { user } = useSmartAuth();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function checkAdminStatus() {
       if (!user) {
         setIsAdmin(false);
+        setIsSuperAdmin(false);
         setIsLoading(false);
         return;
       }
@@ -21,6 +23,7 @@ export function useSecureAdminCheck() {
       if (isDevelopmentMode() && user.id === 'dev-admin-12345') {
         console.log('🔧 Dev mode: Granting admin access');
         setIsAdmin(true);
+        setIsSuperAdmin(true);
         setIsLoading(false);
         return;
       }
@@ -34,12 +37,16 @@ export function useSecureAdminCheck() {
         if (error) {
           console.error('Error checking admin status:', error);
           setIsAdmin(false);
+          setIsSuperAdmin(false);
         } else {
           setIsAdmin(data || false);
+          // For now, treat all admins as super admins in dev mode
+          setIsSuperAdmin(data || false);
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
+        setIsSuperAdmin(false);
       } finally {
         setIsLoading(false);
       }
@@ -48,5 +55,5 @@ export function useSecureAdminCheck() {
     checkAdminStatus();
   }, [user]);
 
-  return { isAdmin, isLoading };
+  return { isAdmin, isSuperAdmin, isLoading };
 }
