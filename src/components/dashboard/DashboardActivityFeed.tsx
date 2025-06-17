@@ -1,13 +1,12 @@
 
-import React, { useRef } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, MessageSquare, TrendingDown, RefreshCw } from "lucide-react";
+import { FileText, MessageSquare, TrendingDown, RefreshCw, Apple, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
+import { useActivityFeed } from "@/hooks/useActivityFeed";
 
 const DashboardActivityFeed = () => {
-  const { analytics, isLoading, isGenerating, generateAnalytics } = useCachedAnalytics();
-  const hasGeneratedRef = useRef(false);
+  const { activities, isLoading, fetchActivities } = useActivityFeed();
 
   const getIconComponent = (iconName: string) => {
     switch (iconName) {
@@ -15,19 +14,17 @@ const DashboardActivityFeed = () => {
         return FileText;
       case 'MessageSquare':
         return MessageSquare;
+      case 'Apple':
+        return Apple;
+      case 'User':
+        return User;
       default:
         return MessageSquare;
     }
   };
 
   const handleRefresh = () => {
-    hasGeneratedRef.current = false;
-    generateAnalytics();
-  };
-
-  const handleGenerateAnalytics = () => {
-    hasGeneratedRef.current = false;
-    generateAnalytics();
+    fetchActivities();
   };
 
   return (
@@ -42,10 +39,10 @@ const DashboardActivityFeed = () => {
             variant="outline"
             size="sm"
             onClick={handleRefresh}
-            disabled={isGenerating}
+            disabled={isLoading}
             className="gap-2"
           >
-            <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
         </div>
       </CardHeader>
@@ -56,7 +53,7 @@ const DashboardActivityFeed = () => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
               <p className="text-sm text-gray-600">Загружаем данные...</p>
             </div>
-            {[1, 2].map((i) => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
                 <div className="flex-1">
@@ -66,35 +63,45 @@ const DashboardActivityFeed = () => {
               </div>
             ))}
           </div>
-        ) : !analytics || analytics.recentActivities.length === 0 ? (
-          <div className="text-center py-4">
+        ) : activities.length === 0 ? (
+          <div className="text-center py-8">
             <TrendingDown className="h-12 w-12 mx-auto mb-4 text-gray-300" />
             <p className="text-sm text-gray-500 mb-2">Пока нет активности</p>
-            <p className="text-xs text-gray-400 mb-4">Начните использовать EVERLIV для отслеживания активности</p>
+            <p className="text-xs text-gray-400 mb-4">
+              Начните использовать EVERLIV: загрузите анализы, заполните дневник питания или обновите профиль здоровья
+            </p>
             <Button 
               size="sm" 
-              onClick={handleGenerateAnalytics} 
-              disabled={isGenerating}
+              onClick={handleRefresh} 
+              disabled={isLoading}
             >
-              {isGenerating ? 'Обновление...' : 'Обновить данные'}
+              {isLoading ? 'Обновление...' : 'Обновить данные'}
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
-            {analytics.recentActivities.map((activity, index) => {
+            {activities.map((activity) => {
               const IconComponent = getIconComponent(activity.icon);
               return (
-                <div key={index} className="flex items-center gap-3">
+                <div key={`${activity.type}-${activity.id}`} className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-full ${activity.iconBg} flex items-center justify-center flex-shrink-0`}>
                     <IconComponent className={`h-4 w-4 ${activity.iconColor}`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{activity.title}</p>
                     <p className="text-xs text-gray-500">{activity.time}</p>
                   </div>
                 </div>
               );
             })}
+            
+            {activities.length > 0 && (
+              <div className="text-center pt-2">
+                <p className="text-xs text-gray-400">
+                  Показаны последние {activities.length} действий
+                </p>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
