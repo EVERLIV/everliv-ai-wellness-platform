@@ -107,10 +107,10 @@ const App = () => (
       <TooltipProvider delayDuration={0}>
         <Toaster />
         <Sonner />
+        <DevModeIndicator />
         <Suspense fallback={<div>Loading...</div>}>
           <BrowserRouter>
             <SmartAuthProvider>
-              <DevModeIndicator />
               <SubscriptionProvider>
                 <RealtimeNotifications />
                 <Routes>

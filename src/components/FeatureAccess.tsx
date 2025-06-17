@@ -1,6 +1,6 @@
 
 import { ReactNode } from "react";
-import { useSmartAuth } from "@/hooks/useSmartAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, LockIcon } from "lucide-react";
@@ -19,7 +19,7 @@ const FeatureAccess = ({
   description,
   children 
 }: FeatureAccessProps) => {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   
   // Если пользователь не авторизован, показываем предложение войти

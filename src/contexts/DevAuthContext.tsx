@@ -1,84 +1,54 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { isDevelopmentMode } from '@/utils/devMode';
 import { AuthContextType } from '@/types/auth';
-import { isLovableDevelopment, createDevAdminUser, createDevAdminSession } from '@/utils/environmentDetection';
-import { toast } from 'sonner';
 
 const DevAuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState(null);
-  const [session, setSession] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (isLovableDevelopment()) {
-      const devUser = createDevAdminUser();
-      const devSession = createDevAdminSession();
-      setUser(devUser);
-      setSession(devSession);
-      console.log('🔧 Dev mode: Auto-authenticated as dev admin');
+    console.log('🔧 DevAuthProvider mounted - SECURITY: No auto-auth in dev mode');
+    
+    // Remove automatic authentication bypass for security
+    if (isDevelopmentMode()) {
+      console.log('🔧 Development mode: Authentication required');
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
     }
   }, []);
 
+  // Remove all authentication bypasses
   const signInWithMagicLink = async (email: string) => {
-    setIsLoading(true);
-    try {
-      toast.success('Dev mode: Magic link sent!');
-      const devUser = createDevAdminUser();
-      const devSession = createDevAdminSession();
-      setUser(devUser);
-      setSession(devSession);
-    } catch (error) {
-      toast.error('Dev mode: Sign in failed');
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    throw new Error('Use production authentication context');
   };
 
   const signUpWithMagicLink = async (email: string, userData: { nickname: string }) => {
-    setIsLoading(true);
-    try {
-      toast.success('Dev mode: Account created!');
-      const devUser = createDevAdminUser();
-      const devSession = createDevAdminSession();
-      setUser(devUser);
-      setSession(devSession);
-    } catch (error) {
-      toast.error('Dev mode: Sign up failed');
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    throw new Error('Use production authentication context');
   };
 
   const signOut = async () => {
-    setUser(null);
-    setSession(null);
-    toast.info('Dev mode: Signed out');
+    throw new Error('Use production authentication context');
   };
 
   const resetPassword = async (email: string) => {
-    toast.info('Dev mode: Password reset email sent');
+    throw new Error('Use production authentication context');
   };
 
   const signIn = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const devUser = createDevAdminUser();
-      const devSession = createDevAdminSession();
-      setUser(devUser);
-      setSession(devSession);
-      toast.success('Dev mode: Signed in');
-    } finally {
-      setIsLoading(false);
-    }
+    throw new Error('Use production authentication context');
   };
 
   const updatePassword = async (password: string) => {
-    toast.info('Dev mode: Password updated');
+    throw new Error('Use production authentication context');
   };
+
+  console.log('🔧 DevAuthProvider rendering with security enabled:', { user: !!user, session: !!session, isLoading });
 
   return (
     <DevAuthContext.Provider value={{

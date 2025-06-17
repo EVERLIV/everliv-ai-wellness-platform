@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { useSmartAuth } from '@/hooks/useSmartAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -12,7 +12,7 @@ interface MedicalAnalysis {
 }
 
 export const useRealtimeAnalyses = () => {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
   const [newAnalyses, setNewAnalyses] = useState<MedicalAnalysis[]>([]);
 
   useEffect(() => {

@@ -1,11 +1,10 @@
 
 import { useState, useEffect } from "react";
-import { useSmartAuth } from "@/hooks/useSmartAuth";
-import { isLovableDevelopment } from "@/utils/environmentDetection";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
 export function useSecureAdminCheck() {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,15 +14,6 @@ export function useSecureAdminCheck() {
       if (!user) {
         setIsAdmin(false);
         setIsSuperAdmin(false);
-        setIsLoading(false);
-        return;
-      }
-
-      // In Lovable dev environment, automatically grant admin rights
-      if (isLovableDevelopment() && user.id === 'dev-admin-lovable-12345') {
-        console.log('🔧 Dev mode: Granting admin rights to dev user');
-        setIsAdmin(true);
-        setIsSuperAdmin(true);
         setIsLoading(false);
         return;
       }
@@ -44,6 +34,8 @@ export function useSecureAdminCheck() {
           
           // If user is admin, check for super admin status
           if (isAdminUser) {
+            // Check if user email is in a predefined super admin list
+            // You can configure this based on your needs
             const superAdminEmails = ['admin@example.com']; // Configure as needed
             setIsSuperAdmin(superAdminEmails.includes(user.email || ''));
           } else {

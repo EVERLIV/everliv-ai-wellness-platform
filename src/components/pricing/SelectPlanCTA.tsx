@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-import { useSmartAuth } from "@/hooks/useSmartAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { ArrowRight } from "lucide-react";
 
@@ -16,7 +16,7 @@ interface SelectPlanCTAProps {
  */
 export default function SelectPlanCTA({ location = 'dashboard', className = '' }: SelectPlanCTAProps) {
   const navigate = useNavigate();
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
   const { isTrialActive } = useSubscription();
   
   const handleSelectPlan = () => {
