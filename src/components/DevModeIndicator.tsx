@@ -1,12 +1,12 @@
 
 import React from 'react';
 import { isLovableDevelopment } from '@/utils/environmentDetection';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, User } from 'lucide-react';
 
 const DevModeIndicator = () => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const isLovableDev = isLovableDevelopment();
 
   if (!isLovableDev) {

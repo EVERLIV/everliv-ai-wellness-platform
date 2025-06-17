@@ -3,10 +3,10 @@ import { Navigate } from 'react-router-dom';
 import AuthLayout from '@/components/AuthLayout';
 import RegistrationForm from '@/components/registration/RegistrationForm';
 import RegistrationFooter from '@/components/registration/RegistrationFooter';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 
 const RegistrationPage = () => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
 
   // Redirect if already logged in
   if (user) {

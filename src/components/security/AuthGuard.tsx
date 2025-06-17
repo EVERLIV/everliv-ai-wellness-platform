@@ -1,7 +1,7 @@
 
 import { useEffect, ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -14,7 +14,7 @@ export const AuthGuard = ({
   requireAuth = true, 
   redirectTo = '/login' 
 }: AuthGuardProps) => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useSmartAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
