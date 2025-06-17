@@ -3,8 +3,10 @@
 export const isDevelopmentMode = (): boolean => {
   const hostname = window.location.hostname;
   
-  // Only allow true localhost for development mode
-  const isDev = hostname === 'localhost' || hostname === '127.0.0.1';
+  // Allow true localhost and Lovable project domains for development mode
+  const isDev = hostname === 'localhost' || 
+                hostname === '127.0.0.1' || 
+                hostname.includes('.lovableproject.com');
   
   console.log('🔧 Dev mode check:', { hostname, isDev });
   return isDev;
