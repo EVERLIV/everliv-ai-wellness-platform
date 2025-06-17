@@ -38,19 +38,19 @@ const Dashboard = () => {
         <DashboardHeader userName={userName} />
         
         <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
-          {/* Quick Actions Grid */}
+          {/* Сводка здоровья и активность - перемещены вверх */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <DashboardHealthSummary />
+            <DashboardActivityFeed />
+          </div>
+          
+          {/* Quick Actions Grid - изменен порядок карточек */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900">Основные функции</h2>
               <p className="text-sm text-gray-500">Выберите действие для начала работы</p>
             </div>
             <DashboardQuickActions />
-          </div>
-          
-          {/* Activity and Health Summary */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <DashboardActivityFeed />
-            <DashboardHealthSummary />
           </div>
         </div>
       </div>

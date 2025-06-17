@@ -131,6 +131,7 @@ const App = () => (
                   <Route path="/security" element={<Security />} />
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
                   <Route path="/specialists" element={<MedicalKnowledge />} />
                   <Route path="/moscow-clinics" element={<MoscowClinics />} />
                   <Route path="/services" element={<ServicesPage />} />
@@ -168,6 +169,11 @@ const App = () => (
                     </ProtectedRoute>
                   } />
                   <Route path="/profile" element={
+                    <ProtectedRoute>
+                      <UserProfile />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/settings" element={
                     <ProtectedRoute>
                       <UserProfile />
                     </ProtectedRoute>
