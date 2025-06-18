@@ -8,6 +8,7 @@ import AnalysisHistoryCard from "./AnalysisHistoryCard";
 import ProtocolsProgressCard from "./ProtocolsProgressCard";
 import AIRecommendationsCard from "./AIRecommendationsCard";
 import AIDoctorConsultation from "./AIDoctorConsultation";
+import HealthTrackingSection from "./HealthTrackingSection";
 
 interface DashboardTabsProps {
   patientData: any;
@@ -22,8 +23,9 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({
 }) => {
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-      <TabsList className="grid grid-cols-3 lg:grid-cols-5 mb-8 w-full max-w-4xl">
+      <TabsList className="grid grid-cols-4 lg:grid-cols-6 mb-8 w-full max-w-6xl">
         <TabsTrigger value="overview">Обзор</TabsTrigger>
+        <TabsTrigger value="health">Здоровье</TabsTrigger>
         <TabsTrigger value="protocols">Протоколы</TabsTrigger>
         <TabsTrigger value="analytics">Аналитика</TabsTrigger>
         <TabsTrigger value="ai">ИИ Ассистент</TabsTrigger>
@@ -43,6 +45,10 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({
             <ProtocolsProgressCard protocols={patientData.recentProtocols} />
           </div>
         </div>
+      </TabsContent>
+
+      <TabsContent value="health">
+        <HealthTrackingSection />
       </TabsContent>
 
       <TabsContent value="protocols">
