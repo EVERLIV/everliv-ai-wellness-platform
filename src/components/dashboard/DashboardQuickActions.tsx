@@ -12,7 +12,8 @@ import {
   Users, 
   BarChart3, 
   Heart,
-  TrendingUp
+  TrendingUp,
+  BookOpen
 } from "lucide-react";
 
 const DashboardQuickActions = () => {
@@ -58,6 +59,14 @@ const DashboardQuickActions = () => {
       action: () => navigate("/analytics"),
       color: "bg-orange-50 border-orange-200 hover:bg-orange-100",
       badge: null
+    },
+    {
+      title: "База знаний",
+      description: "Медицинские статьи, категории и специалисты",
+      icon: <BookOpen className="h-8 w-8 text-emerald-600" />,
+      action: () => navigate("/medical-knowledge"),
+      color: "bg-emerald-50 border-emerald-200 hover:bg-emerald-100",
+      badge: <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">Популярно</Badge>
     },
     {
       title: "Профиль здоровья",
