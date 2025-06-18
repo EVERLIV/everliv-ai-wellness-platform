@@ -28,13 +28,32 @@ const HealthProfile: React.FC = () => {
     setEditMode(false);
   };
 
+  if (isLoading) {
+    return (
+      <PageLayoutWithHeader
+        headerComponent={<HealthProfilePageHeader />}
+      >
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+          <p className="text-gray-500">Загрузка профиля здоровья...</p>
+        </div>
+      </PageLayoutWithHeader>
+    );
+  }
+
   if (!healthProfile) {
     return (
       <PageLayoutWithHeader
         headerComponent={<HealthProfilePageHeader />}
       >
         <div className="text-center py-8">
-          <p className="text-gray-500">Загрузка профиля здоровья...</p>
+          <p className="text-gray-500 mb-4">Профиль здоровья не найден</p>
+          <button 
+            onClick={() => setEditMode(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Создать профиль
+          </button>
         </div>
       </PageLayoutWithHeader>
     );

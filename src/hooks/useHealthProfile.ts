@@ -98,8 +98,11 @@ export const useHealthProfile = () => {
           return;
         }
 
-        // Исправление типизации: приведение Json к HealthProfileData через unknown
-        setHealthProfile(data?.profile_data ? data.profile_data as unknown as HealthProfileData : null);
+        if (data?.profile_data) {
+          setHealthProfile(data.profile_data as unknown as HealthProfileData);
+        } else {
+          setHealthProfile(null);
+        }
 
       } catch (error) {
         console.error('Error fetching health profile:', error);
@@ -115,6 +118,22 @@ export const useHealthProfile = () => {
   const updateHealthProfile = (updates: Partial<HealthProfileData>) => {
     if (healthProfile) {
       setHealthProfile({ ...healthProfile, ...updates });
+    } else {
+      // Если профиля нет, создаем новый с базовыми значениями
+      const newProfile: HealthProfileData = {
+        age: 25,
+        gender: 'male',
+        height: 170,
+        weight: 70,
+        exerciseFrequency: 0,
+        stressLevel: 5,
+        anxietyLevel: 5,
+        waterIntake: 6,
+        caffeineIntake: 1,
+        sleepHours: 7,
+        ...updates
+      };
+      setHealthProfile(newProfile);
     }
   };
 
@@ -122,7 +141,6 @@ export const useHealthProfile = () => {
     if (!user || !healthProfile) return;
 
     try {
-      // Исправление типизации: приведение HealthProfileData к Json через unknown
       const { error } = await supabase
         .from('health_profiles')
         .upsert({

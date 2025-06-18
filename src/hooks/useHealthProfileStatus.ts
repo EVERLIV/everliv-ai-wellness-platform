@@ -54,21 +54,21 @@ export const useHealthProfileStatus = () => {
         
         // Calculate completion percentage based on filled fields
         const requiredFields = [
-          'personalInfo.age',
-          'personalInfo.gender',
-          'personalInfo.height',
-          'personalInfo.weight',
-          'lifestyle.activityLevel',
-          'lifestyle.sleepHours',
-          'medicalHistory.chronicConditions',
-          'medicalHistory.medications',
-          'goals.primaryGoals'
+          'age',
+          'gender', 
+          'height',
+          'weight',
+          'exerciseFrequency',
+          'sleepHours',
+          'stressLevel',
+          'anxietyLevel',
+          'waterIntake'
         ];
 
         let filledFields = 0;
         
-        requiredFields.forEach(fieldPath => {
-          const value = getNestedValue(profileData, fieldPath);
+        requiredFields.forEach(field => {
+          const value = profileData[field];
           if (value !== undefined && value !== null && value !== '' && 
               (!Array.isArray(value) || value.length > 0)) {
             filledFields++;
@@ -77,7 +77,7 @@ export const useHealthProfileStatus = () => {
 
         const percentage = Math.round((filledFields / requiredFields.length) * 100);
         setCompletionPercentage(percentage);
-        setIsComplete(percentage >= 90);
+        setIsComplete(percentage >= 80);
 
       } catch (error) {
         console.error('Error checking profile status:', error);
@@ -92,9 +92,4 @@ export const useHealthProfileStatus = () => {
   }, [user]);
 
   return { isComplete, completionPercentage, isLoading };
-};
-
-// Helper function to get nested object values
-const getNestedValue = (obj: any, path: string) => {
-  return path.split('.').reduce((current, key) => current?.[key], obj);
 };

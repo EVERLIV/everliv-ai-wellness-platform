@@ -1,9 +1,6 @@
 
 import React, { useEffect, useRef } from "react";
-import { Card, CardContent }
-
-
- from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 import { useHealthProfileStatus } from "@/hooks/useHealthProfileStatus";
 import HealthSummaryHeader from "./health-summary/HealthSummaryHeader";
@@ -26,14 +23,14 @@ const DashboardHealthSummary = () => {
   const { isComplete, completionPercentage } = useHealthProfileStatus();
   const hasGeneratedRef = useRef(false);
 
-  // Автоматически генерируем аналитику только при первой загрузке если нет данных
+  // Автоматически генерируем аналитику при наличии профиля
   useEffect(() => {
-    if (hasHealthProfile && hasAnalyses && !analytics && !isLoading && !isGenerating && !hasGeneratedRef.current) {
+    if (hasHealthProfile && !analytics && !isLoading && !isGenerating && !hasGeneratedRef.current) {
       hasGeneratedRef.current = true;
-      console.log('Auto-generating initial analytics...');
+      console.log('Auto-generating analytics for health profile...');
       generateRealTimeAnalytics();
     }
-  }, [hasHealthProfile, hasAnalyses, analytics, isLoading, isGenerating, generateRealTimeAnalytics]);
+  }, [hasHealthProfile, analytics, isLoading, isGenerating, generateRealTimeAnalytics]);
 
   return (
     <Card>
@@ -58,7 +55,7 @@ const DashboardHealthSummary = () => {
               showPercentage={true}
             />
           </div>
-          {completionPercentage < 90 && (
+          {completionPercentage < 80 && (
             <p className="text-xs text-gray-600 mt-2">
               Заполните профиль полностью для получения максимально точной аналитики здоровья
             </p>
