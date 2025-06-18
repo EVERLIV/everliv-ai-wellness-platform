@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,6 +33,8 @@ interface SubscriptionContextType {
   isTrialActive: boolean;
   trialExpiresAt: Date | null;
   trialTimeRemaining: string | null;
+  currentPlan: string;
+  hasActiveSubscription: boolean;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -47,6 +48,41 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const [trialExpiresAt, setTrialExpiresAt] = useState<Date | null>(null);
   const [trialTimeRemaining, setTrialTimeRemaining] = useState<string | null>(null);
   const { hasFeatureTrial, canUseFeature } = useSubscriptionHelpers(featureTrials);
+
+  // Вычисляем текущий план и статус подписки
+  const getCurrentPlanInfo = () => {
+    if (isLoading) return { plan: "Загрузка...", hasActive: false };
+    
+    // Проверяем активную подписку
+    if (subscription && subscription.status === 'active') {
+      const now = new Date();
+      const expiresAt = new Date(subscription.expires_at);
+      
+      if (expiresAt > now) {
+        const planNames = {
+          'premium': 'Премиум',
+          'standard': 'Стандарт',
+          'basic': 'Базовый'
+        };
+        return { 
+          plan: planNames[subscription.plan_type as keyof typeof planNames] || 'Базовый',
+          hasActive: true
+        };
+      }
+    }
+    
+    // Проверяем пробный период
+    if (isTrialActive && trialTimeRemaining) {
+      return { 
+        plan: `Пробный (${trialTimeRemaining})`,
+        hasActive: true
+      };
+    }
+    
+    return { plan: 'Базовый', hasActive: false };
+  };
+
+  const { plan: currentPlan, hasActive: hasActiveSubscription } = getCurrentPlanInfo();
 
   // Calculate time remaining for trial
   useEffect(() => {
@@ -199,7 +235,9 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     incrementFeatureUsage,
     isTrialActive,
     trialExpiresAt,
-    trialTimeRemaining
+    trialTimeRemaining,
+    currentPlan,
+    hasActiveSubscription
   };
 
   return (

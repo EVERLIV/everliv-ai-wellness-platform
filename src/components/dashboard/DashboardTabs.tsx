@@ -1,5 +1,5 @@
-
-import React from "react";
+import React, { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AIFeaturesSection from "./AIFeaturesSection";
 import VitalSignsCard from "./VitalSignsCard";
@@ -21,8 +21,22 @@ const DashboardTabs: React.FC<DashboardTabsProps> = ({
   activeTab,
   setActiveTab,
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['overview', 'health', 'protocols', 'analytics', 'ai', 'doctor'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams, setActiveTab]);
+
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    setSearchParams({ tab: newTab });
+  };
+
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+    <Tabs value={activeTab} onValueChange={handleTabChange} className="mt-6">
       <TabsList className="grid grid-cols-4 lg:grid-cols-6 mb-8 w-full max-w-6xl">
         <TabsTrigger value="overview">Обзор</TabsTrigger>
         <TabsTrigger value="health">Здоровье</TabsTrigger>
