@@ -30,6 +30,8 @@ export const useProfile = () => {
 
     try {
       setIsLoading(true);
+      console.log('Загружаем профиль для пользователя:', user.id);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -39,6 +41,7 @@ export const useProfile = () => {
       if (error) {
         if (error.code === 'PGRST116') {
           // Профиль не найден, создаем новый
+          console.log('Профиль не найден, создаем новый');
           const { data: newProfile, error: createError } = await supabase
             .from('profiles')
             .insert({
@@ -54,6 +57,7 @@ export const useProfile = () => {
             return;
           }
 
+          console.log('Профиль создан:', newProfile);
           setProfileData(newProfile as ProfileData);
         } else {
           console.error("Error fetching profile:", error);
@@ -66,6 +70,7 @@ export const useProfile = () => {
         return;
       }
 
+      console.log('Профиль загружен:', data);
       setProfileData(data as ProfileData);
     } catch (error) {
       console.error("Unexpected error fetching profile:", error);
@@ -80,14 +85,21 @@ export const useProfile = () => {
   };
 
   const updateProfile = async (updatedData: Partial<Omit<ProfileData, 'id'>>) => {
-    if (!user) return;
+    if (!user) {
+      console.error('Нет пользователя для обновления профиля');
+      return false;
+    }
 
     try {
       setIsUpdating(true);
-      const { error } = await supabase
+      console.log('Обновляем профиль:', updatedData);
+      
+      const { data, error } = await supabase
         .from('profiles')
         .update(updatedData)
-        .eq('id', user.id);
+        .eq('id', user.id)
+        .select()
+        .single();
 
       if (error) {
         console.error("Error updating profile:", error);
@@ -99,8 +111,10 @@ export const useProfile = () => {
         return false;
       }
 
-      // Update local state with new data
-      setProfileData(prev => prev ? { ...prev, ...updatedData } : null);
+      console.log('Профиль обновлен:', data);
+      // Update local state with new data from server
+      setProfileData(data as ProfileData);
+      
       toast({
         title: "Успешно",
         description: "Профиль успешно обновлен"

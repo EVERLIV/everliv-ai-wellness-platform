@@ -31,6 +31,9 @@ const DashboardHeader = ({ userName }: DashboardHeaderProps) => {
 
   // Получаем никнейм из профиля как приоритетный вариант
   const displayName = profileData?.nickname || profileData?.first_name || userName || "Пользователь";
+  
+  console.log('DashboardHeader - profileData:', profileData);
+  console.log('DashboardHeader - displayName:', displayName);
 
   // Только для разработки показываем статус
   const isDevelopment = import.meta.env.DEV;

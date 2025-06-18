@@ -44,12 +44,20 @@ const Settings: React.FC = () => {
       return;
     }
 
+    console.log('Сохраняем никнейм:', userSettings.nickname.trim());
+    
     const success = await updateProfile({
       nickname: userSettings.nickname.trim()
     });
 
     if (success) {
-      toast.success("Настройки успешно сохранены");
+      toast.success("Никнейм успешно сохранен");
+      // Принудительно обновляем данные профиля
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } else {
+      toast.error("Ошибка при сохранении никнейма");
     }
   };
 
@@ -121,6 +129,9 @@ const Settings: React.FC = () => {
                   onChange={(e) => setUserSettings({...userSettings, nickname: e.target.value})}
                   placeholder="Введите ваш никнейм"
                 />
+                <p className="text-xs text-gray-500">
+                  Этот никнейм будет использоваться для персонализированного приветствия
+                </p>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
@@ -139,7 +150,7 @@ const Settings: React.FC = () => {
                 disabled={isUpdating}
                 className="w-fit"
               >
-                {isUpdating ? "Сохранение..." : "Сохранить изменения"}
+                {isUpdating ? "Сохранение..." : "Сохранить никнейм"}
               </Button>
             </div>
           </CardContent>
