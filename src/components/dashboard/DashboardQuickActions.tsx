@@ -1,90 +1,104 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import { Heart, FileText, Utensils, Activity, Brain, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  BarChart3, 
-  User, 
-  MessageSquare, 
-  FileText, 
-  Utensils, 
-  BookOpen,
-  TrendingUp,
-  Heart
-} from "lucide-react";
+import { Link } from "react-router-dom";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { FEATURES } from "@/constants/subscription-features";
 
 const DashboardQuickActions = () => {
-  const quickActions = [
-    {
-      title: "Аналитика здоровья",
-      description: "Получите персонализированную аналитику ваших биомаркеров, тенденций здоровья и рекомендаций на основе загруженных анализов",
-      icon: BarChart3,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      href: "/analytics"
-    },
+  const { canUseFeature } = useSubscription();
+
+  const actions = [
     {
       title: "Профиль здоровья",
-      description: "Создайте детальный профиль с информацией о вашем образе жизни, хронических заболеваниях и целях здоровья",
-      icon: User,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      href: "/health-profile"
-    },
-    {
-      title: "Доктор EVERLIV",
-      description: "Персональный ИИ-консультант, обученный на медицинских данных для ответов на вопросы о здоровье и самочувствии",
-      icon: MessageSquare,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      href: "/ai-doctor"
-    },
-    {
-      title: "Анализ крови",
-      description: "Загрузите результаты анализов крови для получения интерпретации биомаркеров и рекомендаций по улучшению показателей",
-      icon: FileText,
-      color: "text-red-600",
+      description: "Заполните данные о вашем здоровье",
+      icon: Heart,
+      href: "/health-profile",
+      color: "text-red-500",
       bgColor: "bg-red-50",
-      href: "/lab-analyses"
+      available: true
+    },
+    {
+      title: "Ваши Анализы",
+      description: "Загрузите результаты анализов",
+      icon: FileText,
+      href: "/lab-analyses",
+      color: "text-blue-500",
+      bgColor: "bg-blue-50",
+      available: canUseFeature(FEATURES.BLOOD_ANALYSIS)
     },
     {
       title: "Дневник питания",
-      description: "Отслеживайте калории, макронутриенты и получайте персональные рекомендации по питанию на основе ваших целей",
+      description: "Отслеживайте питание",
       icon: Utensils,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      href: "/nutrition-diary"
+      href: "/nutrition-diary",
+      color: "text-green-500",
+      bgColor: "bg-green-50",
+      available: canUseFeature(FEATURES.NUTRITION_TRACKING)
     },
     {
-      title: "База Знаний",
-      description: "Научные статьи, медицинские исследования и экспертные материалы по вопросам здоровья и долголетия",
-      icon: BookOpen,
-      color: "text-indigo-600",
+      title: "Аналитика здоровья",
+      description: "Просмотрите детальную аналитику",
+      icon: Activity,
+      href: "/analytics",
+      color: "text-purple-500",
+      bgColor: "bg-purple-50",
+      available: canUseFeature(FEATURES.HEALTH_ANALYTICS)
+    },
+    {
+      title: "ИИ-доктор",
+      description: "Консультация с ИИ",
+      icon: Brain,
+      href: "/ai-doctor",
+      color: "text-indigo-500",
       bgColor: "bg-indigo-50",
-      href: "/medical-knowledge"
+      available: canUseFeature(FEATURES.AI_DOCTOR)
+    },
+    {
+      title: "Мои протоколы",
+      description: "Отслеживайте протоколы здоровья",
+      icon: Calendar,
+      href: "/my-protocols",
+      color: "text-orange-500",
+      bgColor: "bg-orange-50",
+      available: true
     }
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {quickActions.map((action, index) => (
-        <Card key={index} className="hover:shadow-lg transition-shadow duration-200 border-0 shadow-sm">
+      {actions.map((action, index) => (
+        <Card key={index} className="group hover:shadow-lg transition-all duration-200 border border-gray-200 hover:border-gray-300">
           <CardHeader className="pb-3">
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-lg ${action.bgColor} flex items-center justify-center`}>
-                <action.icon className={`h-5 w-5 ${action.color}`} />
-              </div>
-              <CardTitle className="text-lg font-medium">{action.title}</CardTitle>
+            <div className={`w-12 h-12 ${action.bgColor} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+              <action.icon className={`h-6 w-6 ${action.color}`} />
             </div>
+            <CardTitle className="text-lg font-medium">{action.title}</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <p className="text-sm text-gray-600 mb-4 leading-relaxed">{action.description}</p>
-            <Link to={action.href}>
-              <Button className="w-full" size="sm">
-                Перейти
-              </Button>
-            </Link>
+            <p className="text-sm text-gray-600 mb-4 min-h-[40px]">
+              {action.description}
+            </p>
+            {action.available ? (
+              <Link to={action.href}>
+                <Button className="w-full" variant="outline">
+                  Перейти
+                </Button>
+              </Link>
+            ) : (
+              <div className="text-center">
+                <p className="text-xs text-amber-600 mb-2">
+                  Требуется подписка
+                </p>
+                <Link to="/dashboard/subscription">
+                  <Button variant="outline" size="sm" className="w-full border-everliv-600 text-everliv-600 hover:bg-everliv-50">
+                    Активировать
+                  </Button>
+                </Link>
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}
