@@ -5,6 +5,7 @@ import HealthProfilePageHeader from "@/components/health-profile/HealthProfilePa
 import HealthProfileDisplay from "@/components/health-profile/HealthProfileDisplay";
 import HealthProfileEditForm from "@/components/health-profile/HealthProfileEditForm";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
+import { HealthProfileData } from "@/types/healthProfile";
 
 const HealthProfile: React.FC = () => {
   const { 
@@ -28,6 +29,26 @@ const HealthProfile: React.FC = () => {
     setEditMode(false);
   };
 
+  const handleCreateProfile = () => {
+    // Создаем базовый профиль с минимальными данными
+    const defaultProfile: HealthProfileData = {
+      age: 25,
+      gender: 'male',
+      height: 170,
+      weight: 70,
+      exerciseFrequency: 0,
+      stressLevel: 5,
+      anxietyLevel: 5,
+      waterIntake: 6,
+      caffeineIntake: 1,
+      sleepHours: 7,
+      labResults: {}
+    };
+    
+    updateHealthProfile(defaultProfile);
+    setEditMode(true);
+  };
+
   if (isLoading) {
     return (
       <PageLayoutWithHeader
@@ -46,14 +67,26 @@ const HealthProfile: React.FC = () => {
       <PageLayoutWithHeader
         headerComponent={<HealthProfilePageHeader />}
       >
-        <div className="text-center py-8">
-          <p className="text-gray-500 mb-4">Профиль здоровья не найден</p>
-          <button 
-            onClick={() => setEditMode(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Создать профиль
-          </button>
+        <div className="text-center py-12">
+          <div className="bg-gray-50 rounded-xl p-8 max-w-md mx-auto">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Профиль здоровья не найден
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Создайте свой профиль здоровья, чтобы получать персональные рекомендации и отслеживать показатели здоровья
+            </p>
+            <button 
+              onClick={handleCreateProfile}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              Создать профиль
+            </button>
+          </div>
         </div>
       </PageLayoutWithHeader>
     );

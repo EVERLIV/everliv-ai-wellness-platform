@@ -103,9 +103,10 @@ export const useHealthProfile = () => {
 
   const updateHealthProfile = (updates: Partial<HealthProfileData>) => {
     if (healthProfile) {
-      setHealthProfile({ ...healthProfile, ...updates });
+      const updatedProfile = { ...healthProfile, ...updates };
+      setHealthProfile(updatedProfile);
     } else {
-      // Если профиля нет, создаем новый с базовыми значениями
+      // Если профиля нет, создаем новый с переданными данными
       const newProfile: HealthProfileData = {
         age: 25,
         gender: 'male',
