@@ -125,9 +125,15 @@ export const useHealthProfile = () => {
   };
 
   const saveHealthProfile = async () => {
-    if (!user || !healthProfile) return;
+    if (!user || !healthProfile) {
+      console.error('Cannot save: missing user or health profile data');
+      return false;
+    }
 
     try {
+      console.log('Saving health profile for user:', user.id);
+      console.log('Health profile data:', healthProfile);
+
       // Обновляем lastUpdated для лабораторных данных
       if (healthProfile.labResults) {
         healthProfile.labResults.lastUpdated = new Date().toISOString();
@@ -137,18 +143,21 @@ export const useHealthProfile = () => {
         .from('health_profiles')
         .upsert({
           user_id: user.id,
-          profile_data: healthProfile as unknown as any
+          profile_data: healthProfile as unknown as any,
+          updated_at: new Date().toISOString()
         });
 
       if (error) {
         console.error('Error saving health profile:', error);
-        return;
+        return false;
       }
 
       setEditMode(false);
       console.log('Health profile saved successfully');
+      return true;
     } catch (error) {
       console.error('Error saving health profile:', error);
+      return false;
     }
   };
 

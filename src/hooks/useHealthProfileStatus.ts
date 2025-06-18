@@ -1,95 +1,66 @@
 
-import { useState, useEffect } from "react";
-import { useSmartAuth } from "@/hooks/useSmartAuth";
-import { supabase } from "@/integrations/supabase/client";
-import { isDevelopmentMode } from "@/utils/devMode";
+import { useMemo } from "react";
+import { useHealthProfile } from "@/hooks/useHealthProfile";
+import { HealthProfileData } from "@/types/healthProfile";
 
 export const useHealthProfileStatus = () => {
-  const { user } = useSmartAuth();
-  const [isComplete, setIsComplete] = useState(false);
-  const [completionPercentage, setCompletionPercentage] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const { healthProfile, isLoading } = useHealthProfile();
 
-  useEffect(() => {
-    const checkProfileStatus = async () => {
-      if (!user) {
-        setIsComplete(false);
-        setCompletionPercentage(0);
-        setIsLoading(false);
-        return;
-      }
+  const status = useMemo(() => {
+    if (isLoading || !healthProfile) {
+      return {
+        isComplete: false,
+        completionPercentage: 0,
+        missingFields: [],
+        requiredFields: []
+      };
+    }
 
-      // In dev mode, simulate a complete profile
-      if (isDevelopmentMode() && user.id === 'dev-admin-12345') {
-        console.log('🔧 Dev mode: Simulating complete health profile');
-        setIsComplete(true);
-        setCompletionPercentage(95);
-        setIsLoading(false);
-        return;
-      }
+    // Определяем обязательные поля для полного профиля
+    const requiredFields = [
+      { key: 'age', label: 'Возраст' },
+      { key: 'gender', label: 'Пол' },
+      { key: 'height', label: 'Рост' },
+      { key: 'weight', label: 'Вес' },
+      { key: 'exerciseFrequency', label: 'Частота тренировок' },
+      { key: 'stressLevel', label: 'Уровень стресса' },
+      { key: 'sleepHours', label: 'Часы сна' },
+      { key: 'waterIntake', label: 'Потребление воды' }
+    ];
 
-      try {
-        setIsLoading(true);
-        
-        const { data, error } = await supabase
-          .from('health_profiles')
-          .select('profile_data')
-          .eq('user_id', user.id)
-          .maybeSingle();
+    // Проверяем заполненность базовых полей
+    const missingFields = requiredFields.filter(field => {
+      const value = healthProfile[field.key as keyof HealthProfileData];
+      return value === undefined || value === null || value === '';
+    });
 
-        if (error) {
-          console.error('Error fetching health profile:', error);
-          setIsComplete(false);
-          setCompletionPercentage(0);
-          return;
-        }
+    // Проверяем заполненность лабораторных данных
+    const labFields = [
+      'hemoglobin', 'erythrocytes', 'hematocrit', 'mcv', 'mchc', 
+      'platelets', 'serumIron', 'cholesterol', 'bloodSugar', 'ldh'
+    ];
 
-        if (!data?.profile_data) {
-          setIsComplete(false);
-          setCompletionPercentage(0);
-          return;
-        }
+    const filledLabFields = labFields.filter(field => {
+      const labResults = healthProfile.labResults;
+      return labResults && labResults[field as keyof typeof labResults] !== undefined;
+    });
 
-        const profileData = data.profile_data as any;
-        
-        // Calculate completion percentage based on filled fields
-        const requiredFields = [
-          'age',
-          'gender', 
-          'height',
-          'weight',
-          'exerciseFrequency',
-          'sleepHours',
-          'stressLevel',
-          'anxietyLevel',
-          'waterIntake'
-        ];
+    // Считаем процент заполненности
+    const totalFields = requiredFields.length + labFields.length;
+    const filledFields = (requiredFields.length - missingFields.length) + filledLabFields.length;
+    const completionPercentage = Math.round((filledFields / totalFields) * 100);
 
-        let filledFields = 0;
-        
-        requiredFields.forEach(field => {
-          const value = profileData[field];
-          if (value !== undefined && value !== null && value !== '' && 
-              (!Array.isArray(value) || value.length > 0)) {
-            filledFields++;
-          }
-        });
-
-        const percentage = Math.round((filledFields / requiredFields.length) * 100);
-        setCompletionPercentage(percentage);
-        setIsComplete(percentage >= 80);
-
-      } catch (error) {
-        console.error('Error checking profile status:', error);
-        setIsComplete(false);
-        setCompletionPercentage(0);
-      } finally {
-        setIsLoading(false);
+    return {
+      isComplete: missingFields.length === 0 && filledLabFields.length >= 5, // Считаем полным если заполнено минимум 5 лабораторных показателей
+      completionPercentage,
+      missingFields: missingFields.map(f => f.label),
+      requiredFields: requiredFields.map(f => f.label),
+      labFieldsStatus: {
+        total: labFields.length,
+        filled: filledLabFields.length
       }
     };
+  }, [healthProfile, isLoading]);
 
-    checkProfileStatus();
-  }, [user]);
-
-  return { isComplete, completionPercentage, isLoading };
+  return status;
 };
