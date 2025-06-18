@@ -29,8 +29,8 @@ const DashboardHeader = ({ userName }: DashboardHeaderProps) => {
     return "Добрый вечер";
   };
 
-  // Получаем имя из профиля или используем fallback
-  const displayName = profileData?.first_name || userName || "Пользователь";
+  // Получаем никнейм из профиля как приоритетный вариант
+  const displayName = profileData?.nickname || profileData?.first_name || userName || "Пользователь";
 
   // Только для разработки показываем статус
   const isDevelopment = import.meta.env.DEV;

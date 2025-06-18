@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -51,6 +50,23 @@ const Settings: React.FC = () => {
 
     if (success) {
       toast.success("Настройки успешно сохранены");
+    }
+  };
+
+  const handleSaveAllSettings = async () => {
+    // Сохраняем никнейм в профиле
+    if (userSettings.nickname.trim()) {
+      const success = await updateProfile({
+        nickname: userSettings.nickname.trim()
+      });
+
+      if (success) {
+        toast.success("Все настройки успешно сохранены");
+      } else {
+        toast.error("Ошибка при сохранении настроек");
+      }
+    } else {
+      toast.error("Пожалуйста, введите никнейм");
     }
   };
 
@@ -255,7 +271,7 @@ const Settings: React.FC = () => {
         </Card>
 
         <div className="flex justify-end">
-          <Button onClick={handleUpdateProfile} disabled={isUpdating}>
+          <Button onClick={handleSaveAllSettings} disabled={isUpdating}>
             {isUpdating ? "Сохранение..." : "Сохранить все настройки"}
           </Button>
         </div>
