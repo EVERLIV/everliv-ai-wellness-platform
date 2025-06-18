@@ -75,6 +75,15 @@ const DashboardQuickActions = () => {
       color: "bg-orange-50",
       badge: <Badge className="bg-green-600 text-white">Обучение</Badge>,
       features: ["Экспертные статьи", "Научные данные", "Образовательный контент"]
+    },
+    {
+      title: "Здоровье",
+      description: "Отслеживайте ключевые показатели здоровья, ведите дневник симптомов и получайте персональные рекомендации",
+      icon: <Heart className="h-8 w-8 text-red-600" />,
+      action: () => navigate("/health-tracking"),
+      color: "bg-red-50",
+      badge: <Badge className="bg-red-600 text-white">Трекинг</Badge>,
+      features: ["Показатели здоровья", "Дневник симптомов", "Рекомендации"]
     }
   ];
 
