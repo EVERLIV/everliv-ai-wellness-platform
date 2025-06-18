@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,6 +26,7 @@ import AIDoctorPage from "./pages/AIDoctorPage";
 import AIDoctorBasicPage from "./pages/AIDoctorBasicPage";
 import AIDoctorPersonalPage from "./pages/AIDoctorPersonalPage";
 import NutritionDiaryPage from "./pages/NutritionDiary";
+import HealthTracking from "./pages/HealthTracking";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
@@ -181,6 +183,11 @@ const App = () => (
                   <Route path="/health-profile" element={
                     <ProtectedRoute>
                       <HealthProfile />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/health-tracking" element={
+                    <ProtectedRoute>
+                      <HealthTracking />
                     </ProtectedRoute>
                   } />
                   <Route path="/blood-analysis" element={
