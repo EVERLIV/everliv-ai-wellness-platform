@@ -13,7 +13,9 @@ import {
   BarChart3, 
   Heart,
   TrendingUp,
-  BookOpen
+  BookOpen,
+  Utensils,
+  Stethoscope
 } from "lucide-react";
 
 const DashboardQuickActions = () => {
@@ -21,60 +23,58 @@ const DashboardQuickActions = () => {
 
   const quickActions = [
     {
-      title: "Анализ крови",
-      description: "Загрузите и интерпретируйте результаты анализов с помощью ИИ",
+      title: "Профиль здоровья",
+      description: "Создайте полный профиль здоровья с персональными данными, медицинской историей и результатами анализов",
+      icon: <Heart className="h-8 w-8 text-pink-600" />,
+      action: () => navigate("/health-profile"),
+      color: "bg-pink-50",
+      badge: <Badge className="bg-green-600 text-white">Основа</Badge>,
+      features: ["Медицинская история", "Лабораторные показатели", "Персонализация"]
+    },
+    {
+      title: "Ваши Анализы",
+      description: "Загружайте и анализируйте результаты лабораторных исследований с помощью ИИ для получения персональных рекомендаций",
       icon: <FileText className="h-8 w-8 text-blue-600" />,
-      action: () => navigate("/blood-analysis"),
-      color: "bg-blue-50 border-blue-200 hover:bg-blue-100",
-      badge: null
+      action: () => navigate("/lab-analyses"),
+      color: "bg-blue-50",
+      badge: <Badge className="bg-blue-600 text-white">ИИ-анализ</Badge>,
+      features: ["Умный анализ", "Рекомендации", "Трекинг динамики"]
     },
     {
-      title: "Здоровье",
-      description: "Отслеживайте жизненные показатели и выполняйте задачи здоровья",
-      icon: <Heart className="h-8 w-8 text-red-600" />,
-      action: () => navigate("/dashboard?tab=health"),
-      color: "bg-red-50 border-red-200 hover:bg-red-100",
-      badge: <Badge variant="secondary" className="bg-red-100 text-red-700">Новое</Badge>
+      title: "Дневник питания",
+      description: "Ведите детальный учет питания с анализом калорийности, макронутриентов и получайте персональные диетические рекомендации",
+      icon: <Utensils className="h-8 w-8 text-green-600" />,
+      action: () => navigate("/nutrition-diary"),
+      color: "bg-green-50",
+      badge: <Badge className="bg-green-600 text-white">Pro</Badge>,
+      features: ["Подсчет калорий", "Анализ БЖУ", "Персональные советы"]
     },
     {
-      title: "ИИ Ассистент",
-      description: "Получите персональные рекомендации от нашего ИИ-помощника",
-      icon: <Brain className="h-8 w-8 text-purple-600" />,
-      action: () => navigate("/dashboard?tab=ai"),
-      color: "bg-purple-50 border-purple-200 hover:bg-purple-100",
-      badge: null
+      title: "Аналитика здоровья",
+      description: "Получайте комплексную аналитику здоровья на основе всех ваших данных с прогнозами и детальными рекомендациями",
+      icon: <BarChart3 className="h-8 w-8 text-purple-600" />,
+      action: () => navigate("/analytics"),
+      color: "bg-purple-50",
+      badge: <Badge className="bg-green-600 text-white">Премиум</Badge>,
+      features: ["Глубокая аналитика", "Прогнозы", "Персональный план"]
     },
     {
       title: "ИИ-доктор",
-      description: "Консультация с персональным ИИ-доктором",
-      icon: <Activity className="h-8 w-8 text-green-600" />,
-      action: () => navigate("/dashboard?tab=doctor"),
-      color: "bg-green-50 border-green-200 hover:bg-green-100",
-      badge: null
-    },
-    {
-      title: "Аналитика",
-      description: "Комплексный анализ здоровья и персональные рекомендации",
-      icon: <BarChart3 className="h-8 w-8 text-orange-600" />,
-      action: () => navigate("/analytics"),
-      color: "bg-orange-50 border-orange-200 hover:bg-orange-100",
-      badge: null
+      description: "Консультируйтесь с искусственным интеллектом по вопросам здоровья, получайте медицинские рекомендации 24/7",
+      icon: <Stethoscope className="h-8 w-8 text-blue-500" />,
+      action: () => navigate("/ai-doctor"),
+      color: "bg-blue-50",
+      badge: <Badge className="bg-blue-600 text-white">ИИ</Badge>,
+      features: ["24/7 доступность", "Медицинская база", "Персональные ответы"]
     },
     {
       title: "База знаний",
-      description: "Медицинские статьи, категории и специалисты",
-      icon: <BookOpen className="h-8 w-8 text-emerald-600" />,
+      description: "Изучайте медицинскую информацию, статьи экспертов, научные исследования и расширяйте знания о здоровье",
+      icon: <BookOpen className="h-8 w-8 text-orange-600" />,
       action: () => navigate("/medical-knowledge"),
-      color: "bg-emerald-50 border-emerald-200 hover:bg-emerald-100",
-      badge: <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">Популярно</Badge>
-    },
-    {
-      title: "Профиль здоровья",
-      description: "Управляйте своим профилем и медицинской историей",
-      icon: <Users className="h-8 w-8 text-indigo-600" />,
-      action: () => navigate("/health-profile"),
-      color: "bg-indigo-50 border-indigo-200 hover:bg-indigo-100",
-      badge: null
+      color: "bg-orange-50",
+      badge: <Badge className="bg-green-600 text-white">Обучение</Badge>,
+      features: ["Экспертные статьи", "Научные данные", "Образовательный контент"]
     }
   ];
 
@@ -83,34 +83,49 @@ const DashboardQuickActions = () => {
       {quickActions.map((action, index) => (
         <Card 
           key={index} 
-          className={`${action.color} transition-all duration-200 cursor-pointer transform hover:scale-105 hover:shadow-lg`}
+          className={`${action.color} border border-gray-200 transition-all duration-200 cursor-pointer transform hover:scale-105 hover:shadow-lg relative`}
           onClick={action.action}
         >
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                {action.icon}
-                <div>
-                  <CardTitle className="text-lg text-gray-900">{action.title}</CardTitle>
-                </div>
-              </div>
+          {action.badge && (
+            <div className="absolute top-3 right-3">
               {action.badge}
             </div>
+          )}
+          
+          <CardHeader className="pb-3">
+            <div className="flex items-center space-x-3 mb-2">
+              {action.icon}
+              <CardTitle className="text-lg text-gray-900">{action.title}</CardTitle>
+            </div>
           </CardHeader>
+          
           <CardContent className="pt-0">
-            <CardDescription className="text-gray-600 mb-4">
+            <CardDescription className="text-gray-600 mb-4 text-sm leading-relaxed">
               {action.description}
             </CardDescription>
+            
+            <div className="mb-4">
+              <p className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">ВОЗМОЖНОСТИ:</p>
+              <div className="flex flex-wrap gap-1">
+                {action.features.map((feature, idx) => (
+                  <span 
+                    key={idx} 
+                    className="text-xs bg-white/60 text-gray-700 px-2 py-1 rounded-full border border-gray-200"
+                  >
+                    {feature}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
             <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full bg-white/60 hover:bg-white/80"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
               onClick={(e) => {
                 e.stopPropagation();
                 action.action();
               }}
             >
-              Перейти
+              Перейти к функции
             </Button>
           </CardContent>
         </Card>

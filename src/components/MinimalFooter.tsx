@@ -3,7 +3,7 @@ import React from 'react';
 
 const MinimalFooter = () => {
   const currentYear = new Date().getFullYear();
-  const version = "1.0.1"; // Версия разработки
+  const version = "1.0.3"; // Обновленная версия
   
   return (
     <footer className="bg-white border-t border-gray-100 py-3">
