@@ -36,7 +36,7 @@ const DashboardQuickActions = () => {
       href: "/nutrition-diary",
       color: "text-green-500",
       bgColor: "bg-green-50",
-      available: canUseFeature(FEATURES.NUTRITION_TRACKING)
+      available: canUseFeature(FEATURES.NUTRITION_DIARY)
     },
     {
       title: "Аналитика здоровья",
@@ -45,7 +45,7 @@ const DashboardQuickActions = () => {
       href: "/analytics",
       color: "text-purple-500",
       bgColor: "bg-purple-50",
-      available: canUseFeature(FEATURES.HEALTH_ANALYTICS)
+      available: canUseFeature(FEATURES.ANALYTICS)
     },
     {
       title: "ИИ-доктор",
@@ -54,7 +54,7 @@ const DashboardQuickActions = () => {
       href: "/ai-doctor",
       color: "text-indigo-500",
       bgColor: "bg-indigo-50",
-      available: canUseFeature(FEATURES.AI_DOCTOR)
+      available: canUseFeature(FEATURES.CHAT_MESSAGES)
     },
     {
       title: "Мои протоколы",
