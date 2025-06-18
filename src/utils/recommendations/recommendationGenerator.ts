@@ -16,7 +16,8 @@ export const generatePersonalizedRecommendations = (healthProfile?: HealthProfil
         specificActions: [
           'Перейдите в раздел "Профиль здоровья"',
           'Заполните основную информацию',
-          'Укажите данные о образе жизни'
+          'Укажите данные о образе жизни',
+          'Добавьте результаты лабораторных анализов'
         ],
         expectedResult: 'Получение персональных рекомендаций по здоровью',
         timeframe: '15 минут',
@@ -25,7 +26,101 @@ export const generatePersonalizedRecommendations = (healthProfile?: HealthProfil
     ];
   }
 
-  // Add recommendations based on health profile data
+  // Анализ лабораторных данных
+  if (healthProfile.labResults) {
+    const { labResults } = healthProfile;
+    
+    // Проверка гемоглобина
+    if (labResults.hemoglobin) {
+      const isLow = (healthProfile.gender === 'male' && labResults.hemoglobin < 130) ||
+                   (healthProfile.gender === 'female' && labResults.hemoglobin < 120);
+      
+      if (isLow) {
+        recommendations.push({
+          id: 'low-hemoglobin',
+          category: 'Лабораторные показатели',
+          title: 'Низкий уровень гемоглобина',
+          priority: 'high',
+          description: 'Ваш уровень гемоглобина ниже нормы, что может указывать на анемию',
+          specificActions: [
+            'Увеличьте потребление железосодержащих продуктов',
+            'Добавьте витамин C для лучшего усвоения железа',
+            'Обратитесь к врачу для дополнительного обследования',
+            'Рассмотрите прием препаратов железа по назначению врача'
+          ],
+          expectedResult: 'Повышение уровня гемоглобина до нормальных значений',
+          timeframe: '2-3 месяца',
+          cost: 'Средняя'
+        });
+      }
+    }
+
+    // Проверка холестерина
+    if (labResults.cholesterol && labResults.cholesterol > 5.2) {
+      recommendations.push({
+        id: 'high-cholesterol',
+        category: 'Лабораторные показатели',
+        title: 'Повышенный холестерин',
+        priority: 'high',
+        description: 'Уровень холестерина превышает норму, что увеличивает риск сердечно-сосудистых заболеваний',
+        specificActions: [
+          'Снизьте потребление насыщенных жиров',
+          'Увеличьте физическую активность',
+          'Добавьте омега-3 жирные кислоты в рацион',
+          'Регулярно контролируйте уровень холестерина'
+        ],
+        expectedResult: 'Снижение холестерина до нормальных значений',
+        timeframe: '3-6 месяцев',
+        cost: 'Минимальная'
+      });
+    }
+
+    // Проверка глюкозы
+    if (labResults.bloodSugar) {
+      if (labResults.bloodSugar > 6.1) {
+        recommendations.push({
+          id: 'high-blood-sugar',
+          category: 'Лабораторные показатели',
+          title: 'Повышенная глюкоза крови',
+          priority: 'high',
+          description: 'Уровень глюкозы превышает норму, требуется контроль углеводного обмена',
+          specificActions: [
+            'Ограничьте потребление простых углеводов',
+            'Увеличьте потребление клетчатки',
+            'Регулярно измеряйте уровень глюкозы',
+            'Обратитесь к эндокринологу'
+          ],
+          expectedResult: 'Нормализация уровня глюкозы крови',
+          timeframe: '1-3 месяца',
+          cost: 'Средняя'
+        });
+      }
+    }
+
+    // Проверка тромбоцитов
+    if (labResults.platelets) {
+      if (labResults.platelets < 150) {
+        recommendations.push({
+          id: 'low-platelets',
+          category: 'Лабораторные показатели',
+          title: 'Пониженные тромбоциты',
+          priority: 'medium',
+          description: 'Низкий уровень тромбоцитов может влиять на свертываемость крови',
+          specificActions: [
+            'Избегайте травматических видов спорта',
+            'Увеличьте потребление продуктов, богатых витамином B12',
+            'Обратитесь к гематологу для обследования',
+            'Регулярно контролируйте показатели крови'
+          ],
+          expectedResult: 'Повышение уровня тромбоцитов',
+          timeframe: '1-2 месяца',
+          cost: 'Средняя'
+        });
+      }
+    }
+  }
+
+  // Базовые рекомендации на основе образа жизни
   if (healthProfile.stressLevel > 6) {
     recommendations.push({
       id: 'stress-management',
@@ -90,7 +185,8 @@ export const generatePersonalizedRecommendations = (healthProfile?: HealthProfil
       specificActions: [
         'Регулярно контролируйте показатели здоровья',
         'Поддерживайте физическую активность',
-        'Следите за питанием'
+        'Следите за питанием',
+        'Обновляйте лабораторные анализы раз в год'
       ],
       expectedResult: 'Поддержание хорошего состояния здоровья',
       timeframe: 'Постоянно',

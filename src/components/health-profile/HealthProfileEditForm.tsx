@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Save, X, Heart, Activity, Brain, Apple, Moon, Stethoscope } from "lucide-react";
 import { HealthProfileData } from "@/types/healthProfile";
 import MedicalHistorySection from "./MedicalHistorySection";
+import LabResultsSection from "./LabResultsSection";
 
 interface HealthProfileEditFormProps {
   healthProfile: HealthProfileData;
@@ -347,11 +348,27 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
         </CardContent>
       </Card>
 
-      {/* Медицинская история */}
+      {/* Лабораторные анализы */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Stethoscope className="h-5 w-5 text-orange-500" />
+            Лабораторные анализы
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <LabResultsSection
+            labResults={healthProfile.labResults || {}}
+            onChange={(labResults) => onChange({ labResults })}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Медицинская история */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Stethoscope className="h-5 w-5 text-red-500" />
             Медицинская история
           </CardTitle>
         </CardHeader>

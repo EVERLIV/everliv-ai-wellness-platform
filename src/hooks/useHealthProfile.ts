@@ -3,35 +3,7 @@ import { useState, useEffect } from "react";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { isDevelopmentMode } from "@/utils/devMode";
-
-export interface HealthProfileData {
-  age: number;
-  gender: string;
-  height: number;
-  weight: number;
-  physicalActivity?: string;
-  exerciseFrequency: number;
-  fitnessLevel?: string;
-  stressLevel: number;
-  anxietyLevel: number;
-  moodChanges?: string;
-  mentalHealthSupport?: string;
-  smokingStatus?: string;
-  alcoholConsumption?: string;
-  dietType?: string;
-  waterIntake: number;
-  caffeineIntake: number;
-  sleepHours: number;
-  sleepQuality?: string;
-  sleepIssues?: string[];
-  chronicConditions?: string[];
-  currentSymptoms?: string[];
-  familyHistory?: string[];
-  allergies?: string[];
-  medications?: string[];
-  previousSurgeries?: string[];
-  lastCheckup?: string;
-}
+import { HealthProfileData } from "@/types/healthProfile";
 
 export const useHealthProfile = () => {
   const { user } = useSmartAuth();
@@ -47,9 +19,9 @@ export const useHealthProfile = () => {
         return;
       }
 
-      // In dev mode, return mock health profile
+      // In dev mode, return mock health profile with lab results
       if (isDevelopmentMode() && user.id === 'dev-admin-12345') {
-        console.log('🔧 Dev mode: Using mock health profile');
+        console.log('🔧 Dev mode: Using mock health profile with lab results');
         const mockProfile: HealthProfileData = {
           age: 32,
           gender: 'male',
@@ -76,7 +48,21 @@ export const useHealthProfile = () => {
           allergies: [],
           medications: [],
           previousSurgeries: [],
-          lastCheckup: '2024-01-15'
+          lastCheckup: '2024-01-15',
+          labResults: {
+            hemoglobin: 145,
+            erythrocytes: 4.5,
+            hematocrit: 42,
+            mcv: 90,
+            mchc: 34,
+            platelets: 280,
+            serumIron: 18,
+            cholesterol: 4.2,
+            bloodSugar: 5.1,
+            ldh: 180,
+            testDate: '2024-06-15',
+            lastUpdated: new Date().toISOString()
+          }
         };
         setHealthProfile(mockProfile);
         setIsLoading(false);
@@ -131,6 +117,7 @@ export const useHealthProfile = () => {
         waterIntake: 6,
         caffeineIntake: 1,
         sleepHours: 7,
+        labResults: {},
         ...updates
       };
       setHealthProfile(newProfile);
@@ -141,6 +128,11 @@ export const useHealthProfile = () => {
     if (!user || !healthProfile) return;
 
     try {
+      // Обновляем lastUpdated для лабораторных данных
+      if (healthProfile.labResults) {
+        healthProfile.labResults.lastUpdated = new Date().toISOString();
+      }
+
       const { error } = await supabase
         .from('health_profiles')
         .upsert({
@@ -160,6 +152,51 @@ export const useHealthProfile = () => {
     }
   };
 
+  const updateLabResultsFromAnalysis = (analysisData: any) => {
+    if (!healthProfile || !analysisData.biomarkers) return;
+
+    const labUpdates: any = {};
+    
+    // Маппинг биомаркеров на поля лабораторных данных
+    analysisData.biomarkers.forEach((biomarker: any) => {
+      const name = biomarker.name.toLowerCase();
+      const value = parseFloat(biomarker.value);
+      
+      if (name.includes('гемоглобин') || name.includes('hemoglobin')) {
+        labUpdates.hemoglobin = value;
+      } else if (name.includes('эритроциты') || name.includes('erythrocytes')) {
+        labUpdates.erythrocytes = value;
+      } else if (name.includes('гематокрит') || name.includes('hematocrit')) {
+        labUpdates.hematocrit = value;
+      } else if (name.includes('mcv')) {
+        labUpdates.mcv = value;
+      } else if (name.includes('mchc')) {
+        labUpdates.mchc = value;
+      } else if (name.includes('тромбоциты') || name.includes('platelets')) {
+        labUpdates.platelets = value;
+      } else if (name.includes('железо') || name.includes('iron')) {
+        labUpdates.serumIron = value;
+      } else if (name.includes('холестерин') || name.includes('cholesterol')) {
+        labUpdates.cholesterol = value;
+      } else if (name.includes('глюкоза') || name.includes('glucose') || name.includes('сахар')) {
+        labUpdates.bloodSugar = value;
+      } else if (name.includes('лдг') || name.includes('ldh')) {
+        labUpdates.ldh = value;
+      }
+    });
+
+    if (Object.keys(labUpdates).length > 0) {
+      const updatedLabResults = {
+        ...healthProfile.labResults,
+        ...labUpdates,
+        lastUpdated: new Date().toISOString()
+      };
+      
+      updateHealthProfile({ labResults: updatedLabResults });
+      console.log('Lab results updated from analysis:', labUpdates);
+    }
+  };
+
   return { 
     healthProfile, 
     isLoading, 
@@ -167,6 +204,7 @@ export const useHealthProfile = () => {
     isEditMode,
     setEditMode,
     updateHealthProfile,
-    saveHealthProfile
+    saveHealthProfile,
+    updateLabResultsFromAnalysis
   };
 };
