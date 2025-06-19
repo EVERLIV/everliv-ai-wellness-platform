@@ -4,7 +4,9 @@ import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
 import HealthProfilePageHeader from "@/components/health-profile/HealthProfilePageHeader";
 import HealthProfileDisplay from "@/components/health-profile/HealthProfileDisplay";
 import HealthProfileEditForm from "@/components/health-profile/HealthProfileEditForm";
+import MobileHealthProfileForm from "@/components/health-profile/MobileHealthProfileForm";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { HealthProfileData } from "@/types/healthProfile";
 
 const HealthProfile: React.FC = () => {
@@ -16,6 +18,8 @@ const HealthProfile: React.FC = () => {
     saveHealthProfile, 
     setEditMode 
   } = useHealthProfile();
+  
+  const isMobile = useIsMobile();
 
   const handleEdit = () => {
     setEditMode(true);
@@ -89,6 +93,18 @@ const HealthProfile: React.FC = () => {
           </div>
         </div>
       </PageLayoutWithHeader>
+    );
+  }
+
+  // Используем мобильную версию для редактирования на мобильных устройствах
+  if (isEditMode && isMobile) {
+    return (
+      <MobileHealthProfileForm
+        healthProfile={healthProfile}
+        onSave={handleSave}
+        onCancel={handleCancel}
+        onChange={updateHealthProfile}
+      />
     );
   }
 
