@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Settings, CreditCard, HelpCircle, LogOut, Crown, LayoutDashboard, Zap, ArrowUp } from "lucide-react";
+import { Settings, CreditCard, HelpCircle, LogOut, Crown, LayoutDashboard, Zap, ArrowUp, Star, Shield } from "lucide-react";
 
 const UserProfileDropdown: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -47,26 +47,26 @@ const UserProfileDropdown: React.FC = () => {
           case 'premium':
             return { 
               plan: 'Премиум', 
-              color: 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white', 
+              color: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 shadow-lg', 
               icon: <Crown className="h-3 w-3" />
             };
           case 'standard':
             return { 
               plan: 'Стандарт', 
-              color: 'bg-gradient-to-r from-blue-400 to-blue-600 text-white', 
-              icon: <Zap className="h-3 w-3" />
+              color: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0 shadow-md', 
+              icon: <Star className="h-3 w-3" />
             };
           case 'basic':
             return { 
               plan: 'Базовый', 
-              color: 'bg-gray-100 text-gray-700', 
-              icon: null
+              color: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0', 
+              icon: <Shield className="h-3 w-3" />
             };
           default:
             return { 
               plan: 'Базовый', 
-              color: 'bg-gray-100 text-gray-700', 
-              icon: null
+              color: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0', 
+              icon: <Shield className="h-3 w-3" />
             };
         }
       }
@@ -76,25 +76,26 @@ const UserProfileDropdown: React.FC = () => {
     if (isTrialActive && trialTimeRemaining) {
       return { 
         plan: `Пробный (${trialTimeRemaining})`, 
-        color: 'bg-gradient-to-r from-green-400 to-green-600 text-white', 
+        color: 'bg-gradient-to-r from-green-400 to-emerald-500 text-white border-0 shadow-md', 
         icon: <Zap className="h-3 w-3" />
       };
     }
     
     return { 
       plan: 'Базовый', 
-      color: 'bg-gray-100 text-gray-700', 
-      icon: null
+      color: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0', 
+      icon: <Shield className="h-3 w-3" />
     };
   };
 
   const subscriptionInfo = getSubscriptionInfo();
-  const isBasicPlan = subscriptionInfo.plan === 'Базовый' || subscriptionInfo.plan === 'Загрузка...';
+  const isPremiumActive = subscription && subscription.status === 'active' && subscription.plan_type === 'premium' && new Date(subscription.expires_at) > new Date();
+  const shouldShowUpgradeButton = !isPremiumActive && !isLoading;
 
   return (
     <div className="flex items-center gap-3">
-      {/* Кнопка улучшения подписки для базового плана */}
-      {isBasicPlan && !isLoading && (
+      {/* Кнопка улучшения подписки только для не-премиум пользователей */}
+      {shouldShowUpgradeButton && (
         <Button 
           size="sm" 
           onClick={() => navigate('/subscription')}
@@ -115,20 +116,26 @@ const UserProfileDropdown: React.FC = () => {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 bg-white border shadow-lg" align="end" forceMount>
+        <DropdownMenuContent className="w-64 bg-white border shadow-lg" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">{getUserName()}</p>
               <p className="text-xs leading-none text-muted-foreground">
                 {user?.email}
               </p>
-              <div className="flex items-center gap-2 mt-2">
-                <Badge className={`text-xs font-medium ${subscriptionInfo.color} border-0`}>
-                  <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2 mt-3">
+                <Badge className={`text-xs font-medium px-3 py-1.5 ${subscriptionInfo.color}`}>
+                  <div className="flex items-center gap-1.5">
                     {subscriptionInfo.icon}
-                    <span>{subscriptionInfo.plan}</span>
+                    <span className="font-semibold">{subscriptionInfo.plan}</span>
                   </div>
                 </Badge>
+                {isPremiumActive && (
+                  <div className="flex items-center gap-1 text-purple-600">
+                    <Crown className="h-3 w-3" />
+                    <span className="text-xs font-medium">VIP</span>
+                  </div>
+                )}
               </div>
             </div>
           </DropdownMenuLabel>
@@ -153,7 +160,7 @@ const UserProfileDropdown: React.FC = () => {
           >
             <CreditCard className="mr-2 h-4 w-4" />
             <span>Подписка</span>
-            {isBasicPlan && !isLoading && (
+            {shouldShowUpgradeButton && (
               <Badge variant="secondary" className="ml-auto bg-yellow-100 text-yellow-800">
                 Улучшить
               </Badge>
