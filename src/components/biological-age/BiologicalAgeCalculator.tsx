@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, Calculator, TrendingUp, Heart } from 'lucide-react';
+import { AlertTriangle, Calculator, TrendingUp, Heart, User } from 'lucide-react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { BIOMARKERS, ACCURACY_LEVELS } from '@/data/biomarkers';
 import { Biomarker, BiologicalAgeResult, AccuracyLevel } from '@/types/biologicalAge';
@@ -119,12 +118,12 @@ const BiologicalAgeCalculator = () => {
           exercise_frequency: healthProfile.exerciseFrequency,
           stress_level: healthProfile.stressLevel,
           sleep_hours: healthProfile.sleepHours,
-          smoking_status: healthProfile.smokingStatus,
-          alcohol_consumption: healthProfile.alcoholConsumption
+          smoking_status: healthProfile.smokingStatus || 'never',
+          alcohol_consumption: healthProfile.alcoholConsumption || 'never'
         },
         biomarkers: filledBiomarkers.map(b => ({
           name: b.name,
-          value: b.value,
+          value: b.value!,
           unit: b.unit,
           normal_range: b.normal_range,
           category: b.category
@@ -143,7 +142,7 @@ const BiologicalAgeCalculator = () => {
         confidence_level: Math.min(95, 50 + (currentAccuracy.current_tests * 2)),
         analysis: aiResults.detailedAnalysis || 'Анализ не доступен',
         recommendations: aiResults.recommendations?.map(r => r.recommendation) || [],
-        missing_analyses: [],
+        missing_analyses: aiResults.missingAnalyses || [],
         next_suggested_tests: []
       };
 
@@ -176,17 +175,79 @@ const BiologicalAgeCalculator = () => {
     );
   }
 
+  const getCategoryTitle = (category: string) => {
+    const titles = {
+      'cardiovascular': 'Сердечно-сосудистая система',
+      'metabolic': 'Метаболические маркеры',
+      'hormonal': 'Гормональная система',
+      'inflammatory': 'Воспалительные маркеры',
+      'oxidative_stress': 'Окислительный стресс',
+      'kidney_function': 'Почечная функция',
+      'liver_function': 'Печеночная функция',
+      'telomeres_epigenetics': 'Теломеры и эпигенетика'
+    };
+    return titles[category as keyof typeof titles] || category;
+  };
+
   return (
     <div className="space-y-6">
+      {/* Информация о пользователе из профиля здоровья */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Данные из профиля здоровья
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <span className="font-medium">Возраст:</span> {healthProfile.age} лет
+            </div>
+            <div>
+              <span className="font-medium">Пол:</span> {
+                healthProfile.gender === 'male' ? 'Мужской' : 
+                healthProfile.gender === 'female' ? 'Женский' : 'Другой'
+              }
+            </div>
+            <div>
+              <span className="font-medium">Рост:</span> {healthProfile.height} см
+            </div>
+            <div>
+              <span className="font-medium">Вес:</span> {healthProfile.weight} кг
+            </div>
+            <div>
+              <span className="font-medium">Курение:</span> {
+                healthProfile.smokingStatus === 'never' ? 'Не курю' :
+                healthProfile.smokingStatus === 'former' ? 'Бросил' : 'Курю'
+              }
+            </div>
+            <div>
+              <span className="font-medium">Алкоголь:</span> {
+                healthProfile.alcoholConsumption === 'never' ? 'Не употребляю' :
+                healthProfile.alcoholConsumption === 'rarely' ? 'Редко' :
+                healthProfile.alcoholConsumption === 'occasionally' ? 'Иногда' : 'Регулярно'
+              }
+            </div>
+            <div>
+              <span className="font-medium">Сон:</span> {healthProfile.sleepHours} часов
+            </div>
+            <div>
+              <span className="font-medium">Упражнения:</span> {healthProfile.exerciseFrequency} раз/неделю
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Заголовок и описание */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calculator className="h-5 w-5" />
-            Калькулятор биологического возраста
+            Рекомендуемые анализы для определения биологического возраста
           </CardTitle>
           <p className="text-sm text-gray-600">
-            Определите свой биологический возраст на основе биомаркеров и данных профиля здоровья
+            Добавьте результаты анализов для более точного расчета биологического возраста
           </p>
         </CardHeader>
         <CardContent>
@@ -218,14 +279,7 @@ const BiologicalAgeCalculator = () => {
           <Card key={category}>
             <CardHeader>
               <CardTitle className="text-lg">
-                {category === 'cardiovascular' && 'Сердечно-сосудистая система'}
-                {category === 'metabolic' && 'Метаболические маркеры'}
-                {category === 'hormonal' && 'Гормональная система'}
-                {category === 'inflammatory' && 'Воспалительные маркеры'}
-                {category === 'oxidative_stress' && 'Окислительный стресс'}
-                {category === 'kidney_function' && 'Почечная функция'}
-                {category === 'liver_function' && 'Печеночная функция'}
-                {category === 'telomeres_epigenetics' && 'Теломеры и эпигенетика'}
+                {getCategoryTitle(category)}
               </CardTitle>
             </CardHeader>
             <CardContent>

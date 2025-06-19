@@ -1,5 +1,5 @@
 
-import { Biomarker } from '@/types/biologicalAge';
+import { Biomarker, AccuracyLevel } from '@/types/biologicalAge';
 
 export const BIOMARKERS: Biomarker[] = [
   // Сердечно-сосудистая система
@@ -7,9 +7,9 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'total_cholesterol',
     name: 'Общий холестерин',
     category: 'cardiovascular',
-    description: 'Анализ крови на липидный профиль',
-    analysis_type: 'Липидный профиль',
-    normal_range: { min: 3.6, max: 5.2, optimal: 4.5 },
+    description: 'Общий уровень холестерина в крови',
+    analysis_type: 'Анализ крови на липидный профиль',
+    normal_range: { min: 3.0, max: 5.2, optimal: 4.5 },
     unit: 'ммоль/л',
     status: 'not_filled',
     importance: 'high'
@@ -18,9 +18,9 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'ldl_cholesterol',
     name: 'ЛПНП (плохой холестерин)',
     category: 'cardiovascular',
-    description: 'Анализ крови на липидный профиль',
-    analysis_type: 'Липидный профиль',
-    normal_range: { min: 0, max: 3.0, optimal: 2.5 },
+    description: 'Липопротеины низкой плотности',
+    analysis_type: 'Анализ крови на липидный профиль',
+    normal_range: { min: 1.0, max: 3.0, optimal: 2.0 },
     unit: 'ммоль/л',
     status: 'not_filled',
     importance: 'high'
@@ -29,8 +29,8 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'hdl_cholesterol',
     name: 'ЛПВП (хороший холестерин)',
     category: 'cardiovascular',
-    description: 'Анализ крови на липидный профиль',
-    analysis_type: 'Липидный профиль',
+    description: 'Липопротеины высокой плотности',
+    analysis_type: 'Анализ крови на липидный профиль',
     normal_range: { min: 1.0, max: 2.5, optimal: 1.5 },
     unit: 'ммоль/л',
     status: 'not_filled',
@@ -40,31 +40,31 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'triglycerides',
     name: 'Триглицериды',
     category: 'cardiovascular',
-    description: 'Анализ крови на липидный профиль',
-    analysis_type: 'Липидный профиль',
-    normal_range: { min: 0, max: 1.7, optimal: 1.0 },
+    description: 'Уровень триглицеридов в крови',
+    analysis_type: 'Анализ крови на липидный профиль',
+    normal_range: { min: 0.5, max: 1.7, optimal: 1.0 },
     unit: 'ммоль/л',
     status: 'not_filled',
-    importance: 'high'
+    importance: 'medium'
   },
   {
     id: 'crp',
     name: 'С-реактивный белок (СРБ)',
     category: 'cardiovascular',
-    description: 'Анализ крови на СРБ высокочувствительный',
-    analysis_type: 'СРБ высокочувствительный',
+    description: 'Маркер воспаления в организме',
+    analysis_type: 'Анализ крови на СРБ высокочувствительный',
     normal_range: { min: 0, max: 3.0, optimal: 1.0 },
     unit: 'мг/л',
     status: 'not_filled',
-    importance: 'medium'
+    importance: 'high'
   },
   {
     id: 'homocysteine',
     name: 'Гомоцистеин',
     category: 'cardiovascular',
-    description: 'Анализ крови на гомоцистеин',
-    analysis_type: 'Гомоцистеин',
-    normal_range: { min: 5, max: 15, optimal: 10 },
+    description: 'Аминокислота, маркер сердечно-сосудистого риска',
+    analysis_type: 'Анализ крови на гомоцистеин',
+    normal_range: { min: 5, max: 15, optimal: 8 },
     unit: 'мкмоль/л',
     status: 'not_filled',
     importance: 'medium'
@@ -75,8 +75,8 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'glucose',
     name: 'Глюкоза натощак',
     category: 'metabolic',
-    description: 'Анализ крови на глюкозу',
-    analysis_type: 'Глюкоза крови',
+    description: 'Уровень сахара в крови натощак',
+    analysis_type: 'Анализ крови на глюкозу',
     normal_range: { min: 3.9, max: 6.1, optimal: 5.0 },
     unit: 'ммоль/л',
     status: 'not_filled',
@@ -86,8 +86,8 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'hba1c',
     name: 'Гликированный гемоглобин (HbA1c)',
     category: 'metabolic',
-    description: 'Анализ крови на HbA1c',
-    analysis_type: 'HbA1c',
+    description: 'Средний уровень глюкозы за последние 2-3 месяца',
+    analysis_type: 'Анализ крови на HbA1c',
     normal_range: { min: 4.0, max: 6.0, optimal: 5.0 },
     unit: '%',
     status: 'not_filled',
@@ -97,10 +97,21 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'insulin',
     name: 'Инсулин',
     category: 'metabolic',
-    description: 'Анализ крови на инсулин',
-    analysis_type: 'Инсулин',
+    description: 'Уровень инсулина в крови',
+    analysis_type: 'Анализ крови на инсулин',
     normal_range: { min: 2.6, max: 24.9, optimal: 10.0 },
-    unit: 'мкЕД/мл',
+    unit: 'мкЕд/мл',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+  {
+    id: 'homa_ir',
+    name: 'HOMA-IR индекс',
+    category: 'metabolic',
+    description: 'Индекс инсулинорезистентности',
+    analysis_type: 'Расчетный показатель инсулинорезистентности',
+    normal_range: { min: 0, max: 2.7, optimal: 1.0 },
+    unit: 'единицы',
     status: 'not_filled',
     importance: 'medium'
   },
@@ -108,33 +119,44 @@ export const BIOMARKERS: Biomarker[] = [
   // Гормональная система
   {
     id: 'testosterone',
-    name: 'Тестостерон общий',
+    name: 'Тестостерон (общий)',
     category: 'hormonal',
-    description: 'Анализ крови на гормоны',
-    analysis_type: 'Половые гормоны',
-    normal_range: { min: 8.64, max: 29.0, optimal: 20.0, gender_dependent: true },
+    description: 'Общий тестостерон в крови',
+    analysis_type: 'Анализ крови на гормоны',
+    normal_range: { min: 12, max: 33, optimal: 20 },
     unit: 'нмоль/л',
     status: 'not_filled',
     importance: 'high'
   },
   {
-    id: 'estradiol',
-    name: 'Эстрадиол',
+    id: 'free_testosterone',
+    name: 'Тестостерон (свободный)',
     category: 'hormonal',
-    description: 'Анализ крови на половые гормоны',
-    analysis_type: 'Половые гормоны',
-    normal_range: { min: 46, max: 607, optimal: 300, gender_dependent: true },
+    description: 'Биологически активный тестостерон',
+    analysis_type: 'Анализ крови на гормоны',
+    normal_range: { min: 243, max: 827, optimal: 500 },
     unit: 'пмоль/л',
     status: 'not_filled',
-    importance: 'high'
+    importance: 'medium'
+  },
+  {
+    id: 'estradiol',
+    name: 'Эстрадиол (для женщин)',
+    category: 'hormonal',
+    description: 'Основной женский половой гормон',
+    analysis_type: 'Анализ крови на половые гормоны',
+    normal_range: { min: 46, max: 607, optimal: 200 },
+    unit: 'пмоль/л',
+    status: 'not_filled',
+    importance: 'medium'
   },
   {
     id: 'cortisol',
     name: 'Кортизол',
     category: 'hormonal',
-    description: 'Анализ крови на кортизол',
-    analysis_type: 'Кортизол',
-    normal_range: { min: 171, max: 536, optimal: 350 },
+    description: 'Гормон стресса',
+    analysis_type: 'Анализ крови на кортизол',
+    normal_range: { min: 138, max: 690, optimal: 400 },
     unit: 'нмоль/л',
     status: 'not_filled',
     importance: 'medium'
@@ -143,45 +165,45 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'igf1',
     name: 'Гормон роста (IGF-1)',
     category: 'hormonal',
-    description: 'Анализ крови на IGF-1',
-    analysis_type: 'IGF-1',
-    normal_range: { min: 115, max: 307, optimal: 200, age_dependent: true },
+    description: 'Инсулиноподобный фактор роста',
+    analysis_type: 'Анализ крови на IGF-1',
+    normal_range: { min: 115, max: 307, optimal: 200 },
     unit: 'нг/мл',
     status: 'not_filled',
-    importance: 'medium'
+    importance: 'low'
   },
   {
     id: 'tsh',
     name: 'Тиреотропный гормон (ТТГ)',
     category: 'hormonal',
-    description: 'Анализ крови на гормоны щитовидной железы',
-    analysis_type: 'Гормоны щитовидной железы',
-    normal_range: { min: 0.27, max: 4.2, optimal: 2.0 },
-    unit: 'мЕД/л',
+    description: 'Гормон, регулирующий работу щитовидной железы',
+    analysis_type: 'Анализ крови на гормоны щитовидной железы',
+    normal_range: { min: 0.4, max: 4.0, optimal: 2.0 },
+    unit: 'мЕд/л',
     status: 'not_filled',
-    importance: 'high'
+    importance: 'medium'
   },
   {
     id: 't3',
     name: 'Т3 (трийодтиронин)',
     category: 'hormonal',
-    description: 'Анализ крови на гормоны щитовидной железы',
-    analysis_type: 'Гормоны щитовидной железы',
-    normal_range: { min: 1.2, max: 3.1, optimal: 2.0 },
-    unit: 'нмоль/л',
+    description: 'Активный гормон щитовидной железы',
+    analysis_type: 'Анализ крови на гормоны щитовидной железы',
+    normal_range: { min: 3.1, max: 6.8, optimal: 5.0 },
+    unit: 'пмоль/л',
     status: 'not_filled',
-    importance: 'medium'
+    importance: 'low'
   },
   {
     id: 't4',
     name: 'Т4 (тироксин)',
     category: 'hormonal',
-    description: 'Анализ крови на гормоны щитовидной железы',
-    analysis_type: 'Гормоны щитовидной железы',
-    normal_range: { min: 66, max: 181, optimal: 120 },
-    unit: 'нмоль/л',
+    description: 'Основной гормон щитовидной железы',
+    analysis_type: 'Анализ крови на гормоны щитовидной железы',
+    normal_range: { min: 12, max: 22, optimal: 17 },
+    unit: 'пмоль/л',
     status: 'not_filled',
-    importance: 'medium'
+    importance: 'low'
   },
 
   // Воспалительные маркеры
@@ -189,8 +211,8 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'il6',
     name: 'Интерлейкин-6 (IL-6)',
     category: 'inflammatory',
-    description: 'Анализ крови на цитокины',
-    analysis_type: 'Цитокины',
+    description: 'Провоспалительный цитокин',
+    analysis_type: 'Анализ крови на цитокины',
     normal_range: { min: 0, max: 7.0, optimal: 2.0 },
     unit: 'пг/мл',
     status: 'not_filled',
@@ -200,8 +222,8 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'tnf_alpha',
     name: 'Фактор некроза опухоли (TNF-α)',
     category: 'inflammatory',
-    description: 'Анализ крови на цитокины',
-    analysis_type: 'Цитокины',
+    description: 'Провоспалительный цитокин',
+    analysis_type: 'Анализ крови на цитокины',
     normal_range: { min: 0, max: 8.1, optimal: 3.0 },
     unit: 'пг/мл',
     status: 'not_filled',
@@ -211,9 +233,9 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'esr',
     name: 'Скорость оседания эритроцитов (СОЭ)',
     category: 'inflammatory',
-    description: 'Общий анализ крови с СОЭ',
-    analysis_type: 'Общий анализ крови',
-    normal_range: { min: 0, max: 20, optimal: 10, gender_dependent: true },
+    description: 'Неспецифический показатель воспаления',
+    analysis_type: 'Общий анализ крови с СОЭ',
+    normal_range: { min: 0, max: 15, optimal: 5 },
     unit: 'мм/ч',
     status: 'not_filled',
     importance: 'medium'
@@ -224,10 +246,10 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'vitamin_d',
     name: 'Витамин D',
     category: 'oxidative_stress',
-    description: 'Анализ крови на 25-OH витамин D',
-    analysis_type: '25-OH витамин D',
-    normal_range: { min: 30, max: 100, optimal: 50 },
-    unit: 'нг/мл',
+    description: '25-гидроксивитамин D',
+    analysis_type: 'Анализ крови на 25-OH витамин D',
+    normal_range: { min: 75, max: 250, optimal: 125 },
+    unit: 'нмоль/л',
     status: 'not_filled',
     importance: 'high'
   },
@@ -235,10 +257,10 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'vitamin_b12',
     name: 'Витамин B12',
     category: 'oxidative_stress',
-    description: 'Анализ крови на витамин B12',
-    analysis_type: 'Витамин B12',
-    normal_range: { min: 191, max: 663, optimal: 400 },
-    unit: 'пг/мл',
+    description: 'Цианокобаламин',
+    analysis_type: 'Анализ крови на витамин B12',
+    normal_range: { min: 208, max: 963, optimal: 500 },
+    unit: 'пмоль/л',
     status: 'not_filled',
     importance: 'medium'
   },
@@ -246,12 +268,34 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'folate',
     name: 'Фолиевая кислота',
     category: 'oxidative_stress',
-    description: 'Анализ крови на фолиевую кислоту',
-    analysis_type: 'Фолиевая кислота',
-    normal_range: { min: 2.7, max: 17.0, optimal: 10.0 },
-    unit: 'нг/мл',
+    description: 'Витамин B9',
+    analysis_type: 'Анализ крови на фолиевую кислоту',
+    normal_range: { min: 10, max: 42, optimal: 25 },
+    unit: 'нмоль/л',
     status: 'not_filled',
     importance: 'medium'
+  },
+  {
+    id: 'selenium',
+    name: 'Селен',
+    category: 'oxidative_stress',
+    description: 'Микроэлемент-антиоксидант',
+    analysis_type: 'Анализ крови на микроэлементы',
+    normal_range: { min: 0.7, max: 1.5, optimal: 1.0 },
+    unit: 'мкмоль/л',
+    status: 'not_filled',
+    importance: 'low'
+  },
+  {
+    id: 'zinc',
+    name: 'Цинк',
+    category: 'oxidative_stress',
+    description: 'Микроэлемент для иммунитета',
+    analysis_type: 'Анализ крови на микроэлементы',
+    normal_range: { min: 10.7, max: 17.0, optimal: 14.0 },
+    unit: 'мкмоль/л',
+    status: 'not_filled',
+    importance: 'low'  
   },
 
   // Почечная функция
@@ -259,21 +303,32 @@ export const BIOMARKERS: Biomarker[] = [
     id: 'creatinine',
     name: 'Креатинин',
     category: 'kidney_function',
-    description: 'Биохимический анализ крови',
-    analysis_type: 'Биохимический анализ',
-    normal_range: { min: 62, max: 115, optimal: 85, gender_dependent: true },
+    description: 'Показатель функции почек',
+    analysis_type: 'Биохимический анализ крови',
+    normal_range: { min: 62, max: 115, optimal: 88 },
     unit: 'мкмоль/л',
     status: 'not_filled',
-    importance: 'high'
+    importance: 'medium'
   },
   {
     id: 'urea',
     name: 'Мочевина',
     category: 'kidney_function',
-    description: 'Биохимический анализ крови',
-    analysis_type: 'Биохимический анализ',
-    normal_range: { min: 2.5, max: 6.4, optimal: 4.0 },
+    description: 'Продукт белкового обмена',
+    analysis_type: 'Биохимический анализ крови',
+    normal_range: { min: 2.5, max: 8.3, optimal: 5.0 },
     unit: 'ммоль/л',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+  {
+    id: 'egfr',
+    name: 'СКФ (скорость клубочковой фильтрации)',
+    category: 'kidney_function',
+    description: 'Оценка функции почек',
+    analysis_type: 'Расчетный показатель',
+    normal_range: { min: 90, max: 120, optimal: 100 },
+    unit: 'мл/мин/1.73м²',
     status: 'not_filled',
     importance: 'medium'
   },
@@ -281,52 +336,77 @@ export const BIOMARKERS: Biomarker[] = [
   // Печеночная функция
   {
     id: 'alt',
-    name: 'АЛТ',
+    name: 'АЛТ (аланинаминотрансфераза)',
     category: 'liver_function',
-    description: 'Биохимический анализ крови',
-    analysis_type: 'Биохимический анализ',
-    normal_range: { min: 7, max: 56, optimal: 30, gender_dependent: true },
+    description: 'Фермент печени',
+    analysis_type: 'Биохимический анализ крови',
+    normal_range: { min: 0, max: 41, optimal: 20 },
     unit: 'Ед/л',
     status: 'not_filled',
     importance: 'medium'
   },
   {
     id: 'ast',
-    name: 'АСТ',
+    name: 'АСТ (аспартатаминотрансфераза)',
     category: 'liver_function',
-    description: 'Биохимический анализ крови',
-    analysis_type: 'Биохимический анализ',
-    normal_range: { min: 10, max: 40, optimal: 25, gender_dependent: true },
+    description: 'Фермент печени и сердца',
+    analysis_type: 'Биохимический анализ крови',
+    normal_range: { min: 0, max: 40, optimal: 20 },
     unit: 'Ед/л',
     status: 'not_filled',
     importance: 'medium'
   },
   {
     id: 'bilirubin',
-    name: 'Билирубин',
+    name: 'Билирубин общий',
     category: 'liver_function',
-    description: 'Биохимический анализ крови',
-    analysis_type: 'Биохимический анализ',
+    description: 'Продукт распада гемоглобина',
+    analysis_type: 'Биохимический анализ крови',
     normal_range: { min: 5, max: 21, optimal: 12 },
     unit: 'мкмоль/л',
     status: 'not_filled',
     importance: 'medium'
+  },
+
+  // Теломеры и эпигенетика
+  {
+    id: 'telomere_length',
+    name: 'Длина теломер',
+    category: 'telomeres_epigenetics',
+    description: 'Показатель клеточного старения',
+    analysis_type: 'Анализ на теломеры (специализированный)',
+    normal_range: { min: 0.8, max: 1.2, optimal: 1.0 },
+    unit: 'T/S отношение',
+    status: 'not_filled',
+    importance: 'low'
+  },
+  {
+    id: 'epigenetic_age',
+    name: 'Эпигенетический возраст',
+    category: 'telomeres_epigenetics',
+    description: 'Биологический возраст на основе ДНК',
+    analysis_type: 'DNAm анализ (специализированный)',
+    normal_range: { min: 20, max: 80, optimal: 35 },
+    unit: 'лет',
+    status: 'not_filled',
+    importance: 'low'
   }
 ];
 
-export const BIOMARKER_CATEGORIES = {
-  cardiovascular: 'Сердечно-сосудистая система',
-  metabolic: 'Метаболические маркеры',
-  hormonal: 'Гормональная система',
-  inflammatory: 'Воспалительные маркеры',
-  oxidative_stress: 'Окислительный стресс',
-  kidney_function: 'Почечная функция',
-  liver_function: 'Печеночная функция',
-  telomeres_epigenetics: 'Теломеры и эпигенетика'
-};
-
 export const ACCURACY_LEVELS = {
-  basic: { min: 3, max: 5, percentage: 60, description: 'Базовый расчет' },
-  extended: { min: 10, max: 15, percentage: 80, description: 'Расширенный анализ' },
-  comprehensive: { min: 20, max: 30, percentage: 95, description: 'Полный профиль' }
+  basic: {
+    min: 8,
+    percentage: 60,
+    description: 'Базовый расчет'
+  },
+  extended: {
+    min: 16,
+    percentage: 80,
+    description: 'Расширенный анализ'
+  },
+  comprehensive: {
+    min: 24,
+    percentage: 95,
+    description: 'Максимальная точность'
+  }
 };
