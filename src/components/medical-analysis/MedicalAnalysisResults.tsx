@@ -1,12 +1,14 @@
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, TrendingUp, TrendingDown, Minus, ArrowLeft, Mail, Share } from "lucide-react";
+import { AlertCircle, TrendingUp, TrendingDown, Minus, ArrowLeft, Mail, Share, Save } from "lucide-react";
 import { MedicalAnalysisResults as ResultsType } from "@/services/ai/medical-analysis";
 import { toast } from "sonner";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 
 interface MedicalAnalysisResultsProps {
   results: ResultsType | null;
@@ -16,6 +18,10 @@ interface MedicalAnalysisResultsProps {
 }
 
 const MedicalAnalysisResults = ({ results, isAnalyzing, apiError, onBack }: MedicalAnalysisResultsProps) => {
+  const { user } = useSmartAuth();
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
   const handleShareResults = () => {
     if (navigator.share) {
       navigator.share({
@@ -26,6 +32,97 @@ const MedicalAnalysisResults = ({ results, isAnalyzing, apiError, onBack }: Medi
     } else {
       navigator.clipboard.writeText(window.location.href);
       toast.success('Ссылка скопирована в буфер обмена');
+    }
+  };
+
+  const handleSaveResults = async () => {
+    if (!results || !user?.id) {
+      toast.error('Не удается сохранить результаты');
+      return;
+    }
+
+    setIsSaving(true);
+    console.log('🔄 Сохранение результатов анализа:', {
+      analysisType: results.analysisType,
+      markersCount: results.markers.length,
+      userId: user.id
+    });
+
+    try {
+      // Проверяем, не сохранен ли уже анализ
+      if (results.analysisId) {
+        const { data: existingAnalysis } = await supabase
+          .from('medical_analyses')
+          .select('id')
+          .eq('id', results.analysisId)
+          .single();
+
+        if (existingAnalysis) {
+          console.log('✅ Анализ уже сохранен:', results.analysisId);
+          setIsSaved(true);
+          toast.success('Анализ уже сохранен в вашей истории');
+          setIsSaving(false);
+          return;
+        }
+      }
+
+      // Сохраняем анализ в базу данных
+      const analysisData = {
+        user_id: user.id,
+        analysis_type: results.analysisType,
+        results: results,
+        summary: results.summary,
+        input_method: 'text',
+        created_at: new Date().toISOString()
+      };
+
+      console.log('💾 Сохраняем данные анализа:', analysisData);
+
+      const { data: savedAnalysis, error: analysisError } = await supabase
+        .from('medical_analyses')
+        .insert(analysisData)
+        .select('id')
+        .single();
+
+      if (analysisError) {
+        console.error('❌ Ошибка сохранения анализа:', analysisError);
+        throw analysisError;
+      }
+
+      console.log('✅ Анализ сохранен с ID:', savedAnalysis.id);
+
+      // Сохраняем биомаркеры
+      if (results.markers && results.markers.length > 0) {
+        const biomarkersData = results.markers.map(marker => ({
+          analysis_id: savedAnalysis.id,
+          name: marker.name,
+          value: marker.value,
+          reference_range: marker.normalRange,
+          status: marker.status
+        }));
+
+        console.log('🧬 Сохраняем биомаркеры:', biomarkersData.length);
+
+        const { error: biomarkersError } = await supabase
+          .from('biomarkers')
+          .insert(biomarkersData);
+
+        if (biomarkersError) {
+          console.error('⚠️ Ошибка сохранения биомаркеров:', biomarkersError);
+          // Не останавливаем процесс, так как основной анализ уже сохранен
+        } else {
+          console.log('✅ Биомаркеры сохранены успешно');
+        }
+      }
+
+      setIsSaved(true);
+      toast.success('Результаты анализа сохранены в вашей истории!');
+
+    } catch (error) {
+      console.error('❌ Ошибка при сохранении:', error);
+      toast.error('Ошибка при сохранении результатов');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -107,6 +204,15 @@ const MedicalAnalysisResults = ({ results, isAnalyzing, apiError, onBack }: Medi
           <Badge variant={getRiskLevelColor(results.riskLevel)} className="px-3 py-1">
             {getRiskLevelText(results.riskLevel)}
           </Badge>
+          <Button 
+            variant="outline" 
+            onClick={handleSaveResults}
+            disabled={isSaving || isSaved}
+            className="flex items-center gap-2"
+          >
+            <Save className="h-4 w-4" />
+            {isSaving ? 'Сохранение...' : isSaved ? 'Сохранено' : 'Сохранить'}
+          </Button>
           <Button variant="outline" onClick={handleShareResults} className="flex items-center gap-2">
             <Share className="h-4 w-4" />
             Поделиться
@@ -117,6 +223,17 @@ const MedicalAnalysisResults = ({ results, isAnalyzing, apiError, onBack }: Medi
           </Button>
         </div>
       </div>
+
+      {/* Уведомление о сохранении */}
+      {isSaved && (
+        <Alert>
+          <Save className="h-4 w-4" />
+          <AlertTitle>Результаты сохранены</AlertTitle>
+          <AlertDescription>
+            Анализ успешно сохранен в вашей истории и доступен в разделе "Лабораторные анализы".
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Уведомление об отправленном email */}
       <Alert>
