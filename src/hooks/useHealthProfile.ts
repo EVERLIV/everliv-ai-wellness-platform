@@ -148,11 +148,13 @@ export const useHealthProfile = () => {
           user_id: user.id,
           profile_data: healthProfile as unknown as any,
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
         });
 
       if (error) {
         console.error('Error saving health profile:', error);
-        toast.error('Ошибка при сохранении профиля здоровья');
+        toast.error('Ошибка при сохранении профиля здоровья: ' + error.message);
         return false;
       }
 

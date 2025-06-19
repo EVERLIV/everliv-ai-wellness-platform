@@ -42,11 +42,16 @@ export const checkTrialStatusService = async (userId: string) => {
       .from('profiles')
       .select('created_at')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
     
-    if (userError) throw userError;
+    if (userError) {
+      console.error("Error fetching user profile:", userError);
+      // If we can't find the user profile, default to trial not active
+      return { isActive: false, expiresAt: null };
+    }
     
     if (!userData) {
+      console.log("No user profile found, trial not active");
       return { isActive: false, expiresAt: null };
     }
     
