@@ -4,11 +4,11 @@ import InteractiveHealthChart from './InteractiveHealthChart';
 import { useLabAnalysesData } from '@/hooks/useLabAnalysesData';
 
 const DashboardHealthCharts: React.FC = () => {
-  const { analyses, isLoading } = useLabAnalysesData();
+  const { analysisHistory, loadingHistory } = useLabAnalysesData();
 
   // Преобразуем данные анализов в формат для графиков
   const generateChartData = (parameterName: string) => {
-    return analyses
+    return analysisHistory
       .filter(analysis => analysis.results?.markers?.some((m: any) => m.name === parameterName))
       .map(analysis => {
         const marker = analysis.results.markers.find((m: any) => m.name === parameterName);
@@ -38,7 +38,7 @@ const DashboardHealthCharts: React.FC = () => {
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   };
 
-  if (isLoading) {
+  if (loadingHistory) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {[1, 2, 3, 4].map(i => (
@@ -51,7 +51,7 @@ const DashboardHealthCharts: React.FC = () => {
   // Определяем основные показатели для отображения
   const mainParameters = ['Гемоглобин', 'Лейкоциты', 'Глюкоза', 'Тромбоциты'];
   const availableParameters = mainParameters.filter(param => 
-    analyses.some(analysis => 
+    analysisHistory.some(analysis => 
       analysis.results?.markers?.some((m: any) => m.name === param)
     )
   );
