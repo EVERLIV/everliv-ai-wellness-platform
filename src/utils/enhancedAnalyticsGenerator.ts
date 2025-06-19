@@ -1,4 +1,3 @@
-
 import { CachedAnalytics, AnalysisRecord, ChatRecord } from '@/types/analytics';
 import { EnhancedHealthAnalyzer, EnhancedHealthProfile } from '@/services/health-analytics/enhanced-health-analyzer';
 import { generateRecentActivities, checkRecentActivity } from './analytics/activityGenerator';
@@ -442,9 +441,51 @@ export const generateEnhancedAnalytics = async (
       height: parseFloat(healthProfileData.height) || 170,
       weight: parseFloat(healthProfileData.weight) || 70,
       smokingStatus: processHealthProfileValue(healthProfileData.smokingStatus) || 'never',
-      physicalActivity: processHealth
+      physicalActivity: processHealthProfileValue(healthProfileData.physicalActivity) || 'moderate',
+      exerciseFrequency: parseInt(healthProfileData.exerciseFrequency) || 3,
+      sleepHours: parseFloat(healthProfileData.sleepHours) || 8,
+      stressLevel: parseInt(healthProfileData.stressLevel) || 5,
+      alcoholConsumption: processHealthProfileValue(healthProfileData.alcoholConsumption) || 'rarely',
+      waterIntake: parseFloat(healthProfileData.waterIntake) || 6,
+      mentalHealthScore: parseInt(healthProfileData.mentalHealthScore) || 70,
+      restingHeartRate: parseFloat(healthProfileData.restingHeartRate) || null,
+      bloodPressure: healthProfileData.bloodPressure ? {
+        systolic: parseFloat(healthProfileData.bloodPressure.systolic) || 120,
+        diastolic: parseFloat(healthProfileData.bloodPressure.diastolic) || 80
+      } : null,
+      medicalConditions: processHealthProfileValue(healthProfileData.medicalConditions) || []
+    };
 
-[…file continues]
+    const healthScore = await calculateEnhancedHealthScore(enhancedProfile, analyses, userId);
+    const biomarkerTrends = analyzeBiomarkerTrends(analyses);
+    const recentActivities = generateRecentActivities(analyses, chats);
+    
+    let riskLevel: 'low' | 'moderate' | 'high' | 'critical' = 'low';
+    if (healthScore < 40) riskLevel = 'critical';
+    else if (healthScore < 60) riskLevel = 'high';
+    else if (healthScore < 80) riskLevel = 'moderate';
+
+    const healthScoreExplanation = generateScoreExplanation(healthScore, enhancedProfile, analyses);
+
+    const analytics: CachedAnalytics = {
+      healthScore,
+      riskLevel,
+      totalAnalyses,
+      totalConsultations,
+      biomarkerTrends,
+      recentActivities,
+      lastUpdated: new Date().toISOString(),
+      healthScoreExplanation
+    };
+
+    console.log('Enhanced analytics generated:', analytics);
+    return analytics;
+
+  } catch (error) {
+    console.error('Error generating enhanced analytics:', error);
+    return null;
+  }
+};
 
 const generateScoreExplanation = (score: number, profile: EnhancedHealthProfile, analyses: AnalysisRecord[]): string => {
   const factors = [];
