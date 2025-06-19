@@ -19,12 +19,10 @@ const calculateAge = (dateOfBirth: string): number => {
 };
 
 const processHealthProfileValue = (value: any): any => {
-  // Если значение - это объект с полем customValue, возвращаем его
   if (typeof value === 'object' && value?.customValue) {
     return value.customValue;
   }
   
-  // Если значение - это массив, обрабатываем каждый элемент
   if (Array.isArray(value)) {
     return value.map(item => {
       if (typeof item === 'object' && item?.customValue) {
@@ -34,7 +32,6 @@ const processHealthProfileValue = (value: any): any => {
     }).filter(Boolean);
   }
   
-  // Если это объект с полем value, возвращаем его
   if (typeof value === 'object' && value?.value) {
     return value.value;
   }
@@ -42,12 +39,83 @@ const processHealthProfileValue = (value: any): any => {
   return value;
 };
 
-// Улучшенная функция расчета детального балла здоровья с учетом динамических данных
-const calculateDetailedHealthScore = async (profile: EnhancedHealthProfile, analyses: AnalysisRecord[], userId: string): Promise<number> => {
-  let baseScore = 50; // Базовый балл
+// Функция анализа биомаркеров для определения трендов
+const analyzeBiomarkerTrends = (analyses: AnalysisRecord[]): { improving: number, stable: number, concerning: number } => {
+  let improving = 0;
+  let stable = 0;
+  let concerning = 0;
+  
+  const biomarkerMap = new Map<string, any[]>();
+  
+  // Группируем биомаркеры по названиям из всех анализов
+  analyses.forEach(analysis => {
+    if (analysis.results?.markers && Array.isArray(analysis.results.markers)) {
+      analysis.results.markers.forEach((marker: any) => {
+        if (marker.name) {
+          if (!biomarkerMap.has(marker.name)) {
+            biomarkerMap.set(marker.name, []);
+          }
+          biomarkerMap.get(marker.name)?.push({
+            value: marker.value,
+            status: marker.status,
+            date: analysis.created_at
+          });
+        }
+      });
+    }
+  });
+  
+  // Анализируем тренды для каждого биомаркера
+  biomarkerMap.forEach((values, markerName) => {
+    if (values.length >= 2) {
+      // Сортируем по дате
+      values.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      
+      const latest = values[values.length - 1];
+      const previous = values[values.length - 2];
+      
+      // Анализируем изменение статуса
+      if (latest.status === 'optimal' || latest.status === 'good') {
+        if (previous.status === 'concerning' || previous.status === 'critical') {
+          improving++;
+        } else {
+          stable++;
+        }
+      } else if (latest.status === 'concerning' || latest.status === 'critical') {
+        concerning++;
+      } else {
+        stable++;
+      }
+    } else if (values.length === 1) {
+      const marker = values[0];
+      if (marker.status === 'optimal' || marker.status === 'good') {
+        stable++;
+      } else if (marker.status === 'concerning' || marker.status === 'critical') {
+        concerning++;
+      } else {
+        stable++;
+      }
+    }
+  });
+  
+  return { improving, stable, concerning };
+};
+
+// Улучшенная функция расчета детального балла здоровья
+const calculateEnhancedHealthScore = async (
+  profile: EnhancedHealthProfile, 
+  analyses: AnalysisRecord[], 
+  userId: string
+): Promise<number> => {
+  let baseScore = 50;
   let scoreAdjustments = 0;
   
-  // Пытаемся получить данные из динамической системы трекинга
+  console.log('Calculating enhanced health score for user:', userId, {
+    profileAge: profile.age,
+    analysesCount: analyses.length
+  });
+  
+  // Пытаемся получить динамические данные
   try {
     const { data: dynamicScore } = await supabase.rpc('calculate_dynamic_health_score', {
       user_id_param: userId,
@@ -55,60 +123,128 @@ const calculateDetailedHealthScore = async (profile: EnhancedHealthProfile, anal
     });
     
     if (dynamicScore && dynamicScore > 0) {
-      // Если есть динамические данные, используем их как основу
+      console.log('Using dynamic health score:', dynamicScore);
       return Math.round(dynamicScore * 100) / 100;
     }
   } catch (error) {
-    console.log('Dynamic score not available, using static calculation');
+    console.log('Dynamic score not available, using enhanced static calculation');
   }
   
-  // Если динамических данных нет, используем статический расчет
-  // Физическая активность (0-15 баллов)
+  // Расчет базового балла с учетом возраста
+  if (profile.age <= 25) baseScore += 10;
+  else if (profile.age <= 35) baseScore += 5;
+  else if (profile.age <= 45) baseScore += 2;
+  else if (profile.age <= 55) baseScore -= 2;
+  else if (profile.age <= 65) baseScore -= 5;
+  else baseScore -= 10;
+  
+  // Физическая активность (до 15 баллов)
   const activityScore = getActivityScore(profile.physicalActivity, profile.exerciseFrequency);
   scoreAdjustments += activityScore;
   
-  // Питание и образ жизни (0-12 баллов)
+  // Питание и образ жизни (до 12 баллов)
   const lifestyleScore = getLifestyleScore(profile);
   scoreAdjustments += lifestyleScore;
   
-  // Сон (0-10 баллов)
+  // Сон (до 10 баллов)
   const sleepScore = getSleepScore(profile.sleepHours);
   scoreAdjustments += sleepScore;
   
-  // Стресс (влияет на -8 до +5 баллов)
+  // Стресс (от -8 до +5 баллов)
   const stressScore = getStressScore(profile.stressLevel);
   scoreAdjustments += stressScore;
   
-  // Вредные привычки (-15 до +5 баллов)
+  // Вредные привычки (от -15 до +5 баллов)
   const habitsScore = getHabitsScore(profile.smokingStatus, profile.alcoholConsumption);
   scoreAdjustments += habitsScore;
   
-  // Хронические заболевания (-20 до 0 баллов)
+  // Хронические заболевания (до -20 баллов)
   const conditionsScore = getConditionsScore(profile.medicalConditions);
   scoreAdjustments += conditionsScore;
   
-  // Возраст (влияет на общий балл)
-  const ageScore = getAgeScore(profile.age);
-  scoreAdjustments += ageScore;
-  
-  // ИМТ (влияет на -8 до +8 баллов)
+  // ИМТ (от -8 до +8 баллов)
   const bmiScore = getBMIScore(profile.height, profile.weight);
   scoreAdjustments += bmiScore;
   
-  // Анализы крови (0-15 баллов бонуса за наличие)
-  const analysesBonus = Math.min(analyses.length * 2.5, 15);
+  // Биомаркеры - детальный анализ (до 20 баллов)
+  const biomarkersScore = getBiomarkersScore(analyses);
+  scoreAdjustments += biomarkersScore;
+  
+  // Бонус за наличие анализов
+  const analysesBonus = Math.min(analyses.length * 2, 10);
   scoreAdjustments += analysesBonus;
   
-  const finalScore = Math.max(0, Math.min(100, baseScore + scoreAdjustments));
+  const finalScore = Math.max(20, Math.min(100, baseScore + scoreAdjustments));
   
-  // Возвращаем с точностью до 2 знаков после запятой
+  console.log('Enhanced health score calculation:', {
+    baseScore,
+    activityScore,
+    lifestyleScore,
+    sleepScore,
+    stressScore,
+    habitsScore,
+    conditionsScore,
+    bmiScore,
+    biomarkersScore,
+    analysesBonus,
+    finalScore
+  });
+  
   return Math.round(finalScore * 100) / 100;
 };
 
+// Функция оценки биомаркеров
+const getBiomarkersScore = (analyses: AnalysisRecord[]): number => {
+  if (!analyses.length) return 0;
+  
+  let totalMarkers = 0;
+  let optimalMarkers = 0;
+  let concerningMarkers = 0;
+  let criticalMarkers = 0;
+  
+  analyses.forEach(analysis => {
+    if (analysis.results?.markers && Array.isArray(analysis.results.markers)) {
+      analysis.results.markers.forEach((marker: any) => {
+        totalMarkers++;
+        
+        switch (marker.status?.toLowerCase()) {
+          case 'optimal':
+          case 'good':
+            optimalMarkers++;
+            break;
+          case 'concerning':
+          case 'warning':
+            concerningMarkers++;
+            break;
+          case 'critical':
+          case 'high':
+          case 'low':
+            criticalMarkers++;
+            break;
+        }
+      });
+    }
+  });
+  
+  if (totalMarkers === 0) return 0;
+  
+  const optimalRatio = optimalMarkers / totalMarkers;
+  const concerningRatio = concerningMarkers / totalMarkers;
+  const criticalRatio = criticalMarkers / totalMarkers;
+  
+  // Расчет балла на основе соотношения
+  let score = 0;
+  score += optimalRatio * 20; // Максимум 20 баллов за оптимальные показатели
+  score -= concerningRatio * 10; // Штраф за проблемные показатели
+  score -= criticalRatio * 15; // Больший штраф за критические показатели
+  
+  return Math.max(-15, Math.min(20, score));
+};
+
+// Остальные функции расчета остаются без изменений
 const getActivityScore = (physicalActivity: string, exerciseFrequency: number): number => {
   let score = 0;
   
-  // Базовый балл за уровень активности
   switch (physicalActivity?.toLowerCase()) {
     case 'high':
     case 'высокий':
@@ -130,7 +266,6 @@ const getActivityScore = (physicalActivity: string, exerciseFrequency: number): 
       score += 5;
   }
   
-  // Дополнительные баллы за частоту упражнений
   if (exerciseFrequency >= 5) score += 3;
   else if (exerciseFrequency >= 3) score += 2;
   else if (exerciseFrequency >= 1) score += 1;
@@ -141,18 +276,15 @@ const getActivityScore = (physicalActivity: string, exerciseFrequency: number): 
 const getLifestyleScore = (profile: EnhancedHealthProfile): number => {
   let score = 0;
   
-  // Потребление воды
   if (profile.waterIntake >= 8) score += 3;
   else if (profile.waterIntake >= 6) score += 2;
   else if (profile.waterIntake >= 4) score += 1;
   
-  // Психическое здоровье
   if (profile.mentalHealthScore >= 80) score += 4;
   else if (profile.mentalHealthScore >= 60) score += 2;
   else if (profile.mentalHealthScore >= 40) score += 1;
   else score -= 2;
   
-  // Пульс в покое
   if (profile.restingHeartRate) {
     if (profile.restingHeartRate >= 60 && profile.restingHeartRate <= 70) score += 3;
     else if (profile.restingHeartRate >= 50 && profile.restingHeartRate <= 80) score += 2;
@@ -160,7 +292,6 @@ const getLifestyleScore = (profile: EnhancedHealthProfile): number => {
     else score -= 1;
   }
   
-  // Давление
   if (profile.bloodPressure) {
     const systolic = profile.bloodPressure.systolic;
     const diastolic = profile.bloodPressure.diastolic;
@@ -194,7 +325,6 @@ const getStressScore = (stressLevel: number): number => {
 const getHabitsScore = (smoking: string, alcohol: string): number => {
   let score = 0;
   
-  // Курение
   switch (smoking?.toLowerCase()) {
     case 'never':
     case 'никогда':
@@ -216,7 +346,6 @@ const getHabitsScore = (smoking: string, alcohol: string): number => {
       score += 0;
   }
   
-  // Алкоголь
   switch (alcohol?.toLowerCase()) {
     case 'none':
     case 'никогда':
@@ -243,18 +372,7 @@ const getHabitsScore = (smoking: string, alcohol: string): number => {
 
 const getConditionsScore = (conditions: string[]): number => {
   if (!conditions || conditions.length === 0) return 0;
-  
-  // Штраф за каждое хроническое заболевание
   return Math.max(-20, -conditions.length * 4);
-};
-
-const getAgeScore = (age: number): number => {
-  if (age <= 25) return 2;
-  if (age <= 35) return 1;
-  if (age <= 45) return 0;
-  if (age <= 55) return -1;
-  if (age <= 65) return -2;
-  return -3;
 };
 
 const getBMIScore = (height: number, weight: number): number => {
@@ -295,7 +413,6 @@ export const generateEnhancedAnalytics = async (
   try {
     const analyzer = new EnhancedHealthAnalyzer();
     
-    // Обрабатываем данные профиля и преобразуем их в нужный формат
     const enhancedProfile: EnhancedHealthProfile = {
       age: calculateAge(healthProfileData.dateOfBirth) || 30,
       gender: processHealthProfileValue(healthProfileData.gender) || 'not_specified',
@@ -322,38 +439,41 @@ export const generateEnhancedAnalytics = async (
 
     console.log('Processed enhanced profile:', enhancedProfile);
 
-    // Используем улучшенный расчет балла здоровья с динамическими данными
-    const detailedHealthScore = await calculateDetailedHealthScore(enhancedProfile, analyses, userId);
+    // Используем улучшенный расчет балла здоровья
+    const detailedHealthScore = await calculateEnhancedHealthScore(enhancedProfile, analyses, userId);
     
     // Выполняем расширенный анализ здоровья
     const healthAnalysis = analyzer.calculateEnhancedHealthScore(enhancedProfile, analyses);
+
+    // Анализируем тренды биомаркеров
+    const biomarkerTrends = analyzeBiomarkerTrends(analyses);
 
     // Проверяем недавнюю активность и генерируем список активности
     const hasRecentActivity = checkRecentActivity(analyses);
     const recentActivities = generateRecentActivities(analyses, chats);
 
     const analytics: CachedAnalytics = {
-      healthScore: detailedHealthScore, // Используем детальный балл (может быть динамическим)
+      healthScore: detailedHealthScore,
       riskLevel: translateRiskLevel(healthAnalysis.riskLevel),
-      riskDescription: generateRiskDescription(healthAnalysis),
+      riskDescription: generateRiskDescription(healthAnalysis, detailedHealthScore),
       recommendations: healthAnalysis.recommendations.slice(0, 5).map(rec => rec.action),
       strengths: healthAnalysis.protectiveFactors.slice(0, 4),
       concerns: healthAnalysis.riskFactors.slice(0, 4),
-      scoreExplanation: generateScoreExplanation(detailedHealthScore),
+      scoreExplanation: generateScoreExplanation(detailedHealthScore, enhancedProfile, analyses),
       totalAnalyses,
       totalConsultations,
       lastAnalysisDate: analyses[0]?.created_at,
       hasRecentActivity,
       trendsAnalysis: {
-        improving: Math.max(1, healthAnalysis.protectiveFactors.length),
-        worsening: Math.max(0, healthAnalysis.riskFactors.length),
-        stable: Math.max(1, 5 - healthAnalysis.protectiveFactors.length - healthAnalysis.riskFactors.length)
+        improving: biomarkerTrends.improving,
+        worsening: biomarkerTrends.concerning,
+        stable: biomarkerTrends.stable
       },
       recentActivities,
       lastUpdated: new Date().toISOString()
     };
 
-    console.log('Generated analytics with detailed score:', analytics);
+    console.log('Generated analytics with biomarker trends:', analytics);
     return analytics;
 
   } catch (error) {
@@ -371,26 +491,43 @@ const translateRiskLevel = (level: string): string => {
   }
 };
 
-const generateRiskDescription = (analysis: any): string => {
+const generateRiskDescription = (analysis: any, healthScore: number): string => {
   const riskLevel = analysis.riskLevel.toLowerCase();
   
-  if (riskLevel === 'high') {
-    return 'Обнаружены показатели, требующие внимания. Рекомендуется консультация с врачом.';
-  } else if (riskLevel === 'medium') {
-    return 'Некоторые показатели могут быть улучшены. Следуйте рекомендациям для оптимизации здоровья.';
+  if (healthScore >= 80) {
+    return 'Отличные показатели здоровья! Продолжайте поддерживать здоровый образ жизни.';
+  } else if (healthScore >= 65) {
+    return 'Хорошие показатели здоровья с потенциалом для улучшения. Следуйте рекомендациям.';
+  } else if (healthScore >= 50) {
+    return 'Средние показатели. Рекомендуется уделить внимание улучшению образа жизни.';
   } else {
-    return 'Большинство показателей в норме. Продолжайте поддерживать здоровый образ жизни.';
+    return 'Показатели требуют внимания. Рекомендуется консультация с врачом.';
   }
 };
 
-const generateScoreExplanation = (score: number): string => {
-  if (score >= 80) {
-    return `Отличные показатели здоровья! Ваш балл ${score} указывает на высокий уровень здоровья.`;
-  } else if (score >= 60) {
-    return `Хорошие показатели с потенциалом для улучшения. Балл ${score} показывает стабильное состояние здоровья.`;
-  } else if (score >= 40) {
-    return `Средние показатели. Балл ${score} указывает на необходимость улучшения образа жизни.`;
-  } else {
-    return `Низкие показатели. Балл ${score} требует внимания к состоянию здоровья и консультации с врачом.`;
+const generateScoreExplanation = (score: number, profile: EnhancedHealthProfile, analyses: AnalysisRecord[]): string => {
+  const factors = [];
+  
+  // Анализируем ключевые факторы
+  if (profile.age <= 35) factors.push('молодой возраст (+)');
+  else if (profile.age >= 55) factors.push('зрелый возраст (-)');
+  
+  if (profile.physicalActivity === 'high') factors.push('высокая активность (+)');
+  else if (profile.physicalActivity === 'sedentary') factors.push('малоподвижность (-)');
+  
+  if (profile.smokingStatus === 'never') factors.push('некурящий (+)');
+  else if (profile.smokingStatus === 'regularly') factors.push('курение (-)');
+  
+  if (analyses.length > 0) {
+    const totalMarkers = analyses.reduce((sum, analysis) => {
+      return sum + (analysis.results?.markers?.length || 0);
+    }, 0);
+    factors.push(`анализы: ${totalMarkers} биомаркеров`);
   }
+  
+  const bmi = profile.weight / ((profile.height / 100) ** 2);
+  if (bmi >= 18.5 && bmi <= 24.9) factors.push('нормальный ИМТ (+)');
+  else if (bmi >= 30) factors.push('избыточный вес (-)');
+  
+  return `Балл ${score}/100 рассчитан с учетом: ${factors.join(', ')}${factors.length ? '.' : 'базовых параметров.'}`;
 };
