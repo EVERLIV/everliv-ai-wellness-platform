@@ -1,6 +1,7 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { PLAN_FEATURES } from "@/constants/subscription-features";
 import { useSubscriptionHelpers } from "@/hooks/use-subscription-helpers";
 import { 
@@ -40,8 +41,14 @@ interface SubscriptionContextType {
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
 
+// Helper function to validate UUID format
+const isValidUUID = (str: string): boolean => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+};
+
 export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [featureTrials, setFeatureTrials] = useState<FeatureTrial[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -52,6 +59,12 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
   // Функция для проверки активности премиум подписки
   const checkIsPremiumActive = () => {
+    // В dev-режиме с невалидным UUID всегда считаем премиум активным
+    if (user?.id && !isValidUUID(user.id)) {
+      console.log('🔧 Dev mode detected, treating as premium subscription');
+      return true;
+    }
+    
     if (!subscription) return false;
     
     const isActive = subscription.status === 'active';
@@ -78,6 +91,15 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     console.log('🔍 Determining current plan. Loading:', isLoading, 'Subscription:', subscription);
     
     if (isLoading) return { plan: "Загрузка...", hasActive: false };
+    
+    // В dev-режиме с невалидным UUID всегда показываем премиум
+    if (user?.id && !isValidUUID(user.id)) {
+      console.log('🔧 Dev mode detected, showing premium plan');
+      return { 
+        plan: 'Премиум (Dev)',
+        hasActive: true
+      };
+    }
     
     // ПРИОРИТЕТ: Проверяем активную подписку из Supabase
     if (subscription && subscription.status === 'active') {
@@ -162,7 +184,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   // Fetch subscription data when user changes
   useEffect(() => {
     const loadSubscriptionData = async () => {
-      if (!user) {
+      if (!user?.id) {
         console.log('👤 No user, resetting subscription state');
         setSubscription(null);
         setFeatureTrials([]);
@@ -174,6 +196,17 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
       console.log('🔄 Loading subscription data for user:', user.id);
       setIsLoading(true);
+      
+      // Проверяем валидность UUID - для dev-пользователей пропускаем загрузку данных подписки
+      if (!isValidUUID(user.id)) {
+        console.log('🔧 Dev mode detected, skipping subscription data fetch');
+        setSubscription(null);
+        setFeatureTrials([]);
+        setIsTrialActive(false);
+        setTrialExpiresAt(null);
+        setIsLoading(false);
+        return;
+      }
       
       try {
         const data = await fetchSubscriptionData(user.id);
@@ -209,10 +242,10 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     };
 
     loadSubscriptionData();
-  }, [user]);
+  }, [user?.id]);
 
   const recordFeatureTrial = async (featureName: string): Promise<void> => {
-    if (!user) return;
+    if (!user?.id || !isValidUUID(user.id)) return;
 
     if (hasFeatureTrial(featureName)) {
       return;
@@ -227,7 +260,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const purchaseSubscription = async (planType: SubscriptionPlan): Promise<void> => {
-    if (!user) return;
+    if (!user?.id || !isValidUUID(user.id)) return;
 
     try {
       const newSubscription = await purchaseSubscriptionService(user.id, planType);
@@ -249,7 +282,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const upgradeSubscription = async (newPlanType: SubscriptionPlan): Promise<void> => {
-    if (!subscription || !user) return;
+    if (!subscription || !user?.id || !isValidUUID(user.id)) return;
 
     try {
       const updatedSubscription = await upgradeSubscriptionService(user.id, subscription.id, newPlanType);
@@ -260,8 +293,9 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const checkFeatureUsage = async (featureType: string) => {
-    if (!user) {
-      return { canUse: false, currentUsage: 0, limit: 0 };
+    if (!user?.id || !isValidUUID(user.id)) {
+      // В dev-режиме разрешаем неограниченное использование
+      return { canUse: true, currentUsage: 0, limit: 999 };
     }
 
     const planType = subscription?.plan_type || 'basic';
@@ -269,7 +303,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const incrementFeatureUsage = async (featureType: string): Promise<void> => {
-    if (!user) return;
+    if (!user?.id || !isValidUUID(user.id)) return;
 
     try {
       await incrementUsage(user.id, featureType);

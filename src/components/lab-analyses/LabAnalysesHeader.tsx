@@ -16,19 +16,26 @@ const LabAnalysesHeader: React.FC<LabAnalysesHeaderProps> = ({
   currentMonthAnalysesCount,
 }) => {
   const navigate = useNavigate();
-  const { subscription } = useSubscription();
+  const { isPremiumActive, currentPlan } = useSubscription();
 
   const getAnalysisLimit = () => {
-    if (!subscription || subscription.plan_type === 'basic') return 1;
-    if (subscription.plan_type === 'premium') return 15;
-    return 1; // default for standard or other plans
+    if (isPremiumActive) return 15;
+    return 1; // базовый план
   };
 
   const limit = getAnalysisLimit();
   const hasReachedLimit = currentMonthAnalysesCount >= limit;
 
+  console.log('📊 LabAnalysesHeader: Current plan info:', {
+    currentPlan,
+    isPremiumActive,
+    limit,
+    currentMonthAnalysesCount,
+    hasReachedLimit
+  });
+
   const handleButtonClick = () => {
-    if (hasReachedLimit) {
+    if (hasReachedLimit && !isPremiumActive) {
       navigate('/subscription');
       toast.info('Для добавления новых анализов требуется обновление подписки');
     } else {
@@ -37,14 +44,17 @@ const LabAnalysesHeader: React.FC<LabAnalysesHeaderProps> = ({
   };
 
   const getButtonText = () => {
-    if (hasReachedLimit) {
-      return subscription?.plan_type === 'basic' ? 'Обновить подписку' : 'Увеличить лимит';
+    if (hasReachedLimit && !isPremiumActive) {
+      return 'Обновить подписку';
     }
     return 'Добавить анализ';
   };
 
   const getButtonIcon = () => {
-    if (hasReachedLimit) {
+    if (hasReachedLimit && !isP
+
+
+umActive) {
       return <Crown className="h-4 w-4" />;
     }
     return <Plus className="h-4 w-4" />;
@@ -85,7 +95,7 @@ const LabAnalysesHeader: React.FC<LabAnalysesHeaderProps> = ({
             <Button 
               onClick={handleButtonClick}
               className={`gap-2 shadow-md hover:shadow-lg transition-all w-full sm:w-auto ${
-                hasReachedLimit 
+                hasReachedLimit && !isPremiumActive
                   ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600' 
                   : 'bg-emerald-600 hover:bg-emerald-700'
               } text-white`}
@@ -93,12 +103,12 @@ const LabAnalysesHeader: React.FC<LabAnalysesHeaderProps> = ({
             >
               {getButtonIcon()}
               <span className="sm:hidden">
-                {hasReachedLimit ? 'Обновить' : 'Добавить'}
+                {hasReachedLimit && !isPremiumActive ? 'Обновить' : 'Добавить'}
               </span>
               <span className="hidden sm:inline">{getButtonText()}</span>
             </Button>
             
-            {hasReachedLimit && (
+            {hasReachedLimit && !isPremiumActive && (
               <p className="text-xs text-amber-600 text-center">
                 Лимит анализов исчерпан
               </p>

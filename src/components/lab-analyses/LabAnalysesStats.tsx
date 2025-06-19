@@ -10,22 +10,23 @@ interface LabAnalysesStatsProps {
 }
 
 const LabAnalysesStats: React.FC<LabAnalysesStatsProps> = ({ statistics }) => {
-  const { subscription } = useSubscription();
+  const { isPremiumActive, currentPlan } = useSubscription();
 
   const getAnalysisLimit = () => {
-    if (!subscription || subscription.plan_type === 'basic') return 1;
-    if (subscription.plan_type === 'premium') return 15;
-    return 1;
+    if (isPremiumActive) return 15;
+    return 1; // базовый план
   };
 
   const limit = getAnalysisLimit();
   const usagePercentage = (statistics.currentMonthAnalyses / limit) * 100;
 
-  const getPlanName = () => {
-    if (!subscription || subscription.plan_type === 'basic') return 'Базовый';
-    if (subscription.plan_type === 'premium') return 'Премиум';
-    return 'Стандарт';
-  };
+  console.log('📊 LabAnalysesStats: Current plan info:', {
+    currentPlan,
+    isPremiumActive,
+    limit,
+    currentMonthAnalyses: statistics.currentMonthAnalyses,
+    usagePercentage
+  });
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -77,7 +78,9 @@ const LabAnalysesStats: React.FC<LabAnalysesStatsProps> = ({ statistics }) => {
           <Crown className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{getPlanName()}</div>
+          <div className="text-2xl font-bold">
+            {isPremiumActive ? 'Премиум' : currentPlan}
+          </div>
           <p className="text-xs text-muted-foreground">
             {limit} анализов в месяц
           </p>

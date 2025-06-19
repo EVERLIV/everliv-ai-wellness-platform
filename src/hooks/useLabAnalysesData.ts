@@ -43,6 +43,12 @@ const parseAnalysisResults = (results: any) => {
   return null;
 };
 
+// Helper function to validate UUID format
+const isValidUUID = (str: string): boolean => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+};
+
 export const useLabAnalysesData = () => {
   const { user } = useSmartAuth();
   const [analysisHistory, setAnalysisHistory] = useState<AnalysisItem[]>([]);
@@ -58,6 +64,28 @@ export const useLabAnalysesData = () => {
     if (!user?.id) {
       console.log('🚫 useLabAnalysesData: No user ID, clearing data');
       setAnalysisHistory([]);
+      setStatistics({
+        totalAnalyses: 0,
+        currentMonthAnalyses: 0,
+        mostRecentAnalysis: null,
+        analysisTypes: {}
+      });
+      setLoadingHistory(false);
+      return;
+    }
+
+    // Проверяем, является ли user_id валидным UUID
+    if (!isValidUUID(user.id)) {
+      console.log('🚫 useLabAnalysesData: Invalid UUID format for user ID:', user.id, 'using mock data for dev');
+      
+      // Для dev-режима возвращаем пустые данные без ошибки
+      setAnalysisHistory([]);
+      setStatistics({
+        totalAnalyses: 0,
+        currentMonthAnalyses: 0,
+        mostRecentAnalysis: null,
+        analysisTypes: {}
+      });
       setLoadingHistory(false);
       return;
     }
@@ -193,7 +221,20 @@ export const useLabAnalysesData = () => {
 
     } catch (error) {
       console.error('❌ useLabAnalysesData: Error loading analysis history:', error);
-      toast.error('Ошибка при загрузке истории анализов');
+      
+      // Не показываем toast-ошибку для dev-пользователей с невалидным UUID
+      if (user?.id && isValidUUID(user.id)) {
+        toast.error('Ошибка при загрузке истории анализов');
+      }
+      
+      // Устанавливаем пустые данные при ошибке
+      setAnalysisHistory([]);
+      setStatistics({
+        totalAnalyses: 0,
+        currentMonthAnalyses: 0,
+        mostRecentAnalysis: null,
+        analysisTypes: {}
+      });
     } finally {
       setLoadingHistory(false);
     }
