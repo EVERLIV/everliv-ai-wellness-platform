@@ -7,7 +7,7 @@ interface BiologicalAgeAnalysisData {
   height: number;
   weight: number;
   lifestyle_factors: {
-    exercise_frequency: string;
+    exercise_frequency: number;
     stress_level: number;
     sleep_hours: number;
     smoking_status: string;
@@ -46,7 +46,21 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
+// Функция для преобразования числового значения частоты упражнений в текст
+const getExerciseFrequencyText = (frequency: number): string => {
+  switch (frequency) {
+    case 0: return 'Не занимаюсь';
+    case 1: return '1 раз в неделю';
+    case 2: return '2-3 раза в неделю';
+    case 3: return '4-5 раз в неделю';
+    case 4: return 'Ежедневно';
+    default: return `${frequency} раз в неделю`;
+  }
+};
+
 export async function analyzeBiologicalAgeWithOpenAI(data: BiologicalAgeAnalysisData): Promise<BiologicalAgeResult> {
+  const exerciseText = getExerciseFrequencyText(data.lifestyle_factors.exercise_frequency);
+  
   const prompt = `
 Проанализируй биомаркеры и определи биологический возраст:
 
@@ -55,7 +69,7 @@ export async function analyzeBiologicalAgeWithOpenAI(data: BiologicalAgeAnalysis
 - Пол: ${data.gender}
 - Рост: ${data.height} см
 - Вес: ${data.weight} кг
-- Частота физических упражнений: ${data.lifestyle_factors.exercise_frequency}
+- Частота физических упражнений: ${exerciseText}
 - Уровень стресса (1-10): ${data.lifestyle_factors.stress_level}
 - Часы сна: ${data.lifestyle_factors.sleep_hours}
 - Статус курения: ${data.lifestyle_factors.smoking_status}
