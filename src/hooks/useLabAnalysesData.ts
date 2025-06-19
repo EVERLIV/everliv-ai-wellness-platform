@@ -11,6 +11,7 @@ export interface AnalysisItem {
   summary: string;
   markers_count: number;
   input_method: 'text' | 'photo';
+  results?: any;
 }
 
 export interface AnalysisStatistics {
@@ -33,63 +34,105 @@ export const useLabAnalysesData = () => {
 
   const fetchAnalysisHistory = async () => {
     if (!user) {
+      console.log('🚫 useLabAnalysesData: No user, clearing data');
       setAnalysisHistory([]);
       setLoadingHistory(false);
       return;
     }
 
     try {
-      console.log('Загружаем анализы для пользователя:', user.id);
+      console.log('🔄 useLabAnalysesData: Fetching analyses for user:', user.id);
+      setLoadingHistory(true);
       
-      // Получаем все медицинские анализы
+      // Получаем все медицинские анализы с подробной информацией
       const { data: analysesData, error: analysesError } = await supabase
         .from('medical_analyses')
-        .select('id, analysis_type, created_at, summary, input_method')
+        .select(`
+          id, 
+          analysis_type, 
+          created_at, 
+          summary, 
+          input_method,
+          results
+        `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (analysesError) {
-        console.error('Ошибка при получении анализов:', analysesError);
+        console.error('❌ useLabAnalysesData: Error fetching analyses:', analysesError);
         throw analysesError;
       }
 
-      console.log('Получены анализы:', analysesData);
+      console.log('📊 useLabAnalysesData: Raw analyses data:', analysesData);
 
-      // Получаем количество биомаркеров для каждого анализа
-      let biomarkerCounts: { [key: string]: number } = {};
-      
-      if (analysesData && analysesData.length > 0) {
-        const analysisIds = analysesData.map(analysis => analysis.id);
-        
-        const { data: biomarkerData, error: biomarkerError } = await supabase
-          .from('biomarkers')
-          .select('analysis_id')
-          .in('analysis_id', analysisIds);
-
-        if (biomarkerError) {
-          console.error('Ошибка при получении биомаркеров:', biomarkerError);
-        } else {
-          console.log('Получены биомаркеры:', biomarkerData);
-          // Подсчитываем биомаркеры для каждого анализа
-          biomarkerCounts = biomarkerData?.reduce((acc: { [key: string]: number }, biomarker) => {
-            acc[biomarker.analysis_id] = (acc[biomarker.analysis_id] || 0) + 1;
-            return acc;
-          }, {}) || {};
-        }
+      if (!analysesData || analysesData.length === 0) {
+        console.log('📭 useLabAnalysesData: No analyses found');
+        setAnalysisHistory([]);
+        setStatistics({
+          totalAnalyses: 0,
+          currentMonthAnalyses: 0,
+          mostRecentAnalysis: null,
+          analysisTypes: {}
+        });
+        setLoadingHistory(false);
+        return;
       }
 
-      console.log('Количество биомаркеров по анализам:', biomarkerCounts);
+      // Получаем количество биомаркеров для каждого анализа
+      const analysisIds = analysesData.map(analysis => analysis.id);
+      console.log('🔍 useLabAnalysesData: Fetching biomarkers for analysis IDs:', analysisIds);
+      
+      const { data: biomarkerData, error: biomarkerError } = await supabase
+        .from('biomarkers')
+        .select('analysis_id')
+        .in('analysis_id', analysisIds);
 
-      const formattedData: AnalysisItem[] = (analysesData || []).map(item => ({
-        id: item.id,
-        analysis_type: item.analysis_type,
-        created_at: item.created_at,
-        summary: item.summary || '',
-        markers_count: biomarkerCounts[item.id] || 0,
-        input_method: (item.input_method as 'text' | 'photo') || 'text'
-      }));
+      if (biomarkerError) {
+        console.error('⚠️ useLabAnalysesData: Error fetching biomarkers:', biomarkerError);
+      }
 
-      console.log('Форматированные данные анализов:', formattedData);
+      console.log('🧬 useLabAnalysesData: Biomarker data:', biomarkerData);
+
+      // Подсчитываем биомаркеры для каждого анализа
+      const biomarkerCounts: { [key: string]: number } = {};
+      if (biomarkerData && biomarkerData.length > 0) {
+        biomarkerData.forEach(biomarker => {
+          biomarkerCounts[biomarker.analysis_id] = (biomarkerCounts[biomarker.analysis_id] || 0) + 1;
+        });
+      }
+
+      console.log('📈 useLabAnalysesData: Biomarker counts:', biomarkerCounts);
+
+      // Форматируем данные анализов
+      const formattedData: AnalysisItem[] = analysesData.map(item => {
+        const markersCount = biomarkerCounts[item.id] || 0;
+        
+        // Пытаемся получить количество маркеров из results, если нет биомаркеров в отдельной таблице
+        let finalMarkersCount = markersCount;
+        if (markersCount === 0 && item.results && item.results.markers) {
+          finalMarkersCount = Array.isArray(item.results.markers) ? item.results.markers.length : 0;
+        }
+
+        console.log(`📋 useLabAnalysesData: Analysis ${item.id}:`, {
+          type: item.analysis_type,
+          created: item.created_at,
+          biomarkersFromTable: markersCount,
+          biomarkersFromResults: item.results?.markers?.length || 0,
+          finalCount: finalMarkersCount
+        });
+
+        return {
+          id: item.id,
+          analysis_type: item.analysis_type,
+          created_at: item.created_at,
+          summary: item.summary || '',
+          markers_count: finalMarkersCount,
+          input_method: (item.input_method as 'text' | 'photo') || 'text',
+          results: item.results
+        };
+      });
+
+      console.log('✅ useLabAnalysesData: Formatted analyses data:', formattedData);
       setAnalysisHistory(formattedData);
       
       // Рассчитываем статистику
@@ -113,15 +156,18 @@ export const useLabAnalysesData = () => {
         analysisTypes[item.analysis_type] = (analysisTypes[item.analysis_type] || 0) + 1;
       });
 
-      setStatistics({
+      const newStatistics = {
         totalAnalyses,
         currentMonthAnalyses,
         mostRecentAnalysis,
         analysisTypes
-      });
+      };
+
+      console.log('📊 useLabAnalysesData: Statistics:', newStatistics);
+      setStatistics(newStatistics);
 
     } catch (error) {
-      console.error('Ошибка при загрузке истории анализов:', error);
+      console.error('❌ useLabAnalysesData: Error loading analysis history:', error);
       toast.error('Ошибка при загрузке истории анализов');
     } finally {
       setLoadingHistory(false);
@@ -129,12 +175,12 @@ export const useLabAnalysesData = () => {
   };
 
   const refreshHistory = () => {
-    console.log('Обновляем историю анализов');
-    setLoadingHistory(true);
+    console.log('🔄 useLabAnalysesData: Manual refresh triggered');
     fetchAnalysisHistory();
   };
 
   useEffect(() => {
+    console.log('🎯 useLabAnalysesData: Effect triggered, user:', user?.id);
     fetchAnalysisHistory();
   }, [user]);
 

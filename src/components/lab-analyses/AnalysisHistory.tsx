@@ -19,6 +19,12 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   onAddNewAnalysis,
   onRefresh = () => {},
 }) => {
+  console.log('🔍 AnalysisHistory: Rendering with data:', {
+    historyLength: analysisHistory?.length || 0,
+    isLoading: loadingHistory,
+    firstAnalysis: analysisHistory?.[0]
+  });
+
   const getAnalysisTypeLabel = (type: string) => {
     const types = {
       blood: "Общий анализ крови",
@@ -77,6 +83,7 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   };
 
   if (loadingHistory) {
+    console.log('⏳ AnalysisHistory: Showing loading state');
     return (
       <div className="space-y-4 md:space-y-6">
         <div className="flex items-center justify-between">
@@ -111,9 +118,12 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
     );
   }
 
-  if (analysisHistory.length === 0) {
+  if (!analysisHistory || analysisHistory.length === 0) {
+    console.log('📭 AnalysisHistory: Showing empty state');
     return <EmptyAnalysisState onAddAnalysis={onAddNewAnalysis} />;
   }
+
+  console.log('✅ AnalysisHistory: Rendering analyses grid with', analysisHistory.length, 'items');
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -125,18 +135,27 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {analysisHistory.map((analysis) => (
-          <AnalysisCard
-            key={analysis.id}
-            analysis={analysis}
-            onViewAnalysis={onViewAnalysis}
-            onRefresh={onRefresh}
-            getAnalysisTypeLabel={getAnalysisTypeLabel}
-            getRiskIcon={getRiskIcon}
-            getRiskColor={getRiskColor}
-            getRiskText={getRiskText}
-          />
-        ))}
+        {analysisHistory.map((analysis, index) => {
+          console.log(`🔍 AnalysisHistory: Rendering analysis ${index + 1}:`, {
+            id: analysis.id,
+            type: analysis.analysis_type,
+            markersCount: analysis.markers_count,
+            hasResults: !!analysis.results
+          });
+          
+          return (
+            <AnalysisCard
+              key={analysis.id}
+              analysis={analysis}
+              onViewAnalysis={onViewAnalysis}
+              onRefresh={onRefresh}
+              getAnalysisTypeLabel={getAnalysisTypeLabel}
+              getRiskIcon={getRiskIcon}
+              getRiskColor={getRiskColor}
+              getRiskText={getRiskText}
+            />
+          );
+        })}
       </div>
     </div>
   );
