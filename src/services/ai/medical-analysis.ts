@@ -34,6 +34,26 @@ interface AnalyzeMedicalTestParams {
   testDate?: string;
 }
 
+export const getMedicalAnalysesHistory = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('medical_analyses')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching medical analyses history:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getMedicalAnalysesHistory:', error);
+    return [];
+  }
+};
+
 export const analyzeMedicalTestWithAI = async (params: AnalyzeMedicalTestParams): Promise<MedicalAnalysisResults> => {
   console.log("Analyzing medical test with Supabase Edge Function", {
     hasText: !!params.text,

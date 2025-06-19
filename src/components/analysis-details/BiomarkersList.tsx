@@ -29,7 +29,15 @@ const BiomarkersList: React.FC<BiomarkersListProps> = ({ biomarkers }) => {
   return (
     <div className="space-y-3 print:space-y-2">
       {biomarkers.map((biomarker, index) => (
-        <BiomarkerCard key={index} biomarker={biomarker} />
+        <BiomarkerCard 
+          key={index} 
+          name={biomarker.name}
+          value={biomarker.value}
+          normalRange={biomarker.normalRange}
+          status={biomarker.status}
+          recommendation={biomarker.recommendation}
+          detailedRecommendation={biomarker.detailedRecommendation}
+        />
       ))}
     </div>
   );

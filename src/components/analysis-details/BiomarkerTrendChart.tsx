@@ -31,12 +31,16 @@ const BiomarkerTrendChart: React.FC<BiomarkerTrendChartProps> = ({ biomarkerName
           .from('biomarkers')
           .select(`
             value,
-            test_date,
-            medical_analyses!inner(user_id)
+            created_at,
+            medical_analyses!inner(
+              user_id,
+              created_at,
+              analysis_type
+            )
           `)
           .eq('name', biomarkerName)
           .eq('medical_analyses.user_id', user.id)
-          .order('test_date', { ascending: true });
+          .order('created_at', { ascending: true });
 
         if (error) {
           console.error('Error fetching trend data:', error);
@@ -44,13 +48,13 @@ const BiomarkerTrendChart: React.FC<BiomarkerTrendChartProps> = ({ biomarkerName
         }
 
         const processedData: TrendData[] = biomarkers
-          .filter(b => b.test_date && b.value)
+          .filter(b => b.created_at && b.value)
           .map(biomarker => {
             const numericValue = parseFloat(biomarker.value.toString());
             return {
-              date: biomarker.test_date,
+              date: biomarker.created_at,
               value: isNaN(numericValue) ? 0 : numericValue,
-              formattedDate: format(new Date(biomarker.test_date), 'dd MMM yyyy', { locale: ru })
+              formattedDate: format(new Date(biomarker.created_at), 'dd MMM yyyy', { locale: ru })
             };
           });
 
