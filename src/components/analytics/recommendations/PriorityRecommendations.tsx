@@ -3,19 +3,34 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Zap, AlertTriangle } from "lucide-react";
-
-interface PriorityRecommendation {
-  title: string;
-  description: string;
-  expectedResult: string;
-}
+import { ComprehensiveRecommendation } from "@/utils/comprehensiveHealthAnalyzer";
 
 interface PriorityRecommendationsProps {
-  recommendations: PriorityRecommendation[];
+  recommendations: ComprehensiveRecommendation[];
 }
 
 const PriorityRecommendations: React.FC<PriorityRecommendationsProps> = ({ recommendations }) => {
   if (recommendations.length === 0) return null;
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return 'bg-red-100 text-red-800 border-red-200';
+      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-red-100 text-red-800 border-red-200';
+    }
+  };
+
+  const getPriorityLabel = (priority: string) => {
+    switch (priority) {
+      case 'critical': return 'Критично';
+      case 'high': return 'Высокий';
+      case 'medium': return 'Средний';
+      case 'low': return 'Низкий';
+      default: return 'Высокий';
+    }
+  };
 
   return (
     <section>
@@ -26,7 +41,7 @@ const PriorityRecommendations: React.FC<PriorityRecommendationsProps> = ({ recom
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {recommendations.map((rec, index) => (
-          <Card key={index} className="border-2 border-red-200 bg-red-50 hover:border-red-300 transition-colors">
+          <Card key={rec.id} className="border-2 border-red-200 bg-red-50 hover:border-red-300 transition-colors">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
@@ -35,14 +50,21 @@ const PriorityRecommendations: React.FC<PriorityRecommendationsProps> = ({ recom
                   </div>
                   <CardTitle className="text-sm font-medium">{rec.title}</CardTitle>
                 </div>
-                <Badge className="bg-red-100 text-red-800 text-xs">Высокий</Badge>
+                <Badge className={`text-xs ${getPriorityColor(rec.priority)} border`}>
+                  {getPriorityLabel(rec.priority)}
+                </Badge>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
               <p className="text-sm text-gray-700 mb-3">{rec.description}</p>
               <div className="text-xs text-gray-600">
-                <strong>Ожидаемый результат:</strong> {rec.expectedResult}
+                <strong>Ожидаемый результат:</strong> {rec.implementation.expectedResults}
               </div>
+              {rec.cost && (
+                <div className="text-xs text-gray-600 mt-1">
+                  <strong>Стоимость:</strong> {rec.cost}
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
