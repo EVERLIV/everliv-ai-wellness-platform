@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,24 +14,34 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 
 const PersonalizedRecommendations: React.FC = () => {
   const { user } = useAuth();
-  const { subscription } = useSubscription();
+  const { subscription, isTrialActive } = useSubscription();
   const { profileData } = useProfile();
   const { goals } = useNutritionGoals();
   const { getDailyTotals } = useFoodEntries(new Date());
   const { recommendations, isLoading, generateRecommendations } = usePersonalizedRecommendations();
   const [hasGenerated, setHasGenerated] = useState(false);
 
-  // Проверяем, есть ли у пользователя премиум подписка
+  // Проверяем, есть ли у пользователя премиум доступ
   const hasPremiumAccess = () => {
-    if (!subscription) return false;
+    console.log('🔍 PersonalizedRecommendations checking premium access:', {
+      subscription,
+      isTrialActive
+    });
     
-    if (subscription.status === 'active') {
+    // Проверяем активную подписку
+    if (subscription && subscription.status === 'active') {
       const now = new Date();
       const expiresAt = new Date(subscription.expires_at);
-      return expiresAt > now && subscription.plan_type === 'premium';
+      const hasValidSubscription = expiresAt > now && subscription.plan_type === 'premium';
+      console.log('✅ Premium subscription check:', hasValidSubscription);
+      return hasValidSubscription;
     }
     
-    return false;
+    // Проверяем пробный период
+    const hasTrialAccess = isTrialActive;
+    console.log('🎯 Trial access check:', hasTrialAccess);
+    
+    return hasTrialAccess;
   };
 
   // Проверяем, заполнен ли профиль пользователя

@@ -5,17 +5,43 @@ import { toast } from "sonner";
 
 export const fetchSubscriptionData = async (userId: string) => {
   try {
-    // Fetch current subscription
+    console.log('🔍 Fetching subscription data for user:', userId);
+    
+    // Fetch current subscription - получаем ВСЕ подписки и сортируем по дате
     const { data: subscriptionData, error: subscriptionError } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .order('created_at', { ascending: false });
     
-    if (subscriptionError) throw subscriptionError;
+    if (subscriptionError) {
+      console.error('❌ Error fetching subscription:', subscriptionError);
+      throw subscriptionError;
+    }
+    
+    console.log('📋 All subscriptions found:', subscriptionData);
+    
+    // Находим самую актуальную активную подписку
+    let activeSubscription = null;
+    if (subscriptionData && subscriptionData.length > 0) {
+      const now = new Date();
+      
+      // Сначала ищем активные подписки, которые еще не истекли
+      activeSubscription = subscriptionData.find(sub => {
+        const isActive = sub.status === 'active';
+        const notExpired = new Date(sub.expires_at) > now;
+        console.log(`🔍 Subscription ${sub.id}: status=${sub.status}, expires=${sub.expires_at}, isActive=${isActive}, notExpired=${notExpired}`);
+        return isActive && notExpired;
+      });
+      
+      // Если не нашли активную, берем последнюю по дате создания
+      if (!activeSubscription) {
+        activeSubscription = subscriptionData[0];
+        console.log('⚠️ No active subscription found, using latest:', activeSubscription);
+      } else {
+        console.log('✅ Active subscription found:', activeSubscription);
+      }
+    }
     
     // Fetch feature trials
     const { data: trialsData, error: trialsError } = await supabase
@@ -23,20 +49,29 @@ export const fetchSubscriptionData = async (userId: string) => {
       .select('*')
       .eq('user_id', userId);
     
-    if (trialsError) throw trialsError;
+    if (trialsError) {
+      console.error('❌ Error fetching trials:', trialsError);
+    }
+    
+    console.log('🎯 Final subscription result:', {
+      subscription: activeSubscription,
+      trialsCount: trialsData?.length || 0
+    });
     
     return {
-      subscription: subscriptionData as Subscription | null,
+      subscription: activeSubscription as Subscription | null,
       featureTrials: trialsData as FeatureTrial[] || []
     };
   } catch (error) {
-    console.error("Error fetching subscription data:", error);
+    console.error("❌ Error fetching subscription data:", error);
     throw error;
   }
 };
 
 export const checkTrialStatusService = async (userId: string) => {
   try {
+    console.log('🔍 Checking trial status for user:', userId);
+    
     // Fetch user profile to check registration date
     const { data: userData, error: userError } = await supabase
       .from('profiles')
@@ -45,13 +80,12 @@ export const checkTrialStatusService = async (userId: string) => {
       .maybeSingle();
     
     if (userError) {
-      console.error("Error fetching user profile:", userError);
-      // If we can't find the user profile, default to trial not active
+      console.error("❌ Error fetching user profile:", userError);
       return { isActive: false, expiresAt: null };
     }
     
     if (!userData) {
-      console.log("No user profile found, trial not active");
+      console.log("⚠️ No user profile found, trial not active");
       return { isActive: false, expiresAt: null };
     }
     
@@ -64,13 +98,19 @@ export const checkTrialStatusService = async (userId: string) => {
     // Check if trial is still active
     const isActive = trialExpiresAt > now;
     
+    console.log('🎯 Trial status result:', {
+      isActive,
+      expiresAt: trialExpiresAt.toISOString(),
+      createdAt: createdAt.toISOString(),
+      hoursLeft: Math.max(0, (trialExpiresAt.getTime() - now.getTime()) / (1000 * 60 * 60))
+    });
+    
     return { 
       isActive,
       expiresAt: trialExpiresAt.toISOString()
     };
   } catch (error) {
-    console.error("Error checking trial status:", error);
-    // Default to trial not active in case of error
+    console.error("❌ Error checking trial status:", error);
     return { isActive: false, expiresAt: null };
   }
 };

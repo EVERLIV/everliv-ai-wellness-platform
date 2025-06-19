@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
 import { useAuth } from "@/contexts/AuthContext";
@@ -49,36 +50,63 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const [trialTimeRemaining, setTrialTimeRemaining] = useState<string | null>(null);
   const { hasFeatureTrial, canUseFeature } = useSubscriptionHelpers(featureTrials);
 
-  // Вычисляем текущий план и статус подписки
+  // Вычисляем текущий план и статус подписки с приоритетом данных из Supabase
   const getCurrentPlanInfo = () => {
+    console.log('🔍 Determining current plan. Loading:', isLoading, 'Subscription:', subscription);
+    
     if (isLoading) return { plan: "Загрузка...", hasActive: false };
     
-    // Проверяем активную подписку
-    if (subscription && subscription.status === 'active') {
-      const now = new Date();
-      const expiresAt = new Date(subscription.expires_at);
+    // ПРИОРИТЕТ: Проверяем активную подписку из Supabase
+    if (subscription) {
+      console.log('📋 Checking subscription:', {
+        id: subscription.id,
+        status: subscription.status,
+        plan_type: subscription.plan_type,
+        expires_at: subscription.expires_at
+      });
       
-      if (expiresAt > now) {
-        const planNames = {
-          'premium': 'Премиум',
-          'standard': 'Стандарт',
-          'basic': 'Базовый'
-        };
-        return { 
-          plan: planNames[subscription.plan_type as keyof typeof planNames] || 'Базовый',
-          hasActive: true
-        };
+      if (subscription.status === 'active') {
+        const now = new Date();
+        const expiresAt = new Date(subscription.expires_at);
+        
+        console.log('⏰ Subscription expiry check:', {
+          now: now.toISOString(),
+          expiresAt: expiresAt.toISOString(),
+          isValid: expiresAt > now
+        });
+        
+        if (expiresAt > now) {
+          const planNames = {
+            'premium': 'Премиум',
+            'standard': 'Стандарт',
+            'basic': 'Базовый'
+          };
+          
+          const planName = planNames[subscription.plan_type as keyof typeof planNames] || 'Базовый';
+          console.log('✅ Active subscription confirmed:', planName);
+          
+          return { 
+            plan: planName,
+            hasActive: true
+          };
+        } else {
+          console.log('⚠️ Subscription expired');
+        }
+      } else {
+        console.log('⚠️ Subscription not active, status:', subscription.status);
       }
     }
     
-    // Проверяем пробный период
+    // Проверяем пробный период только если нет активной подписки
     if (isTrialActive && trialTimeRemaining) {
+      console.log('🎯 Using trial period:', trialTimeRemaining);
       return { 
         plan: `Пробный (${trialTimeRemaining})`,
         hasActive: true
       };
     }
     
+    console.log('📋 Defaulting to basic plan');
     return { plan: 'Базовый', hasActive: false };
   };
 
@@ -122,6 +150,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const loadSubscriptionData = async () => {
       if (!user) {
+        console.log('👤 No user, resetting subscription state');
         setSubscription(null);
         setFeatureTrials([]);
         setIsLoading(false);
@@ -130,21 +159,33 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
+      console.log('🔄 Loading subscription data for user:', user.id);
       setIsLoading(true);
       
       try {
         const data = await fetchSubscriptionData(user.id);
+        console.log('📊 Subscription data loaded:', data);
+        
         setSubscription(data.subscription);
         setFeatureTrials(data.featureTrials);
         
-        // Check trial status
-        const trialStatus = await checkTrialStatusService(user.id);
-        setIsTrialActive(trialStatus.isActive);
-        if (trialStatus.expiresAt) {
-          setTrialExpiresAt(new Date(trialStatus.expiresAt));
+        // Check trial status только если нет активной подписки
+        if (!data.subscription || data.subscription.status !== 'active' || new Date(data.subscription.expires_at) <= new Date()) {
+          console.log('🔍 No active subscription, checking trial status');
+          const trialStatus = await checkTrialStatusService(user.id);
+          console.log('🎯 Trial status loaded:', trialStatus);
+          
+          setIsTrialActive(trialStatus.isActive);
+          if (trialStatus.expiresAt) {
+            setTrialExpiresAt(new Date(trialStatus.expiresAt));
+          }
+        } else {
+          console.log('✅ Active subscription found, skipping trial check');
+          setIsTrialActive(false);
+          setTrialExpiresAt(null);
         }
       } catch (error) {
-        console.error("Error loading subscription data:", error);
+        console.error("❌ Error loading subscription data:", error);
       } finally {
         setIsLoading(false);
       }

@@ -32,33 +32,52 @@ const SubscriptionStatusCard: React.FC = () => {
   }
 
   const getSubscriptionDisplay = () => {
-    if (subscription && subscription.status === 'active') {
-      const now = new Date();
-      const expiresAt = new Date(subscription.expires_at);
+    console.log('🎯 SubscriptionStatusCard getSubscriptionDisplay:', { 
+      subscription, 
+      isTrialActive, 
+      trialTimeRemaining 
+    });
+    
+    // ПРИОРИТЕТ: Проверяем активную подписку из Supabase
+    if (subscription) {
+      console.log('📋 Checking subscription in status card:', {
+        status: subscription.status,
+        plan_type: subscription.plan_type,
+        expires_at: subscription.expires_at
+      });
       
-      if (expiresAt > now) {
-        switch (subscription.plan_type) {
-          case 'premium':
-            return {
-              title: 'Премиум подписка',
-              description: `Активна до ${expiresAt.toLocaleDateString('ru-RU')}`,
-              gradient: 'from-yellow-400 to-yellow-600',
-              icon: <Crown className="h-5 w-5 text-white" />,
-              badge: 'premium'
-            };
-          case 'standard':
-            return {
-              title: 'Стандарт подписка',
-              description: `Активна до ${expiresAt.toLocaleDateString('ru-RU')}`,
-              gradient: 'from-blue-400 to-blue-600',
-              icon: <Zap className="h-5 w-5 text-white" />,
-              badge: 'standard'
-            };
+      if (subscription.status === 'active') {
+        const now = new Date();
+        const expiresAt = new Date(subscription.expires_at);
+        
+        if (expiresAt > now) {
+          switch (subscription.plan_type) {
+            case 'premium':
+              console.log('✅ Displaying Premium subscription in status card');
+              return {
+                title: 'Премиум подписка',
+                description: `Активна до ${expiresAt.toLocaleDateString('ru-RU')}`,
+                gradient: 'from-yellow-400 to-yellow-600',
+                icon: <Crown className="h-5 w-5 text-white" />,
+                badge: 'premium'
+              };
+            case 'standard':
+              console.log('✅ Displaying Standard subscription in status card');
+              return {
+                title: 'Стандарт подписка',
+                description: `Активна до ${expiresAt.toLocaleDateString('ru-RU')}`,
+                gradient: 'from-blue-400 to-blue-600',
+                icon: <Zap className="h-5 w-5 text-white" />,
+                badge: 'standard'
+              };
+          }
         }
       }
     }
     
+    // Проверяем пробный период только если нет активной подписки
     if (isTrialActive && trialTimeRemaining) {
+      console.log('🎯 Displaying trial period in status card:', trialTimeRemaining);
       return {
         title: 'Пробный период',
         description: `Осталось: ${trialTimeRemaining}`,
@@ -68,6 +87,7 @@ const SubscriptionStatusCard: React.FC = () => {
       };
     }
     
+    console.log('📋 Defaulting to basic plan in status card');
     return {
       title: 'Базовый план',
       description: 'Ограниченный доступ к функциям',

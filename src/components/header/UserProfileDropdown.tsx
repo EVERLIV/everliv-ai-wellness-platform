@@ -35,45 +35,75 @@ const UserProfileDropdown: React.FC = () => {
   };
 
   const getSubscriptionInfo = () => {
+    console.log('🎯 UserProfileDropdown getSubscriptionInfo:', { 
+      isLoading, 
+      subscription, 
+      isTrialActive, 
+      trialTimeRemaining 
+    });
+    
     if (isLoading) return { plan: "Загрузка...", color: "bg-gray-100 text-gray-600", icon: null };
     
-    // Проверяем активную подписку
-    if (subscription && subscription.status === 'active') {
-      const now = new Date();
-      const expiresAt = new Date(subscription.expires_at);
+    // ПРИОРИТЕТ: Проверяем активную подписку из Supabase
+    if (subscription) {
+      console.log('📋 Checking subscription in dropdown:', {
+        status: subscription.status,
+        plan_type: subscription.plan_type,
+        expires_at: subscription.expires_at
+      });
       
-      if (expiresAt > now) {
-        switch (subscription.plan_type) {
-          case 'premium':
-            return { 
-              plan: 'Премиум', 
-              color: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 shadow-lg', 
-              icon: <Crown className="h-3 w-3" />
-            };
-          case 'standard':
-            return { 
-              plan: 'Стандарт', 
-              color: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0 shadow-md', 
-              icon: <Star className="h-3 w-3" />
-            };
-          case 'basic':
-            return { 
-              plan: 'Базовый', 
-              color: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0', 
-              icon: <Shield className="h-3 w-3" />
-            };
-          default:
-            return { 
-              plan: 'Базовый', 
-              color: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0', 
-              icon: <Shield className="h-3 w-3" />
-            };
+      if (subscription.status === 'active') {
+        const now = new Date();
+        const expiresAt = new Date(subscription.expires_at);
+        
+        console.log('⏰ Subscription expiry check in dropdown:', {
+          now: now.toISOString(),
+          expiresAt: expiresAt.toISOString(),
+          isValid: expiresAt > now
+        });
+        
+        if (expiresAt > now) {
+          switch (subscription.plan_type) {
+            case 'premium':
+              console.log('✅ Displaying Premium subscription');
+              return { 
+                plan: 'Премиум', 
+                color: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 shadow-lg', 
+                icon: <Crown className="h-3 w-3" />
+              };
+            case 'standard':
+              console.log('✅ Displaying Standard subscription');
+              return { 
+                plan: 'Стандарт', 
+                color: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0 shadow-md', 
+                icon: <Star className="h-3 w-3" />
+              };
+            case 'basic':
+              console.log('✅ Displaying Basic subscription');
+              return { 
+                plan: 'Базовый', 
+                color: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0', 
+                icon: <Shield className="h-3 w-3" />
+              };
+            default:
+              console.log('⚠️ Unknown plan type, defaulting to Basic');
+              return { 
+                plan: 'Базовый', 
+                color: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0', 
+                icon: <Shield className="h-3 w-3" />
+              };
+          }
+        } else {
+          console.log('⚠️ Subscription expired in dropdown');
         }
+      } else {
+        console.log('⚠️ Subscription not active in dropdown, status:', subscription.status);
       }
     }
     
-    // Проверяем пробный период
+    // Проверяем пробный период только если нет активной подписки
     if (isTrialActive && trialTimeRemaining) {
+      console.log('🎯 Displaying trial period in dropdown:', trialTimeRemaining);
       return { 
         plan: `Пробный (${trialTimeRemaining})`, 
         color: 'bg-gradient-to-r from-green-400 to-emerald-500 text-white border-0 shadow-md', 
@@ -81,6 +111,7 @@ const UserProfileDropdown: React.FC = () => {
       };
     }
     
+    console.log('📋 Defaulting to Basic plan in dropdown');
     return { 
       plan: 'Базовый', 
       color: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0', 
@@ -89,7 +120,21 @@ const UserProfileDropdown: React.FC = () => {
   };
 
   const subscriptionInfo = getSubscriptionInfo();
-  const isPremiumActive = subscription && subscription.status === 'active' && subscription.plan_type === 'premium' && new Date(subscription.expires_at) > new Date();
+  
+  // Определяем, есть ли активная премиум подписка
+  const isPremiumActive = subscription && 
+    subscription.status === 'active' && 
+    subscription.plan_type === 'premium' && 
+    new Date(subscription.expires_at) > new Date();
+  
+  console.log('🔍 isPremiumActive check:', {
+    hasSubscription: !!subscription,
+    status: subscription?.status,
+    planType: subscription?.plan_type,
+    notExpired: subscription ? new Date(subscription.expires_at) > new Date() : false,
+    result: isPremiumActive
+  });
+  
   const shouldShowUpgradeButton = !isPremiumActive && !isLoading;
 
   return (
