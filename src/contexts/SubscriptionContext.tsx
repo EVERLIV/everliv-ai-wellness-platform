@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
 import { useAuth } from "@/contexts/AuthContext";
@@ -36,6 +35,7 @@ interface SubscriptionContextType {
   trialTimeRemaining: string | null;
   currentPlan: string;
   hasActiveSubscription: boolean;
+  isPremiumActive: boolean;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -50,6 +50,29 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const [trialTimeRemaining, setTrialTimeRemaining] = useState<string | null>(null);
   const { hasFeatureTrial, canUseFeature } = useSubscriptionHelpers(featureTrials);
 
+  // Функция для проверки активности премиум подписки
+  const checkIsPremiumActive = () => {
+    if (!subscription) return false;
+    
+    const isActive = subscription.status === 'active';
+    const isPremium = subscription.plan_type === 'premium';
+    const notExpired = new Date(subscription.expires_at) > new Date();
+    
+    console.log('🔍 Checking premium status:', {
+      subscription: subscription.id,
+      isActive,
+      isPremium,
+      notExpired,
+      expiresAt: subscription.expires_at,
+      now: new Date().toISOString(),
+      result: isActive && isPremium && notExpired
+    });
+    
+    return isActive && isPremium && notExpired;
+  };
+
+  const isPremiumActive = checkIsPremiumActive();
+
   // Вычисляем текущий план и статус подписки с приоритетом данных из Supabase
   const getCurrentPlanInfo = () => {
     console.log('🔍 Determining current plan. Loading:', isLoading, 'Subscription:', subscription);
@@ -57,43 +80,33 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     if (isLoading) return { plan: "Загрузка...", hasActive: false };
     
     // ПРИОРИТЕТ: Проверяем активную подписку из Supabase
-    if (subscription) {
-      console.log('📋 Checking subscription:', {
-        id: subscription.id,
-        status: subscription.status,
-        plan_type: subscription.plan_type,
-        expires_at: subscription.expires_at
+    if (subscription && subscription.status === 'active') {
+      const now = new Date();
+      const expiresAt = new Date(subscription.expires_at);
+      
+      console.log('⏰ Subscription expiry check:', {
+        now: now.toISOString(),
+        expiresAt: expiresAt.toISOString(),
+        isValid: expiresAt > now,
+        planType: subscription.plan_type
       });
       
-      if (subscription.status === 'active') {
-        const now = new Date();
-        const expiresAt = new Date(subscription.expires_at);
+      if (expiresAt > now) {
+        const planNames = {
+          'premium': 'Премиум',
+          'standard': 'Стандарт',
+          'basic': 'Базовый'
+        };
         
-        console.log('⏰ Subscription expiry check:', {
-          now: now.toISOString(),
-          expiresAt: expiresAt.toISOString(),
-          isValid: expiresAt > now
-        });
+        const planName = planNames[subscription.plan_type as keyof typeof planNames] || 'Базовый';
+        console.log('✅ Active subscription confirmed:', planName);
         
-        if (expiresAt > now) {
-          const planNames = {
-            'premium': 'Премиум',
-            'standard': 'Стандарт',
-            'basic': 'Базовый'
-          };
-          
-          const planName = planNames[subscription.plan_type as keyof typeof planNames] || 'Базовый';
-          console.log('✅ Active subscription confirmed:', planName);
-          
-          return { 
-            plan: planName,
-            hasActive: true
-          };
-        } else {
-          console.log('⚠️ Subscription expired');
-        }
+        return { 
+          plan: planName,
+          hasActive: true
+        };
       } else {
-        console.log('⚠️ Subscription not active, status:', subscription.status);
+        console.log('⚠️ Subscription expired');
       }
     }
     
@@ -169,9 +182,13 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         setSubscription(data.subscription);
         setFeatureTrials(data.featureTrials);
         
-        // Check trial status только если нет активной подписки
-        if (!data.subscription || data.subscription.status !== 'active' || new Date(data.subscription.expires_at) <= new Date()) {
-          console.log('🔍 No active subscription, checking trial status');
+        // Check trial status only if there is no active subscription
+        const hasValidSubscription = data.subscription && 
+          data.subscription.status === 'active' && 
+          new Date(data.subscription.expires_at) > new Date();
+          
+        if (!hasValidSubscription) {
+          console.log('🔍 No valid subscription, checking trial status');
           const trialStatus = await checkTrialStatusService(user.id);
           console.log('🎯 Trial status loaded:', trialStatus);
           
@@ -180,7 +197,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
             setTrialExpiresAt(new Date(trialStatus.expiresAt));
           }
         } else {
-          console.log('✅ Active subscription found, skipping trial check');
+          console.log('✅ Valid subscription found, resetting trial');
           setIsTrialActive(false);
           setTrialExpiresAt(null);
         }
@@ -278,7 +295,8 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     trialExpiresAt,
     trialTimeRemaining,
     currentPlan,
-    hasActiveSubscription
+    hasActiveSubscription,
+    isPremiumActive
   };
 
   return (

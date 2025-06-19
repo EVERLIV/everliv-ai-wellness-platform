@@ -15,7 +15,8 @@ const SubscriptionStatusCard: React.FC = () => {
     isTrialActive, 
     trialTimeRemaining, 
     currentPlan, 
-    hasActiveSubscription 
+    hasActiveSubscription,
+    isPremiumActive
   } = useSubscription();
 
   if (isLoading) {
@@ -34,50 +35,52 @@ const SubscriptionStatusCard: React.FC = () => {
   const getSubscriptionDisplay = () => {
     console.log('🎯 SubscriptionStatusCard getSubscriptionDisplay:', { 
       subscription, 
-      isTrialActive, 
-      trialTimeRemaining 
+      isPremiumActive,
+      currentPlan
     });
     
-    // ПРИОРИТЕТ: Проверяем активную подписку из Supabase
-    if (subscription) {
-      console.log('📋 Checking subscription in status card:', {
-        status: subscription.status,
-        plan_type: subscription.plan_type,
-        expires_at: subscription.expires_at
-      });
+    // Проверяем премиум подписку
+    if (isPremiumActive) {
+      console.log('✅ Premium subscription confirmed in status card');
+      const expiresAt = new Date(subscription!.expires_at);
+      return {
+        title: 'Премиум подписка',
+        description: `Активна до ${expiresAt.toLocaleDateString('ru-RU')}`,
+        gradient: 'from-yellow-400 to-yellow-600',
+        icon: <Crown className="h-5 w-5 text-white" />,
+        badge: 'premium'
+      };
+    }
+    
+    // Проверяем другие активные подписки
+    if (subscription && subscription.status === 'active' && new Date(subscription.expires_at) > new Date()) {
+      const expiresAt = new Date(subscription.expires_at);
       
-      if (subscription.status === 'active') {
-        const now = new Date();
-        const expiresAt = new Date(subscription.expires_at);
-        
-        if (expiresAt > now) {
-          switch (subscription.plan_type) {
-            case 'premium':
-              console.log('✅ Displaying Premium subscription in status card');
-              return {
-                title: 'Премиум подписка',
-                description: `Активна до ${expiresAt.toLocaleDateString('ru-RU')}`,
-                gradient: 'from-yellow-400 to-yellow-600',
-                icon: <Crown className="h-5 w-5 text-white" />,
-                badge: 'premium'
-              };
-            case 'standard':
-              console.log('✅ Displaying Standard subscription in status card');
-              return {
-                title: 'Стандарт подписка',
-                description: `Активна до ${expiresAt.toLocaleDateString('ru-RU')}`,
-                gradient: 'from-blue-400 to-blue-600',
-                icon: <Zap className="h-5 w-5 text-white" />,
-                badge: 'standard'
-              };
-          }
-        }
+      switch (subscription.plan_type) {
+        case 'standard':
+          console.log('✅ Standard subscription in status card');
+          return {
+            title: 'Стандарт подписка',
+            description: `Активна до ${expiresAt.toLocaleDateString('ru-RU')}`,
+            gradient: 'from-blue-400 to-blue-600',
+            icon: <Zap className="h-5 w-5 text-white" />,
+            badge: 'standard'
+          };
+        case 'basic':
+          console.log('✅ Basic subscription in status card');
+          return {
+            title: 'Базовая подписка',
+            description: `Активна до ${expiresAt.toLocaleDateString('ru-RU')}`,
+            gradient: 'from-gray-400 to-gray-600',
+            icon: <CheckCircle className="h-5 w-5 text-white" />,
+            badge: 'basic'
+          };
       }
     }
     
-    // Проверяем пробный период только если нет активной подписки
+    // Проверяем пробный период
     if (isTrialActive && trialTimeRemaining) {
-      console.log('🎯 Displaying trial period in status card:', trialTimeRemaining);
+      console.log('🎯 Trial period in status card:', trialTimeRemaining);
       return {
         title: 'Пробный период',
         description: `Осталось: ${trialTimeRemaining}`,
@@ -98,7 +101,13 @@ const SubscriptionStatusCard: React.FC = () => {
   };
 
   const subscriptionDisplay = getSubscriptionDisplay();
-  const isBasic = subscriptionDisplay.badge === 'basic';
+  const isBasic = subscriptionDisplay.badge === 'basic' || (!isPremiumActive && !hasActiveSubscription);
+
+  console.log('🔍 SubscriptionStatusCard render:', {
+    isPremiumActive,
+    isBasic,
+    shouldShowUpgrade: isBasic
+  });
 
   return (
     <Card className={`bg-gradient-to-r ${subscriptionDisplay.gradient} text-white border-0 shadow-lg`}>

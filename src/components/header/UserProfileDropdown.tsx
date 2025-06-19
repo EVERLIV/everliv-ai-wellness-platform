@@ -18,7 +18,14 @@ import { Settings, CreditCard, HelpCircle, LogOut, Crown, LayoutDashboard, Zap, 
 
 const UserProfileDropdown: React.FC = () => {
   const { user, signOut } = useAuth();
-  const { subscription, isLoading, isTrialActive, trialTimeRemaining } = useSubscription();
+  const { 
+    subscription, 
+    isLoading, 
+    isTrialActive, 
+    trialTimeRemaining, 
+    isPremiumActive,
+    currentPlan 
+  } = useSubscription();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -38,72 +45,45 @@ const UserProfileDropdown: React.FC = () => {
     console.log('🎯 UserProfileDropdown getSubscriptionInfo:', { 
       isLoading, 
       subscription, 
-      isTrialActive, 
-      trialTimeRemaining 
+      isPremiumActive,
+      currentPlan
     });
     
     if (isLoading) return { plan: "Загрузка...", color: "bg-gray-100 text-gray-600", icon: null };
     
-    // ПРИОРИТЕТ: Проверяем активную подписку из Supabase
-    if (subscription) {
-      console.log('📋 Checking subscription in dropdown:', {
-        status: subscription.status,
-        plan_type: subscription.plan_type,
-        expires_at: subscription.expires_at
-      });
-      
-      if (subscription.status === 'active') {
-        const now = new Date();
-        const expiresAt = new Date(subscription.expires_at);
-        
-        console.log('⏰ Subscription expiry check in dropdown:', {
-          now: now.toISOString(),
-          expiresAt: expiresAt.toISOString(),
-          isValid: expiresAt > now
-        });
-        
-        if (expiresAt > now) {
-          switch (subscription.plan_type) {
-            case 'premium':
-              console.log('✅ Displaying Premium subscription');
-              return { 
-                plan: 'Премиум', 
-                color: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 shadow-lg', 
-                icon: <Crown className="h-3 w-3" />
-              };
-            case 'standard':
-              console.log('✅ Displaying Standard subscription');
-              return { 
-                plan: 'Стандарт', 
-                color: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0 shadow-md', 
-                icon: <Star className="h-3 w-3" />
-              };
-            case 'basic':
-              console.log('✅ Displaying Basic subscription');
-              return { 
-                plan: 'Базовый', 
-                color: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0', 
-                icon: <Shield className="h-3 w-3" />
-              };
-            default:
-              console.log('⚠️ Unknown plan type, defaulting to Basic');
-              return { 
-                plan: 'Базовый', 
-                color: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0', 
-                icon: <Shield className="h-3 w-3" />
-              };
-          }
-        } else {
-          console.log('⚠️ Subscription expired in dropdown');
-        }
-      } else {
-        console.log('⚠️ Subscription not active in dropdown, status:', subscription.status);
+    // Используем isPremiumActive из контекста
+    if (isPremiumActive) {
+      console.log('✅ Premium subscription active in dropdown');
+      return { 
+        plan: 'Премиум', 
+        color: 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 shadow-lg', 
+        icon: <Crown className="h-3 w-3" />
+      };
+    }
+    
+    // Проверяем другие типы активных подписок
+    if (subscription && subscription.status === 'active' && new Date(subscription.expires_at) > new Date()) {
+      switch (subscription.plan_type) {
+        case 'standard':
+          console.log('✅ Standard subscription active in dropdown');
+          return { 
+            plan: 'Стандарт', 
+            color: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0 shadow-md', 
+            icon: <Star className="h-3 w-3" />
+          };
+        case 'basic':
+          console.log('✅ Basic subscription active in dropdown');
+          return { 
+            plan: 'Базовый', 
+            color: 'bg-gradient-to-r from-gray-400 to-gray-500 text-white border-0', 
+            icon: <Shield className="h-3 w-3" />
+          };
       }
     }
     
-    // Проверяем пробный период только если нет активной подписки
+    // Проверяем пробный период
     if (isTrialActive && trialTimeRemaining) {
-      console.log('🎯 Displaying trial period in dropdown:', trialTimeRemaining);
+      console.log('🎯 Trial period active in dropdown:', trialTimeRemaining);
       return { 
         plan: `Пробный (${trialTimeRemaining})`, 
         color: 'bg-gradient-to-r from-green-400 to-emerald-500 text-white border-0 shadow-md', 
@@ -121,18 +101,10 @@ const UserProfileDropdown: React.FC = () => {
 
   const subscriptionInfo = getSubscriptionInfo();
   
-  // Определяем, есть ли активная премиум подписка
-  const isPremiumActive = subscription && 
-    subscription.status === 'active' && 
-    subscription.plan_type === 'premium' && 
-    new Date(subscription.expires_at) > new Date();
-  
-  console.log('🔍 isPremiumActive check:', {
-    hasSubscription: !!subscription,
-    status: subscription?.status,
-    planType: subscription?.plan_type,
-    notExpired: subscription ? new Date(subscription.expires_at) > new Date() : false,
-    result: isPremiumActive
+  console.log('🔍 UserProfileDropdown render state:', {
+    isPremiumActive,
+    shouldShowUpgrade: !isPremiumActive && !isLoading,
+    subscriptionInfo
   });
   
   const shouldShowUpgradeButton = !isPremiumActive && !isLoading;
