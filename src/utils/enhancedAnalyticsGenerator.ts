@@ -462,7 +462,7 @@ export const generateEnhancedAnalytics = async (
     const healthScore = await calculateEnhancedHealthScore(enhancedProfile, analyses, userId);
     const biomarkerTrends = analyzeBiomarkerTrends(analyses);
     const recentActivities = generateRecentActivities(analyses, chats);
-    const hasRecentActivity = checkRecentActivity(analyses, chats);
+    const hasRecentActivity = checkRecentActivity(analyses);
     
     let riskLevel: 'low' | 'moderate' | 'high' | 'critical' = 'low';
     if (healthScore < 40) riskLevel = 'critical';
