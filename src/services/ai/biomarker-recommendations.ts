@@ -41,21 +41,22 @@ export const generateBiomarkerRecommendation = async (
 
     if (error) {
       console.error("Supabase function error:", error);
-      throw new Error(error.message || "Ошибка при генерации рекомендаций");
+      throw new Error(`Ошибка генерации рекомендаций: ${error.message || 'Неизвестная ошибка'}`);
     }
 
     if (!data) {
-      throw new Error("Не получен ответ от функции генерации рекомендаций");
+      throw new Error("Не получен ответ от службы генерации рекомендаций");
     }
 
     if (data.error) {
-      throw new Error(data.error);
+      throw new Error(`Ошибка ИИ: ${data.error}`);
     }
 
     console.log("Successfully generated biomarker recommendation:", data);
     return data as BiomarkerRecommendation;
   } catch (error) {
     console.error("Error generating biomarker recommendation:", error);
+    // Возвращаем null вместо выбрасывания ошибки для более мягкой обработки
     return null;
   }
 };

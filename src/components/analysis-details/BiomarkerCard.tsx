@@ -41,10 +41,13 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
   const [showTrend, setShowTrend] = useState(false);
   const [aiRecommendations, setAiRecommendations] = useState<DetailedRecommendations | null>(null);
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
+  const [recommendationsError, setRecommendationsError] = useState<string | null>(null);
 
   const handleShowDetails = async () => {
     if (!showDetails && !aiRecommendations && status !== 'normal' && user) {
       setIsLoadingRecommendations(true);
+      setRecommendationsError(null);
+      
       try {
         const recommendations = await generateBiomarkerRecommendation({
           biomarkerName: name,
@@ -56,9 +59,12 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
         
         if (recommendations) {
           setAiRecommendations(recommendations);
+        } else {
+          setRecommendationsError('Не удалось получить рекомендации. Попробуйте позже.');
         }
       } catch (error) {
         console.error('Error loading AI recommendations:', error);
+        setRecommendationsError('Ошибка загрузки рекомендаций. Попробуйте позже.');
       } finally {
         setIsLoadingRecommendations(false);
       }
@@ -109,7 +115,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
                     <ChevronRight className="h-4 w-4" />
                   )}
                   <TrendingUp className="h-4 w-4" />
-                  Подробные рекомендации
+                  ИИ-рекомендации
                 </Button>
               </CollapsibleTrigger>
               
@@ -120,6 +126,10 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
                       <Loader2 className="h-4 w-4 animate-spin" />
                       <span className="text-sm text-gray-600">Генерируем персональные рекомендации...</span>
                     </div>
+                  </div>
+                ) : recommendationsError ? (
+                  <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+                    <p className="text-sm text-red-800">{recommendationsError}</p>
                   </div>
                 ) : aiRecommendations ? (
                   <div className="space-y-4">
@@ -206,12 +216,11 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
                       </div>
                     )}
                   </div>
-                ) : detailedRecommendation ? (
-                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                    <h4 className="font-medium text-green-900 mb-2">Детальные рекомендации:</h4>
-                    <p className="text-sm text-green-800 whitespace-pre-line">{detailedRecommendation}</p>
+                ) : (
+                  <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <p className="text-sm text-yellow-800">Рекомендации временно недоступны. Попробуйте позже.</p>
                   </div>
-                ) : null}
+                )}
               </CollapsibleContent>
             </Collapsible>
           )}
@@ -231,7 +240,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
           </Collapsible>
         </div>
 
-        {/* Показываем кнопку только для отклонений от нормы */}
+        {/* Показываем сообщение только для нормальных показателей */}
         {!shouldShowDetailedRecommendations && (
           <div className="p-3 bg-green-50 rounded-lg border border-green-200">
             <p className="text-sm text-green-800">✅ Показатель в норме - дополнительные рекомендации не требуются</p>

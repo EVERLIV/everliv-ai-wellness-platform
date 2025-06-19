@@ -29,7 +29,8 @@ serve(async (req) => {
 - Не ставь диагнозы и не назначай лечение
 - Рекомендуй консультацию с врачом при серьезных отклонениях
 - Фокусируйся на питании, образе жизни и профилактике
-- Используй только научно обоснованные подходы`;
+- Используй только научно обоснованные подходы
+- Отвечай ТОЛЬКО валидным JSON без markdown форматирования`;
 
     const userPrompt = `Биомаркер: ${biomarkerName}
 Текущее значение: ${currentValue}
@@ -44,7 +45,7 @@ serve(async (req) => {
 - warningSignsToWatch: массив симптомов, на которые стоит обратить внимание (2-3 пункта)
 - additionalTests: массив дополнительных анализов для рассмотрения (1-2 пункта)
 
-Ответь только в формате JSON без дополнительного текста.`;
+Ответь только валидным JSON без дополнительного текста и markdown форматирования.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -70,14 +71,29 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const content = data.choices[0].message.content;
+    let content = data.choices[0].message.content;
+
+    // Очищаем контент от markdown форматирования
+    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
     let recommendations;
     try {
       recommendations = JSON.parse(content);
     } catch (parseError) {
       console.error('Error parsing JSON response:', parseError, 'Content:', content);
-      throw new Error('Не удалось обработать ответ ИИ');
+      
+      // Попытаемся извлечь JSON из текста
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          recommendations = JSON.parse(jsonMatch[0]);
+        } catch (secondParseError) {
+          console.error('Failed to extract JSON from content:', secondParseError);
+          throw new Error('Не удалось обработать ответ ИИ');
+        }
+      } else {
+        throw new Error('Не удалось обработать ответ ИИ');
+      }
     }
 
     return new Response(JSON.stringify(recommendations), {
