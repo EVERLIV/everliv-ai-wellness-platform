@@ -16,7 +16,8 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    // Используем новый URL для Supabase
+    const supabaseUrl = "https://int.everliv.online";
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const callbackToken = Deno.env.get('PAYKEEPER_CALLBACK_TOKEN')!;
     const publicKey = Deno.env.get('PAYKEEPER_PUBLIC_KEY');
@@ -24,6 +25,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('PayKeeper webhook received, method:', req.method);
     console.log('Headers:', Object.fromEntries(req.headers.entries()));
+    console.log('New Supabase URL being used:', supabaseUrl);
 
     // Parse webhook data
     const webhookData = await parseWebhookData(req);

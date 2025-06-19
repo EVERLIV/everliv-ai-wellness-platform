@@ -67,12 +67,13 @@ const MedicalAnalysisResults = ({ results, isAnalyzing, apiError, onBack }: Medi
       }
 
       // Сохраняем анализ в базу данных
+      // Преобразуем результаты в JSON-совместимый формат
       const analysisData = {
         user_id: user.id,
         analysis_type: results.analysisType,
-        results: results,
+        results: JSON.parse(JSON.stringify(results)) as any, // Принудительное приведение к Json типу
         summary: results.summary,
-        input_method: 'text',
+        input_method: 'text' as const,
         created_at: new Date().toISOString()
       };
 
