@@ -12,6 +12,28 @@ export interface AnalyticsData {
     improving: boolean;
     changePercent: number;
   };
+  totalAnalyses: number;
+  totalConsultations: number;
+  hasRecentActivity: boolean;
+  trendsAnalysis: {
+    improving: number;
+    worsening: number;
+    stable: number;
+  };
+  recentActivities: Array<{
+    title: string;
+    time: string;
+    icon: string;
+    iconColor: string;
+    iconBg: string;
+  }>;
+  lastUpdated: string;
+  recommendations?: string[];
+  strengths?: string[];
+  concerns?: string[];
+  scoreExplanation?: string;
+  riskDescription?: string;
+  lastAnalysisDate?: string;
 }
 
 export const useAnalyticsData = () => {
@@ -61,21 +83,38 @@ export const useAnalyticsData = () => {
       const ageFactor = (100 - healthScore) * 0.3;
       const biologicalAge = Math.round(chronologicalAge + ageFactor);
 
-      setAnalytics({
+      // Создаем полную аналитику
+      const fullAnalytics: AnalyticsData = {
         healthScore,
         riskLevel,
         biologicalAge,
         trends: {
           improving: healthScore > 60,
           changePercent: Math.round((healthScore - 50) * 0.5)
-        }
-      });
-      
+        },
+        totalAnalyses: statistics.totalAnalyses,
+        totalConsultations: 0,
+        hasRecentActivity: statistics.totalAnalyses > 0,
+        trendsAnalysis: {
+          improving: healthScore > 60 ? 3 : 1,
+          worsening: healthScore < 40 ? 2 : 0,
+          stable: 2
+        },
+        recentActivities: [],
+        lastUpdated: new Date().toISOString(),
+        recommendations: ['Продолжайте поддерживать активный образ жизни'],
+        strengths: ['Регулярный мониторинг здоровья'],
+        concerns: healthScore < 40 ? ['Требуется внимание к показателям здоровья'] : [],
+        scoreExplanation: `Балл рассчитан на основе возраста, физической активности, сна и других факторов`,
+        riskDescription: riskLevel === 'high' ? 'Высокий риск' : riskLevel === 'medium' ? 'Средний риск' : 'Низкий риск'
+      };
+
+      setAnalytics(fullAnalytics);
       setIsLoading(false);
     };
 
     calculateAnalytics();
   }, [user, healthProfile, statistics]);
 
-  return { analytics, isLoading };
+  return { analytics, isLoading, setAnalytics };
 };

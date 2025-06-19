@@ -14,7 +14,7 @@ export interface PersonalRecommendation {
 }
 
 export interface HealthGoal {
-  id: string;
+  id?: string;
   user_id: string;
   title: string;
   description: string;
@@ -29,4 +29,13 @@ export interface HealthGoal {
   created_at: string;
   updated_at: string;
   progress_percentage: number;
+  target_weight?: number;
+  target_steps: number;
+  target_exercise_minutes: number;
+  target_sleep_hours: number;
+  target_water_intake: number;
+  target_stress_level: number;
+  goal_type: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  start_date?: string;
+  end_date?: string;
 }

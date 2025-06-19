@@ -5,7 +5,7 @@ import { PersonalRecommendation } from '@/types/recommendations';
 export const generatePersonalRecommendations = async (
   userId: string, 
   healthProfile: any
-): Promise<PersonalRecommendation[]> => {
+): Promise<Omit<PersonalRecommendation, 'id' | 'created_at' | 'updated_at'>[]> => {
   const recommendations: Omit<PersonalRecommendation, 'id' | 'created_at' | 'updated_at'>[] = [];
 
   // Рекомендации по физической активности
