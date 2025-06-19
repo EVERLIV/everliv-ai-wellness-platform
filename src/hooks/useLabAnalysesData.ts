@@ -74,6 +74,12 @@ export const useLabAnalysesData = () => {
       return;
     }
 
+    console.log('🔄 useLabAnalysesData: Starting fetch for user:', {
+      userId: user.id,
+      userEmail: user.email,
+      isValidUUID: isValidUUID(user.id)
+    });
+
     // Проверяем, является ли user_id валидным UUID
     if (!isValidUUID(user.id)) {
       console.log('🚫 useLabAnalysesData: Invalid UUID format for user ID:', user.id, 'using mock data for dev');
@@ -91,10 +97,10 @@ export const useLabAnalysesData = () => {
     }
 
     try {
-      console.log('🔄 useLabAnalysesData: Fetching analyses for user:', user.id);
       setLoadingHistory(true);
       
       // Получаем все медицинские анализы с подробной информацией
+      console.log('🔍 useLabAnalysesData: Querying medical_analyses table...');
       const { data: analysesData, error: analysesError } = await supabase
         .from('medical_analyses')
         .select(`
@@ -113,10 +119,15 @@ export const useLabAnalysesData = () => {
         throw analysesError;
       }
 
-      console.log('📊 useLabAnalysesData: Raw analyses data:', analysesData);
+      console.log('📊 useLabAnalysesData: Raw analyses data:', {
+        count: analysesData?.length || 0,
+        data: analysesData,
+        userId: user.id,
+        userEmail: user.email
+      });
 
       if (!analysesData || analysesData.length === 0) {
-        console.log('📭 useLabAnalysesData: No analyses found');
+        console.log('📭 useLabAnalysesData: No analyses found for user:', user.email);
         setAnalysisHistory([]);
         setStatistics({
           totalAnalyses: 0,
@@ -185,7 +196,11 @@ export const useLabAnalysesData = () => {
         };
       });
 
-      console.log('✅ useLabAnalysesData: Formatted analyses data:', formattedData);
+      console.log('✅ useLabAnalysesData: Formatted analyses data for', user.email, ':', {
+        count: formattedData.length,
+        analyses: formattedData
+      });
+      
       setAnalysisHistory(formattedData);
       
       // Рассчитываем статистику
@@ -216,11 +231,11 @@ export const useLabAnalysesData = () => {
         analysisTypes
       };
 
-      console.log('📊 useLabAnalysesData: Statistics:', newStatistics);
+      console.log('📊 useLabAnalysesData: Statistics for', user.email, ':', newStatistics);
       setStatistics(newStatistics);
 
     } catch (error) {
-      console.error('❌ useLabAnalysesData: Error loading analysis history:', error);
+      console.error('❌ useLabAnalysesData: Error loading analysis history for', user.email, ':', error);
       
       // Не показываем toast-ошибку для dev-пользователей с невалидным UUID
       if (user?.id && isValidUUID(user.id)) {
@@ -241,12 +256,15 @@ export const useLabAnalysesData = () => {
   };
 
   const refreshHistory = () => {
-    console.log('🔄 useLabAnalysesData: Manual refresh triggered');
+    console.log('🔄 useLabAnalysesData: Manual refresh triggered for user:', user?.email);
     fetchAnalysisHistory();
   };
 
   useEffect(() => {
-    console.log('🎯 useLabAnalysesData: Effect triggered, user:', user?.id);
+    console.log('🎯 useLabAnalysesData: Effect triggered, user:', {
+      userId: user?.id,
+      userEmail: user?.email
+    });
     fetchAnalysisHistory();
   }, [user?.id]);
 

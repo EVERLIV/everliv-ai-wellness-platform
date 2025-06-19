@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { useLabAnalysesData } from "@/hooks/useLabAnalysesData";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { 
   User, 
   Activity, 
@@ -19,7 +19,9 @@ import {
   Calendar,
   Target,
   BarChart3,
-  Clock
+  Clock,
+  Crown,
+  CheckCircle
 } from "lucide-react";
 
 interface PersonalizedDashboardHeaderProps {
@@ -31,6 +33,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
   const { healthProfile, isLoading: profileLoading } = useHealthProfile();
   const { statistics, loadingHistory: analysesLoading } = useLabAnalysesData();
   const { analytics, isLoading: analyticsLoading } = useAnalyticsData();
+  const { currentPlan, isPremiumActive } = useSubscription();
 
   const isProfileComplete = !profileLoading && healthProfile && Object.keys(healthProfile).length > 5;
   const hasAnalyses = statistics.totalAnalyses > 0;
@@ -55,15 +58,6 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
     month: 'long'
   });
 
-  // Рассчитываем процент заполненности профиля
-  const calculateProfileCompleteness = () => {
-    if (!healthProfile) return 0;
-    const fields = ['age', 'gender', 'height', 'weight', 'physicalActivity', 'sleepHours'];
-    const filledFields = fields.filter(field => healthProfile[field] !== undefined && healthProfile[field] !== null);
-    return Math.round((filledFields.length / fields.length) * 100);
-  };
-
-  const profileCompleteness = calculateProfileCompleteness();
   const biologicalAge = analytics?.healthScore ? Math.round(35 + (100 - analytics.healthScore) * 0.3) : null;
   const healthStatus = analytics?.riskLevel || 'не определен';
 
@@ -75,6 +69,18 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
       case 'высокий': return 'text-red-600 bg-red-50 border-red-200';
       default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
+  };
+
+  // Получаем иконку подписки
+  const getSubscriptionIcon = () => {
+    if (isPremiumActive) return <Crown className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600" />;
+    return <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-gray-600" />;
+  };
+
+  // Цвет подписки
+  const getSubscriptionColor = () => {
+    if (isPremiumActive) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+    return 'text-gray-600 bg-gray-50 border-gray-200';
   };
 
   // Рендер для пользователей с заполненным профилем
@@ -104,43 +110,33 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
             </Badge>
           </div>
           
-          {/* Dev статус */}
+          {/* Подписка статус */}
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm sm:text-base text-gray-600">
               Ваш персональный центр здоровья
             </p>
-            <div className="flex items-center gap-2 text-xs text-gray-500 bg-white px-2 py-1 rounded-full border flex-shrink-0">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span>Онлайн (разработка)</span>
+            <div className={`flex items-center gap-2 text-xs px-2 py-1 rounded-full border flex-shrink-0 ${getSubscriptionColor()}`}>
+              {getSubscriptionIcon()}
+              <span>{currentPlan}</span>
             </div>
           </div>
           
-          {/* Прогресс-индикаторы - адаптированные для мобильных */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <div className="space-y-2">
+          {/* Биологический возраст - адаптированный для мобильных */}
+          {biologicalAge && (
+            <div className="space-y-2 mb-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs sm:text-sm text-gray-600">Заполненность профиля</span>
-                <span className="text-xs sm:text-sm font-medium text-gray-900">{profileCompleteness}%</span>
+                <span className="text-xs sm:text-sm text-gray-600">Биологический возраст</span>
+                <span className="text-base sm:text-lg font-bold text-indigo-600">{biologicalAge} лет</span>
               </div>
-              <Progress value={profileCompleteness} className="h-2" />
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <Activity className="h-3 w-3" />
+                <span>На основе ваших данных</span>
+              </div>
             </div>
-            
-            {biologicalAge && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs sm:text-sm text-gray-600">Биологический возраст</span>
-                  <span className="text-base sm:text-lg font-bold text-indigo-600">{biologicalAge} лет</span>
-                </div>
-                <div className="flex items-center gap-1 text-xs text-gray-500">
-                  <Activity className="h-3 w-3" />
-                  <span>На основе ваших данных</span>
-                </div>
-              </div>
-            )}
-          </div>
+          )}
           
           {/* Дисклеймер - адаптированный */}
-          <div className="text-xs text-gray-400 bg-gray-50 rounded-lg px-3 py-2 mt-4">
+          <div className="text-xs text-gray-400 bg-gray-50 rounded-lg px-3 py-2">
             <p className="text-center sm:text-left">
               Сервис находится в альфа-разработке, спасибо за поддержку! 
               <a 
@@ -264,21 +260,9 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
     </Card>
   );
 
-  // Прогресс-индикаторы
+  // Прогресс-индикаторы - убираем заполненность профиля
   const renderProgressIndicators = () => (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
-      <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-        <CardContent className="p-3 sm:p-4">
-          <div className="flex items-center justify-between mb-2">
-            <User className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
-            <span className="text-xs font-medium text-blue-800">{profileCompleteness}%</span>
-          </div>
-          <h4 className="font-semibold text-gray-900 text-xs sm:text-sm mb-1">Профиль</h4>
-          <Progress value={profileCompleteness} className="h-1 mb-2" />
-          <p className="text-xs text-gray-600">Данные о здоровье</p>
-        </CardContent>
-      </Card>
-
+    <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
       <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
         <CardContent className="p-3 sm:p-4">
           <div className="flex items-center justify-between mb-2">
@@ -291,7 +275,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 col-span-2 sm:col-span-1">
+      <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
         <CardContent className="p-3 sm:p-4">
           <div className="flex items-center justify-between mb-2">
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />

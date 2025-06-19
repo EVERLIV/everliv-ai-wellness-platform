@@ -78,7 +78,8 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       notExpired,
       expiresAt: subscription.expires_at,
       now: new Date().toISOString(),
-      result: isActive && isPremium && notExpired
+      result: isActive && isPremium && notExpired,
+      userEmail: user?.email
     });
     
     return isActive && isPremium && notExpired;
@@ -110,7 +111,8 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         now: now.toISOString(),
         expiresAt: expiresAt.toISOString(),
         isValid: expiresAt > now,
-        planType: subscription.plan_type
+        planType: subscription.plan_type,
+        userEmail: user?.email
       });
       
       if (expiresAt > now) {
@@ -121,14 +123,14 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         };
         
         const planName = planNames[subscription.plan_type as keyof typeof planNames] || 'Базовый';
-        console.log('✅ Active subscription confirmed:', planName);
+        console.log('✅ Active subscription confirmed:', planName, 'for user:', user?.email);
         
         return { 
           plan: planName,
           hasActive: true
         };
       } else {
-        console.log('⚠️ Subscription expired');
+        console.log('⚠️ Subscription expired for user:', user?.email);
       }
     }
     
@@ -141,7 +143,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       };
     }
     
-    console.log('📋 Defaulting to basic plan');
+    console.log('📋 Defaulting to basic plan for user:', user?.email);
     return { plan: 'Базовый', hasActive: false };
   };
 
@@ -194,7 +196,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      console.log('🔄 Loading subscription data for user:', user.id);
+      console.log('🔄 Loading subscription data for user:', user.id, user.email);
       setIsLoading(true);
       
       // Проверяем валидность UUID - для dev-пользователей пропускаем загрузку данных подписки
@@ -210,7 +212,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       
       try {
         const data = await fetchSubscriptionData(user.id);
-        console.log('📊 Subscription data loaded:', data);
+        console.log('📊 Subscription data loaded for', user.email, ':', data);
         
         setSubscription(data.subscription);
         setFeatureTrials(data.featureTrials);
@@ -221,21 +223,21 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
           new Date(data.subscription.expires_at) > new Date();
           
         if (!hasValidSubscription) {
-          console.log('🔍 No valid subscription, checking trial status');
+          console.log('🔍 No valid subscription, checking trial status for:', user.email);
           const trialStatus = await checkTrialStatusService(user.id);
-          console.log('🎯 Trial status loaded:', trialStatus);
+          console.log('🎯 Trial status loaded for', user.email, ':', trialStatus);
           
           setIsTrialActive(trialStatus.isActive);
           if (trialStatus.expiresAt) {
             setTrialExpiresAt(new Date(trialStatus.expiresAt));
           }
         } else {
-          console.log('✅ Valid subscription found, resetting trial');
+          console.log('✅ Valid subscription found for', user.email, ', resetting trial');
           setIsTrialActive(false);
           setTrialExpiresAt(null);
         }
       } catch (error) {
-        console.error("❌ Error loading subscription data:", error);
+        console.error("❌ Error loading subscription data for", user.email, ":", error);
       } finally {
         setIsLoading(false);
       }
