@@ -1,5 +1,5 @@
 
-import OpenAI from 'openai';
+import { initializeOpenAI } from './openai-client';
 
 interface BiologicalAgeAnalysisData {
   chronological_age: number;
@@ -41,11 +41,6 @@ interface BiologicalAgeResult {
   missingAnalyses: string[];
 }
 
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
-
 // Функция для преобразования числового значения частоты упражнений в текст
 const getExerciseFrequencyText = (frequency: number): string => {
   switch (frequency) {
@@ -59,9 +54,11 @@ const getExerciseFrequencyText = (frequency: number): string => {
 };
 
 export async function analyzeBiologicalAgeWithOpenAI(data: BiologicalAgeAnalysisData): Promise<BiologicalAgeResult> {
-  const exerciseText = getExerciseFrequencyText(data.lifestyle_factors.exercise_frequency);
-  
-  const prompt = `
+  try {
+    const openai = initializeOpenAI();
+    const exerciseText = getExerciseFrequencyText(data.lifestyle_factors.exercise_frequency);
+    
+    const prompt = `
 Проанализируй биомаркеры и определи биологический возраст:
 
 Базовая информация:
@@ -105,9 +102,8 @@ ${data.biomarkers.map(b => `
 }
 `;
 
-  try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4.1-2025-04-14',
       messages: [
         {
           role: 'system',
@@ -152,6 +148,6 @@ ${data.biomarkers.map(b => `
     }
   } catch (error) {
     console.error('Ошибка при обращении к OpenAI:', error);
-    throw new Error('Не удалось получить анализ от ИИ. Проверьте подключение к интернету.');
+    throw new Error('Не удалось получить анализ от ИИ. Проверьте подключение к интернету и настройки API.');
   }
 }
