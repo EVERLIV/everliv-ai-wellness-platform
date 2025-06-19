@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -44,7 +44,7 @@ const parseAnalysisResults = (results: any) => {
 };
 
 export const useLabAnalysesData = () => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const [analysisHistory, setAnalysisHistory] = useState<AnalysisItem[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [statistics, setStatistics] = useState<AnalysisStatistics>({
@@ -55,8 +55,8 @@ export const useLabAnalysesData = () => {
   });
 
   const fetchAnalysisHistory = async () => {
-    if (!user) {
-      console.log('🚫 useLabAnalysesData: No user, clearing data');
+    if (!user?.id) {
+      console.log('🚫 useLabAnalysesData: No user ID, clearing data');
       setAnalysisHistory([]);
       setLoadingHistory(false);
       return;
@@ -207,7 +207,7 @@ export const useLabAnalysesData = () => {
   useEffect(() => {
     console.log('🎯 useLabAnalysesData: Effect triggered, user:', user?.id);
     fetchAnalysisHistory();
-  }, [user]);
+  }, [user?.id]);
 
   return {
     analysisHistory,

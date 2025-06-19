@@ -8,6 +8,10 @@ const DashboardHealthCharts: React.FC = () => {
 
   // Преобразуем данные анализов в формат для графиков
   const generateChartData = (parameterName: string) => {
+    if (!analysisHistory || !Array.isArray(analysisHistory)) {
+      return [];
+    }
+    
     return analysisHistory
       .filter(analysis => analysis.results?.markers?.some((m: any) => m.name === parameterName))
       .map(analysis => {
@@ -51,7 +55,7 @@ const DashboardHealthCharts: React.FC = () => {
   // Определяем основные показатели для отображения
   const mainParameters = ['Гемоглобин', 'Лейкоциты', 'Глюкоза', 'Тромбоциты'];
   const availableParameters = mainParameters.filter(param => 
-    analysisHistory.some(analysis => 
+    analysisHistory && Array.isArray(analysisHistory) && analysisHistory.some(analysis => 
       analysis.results?.markers?.some((m: any) => m.name === param)
     )
   );
