@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 import { 
   Lightbulb, 
   X, 
@@ -35,6 +36,7 @@ const SmartTips: React.FC<SmartTipsProps> = ({
   recentActivity, 
   pendingTasks 
 }) => {
+  const navigate = useNavigate();
   const [dismissedTips, setDismissedTips] = useState<string[]>([]);
   const [laterTips, setLaterTips] = useState<string[]>([]);
 
@@ -104,8 +106,11 @@ const SmartTips: React.FC<SmartTipsProps> = ({
     }, 24 * 60 * 60 * 1000); // Показать снова через 24 часа
   };
 
-  const handleComplete = (tipId: string) => {
+  const handleComplete = (tipId: string, actionLink?: string) => {
     setDismissedTips([...dismissedTips, tipId]);
+    if (actionLink) {
+      navigate(actionLink);
+    }
   };
 
   const activeTips = tips.filter(tip => 
@@ -157,10 +162,7 @@ const SmartTips: React.FC<SmartTipsProps> = ({
                 {tip.action && tip.actionLink && (
                   <Button
                     size="sm"
-                    onClick={() => {
-                      window.location.href = tip.actionLink;
-                      handleComplete(tip.id);
-                    }}
+                    onClick={() => handleComplete(tip.id, tip.actionLink)}
                     className="bg-purple-600 hover:bg-purple-700 text-white"
                   >
                     <CheckCircle className="h-3 w-3 mr-1" />

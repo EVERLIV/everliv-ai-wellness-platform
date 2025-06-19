@@ -10,19 +10,55 @@ interface LabAnalysesStatsProps {
 }
 
 const LabAnalysesStats: React.FC<LabAnalysesStatsProps> = ({ statistics }) => {
-  const { isPremiumActive, currentPlan } = useSubscription();
+  const { isPremiumActive, currentPlan, subscription } = useSubscription();
 
   const getAnalysisLimit = () => {
+    // Проверяем сначала активную подписку из базы данных
+    if (subscription && subscription.status === 'active') {
+      const now = new Date();
+      const expiresAt = new Date(subscription.expires_at);
+      
+      if (expiresAt > now && subscription.plan_type === 'premium') {
+        return 15; // премиум план
+      }
+    }
+    
+    // Затем проверяем isPremiumActive (включая dev режим)
     if (isPremiumActive) return 15;
+    
     return 1; // базовый план
   };
 
   const limit = getAnalysisLimit();
   const usagePercentage = (statistics.currentMonthAnalyses / limit) * 100;
 
-  console.log('📊 LabAnalysesStats: Current plan info:', {
-    currentPlan,
+  // Определяем отображаемый план с учетом данных из базы
+  const getDisplayPlan = () => {
+    if (subscription && subscription.status === 'active') {
+      const now = new Date();
+      const expiresAt = new Date(subscription.expires_at);
+      
+      if (expiresAt > now) {
+        return subscription.plan_type === 'premium' ? 'Премиум' : 'Стандарт';
+      }
+    }
+    
+    return isPremiumActive ? 'Премиум' : currentPlan;
+  };
+
+  const displayPlan = getDisplayPlan();
+
+  console.log('📊 LabAnalysesStats: Subscription info:', {
+    subscription: subscription ? {
+      id: subscription.id,
+      plan_type: subscription.plan_type,
+      status: subscription.status,
+      expires_at: subscription.expires_at,
+      isExpired: subscription.expires_at ? new Date(subscription.expires_at) <= new Date() : true
+    } : null,
     isPremiumActive,
+    currentPlan,
+    displayPlan,
     limit,
     currentMonthAnalyses: statistics.currentMonthAnalyses,
     usagePercentage
@@ -79,7 +115,7 @@ const LabAnalysesStats: React.FC<LabAnalysesStatsProps> = ({ statistics }) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {isPremiumActive ? 'Премиум' : currentPlan}
+            {displayPlan}
           </div>
           <p className="text-xs text-muted-foreground">
             {limit} анализов в месяц
