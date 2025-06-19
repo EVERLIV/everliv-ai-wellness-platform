@@ -21,6 +21,28 @@ export interface AnalysisStatistics {
   analysisTypes: { [key: string]: number };
 }
 
+// Helper function to safely parse results
+const parseAnalysisResults = (results: any) => {
+  if (!results) return null;
+  
+  // If results is already an object, return it
+  if (typeof results === 'object' && results !== null) {
+    return results;
+  }
+  
+  // If results is a string, try to parse it as JSON
+  if (typeof results === 'string') {
+    try {
+      return JSON.parse(results);
+    } catch (error) {
+      console.warn('Failed to parse results as JSON:', error);
+      return null;
+    }
+  }
+  
+  return null;
+};
+
 export const useLabAnalysesData = () => {
   const { user } = useAuth();
   const [analysisHistory, setAnalysisHistory] = useState<AnalysisItem[]>([]);
@@ -107,17 +129,20 @@ export const useLabAnalysesData = () => {
       const formattedData: AnalysisItem[] = analysesData.map(item => {
         const markersCount = biomarkerCounts[item.id] || 0;
         
+        // Безопасно парсим results
+        const parsedResults = parseAnalysisResults(item.results);
+        
         // Пытаемся получить количество маркеров из results, если нет биомаркеров в отдельной таблице
         let finalMarkersCount = markersCount;
-        if (markersCount === 0 && item.results && item.results.markers) {
-          finalMarkersCount = Array.isArray(item.results.markers) ? item.results.markers.length : 0;
+        if (markersCount === 0 && parsedResults?.markers && Array.isArray(parsedResults.markers)) {
+          finalMarkersCount = parsedResults.markers.length;
         }
 
         console.log(`📋 useLabAnalysesData: Analysis ${item.id}:`, {
           type: item.analysis_type,
           created: item.created_at,
           biomarkersFromTable: markersCount,
-          biomarkersFromResults: item.results?.markers?.length || 0,
+          biomarkersFromResults: parsedResults?.markers?.length || 0,
           finalCount: finalMarkersCount
         });
 
@@ -128,7 +153,7 @@ export const useLabAnalysesData = () => {
           summary: item.summary || '',
           markers_count: finalMarkersCount,
           input_method: (item.input_method as 'text' | 'photo') || 'text',
-          results: item.results
+          results: parsedResults
         };
       });
 
