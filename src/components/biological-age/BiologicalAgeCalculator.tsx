@@ -1,15 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, Calculator, TrendingUp, Heart, User } from 'lucide-react';
+import { AlertTriangle, Calculator, Heart } from 'lucide-react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { BIOMARKERS, ACCURACY_LEVELS } from '@/data/biomarkers';
 import { Biomarker, BiologicalAgeResult, AccuracyLevel } from '@/types/biologicalAge';
-import BiomarkerCard from './BiomarkerCard';
-import BiologicalAgeResults from './BiologicalAgeResults';
+import UserProfileDisplay from './UserProfileDisplay';
+import BiomarkerCategories from './BiomarkerCategories';
 import AccuracyIndicator from './AccuracyIndicator';
+import CalculationControls from './CalculationControls';
+import BiologicalAgeResults from './BiologicalAgeResults';
 import { analyzeBiologicalAgeWithOpenAI } from '@/services/ai/biological-age-analysis';
 import { toast } from 'sonner';
 
@@ -175,71 +176,10 @@ const BiologicalAgeCalculator = () => {
     );
   }
 
-  const getCategoryTitle = (category: string) => {
-    const titles = {
-      'cardiovascular': 'Сердечно-сосудистая система',
-      'metabolic': 'Метаболические маркеры',
-      'hormonal': 'Гормональная система',
-      'inflammatory': 'Воспалительные маркеры',
-      'oxidative_stress': 'Окислительный стресс',
-      'kidney_function': 'Почечная функция',
-      'liver_function': 'Печеночная функция',
-      'telomeres_epigenetics': 'Теломеры и эпигенетика'
-    };
-    return titles[category as keyof typeof titles] || category;
-  };
-
   return (
     <div className="space-y-6">
-      {/* Информация о пользователе из профиля здоровья */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Данные из профиля здоровья
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <span className="font-medium">Возраст:</span> {healthProfile.age} лет
-            </div>
-            <div>
-              <span className="font-medium">Пол:</span> {
-                healthProfile.gender === 'male' ? 'Мужской' : 
-                healthProfile.gender === 'female' ? 'Женский' : 'Другой'
-              }
-            </div>
-            <div>
-              <span className="font-medium">Рост:</span> {healthProfile.height} см
-            </div>
-            <div>
-              <span className="font-medium">Вес:</span> {healthProfile.weight} кг
-            </div>
-            <div>
-              <span className="font-medium">Курение:</span> {
-                healthProfile.smokingStatus === 'never' ? 'Не курю' :
-                healthProfile.smokingStatus === 'former' ? 'Бросил' : 'Курю'
-              }
-            </div>
-            <div>
-              <span className="font-medium">Алкоголь:</span> {
-                healthProfile.alcoholConsumption === 'never' ? 'Не употребляю' :
-                healthProfile.alcoholConsumption === 'rarely' ? 'Редко' :
-                healthProfile.alcoholConsumption === 'occasionally' ? 'Иногда' : 'Регулярно'
-              }
-            </div>
-            <div>
-              <span className="font-medium">Сон:</span> {healthProfile.sleepHours} часов
-            </div>
-            <div>
-              <span className="font-medium">Упражнения:</span> {healthProfile.exerciseFrequency} раз/неделю
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <UserProfileDisplay healthProfile={healthProfile} />
 
-      {/* Заголовок и описание */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -255,7 +195,6 @@ const BiologicalAgeCalculator = () => {
         </CardContent>
       </Card>
 
-      {/* Дисклеймер */}
       <Alert>
         <Heart className="h-4 w-4" />
         <AlertDescription>
@@ -265,71 +204,19 @@ const BiologicalAgeCalculator = () => {
         </AlertDescription>
       </Alert>
 
-      {/* Биомаркеры по категориям */}
-      <div className="space-y-6">
-        {Object.entries(
-          biomarkers.reduce((acc, biomarker) => {
-            if (!acc[biomarker.category]) {
-              acc[biomarker.category] = [];
-            }
-            acc[biomarker.category].push(biomarker);
-            return acc;
-          }, {} as Record<string, Biomarker[]>)
-        ).map(([category, categoryBiomarkers]) => (
-          <Card key={category}>
-            <CardHeader>
-              <CardTitle className="text-lg">
-                {getCategoryTitle(category)}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {categoryBiomarkers.map(biomarker => (
-                  <BiomarkerCard
-                    key={biomarker.id}
-                    biomarker={biomarker}
-                    onValueChange={handleBiomarkerValueChange}
-                    healthProfile={healthProfile}
-                  />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <BiomarkerCategories
+        biomarkers={biomarkers}
+        onValueChange={handleBiomarkerValueChange}
+        healthProfile={healthProfile}
+      />
 
-      {/* Кнопка расчета */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col items-center space-y-4">
-            <Button
-              onClick={calculateBiologicalAge}
-              disabled={isCalculating || currentAccuracy.current_tests < ACCURACY_LEVELS.basic.min}
-              size="lg"
-              className="w-full max-w-md"
-            >
-              {isCalculating ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Рассчитываем...
-                </>
-              ) : (
-                <>
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  Рассчитать биологический возраст
-                </>
-              )}
-            </Button>
-            <p className="text-sm text-gray-600 text-center">
-              Заполнено анализов: {currentAccuracy.current_tests} из {biomarkers.length}
-              <br />
-              Точность расчета: {currentAccuracy.percentage}%
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <CalculationControls
+        onCalculate={calculateBiologicalAge}
+        isCalculating={isCalculating}
+        currentAccuracy={currentAccuracy}
+        totalBiomarkers={biomarkers.length}
+      />
 
-      {/* Результаты */}
       {results && (
         <BiologicalAgeResults results={results} />
       )}
