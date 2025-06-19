@@ -5,10 +5,16 @@ import Header from "@/components/Header";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import PersonalizedDashboardHeader from "@/components/dashboard/PersonalizedDashboardHeader";
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";
+import DashboardHealthCharts from "@/components/dashboard/DashboardHealthCharts";
+import SmartTips from "@/components/dashboard/SmartTips";
 import MinimalFooter from "@/components/MinimalFooter";
+import { useHealthProfile } from "@/hooks/useHealthProfile";
+import { useActivityFeed } from "@/hooks/useActivityFeed";
 
 const Dashboard = () => {
   const { user } = useSmartAuth();
+  const { healthProfile } = useHealthProfile();
+  const { activities } = useActivityFeed();
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -37,10 +43,26 @@ const Dashboard = () => {
         <DashboardHeader userName={userName} />
         
         <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
-          {/* Новый персонализированный контент */}
+          {/* Персонализированный заголовок */}
           <PersonalizedDashboardHeader userName={userName} />
           
-          {/* Существующие Quick Actions Grid - не изменяем */}
+          {/* Умные подсказки */}
+          <SmartTips 
+            healthProfile={healthProfile}
+            recentActivity={activities?.slice(0, 5)}
+            pendingTasks={[]} // TODO: Добавить реальные данные о невыполненных задачах
+          />
+          
+          {/* Интерактивные графики здоровья */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">Интерактивные графики здоровья</h2>
+              <p className="text-sm text-gray-500">Кликните на точки для детальной информации</p>
+            </div>
+            <DashboardHealthCharts />
+          </div>
+          
+          {/* Существующие Quick Actions Grid */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900">Основные функции</h2>

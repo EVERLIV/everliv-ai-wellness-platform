@@ -177,9 +177,9 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
     </Card>
   );
 
-  // Прогресс-индикаторы
+  // Прогресс-индикаторы (убираем "Выполнено советов")
   const renderProgressIndicators = () => (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
       <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
@@ -215,18 +215,6 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
           <p className="text-xs text-gray-600">Дней записей</p>
         </CardContent>
       </Card>
-
-      <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <Activity className="h-5 w-5 text-purple-600" />
-            <span className="text-xs font-medium text-purple-800">0%</span>
-          </div>
-          <h4 className="font-semibold text-gray-900 text-sm mb-1">Рекомендации</h4>
-          <Progress value={0} className="h-1 mb-2" />
-          <p className="text-xs text-gray-600">Выполнено советов</p>
-        </CardContent>
-      </Card>
     </div>
   );
 
@@ -242,8 +230,8 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
                 <div className="h-4 bg-gray-200 rounded w-32"></div>
               </div>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map(i => (
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3].map(i => (
                 <div key={i} className="h-24 bg-gray-200 rounded"></div>
               ))}
             </div>
