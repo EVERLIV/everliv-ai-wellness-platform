@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Wifi, WifiOff } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { BIOMARKERS, ACCURACY_LEVELS } from '@/data/biomarkers';
 import { Biomarker, BiologicalAgeResult, AccuracyLevel } from '@/types/biologicalAge';
@@ -18,6 +19,7 @@ const BiologicalAgeCalculator = () => {
   const [biomarkers, setBiomarkers] = useState<Biomarker[]>(BIOMARKERS);
   const [isCalculating, setIsCalculating] = useState(false);
   const [results, setResults] = useState<BiologicalAgeResult | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const [currentAccuracy, setCurrentAccuracy] = useState<AccuracyLevel>({
     level: 'basic',
     percentage: 0,
@@ -106,6 +108,7 @@ const BiologicalAgeCalculator = () => {
     }
 
     setIsCalculating(true);
+    setConnectionError(null);
     
     try {
       const filledBiomarkers = biomarkers.filter(b => b.status === 'filled');
@@ -150,10 +153,26 @@ const BiologicalAgeCalculator = () => {
       toast.success('Биологический возраст рассчитан успешно!');
     } catch (error) {
       console.error('Error calculating biological age:', error);
-      toast.error('Ошибка при расчете биологического возраста');
+      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
+      setConnectionError(errorMessage);
+      
+      if (errorMessage.includes('API key')) {
+        toast.error('Ошибка конфигурации ИИ. Обратитесь к администратору.');
+      } else if (errorMessage.includes('quota') || errorMessage.includes('лимит')) {
+        toast.error('Превышен лимит запросов. Попробуйте позже.');
+      } else if (errorMessage.includes('подключение') || errorMessage.includes('network')) {
+        toast.error('Проблема с подключением к интернету');
+      } else {
+        toast.error('Ошибка при расчете биологического возраста');
+      }
     } finally {
       setIsCalculating(false);
     }
+  };
+
+  const retryCalculation = () => {
+    setConnectionError(null);
+    calculateBiologicalAge();
   };
 
   if (isLoading) {
@@ -180,6 +199,26 @@ const BiologicalAgeCalculator = () => {
       <UserProfileDisplay healthProfile={healthProfile} />
       
       <AccuracyIndicator accuracy={currentAccuracy} />
+
+      {connectionError && (
+        <Alert className="border-red-200 bg-red-50">
+          <WifiOff className="h-4 w-4 text-red-600" />
+          <AlertDescription className="flex items-center justify-between">
+            <div>
+              <strong>Ошибка подключения:</strong> {connectionError}
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={retryCalculation}
+              className="ml-4"
+            >
+              <Wifi className="h-4 w-4 mr-2" />
+              Повторить
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       <BiomarkerCategories
         biomarkers={biomarkers}
