@@ -34,6 +34,14 @@ const LabAnalyses = () => {
     analyzeMedicalTest 
   } = useMedicalAnalysis();
 
+  // Добавляем логирование для отладки
+  useEffect(() => {
+    console.log('LabAnalyses: пользователь:', user?.id);
+    console.log('LabAnalyses: история анализов:', analysisHistory);
+    console.log('LabAnalyses: загрузка:', loadingHistory);
+    console.log('LabAnalyses: статистика:', statistics);
+  }, [user, analysisHistory, loadingHistory, statistics]);
+
   const handleViewAnalysis = (analysisId: string) => {
     navigate(`/analysis-details?id=${analysisId}`);
   };
@@ -51,9 +59,10 @@ const LabAnalyses = () => {
   // Auto-refresh history when results are received
   useEffect(() => {
     if (results?.analysisId && user) {
+      console.log('LabAnalyses: новый анализ завершен, обновляем историю');
       refreshHistory();
     }
-  }, [results, user]);
+  }, [results, user, refreshHistory]);
 
   if (showNewAnalysis) {
     return (

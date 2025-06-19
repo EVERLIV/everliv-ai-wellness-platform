@@ -39,36 +39,46 @@ export const useLabAnalysesData = () => {
     }
 
     try {
-      // First, get all medical analyses
+      console.log('Загружаем анализы для пользователя:', user.id);
+      
+      // Получаем все медицинские анализы
       const { data: analysesData, error: analysesError } = await supabase
         .from('medical_analyses')
         .select('id, analysis_type, created_at, summary, input_method')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (analysesError) throw analysesError;
+      if (analysesError) {
+        console.error('Ошибка при получении анализов:', analysesError);
+        throw analysesError;
+      }
 
-      // Then get biomarker counts for each analysis
-      const analysisIds = analysesData?.map(analysis => analysis.id) || [];
-      
+      console.log('Получены анализы:', analysesData);
+
+      // Получаем количество биомаркеров для каждого анализа
       let biomarkerCounts: { [key: string]: number } = {};
       
-      if (analysisIds.length > 0) {
+      if (analysesData && analysesData.length > 0) {
+        const analysisIds = analysesData.map(analysis => analysis.id);
+        
         const { data: biomarkerData, error: biomarkerError } = await supabase
           .from('biomarkers')
           .select('analysis_id')
           .in('analysis_id', analysisIds);
 
         if (biomarkerError) {
-          console.error('Error fetching biomarkers:', biomarkerError);
+          console.error('Ошибка при получении биомаркеров:', biomarkerError);
         } else {
-          // Count biomarkers per analysis
+          console.log('Получены биомаркеры:', biomarkerData);
+          // Подсчитываем биомаркеры для каждого анализа
           biomarkerCounts = biomarkerData?.reduce((acc: { [key: string]: number }, biomarker) => {
             acc[biomarker.analysis_id] = (acc[biomarker.analysis_id] || 0) + 1;
             return acc;
           }, {}) || {};
         }
       }
+
+      console.log('Количество биомаркеров по анализам:', biomarkerCounts);
 
       const formattedData: AnalysisItem[] = (analysesData || []).map(item => ({
         id: item.id,
@@ -79,24 +89,25 @@ export const useLabAnalysesData = () => {
         input_method: (item.input_method as 'text' | 'photo') || 'text'
       }));
 
+      console.log('Форматированные данные анализов:', formattedData);
       setAnalysisHistory(formattedData);
       
-      // Calculate statistics
+      // Рассчитываем статистику
       const totalAnalyses = formattedData.length;
       
-      // Calculate current month analyses
+      // Рассчитываем анализы за текущий месяц
       const now = new Date();
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const currentMonthAnalyses = formattedData.filter(
         item => new Date(item.created_at) >= firstDayOfMonth
       ).length;
 
-      // Get most recent analysis date
+      // Получаем дату последнего анализа
       const mostRecentAnalysis = formattedData.length > 0 
         ? formattedData[0].created_at 
         : null;
 
-      // Count analysis types
+      // Подсчитываем типы анализов
       const analysisTypes: { [key: string]: number } = {};
       formattedData.forEach(item => {
         analysisTypes[item.analysis_type] = (analysisTypes[item.analysis_type] || 0) + 1;
@@ -110,7 +121,7 @@ export const useLabAnalysesData = () => {
       });
 
     } catch (error) {
-      console.error('Error fetching analysis history:', error);
+      console.error('Ошибка при загрузке истории анализов:', error);
       toast.error('Ошибка при загрузке истории анализов');
     } finally {
       setLoadingHistory(false);
@@ -118,6 +129,7 @@ export const useLabAnalysesData = () => {
   };
 
   const refreshHistory = () => {
+    console.log('Обновляем историю анализов');
     setLoadingHistory(true);
     fetchAnalysisHistory();
   };
