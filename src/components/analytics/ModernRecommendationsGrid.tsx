@@ -11,6 +11,9 @@ import RiskFactors from "./recommendations/RiskFactors";
 import SupplementsSection from "./recommendations/SupplementsSection";
 import SpecialistsSection from "./recommendations/SpecialistsSection";
 import TestsSection from "./recommendations/TestsSection";
+import AdvancedTherapiesSection from "./recommendations/AdvancedTherapiesSection";
+import NutritionProtocolsSection from "./recommendations/NutritionProtocolsSection";
+import RecommendedTestsSection from "./recommendations/RecommendedTestsSection";
 
 interface ModernRecommendationsGridProps {
   analytics: CachedAnalytics;
@@ -29,6 +32,12 @@ const ModernRecommendationsGrid: React.FC<ModernRecommendationsGridProps> = ({
       <HealthOverviewHeader analytics={analytics} />
       
       <PriorityRecommendations recommendations={comprehensiveRecommendations.priority} />
+      
+      <AdvancedTherapiesSection therapies={comprehensiveRecommendations.therapies} />
+      
+      <NutritionProtocolsSection protocols={comprehensiveRecommendations.nutrition} />
+      
+      <RecommendedTestsSection tests={comprehensiveRecommendations.tests} />
       
       <KeyRecommendations recommendations={recommendations.recommendations} />
       

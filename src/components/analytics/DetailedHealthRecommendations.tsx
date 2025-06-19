@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { CachedAnalytics } from '@/types/analytics';
 import BiomarkerTrendsOverview from './BiomarkerTrendsOverview';
+import ModernRecommendationsGrid from './ModernRecommendationsGrid';
 
 interface DetailedHealthRecommendationsProps {
   analytics: CachedAnalytics;
@@ -114,73 +115,8 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
         <BiomarkerTrendsOverview trendsAnalysis={analytics.trendsAnalysis} />
       </div>
 
-      {/* Рекомендации */}
-      {analytics.recommendations && analytics.recommendations.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-800">
-              <Target className="h-5 w-5" />
-              Персональные рекомендации
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {analytics.recommendations.map((recommendation, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
-                  <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                    {index + 1}
-                  </div>
-                  <p className="text-sm text-gray-700">{recommendation}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Сильные стороны */}
-      {analytics.strengths && analytics.strengths.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-green-800">
-              <Shield className="h-5 w-5" />
-              Ваши сильные стороны
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {analytics.strengths.map((strength, index) => (
-                <div key={index} className="flex items-start gap-2 p-3 rounded-lg bg-green-50 border border-green-200">
-                  <div className="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                  <p className="text-sm text-gray-700">{strength}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Области для улучшения */}
-      {analytics.concerns && analytics.concerns.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-amber-800">
-              <AlertTriangle className="h-5 w-5" />
-              Области для улучшения
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {analytics.concerns.map((concern, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200">
-                  <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-gray-700">{concern}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Детальные рекомендации с новыми компонентами */}
+      <ModernRecommendationsGrid analytics={analytics} healthProfile={healthProfile} />
 
       {/* Объяснение балла */}
       {analytics.scoreExplanation && (
