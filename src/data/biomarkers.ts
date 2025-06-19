@@ -1,356 +1,332 @@
-export interface Biomarker {
-  id: number;
-  code: string;
-  name: string;
-  nameRu: string;
-  category: string;
-  unit: string;
-  normalRangeMaleMin: number;
-  normalRangeMaleMax: number;
-  normalRangeFemaleMin: number;
-  normalRangeFemaleMax: number;
-  description: string;
-  descriptionRu: string;
-  significanceHigh: string;
-  significanceHighRu: string;
-  significanceLow: string;
-  significanceLowRu: string;
-  commonCauses: string;
-  commonCausesRu: string;
-  recommendations: string;
-  recommendationsRu: string;
-  currentValue?: number;
-  status?: 'high' | 'normal' | 'low';
-}
 
-// Импортируем данные из расширенной базы и адаптируем их к старому интерфейсу
-import { expandedBiomarkersData } from './expandedBiomarkers';
+import { Biomarker } from '@/types/biologicalAge';
 
-export const biomarkersData: Record<string, Biomarker> = {};
+export const BIOMARKERS: Biomarker[] = [
+  // Сердечно-сосудистая система
+  {
+    id: 'total_cholesterol',
+    name: 'Общий холестерин',
+    category: 'cardiovascular',
+    description: 'Анализ крови на липидный профиль',
+    analysis_type: 'Липидный профиль',
+    normal_range: { min: 3.6, max: 5.2, optimal: 4.5 },
+    unit: 'ммоль/л',
+    status: 'not_filled',
+    importance: 'high'
+  },
+  {
+    id: 'ldl_cholesterol',
+    name: 'ЛПНП (плохой холестерин)',
+    category: 'cardiovascular',
+    description: 'Анализ крови на липидный профиль',
+    analysis_type: 'Липидный профиль',
+    normal_range: { min: 0, max: 3.0, optimal: 2.5 },
+    unit: 'ммоль/л',
+    status: 'not_filled',
+    importance: 'high'
+  },
+  {
+    id: 'hdl_cholesterol',
+    name: 'ЛПВП (хороший холестерин)',
+    category: 'cardiovascular',
+    description: 'Анализ крови на липидный профиль',
+    analysis_type: 'Липидный профиль',
+    normal_range: { min: 1.0, max: 2.5, optimal: 1.5 },
+    unit: 'ммоль/л',
+    status: 'not_filled',
+    importance: 'high'
+  },
+  {
+    id: 'triglycerides',
+    name: 'Триглицериды',
+    category: 'cardiovascular',
+    description: 'Анализ крови на липидный профиль',
+    analysis_type: 'Липидный профиль',
+    normal_range: { min: 0, max: 1.7, optimal: 1.0 },
+    unit: 'ммоль/л',
+    status: 'not_filled',
+    importance: 'high'
+  },
+  {
+    id: 'crp',
+    name: 'С-реактивный белок (СРБ)',
+    category: 'cardiovascular',
+    description: 'Анализ крови на СРБ высокочувствительный',
+    analysis_type: 'СРБ высокочувствительный',
+    normal_range: { min: 0, max: 3.0, optimal: 1.0 },
+    unit: 'мг/л',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+  {
+    id: 'homocysteine',
+    name: 'Гомоцистеин',
+    category: 'cardiovascular',
+    description: 'Анализ крови на гомоцистеин',
+    analysis_type: 'Гомоцистеин',
+    normal_range: { min: 5, max: 15, optimal: 10 },
+    unit: 'мкмоль/л',
+    status: 'not_filled',
+    importance: 'medium'
+  },
 
-// Конвертируем расширенные данные в старый формат для обратной совместимости
-Object.entries(expandedBiomarkersData).forEach(([key, expandedBiomarker]) => {
-  biomarkersData[key] = {
-    id: expandedBiomarker.id,
-    code: expandedBiomarker.code,
-    name: expandedBiomarker.name,
-    nameRu: expandedBiomarker.nameRu,
-    category: expandedBiomarker.category,
-    unit: expandedBiomarker.unit,
-    normalRangeMaleMin: expandedBiomarker.normalRangeMaleMin,
-    normalRangeMaleMax: expandedBiomarker.normalRangeMaleMax,
-    normalRangeFemaleMin: expandedBiomarker.normalRangeFemaleMin,
-    normalRangeFemaleMax: expandedBiomarker.normalRangeFemaleMax,
-    description: expandedBiomarker.description,
-    descriptionRu: expandedBiomarker.descriptionRu,
-    significanceHigh: expandedBiomarker.significanceHigh,
-    significanceHighRu: expandedBiomarker.significanceHighRu,
-    significanceLow: expandedBiomarker.significanceLow,
-    significanceLowRu: expandedBiomarker.significanceLowRu,
-    commonCauses: expandedBiomarker.associatedConditions.join(', '),
-    commonCausesRu: expandedBiomarker.associatedConditionsRu.join(', '),
-    recommendations: expandedBiomarker.recommendations,
-    recommendationsRu: expandedBiomarker.recommendationsRu,
-    currentValue: expandedBiomarker.currentValue,
-    status: expandedBiomarker.status as 'high' | 'normal' | 'low' | undefined
-  };
-});
+  // Метаболические маркеры
+  {
+    id: 'glucose',
+    name: 'Глюкоза натощак',
+    category: 'metabolic',
+    description: 'Анализ крови на глюкозу',
+    analysis_type: 'Глюкоза крови',
+    normal_range: { min: 3.9, max: 6.1, optimal: 5.0 },
+    unit: 'ммоль/л',
+    status: 'not_filled',
+    importance: 'high'
+  },
+  {
+    id: 'hba1c',
+    name: 'Гликированный гемоглобин (HbA1c)',
+    category: 'metabolic',
+    description: 'Анализ крови на HbA1c',
+    analysis_type: 'HbA1c',
+    normal_range: { min: 4.0, max: 6.0, optimal: 5.0 },
+    unit: '%',
+    status: 'not_filled',
+    importance: 'high'
+  },
+  {
+    id: 'insulin',
+    name: 'Инсулин',
+    category: 'metabolic',
+    description: 'Анализ крови на инсулин',
+    analysis_type: 'Инсулин',
+    normal_range: { min: 2.6, max: 24.9, optimal: 10.0 },
+    unit: 'мкЕД/мл',
+    status: 'not_filled',
+    importance: 'medium'
+  },
 
-// Добавим дополнительные биомаркеры, которые не были включены в расширенную базу
-biomarkersData.hematocrit = {
-  id: 100,
-  code: "HCT",
-  name: "Hematocrit",
-  nameRu: "Гематокрит",
-  category: "Общий анализ крови",
-  unit: "%",
-  normalRangeMaleMin: 40,
-  normalRangeMaleMax: 50,
-  normalRangeFemaleMin: 36,
-  normalRangeFemaleMax: 44,
-  description: "Percentage of blood volume occupied by red blood cells",
-  descriptionRu: "Процент объема крови, занимаемый красными кровяными клетками",
-  significanceHigh: "May indicate dehydration or polycythemia",
-  significanceHighRu: "Может указывать на обезвоживание или полицитемию",
-  significanceLow: "May indicate anemia or blood loss",
-  significanceLowRu: "Может указывать на анемию или потерю крови",
-  commonCauses: "Dehydration, blood disorders, kidney disease",
-  commonCausesRu: "Обезвоживание, нарушения крови, заболевания почек",
-  recommendations: "Maintain proper hydration, investigate blood disorders",
-  recommendationsRu: "Поддерживать правильную гидратацию, исследовать нарушения крови"
+  // Гормональная система
+  {
+    id: 'testosterone',
+    name: 'Тестостерон общий',
+    category: 'hormonal',
+    description: 'Анализ крови на гормоны',
+    analysis_type: 'Половые гормоны',
+    normal_range: { min: 8.64, max: 29.0, optimal: 20.0, gender_dependent: true },
+    unit: 'нмоль/л',
+    status: 'not_filled',
+    importance: 'high'
+  },
+  {
+    id: 'estradiol',
+    name: 'Эстрадиол',
+    category: 'hormonal',
+    description: 'Анализ крови на половые гормоны',
+    analysis_type: 'Половые гормоны',
+    normal_range: { min: 46, max: 607, optimal: 300, gender_dependent: true },
+    unit: 'пмоль/л',
+    status: 'not_filled',
+    importance: 'high'
+  },
+  {
+    id: 'cortisol',
+    name: 'Кортизол',
+    category: 'hormonal',
+    description: 'Анализ крови на кортизол',
+    analysis_type: 'Кортизол',
+    normal_range: { min: 171, max: 536, optimal: 350 },
+    unit: 'нмоль/л',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+  {
+    id: 'igf1',
+    name: 'Гормон роста (IGF-1)',
+    category: 'hormonal',
+    description: 'Анализ крови на IGF-1',
+    analysis_type: 'IGF-1',
+    normal_range: { min: 115, max: 307, optimal: 200, age_dependent: true },
+    unit: 'нг/мл',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+  {
+    id: 'tsh',
+    name: 'Тиреотропный гормон (ТТГ)',
+    category: 'hormonal',
+    description: 'Анализ крови на гормоны щитовидной железы',
+    analysis_type: 'Гормоны щитовидной железы',
+    normal_range: { min: 0.27, max: 4.2, optimal: 2.0 },
+    unit: 'мЕД/л',
+    status: 'not_filled',
+    importance: 'high'
+  },
+  {
+    id: 't3',
+    name: 'Т3 (трийодтиронин)',
+    category: 'hormonal',
+    description: 'Анализ крови на гормоны щитовидной железы',
+    analysis_type: 'Гормоны щитовидной железы',
+    normal_range: { min: 1.2, max: 3.1, optimal: 2.0 },
+    unit: 'нмоль/л',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+  {
+    id: 't4',
+    name: 'Т4 (тироксин)',
+    category: 'hormonal',
+    description: 'Анализ крови на гормоны щитовидной железы',
+    analysis_type: 'Гормоны щитовидной железы',
+    normal_range: { min: 66, max: 181, optimal: 120 },
+    unit: 'нмоль/л',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+
+  // Воспалительные маркеры
+  {
+    id: 'il6',
+    name: 'Интерлейкин-6 (IL-6)',
+    category: 'inflammatory',
+    description: 'Анализ крови на цитокины',
+    analysis_type: 'Цитокины',
+    normal_range: { min: 0, max: 7.0, optimal: 2.0 },
+    unit: 'пг/мл',
+    status: 'not_filled',
+    importance: 'low'
+  },
+  {
+    id: 'tnf_alpha',
+    name: 'Фактор некроза опухоли (TNF-α)',
+    category: 'inflammatory',
+    description: 'Анализ крови на цитокины',
+    analysis_type: 'Цитокины',
+    normal_range: { min: 0, max: 8.1, optimal: 3.0 },
+    unit: 'пг/мл',
+    status: 'not_filled',
+    importance: 'low'
+  },
+  {
+    id: 'esr',
+    name: 'Скорость оседания эритроцитов (СОЭ)',
+    category: 'inflammatory',
+    description: 'Общий анализ крови с СОЭ',
+    analysis_type: 'Общий анализ крови',
+    normal_range: { min: 0, max: 20, optimal: 10, gender_dependent: true },
+    unit: 'мм/ч',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+
+  // Окислительный стресс
+  {
+    id: 'vitamin_d',
+    name: 'Витамин D',
+    category: 'oxidative_stress',
+    description: 'Анализ крови на 25-OH витамин D',
+    analysis_type: '25-OH витамин D',
+    normal_range: { min: 30, max: 100, optimal: 50 },
+    unit: 'нг/мл',
+    status: 'not_filled',
+    importance: 'high'
+  },
+  {
+    id: 'vitamin_b12',
+    name: 'Витамин B12',
+    category: 'oxidative_stress',
+    description: 'Анализ крови на витамин B12',
+    analysis_type: 'Витамин B12',
+    normal_range: { min: 191, max: 663, optimal: 400 },
+    unit: 'пг/мл',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+  {
+    id: 'folate',
+    name: 'Фолиевая кислота',
+    category: 'oxidative_stress',
+    description: 'Анализ крови на фолиевую кислоту',
+    analysis_type: 'Фолиевая кислота',
+    normal_range: { min: 2.7, max: 17.0, optimal: 10.0 },
+    unit: 'нг/мл',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+
+  // Почечная функция
+  {
+    id: 'creatinine',
+    name: 'Креатинин',
+    category: 'kidney_function',
+    description: 'Биохимический анализ крови',
+    analysis_type: 'Биохимический анализ',
+    normal_range: { min: 62, max: 115, optimal: 85, gender_dependent: true },
+    unit: 'мкмоль/л',
+    status: 'not_filled',
+    importance: 'high'
+  },
+  {
+    id: 'urea',
+    name: 'Мочевина',
+    category: 'kidney_function',
+    description: 'Биохимический анализ крови',
+    analysis_type: 'Биохимический анализ',
+    normal_range: { min: 2.5, max: 6.4, optimal: 4.0 },
+    unit: 'ммоль/л',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+
+  // Печеночная функция
+  {
+    id: 'alt',
+    name: 'АЛТ',
+    category: 'liver_function',
+    description: 'Биохимический анализ крови',
+    analysis_type: 'Биохимический анализ',
+    normal_range: { min: 7, max: 56, optimal: 30, gender_dependent: true },
+    unit: 'Ед/л',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+  {
+    id: 'ast',
+    name: 'АСТ',
+    category: 'liver_function',
+    description: 'Биохимический анализ крови',
+    analysis_type: 'Биохимический анализ',
+    normal_range: { min: 10, max: 40, optimal: 25, gender_dependent: true },
+    unit: 'Ед/л',
+    status: 'not_filled',
+    importance: 'medium'
+  },
+  {
+    id: 'bilirubin',
+    name: 'Билирубин',
+    category: 'liver_function',
+    description: 'Биохимический анализ крови',
+    analysis_type: 'Биохимический анализ',
+    normal_range: { min: 5, max: 21, optimal: 12 },
+    unit: 'мкмоль/л',
+    status: 'not_filled',
+    importance: 'medium'
+  }
+];
+
+export const BIOMARKER_CATEGORIES = {
+  cardiovascular: 'Сердечно-сосудистая система',
+  metabolic: 'Метаболические маркеры',
+  hormonal: 'Гормональная система',
+  inflammatory: 'Воспалительные маркеры',
+  oxidative_stress: 'Окислительный стресс',
+  kidney_function: 'Почечная функция',
+  liver_function: 'Печеночная функция',
+  telomeres_epigenetics: 'Теломеры и эпигенетика'
 };
 
-biomarkersData.meanCorpuscularHemoglobin = {
-  id: 4,
-  code: "mch",
-  name: "Mean Corpuscular Hemoglobin",
-  nameRu: "Среднее содержание гемоглобина",
-  category: "Общий анализ крови",
-  unit: "пг",
-  normalRangeMaleMin: 27,
-  normalRangeMaleMax: 32,
-  normalRangeFemaleMin: 27,
-  normalRangeFemaleMax: 32,
-  description: "Average amount of hemoglobin in each red blood cell",
-  descriptionRu: "Среднее количество гемоглобина в каждой красной кровяной клетке",
-  significanceHigh: "May indicate vitamin B12 or folate deficiency",
-  significanceHighRu: "Может указывать на дефицит витамина B12 или фолата",
-  significanceLow: "May indicate iron deficiency anemia",
-  significanceLowRu: "Может указывать на железодефицитную анемию",
-  commonCauses: "Nutritional deficiencies, genetic disorders",
-  commonCausesRu: "Недостаток питательных веществ, генетические нарушения",
-  recommendations: "Vitamin supplementation, dietary improvements",
-  recommendationsRu: "Витаминные добавки, улучшение питания",
-  currentValue: 0,
-  status: 'normal'
+export const ACCURACY_LEVELS = {
+  basic: { min: 3, max: 5, percentage: 60, description: 'Базовый расчет' },
+  extended: { min: 10, max: 15, percentage: 80, description: 'Расширенный анализ' },
+  comprehensive: { min: 20, max: 30, percentage: 95, description: 'Полный профиль' }
 };
-
-biomarkersData.reticulocytes = {
-  id: 5,
-  code: "reticulocytes",
-  name: "Reticulocytes",
-  nameRu: "Ретикулоциты",
-  category: "Общий анализ крови",
-  unit: "%",
-  normalRangeMaleMin: 0.5,
-  normalRangeMaleMax: 1.5,
-  normalRangeFemaleMin: 0.5,
-  normalRangeFemaleMax: 1.5,
-  description: "Immature red blood cells that indicate bone marrow activity",
-  descriptionRu: "Незрелые красные кровяные клетки, указывающие на активность костного мозга",
-  significanceHigh: "May indicate increased red blood cell production",
-  significanceHighRu: "Может указывать на увеличенное производство красных кровяных клеток",
-  significanceLow: "May indicate bone marrow problems",
-  significanceLowRu: "Может указывать на проблемы с костным мозгом",
-  commonCauses: "Anemia, blood loss, bone marrow disorders",
-  commonCausesRu: "Анемия, потеря крови, нарушения костного мозга",
-  recommendations: "Further bone marrow evaluation if abnormal",
-  recommendationsRu: "Дальнейшая оценка костного мозга при отклонениях",
-  currentValue: 0,
-  status: 'normal'
-};
-
-biomarkersData.thrombocytes = {
-  id: 6,
-  code: "thrombocytes",
-  name: "Platelets",
-  nameRu: "Тромбоциты",
-  category: "Общий анализ крови",
-  unit: "*10⁹/л",
-  normalRangeMaleMin: 150,
-  normalRangeMaleMax: 450,
-  normalRangeFemaleMin: 150,
-  normalRangeFemaleMax: 450,
-  description: "Blood cells responsible for clotting",
-  descriptionRu: "Кровяные клетки, ответственные за свертывание",
-  significanceHigh: "May indicate inflammatory conditions or blood disorders",
-  significanceHighRu: "Может указывать на воспалительные состояния или нарушения крови",
-  significanceLow: "May indicate bleeding disorders or bone marrow problems",
-  significanceLowRu: "Может указывать на нарушения свертываемости или проблемы с костным мозгом",
-  commonCauses: "Infections, cancer, autoimmune disorders",
-  commonCausesRu: "Инфекции, рак, аутоиммунные нарушения",
-  recommendations: "Monitor for bleeding, investigate underlying causes",
-  recommendationsRu: "Мониторинг кровотечений, исследование основных причин",
-  currentValue: 0,
-  status: 'high'
-};
-
-biomarkersData.leukocytes = {
-  id: 7,
-  code: "leukocytes",
-  name: "White Blood Cells (WBC)",
-  nameRu: "Лейкоциты",
-  category: "Общий анализ крови",
-  unit: "*10⁹/л",
-  normalRangeMaleMin: 4.0,
-  normalRangeMaleMax: 10.0,
-  normalRangeFemaleMin: 4.0,
-  normalRangeFemaleMax: 10.0,
-  description: "White blood cells that fight infection",
-  descriptionRu: "Белые кровяные клетки, борющиеся с инфекциями",
-  significanceHigh: "May indicate infection, inflammation, or blood disorders",
-  significanceHighRu: "Может указывать на инфекцию, воспаление или нарушения крови",
-  significanceLow: "May indicate immune system problems or bone marrow disorders",
-  significanceLowRu: "Может указывать на проблемы иммунной системы или нарушения костного мозга",
-  commonCauses: "Infections, stress, medications, blood disorders",
-  commonCausesRu: "Инфекции, стресс, лекарства, нарушения крови",
-  recommendations: "Investigate source of infection or inflammation",
-  recommendationsRu: "Исследование источника инфекции или воспаления",
-  currentValue: 0,
-  status: 'high'
-};
-
-biomarkersData.segmentedNeutrophils = {
-  id: 8,
-  code: "segmented_neutrophils",
-  name: "Segmented Neutrophils",
-  nameRu: "Палочкоядерные нейтрофилы",
-  category: "Лейкоцитарная формула",
-  unit: "%",
-  normalRangeMaleMin: 1,
-  normalRangeMaleMax: 6,
-  normalRangeFemaleMin: 1,
-  normalRangeFemaleMax: 6,
-  description: "Type of white blood cell that fights bacterial infections",
-  descriptionRu: "Тип белых кровяных клеток, борющихся с бактериальными инфекциями",
-  significanceHigh: "May indicate bacterial infection or inflammation",
-  significanceHighRu: "Может указывать на бактериальную инфекцию или воспаление",
-  significanceLow: "May indicate viral infection or bone marrow problems",
-  significanceLowRu: "Может указывать на вирусную инфекцию или проблемы с костным мозгом",
-  commonCauses: "Bacterial infections, stress, medications",
-  commonCausesRu: "Бактериальные инфекции, стресс, лекарства",
-  recommendations: "Investigate for bacterial infections",
-  recommendationsRu: "Исследование на бактериальные инфекции",
-  currentValue: 0,
-  status: 'normal'
-};
-
-biomarkersData.bandNeutrophils = {
-  id: 9,
-  code: "band_neutrophils",
-  name: "Band Neutrophils",
-  nameRu: "Сегментоядерные нейтрофилы",
-  category: "Лейкоцитарная формула",
-  unit: "%",
-  normalRangeMaleMin: 45,
-  normalRangeMaleMax: 70,
-  normalRangeFemaleMin: 45,
-  normalRangeFemaleMax: 70,
-  description: "Mature neutrophils that fight bacterial infections",
-  descriptionRu: "Зрелые нейтрофилы, борющиеся с бактериальными инфекциями",
-  significanceHigh: "May indicate bacterial infection",
-  significanceHighRu: "Может указывать на бактериальную инфекцию",
-  significanceLow: "May indicate viral infection or immune suppression",
-  significanceLowRu: "Может указывать на вирусную инфекцию или иммуносупрессию",
-  commonCauses: "Infections, stress, inflammation",
-  commonCausesRu: "Инфекции, стресс, воспаление",
-  recommendations: "Monitor for infections, supportive care",
-  recommendationsRu: "Мониторинг инфекций, поддерживающая терапия",
-  currentValue: 0,
-  status: 'normal'
-};
-
-biomarkersData.eosinophils = {
-  id: 10,
-  code: "eosinophils",
-  name: "Eosinophils",
-  nameRu: "Эозинофилы",
-  category: "Лейкоцитарная формула",
-  unit: "%",
-  normalRangeMaleMin: 1,
-  normalRangeMaleMax: 5,
-  normalRangeFemaleMin: 1,
-  normalRangeFemaleMax: 5,
-  description: "White blood cells that fight parasites and allergic reactions",
-  descriptionRu: "Белые кровяные клетки, борющиеся с паразитами и аллергическими реакциями",
-  significanceHigh: "May indicate allergies, parasites, or autoimmune conditions",
-  significanceHighRu: "Может указывать на аллергии, паразитов или аутоиммунные состояния",
-  significanceLow: "Usually not clinically significant",
-  significanceLowRu: "Обычно не имеет клинического значения",
-  commonCauses: "Allergies, parasitic infections, asthma",
-  commonCausesRu: "Аллергии, паразитарные инфекции, астма",
-  recommendations: "Investigate for allergies or parasites",
-  recommendationsRu: "Исследование на аллергии или паразитов",
-  currentValue: 0,
-  status: 'normal'
-};
-
-biomarkersData.basophils = {
-  id: 11,
-  code: "basophils",
-  name: "Basophils",
-  nameRu: "Базофилы",
-  category: "Лейкоцитарная формула",
-  unit: "%",
-  normalRangeMaleMin: 0,
-  normalRangeMaleMax: 1,
-  normalRangeFemaleMin: 0,
-  normalRangeFemaleMax: 1,
-  description: "White blood cells involved in allergic reactions",
-  descriptionRu: "Белые кровяные клетки, участвующие в аллергических реакциях",
-  significanceHigh: "May indicate allergic reactions or blood disorders",
-  significanceHighRu: "Может указывать на аллергические реакции или нарушения крови",
-  significanceLow: "Usually not clinically significant",
-  significanceLowRu: "Обычно не имеет клинического значения",
-  commonCauses: "Allergies, chronic inflammation, blood disorders",
-  commonCausesRu: "Аллергии, хроническое воспаление, нарушения крови",
-  recommendations: "Investigate for allergies if elevated",
-  recommendationsRu: "Исследование на аллергии при повышении",
-  currentValue: 0,
-  status: 'normal'
-};
-
-biomarkersData.lymphocytes = {
-  id: 12,
-  code: "lymphocytes",
-  name: "Lymphocytes",
-  nameRu: "Лимфоциты",
-  category: "Лейкоцитарная формула",
-  unit: "%",
-  normalRangeMaleMin: 20,
-  normalRangeMaleMax: 40,
-  normalRangeFemaleMin: 20,
-  normalRangeFemaleMax: 40,
-  description: "White blood cells that fight viral infections and cancer",
-  descriptionRu: "Белые кровяные клетки, борющиеся с вирусными инфекциями и раком",
-  significanceHigh: "May indicate viral infection or blood cancer",
-  significanceHighRu: "Может указывать на вирусную инфекцию или рак крови",
-  significanceLow: "May indicate immune deficiency or stress",
-  significanceLowRu: "Может указывать на иммунодефицит или стресс",
-  commonCauses: "Viral infections, autoimmune diseases, stress",
-  commonCausesRu: "Вирусные инфекции, аутоиммунные заболевания, стресс",
-  recommendations: "Monitor immune function, investigate underlying causes",
-  recommendationsRu: "Мониторинг иммунной функции, исследование основных причин",
-  currentValue: 0,
-  status: 'normal'
-};
-
-biomarkersData.monocytes = {
-  id: 13,
-  code: "monocytes",
-  name: "Monocytes",
-  nameRu: "Моноциты",
-  category: "Лейкоцитарная формула",
-  unit: "%",
-  normalRangeMaleMin: 3,
-  normalRangeMaleMax: 9,
-  normalRangeFemaleMin: 3,
-  normalRangeFemaleMax: 9,
-  description: "White blood cells that clean up dead cells and fight chronic infections",
-  descriptionRu: "Белые кровяные клетки, убирающие мертвые клетки и борющиеся с хроническими инфекциями",
-  significanceHigh: "May indicate chronic infection or inflammatory conditions",
-  significanceHighRu: "Может указывать на хроническую инфекцию или воспалительные состояния",
-  significanceLow: "May indicate bone marrow problems",
-  significanceLowRu: "Может указывать на проблемы с костным мозгом",
-  commonCauses: "Chronic infections, autoimmune diseases, cancer",
-  commonCausesRu: "Хронические инфекции, аутоиммунные заболевания, рак",
-  recommendations: "Investigate for chronic infections or inflammation",
-  recommendationsRu: "Исследование на хронические инфекции или воспаление",
-  currentValue: 0,
-  status: 'normal'
-};
-
-biomarkersData.erythrocyteSedimentationRate = {
-  id: 14,
-  code: "esr",
-  name: "Erythrocyte Sedimentation Rate",
-  nameRu: "Скорость оседания эритроцитов",
-  category: "Воспалительные маркеры",
-  unit: "мм/час",
-  normalRangeMaleMin: 0,
-  normalRangeMaleMax: 15,
-  normalRangeFemaleMin: 0,
-  normalRangeFemaleMax: 20,
-  description: "Measure of inflammation in the body",
-  descriptionRu: "Мера воспаления в организме",
-  significanceHigh: "May indicate inflammation, infection, or autoimmune disease",
-  significanceHighRu: "Может указывать на воспаление, инфекцию или аутоиммунное заболевание",
-  significanceLow: "Usually not clinically significant",
-  significanceLowRu: "Обычно не имеет клинического значения",
-  commonCauses: "Infections, autoimmune diseases, cancer",
-  commonCausesRu: "Инфекции, аутоиммунные заболевания, рак",
-  recommendations: "Investigate source of inflammation",
-  recommendationsRu: "Исследование источника воспаления",
-  currentValue: 0,
-  status: 'normal'
-}

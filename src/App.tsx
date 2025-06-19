@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -67,6 +66,7 @@ import ProtocolTracking from "./pages/ProtocolTracking";
 import MyProtocols from "./pages/MyProtocols";
 import Community from "./pages/Community";
 import Webinars from "./pages/Webinars";
+import BiologicalAgePage from "./pages/BiologicalAge";
 
 // Import service pages
 import BloodAnalysisServicePage from "./pages/services/BloodAnalysisServicePage";
@@ -139,6 +139,7 @@ const App = () => (
                   <Route path="/services" element={<ServicesPage />} />
                   <Route path="/community" element={<Community />} />
                   <Route path="/webinars" element={<Webinars />} />
+                  <Route path="/biological-age" element={<BiologicalAgePage />} />
 
                   {/* Auth Routes */}
                   <Route path="/login" element={<Login />} />
