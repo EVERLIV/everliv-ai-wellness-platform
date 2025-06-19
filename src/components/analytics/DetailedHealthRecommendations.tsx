@@ -4,8 +4,8 @@ import { Activity } from "lucide-react";
 import { generateDetailedRecommendations } from "@/utils/detailedRecommendationsGenerator";
 import { HealthProfileData } from "@/types/healthProfile";
 import { CachedAnalytics } from "@/types/analytics";
-import ModernHealthRecommendations from "./ModernHealthRecommendations";
 import ModernRecommendationsGrid from "./ModernRecommendationsGrid";
+import ModernHealthPracticesCards from "./ModernHealthPracticesCards";
 
 interface DetailedHealthRecommendationsProps {
   analytics: CachedAnalytics | null;
@@ -37,16 +37,16 @@ const DetailedHealthRecommendations: React.FC<DetailedHealthRecommendationsProps
 
   return (
     <div className="space-y-8">
-      {/* Современные практики здоровья */}
-      <ModernHealthRecommendations 
-        healthProfile={healthProfile}
-        analytics={analytics}
-      />
-      
-      {/* Основные рекомендации в современном стиле */}
+      {/* Основные рекомендации в современном стиле - главный блок */}
       <ModernRecommendationsGrid 
         analytics={analytics}
         healthProfile={healthProfile}
+      />
+      
+      {/* Современные практики здоровья - внизу страницы */}
+      <ModernHealthPracticesCards 
+        healthProfile={healthProfile}
+        analytics={analytics}
       />
     </div>
   );

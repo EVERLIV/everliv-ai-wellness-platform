@@ -1,24 +1,25 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { 
   Target, 
   AlertTriangle, 
   Pill, 
   UserCheck, 
   TestTube,
-  ChevronRight,
   Heart,
   Activity,
   Shield,
   Clock,
-  Star
+  Star,
+  TrendingUp,
+  Brain,
+  Zap
 } from "lucide-react";
 import { CachedAnalytics } from "@/types/analytics";
 import { HealthProfileData } from "@/types/healthProfile";
 import { generateDetailedRecommendations } from "@/utils/detailedRecommendationsGenerator";
+import { generateComprehensiveHealthRecommendations } from "@/utils/comprehensiveHealthAnalyzer";
 
 interface ModernRecommendationsGridProps {
   analytics: CachedAnalytics;
@@ -30,6 +31,7 @@ const ModernRecommendationsGrid: React.FC<ModernRecommendationsGridProps> = ({
   healthProfile
 }) => {
   const recommendations = generateDetailedRecommendations(analytics, healthProfile || undefined);
+  const comprehensiveRecommendations = generateComprehensiveHealthRecommendations(healthProfile, analytics);
 
   const getPriorityColor = (priority: 'high' | 'medium' | 'low') => {
     switch (priority) {
@@ -49,12 +51,97 @@ const ModernRecommendationsGrid: React.FC<ModernRecommendationsGridProps> = ({
 
   return (
     <div className="space-y-8">
+      {/* Заголовок с общей оценкой */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+            <Brain className="h-5 w-5 text-blue-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Персональные рекомендации</h1>
+            <p className="text-gray-600">Комплексный анализ вашего здоровья</p>
+          </div>
+          <div className="ml-auto">
+            <div className="text-right">
+              <div className="text-2xl font-bold text-blue-600">{analytics.healthScore}</div>
+              <div className="text-sm text-gray-500">Оценка здоровья</div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Краткая сводка */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white rounded-lg p-4 border border-blue-100">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp className="h-4 w-4 text-green-600" />
+              <span className="text-sm font-medium">Улучшается</span>
+            </div>
+            <div className="text-lg font-semibold text-green-600">
+              {analytics.trendsAnalysis.improving} показателей
+            </div>
+          </div>
+          <div className="bg-white rounded-lg p-4 border border-blue-100">
+            <div className="flex items-center gap-2 mb-2">
+              <Activity className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-medium">Стабильно</span>
+            </div>
+            <div className="text-lg font-semibold text-blue-600">
+              {analytics.trendsAnalysis.stable} показателей
+            </div>
+          </div>
+          <div className="bg-white rounded-lg p-4 border border-blue-100">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="h-4 w-4 text-amber-600" />
+              <span className="text-sm font-medium">Требует внимания</span>
+            </div>
+            <div className="text-lg font-semibold text-amber-600">
+              {analytics.trendsAnalysis.worsening} показателей
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Приоритетные рекомендации */}
+      {comprehensiveRecommendations.priority.length > 0 && (
+        <section>
+          <div className="flex items-center gap-2 mb-6">
+            <Zap className="h-6 w-6 text-red-600" />
+            <h2 className="text-xl font-semibold text-gray-900">Приоритетные действия</h2>
+            <Badge className="bg-red-100 text-red-800">Срочно</Badge>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {comprehensiveRecommendations.priority.map((rec, index) => (
+              <Card key={index} className="border-2 border-red-200 bg-red-50 hover:border-red-300 transition-colors">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                        <AlertTriangle className="h-4 w-4 text-red-600" />
+                      </div>
+                      <CardTitle className="text-sm font-medium">{rec.title}</CardTitle>
+                    </div>
+                    <Badge className="bg-red-100 text-red-800 text-xs">Высокий</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <p className="text-sm text-gray-700 mb-3">{rec.description}</p>
+                  <div className="text-xs text-gray-600">
+                    <strong>Ожидаемый результат:</strong> {rec.expectedResult}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Основные рекомендации */}
       {recommendations.recommendations.length > 0 && (
         <section>
           <div className="flex items-center gap-2 mb-6">
             <Target className="h-6 w-6 text-blue-600" />
-            <h2 className="text-xl font-semibold text-gray-900">Персональные рекомендации</h2>
+            <h2 className="text-xl font-semibold text-gray-900">Ключевые рекомендации</h2>
+            <Badge variant="secondary">На основе вашего профиля</Badge>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {recommendations.recommendations.map((rec) => (
@@ -77,20 +164,30 @@ const ModernRecommendationsGrid: React.FC<ModernRecommendationsGridProps> = ({
                 </CardHeader>
                 <CardContent className="pt-0">
                   <p className="text-sm text-gray-700 mb-3 line-clamp-2">{rec.description}</p>
-                  <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {rec.timeframe}
+                  <div className="space-y-2">
+                    <div className="text-xs text-gray-600">
+                      <strong>Действия:</strong>
+                      <ul className="mt-1 space-y-1">
+                        {rec.specificActions.slice(0, 2).map((action, idx) => (
+                          <li key={idx} className="flex items-start gap-1">
+                            <span className="text-blue-500">•</span>
+                            <span>{action}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    {rec.cost && (
+                    <div className="flex items-center gap-4 text-xs text-gray-500">
                       <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3" />
-                        {rec.cost}
+                        <Clock className="h-3 w-3" />
+                        {rec.timeframe}
                       </div>
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-600">
-                    <strong>Результат:</strong> {rec.expectedResult}
+                      {rec.cost && (
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3" />
+                          {rec.cost}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
