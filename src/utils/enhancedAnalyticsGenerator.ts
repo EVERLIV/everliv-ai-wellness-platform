@@ -1,4 +1,3 @@
-
 import { CachedAnalytics, AnalysisRecord, ChatRecord } from '@/types/analytics';
 import { EnhancedHealthAnalyzer, EnhancedHealthProfile } from '@/services/health-analytics/enhanced-health-analyzer';
 import { generateRecentActivities, checkRecentActivity } from './analytics/activityGenerator';
@@ -407,7 +406,8 @@ export const generateEnhancedAnalytics = async (
     totalAnalyses,
     totalConsultations,
     hasHealthProfile,
-    profileData: healthProfileData
+    profileData: healthProfileData,
+    userId
   });
 
   try {
@@ -473,7 +473,12 @@ export const generateEnhancedAnalytics = async (
       lastUpdated: new Date().toISOString()
     };
 
-    console.log('Generated analytics with biomarker trends:', analytics);
+    console.log('Generated enhanced analytics with detailed explanation:', {
+      healthScore: analytics.healthScore,
+      scoreExplanation: analytics.scoreExplanation,
+      biomarkerTrends: analytics.trendsAnalysis
+    });
+    
     return analytics;
 
   } catch (error) {
@@ -494,40 +499,147 @@ const translateRiskLevel = (level: string): string => {
 const generateRiskDescription = (analysis: any, healthScore: number): string => {
   const riskLevel = analysis.riskLevel.toLowerCase();
   
-  if (healthScore >= 80) {
-    return 'Отличные показатели здоровья! Продолжайте поддерживать здоровый образ жизни.';
+  if (healthScore >= 85) {
+    return 'Превосходные показатели здоровья! Вы находитесь в отличной физической форме. Продолжайте поддерживать здоровый образ жизни и регулярно контролируйте показатели.';
+  } else if (healthScore >= 75) {
+    return 'Очень хорошие показатели здоровья с небольшими возможностями для улучшения. Следуйте персональным рекомендациям для достижения оптимального состояния.';
   } else if (healthScore >= 65) {
-    return 'Хорошие показатели здоровья с потенциалом для улучшения. Следуйте рекомендациям.';
+    return 'Хорошие показатели здоровья, но есть потенциал для значительного улучшения. Рекомендуется уделить внимание основным факторам риска.';
   } else if (healthScore >= 50) {
-    return 'Средние показатели. Рекомендуется уделить внимание улучшению образа жизни.';
+    return 'Средние показатели здоровья. Необходимы изменения в образе жизни и регулярный мониторинг здоровья. Рекомендуется консультация со специалистами.';
   } else {
-    return 'Показатели требуют внимания. Рекомендуется консультация с врачом.';
+    return 'Показатели здоровья требуют серьезного внимания. Настоятельно рекомендуется незамедлительная консультация с врачом и кардинальные изменения образа жизни.';
   }
 };
 
 const generateScoreExplanation = (score: number, profile: EnhancedHealthProfile, analyses: AnalysisRecord[]): string => {
   const factors = [];
   
-  // Анализируем ключевые факторы
-  if (profile.age <= 35) factors.push('молодой возраст (+)');
-  else if (profile.age >= 55) factors.push('зрелый возраст (-)');
+  // Анализируем ключевые факторы влияющие на балл
+  if (profile.age <= 25) factors.push('молодой возраст (+10)');
+  else if (profile.age <= 35) factors.push('молодой возраст (+5)');
+  else if (profile.age <= 45) factors.push('средний возраст (+2)');
+  else if (profile.age <= 55) factors.push('зрелый возраст (-2)');
+  else if (profile.age >= 65) factors.push('пожилой возраст (-10)');
   
-  if (profile.physicalActivity === 'high') factors.push('высокая активность (+)');
-  else if (profile.physicalActivity === 'sedentary') factors.push('малоподвижность (-)');
-  
-  if (profile.smokingStatus === 'never') factors.push('некурящий (+)');
-  else if (profile.smokingStatus === 'regularly') factors.push('курение (-)');
-  
-  if (analyses.length > 0) {
-    const totalMarkers = analyses.reduce((sum, analysis) => {
-      return sum + (analysis.results?.markers?.length || 0);
-    }, 0);
-    factors.push(`анализы: ${totalMarkers} биомаркеров`);
+  // Физическая активность
+  switch (profile.physicalActivity?.toLowerCase()) {
+    case 'high':
+    case 'высокий':
+      factors.push('высокая физическая активность (+12)');
+      break;
+    case 'moderate':
+    case 'средний':
+      factors.push('умеренная физическая активность (+8)');
+      break;
+    case 'low':
+    case 'низкий':
+      factors.push('низкая физическая активность (+3)');
+      break;
+    case 'sedentary':
+    case 'сидячий':
+      factors.push('сидячий образ жизни (0)');
+      break;
   }
   
-  const bmi = profile.weight / ((profile.height / 100) ** 2);
-  if (bmi >= 18.5 && bmi <= 24.9) factors.push('нормальный ИМТ (+)');
-  else if (bmi >= 30) factors.push('избыточный вес (-)');
+  // Сон
+  if (profile.sleepHours >= 7 && profile.sleepHours <= 9) {
+    factors.push('оптимальный сон (+10)');
+  } else if (profile.sleepHours >= 6 && profile.sleepHours <= 10) {
+    factors.push('приемлемый сон (+7)');
+  } else if (profile.sleepHours < 6) {
+    factors.push('недостаток сна (-5)');
+  } else {
+    factors.push('избыток сна (+1)');
+  }
   
-  return `Балл ${score}/100 рассчитан с учетом: ${factors.join(', ')}${factors.length ? '.' : 'базовых параметров.'}`;
+  // Стресс
+  if (profile.stressLevel <= 3) factors.push('низкий стресс (+5)');
+  else if (profile.stressLevel <= 5) factors.push('умеренный стресс (+2)');
+  else if (profile.stressLevel <= 7) factors.push('повышенный стресс (-2)');
+  else factors.push('высокий стресс (-8)');
+  
+  // Курение
+  switch (profile.smokingStatus?.toLowerCase()) {
+    case 'never':
+    case 'никогда':
+      factors.push('некурящий (+5)');
+      break;
+    case 'former':
+    case 'бросил':
+      factors.push('бывший курильщик (+2)');
+      break;
+    case 'occasionally':
+    case 'иногда':
+      factors.push('эпизодическое курение (-5)');
+      break;
+    case 'regularly':
+    case 'регулярно':
+      factors.push('регулярное курение (-10)');
+      break;
+  }
+  
+  // ИМТ
+  if (profile.height && profile.weight) {
+    const bmi = profile.weight / ((profile.height / 100) ** 2);
+    if (bmi >= 18.5 && bmi <= 24.9) factors.push('нормальный ИМТ (+8)');
+    else if (bmi >= 25 && bmi <= 29.9) factors.push('избыточный вес (+3)');
+    else if (bmi >= 30) factors.push('ожирение (-8)');
+    else if (bmi < 18.5) factors.push('недостаточный вес (-5)');
+  }
+  
+  // Хронические заболевания
+  if (profile.medicalConditions && profile.medicalConditions.length > 0) {
+    factors.push(`хронические заболевания (-${profile.medicalConditions.length * 4})`);
+  }
+  
+  // Биомаркеры
+  if (analyses.length > 0) {
+    let totalMarkers = 0;
+    let optimalMarkers = 0;
+    let criticalMarkers = 0;
+    
+    analyses.forEach(analysis => {
+      if (analysis.results?.markers && Array.isArray(analysis.results.markers)) {
+        analysis.results.markers.forEach((marker: any) => {
+          totalMarkers++;
+          if (marker.status?.toLowerCase() === 'optimal' || marker.status?.toLowerCase() === 'good') {
+            optimalMarkers++;
+          } else if (marker.status?.toLowerCase() === 'critical' || marker.status?.toLowerCase() === 'high' || marker.status?.toLowerCase() === 'low') {
+            criticalMarkers++;
+          }
+        });
+      }
+    });
+    
+    if (totalMarkers > 0) {
+      const optimalRatio = optimalMarkers / totalMarkers;
+      const criticalRatio = criticalMarkers / totalMarkers;
+      
+      if (optimalRatio >= 0.8) {
+        factors.push(`отличные биомаркеры (+${Math.round(optimalRatio * 20)})`);
+      } else if (optimalRatio >= 0.6) {
+        factors.push(`хорошие биомаркеры (+${Math.round(optimalRatio * 15)})`);
+      } else if (criticalRatio >= 0.3) {
+        factors.push(`проблемные биомаркеры (-${Math.round(criticalRatio * 15)})`);
+      } else {
+        factors.push(`смешанные биомаркеры (${Math.round((optimalRatio - criticalRatio) * 10)})`);
+      }
+      
+      factors.push(`${totalMarkers} биомаркеров проанализировано`);
+    }
+  }
+  
+  // Ментальное здоровье
+  if (profile.mentalHealthScore >= 80) {
+    factors.push('отличное ментальное здоровье (+4)');
+  } else if (profile.mentalHealthScore >= 60) {
+    factors.push('хорошее ментальное здоровье (+2)');
+  } else if (profile.mentalHealthScore >= 40) {
+    factors.push('среднее ментальное здоровье (+1)');
+  } else if (profile.mentalHealthScore < 40) {
+    factors.push('проблемы с ментальным здоровьем (-2)');
+  }
+  
+  return `Балл ${score}/100 рассчитан на основе анализа: ${factors.join(', ')}. Базовый балл 50 скорректирован с учетом всех факторов здоровья и образа жизни.`;
 };
