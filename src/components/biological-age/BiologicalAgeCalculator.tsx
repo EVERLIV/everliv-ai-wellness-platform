@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, Calculator, Heart } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { BIOMARKERS, ACCURACY_LEVELS } from '@/data/biomarkers';
 import { Biomarker, BiologicalAgeResult, AccuracyLevel } from '@/types/biologicalAge';
@@ -179,30 +178,8 @@ const BiologicalAgeCalculator = () => {
   return (
     <div className="space-y-6">
       <UserProfileDisplay healthProfile={healthProfile} />
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calculator className="h-5 w-5" />
-            Рекомендуемые анализы для определения биологического возраста
-          </CardTitle>
-          <p className="text-sm text-gray-600">
-            Добавьте результаты анализов для более точного расчета биологического возраста
-          </p>
-        </CardHeader>
-        <CardContent>
-          <AccuracyIndicator accuracy={currentAccuracy} />
-        </CardContent>
-      </Card>
-
-      <Alert>
-        <Heart className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Важно:</strong> Результат не является медицинским диагнозом. 
-          Консультируйтесь с врачом перед принятием решений. 
-          Чем больше анализов предоставлено, тем точнее результат.
-        </AlertDescription>
-      </Alert>
+      
+      <AccuracyIndicator accuracy={currentAccuracy} />
 
       <BiomarkerCategories
         biomarkers={biomarkers}
