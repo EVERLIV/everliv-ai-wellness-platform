@@ -9,6 +9,7 @@ import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { useLabAnalysesData } from "@/hooks/useLabAnalysesData";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
 import { usePersonalRecommendations } from "@/hooks/usePersonalRecommendations";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { 
   User, 
   Activity, 
@@ -19,7 +20,7 @@ import {
   ChevronRight,
   Calendar,
   Target,
-  BarChart3
+  Crown
 } from "lucide-react";
 
 interface PersonalizedDashboardHeaderProps {
@@ -32,6 +33,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
   const { statistics, loadingHistory: analysesLoading } = useLabAnalysesData();
   const { analytics, isLoading: analyticsLoading } = useAnalyticsData();
   const { getCompletionPercentage } = usePersonalRecommendations();
+  const { subscription, isLoading: subscriptionLoading } = useSubscription();
 
   const isProfileComplete = !profileLoading && healthProfile && Object.keys(healthProfile).length > 5;
   const hasAnalyses = statistics.totalAnalyses > 0;
@@ -80,8 +82,20 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
                 {userName.charAt(0).toUpperCase()}
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Добро пожаловать, {userName}!</h2>
-                <p className="text-gray-600">Ваш персональный центр здоровья</p>
+                <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                  Добро пожаловать, {userName}!
+                  {subscription?.plan_type === 'premium' && (
+                    <Crown className="h-5 w-5 text-yellow-500" />
+                  )}
+                </h2>
+                <p className="text-gray-600 flex items-center gap-2">
+                  Ваш персональный центр здоровья
+                  {!subscriptionLoading && subscription && (
+                    <Badge variant="outline" className="text-xs">
+                      {subscription.plan_type === 'premium' ? 'Премиум' : 'Базовый'}
+                    </Badge>
+                  )}
+                </p>
               </div>
             </div>
             <Badge className={`px-3 py-1 ${getHealthStatusColor(healthStatus)}`}>
@@ -185,6 +199,11 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
           Заполнить профиль здоровья
           <ChevronRight className="h-5 w-5 ml-2" />
         </Button>
+        {!subscriptionLoading && subscription && (
+          <p className="text-xs text-gray-500 mt-4">
+            Активный план: {subscription.plan_type === 'premium' ? 'Премиум' : 'Базовый'}
+          </p>
+        )}
       </CardContent>
     </Card>
   );
@@ -242,7 +261,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
     </div>
   );
 
-  if (profileLoading || analysesLoading || analyticsLoading) {
+  if (profileLoading || analysesLoading || analyticsLoading || subscriptionLoading) {
     return (
       <div className="mb-8">
         <Card className="animate-pulse">
