@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,9 +14,9 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 const PersonalizedRecommendations: React.FC = () => {
   const { user } = useAuth();
   const { subscription } = useSubscription();
-  const { profile } = useProfile();
+  const { profileData } = useProfile();
   const { goals } = useNutritionGoals();
-  const { getDailySummary } = useFoodEntries(new Date());
+  const { getDailyTotals } = useFoodEntries(new Date());
   const { recommendations, isLoading, generateRecommendations } = usePersonalizedRecommendations();
   const [hasGenerated, setHasGenerated] = useState(false);
 
@@ -36,13 +35,13 @@ const PersonalizedRecommendations: React.FC = () => {
 
   // Проверяем, заполнен ли профиль пользователя
   const isProfileComplete = () => {
-    return profile && 
-           profile.height && 
-           profile.weight && 
-           profile.date_of_birth && 
-           profile.gender &&
-           profile.goals && 
-           profile.goals.length > 0;
+    return profileData && 
+           profileData.height && 
+           profileData.weight && 
+           profileData.date_of_birth && 
+           profileData.gender &&
+           profileData.goals && 
+           profileData.goals.length > 0;
   };
 
   const canGenerateRecommendations = hasPremiumAccess() && isProfileComplete();
@@ -50,10 +49,10 @@ const PersonalizedRecommendations: React.FC = () => {
   const handleGenerateRecommendations = async () => {
     if (!canGenerateRecommendations || !goals) return;
 
-    const currentIntake = getDailySummary();
+    const currentIntake = getDailyTotals();
     
     await generateRecommendations({
-      profile,
+      profile: profileData,
       goals,
       currentIntake
     });
