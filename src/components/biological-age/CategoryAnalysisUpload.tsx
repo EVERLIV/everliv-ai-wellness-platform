@@ -6,6 +6,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Upload, Camera, Loader2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { analyzeBloodTestWithOpenAI } from '@/services/ai/blood-test-analysis';
+import { getBiomarkerImpact } from '@/services/ai/biomarker-impact-analysis';
+import AnalysisPreview from './AnalysisPreview';
 
 interface CategoryAnalysisUploadProps {
   category: string;
@@ -21,6 +23,8 @@ const CategoryAnalysisUpload: React.FC<CategoryAnalysisUploadProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [analysisResults, setAnalysisResults] = useState<any[] | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,22 +65,49 @@ const CategoryAnalysisUpload: React.FC<CategoryAnalysisUploadProps> = ({
         imageBase64: imageBase64
       });
 
-      // Фильтруем результаты по категории
-      const categoryMarkers = result.markers.filter(marker => {
-        // Здесь можно добавить логику для определения принадлежности маркера к категории
-        return true; // Пока возвращаем все маркеры
+      // Обогащаем результаты информацией о влиянии на биологический возраст
+      const enrichedResults = result.markers.map(marker => {
+        const impact = getBiomarkerImpact(marker.name);
+        return {
+          ...marker,
+          category,
+          categoryTitle,
+          impact: impact.impact,
+          impactDescription: impact.description
+        };
       });
 
-      onAnalysisComplete(categoryMarkers);
-      setIsOpen(false);
-      setSelectedImage(null);
-      toast.success(`Анализ ${categoryTitle} успешно обработан!`);
+      setAnalysisResults(enrichedResults);
+      setShowPreview(true);
     } catch (error) {
       console.error('Error analyzing image:', error);
       toast.error('Ошибка при анализе изображения. Попробуйте еще раз.');
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  const handleConfirmAnalysis = () => {
+    if (analysisResults) {
+      onAnalysisComplete(analysisResults);
+      setIsOpen(false);
+      setShowPreview(false);
+      setSelectedImage(null);
+      setAnalysisResults(null);
+      toast.success(`Анализ ${categoryTitle} успешно обработан!`);
+    }
+  };
+
+  const handleCancelPreview = () => {
+    setShowPreview(false);
+    setAnalysisResults(null);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setShowPreview(false);
+    setSelectedImage(null);
+    setAnalysisResults(null);
   };
 
   return (
@@ -91,83 +122,88 @@ const CategoryAnalysisUpload: React.FC<CategoryAnalysisUploadProps> = ({
         Добавить анализ
       </Button>
 
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Добавить анализ: {categoryTitle}</DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center space-y-4">
-                  <div className="flex justify-center">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Camera className="h-8 w-8 text-blue-600" />
+          {!showPreview ? (
+            <div className="space-y-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center space-y-4">
+                    <div className="flex justify-center">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Camera className="h-8 w-8 text-blue-600" />
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-medium mb-2">Загрузите фото анализа</h3>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Наш ИИ автоматически распознает биомаркеры {categoryTitle.toLowerCase()}
-                    </p>
-                  </div>
-
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageSelect}
-                    className="hidden"
-                  />
-
-                  <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    variant="outline"
-                    className="w-full gap-2"
-                  >
-                    <Upload className="h-4 w-4" />
-                    Выбрать изображение
-                  </Button>
-
-                  {selectedImage && (
-                    <div className="text-sm text-green-600">
-                      Выбран файл: {selectedImage.name}
+                    
+                    <div>
+                      <h3 className="font-medium mb-2">Загрузите фото анализа</h3>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Наш ИИ автоматически распознает биомаркеры {categoryTitle.toLowerCase()} и оценит их влияние на биологический возраст
+                      </p>
                     </div>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                    />
+
+                    <Button
+                      onClick={() => fileInputRef.current?.click()}
+                      variant="outline"
+                      className="w-full gap-2"
+                    >
+                      <Upload className="h-4 w-4" />
+                      Выбрать изображение
+                    </Button>
+
+                    {selectedImage && (
+                      <div className="text-sm text-green-600">
+                        Выбран файл: {selectedImage.name}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleClose}
+                  variant="outline"
+                  className="flex-1"
+                  disabled={isAnalyzing}
+                >
+                  Отмена
+                </Button>
+                <Button
+                  onClick={handleAnalyze}
+                  disabled={!selectedImage || isAnalyzing}
+                  className="flex-1 gap-2"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Анализирую...
+                    </>
+                  ) : (
+                    'Анализировать'
                   )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="flex gap-2">
-              <Button
-                onClick={() => {
-                  setIsOpen(false);
-                  setSelectedImage(null);
-                }}
-                variant="outline"
-                className="flex-1"
-                disabled={isAnalyzing}
-              >
-                Отмена
-              </Button>
-              <Button
-                onClick={handleAnalyze}
-                disabled={!selectedImage || isAnalyzing}
-                className="flex-1 gap-2"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Анализирую...
-                  </>
-                ) : (
-                  'Анализировать'
-                )}
-              </Button>
+                </Button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <AnalysisPreview
+              biomarkers={analysisResults || []}
+              onConfirm={handleConfirmAnalysis}
+              onCancel={handleCancelPreview}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </>
