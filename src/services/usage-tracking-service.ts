@@ -34,7 +34,7 @@ export const getCurrentMonthUsage = async (userId: string, featureType: string):
   return data?.usage_count || 0;
 };
 
-// Новая функция для получения общего использования анализов (текст + фото)
+// Функция для получения общего использования анализов (текст + фото)
 export const getTotalAnalysisUsage = async (userId: string): Promise<number> => {
   const textUsage = await getCurrentMonthUsage(userId, 'lab_analyses');
   const photoUsage = await getCurrentMonthUsage(userId, 'photo_lab_analyses');
@@ -98,42 +98,58 @@ export const checkUsageLimit = async (
   inputMethod?: 'text' | 'photo'
 ): Promise<{ canUse: boolean; currentUsage: number; limit: number; message?: string }> => {
   
-  // Для премиум плана - общий лимит на все анализы
-  if (planType === 'premium' && (featureType === 'lab_analyses' || featureType === 'photo_lab_analyses')) {
-    const totalUsage = await getTotalAnalysisUsage(userId);
-    const limit = 15;
-    
-    return {
-      canUse: totalUsage < limit,
-      currentUsage: totalUsage,
-      limit,
-      message: `Использовано ${totalUsage} из ${limit} анализов в месяц (текст + фото)`
-    };
+  console.log('🔍 Checking usage limit:', { userId, featureType, planType, inputMethod });
+  
+  // Для анализов - проверяем общий лимит
+  if (featureType === 'lab_analyses' || featureType === 'photo_lab_analyses') {
+    if (planType === 'premium') {
+      // Премиум план: 15 анализов в месяц (общий лимит)
+      const totalUsage = await getTotalAnalysisUsage(userId);
+      const limit = 15;
+      
+      console.log('📊 Premium analysis usage:', { totalUsage, limit, canUse: totalUsage < limit });
+      
+      return {
+        canUse: totalUsage < limit,
+        currentUsage: totalUsage,
+        limit,
+        message: `Использовано ${totalUsage} из ${limit} анализов в месяц`
+      };
+    } else {
+      // Базовый план: 1 анализ в месяц (общий лимит)
+      const totalUsage = await getTotalAnalysisUsage(userId);
+      const limit = 1;
+      
+      console.log('📊 Basic analysis usage:', { totalUsage, limit, canUse: totalUsage < limit });
+      
+      return {
+        canUse: totalUsage < limit,
+        currentUsage: totalUsage,
+        limit,
+        message: `Использовано ${totalUsage} из ${limit} анализов в месяц`
+      };
+    }
   }
   
-  // Для базового плана - раздельные лимиты
-  if (planType === 'basic') {
-    if (featureType === 'photo_lab_analyses') {
-      const photoUsage = await getCurrentMonthUsage(userId, 'photo_lab_analyses');
-      const limit = 1;
-      return {
-        canUse: photoUsage < limit,
-        currentUsage: photoUsage,
-        limit,
-        message: `Использовано ${photoUsage} из ${limit} фото-анализов в месяц`
-      };
+  // Для чата с AI-доктором
+  if (featureType === 'chat_messages') {
+    const currentUsage = await getCurrentMonthUsage(userId, featureType);
+    let limit = 0;
+    
+    if (planType === 'premium') {
+      limit = 199; // Премиум план: 199 сообщений
+    } else {
+      limit = 99; // Базовый план: 99 сообщений
     }
     
-    if (featureType === 'lab_analyses') {
-      const textUsage = await getCurrentMonthUsage(userId, 'lab_analyses');
-      const limit = 5;
-      return {
-        canUse: textUsage < limit,
-        currentUsage: textUsage,
-        limit,
-        message: `Использовано ${textUsage} из ${limit} текстовых анализов в месяц`
-      };
-    }
+    console.log('💬 Chat usage:', { currentUsage, limit, canUse: currentUsage < limit, planType });
+    
+    return {
+      canUse: currentUsage < limit,
+      currentUsage,
+      limit,
+      message: `Использовано ${currentUsage} из ${limit} сообщений в месяц`
+    };
   }
   
   // Для других функций - стандартная логика
@@ -142,10 +158,10 @@ export const checkUsageLimit = async (
   
   switch (planType) {
     case 'basic':
-      if (featureType === 'chat_messages') limit = 99;
+      limit = 1; // Ограниченный доступ
       break;
     case 'premium':
-      if (featureType === 'chat_messages') limit = 199;
+      limit = 999; // Практически неограниченный доступ
       break;
   }
   
@@ -154,4 +170,21 @@ export const checkUsageLimit = async (
     currentUsage,
     limit
   };
+};
+
+// Функция для проверки доступа к аналитике
+export const checkAnalyticsAccess = (planType: string): { canAccess: boolean; message?: string } => {
+  console.log('🔍 Checking analytics access for plan:', planType);
+  
+  if (planType === 'premium') {
+    return {
+      canAccess: true,
+      message: 'Расширенная аналитика доступна в премиум плане'
+    };
+  } else {
+    return {
+      canAccess: false,
+      message: 'Аналитика доступна только в премиум плане. Обновите подписку для получения доступа.'
+    };
+  }
 };

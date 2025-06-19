@@ -1,8 +1,12 @@
 
 import React, { useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Crown, Lock } from "lucide-react";
 import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 import { useHealthProfileStatus } from "@/hooks/useHealthProfileStatus";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useNavigate } from "react-router-dom";
 import HealthSummaryHeader from "./health-summary/HealthSummaryHeader";
 import HealthSummaryLoading from "./health-summary/HealthSummaryLoading";
 import HealthSummaryEmptyState from "./health-summary/HealthSummaryEmptyState";
@@ -11,6 +15,8 @@ import HealthRecommendation from "./health-summary/HealthRecommendation";
 import HealthProfileStatusIndicator from "@/components/health-profile/HealthProfileStatusIndicator";
 
 const DashboardHealthSummary = () => {
+  const { canAccessAnalytics, currentPlan } = useSubscription();
+  const navigate = useNavigate();
   const { 
     analytics, 
     isLoading, 
@@ -23,14 +29,64 @@ const DashboardHealthSummary = () => {
   const { isComplete, completionPercentage } = useHealthProfileStatus();
   const hasGeneratedRef = useRef(false);
 
-  // Автоматически генерируем аналитику при наличии профиля
+  // Проверяем доступ к аналитике
+  const hasAnalyticsAccess = canAccessAnalytics();
+
+  console.log('🔍 DashboardHealthSummary access check:', {
+    hasAnalyticsAccess,
+    currentPlan,
+    hasHealthProfile,
+    analytics: !!analytics
+  });
+
+  // Автоматически генерируем аналитику при наличии профиля и доступа
   useEffect(() => {
-    if (hasHealthProfile && !analytics && !isLoading && !isGenerating && !hasGeneratedRef.current) {
+    if (hasAnalyticsAccess && hasHealthProfile && !analytics && !isLoading && !isGenerating && !hasGeneratedRef.current) {
       hasGeneratedRef.current = true;
       console.log('Auto-generating analytics for health profile...');
       generateRealTimeAnalytics();
     }
-  }, [hasHealthProfile, analytics, isLoading, isGenerating, generateRealTimeAnalytics]);
+  }, [hasAnalyticsAccess, hasHealthProfile, analytics, isLoading, isGenerating, generateRealTimeAnalytics]);
+
+  // Если нет доступа к аналитике
+  if (!hasAnalyticsAccess) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="bg-amber-100 p-3 rounded-full">
+                <Lock className="h-8 w-8 text-amber-600" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Расширенная аналитика здоровья</h3>
+              <p className="text-gray-600 mb-4">
+                Получите детальный анализ вашего здоровья с персонализированными рекомендациями и трендами.
+              </p>
+              <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                <h4 className="font-medium mb-2">Что включает аналитика:</h4>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Персональный балл здоровья</li>
+                  <li>• Анализ трендов биомаркеров</li>
+                  <li>• Детальные рекомендации по улучшению</li>
+                  <li>• История изменений показателей</li>
+                  <li>• Прогнозы и предупреждения</li>
+                </ul>
+              </div>
+              <Button 
+                onClick={() => navigate('/pricing')}
+                className="bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                <Crown className="h-4 w-4 mr-2" />
+                Обновить до Премиум
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

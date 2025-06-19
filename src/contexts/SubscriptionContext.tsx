@@ -36,6 +36,8 @@ interface SubscriptionContextType {
   currentPlan: string;
   hasActiveSubscription: boolean;
   isPremiumActive: boolean;
+  canAccessAnalytics: () => boolean;
+  getCurrentPlanType: () => 'basic' | 'premium';
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -102,59 +104,46 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
   const isPremiumActive = checkIsPremiumActive();
 
-  // Функция определения текущего плана
+  // Функция определения текущего плана для ограничений
+  const getCurrentPlanType = (): 'basic' | 'premium' => {
+    // Специальная обработка для премиум пользователя
+    if (user?.email && isPremiumUser(user.email)) {
+      return 'premium';
+    }
+    
+    // В dev-режиме с невалидным UUID всегда премиум
+    if (user?.id && !isValidUUID(user.id)) {
+      return 'premium';
+    }
+    
+    // Проверяем активную подписку из Supabase
+    if (subscription && subscription.status === 'active') {
+      const now = new Date();
+      const expiresAt = new Date(subscription.expires_at);
+      
+      if (expiresAt > now && subscription.plan_type === 'premium') {
+        return 'premium';
+      }
+    }
+    
+    return 'basic';
+  };
+
+  // Функция определения текущего плана для отображения
   const getCurrentPlanInfo = () => {
     console.log('🔍 Determining current plan. Loading:', isLoading, 'User:', user?.email);
     
     if (isLoading) return { plan: "Загрузка...", hasActive: false };
     
-    // Специальная обработка для премиум пользователя
-    if (user?.email && isPremiumUser(user.email)) {
-      console.log('🎯 Premium user - always showing premium plan');
-      return { 
-        plan: 'Премиум',
-        hasActive: true
-      };
-    }
+    const planType = getCurrentPlanType();
     
-    // В dev-режиме с невалидным UUID всегда показываем премиум
-    if (user?.id && !isValidUUID(user.id)) {
-      console.log('🔧 Dev mode detected, showing premium plan');
-      return { 
-        plan: 'Премиум (Dev)',
-        hasActive: true
-      };
-    }
-    
-    // Проверяем активную подписку из Supabase для обычных пользователей
-    if (subscription && subscription.status === 'active') {
-      const now = new Date();
-      const expiresAt = new Date(subscription.expires_at);
-      
-      console.log('⏰ Subscription expiry check:', {
-        now: now.toISOString(),
-        expiresAt: expiresAt.toISOString(),
-        isValid: expiresAt > now,
-        planType: subscription.plan_type,
-        userEmail: user?.email
-      });
-      
-      if (expiresAt > now) {
-        const planNames = {
-          'premium': 'Премиум',
-          'standard': 'Стандарт',
-          'basic': 'Базовый'
-        };
-        
-        const planName = planNames[subscription.plan_type as keyof typeof planNames] || 'Базовый';
-        console.log('✅ Active subscription confirmed:', planName, 'for user:', user?.email);
-        
-        return { 
-          plan: planName,
-          hasActive: true
-        };
+    if (planType === 'premium') {
+      if (user?.email && isPremiumUser(user.email)) {
+        return { plan: 'Премиум', hasActive: true };
+      } else if (user?.id && !isValidUUID(user.id)) {
+        return { plan: 'Премиум (Dev)', hasActive: true };
       } else {
-        console.log('⚠️ Subscription expired for user:', user?.email);
+        return { plan: 'Премиум', hasActive: true };
       }
     }
     
@@ -343,7 +332,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       return { canUse: true, currentUsage: 0, limit: 999 };
     }
 
-    const planType = subscription?.plan_type || 'basic';
+    const planType = getCurrentPlanType();
     return await checkUsageLimit(user.id, featureType, planType);
   };
 
@@ -356,6 +345,13 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error incrementing feature usage:", error);
       throw error;
     }
+  };
+
+  // Новая функция для проверки доступа к аналитике
+  const canAccessAnalytics = (): boolean => {
+    const planType = getCurrentPlanType();
+    console.log('🔍 Analytics access check:', { planType, canAccess: planType === 'premium' });
+    return planType === 'premium';
   };
 
   const contextValue = {
@@ -375,7 +371,9 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     trialTimeRemaining,
     currentPlan,
     hasActiveSubscription,
-    isPremiumActive
+    isPremiumActive,
+    canAccessAnalytics,
+    getCurrentPlanType: getCurrentPlanType
   };
 
   return (
