@@ -52,7 +52,7 @@ export const generateRiskFactors = (healthProfile?: HealthProfileData): RiskFact
     });
   }
 
-  if (healthProfile.smokingStatus === 'regular') {
+  if (healthProfile.smokingStatus === 'current') {
     riskFactors.push({
       id: 'smoking',
       factor: 'Курение',
@@ -68,12 +68,12 @@ export const generateRiskFactors = (healthProfile?: HealthProfileData): RiskFact
     });
   }
 
-  if (healthProfile.alcoholConsumption === 'daily') {
+  if (healthProfile.alcoholConsumption === 'regularly') {
     riskFactors.push({
       id: 'alcohol',
-      factor: 'Ежедневное употребление алкоголя',
+      factor: 'Регулярное употребление алкоголя',
       level: 'high',
-      description: 'Ежедневное потребление алкоголя может привести к зависимости',
+      description: 'Регулярное потребление алкоголя может привести к зависимости',
       currentImpact: 'Риск поражения печени, зависимости, других органов',
       mitigation: [
         'Консультация с наркологом',
