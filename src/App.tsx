@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -17,7 +16,7 @@ import AnalysisDetails from "./pages/AnalysisDetails";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import Contact from "./pages/Contact";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfUse from "./pages/TermsOfUse";
+import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,7 +59,7 @@ function App() {
                 } />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms-of-service" element={<TermsOfUse />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Dashboard />
