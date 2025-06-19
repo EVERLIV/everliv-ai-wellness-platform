@@ -453,12 +453,16 @@ export const generateEnhancedAnalytics = async (
         systolic: parseFloat(healthProfileData.bloodPressure.systolic) || 120,
         diastolic: parseFloat(healthProfileData.bloodPressure.diastolic) || 80
       } : null,
-      medicalConditions: processHealthProfileValue(healthProfileData.medicalConditions) || []
+      medicalConditions: processHealthProfileValue(healthProfileData.medicalConditions) || [],
+      familyHistory: processHealthProfileValue(healthProfileData.familyHistory) || [],
+      allergies: processHealthProfileValue(healthProfileData.allergies) || [],
+      medications: processHealthProfileValue(healthProfileData.medications) || []
     };
 
     const healthScore = await calculateEnhancedHealthScore(enhancedProfile, analyses, userId);
     const biomarkerTrends = analyzeBiomarkerTrends(analyses);
     const recentActivities = generateRecentActivities(analyses, chats);
+    const hasRecentActivity = checkRecentActivity(analyses, chats);
     
     let riskLevel: 'low' | 'moderate' | 'high' | 'critical' = 'low';
     if (healthScore < 40) riskLevel = 'critical';
@@ -475,7 +479,13 @@ export const generateEnhancedAnalytics = async (
       biomarkerTrends,
       recentActivities,
       lastUpdated: new Date().toISOString(),
-      healthScoreExplanation
+      healthScoreExplanation,
+      hasRecentActivity,
+      trendsAnalysis: {
+        improving: biomarkerTrends.improving,
+        worsening: biomarkerTrends.concerning,
+        stable: biomarkerTrends.stable
+      }
     };
 
     console.log('Enhanced analytics generated:', analytics);
