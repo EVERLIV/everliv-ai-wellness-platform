@@ -1,16 +1,18 @@
+
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useProfile } from "@/hooks/useProfile";
 import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
 import SettingsHeader from "@/components/settings/SettingsHeader";
+import DashboardActivityFeed from "@/components/dashboard/DashboardActivityFeed";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { User, Crown, Mail, Bell, Settings as SettingsIcon } from "lucide-react";
+import { User, Crown, Mail, Bell, Settings as SettingsIcon, Activity } from "lucide-react";
 import { toast } from "sonner";
 
 const Settings: React.FC = () => {
@@ -191,6 +193,19 @@ const Settings: React.FC = () => {
                 </div>
               )}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Последняя активность */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              Последняя активность
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DashboardActivityFeed />
           </CardContent>
         </Card>
 

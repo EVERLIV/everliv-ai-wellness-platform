@@ -15,7 +15,8 @@ import {
   TrendingUp,
   BookOpen,
   Utensils,
-  Stethoscope
+  Stethoscope,
+  Clock
 } from "lucide-react";
 
 const DashboardQuickActions = () => {
@@ -30,6 +31,15 @@ const DashboardQuickActions = () => {
       color: "bg-pink-50",
       badge: <Badge className="bg-green-600 text-white">Основа</Badge>,
       features: ["Медицинская история", "Лабораторные показатели", "Персонализация"]
+    },
+    {
+      title: "Биологический возраст",
+      description: "Определите свой биологический возраст на основе комплексной оценки биомаркеров и показателей здоровья",
+      icon: <Clock className="h-8 w-8 text-indigo-600" />,
+      action: () => navigate("/biological-age"),
+      color: "bg-indigo-50",
+      badge: <Badge className="bg-indigo-600 text-white">ИИ-анализ</Badge>,
+      features: ["Анализ биомаркеров", "ИИ-расчеты", "Персональные рекомендации"]
     },
     {
       title: "Ваши Анализы",
@@ -75,15 +85,6 @@ const DashboardQuickActions = () => {
       color: "bg-orange-50",
       badge: <Badge className="bg-green-600 text-white">Обучение</Badge>,
       features: ["Экспертные статьи", "Научные данные", "Образовательный контент"]
-    },
-    {
-      title: "Здоровье",
-      description: "Отслеживайте ключевые показатели здоровья, ведите дневник симптомов и получайте персональные рекомендации",
-      icon: <Heart className="h-8 w-8 text-red-600" />,
-      action: () => navigate("/health-tracking"),
-      color: "bg-red-50",
-      badge: <Badge className="bg-red-600 text-white">Трекинг</Badge>,
-      features: ["Показатели здоровья", "Дневник симптомов", "Рекомендации"]
     }
   ];
 

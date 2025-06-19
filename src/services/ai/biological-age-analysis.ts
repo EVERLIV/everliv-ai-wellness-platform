@@ -1,105 +1,143 @@
 
-import { initializeOpenAI } from "./openai-client";
+import OpenAI from 'openai';
 
-/**
- * Analyzes biological age based on biomarkers
- */
-export const analyzeBiologicalAgeWithOpenAI = async (biomarkerData: object) => {
+interface BiologicalAgeAnalysisData {
+  chronological_age: number;
+  gender: string;
+  height: number;
+  weight: number;
+  lifestyle_factors: {
+    exercise_frequency: string;
+    stress_level: number;
+    sleep_hours: number;
+    smoking_status: string;
+    alcohol_consumption: string;
+  };
+  biomarkers: Array<{
+    name: string;
+    value: number;
+    unit: string;
+    normal_range: {
+      min: number;
+      max: number;
+      optimal?: number;
+    };
+    category: string;
+  }>;
+  chronic_conditions: string[];
+  medications: string[];
+}
+
+interface BiologicalAgeResult {
+  biologicalAge: number;
+  deviation: number;
+  confidenceLevel: number;
+  detailedAnalysis: string;
+  recommendations: Array<{
+    category: string;
+    recommendation: string;
+    priority: 'high' | 'medium' | 'low';
+  }>;
+  missingAnalyses: string[];
+}
+
+const openai = new OpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true
+});
+
+export async function analyzeBiologicalAgeWithOpenAI(data: BiologicalAgeAnalysisData): Promise<BiologicalAgeResult> {
+  const prompt = `
+Проанализируй биомаркеры и определи биологический возраст:
+
+Базовая информация:
+- Хронологический возраст: ${data.chronological_age} лет
+- Пол: ${data.gender}
+- Рост: ${data.height} см
+- Вес: ${data.weight} кг
+- Частота физических упражнений: ${data.lifestyle_factors.exercise_frequency}
+- Уровень стресса (1-10): ${data.lifestyle_factors.stress_level}
+- Часы сна: ${data.lifestyle_factors.sleep_hours}
+- Статус курения: ${data.lifestyle_factors.smoking_status}
+- Потребление алкоголя: ${data.lifestyle_factors.alcohol_consumption}
+- Хронические заболевания: ${data.chronic_conditions.join(', ') || 'Нет'}
+- Принимаемые препараты: ${data.medications.join(', ') || 'Нет'}
+
+Биомаркеры:
+${data.biomarkers.map(b => `
+- ${b.name}: ${b.value} ${b.unit} (норма: ${b.normal_range.min}-${b.normal_range.max}${b.normal_range.optimal ? `, оптимально: ${b.normal_range.optimal}` : ''})
+`).join('')}
+
+Задача:
+1. Определи биологический возраст на основе предоставленных данных
+2. Объясни, какие факторы влияют на результат
+3. Дай рекомендации по улучшению показателей
+4. Укажи, какие дополнительные анализы могут повысить точность оценки
+
+Отвечай СТРОГО в формате JSON:
+{
+  "biologicalAge": число,
+  "deviation": число (разница с хронологическим возрастом, может быть отрицательной),
+  "confidenceLevel": число от 1 до 100,
+  "detailedAnalysis": "подробное объяснение на русском языке",
+  "recommendations": [
+    {
+      "category": "категория рекомендации",
+      "recommendation": "текст рекомендации",
+      "priority": "high/medium/low"
+    }
+  ],
+  "missingAnalyses": ["список анализов, которые помогут повысить точность"]
+}
+`;
+
   try {
-    const openai = initializeOpenAI();
-    
-    const messages = [
-      {
-        role: "system",
-        content: createBiologicalAgeSystemPrompt()
-      },
-      {
-        role: "user",
-        content: createBiologicalAgePrompt(biomarkerData)
-      }
-    ];
-    
-    // Make API call to OpenAI
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: messages as any,
+      model: 'gpt-4',
+      messages: [
+        {
+          role: 'system',
+          content: 'Ты эксперт по биологическому возрасту и биомаркерам. Анализируй данные медицинских анализов и определяй биологический возраст человека. Отвечай только в формате JSON без дополнительного текста.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
       temperature: 0.3,
-      max_tokens: 1500,
+      max_tokens: 2000
     });
-    
-    const aiResponse = response.choices[0].message.content || "";
-    
+
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('Пустой ответ от OpenAI');
+    }
+
     try {
-      return JSON.parse(aiResponse);
-    } catch (error) {
-      console.error("Failed to parse biological age AI response as JSON:", error);
+      const result = JSON.parse(content) as BiologicalAgeResult;
+      return result;
+    } catch (parseError) {
+      console.error('Ошибка парсинга JSON:', parseError);
+      console.log('Ответ OpenAI:', content);
+      
+      // Fallback результат
       return {
-        biologicalAge: null,
-        chronologicalAge: null,
-        agingFactors: [],
-        recommendations: [],
-        detailedAnalysis: "Error processing results. Please try again."
+        biologicalAge: data.chronological_age,
+        deviation: 0,
+        confidenceLevel: 50,
+        detailedAnalysis: 'Не удалось получить детальный анализ от ИИ. Попробуйте еще раз.',
+        recommendations: [
+          {
+            category: 'Общие',
+            recommendation: 'Регулярно проходите медицинские обследования',
+            priority: 'medium'
+          }
+        ],
+        missingAnalyses: []
       };
     }
   } catch (error) {
-    console.error("Error analyzing biological age:", error);
-    throw error;
+    console.error('Ошибка при обращении к OpenAI:', error);
+    throw new Error('Не удалось получить анализ от ИИ. Проверьте подключение к интернету.');
   }
-};
-
-/**
- * Creates a system prompt for biological age analysis
- */
-export const createBiologicalAgeSystemPrompt = () => {
-  return `Вы - экспертный ИИ, специализирующийся на оценке биологического возраста и медицинской долговечности. 
-  Ваша задача - анализировать биомаркеры и данные о здоровье, чтобы оценить биологический возраст и предложить рекомендации по долговечности.
-  
-  Отвечайте ТОЛЬКО в формате JSON объекта следующей структуры:
-  {
-    "biologicalAge": number,
-    "chronologicalAge": number,
-    "ageDifference": number,
-    "agingFactors": [
-      {
-        "factor": "Фактор возраста",
-        "impact": "high|medium|low",
-        "description": "Как этот фактор влияет на биологический возраст"
-      }
-    ],
-    "recommendations": [
-      {
-        "category": "диета|физическая активность|сна|средства|жизненный стиле",
-        "recommendation": "Специфическая рекомендация",
-        "priority": "high|medium|low"
-      }
-    ],
-    "detailedAnalysis": "Общий анализ, объясняющий расчет биологического возраста и ключевые инсайты"
-  }
-  
-  Важные указания:
-  - Будьте научно точны в своих оценках
-  - Основывайтесь на established методологиях оценки биологического возраста
-  - Предоставляйте персонализированные, выполнимые рекомендации
-  - Приоритизируйте основные результаты
-  - Учитывайте взаимодействия между различными биомаркерами
-  
-  Не включайте никакой текст вне этой JSON структуры.`;
-};
-
-/**
- * Creates a biological age analysis prompt
- */
-export const createBiologicalAgePrompt = (biomarkerData: object) => {
-  return `Анализируйте следующие биомаркерные данные, чтобы оценить биологический возраст и предложить комплексные рекомендации по долговечности:
-  
-  ${JSON.stringify(biomarkerData)}
-  
-  В вашем анализе:
-  1. Вычислите оценку биологического возраста на основе этих биомаркеров
-  2. Сравните с возрастом постепенности
-  3. Идентифицируйте ключевые факторы, ускоряющие или замедляющие старение
-  4. Предложите конкретные, персонализированные вмешательства для оптимизации долговечности
-  5. Приоритизируйте рекомендации по степени влияния
-  
-  Не забудьте отвечать ТОЛЬКО в требуемом JSON формате.`;
-};
+}
