@@ -1,52 +1,33 @@
 
-export interface LabResults {
-  // Общий анализ крови
-  hemoglobin?: number; // г/л
-  erythrocytes?: number; // млн/мкл
-  hematocrit?: number; // %
-  mcv?: number; // фл
-  mchc?: number; // г/дл
-  platelets?: number; // тыс/мкл
-  serumIron?: number; // мкмоль/л
-  
-  // Биохимические исследования
-  cholesterol?: number; // ммоль/л
-  bloodSugar?: number; // ммоль/л
-  ldh?: number; // Ед/л (лактатдегидрогеназа)
-  
-  // Метаданные
-  lastUpdated?: string;
-  testDate?: string;
-}
-
 export interface HealthProfileData {
   age: number;
-  gender: string;
-  height: number;
-  weight: number;
-  physicalActivity?: string;
-  exerciseFrequency: number;
-  fitnessLevel?: string;
-  stressLevel: number;
-  anxietyLevel: number;
-  moodChanges?: string;
-  mentalHealthSupport?: string;
-  smokingStatus?: string;
-  alcoholConsumption?: string;
-  dietType?: string;
-  waterIntake: number;
-  caffeineIntake: number;
-  sleepHours: number;
-  sleepQuality?: string;
-  sleepIssues?: string[];
-  chronicConditions?: string[];
-  currentSymptoms?: string[];
-  familyHistory?: string[];
-  allergies?: string[];
-  medications?: string[];
-  previousSurgeries?: string[];
-  lastCheckup?: string;
-  
-  // Новые лабораторные данные
-  labResults?: LabResults;
+  gender: 'male' | 'female' | 'other';
+  height: number; // см
+  weight: number; // кг
+  exerciseFrequency: number; // раз в неделю
+  stressLevel: number; // 1-10
+  anxietyLevel: number; // 1-10
+  waterIntake: number; // стаканов в день
+  caffeineIntake: number; // чашек кофе в день
+  sleepHours: number; // часов сна
+  labResults: {
+    [key: string]: {
+      value: number;
+      unit: string;
+      referenceRange: string;
+    };
+  };
+  // Новые настройки рекомендаций
+  recommendationSettings?: {
+    intermittentFasting: boolean;
+    coldTherapy: boolean;
+    breathingPractices: boolean;
+    supplements: boolean;
+    lifestyle: boolean;
+    nutrition: boolean;
+    exercise: boolean;
+    stress: boolean;
+  };
 }
+
+export interface HealthProfileFormData extends HealthProfileData {}
