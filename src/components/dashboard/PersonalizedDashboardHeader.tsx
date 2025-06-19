@@ -60,6 +60,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
 
   const biologicalAge = analytics?.healthScore ? Math.round(35 + (100 - analytics.healthScore) * 0.3) : null;
   const healthStatus = analytics?.riskLevel || 'не определен';
+  const healthScore = analytics?.healthScore || null;
 
   // Определяем цвет статуса здоровья
   const getHealthStatusColor = (status: string) => {
@@ -69,6 +70,15 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
       case 'высокий': return 'text-red-600 bg-red-50 border-red-200';
       default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
+  };
+
+  // Определяем цвет балла здоровья
+  const getHealthScoreColor = (score: number | null) => {
+    if (!score) return 'text-gray-600';
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    if (score >= 40) return 'text-orange-600';
+    return 'text-red-600';
   };
 
   // Получаем иконку подписки
@@ -120,13 +130,54 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
               <span>{currentPlan}</span>
             </div>
           </div>
+
+          {/* Общий балл здоровья - новый блок */}
+          {healthScore && (
+            <div className="mb-4 p-3 sm:p-4 bg-white rounded-lg border border-blue-200 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex-shrink-0">
+                    <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-medium text-gray-700 mb-1">
+                      Общий балл здоровья
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-2xl sm:text-3xl lg:text-4xl font-bold ${getHealthScoreColor(healthScore)}`}>
+                        {healthScore.toFixed(1)}
+                      </span>
+                      <span className="text-lg sm:text-xl text-gray-400 font-medium">/100</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex-shrink-0">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-xs sm:text-sm bg-white hover:bg-blue-50 border-blue-200"
+                    onClick={() => navigate('/analytics')}
+                  >
+                    <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    Подробнее
+                  </Button>
+                </div>
+              </div>
+              <div className="mt-3">
+                <Progress 
+                  value={Math.min(100, Math.max(0, healthScore))} 
+                  className="h-2"
+                />
+              </div>
+            </div>
+          )}
           
           {/* Биологический возраст - адаптированный для мобильных */}
           {biologicalAge && (
             <div className="space-y-2 mb-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs sm:text-sm text-gray-600">Биологический возраст</span>
-                <span className="text-base sm:text-lg font-bold text-indigo-600">{biologicalAge} лет</span>
+                <span className="text-lg sm:text-xl lg:text-2xl font-bold text-indigo-600">{biologicalAge} лет</span>
               </div>
               <div className="flex items-center gap-1 text-xs text-gray-500">
                 <Activity className="h-3 w-3" />
@@ -267,7 +318,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
         <CardContent className="p-3 sm:p-4">
           <div className="flex items-center justify-between mb-2">
             <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
-            <span className="text-xs font-medium text-green-800">{statistics.totalAnalyses}</span>
+            <span className="text-base sm:text-lg font-bold text-green-800">{statistics.totalAnalyses}</span>
           </div>
           <h4 className="font-semibold text-gray-900 text-xs sm:text-sm mb-1">Анализы</h4>
           <Progress value={Math.min(statistics.totalAnalyses * 20, 100)} className="h-1 mb-2" />
@@ -279,7 +330,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
         <CardContent className="p-3 sm:p-4">
           <div className="flex items-center justify-between mb-2">
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
-            <span className="text-xs font-medium text-orange-800">0</span>
+            <span className="text-base sm:text-lg font-bold text-orange-800">0</span>
           </div>
           <h4 className="font-semibold text-gray-900 text-xs sm:text-sm mb-1">Питание</h4>
           <Progress value={0} className="h-1 mb-2" />
