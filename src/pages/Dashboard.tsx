@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
 import Header from "@/components/Header";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import PersonalizedDashboardHeader from "@/components/dashboard/PersonalizedDashboardHeader";
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";
 import MinimalFooter from "@/components/MinimalFooter";
 
@@ -36,7 +37,10 @@ const Dashboard = () => {
         <DashboardHeader userName={userName} />
         
         <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
-          {/* Quick Actions Grid */}
+          {/* Новый персонализированный контент */}
+          <PersonalizedDashboardHeader userName={userName} />
+          
+          {/* Существующие Quick Actions Grid - не изменяем */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900">Основные функции</h2>
