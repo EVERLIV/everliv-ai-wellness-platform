@@ -9,6 +9,24 @@ interface BiomarkersListProps {
   biomarkers: Biomarker[];
 }
 
+// Helper function to normalize status values
+const normalizeStatus = (status: Biomarker['status']): 'normal' | 'high' | 'low' => {
+  switch (status) {
+    case 'optimal':
+    case 'good':
+    case 'normal':
+      return 'normal';
+    case 'attention':
+    case 'risk':
+    case 'high':
+      return 'high';
+    case 'low':
+      return 'low';
+    default:
+      return 'normal';
+  }
+};
+
 const BiomarkersList: React.FC<BiomarkersListProps> = ({ biomarkers }) => {
   if (biomarkers.length === 0) {
     return (
@@ -32,11 +50,11 @@ const BiomarkersList: React.FC<BiomarkersListProps> = ({ biomarkers }) => {
         <BiomarkerCard 
           key={index} 
           name={biomarker.name}
-          value={biomarker.value}
-          normalRange={biomarker.normalRange}
-          status={biomarker.status}
-          recommendation={biomarker.recommendation}
-          detailedRecommendation={biomarker.detailedRecommendation}
+          value={biomarker.value.toString()}
+          normalRange={biomarker.referenceRange}
+          status={normalizeStatus(biomarker.status)}
+          recommendation={biomarker.description || 'Дополнительные рекомендации отсутствуют'}
+          detailedRecommendation={biomarker.description}
         />
       ))}
     </div>
