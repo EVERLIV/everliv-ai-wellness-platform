@@ -51,10 +51,7 @@ const LabAnalysesHeader: React.FC<LabAnalysesHeaderProps> = ({
   };
 
   const getButtonIcon = () => {
-    if (hasReachedLimit && !isP
-
-
-umActive) {
+    if (hasReachedLimit && !isPremiumActive) {
       return <Crown className="h-4 w-4" />;
     }
     return <Plus className="h-4 w-4" />;
