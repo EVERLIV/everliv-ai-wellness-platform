@@ -3,29 +3,22 @@ import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, AlertCircle, Camera } from "lucide-react";
-import { ANALYSIS_TYPES } from "./AnalysisTypeSelector";
 import { toast } from "sonner";
 
 interface PhotoInputSectionProps {
-  photoFile: File | null;
   photoUrl: string;
-  analysisType: string;
-  photoUploading: boolean;
-  uploadError: string | null;
-  onPhotoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onPhotoUrlChange: (url: string) => void;
 }
 
 const PhotoInputSection: React.FC<PhotoInputSectionProps> = ({
-  photoFile,
   photoUrl,
-  analysisType,
-  photoUploading,
-  uploadError,
-  onPhotoUpload
+  onPhotoUrlChange
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const selectedAnalysisType = ANALYSIS_TYPES.find(type => type.value === analysisType);
 
   const validateFile = (file: File): boolean => {
     // Проверяем тип файла
@@ -44,20 +37,31 @@ const PhotoInputSection: React.FC<PhotoInputSectionProps> = ({
     return true;
   };
 
-  const handleFileSelect = (file: File) => {
+  const handleFileUpload = (file: File) => {
     if (!validateFile(file)) {
       return;
     }
 
-    // Устанавливаем файл в input и вызываем событие change
-    if (fileInputRef.current) {
-      const dt = new DataTransfer();
-      dt.items.add(file);
-      fileInputRef.current.files = dt.files;
-      
-      // Вызываем событие change на элементе input
-      fileInputRef.current.dispatchEvent(new Event('change', { bubbles: true }));
-    }
+    setPhotoUploading(true);
+    setUploadError(null);
+    setPhotoFile(file);
+
+    // Создаем URL для предварительного просмотра
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      onPhotoUrlChange(result);
+      setPhotoUploading(false);
+    };
+    reader.onerror = () => {
+      setUploadError("Ошибка при загрузке файла");
+      setPhotoUploading(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileSelect = (file: File) => {
+    handleFileUpload(file);
   };
 
   const handleDragEnter = (e: React.DragEvent) => {
@@ -100,11 +104,18 @@ const PhotoInputSection: React.FC<PhotoInputSectionProps> = ({
     fileInputRef.current?.click();
   };
 
+  const onPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div>
         <label htmlFor="photo-upload" className="text-sm font-medium text-gray-700 mb-2 block">
-          Загрузить фото {selectedAnalysisType?.label.toLowerCase()}
+          Загрузить фото анализа
         </label>
         <p className="text-sm text-gray-500 mb-4">
           Загрузите четкое фото или скан ваших результатов для автоматического распознавания
