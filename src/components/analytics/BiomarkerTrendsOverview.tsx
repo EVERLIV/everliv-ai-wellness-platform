@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +21,16 @@ interface BiomarkerTrendsOverviewProps {
     worsening: number;
     stable: number;
   };
+}
+
+interface AnalysisResults {
+  markers?: Array<{
+    name: string;
+    value: string | number;
+    unit?: string;
+    status: 'optimal' | 'good' | 'attention' | 'risk';
+  }>;
+  [key: string]: any;
 }
 
 const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trendsAnalysis }) => {
@@ -68,20 +77,26 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
       let totalMarkers = 0;
 
       analyses.forEach(analysis => {
-        if (analysis.results?.markers && Array.isArray(analysis.results.markers)) {
-          analysis.results.markers.forEach((marker: any) => {
-            if (marker.name && marker.value) {
-              if (!biomarkerHistory[marker.name]) {
-                biomarkerHistory[marker.name] = [];
+        // Проверяем, что results существует и является объектом
+        if (analysis.results && typeof analysis.results === 'object') {
+          const results = analysis.results as AnalysisResults;
+          
+          // Проверяем, что markers существует и является массивом
+          if (results.markers && Array.isArray(results.markers)) {
+            results.markers.forEach((marker: any) => {
+              if (marker.name && marker.value) {
+                if (!biomarkerHistory[marker.name]) {
+                  biomarkerHistory[marker.name] = [];
+                }
+                biomarkerHistory[marker.name].push({
+                  ...marker,
+                  analysisDate: analysis.created_at,
+                  analysisId: analysis.id
+                });
+                totalMarkers++;
               }
-              biomarkerHistory[marker.name].push({
-                ...marker,
-                analysisDate: analysis.created_at,
-                analysisId: analysis.id
-              });
-              totalMarkers++;
-            }
-          });
+            });
+          }
         }
       });
 
