@@ -1,23 +1,20 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-interface MedicalAnalysisParams {
-  text?: string;
-  imageBase64?: string;
-  analysisType: string;
-  userId: string;
+export interface MedicalAnalysisMarker {
+  name: string;
+  value: string;
+  normalRange: string;
+  status: 'normal' | 'high' | 'low';
+  recommendation: string;
+  detailedRecommendation?: string;
 }
 
 export interface MedicalAnalysisResults {
   analysisId?: string;
   analysisType: string;
-  markers: Array<{
-    name: string;
-    value: string;
-    normalRange: string;
-    status: 'normal' | 'high' | 'low';
-    recommendation: string;
-  }>;
+  testDate: string;
+  markers: MedicalAnalysisMarker[];
   supplements: Array<{
     name: string;
     reason: string;
@@ -29,15 +26,20 @@ export interface MedicalAnalysisResults {
   summary: string;
 }
 
-/**
- * Анализирует любой тип медицинского анализа с помощью ИИ
- */
-export const analyzeMedicalTestWithAI = async (params: MedicalAnalysisParams): Promise<MedicalAnalysisResults> => {
-  console.log("Анализируем медицинский тест с помощью ИИ", {
-    analysisType: params.analysisType,
+interface AnalyzeMedicalTestParams {
+  text?: string;
+  imageBase64?: string;
+  analysisType: string;
+  userId: string;
+  testDate?: string;
+}
+
+export const analyzeMedicalTestWithAI = async (params: AnalyzeMedicalTestParams): Promise<MedicalAnalysisResults> => {
+  console.log("Analyzing medical test with Supabase Edge Function", {
     hasText: !!params.text,
     hasImage: !!params.imageBase64,
-    userId: params.userId
+    analysisType: params.analysisType,
+    testDate: params.testDate
   });
   
   try {
@@ -46,12 +48,13 @@ export const analyzeMedicalTestWithAI = async (params: MedicalAnalysisParams): P
         text: params.text,
         imageBase64: params.imageBase64,
         analysisType: params.analysisType,
-        userId: params.userId
+        userId: params.userId,
+        testDate: params.testDate
       }
     });
 
     if (error) {
-      console.error("Ошибка Supabase функции:", error);
+      console.error("Supabase function error:", error);
       throw new Error(error.message || "Ошибка при вызове функции анализа");
     }
 
@@ -59,31 +62,34 @@ export const analyzeMedicalTestWithAI = async (params: MedicalAnalysisParams): P
       throw new Error("Не получен ответ от функции анализа");
     }
 
+    // Check if response contains an error
     if (data.error) {
       throw new Error(data.error);
     }
 
+    // Validate response structure
     if (!data.markers || !Array.isArray(data.markers)) {
-      console.error("Некорректная структура ответа:", data);
+      console.error("Invalid response structure:", data);
       throw new Error("Получен некорректный ответ от ИИ. Попробуйте еще раз.");
     }
 
+    // Ensure we have at least one marker
     if (data.markers.length === 0) {
       throw new Error("Не удалось распознать показатели в предоставленных данных. Проверьте данные и попробуйте еще раз.");
     }
 
-    console.log("Анализ успешно выполнен:", {
+    console.log("Successfully analyzed medical test:", {
       analysisType: data.analysisType,
       markersCount: data.markers.length,
       supplementsCount: data.supplements?.length || 0,
-      riskLevel: data.riskLevel,
-      analysisId: data.analysisId
+      testDate: data.testDate
     });
 
     return data as MedicalAnalysisResults;
   } catch (error) {
-    console.error("Ошибка анализа медицинского теста:", error);
+    console.error("Error analyzing medical test:", error);
     
+    // Return a meaningful error for common issues
     if (error.message?.includes('API key')) {
       throw new Error("Ошибка API ключа OpenAI. Пожалуйста, проверьте настройки.");
     } else if (error.message?.includes('quota')) {
@@ -92,53 +98,6 @@ export const analyzeMedicalTestWithAI = async (params: MedicalAnalysisParams): P
       throw new Error("Ошибка обработки изображения. Попробуйте загрузить другое фото или введите данные вручную.");
     }
     
-    throw error;
-  }
-};
-
-/**
- * Получение истории медицинских анализов пользователя
- */
-export const getMedicalAnalysesHistory = async (userId: string) => {
-  try {
-    const { data, error } = await supabase
-      .from('medical_analyses' as any)
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error("Ошибка получения истории анализов:", error);
-      throw new Error("Не удалось загрузить историю анализов");
-    }
-
-    return data || [];
-  } catch (error) {
-    console.error("Ошибка загрузки истории:", error);
-    throw error;
-  }
-};
-
-/**
- * Получение конкретного анализа по ID
- */
-export const getMedicalAnalysisById = async (analysisId: string, userId: string) => {
-  try {
-    const { data, error } = await supabase
-      .from('medical_analyses' as any)
-      .select('*')
-      .eq('id', analysisId)
-      .eq('user_id', userId)
-      .single();
-
-    if (error) {
-      console.error("Ошибка получения анализа:", error);
-      throw new Error("Не удалось загрузить анализ");
-    }
-
-    return data;
-  } catch (error) {
-    console.error("Ошибка загрузки анализа:", error);
     throw error;
   }
 };

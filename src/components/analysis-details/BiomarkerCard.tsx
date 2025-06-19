@@ -1,52 +1,97 @@
 
-import React from "react";
-import { Biomarker } from "@/types/analysis";
-import BiomarkerStatus from "./BiomarkerStatus";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown, ChevronRight, TrendingUp, Activity } from 'lucide-react';
+import BiomarkerTrendChart from './BiomarkerTrendChart';
+import BiomarkerStatus from './BiomarkerStatus';
 
 interface BiomarkerCardProps {
-  biomarker: Biomarker;
+  name: string;
+  value: string;
+  normalRange: string;
+  status: 'normal' | 'high' | 'low';
+  recommendation?: string;
+  detailedRecommendation?: string;
 }
 
-const BiomarkerCard: React.FC<BiomarkerCardProps> = ({ biomarker }) => {
-  return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow print:p-3 print:border-gray-300 print:rounded-none print:hover:shadow-none">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 print:grid-cols-4 print:gap-2">
-        {/* Название показателя */}
-        <div className="md:col-span-1">
-          <h3 className="font-semibold text-gray-900 text-sm print:text-xs">
-            {biomarker.name}
-          </h3>
-          <p className="text-xs text-gray-500 mt-1 print:hidden">
-            {biomarker.description}
-          </p>
-        </div>
+const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
+  name,
+  value,
+  normalRange,
+  status,
+  recommendation,
+  detailedRecommendation
+}) => {
+  const [showDetails, setShowDetails] = useState(false);
+  const [showTrend, setShowTrend] = useState(false);
 
-        {/* Значение */}
-        <div className="md:col-span-1">
-          <p className="text-xs font-medium text-gray-700 mb-1 print:text-xs">Значение</p>
-          <div className="flex items-baseline space-x-1">
-            <span className="text-lg font-bold text-gray-900 print:text-sm">
-              {biomarker.value}
-            </span>
-            {biomarker.unit && (
-              <span className="text-xs text-gray-600 print:text-xs">{biomarker.unit}</span>
-            )}
+  return (
+    <Card className="w-full">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base font-medium">{name}</CardTitle>
+          <BiomarkerStatus status={status} />
+        </div>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">Значение:</span>
+            <span className="font-semibold">{value}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">Норма:</span>
+            <span className="text-gray-500">{normalRange}</span>
           </div>
         </div>
+      </CardHeader>
+      
+      <CardContent className="pt-0 space-y-3">
+        {/* Базовая рекомендация */}
+        {recommendation && (
+          <div className="p-3 bg-blue-50 rounded-lg">
+            <p className="text-sm text-blue-800">{recommendation}</p>
+          </div>
+        )}
 
-        {/* Норма */}
-        <div className="md:col-span-1">
-          <p className="text-xs font-medium text-gray-700 mb-1">Норма</p>
-          <p className="text-sm text-gray-600 print:text-xs">{biomarker.referenceRange}</p>
-        </div>
+        {/* Кнопки для раскрытия дополнительной информации */}
+        <div className="flex gap-2">
+          {detailedRecommendation && (
+            <Collapsible open={showDetails} onOpenChange={setShowDetails}>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  {showDetails ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  <TrendingUp className="h-4 w-4" />
+                  Подробные рекомендации
+                </Button>
+              </CollapsibleTrigger>
+              
+              <CollapsibleContent className="mt-3">
+                <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                  <h4 className="font-medium text-green-900 mb-2">Детальные рекомендации:</h4>
+                  <p className="text-sm text-green-800 whitespace-pre-line">{detailedRecommendation}</p>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
 
-        {/* Статус */}
-        <div className="md:col-span-1">
-          <p className="text-xs font-medium text-gray-700 mb-1">Статус</p>
-          <BiomarkerStatus status={biomarker.status} />
+          <Collapsible open={showTrend} onOpenChange={setShowTrend}>
+            <CollapsibleTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                {showTrend ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                <Activity className="h-4 w-4" />
+                Динамика
+              </Button>
+            </CollapsibleTrigger>
+            
+            <CollapsibleContent className="mt-3">
+              <BiomarkerTrendChart biomarkerName={name} />
+            </CollapsibleContent>
+          </Collapsible>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

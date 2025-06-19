@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { FEATURES } from "@/constants/subscription-features";
-import { analyzeMedicalTestWithAI, MedicalAnalysisResults } from "@/services/ai/medical-analysis";
+import { analyzeMedicalTestWithAI, Me calAnalysisResults } from "@/services/ai/medical-analysis";
 import { checkUsageLimit, incrementUsage } from "@/services/usage-tracking-service";
 import { sendAnalysisResultsEmail } from "@/services/email-service";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,8 +39,9 @@ export const useMedicalAnalysis = () => {
     photoUrl: string; 
     inputMethod: "text" | "photo";
     analysisType: string;
+    testDate?: string;
   }): Promise<void> => {
-    const { text, photoUrl, inputMethod, analysisType } = data;
+    const { text, photoUrl, inputMethod, analysisType, testDate } = data;
     
     if (!user) {
       toast.error("Необходимо войти в систему");
@@ -53,6 +55,11 @@ export const useMedicalAnalysis = () => {
 
     if (inputMethod === "photo" && !photoUrl) {
       toast.error("Пожалуйста, загрузите фото результатов анализа");
+      return;
+    }
+
+    if (!analysisType) {
+      toast.error("Пожалуйста, выберите тип анализа");
       return;
     }
 
@@ -95,6 +102,7 @@ export const useMedicalAnalysis = () => {
         analysisType,
         method: inputMethod,
         planType,
+        testDate,
         hasText: inputMethod === "text" && text.length > 0,
         hasImage: inputMethod === "photo" && !!base64Image
       });
@@ -103,7 +111,8 @@ export const useMedicalAnalysis = () => {
         text: inputMethod === "text" ? text : undefined,
         imageBase64: inputMethod === "photo" ? base64Image : undefined,
         analysisType,
-        userId: user.id
+        userId: user.id,
+        testDate
       });
 
       // Увеличиваем счетчик использования только после успешного анализа
@@ -122,7 +131,7 @@ export const useMedicalAnalysis = () => {
           .single();
 
         const userName = profile?.nickname || user.email?.split('@')[0] || 'Пользователь';
-        const resultsUrl = `${window.location.origin}/analysis/results`;
+        const resultsUrl = `${window.location.origin}/analysis-details?id=${analysisResults.analysisId}`;
         const keyFindings = analysisResults.markers
           .filter(marker => marker.status !== 'normal')
           .slice(0, 3)
@@ -131,7 +140,7 @@ export const useMedicalAnalysis = () => {
         await sendAnalysisResultsEmail(
           user.email!,
           userName,
-          analysisType,
+          analysisResults.analysisType,
           resultsUrl,
           keyFindings
         );
@@ -142,7 +151,7 @@ export const useMedicalAnalysis = () => {
         // Не прерываем процесс из-за ошибки email
       }
       
-      toast.success(`Анализ "${analysisType}" завершен! Обработано ${analysisResults.markers.length} показателей.`);
+      toast.success(`Анализ "${analysisResults.analysisType}" завершен! Обработано ${analysisResults.markers.length} показателей.`);
     } catch (error) {
       console.error("Ошибка анализа:", error);
       const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка при анализе";

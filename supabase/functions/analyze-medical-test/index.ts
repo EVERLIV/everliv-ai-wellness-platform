@@ -19,6 +19,7 @@ interface MedicalAnalysisRequest {
   imageBase64?: string;
   analysisType: string;
   userId: string;
+  testDate?: string;
 }
 
 serve(async (req) => {
@@ -31,7 +32,7 @@ serve(async (req) => {
       throw new Error('OpenAI API ключ не настроен');
     }
 
-    const { text, imageBase64, analysisType, userId }: MedicalAnalysisRequest = await req.json();
+    const { text, imageBase64, analysisType, userId, testDate }: MedicalAnalysisRequest = await req.json();
 
     if (!text && !imageBase64) {
       throw new Error('Необходим текст или изображение для анализа');
@@ -45,7 +46,23 @@ serve(async (req) => {
     
     const systemPrompt = `Вы - высококвалифицированный медицинский специалист и ИИ-помощник, специализирующийся на анализе всех типов лабораторных исследований.
 
+ОПРЕДЕЛЕНИЕ ТИПА АНАЛИЗА:
+Анализируйте предоставленные биомаркеры и автоматически определите тип анализа:
+
+1. ОБЩИЙ АНАЛИЗ КРОВИ - если есть: гемоглобин, эритроциты, лейкоциты, тромбоциты, гематокрит, СОЭ
+2. БИОХИМИЧЕСКИЙ АНАЛИЗ КРОВИ - если есть: глюкоза, креатинин, мочевина, билирубин, АЛТ, АСТ, холестерин
+3. ЛИПИДНЫЙ ПРОФИЛЬ - если есть: общий холестерин, ЛПВП, ЛПНП, триглицериды
+4. ГОРМОНАЛЬНЫЙ АНАЛИЗ - если есть: ТТГ, Т3, Т4, кортизол, инсулин, тестостерон, эстрадиол
+5. АНАЛИЗ НА ВИТАМИНЫ - если есть: B12, D, фолиевая кислота, железо, ферритин
+6. АНАЛИЗ МОЧИ - если есть: белок в моче, глюкоза в моче, лейкоциты в моче, эритроциты в моче
+7. ИММУНОЛОГИЧЕСКИЙ АНАЛИЗ - если есть: иммуноглобулины, С-реактивный белок, ревматоидный фактор
+8. ОНКОМАРКЕРЫ - если есть: ПСА, СА 125, СА 19-9, АФП, РЭА
+9. КОАГУЛОГРАММА - если есть: ПТВ, МНО, АЧТВ, фибриноген, тромбиновое время
+
+Если не можете точно определить тип, выберите "Комплексный анализ крови".
+
 ТИП АНАЛИЗА: ${analysisType}
+ДАТА АНАЛИЗА: ${testDate || 'не указана'}
 
 МЕДИЦИНСКИЕ ЗНАНИЯ:
 - Глубокие знания в области клинической лабораторной диагностики
@@ -59,16 +76,30 @@ serve(async (req) => {
 - Биохимия: Глюкоза (3.3-5.5 ммоль/л), АЛТ/АСТ (до 35/45 Ед/л), Креатинин (53-115 мкмоль/л)
 - Гормоны: ТТГ (0.4-4.0 мЕд/л), Т4 св (10.8-22.0 пмоль/л), Тестостерон (муж 8.6-29.0 нмоль/л)
 
+НАЗВАНИЯ АНАЛИЗОВ НА РУССКОМ:
+- Blood Test → Общий анализ крови
+- Biochemical Analysis → Биохимический анализ крови
+- Lipid Profile → Липидный профиль
+- Hormone Analysis → Гормональный анализ
+- Vitamin Analysis → Анализ на витамины
+- Urine Analysis → Общий анализ мочи
+- Immunological Analysis → Иммунологический анализ
+- Tumor Markers → Онкомаркеры
+- Coagulation Test → Коагулограмма
+
 Отвечайте ТОЛЬКО в формате JSON:
 {
-  "analysisType": "${analysisType}",
+  "analysisType": "Название анализа на русском языке",
+  "detectedAnalysisType": "Автоматически определенный тип анализа на основе биомаркеров",
+  "testDate": "${testDate || new Date().toISOString().split('T')[0]}",
   "markers": [
     {
-      "name": "Название показателя",
+      "name": "Название показателя на русском",
       "value": "Значение с единицами",
       "normalRange": "Нормальный диапазон",
       "status": "normal|high|low",
-      "recommendation": "Детальная рекомендация"
+      "recommendation": "Детальная рекомендация для улучшения показателя",
+      "detailedRecommendation": "Подробные советы по питанию, образу жизни и медицинским мерам"
     }
   ],
   "supplements": [
@@ -85,10 +116,12 @@ serve(async (req) => {
 }
 
 ВАЖНО:
-- Определяйте тип анализа из контекста если не указан явно
+- Определяйте тип анализа из контекста биомаркеров
+- Используйте русские названия для всех типов анализов
 - Предоставляйте точные медицинские рекомендации
 - При серьезных отклонениях рекомендуйте консультацию врача
 - Учитывайте взаимосвязи между показателями
+- Добавляйте детальные рекомендации для каждого показателя
 
 Не включайте никакой текст вне JSON структуры.`;
 
@@ -103,10 +136,11 @@ serve(async (req) => {
           content: `Проанализируйте следующие результаты медицинского анализа:
 
 ТИП: ${analysisType}
+ДАТА: ${testDate || 'текущая дата'}
 РЕЗУЛЬТАТЫ:
 ${text}
 
-Предоставьте полный медицинский анализ в требуемом JSON формате.`
+Автоматически определите тип анализа на основе найденных биомаркеров и предоставьте полный медицинский анализ в требуемом JSON формате с русскими названиями.`
         }
       ];
     } else if (imageBase64) {
@@ -120,7 +154,7 @@ ${text}
           content: [
             { 
               type: "text", 
-              text: `Проанализируй этот медицинский анализ типа "${analysisType}". Определи все показатели, их значения и нормальные диапазоны. Дай конкретные медицинские рекомендации. Ответь строго в JSON формате согласно системной инструкции.` 
+              text: `Проанализируй этот медицинский анализ. Автоматически определи тип анализа на основе найденных биомаркеров. Дата анализа: ${testDate || 'текущая дата'}. Определи все показатели, их значения и нормальные диапазоны. Дай конкретные медицинские рекомендации на русском языке. Ответь строго в JSON формате согласно системной инструкции.` 
             },
             { 
               type: "image_url", 
@@ -140,7 +174,7 @@ ${text}
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "gpt-4o-mini",
         messages: messages,
         temperature: 0.3,
         max_tokens: 4000,
@@ -173,8 +207,14 @@ ${text}
         value: marker.value || "Не указано",
         normalRange: marker.normalRange || "Не указан",
         status: marker.status || "normal",
-        recommendation: marker.recommendation || "Рекомендации не предоставлены"
+        recommendation: marker.recommendation || "Рекомендации не предоставлены",
+        detailedRecommendation: marker.detailedRecommendation || "Подробные рекомендации не предоставлены"
       }));
+      
+      // Используем автоматически определенный тип анализа если он есть
+      if (parsedResponse.detectedAnalysisType) {
+        parsedResponse.analysisType = parsedResponse.detectedAnalysisType;
+      }
       
       if (!parsedResponse.supplements) {
         parsedResponse.supplements = [];
@@ -199,8 +239,9 @@ ${text}
       // Сохранение результата в базу данных
       const analysisRecord = {
         user_id: userId,
-        analysis_type: analysisType,
+        analysis_type: parsedResponse.analysisType,
         results: parsedResponse,
+        test_date: parsedResponse.testDate,
         created_at: new Date().toISOString()
       };
 
@@ -216,6 +257,24 @@ ${text}
       } else {
         console.log('Анализ успешно сохранен:', savedAnalysis.id);
         parsedResponse.analysisId = savedAnalysis.id;
+        
+        // Сохраняем биомаркеры отдельно для отслеживания динамики
+        const biomarkerInserts = parsedResponse.markers.map(marker => ({
+          analysis_id: savedAnalysis.id,
+          name: marker.name,
+          value: marker.value,
+          reference_range: marker.normalRange,
+          status: marker.status,
+          test_date: parsedResponse.testDate
+        }));
+
+        const { error: biomarkerError } = await supabase
+          .from('biomarkers')
+          .insert(biomarkerInserts);
+
+        if (biomarkerError) {
+          console.error('Ошибка сохранения биомаркеров:', biomarkerError);
+        }
       }
       
       return new Response(JSON.stringify(parsedResponse), {
@@ -225,13 +284,16 @@ ${text}
       console.error("Ошибка парсинга ответа ИИ:", parseError);
       
       const fallbackResponse = {
-        analysisType: analysisType,
+        analysisType: "Общий анализ",
+        detectedAnalysisType: "Общий анализ",
+        testDate: testDate || new Date().toISOString().split('T')[0],
         markers: [{
           name: "Общий анализ",
           value: "Данные обработаны частично",
           normalRange: "Не удалось определить",
           status: "normal",
-          recommendation: "Рекомендуется повторить анализ или ввести данные вручную для более точного результата."
+          recommendation: "Рекомендуется повторить анализ или ввести данные вручную для более точного результата.",
+          detailedRecommendation: "Обратитесь к врачу для получения подробной консультации."
         }],
         supplements: [],
         generalRecommendation: "Произошла ошибка при анализе данных. Пожалуйста, попробуйте еще раз с более четким изображением или введите данные вручную.",
