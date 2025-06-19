@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
 import Header from "@/components/Header";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import PersonalizedDashboardHeader from "@/components/dashboard/PersonalizedDashboardHeader";
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";
 import DashboardHealthCharts from "@/components/dashboard/DashboardHealthCharts";
@@ -40,9 +39,7 @@ const Dashboard = () => {
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
       <div className="pt-16">
-        <DashboardHeader userName={userName} />
-        
-        <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
+        <div className="container mx-auto px-4 py-6 sm:py-8 max-w-6xl space-y-6 sm:space-y-8">
           {/* Персонализированный заголовок */}
           <PersonalizedDashboardHeader userName={userName} />
           
@@ -50,14 +47,14 @@ const Dashboard = () => {
           <SmartTips 
             healthProfile={healthProfile}
             recentActivity={activities?.slice(0, 5)}
-            pendingTasks={[]} // TODO: Добавить реальные данные о невыполненных задачах
+            pendingTasks={[]}
           />
           
           {/* Интерактивные графики здоровья */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Интерактивные графики здоровья</h2>
-              <p className="text-sm text-gray-500">Кликните на точки для детальной информации</p>
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Интерактивные графики здоровья</h2>
+              <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Кликните на точки для детальной информации</p>
             </div>
             <DashboardHealthCharts />
           </div>
@@ -65,8 +62,8 @@ const Dashboard = () => {
           {/* Существующие Quick Actions Grid */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Основные функции</h2>
-              <p className="text-sm text-gray-500">Выберите действие для начала работы</p>
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Основные функции</h2>
+              <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Выберите действие для начала работы</p>
             </div>
             <DashboardQuickActions />
           </div>

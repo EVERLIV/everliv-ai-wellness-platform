@@ -18,7 +18,8 @@ import {
   ChevronRight,
   Calendar,
   Target,
-  BarChart3
+  BarChart3,
+  Clock
 } from "lucide-react";
 
 interface PersonalizedDashboardHeaderProps {
@@ -34,6 +35,26 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
   const isProfileComplete = !profileLoading && healthProfile && Object.keys(healthProfile).length > 5;
   const hasAnalyses = statistics.totalAnalyses > 0;
   
+  // Функция для определения времени суток и соответствующего приветствия
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 6) return "Доброй ночи";
+    if (hour < 12) return "Доброе утро";
+    if (hour < 18) return "Добрый день";
+    return "Добрый вечер";
+  };
+
+  const currentTime = new Date().toLocaleTimeString('ru-RU', { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
+  
+  const currentDate = new Date().toLocaleDateString('ru-RU', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long'
+  });
+
   // Рассчитываем процент заполненности профиля
   const calculateProfileCompleteness = () => {
     if (!healthProfile) return 0;
@@ -58,30 +79,48 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
 
   // Рендер для пользователей с заполненным профилем
   const renderFilledProfile = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-      {/* Основная информация пользователя */}
-      <Card className="lg:col-span-2 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
+    <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
+      {/* Главная карточка приветствия - мобильно адаптированная */}
+      <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100">
+        <CardContent className="p-4 sm:p-6">
+          {/* Верхняя часть - информация о времени и приветствие */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2 sm:gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-base sm:text-lg flex-shrink-0">
                 {userName.charAt(0).toUpperCase()}
               </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">Добро пожаловать, {userName}!</h2>
-                <p className="text-gray-600">Ваш персональный центр здоровья</p>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
+                  {getGreeting()}, {userName}!
+                </h2>
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="truncate">{currentDate} • {currentTime}</span>
+                </div>
               </div>
             </div>
-            <Badge className={`px-3 py-1 ${getHealthStatusColor(healthStatus)}`}>
+            <Badge className={`px-2 py-1 text-xs sm:text-sm flex-shrink-0 ${getHealthStatusColor(healthStatus)}`}>
               {healthStatus === 'не определен' ? 'Статус не определен' : `Риск: ${healthStatus}`}
             </Badge>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          {/* Dev статус */}
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm sm:text-base text-gray-600">
+              Ваш персональный центр здоровья
+            </p>
+            <div className="flex items-center gap-2 text-xs text-gray-500 bg-white px-2 py-1 rounded-full border flex-shrink-0">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Онлайн (разработка)</span>
+            </div>
+          </div>
+          
+          {/* Прогресс-индикаторы - адаптированные для мобильных */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Заполненность профиля</span>
-                <span className="text-sm font-medium text-gray-900">{profileCompleteness}%</span>
+                <span className="text-xs sm:text-sm text-gray-600">Заполненность профиля</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-900">{profileCompleteness}%</span>
               </div>
               <Progress value={profileCompleteness} className="h-2" />
             </div>
@@ -89,8 +128,8 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
             {biologicalAge && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Биологический возраст</span>
-                  <span className="text-lg font-bold text-indigo-600">{biologicalAge} лет</span>
+                  <span className="text-xs sm:text-sm text-gray-600">Биологический возраст</span>
+                  <span className="text-base sm:text-lg font-bold text-indigo-600">{biologicalAge} лет</span>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-gray-500">
                   <Activity className="h-3 w-3" />
@@ -99,75 +138,123 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
               </div>
             )}
           </div>
+          
+          {/* Дисклеймер - адаптированный */}
+          <div className="text-xs text-gray-400 bg-gray-50 rounded-lg px-3 py-2 mt-4">
+            <p className="text-center sm:text-left">
+              Сервис находится в альфа-разработке, спасибо за поддержку! 
+              <a 
+                href="/contact" 
+                className="text-primary hover:underline font-medium ml-1"
+              >
+                Рассказать о баге
+              </a>
+            </p>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Быстрые действия */}
-      <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-100">
-        <CardContent className="p-6">
-          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Zap className="h-5 w-5 text-green-600" />
+      {/* Быстрые действия - отдельная карточка для мобильных */}
+      <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-100 sm:hidden">
+        <CardContent className="p-4">
+          <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <Zap className="h-4 w-4 text-green-600" />
             Быстрые действия
           </h3>
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full justify-start bg-white hover:bg-green-50"
+              className="w-full justify-start bg-white hover:bg-green-50 text-xs"
               onClick={() => navigate('/lab-analyses')}
             >
-              <FileText className="h-4 w-4 mr-2" />
-              Добавить анализы
-              <ChevronRight className="h-4 w-4 ml-auto" />
+              <FileText className="h-3 w-3 mr-1" />
+              Анализы
             </Button>
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full justify-start bg-white hover:bg-green-50"
+              className="w-full justify-start bg-white hover:bg-green-50 text-xs"
               onClick={() => navigate('/analytics')}
             >
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Посмотреть аналитику
-              <ChevronRight className="h-4 w-4 ml-auto" />
+              <BarChart3 className="h-3 w-3 mr-1" />
+              Аналитика
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* Быстрые действия для десктопа */}
+      <div className="hidden sm:block">
+        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-100">
+          <CardContent className="p-6">
+            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <Zap className="h-5 w-5 text-green-600" />
+              Быстрые действия
+            </h3>
+            <div className="space-y-3">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full justify-start bg-white hover:bg-green-50"
+                onClick={() => navigate('/lab-analyses')}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Добавить анализы
+                <ChevronRight className="h-4 w-4 ml-auto" />
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full justify-start bg-white hover:bg-green-50"
+                onClick={() => navigate('/analytics')}
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Посмотреть аналитику
+                <ChevronRight className="h-4 w-4 ml-auto" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 
   // Рендер для новых пользователей
   const renderEmptyProfile = () => (
-    <Card className="mb-8 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-100">
-      <CardContent className="p-8 text-center">
-        <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-6">
-          <User className="h-10 w-10 text-white" />
+    <Card className="mb-6 sm:mb-8 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-100">
+      <CardContent className="p-6 sm:p-8 text-center">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+          <User className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">Начните свой путь к здоровью!</h2>
-        <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">Начните свой путь к здоровью!</h2>
+        <p className="text-sm sm:text-base text-gray-600 mb-6 max-w-2xl mx-auto">
           Заполните профиль здоровья, чтобы получить персональные рекомендации, 
           отслеживать прогресс и улучшать свое самочувствие с помощью ИИ-анализа.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-3xl mx-auto">
-          <div className="flex flex-col items-center p-4 bg-white rounded-lg border border-purple-100">
-            <Heart className="h-8 w-8 text-purple-600 mb-2" />
-            <h3 className="font-semibold text-gray-900 mb-1">Персональный анализ</h3>
-            <p className="text-sm text-gray-600">Получите индивидуальные рекомендации</p>
+        
+        {/* Преимущества - адаптированные для мобильных */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8 max-w-3xl mx-auto">
+          <div className="flex flex-col items-center p-3 sm:p-4 bg-white rounded-lg border border-purple-100">
+            <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 mb-2" />
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Персональный анализ</h3>
+            <p className="text-xs sm:text-sm text-gray-600">Получите индивидуальные рекомендации</p>
           </div>
-          <div className="flex flex-col items-center p-4 bg-white rounded-lg border border-purple-100">
-            <TrendingUp className="h-8 w-8 text-purple-600 mb-2" />
-            <h3 className="font-semibold text-gray-900 mb-1">Отслеживание прогресса</h3>
-            <p className="text-sm text-gray-600">Видите изменения в реальном времени</p>
+          <div className="flex flex-col items-center p-3 sm:p-4 bg-white rounded-lg border border-purple-100">
+            <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 mb-2" />
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Отслеживание прогресса</h3>
+            <p className="text-xs sm:text-sm text-gray-600">Видите изменения в реальном времени</p>
           </div>
-          <div className="flex flex-col items-center p-4 bg-white rounded-lg border border-purple-100">
-            <Target className="h-8 w-8 text-purple-600 mb-2" />
-            <h3 className="font-semibold text-gray-900 mb-1">Достижение целей</h3>
-            <p className="text-sm text-gray-600">Планы для улучшения здоровья</p>
+          <div className="flex flex-col items-center p-3 sm:p-4 bg-white rounded-lg border border-purple-100">
+            <Target className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 mb-2" />
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Достижение целей</h3>
+            <p className="text-xs sm:text-sm text-gray-600">Планы для улучшения здоровья</p>
           </div>
         </div>
+        
         <Button 
           size="lg" 
-          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 w-full sm:w-auto"
           onClick={() => navigate('/health-profile')}
         >
           Заполнить профиль здоровья
@@ -177,40 +264,40 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
     </Card>
   );
 
-  // Прогресс-индикаторы (убираем "Выполнено советов")
+  // Прогресс-индикаторы
   const renderProgressIndicators = () => (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
       <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-        <CardContent className="p-4">
+        <CardContent className="p-3 sm:p-4">
           <div className="flex items-center justify-between mb-2">
-            <User className="h-5 w-5 text-blue-600" />
+            <User className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
             <span className="text-xs font-medium text-blue-800">{profileCompleteness}%</span>
           </div>
-          <h4 className="font-semibold text-gray-900 text-sm mb-1">Профиль</h4>
+          <h4 className="font-semibold text-gray-900 text-xs sm:text-sm mb-1">Профиль</h4>
           <Progress value={profileCompleteness} className="h-1 mb-2" />
           <p className="text-xs text-gray-600">Данные о здоровье</p>
         </CardContent>
       </Card>
 
       <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-        <CardContent className="p-4">
+        <CardContent className="p-3 sm:p-4">
           <div className="flex items-center justify-between mb-2">
-            <FileText className="h-5 w-5 text-green-600" />
+            <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
             <span className="text-xs font-medium text-green-800">{statistics.totalAnalyses}</span>
           </div>
-          <h4 className="font-semibold text-gray-900 text-sm mb-1">Анализы</h4>
+          <h4 className="font-semibold text-gray-900 text-xs sm:text-sm mb-1">Анализы</h4>
           <Progress value={Math.min(statistics.totalAnalyses * 20, 100)} className="h-1 mb-2" />
           <p className="text-xs text-gray-600">Загружено результатов</p>
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-        <CardContent className="p-4">
+      <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 col-span-2 sm:col-span-1">
+        <CardContent className="p-3 sm:p-4">
           <div className="flex items-center justify-between mb-2">
-            <Calendar className="h-5 w-5 text-orange-600" />
+            <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
             <span className="text-xs font-medium text-orange-800">0</span>
           </div>
-          <h4 className="font-semibold text-gray-900 text-sm mb-1">Питание</h4>
+          <h4 className="font-semibold text-gray-900 text-xs sm:text-sm mb-1">Питание</h4>
           <Progress value={0} className="h-1 mb-2" />
           <p className="text-xs text-gray-600">Дней записей</p>
         </CardContent>
@@ -220,19 +307,19 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
 
   if (profileLoading || analysesLoading || analyticsLoading) {
     return (
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <Card className="animate-pulse">
-          <CardContent className="p-8">
+          <CardContent className="p-6 sm:p-8">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
-              <div className="space-y-2">
-                <div className="h-6 bg-gray-200 rounded w-48"></div>
-                <div className="h-4 bg-gray-200 rounded w-32"></div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full"></div>
+              <div className="space-y-2 flex-1">
+                <div className="h-4 sm:h-6 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/2"></div>
               </div>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {[1, 2, 3].map(i => (
-                <div key={i} className="h-24 bg-gray-200 rounded"></div>
+                <div key={i} className="h-20 sm:h-24 bg-gray-200 rounded"></div>
               ))}
             </div>
           </CardContent>
