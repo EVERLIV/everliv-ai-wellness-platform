@@ -102,8 +102,10 @@ ${data.biomarkers.map(b => `
 }
 `;
 
+    console.log('Отправляем запрос к OpenAI для анализа биологического возраста...');
+
     const response = await openai.chat.completions.create({
-      model: 'gpt-4.1-2025-04-14',
+      model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
@@ -123,8 +125,16 @@ ${data.biomarkers.map(b => `
       throw new Error('Пустой ответ от OpenAI');
     }
 
+    console.log('Получен ответ от OpenAI:', content.substring(0, 200) + '...');
+
     try {
       const result = JSON.parse(content) as BiologicalAgeResult;
+      
+      // Валидация результата
+      if (typeof result.biologicalAge !== 'number' || result.biologicalAge < 0) {
+        throw new Error('Некорректный биологический возраст в ответе');
+      }
+      
       return result;
     } catch (parseError) {
       console.error('Ошибка парсинга JSON:', parseError);
@@ -148,6 +158,18 @@ ${data.biomarkers.map(b => `
     }
   } catch (error) {
     console.error('Ошибка при обращении к OpenAI:', error);
-    throw new Error('Не удалось получить анализ от ИИ. Проверьте подключение к интернету и настройки API.');
+    
+    // Более детальная информация об ошибке
+    if (error instanceof Error) {
+      if (error.message.includes('API key')) {
+        throw new Error('Ошибка API ключа OpenAI. Проверьте настройки в переменных окружения.');
+      } else if (error.message.includes('quota')) {
+        throw new Error('Превышен лимит запросов к OpenAI. Попробуйте позже.');
+      } else if (error.message.includes('network')) {
+        throw new Error('Проблема с подключением к интернету. Проверьте соединение.');
+      }
+    }
+    
+    throw new Error('Не удалось получить анализ от ИИ. Попробуйте еще раз через несколько минут.');
   }
 }
