@@ -4,6 +4,7 @@ import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { isDevelopmentMode } from "@/utils/devMode";
 import { HealthProfileData } from "@/types/healthProfile";
+import { toast } from "sonner";
 
 export const useHealthProfile = () => {
   const { user } = useSmartAuth();
@@ -128,6 +129,7 @@ export const useHealthProfile = () => {
   const saveHealthProfile = async () => {
     if (!user || !healthProfile) {
       console.error('Cannot save: missing user or health profile data');
+      toast.error('Ошибка: отсутствуют данные пользователя или профиля');
       return false;
     }
 
@@ -150,14 +152,17 @@ export const useHealthProfile = () => {
 
       if (error) {
         console.error('Error saving health profile:', error);
+        toast.error('Ошибка при сохранении профиля здоровья');
         return false;
       }
 
       setEditMode(false);
+      toast.success('Профиль здоровья успешно сохранен');
       console.log('Health profile saved successfully');
       return true;
     } catch (error) {
       console.error('Error saving health profile:', error);
+      toast.error('Произошла ошибка при сохранении профиля');
       return false;
     }
   };
