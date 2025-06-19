@@ -34,7 +34,7 @@ export const useAnalyticsData = () => {
       
       // Факторы здоровья
       if (healthProfile.age && healthProfile.age < 40) healthScore += 10;
-      if (healthProfile.physicalActivity === 'high') healthScore += 15;
+      if (healthProfile.physicalActivity === 'very_active') healthScore += 15;
       else if (healthProfile.physicalActivity === 'moderate') healthScore += 10;
       
       if (healthProfile.sleepHours && healthProfile.sleepHours >= 7 && healthProfile.sleepHours <= 9) {
