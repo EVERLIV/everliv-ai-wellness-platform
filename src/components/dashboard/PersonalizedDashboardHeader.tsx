@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { useLabAnalysesData } from "@/hooks/useLabAnalysesData";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { usePersonalRecommendations } from "@/hooks/usePersonalRecommendations";
 import { 
   User, 
   Activity, 
@@ -30,6 +31,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
   const { healthProfile, isLoading: profileLoading } = useHealthProfile();
   const { statistics, loadingHistory: analysesLoading } = useLabAnalysesData();
   const { analytics, isLoading: analyticsLoading } = useAnalyticsData();
+  const { getCompletionPercentage } = usePersonalRecommendations();
 
   const isProfileComplete = !profileLoading && healthProfile && Object.keys(healthProfile).length > 5;
   const hasAnalyses = statistics.totalAnalyses > 0;
@@ -43,16 +45,26 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
   };
 
   const profileCompleteness = calculateProfileCompleteness();
-  const biologicalAge = analytics?.healthScore ? Math.round(35 + (100 - analytics.healthScore) * 0.3) : null;
+  const biologicalAge = analytics?.biologicalAge || null;
   const healthStatus = analytics?.riskLevel || 'не определен';
+  const recommendationsPercentage = getCompletionPercentage();
 
   // Определяем цвет статуса здоровья
   const getHealthStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'низкий': return 'text-green-600 bg-green-50 border-green-200';
-      case 'средний': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'высокий': return 'text-red-600 bg-red-50 border-red-200';
+      case 'low': return 'text-green-600 bg-green-50 border-green-200';
+      case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      case 'high': return 'text-red-600 bg-red-50 border-red-200';
       default: return 'text-gray-600 bg-gray-50 border-gray-200';
+    }
+  };
+
+  const getHealthStatusText = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'low': return 'Низкий риск';
+      case 'medium': return 'Средний риск';
+      case 'high': return 'Высокий риск';
+      default: return 'Не определен';
     }
   };
 
@@ -73,7 +85,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
               </div>
             </div>
             <Badge className={`px-3 py-1 ${getHealthStatusColor(healthStatus)}`}>
-              {healthStatus === 'не определен' ? 'Статус не определен' : `Риск: ${healthStatus}`}
+              {getHealthStatusText(healthStatus)}
             </Badge>
           </div>
           
@@ -124,10 +136,10 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
               variant="outline" 
               size="sm" 
               className="w-full justify-start bg-white hover:bg-green-50"
-              onClick={() => navigate('/analytics')}
+              onClick={() => navigate('/goals')}
             >
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Посмотреть аналитику
+              <Target className="h-4 w-4 mr-2" />
+              Цели и рекомендации
               <ChevronRight className="h-4 w-4 ml-auto" />
             </Button>
           </div>
@@ -219,11 +231,11 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
       <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <Activity className="h-5 w-5 text-purple-600" />
-            <span className="text-xs font-medium text-purple-800">0%</span>
+            <Target className="h-5 w-5 text-purple-600" />
+            <span className="text-xs font-medium text-purple-800">{recommendationsPercentage}%</span>
           </div>
           <h4 className="font-semibold text-gray-900 text-sm mb-1">Рекомендации</h4>
-          <Progress value={0} className="h-1 mb-2" />
+          <Progress value={recommendationsPercentage} className="h-1 mb-2" />
           <p className="text-xs text-gray-600">Выполнено советов</p>
         </CardContent>
       </Card>
