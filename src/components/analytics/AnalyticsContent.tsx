@@ -1,6 +1,7 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import HealthOverviewCards from "./HealthOverviewCards";
@@ -43,6 +44,7 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
   isGenerating
 }) => {
   const { user } = useAuth();
+  const { healthProfile } = useHealthProfile();
   const [doctorQuestion, setDoctorQuestion] = useState("");
   const [doctorResponse, setDoctorResponse] = useState("");
   const [isProcessingQuestion, setIsProcessingQuestion] = useState(false);
@@ -105,6 +107,7 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
 
       <DetailedHealthRecommendations
         analytics={analytics}
+        healthProfile={healthProfile}
       />
 
       <AnalyticsSummary 

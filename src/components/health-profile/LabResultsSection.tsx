@@ -4,7 +4,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TestTube, Microscope } from "lucide-react";
-import { LabResults } from "@/types/healthProfile";
+
+interface LabResults {
+  [key: string]: number | string | undefined;
+  hemoglobin?: number;
+  erythrocytes?: number;
+  hematocrit?: number;
+  mcv?: number;
+  mchc?: number;
+  platelets?: number;
+  serumIron?: number;
+  cholesterol?: number;
+  bloodSugar?: number;
+  ldh?: number;
+  testDate?: string;
+  lastUpdated?: string;
+}
 
 interface LabResultsSectionProps {
   labResults: LabResults;

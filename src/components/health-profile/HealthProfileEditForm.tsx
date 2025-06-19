@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { User, Activity, Brain, Heart, Moon, FileText, Settings } from "lucide-react";
+import { User, Activity, Brain, Heart, Moon, FileText, Settings, Save, X, Apple, Stethoscope } from "lucide-react";
 import { HealthProfileData } from "@/types/healthProfile";
 import PersonalInfoSection from "./PersonalInfoSection";
 import PhysicalHealthSection from "./PhysicalHealthSection";
@@ -12,6 +13,7 @@ import SleepSection from "./SleepSection";
 import LabResultsSection from "./LabResultsSection";
 import RecommendationSettingsSection from "./RecommendationSettingsSection";
 import NavigationControls from "./NavigationControls";
+import MedicalHistorySection from "./MedicalHistorySection";
 
 interface HealthProfileEditFormProps {
   healthProfile: HealthProfileData;
@@ -26,28 +28,6 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
   onCancel,
   onChange
 }) => {
-  const handleArrayChange = (field: keyof HealthProfileData, value: string, checked: boolean) => {
-    const currentArray = healthProfile[field] as string[];
-    if (checked) {
-      onChange({ [field]: [...currentArray, value] });
-    } else {
-      onChange({ [field]: currentArray.filter(item => item !== value) });
-    }
-  };
-
-  const addToArray = (field: keyof HealthProfileData, value: string) => {
-    if (!value.trim()) return;
-    const currentArray = healthProfile[field] as string[];
-    if (!currentArray.includes(value)) {
-      onChange({ [field]: [...currentArray, value] });
-    }
-  };
-
-  const removeFromArray = (field: keyof HealthProfileData, value: string) => {
-    const currentArray = healthProfile[field] as string[];
-    onChange({ [field]: currentArray.filter(item => item !== value) });
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -74,7 +54,7 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
         </CardHeader>
         <CardContent>
           <PersonalInfoSection
-            healthProfile={healthProfile}
+            data={healthProfile}
             onChange={onChange}
           />
         </CardContent>
@@ -90,7 +70,7 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
         </CardHeader>
         <CardContent>
           <PhysicalHealthSection
-            healthProfile={healthProfile}
+            data={healthProfile}
             onChange={onChange}
           />
         </CardContent>
@@ -106,7 +86,7 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
         </CardHeader>
         <CardContent>
           <MentalHealthSection
-            healthProfile={healthProfile}
+            data={healthProfile}
             onChange={onChange}
           />
         </CardContent>
@@ -122,7 +102,7 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
         </CardHeader>
         <CardContent>
           <LifestyleSection
-            healthProfile={healthProfile}
+            data={healthProfile}
             onChange={onChange}
           />
         </CardContent>
@@ -138,7 +118,7 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
         </CardHeader>
         <CardContent>
           <SleepSection
-            healthProfile={healthProfile}
+            data={healthProfile}
             onChange={onChange}
           />
         </CardContent>
@@ -186,7 +166,7 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
         </CardHeader>
         <CardContent>
           <RecommendationSettingsSection
-            healthProfile={healthProfile}
+            data={healthProfile}
             onChange={onChange}
           />
         </CardContent>
@@ -202,7 +182,6 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
         </CardHeader>
         <CardContent>
           <NavigationControls
-            healthProfile={healthProfile}
             onSave={onSave}
             onCancel={onCancel}
           />

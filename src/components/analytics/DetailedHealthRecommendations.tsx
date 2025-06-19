@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Activity, AlertTriangle, CheckCircle2, Flame, HeartCog, LayoutDashboard, Stethoscope, TestTube } from "lucide-react";
+import { Activity, AlertTriangle, CheckCircle2, Flame, Heart, LayoutDashboard, Stethoscope, TestTube } from "lucide-react";
 import { generateDetailedRecommendations } from "@/utils/detailedRecommendationsGenerator";
 import { DetailedRecommendationsResult } from "@/types/detailedRecommendations";
 import { HealthProfileData } from "@/types/healthProfile";

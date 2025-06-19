@@ -52,8 +52,8 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <HealthProfileValueDisplay value={healthProfile.exerciseFrequency} label="Частота тренировок (раз в неделю)" />
-          <HealthProfileValueDisplay value={healthProfile.physicalActivity} label="Уровень активности" />
-          <HealthProfileValueDisplay value={healthProfile.fitnessLevel} label="Уровень подготовки" />
+          <HealthProfileValueDisplay value={healthProfile.physicalActivity || 'Не указано'} label="Уровень активности" />
+          <HealthProfileValueDisplay value={healthProfile.fitnessLevel || 'Не указан'} label="Уровень подготовки" />
         </CardContent>
       </Card>
 
@@ -68,7 +68,7 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <HealthProfileValueDisplay value={healthProfile.stressLevel} label="Уровень стресса (1-10)" />
           <HealthProfileValueDisplay value={healthProfile.anxietyLevel} label="Уровень тревожности (1-10)" />
-          <HealthProfileValueDisplay value={healthProfile.mentalHealthSupport} label="Поддержка психического здоровья" />
+          <HealthProfileValueDisplay value={healthProfile.mentalHealthSupport || 'Не указано'} label="Поддержка психического здоровья" />
         </CardContent>
       </Card>
 
@@ -82,8 +82,8 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <HealthProfileValueDisplay value={healthProfile.sleepHours} label="Часы сна" />
-          <HealthProfileValueDisplay value={healthProfile.sleepQuality} label="Качество сна" />
-          <HealthProfileValueDisplay value={healthProfile.sleepIssues} label="Проблемы со сном" type="array" />
+          <HealthProfileValueDisplay value={healthProfile.sleepQuality || 'Не указано'} label="Качество сна" />
+          <HealthProfileValueDisplay value={healthProfile.sleepIssues || []} label="Проблемы со сном" type="array" />
         </CardContent>
       </Card>
 
@@ -98,8 +98,8 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
         <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <HealthProfileValueDisplay value={healthProfile.waterIntake} label="Потребление воды (стаканов)" />
           <HealthProfileValueDisplay value={healthProfile.caffeineIntake} label="Кофеин (чашек)" />
-          <HealthProfileValueDisplay value={healthProfile.smokingStatus} label="Курение" />
-          <HealthProfileValueDisplay value={healthProfile.alcoholConsumption} label="Алкоголь" />
+          <HealthProfileValueDisplay value={healthProfile.smokingStatus || 'Не указано'} label="Курение" />
+          <HealthProfileValueDisplay value={healthProfile.alcoholConsumption || 'Не указано'} label="Алкоголь" />
         </CardContent>
       </Card>
 
@@ -191,11 +191,11 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
           <CardTitle>Медицинская история</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <HealthProfileValueDisplay value={healthProfile.chronicConditions} label="Хронические заболевания" type="array" />
-          <HealthProfileValueDisplay value={healthProfile.allergies} label="Аллергии" type="array" />
-          <HealthProfileValueDisplay value={healthProfile.medications} label="Принимаемые лекарства" type="array" />
-          <HealthProfileValueDisplay value={healthProfile.familyHistory} label="Семейный анамнез" type="array" />
-          <HealthProfileValueDisplay value={healthProfile.lastCheckup} label="Последний осмотр врача" />
+          <HealthProfileValueDisplay value={healthProfile.chronicConditions || []} label="Хронические заболевания" type="array" />
+          <HealthProfileValueDisplay value={healthProfile.allergies || []} label="Аллергии" type="array" />
+          <HealthProfileValueDisplay value={healthProfile.medications || []} label="Принимаемые лекарства" type="array" />
+          <HealthProfileValueDisplay value={healthProfile.familyHistory || []} label="Семейный анамнез" type="array" />
+          <HealthProfileValueDisplay value={healthProfile.lastCheckup || 'Не указано'} label="Последний осмотр врача" />
         </CardContent>
       </Card>
     </div>
