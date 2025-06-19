@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { FEATURES } from "@/constants/subscription-features";
-import { analyzeMedicalTestWithAI, Me calAnalysisResults } from "@/services/ai/medical-analysis";
+import { analyzeMedicalTestWithAI, MedicalAnalysisResults } from "@/services/ai/medical-analysis";
 import { checkUsageLimit, incrementUsage } from "@/services/usage-tracking-service";
 import { sendAnalysisResultsEmail } from "@/services/email-service";
 import { supabase } from "@/integrations/supabase/client";
