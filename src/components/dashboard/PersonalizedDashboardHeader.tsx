@@ -28,7 +28,7 @@ interface PersonalizedDashboardHeaderProps {
 const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = ({ userName }) => {
   const navigate = useNavigate();
   const { healthProfile, isLoading: profileLoading } = useHealthProfile();
-  const { statistics, isLoading: analysesLoading } = useLabAnalysesData();
+  const { statistics, loadingHistory: analysesLoading } = useLabAnalysesData();
   const { analytics, isLoading: analyticsLoading } = useAnalyticsData();
 
   const isProfileComplete = !profileLoading && healthProfile && Object.keys(healthProfile).length > 5;
