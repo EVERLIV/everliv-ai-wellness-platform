@@ -150,13 +150,25 @@ export const useHealthGoals = () => {
     });
   };
 
+  // Добавляем недостающие методы для совместимости
+  const activeGoal = goals.find(goal => goal.is_active) || null;
+  
+  const saveGoal = createGoal;
+  
+  const deactivateGoal = async (goalId: string) => {
+    return await updateGoal(goalId, { is_active: false });
+  };
+
   return {
     goals,
+    activeGoal,
     isLoading,
     createGoal,
     updateGoal,
     deleteGoal,
     updateProgress,
+    saveGoal,
+    deactivateGoal,
     loadGoals
   };
 };

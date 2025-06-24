@@ -18,13 +18,13 @@ import {
   Utensils,
   Moon
 } from 'lucide-react';
-import { useHealthGoals } from '@/hooks/useHealthGoals';
+import { useHealthGoals, HealthGoal } from '@/hooks/useHealthGoals';
 import HealthGoalDialog from './HealthGoalDialog';
 
 const HealthGoalsSection: React.FC = () => {
   const { goals, isLoading, updateProgress, deleteGoal } = useHealthGoals();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingGoal, setEditingGoal] = useState(null);
+  const [editingGoal, setEditingGoal] = useState<HealthGoal | null>(null);
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -46,7 +46,7 @@ const HealthGoalsSection: React.FC = () => {
     }
   };
 
-  const handleEdit = (goal: any) => {
+  const handleEdit = (goal: HealthGoal) => {
     setEditingGoal(goal);
     setDialogOpen(true);
   };

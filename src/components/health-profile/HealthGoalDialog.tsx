@@ -18,12 +18,12 @@ import {
   Heart,
   Plus
 } from 'lucide-react';
-import { useHealthGoals } from '@/hooks/useHealthGoals';
+import { useHealthGoals, HealthGoal } from '@/hooks/useHealthGoals';
 
 interface HealthGoalDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  editingGoal?: any;
+  editingGoal?: HealthGoal | null;
 }
 
 const PRESET_GOALS = [
@@ -32,7 +32,7 @@ const PRESET_GOALS = [
     title: 'Улучшить биологический возраст',
     description: 'Снизить биологический возраст на 2-3 года через комплексные изменения образа жизни',
     category: 'longevity',
-    priority: 'high',
+    priority: 'high' as const,
     target_value: 3,
     unit: 'года',
     icon: Heart
@@ -42,7 +42,7 @@ const PRESET_GOALS = [
     title: 'Снизить вес',
     description: 'Безопасное и устойчивое снижение веса',
     category: 'fitness',
-    priority: 'medium',
+    priority: 'medium' as const, 
     target_value: 5,
     unit: 'кг',
     icon: Activity
@@ -52,7 +52,7 @@ const PRESET_GOALS = [
     title: 'Улучшить качество сна',
     description: 'Нормализовать режим сна и повысить его качество',
     category: 'sleep',
-    priority: 'high',
+    priority: 'high' as const,
     target_value: 8,
     unit: 'часов',
     icon: Moon
@@ -62,7 +62,7 @@ const PRESET_GOALS = [
     title: 'Снизить уровень стресса',
     description: 'Изучить техники управления стрессом и применять их ежедневно',
     category: 'mental',
-    priority: 'medium',
+    priority: 'medium' as const,
     target_value: 3,
     unit: 'уровень',
     icon: Brain
@@ -72,7 +72,7 @@ const PRESET_GOALS = [
     title: 'Улучшить питание',
     description: 'Сбалансировать рацион и включить больше полезных продуктов',
     category: 'nutrition',
-    priority: 'medium',
+    priority: 'medium' as const,
     target_value: 80,
     unit: '%',
     icon: Utensils
@@ -91,10 +91,11 @@ const HealthGoalDialog: React.FC<HealthGoalDialogProps> = ({
     title: '',
     description: '',
     category: '',
-    priority: 'medium',
+    priority: 'medium' as 'low' | 'medium' | 'high',
     target_value: 0,
     unit: '',
     target_date: '',
+    start_date: new Date().toISOString().split('T')[0],
     is_custom: false,
     is_active: true,
     progress_percentage: 0
@@ -111,6 +112,7 @@ const HealthGoalDialog: React.FC<HealthGoalDialogProps> = ({
         target_value: editingGoal.target_value || 0,
         unit: editingGoal.unit || '',
         target_date: editingGoal.target_date || '',
+        start_date: editingGoal.start_date || new Date().toISOString().split('T')[0],
         is_custom: editingGoal.is_custom || false,
         is_active: editingGoal.is_active ?? true,
         progress_percentage: editingGoal.progress_percentage || 0
@@ -131,6 +133,7 @@ const HealthGoalDialog: React.FC<HealthGoalDialogProps> = ({
       target_value: 0,
       unit: '',
       target_date: '',
+      start_date: new Date().toISOString().split('T')[0],
       is_custom: false,
       is_active: true,
       progress_percentage: 0
@@ -138,7 +141,7 @@ const HealthGoalDialog: React.FC<HealthGoalDialogProps> = ({
     setActiveTab('preset');
   };
 
-  const handlePresetSelect = (preset: any) => {
+  const handlePresetSelect = (preset: typeof PRESET_GOALS[0]) => {
     setFormData({
       ...formData,
       goal_type: preset.goal_type,
@@ -159,7 +162,7 @@ const HealthGoalDialog: React.FC<HealthGoalDialogProps> = ({
     let success = false;
     
     if (editingGoal) {
-      success = await updateGoal(editingGoal.id, formData);
+      success = await updateGoal(editingGoal.id!, formData);
     } else {
       success = await createGoal(formData);
     }
@@ -287,7 +290,7 @@ const HealthGoalDialog: React.FC<HealthGoalDialogProps> = ({
                   <Label htmlFor="priority">Приоритет</Label>
                   <Select 
                     value={formData.priority} 
-                    onValueChange={(value: any) => setFormData({ ...formData, priority: value })}
+                    onValueChange={(value: 'low' | 'medium' | 'high') => setFormData({ ...formData, priority: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
