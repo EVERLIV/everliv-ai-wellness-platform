@@ -51,66 +51,153 @@ const Dashboard = () => {
   console.log('🔧 Dashboard: Rendering with user:', userName);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-white">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <div className="pt-16">
-        <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl space-y-8">
-          {/* Персонализированный заголовок с улучшенным дизайном */}
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-100/40 to-indigo-100/40 rounded-3xl blur-xl"></div>
-            <div className="relative">
-              <PersonalizedDashboardHeader userName={userName} />
-            </div>
-          </div>
-          
-          {/* Умские подсказки с новым дизайном */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/20 shadow-xl shadow-blue-100/20 p-6">
-            <SmartTips 
-              healthProfile={healthProfile}
-              recentActivity={activities?.slice(0, 5)}
-              pendingTasks={[]}
-            />
-          </div>
-          
-          {/* Интерактивные графики здоровья */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <h2 className="text-2xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  Визуализация данных о здоровье
-                </h2>
-                <p className="text-sm text-gray-500">Отслеживайте ключевые показатели в реальном времени</p>
+      <div className="pt-16 flex-1">
+        <div className="container mx-auto px-3 py-3 max-w-[1400px]">
+          {/* Компактная сетка дашборда */}
+          <div className="grid grid-cols-12 gap-3 h-full">
+            {/* Левая колонка - основная информация */}
+            <div className="col-span-12 lg:col-span-8 space-y-3">
+              {/* Персонализированный заголовок */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
+                <PersonalizedDashboardHeader userName={userName} />
               </div>
-              <div className="hidden sm:flex items-center space-x-2 text-xs text-gray-400 bg-white/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-gray-200/50">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span>Данные обновлены</span>
+              
+              {/* Графики здоровья - компактно в две колонки */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    Показатели здоровья
+                  </h3>
+                  <DashboardHealthCharts />
+                </div>
+                
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                    Быстрые действия
+                  </h3>
+                  <DashboardQuickActions />
+                </div>
               </div>
-            </div>
-            
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-white/30 shadow-xl shadow-blue-100/10 overflow-hidden">
-              <div className="p-6">
-                <DashboardHealthCharts />
-              </div>
-            </div>
-          </div>
-          
-          {/* Основные функции с улучшенным дизайном */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <h2 className="text-2xl font-bold text-gray-900 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                  Быстрые действия
-                </h2>
-                <p className="text-sm text-gray-500">Управляйте своим здоровьем одним кликом</p>
-              </div>
-              <div className="hidden sm:block text-xs text-gray-400 bg-emerald-50/50 px-3 py-1.5 rounded-full border border-emerald-200/50">
-                Персонализировано для вас
+              
+              {/* Умные подсказки - компактно */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  Персональные рекомендации
+                </h3>
+                <SmartTips 
+                  healthProfile={healthProfile}
+                  recentActivity={activities?.slice(0, 3)}
+                  pendingTasks={[]}
+                />
               </div>
             </div>
             
-            <div className="bg-gradient-to-br from-white/90 to-emerald-50/30 backdrop-blur-sm rounded-2xl border border-white/30 shadow-xl shadow-emerald-100/10 overflow-hidden">
-              <div className="p-6">
-                <DashboardQuickActions />
+            {/* Правая колонка - дополнительная информация */}
+            <div className="col-span-12 lg:col-span-4 space-y-3">
+              {/* Статистика сегодня */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                    Сегодня
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
+                  </span>
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <span className="text-xs text-gray-600">Анализы</span>
+                    <span className="text-sm font-medium text-gray-900">3 новых</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <span className="text-xs text-gray-600">Рекомендации</span>
+                    <span className="text-sm font-medium text-gray-900">5 активных</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <span className="text-xs text-gray-600">Прогресс</span>
+                    <span className="text-sm font-medium text-emerald-600">+12%</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Последняя активность */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  Последняя активность
+                </h3>
+                <div className="space-y-2">
+                  {activities?.slice(0, 4).map((activity, index) => (
+                    <div key={index} className="flex items-center justify-between text-xs">
+                      <span className="text-gray-600 truncate flex-1">{activity.description}</span>
+                      <span className="text-gray-400 ml-2">
+                        {new Date(activity.created_at).toLocaleTimeString('ru-RU', { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
+                      </span>
+                    </div>
+                  )) || (
+                    <div className="text-xs text-gray-500 italic">Нет активности</div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Быстрые метрики */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  Ключевые показатели
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center p-2 bg-red-50 rounded">
+                    <div className="text-lg font-bold text-red-600">72</div>
+                    <div className="text-xs text-gray-600">ЧСС</div>
+                  </div>
+                  <div className="text-center p-2 bg-blue-50 rounded">
+                    <div className="text-lg font-bold text-blue-600">120/80</div>
+                    <div className="text-xs text-gray-600">Давление</div>
+                  </div>
+                  <div className="text-center p-2 bg-green-50 rounded">
+                    <div className="text-lg font-bold text-green-600">98.6°</div>
+                    <div className="text-xs text-gray-600">Температура</div>
+                  </div>
+                  <div className="text-center p-2 bg-purple-50 rounded">
+                    <div className="text-lg font-bold text-purple-600">85</div>
+                    <div className="text-xs text-gray-600">Общий балл</div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Уведомления/Напоминания */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  Напоминания
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 p-2 bg-yellow-50 rounded text-xs">
+                    <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
+                    <span className="flex-1">Добавить анализы крови</span>
+                    <span className="text-yellow-600">Сегодня</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-blue-50 rounded text-xs">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                    <span className="flex-1">Обновить профиль здоровья</span>
+                    <span className="text-blue-600">Завтра</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-green-50 rounded text-xs">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <span className="flex-1">Проверить рекомендации</span>
+                    <span className="text-green-600">2 дня</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

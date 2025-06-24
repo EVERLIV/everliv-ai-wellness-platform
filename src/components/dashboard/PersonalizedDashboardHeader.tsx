@@ -17,16 +17,11 @@ import {
   Crown,
   CheckCircle,
   FileText,
-  Calendar
+  Calendar,
+  Activity,
+  Clock,
+  Sparkles
 } from "lucide-react";
-
-// Import the new components
-import WelcomeCard from "./header/WelcomeCard";
-import SubscriptionStatusCard from "./header/SubscriptionStatusCard";
-import HealthScoreCard from "./header/HealthScoreCard";
-import BiologicalAgeCard from "./header/BiologicalAgeCard";
-import QuickActionsCard from "./header/QuickActionsCard";
-import DisclaimerCard from "./header/DisclaimerCard";
 
 interface PersonalizedDashboardHeaderProps {
   userName: string;
@@ -56,21 +51,21 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
   });
   
   const currentDate = new Date().toLocaleDateString('ru-RU', {
-    weekday: 'long',
+    weekday: 'short',
     day: 'numeric',
-    month: 'long'
+    month: 'short'
   });
 
   const biologicalAge = analytics?.healthScore ? Math.round(35 + (100 - analytics.healthScore) * 0.3) : null;
   const healthStatus = analytics?.riskLevel || 'не определен';
-  const healthScore = analytics?.healthScore || null;
+  const healthScore = analytics?.healthScore || 85; // Демо значение
 
   const getHealthStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'низкий': return 'text-green-600 bg-green-50 border-green-200';
-      case 'средний': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'высокий': return 'text-red-600 bg-red-50 border-red-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      case 'низкий': return 'text-green-600 bg-green-50';
+      case 'средний': return 'text-yellow-600 bg-yellow-50';
+      case 'высокий': return 'text-red-600 bg-red-50';
+      default: return 'text-gray-600 bg-gray-50';
     }
   };
 
@@ -82,173 +77,168 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
     return 'text-red-600';
   };
 
-  const getSubscriptionIcon = () => {
-    if (isPremiumActive) return <Crown className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-600" />;
-    return <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-gray-600" />;
-  };
-
-  const getSubscriptionColor = () => {
-    if (isPremiumActive) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-    return 'text-gray-600 bg-gray-50 border-gray-200';
-  };
-
   // Render for users with filled profile
   const renderFilledProfile = () => (
-    <div className="space-y-6 mb-8">
-      <WelcomeCard
-        userName={userName}
-        healthStatus={healthStatus}
-        getGreeting={getGreeting}
-        currentDate={currentDate}
-        currentTime={currentTime}
-        getHealthStatusColor={getHealthStatusColor}
-      />
-      
-      <div className="p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-white/30">
-        <SubscriptionStatusCard
-          currentPlan={currentPlan}
-          getSubscriptionIcon={getSubscriptionIcon}
-          getSubscriptionColor={getSubscriptionColor}
-        />
+    <div className="space-y-3">
+      {/* Компактный приветственный блок */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
+              {userName.charAt(0).toUpperCase()}
+            </div>
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold text-gray-900">
+                {getGreeting()}, {userName}!
+              </h2>
+              <Sparkles className="h-4 w-4 text-yellow-500" />
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <Clock className="h-3 w-3" />
+              <span>{currentDate} • {currentTime}</span>
+            </div>
+          </div>
+        </div>
+        <div className={`px-3 py-1 text-xs font-medium rounded-full ${getHealthStatusColor(healthStatus)}`}>
+          {healthStatus === 'не определен' ? 'Анализируем' : `Риск: ${healthStatus}`}
+        </div>
       </div>
 
-      {healthScore && (
-        <HealthScoreCard
-          healthScore={healthScore}
-          getHealthScoreColor={getHealthScoreColor}
-        />
-      )}
-      
-      {biologicalAge && (
-        <BiologicalAgeCard biologicalAge={biologicalAge} />
-      )}
-      
-      <DisclaimerCard />
+      {/* Компактные ключевые метрики */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="bg-gradient-to-r from-red-50 to-pink-50 p-3 rounded-lg border border-red-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-lg font-bold text-red-600">{healthScore}</div>
+              <div className="text-xs text-gray-600">Общий балл</div>
+            </div>
+            <Heart className="h-5 w-5 text-red-500" />
+          </div>
+          <Progress value={healthScore} className="h-1.5 mt-2" />
+        </div>
 
-      {/* Mobile quick actions */}
-      <div className="sm:hidden">
-        <QuickActionsCard isMobile={true} />
+        {biologicalAge && (
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-3 rounded-lg border border-indigo-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-lg font-bold text-indigo-600">{biologicalAge}</div>
+                <div className="text-xs text-gray-600">Био возраст</div>
+              </div>
+              <Activity className="h-5 w-5 text-indigo-500" />
+            </div>
+            <div className="text-xs text-indigo-600 mt-1">лет</div>
+          </div>
+        )}
+
+        <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-3 rounded-lg border border-emerald-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-lg font-bold text-emerald-600">{statistics.totalAnalyses}</div>
+              <div className="text-xs text-gray-600">Анализы</div>
+            </div>
+            <FileText className="h-5 w-5 text-emerald-500" />
+          </div>
+          <div className="text-xs text-emerald-600 mt-1">загружено</div>
+        </div>
+
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border border-purple-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-lg font-bold text-purple-600">{isPremiumActive ? 'Premium' : 'Basic'}</div>
+              <div className="text-xs text-gray-600">План</div>
+            </div>
+            {isPremiumActive ? 
+              <Crown className="h-5 w-5 text-yellow-500" /> : 
+              <CheckCircle className="h-5 w-5 text-gray-500" />
+            }
+          </div>
+          <div className="text-xs text-purple-600 mt-1">активен</div>
+        </div>
       </div>
 
-      {/* Desktop quick actions */}
-      <div className="hidden sm:block">
-        <QuickActionsCard isMobile={false} />
+      {/* Компактные быстрые действия */}
+      <div className="grid grid-cols-2 gap-2">
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="w-full text-xs h-8"
+          onClick={() => navigate('/lab-analyses')}
+        >
+          <FileText className="h-3 w-3 mr-1" />
+          Добавить анализы
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full text-xs h-8"
+          onClick={() => navigate('/analytics')}
+        >
+          <TrendingUp className="h-3 w-3 mr-1" />
+          Аналитика
+        </Button>
       </div>
     </div>
   );
 
   // Render for new users
   const renderEmptyProfile = () => (
-    <Card className="mb-6 sm:mb-8 bg-gradient-to-br from-purple-50 to-pink-50 border-purple-100">
-      <CardContent className="p-6 sm:p-8 text-center">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-          <User className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+    <div className="text-center py-6">
+      <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <User className="h-8 w-8 text-white" />
+      </div>
+      <h2 className="text-xl font-bold text-gray-900 mb-2">Начните свой путь к здоровью!</h2>
+      <p className="text-sm text-gray-600 mb-4">
+        Заполните профиль здоровья для персональных рекомендаций
+      </p>
+      
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="text-center p-3 bg-purple-50 rounded-lg">
+          <Heart className="h-6 w-6 text-purple-600 mx-auto mb-1" />
+          <div className="text-xs text-gray-600">Анализ</div>
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">Начните свой путь к здоровью!</h2>
-        <p className="text-sm sm:text-base text-gray-600 mb-6 max-w-2xl mx-auto">
-          Заполните профиль здоровья, чтобы получить персональные рекомендации, 
-          отслеживать прогресс и улучшать свое самочувствие с помощью ИИ-анализа.
-        </p>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8 max-w-3xl mx-auto">
-          <div className="flex flex-col items-center p-3 sm:p-4 bg-white rounded-lg border border-purple-100">
-            <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 mb-2" />
-            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Персональный анализ</h3>
-            <p className="text-xs sm:text-sm text-gray-600">Получите индивидуальные рекомендации</p>
-          </div>
-          <div className="flex flex-col items-center p-3 sm:p-4 bg-white rounded-lg border border-purple-100">
-            <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 mb-2" />
-            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Отслеживание прогресса</h3>
-            <p className="text-xs sm:text-sm text-gray-600">Видите изменения в реальном времени</p>
-          </div>
-          <div className="flex flex-col items-center p-3 sm:p-4 bg-white rounded-lg border border-purple-100">
-            <Target className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 mb-2" />
-            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Достижение целей</h3>
-            <p className="text-xs sm:text-sm text-gray-600">Планы для улучшения здоровья</p>
-          </div>
+        <div className="text-center p-3 bg-purple-50 rounded-lg">
+          <TrendingUp className="h-6 w-6 text-purple-600 mx-auto mb-1" />
+          <div className="text-xs text-gray-600">Прогресс</div>
         </div>
-        
-        <Button 
-          size="lg" 
-          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 w-full sm:w-auto"
-          onClick={() => navigate('/health-profile')}
-        >
-          Заполнить профиль здоровья
-          <ChevronRight className="h-5 w-5 ml-2" />
-        </Button>
-      </CardContent>
-    </Card>
-  );
-
-  // Progress indicators
-  const renderProgressIndicators = () => (
-    <div className="grid grid-cols-2 gap-4 mb-8">
-      <Card className="bg-gradient-to-br from-emerald-50/80 to-green-100/50 border-0 shadow-lg shadow-emerald-100/30 backdrop-blur-sm">
-        <CardContent className="p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-              <FileText className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
-              {statistics.totalAnalyses}
-            </span>
-          </div>
-          <h4 className="font-bold text-gray-900 text-sm mb-2">Анализы загружены</h4>
-          <Progress 
-            value={Math.min(statistics.totalAnalyses * 20, 100)} 
-            className="h-2 mb-3 bg-emerald-100/50" 
-          />
-          <p className="text-xs text-gray-600">Результатов в системе</p>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-gradient-to-br from-orange-50/80 to-amber-100/50 border-0 shadow-lg shadow-orange-100/30 backdrop-blur-sm">
-        <CardContent className="p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Calendar className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-              0
-            </span>
-          </div>
-          <h4 className="font-bold text-gray-900 text-sm mb-2">Питание</h4>
-          <Progress value={0} className="h-2 mb-3 bg-orange-100/50" />
-          <p className="text-xs text-gray-600">Дней записей</p>
-        </CardContent>
-      </Card>
+        <div className="text-center p-3 bg-purple-50 rounded-lg">
+          <Target className="h-6 w-6 text-purple-600 mx-auto mb-1" />
+          <div className="text-xs text-gray-600">Цели</div>
+        </div>
+      </div>
+      
+      <Button 
+        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+        onClick={() => navigate('/health-profile')}
+      >
+        Заполнить профиль здоровья
+        <ChevronRight className="h-4 w-4 ml-1" />
+      </Button>
     </div>
   );
 
   if (profileLoading || analysesLoading || analyticsLoading) {
     return (
-      <div className="mb-6 sm:mb-8">
-        <Card className="animate-pulse">
-          <CardContent className="p-6 sm:p-8">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full"></div>
-              <div className="space-y-2 flex-1">
-                <div className="h-4 sm:h-6 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-3 sm:h-4 bg-gray-200 rounded w-1/2"></div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-20 sm:h-24 bg-gray-200 rounded"></div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      <div className="animate-pulse space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-gray-200 rounded-xl"></div>
+          <div className="space-y-2 flex-1">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-3">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="h-16 bg-gray-200 rounded-lg"></div>
+          ))}
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-0">
-      {isProfileComplete ? renderFilledProfile() : renderEmptyProfile()}
-      {renderProgressIndicators()}
-    </div>
-  );
+  return isProfileComplete ? renderFilledProfile() : renderEmptyProfile();
 };
 
 export default PersonalizedDashboardHeader;
