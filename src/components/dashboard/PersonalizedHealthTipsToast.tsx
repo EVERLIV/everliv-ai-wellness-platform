@@ -82,9 +82,6 @@ const PersonalizedHealthTipsToast: React.FC = () => {
           hover:scale-105 cursor-pointer
           animate-in slide-in-from-right-full
         `}
-        style={{
-          animation: isVisible ? 'slideInRight 0.3s ease-out' : 'slideOutRight 0.3s ease-in'
-        }}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1">
@@ -115,30 +112,6 @@ const PersonalizedHealthTipsToast: React.FC = () => {
           </button>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes slideInRight {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        
-        @keyframes slideOutRight {
-          from {
-            transform: translateX(0);
-            opacity: 1;
-          }
-          to {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-        }
-      `}</style>
     </div>
   );
 };
