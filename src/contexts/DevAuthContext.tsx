@@ -17,6 +17,53 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
     if (isDevelopmentMode()) {
       console.log('🔧 Development mode: Enhanced dev features available');
       
+      // Автоматически создаем dev пользователя
+      const autoCreateDevUser = () => {
+        console.log('🔧 Auto-creating dev user...');
+        
+        const mockDevUser: User = {
+          id: 'dev-user-12345',
+          aud: 'authenticated',
+          role: 'authenticated',
+          email: 'dev@local.test',
+          email_confirmed_at: new Date().toISOString(),
+          phone: '',
+          confirmed_at: new Date().toISOString(),
+          last_sign_in_at: new Date().toISOString(),
+          app_metadata: {
+            provider: 'dev',
+            providers: ['dev']
+          },
+          user_metadata: {
+            full_name: 'Dev User',
+            nickname: 'DevUser'
+          },
+          identities: [],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
+        const mockSession: Session = {
+          access_token: 'dev-access-token-' + Date.now(),
+          refresh_token: 'dev-refresh-token-' + Date.now(),
+          expires_in: 3600,
+          expires_at: Math.floor(Date.now() / 1000) + 3600,
+          token_type: 'bearer',
+          user: mockDevUser
+        };
+
+        // Сохраняем сессию в localStorage для персистентности
+        localStorage.setItem('dev-auth-session', JSON.stringify(mockSession));
+        
+        setUser(mockDevUser);
+        setSession(mockSession);
+        
+        console.log('🔧 Dev user auto-created:', {
+          user: mockDevUser.email,
+          id: mockDevUser.id
+        });
+      };
+
       // Проверяем, есть ли сохраненная dev сессия
       const savedDevSession = localStorage.getItem('dev-auth-session');
       if (savedDevSession) {
@@ -28,71 +75,21 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
         } catch (error) {
           console.error('🔧 Error restoring dev session:', error);
           localStorage.removeItem('dev-auth-session');
+          autoCreateDevUser();
         }
+      } else {
+        // Если нет сохраненной сессии, создаем новую
+        autoCreateDevUser();
       }
     }
     
     setIsLoading(false);
   }, []);
 
-  // Функция для быстрого входа как администратор (только для dev)
-  const devAdminLogin = async () => {
-    if (!isDevelopmentMode()) {
-      throw new Error('Dev admin login only available in development mode');
-    }
-    
-    console.log('🔧 Creating dev admin user...');
-    
-    // Создаем фиктивного администратора для разработки
-    const mockAdminUser: User = {
-      id: 'dev-admin-12345',
-      aud: 'authenticated',
-      role: 'authenticated',
-      email: 'admin@dev.local',
-      email_confirmed_at: new Date().toISOString(),
-      phone: '',
-      confirmed_at: new Date().toISOString(),
-      last_sign_in_at: new Date().toISOString(),
-      app_metadata: {
-        provider: 'dev',
-        providers: ['dev']
-      },
-      user_metadata: {
-        full_name: 'Dev Admin',
-        nickname: 'DevAdmin',
-        role: 'admin'
-      },
-      identities: [],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
-
-    const mockSession: Session = {
-      access_token: 'dev-access-token-' + Date.now(),
-      refresh_token: 'dev-refresh-token-' + Date.now(),
-      expires_in: 3600,
-      expires_at: Math.floor(Date.now() / 1000) + 3600,
-      token_type: 'bearer',
-      user: mockAdminUser
-    };
-
-    // Сохраняем сессию в localStorage для персистентности
-    localStorage.setItem('dev-auth-session', JSON.stringify(mockSession));
-    
-    setUser(mockAdminUser);
-    setSession(mockSession);
-    
-    console.log('🔧 Dev admin logged in successfully:', {
-      user: mockAdminUser.email,
-      id: mockAdminUser.id,
-      nickname: mockAdminUser.user_metadata?.nickname
-    });
-  };
-
   const signInWithMagicLink = async (email: string) => {
     if (isDevelopmentMode()) {
       console.log('🔧 Dev mode: Magic link login for', email);
-      await devAdminLogin();
+      // В dev режиме сразу логиним пользователя
       return;
     }
     throw new Error('Use production authentication context');
@@ -101,7 +98,6 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
   const signUpWithMagicLink = async (email: string, userData: { nickname: string }) => {
     if (isDevelopmentMode()) {
       console.log('🔧 Dev mode: Signup for', email, userData);
-      await devAdminLogin();
       return;
     }
     throw new Error('Use production authentication context');

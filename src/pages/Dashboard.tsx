@@ -9,31 +9,46 @@ import SmartTips from "@/components/dashboard/SmartTips";
 import MinimalFooter from "@/components/MinimalFooter";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
+import { isDevelopmentMode } from "@/utils/devMode";
 
 const Dashboard = () => {
-  const { user } = useSmartAuth();
+  const { user, isLoading } = useSmartAuth();
   const { healthProfile } = useHealthProfile();
   const { activities } = useActivityFeed();
   const [isLoaded, setIsLoaded] = useState(false);
+  const isDevMode = isDevelopmentMode();
+
+  console.log('🔧 Dashboard: Auth state check', {
+    user: user?.email,
+    isLoading,
+    isDevMode,
+    hasUser: !!user
+  });
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
 
-  if (!isLoaded || !user) {
+  // В dev режиме не показываем загрузку так долго
+  if (!isLoaded || (isLoading && !isDevMode)) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-white">
         <div className="flex-grow flex items-center justify-center">
           <div className="flex flex-col items-center space-y-4">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary shadow-lg"></div>
-            <p className="text-gray-500 font-medium">Загрузка панели управления...</p>
+            <p className="text-gray-500 font-medium">
+              {isDevMode ? 'Инициализация dev режима...' : 'Загрузка панели управления...'}
+            </p>
           </div>
         </div>
       </div>
     );
   }
 
-  const userName = user?.user_metadata?.full_name || "Пользователь";
+  // В dev режиме создаем фиктивного пользователя если его нет
+  const userName = user?.user_metadata?.full_name || user?.user_metadata?.nickname || "Пользователь";
+
+  console.log('🔧 Dashboard: Rendering with user:', userName);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-white">
