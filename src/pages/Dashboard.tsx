@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
 import Header from "@/components/Header";
 import PersonalizedDashboardHeader from "@/components/dashboard/PersonalizedDashboardHeader";
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";
 import DashboardHealthCharts from "@/components/dashboard/DashboardHealthCharts";
-import SmartTips from "@/components/dashboard/SmartTips";
+import PersonalizedHealthTips from "@/components/dashboard/PersonalizedHealthTips";
 import MinimalFooter from "@/components/MinimalFooter";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
@@ -301,12 +300,8 @@ const Dashboard = () => {
         </div>
       </div>
       
-      {/* Умные подсказки как toast уведомления */}
-      <SmartTips 
-        healthProfile={healthProfile}
-        recentActivity={activities?.slice(0, 3)}
-        pendingTasks={[]}
-      />
+      {/* Персонализированные подсказки по здоровью */}
+      <PersonalizedHealthTips />
       
       <MinimalFooter />
     </div>
