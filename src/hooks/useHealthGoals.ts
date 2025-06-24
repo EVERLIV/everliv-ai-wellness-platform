@@ -1,30 +1,32 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from './useSmartAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export interface HealthGoal {
   id?: string;
   user_id: string;
-  target_weight?: number;
-  target_steps: number;
-  target_exercise_minutes: number;
-  target_sleep_hours: number;
-  target_water_intake: number;
-  target_stress_level: number;
-  goal_type: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  goal_type: string;
+  title: string;
+  description?: string;
+  target_value?: number;
+  current_value?: number;
+  unit?: string;
+  category: string;
+  priority: 'low' | 'medium' | 'high';
   start_date: string;
-  end_date?: string;
+  target_date?: string;
   is_active: boolean;
+  is_custom: boolean;
+  progress_percentage: number;
   created_at?: string;
   updated_at?: string;
 }
 
 export const useHealthGoals = () => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const [goals, setGoals] = useState<HealthGoal[]>([]);
-  const [activeGoal, setActiveGoal] = useState<HealthGoal | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -45,78 +47,116 @@ export const useHealthGoals = () => {
 
       if (error) throw error;
       
-      // Type assertion для приведения данных из Supabase к нашему типу
-      const typedGoals = (data || []) as HealthGoal[];
-      setGoals(typedGoals);
-      const active = typedGoals.find(goal => goal.is_active);
-      setActiveGoal(active || null);
+      setGoals(data || []);
     } catch (error) {
-      console.error('Error loading goals:', error);
+      console.error('Error loading health goals:', error);
       toast.error('Ошибка загрузки целей');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const saveGoal = async (goalData: Partial<HealthGoal>) => {
+  const createGoal = async (goalData: Omit<HealthGoal, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (!user) return false;
 
     try {
-      // Деактивируем все текущие цели если создаем новую активную
-      if (goalData.is_active) {
-        await supabase
-          .from('user_health_goals')
-          .update({ is_active: false })
-          .eq('user_id', user.id);
-      }
-
-      const dataToSave = {
-        user_id: user.id,
-        ...goalData,
-        updated_at: new Date().toISOString()
-      };
-
       const { data, error } = await supabase
         .from('user_health_goals')
-        .upsert(dataToSave)
+        .insert({
+          user_id: user.id,
+          ...goalData,
+          start_date: new Date().toISOString().split('T')[0],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
         .select()
         .single();
 
       if (error) throw error;
       
-      await loadGoals();
-      toast.success('Цель сохранена');
+      setGoals(prev => [data, ...prev]);
+      toast.success('Цель создана успешно');
       return true;
     } catch (error) {
-      console.error('Error saving goal:', error);
-      toast.error('Ошибка сохранения цели');
+      console.error('Error creating goal:', error);
+      toast.error('Ошибка создания цели');
       return false;
     }
   };
 
-  const deactivateGoal = async (goalId: string) => {
+  const updateGoal = async (goalId: string, updates: Partial<HealthGoal>) => {
+    if (!user) return false;
+
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('user_health_goals')
-        .update({ is_active: false })
-        .eq('id', goalId);
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', goalId)
+        .eq('user_id', user.id)
+        .select()
+        .single();
 
       if (error) throw error;
       
-      await loadGoals();
-      toast.success('Цель деактивирована');
+      setGoals(prev => prev.map(goal => 
+        goal.id === goalId ? { ...goal, ...data } : goal
+      ));
+      toast.success('Цель обновлена');
+      return true;
     } catch (error) {
-      console.error('Error deactivating goal:', error);
-      toast.error('Ошибка деактивации цели');
+      console.error('Error updating goal:', error);
+      toast.error('Ошибка обновления цели');
+      return false;
     }
+  };
+
+  const deleteGoal = async (goalId: string) => {
+    if (!user) return false;
+
+    try {
+      const { error } = await supabase
+        .from('user_health_goals')
+        .delete()
+        .eq('id', goalId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      
+      setGoals(prev => prev.filter(goal => goal.id !== goalId));
+      toast.success('Цель удалена');
+      return true;
+    } catch (error) {
+      console.error('Error deleting goal:', error);
+      toast.error('Ошибка удаления цели');
+      return false;
+    }
+  };
+
+  const updateProgress = async (goalId: string, currentValue: number) => {
+    if (!user) return false;
+
+    const goal = goals.find(g => g.id === goalId);
+    if (!goal) return false;
+
+    const progressPercentage = goal.target_value ? 
+      Math.min(100, Math.round((currentValue / goal.target_value) * 100)) : 0;
+
+    return await updateGoal(goalId, { 
+      current_value: currentValue, 
+      progress_percentage: progressPercentage 
+    });
   };
 
   return {
     goals,
-    activeGoal,
     isLoading,
-    saveGoal,
-    deactivateGoal,
+    createGoal,
+    updateGoal,
+    deleteGoal,
+    updateProgress,
     loadGoals
   };
 };

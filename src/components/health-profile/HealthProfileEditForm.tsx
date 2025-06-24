@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { User, Activity, Brain, Heart, Moon, FileText, Settings, Save, X, Apple, Stethoscope } from "lucide-react";
+import { User, Activity, Brain, Heart, Moon, FileText, Settings, Save, X, Apple, Stethoscope, Target } from "lucide-react";
 import { HealthProfileData } from "@/types/healthProfile";
 import PersonalInfoSection from "./PersonalInfoSection";
 import PhysicalHealthSection from "./PhysicalHealthSection";
@@ -14,6 +14,7 @@ import LabResultsSection from "./LabResultsSection";
 import RecommendationSettingsSection from "./RecommendationSettingsSection";
 import NavigationControls from "./NavigationControls";
 import MedicalHistorySection from "./MedicalHistorySection";
+import HealthGoalsSection from "./HealthGoalsSection";
 
 interface HealthProfileEditFormProps {
   healthProfile: HealthProfileData;
@@ -43,6 +44,19 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
           </Button>
         </div>
       </div>
+
+      {/* Цели здоровья */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-green-500" />
+            Цели здоровья
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <HealthGoalsSection />
+        </CardContent>
+      </Card>
 
       {/* Личная информация */}
       <Card>
