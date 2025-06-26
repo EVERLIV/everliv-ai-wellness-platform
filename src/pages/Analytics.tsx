@@ -4,6 +4,7 @@ import PageLayoutWithHeader from '@/components/PageLayoutWithHeader';
 import AnalyticsPageHeader from '@/components/analytics/AnalyticsPageHeader';
 import DetailedHealthRecommendations from '@/components/analytics/DetailedHealthRecommendations';
 import EnhancedAnalyticsRecommendations from '@/components/analytics/EnhancedAnalyticsRecommendations';
+import HealthOverviewHeader from '@/components/analytics/recommendations/HealthOverviewHeader';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,13 @@ const Analytics = () => {
   const { healthProfile } = useHealthProfile();
 
   const handleGenerateAnalytics = async () => {
+    console.log('🔄 Manual analytics refresh triggered');
     await generateAnalytics();
+  };
+
+  const handlePageRefresh = () => {
+    console.log('🔄 Page refresh triggered');
+    window.location.reload();
   };
 
   if (isLoading) {
@@ -163,6 +170,33 @@ const Analytics = () => {
       fullWidth
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
+        {/* Кнопка обновления страницы для актуальных данных */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-gray-900">Аналитика здоровья</h1>
+          <div className="flex gap-3">
+            <Button
+              onClick={handleGenerateAnalytics}
+              disabled={isGenerating}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+              Обновить аналитику
+            </Button>
+            <Button
+              onClick={handlePageRefresh}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Обновить данные
+            </Button>
+          </div>
+        </div>
+
+        {/* Обзор здоровья с актуальными данными биомаркеров */}
+        <HealthOverviewHeader analytics={analytics} />
+        
         {/* Новые улучшенные рекомендации */}
         <EnhancedAnalyticsRecommendations
           analytics={analytics}
