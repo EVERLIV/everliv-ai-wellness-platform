@@ -14,6 +14,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   console.log('🔒 ProtectedRoute check:', {
     user: !!user,
     userEmail: user?.email,
+    userId: user?.id,
     userNickname: user?.user_metadata?.nickname,
     isLoading,
     isDevMode,
@@ -21,8 +22,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     pathname: window.location.pathname
   });
 
-  // В dev режиме сокращаем время ожидания
-  if (isLoading && !isDevMode) {
+  // Показываем загрузку только если данные еще загружаются
+  if (isLoading) {
     console.log('🔒 Auth is loading...');
     return (
       <div className="h-screen flex justify-center items-center">
@@ -34,18 +35,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // В dev режиме, если нет пользователя, пытаемся создать dev пользователя
-  if (!user && isDevMode) {
-    console.log('🔒 Dev mode: No user found, but allowing access for development');
-    // В dev режиме позволяем доступ даже без пользователя
-    return <>{children}</>;
-  }
-
+  // Если нет пользователя, перенаправляем на страницу входа
   if (!user) {
     console.log('🔒 No user found, redirecting to login from:', window.location.pathname);
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
+  // Если пользователь есть, отображаем защищенный контент
   console.log('🔒 User authenticated, rendering children for:', user.email);
   return <>{children}</>;
 };

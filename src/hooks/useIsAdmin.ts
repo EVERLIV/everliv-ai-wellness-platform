@@ -17,8 +17,9 @@ export function useIsAdmin() {
         return;
       }
 
-      // В dev режиме автоматически предоставляем админ права
-      if (isDevelopmentMode() && user.id === 'dev-admin-12345') {
+      // В dev режиме автоматически предоставляем админ права для dev пользователя
+      if (isDevelopmentMode() && user.id === '00000000-0000-0000-0000-000000000001') {
+        console.log('🔧 Dev mode: Granting admin access to dev user');
         setIsAdmin(true);
         setIsLoading(false);
         return;

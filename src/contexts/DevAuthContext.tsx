@@ -17,15 +17,18 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
     if (isDevelopmentMode()) {
       console.log('🔧 Development mode: Enhanced dev features available');
       
-      // Автоматически создаем dev пользователя
+      // Автоматически создаем dev пользователя с правильным UUID
       const autoCreateDevUser = () => {
         console.log('🔧 Auto-creating dev user...');
         
+        // Используем фиксированный UUID для dev пользователя
+        const devUserId = '00000000-0000-0000-0000-000000000001';
+        
         const mockDevUser: User = {
-          id: 'dev-user-12345',
+          id: devUserId,
           aud: 'authenticated',
           role: 'authenticated',
-          email: 'dev@local.test',
+          email: 'admin@dev.local',
           email_confirmed_at: new Date().toISOString(),
           phone: '',
           confirmed_at: new Date().toISOString(),
@@ -35,8 +38,10 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
             providers: ['dev']
           },
           user_metadata: {
-            full_name: 'Dev User',
-            nickname: 'DevUser'
+            full_name: 'Dev Admin',
+            nickname: 'DevAdmin',
+            first_name: 'Dev',
+            last_name: 'Admin'
           },
           identities: [],
           created_at: new Date().toISOString(),
@@ -69,9 +74,17 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
       if (savedDevSession) {
         try {
           const parsedSession = JSON.parse(savedDevSession);
-          console.log('🔧 Restoring saved dev session:', parsedSession.user.email);
-          setUser(parsedSession.user);
-          setSession(parsedSession);
+          // Проверяем, что у сохраненной сессии правильный UUID
+          if (parsedSession.user && parsedSession.user.id === '00000000-0000-0000-0000-000000000001') {
+            console.log('🔧 Restoring saved dev session:', parsedSession.user.email);
+            setUser(parsedSession.user);
+            setSession(parsedSession);
+          } else {
+            // Если сессия устарела, создаем новую
+            console.log('🔧 Outdated dev session, creating new one');
+            localStorage.removeItem('dev-auth-session');
+            autoCreateDevUser();
+          }
         } catch (error) {
           console.error('🔧 Error restoring dev session:', error);
           localStorage.removeItem('dev-auth-session');

@@ -32,7 +32,7 @@ const DevModeIndicator = () => {
           🔧 Development Mode: Enhanced dev features enabled
           {user && (
             <span className="ml-2 font-medium">
-              | Logged in as: {user.user_metadata?.nickname || user.email}
+              | Logged in as: {user.user_metadata?.nickname || user.email} (ID: {user.id?.slice(0, 8)}...)
             </span>
           )}
         </span>
