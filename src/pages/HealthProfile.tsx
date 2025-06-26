@@ -92,26 +92,23 @@ const HealthProfile: React.FC = () => {
     );
   }
 
-  // Используем новый пошаговый интерфейс для редактирования
-  if (isEditMode) {
-    return (
-      <StepByStepHealthProfileForm
-        healthProfile={healthProfile}
-        onSave={handleSave}
-        onCancel={handleCancel}
-        onChange={updateHealthProfile}
-      />
-    );
-  }
-
   return (
     <PageLayoutWithHeader
       headerComponent={<HealthProfilePageHeader />}
     >
-      <HealthProfileDisplay 
-        healthProfile={healthProfile}
-        onEdit={handleEdit}
-      />
+      {isEditMode ? (
+        <StepByStepHealthProfileForm
+          healthProfile={healthProfile}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          onChange={updateHealthProfile}
+        />
+      ) : (
+        <HealthProfileDisplay 
+          healthProfile={healthProfile}
+          onEdit={handleEdit}
+        />
+      )}
     </PageLayoutWithHeader>
   );
 };

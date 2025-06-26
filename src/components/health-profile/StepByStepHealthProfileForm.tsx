@@ -10,13 +10,13 @@ import SleepSection from "./SleepSection";
 import LabResultsSection from "./LabResultsSection";
 import MedicalHistorySection from "./MedicalHistorySection";
 import HealthGoalsSection from "./HealthGoalsSection";
-import StepNavigation from "./StepNavigation";
 import StepContent from "./StepContent";
 import FormControls from "./FormControls";
 import MobileStepDots from "./MobileStepDots";
 import { StepConfig } from "./types";
-import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
-import HealthProfilePageHeader from "./HealthProfilePageHeader";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface StepByStepHealthProfileFormProps {
   healthProfile: HealthProfileData;
@@ -95,6 +95,7 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
   const currentStepData = steps[currentStep];
   const isLastStep = currentStep === steps.length - 1;
   const isFirstStep = currentStep === 0;
+  const progress = ((currentStep + 1) / steps.length) * 100;
 
   const handleNext = () => {
     if (!isLastStep) {
@@ -109,42 +110,56 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
   };
 
   return (
-    <PageLayoutWithHeader
-      headerComponent={<HealthProfilePageHeader />}
-      fullWidth={true}
-    >
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-        <StepNavigation
-          currentStep={currentStep}
-          totalSteps={steps.length}
-          onCancel={onCancel}
-        />
-
-        <StepContent
-          title={currentStepData.title}
-          subtitle={currentStepData.subtitle}
-          icon={currentStepData.icon}
-        >
-          {currentStepData.component}
-        </StepContent>
-
-        <div className="container mx-auto px-4 max-w-4xl">
-          <FormControls
-            isFirstStep={isFirstStep}
-            isLastStep={isLastStep}
-            onPrevious={handlePrevious}
-            onNext={handleNext}
-            onSave={onSave}
-          />
-
-          <MobileStepDots
-            currentStep={currentStep}
-            totalSteps={steps.length}
-            onStepClick={setCurrentStep}
-          />
+    <div className="space-y-6">
+      {/* Modern Progress Header */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Профиль здоровья</h2>
+            <p className="text-gray-600">Заполните информацию для персональных рекомендаций</p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onCancel} className="gap-2">
+            <X className="h-4 w-4" />
+            <span className="hidden sm:inline">Отмена</span>
+          </Button>
+        </div>
+        
+        {/* Progress bar */}
+        <div className="space-y-3">
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>Шаг {currentStep + 1} из {steps.length}</span>
+            <span className="font-medium text-blue-600">{Math.round(progress)}%</span>
+          </div>
+          <Progress value={progress} className="h-2" />
         </div>
       </div>
-    </PageLayoutWithHeader>
+
+      {/* Step Content */}
+      <StepContent
+        title={currentStepData.title}
+        subtitle={currentStepData.subtitle}
+        icon={currentStepData.icon}
+      >
+        {currentStepData.component}
+      </StepContent>
+
+      {/* Form Controls */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <FormControls
+          isFirstStep={isFirstStep}
+          isLastStep={isLastStep}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+          onSave={onSave}
+        />
+
+        <MobileStepDots
+          currentStep={currentStep}
+          totalSteps={steps.length}
+          onStepClick={setCurrentStep}
+        />
+      </div>
+    </div>
   );
 };
 
