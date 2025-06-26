@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import AnalyticsActions from "./AnalyticsActions";
 import DetailedHealthRecommendations from "./DetailedHealthRecommendations";
-import BiomarkerTrendsOverview from "./BiomarkerTrendsOverview";
 import { CachedAnalytics } from "@/types/analytics";
 
 interface AnalyticsContentProps {
@@ -52,13 +51,20 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
+      {/* Заголовок страницы */}
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Аналитика здоровья
+        </h1>
+        <p className="text-gray-600">
+          Персональные рекомендации на основе ваших данных
+        </p>
+      </div>
+
       <AnalyticsActions 
         onRefresh={onRefresh}
         isGenerating={isGenerating}
       />
-
-      {/* Динамика биомаркеров */}
-      <BiomarkerTrendsOverview trendsAnalysis={analytics.trendsAnalysis} />
 
       <DetailedHealthRecommendations
         analytics={analytics}
