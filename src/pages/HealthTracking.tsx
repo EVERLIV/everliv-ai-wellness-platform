@@ -1,8 +1,8 @@
 
 import React from 'react';
 import Header from '@/components/Header';
-import HealthGoalsManager from '@/components/health-tracking/HealthGoalsManager';
 import DynamicHealthScore from '@/components/health-tracking/DynamicHealthScore';
+import HealthRecommendationsManager from '@/components/health-recommendations/HealthRecommendationsManager';
 import MinimalFooter from '@/components/MinimalFooter';
 import { AuthGuard } from '@/components/security/AuthGuard';
 import { SecurityProvider } from '@/components/security/SecurityProvider';
@@ -317,7 +317,7 @@ const HealthTracking = () => {
                   >
                     <SecureHealthTrackingForm />
                   </EnhancedSecureApiWrapper>
-                  <HealthGoalsManager />
+                  <HealthRecommendationsManager />
                 </div>
 
                 {/* Боковая панель с динамическим баллом и прогрессом */}

@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Dynamic Health Score Component with Goals Integration
  * 
@@ -12,7 +13,6 @@ import { useDailyHealthMetrics } from '@/hooks/useDailyHealthMetrics';
 import { useHealthGoals } from '@/hooks/useHealthGoals';
 import { TrendingUp, RefreshCw, Target } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { calculateProgress } from '@/utils/healthGoals';
 
 /**
  * Dynamic Health Score Component
@@ -45,6 +45,14 @@ const DynamicHealthScore: React.FC = () => {
   const { activeGoal } = useHealthGoals();
   const [healthScore, setHealthScore] = useState<number | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+
+  /**
+   * Simple progress calculation function
+   */
+  const calculateProgress = (current: number, target: number): number => {
+    if (target <= 0) return 0;
+    return Math.min(100, (current / target) * 100);
+  };
 
   /**
    * Memoized goal progress calculation
