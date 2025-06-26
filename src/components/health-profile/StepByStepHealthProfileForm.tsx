@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { User, Activity, Brain, Apple, Moon, FileText, Stethoscope, Target } from "lucide-react";
 import { HealthProfileData } from "@/types/healthProfile";
 import PersonalInfoSection from "./PersonalInfoSection";
@@ -33,62 +33,68 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
 
+  // Используем useCallback для предотвращения лишних ререндеров
+  const handleChange = useCallback((updates: Partial<HealthProfileData>) => {
+    console.log('Form change:', updates);
+    onChange(updates);
+  }, [onChange]);
+
   const steps: StepConfig[] = [
     {
       id: 'personal',
       title: "Личная информация",
       subtitle: "Основные данные о вас",
       icon: User,
-      component: <PersonalInfoSection data={healthProfile} onChange={onChange} />
+      component: <PersonalInfoSection data={healthProfile} onChange={handleChange} />
     },
     {
       id: 'physical',
       title: "Физическое здоровье",
       subtitle: "Активность и физические показатели",
       icon: Activity,
-      component: <PhysicalHealthSection data={healthProfile} onChange={onChange} />
+      component: <PhysicalHealthSection data={healthProfile} onChange={handleChange} />
     },
     {
       id: 'mental',
       title: "Психическое здоровье",
       subtitle: "Стресс и эмоциональное состояние",
       icon: Brain,
-      component: <MentalHealthSection data={healthProfile} onChange={onChange} />
+      component: <MentalHealthSection data={healthProfile} onChange={handleChange} />
     },
     {
       id: 'lifestyle',
       title: "Образ жизни",
       subtitle: "Питание и привычки",
       icon: Apple,
-      component: <LifestyleSection data={healthProfile} onChange={onChange} />
+      component: <LifestyleSection data={healthProfile} onChange={handleChange} />
     },
     {
       id: 'sleep',
       title: "Сон и отдых",
       subtitle: "Качество и продолжительность сна",
       icon: Moon,
-      component: <SleepSection data={healthProfile} onChange={onChange} />
+      component: <SleepSection data={healthProfile} onChange={handleChange} />
     },
     {
       id: 'goals',
       title: "Цели здоровья",
       subtitle: "Ваши планы и задачи",
       icon: Target,
-      component: <HealthGoalsSection healthProfile={healthProfile} isEditMode={true} onUpdate={onChange} />
+      component: <HealthGoalsSection healthProfile={healthProfile} isEditMode={true} onUpdate={handleChange} />
     },
     {
       id: 'medical',
       title: "Медицинская история",
       subtitle: "Заболевания и лечение",
       icon: FileText,
-      component: <MedicalHistorySection data={healthProfile} onChange={onChange} />
+      component: <MedicalHistorySection data={healthProfile} onChange={handleChange} />
     },
     {
       id: 'lab',
       title: "Анализы",
       subtitle: "Результаты лабораторных исследований",
       icon: Stethoscope,
-      component: <LabResultsSection labResults={healthProfile.labResults || {}} onChange={(labResults) => onChange({ labResults })} />
+      component: <LabResultsSection labResults={healthProfile.labResults || {}} onChange={(labResults) => handleChange({ labResults })} />
     }
   ];
 
@@ -97,17 +103,21 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
   const isFirstStep = currentStep === 0;
   const progress = ((currentStep + 1) / steps.length) * 100;
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (!isLastStep) {
-      setCurrentStep(currentStep + 1);
+      setCurrentStep(prev => prev + 1);
     }
-  };
+  }, [isLastStep]);
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     if (!isFirstStep) {
-      setCurrentStep(currentStep - 1);
+      setCurrentStep(prev => prev - 1);
     }
-  };
+  }, [isFirstStep]);
+
+  const handleStepClick = useCallback((stepIndex: number) => {
+    setCurrentStep(stepIndex);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -156,7 +166,7 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
         <MobileStepDots
           currentStep={currentStep}
           totalSteps={steps.length}
-          onStepClick={setCurrentStep}
+          onStepClick={handleStepClick}
         />
       </div>
     </div>

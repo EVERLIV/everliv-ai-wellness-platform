@@ -55,14 +55,27 @@ const HealthGoalsSection: React.FC<HealthGoalsSectionProps> = ({
   const handleGoalToggle = (goalId: string) => {
     if (!isEditMode) return;
     
-    const currentGoals = healthProfile.healthGoals || [];
-    const isSelected = currentGoals.includes(goalId);
-    
-    const updatedGoals = isSelected
-      ? currentGoals.filter(id => id !== goalId)
-      : [...currentGoals, goalId];
-    
-    onUpdate({ healthGoals: updatedGoals });
+    try {
+      console.log('Toggling goal:', goalId);
+      console.log('Current goals:', selectedGoals);
+      
+      const currentGoals = Array.isArray(selectedGoals) ? selectedGoals : [];
+      const isSelected = currentGoals.includes(goalId);
+      
+      const updatedGoals = isSelected
+        ? currentGoals.filter(id => id !== goalId)
+        : [...currentGoals, goalId];
+      
+      console.log('Updated goals:', updatedGoals);
+      
+      // Используем setTimeout для предотвращения конфликтов состояния
+      setTimeout(() => {
+        onUpdate({ healthGoals: updatedGoals });
+      }, 0);
+      
+    } catch (error) {
+      console.error('Error toggling goal:', error);
+    }
   };
 
   if (!isEditMode && selectedGoals.length === 0) {
@@ -109,12 +122,12 @@ const HealthGoalsSection: React.FC<HealthGoalsSectionProps> = ({
             return (
               <div
                 key={goal.id}
-                className={`p-4 border rounded-lg transition-all cursor-pointer ${
+                className={`p-4 border rounded-lg transition-all ${
                   isSelected
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
-                } ${!isEditMode ? 'cursor-default' : ''}`}
-                onClick={() => handleGoalToggle(goal.id)}
+                } ${isEditMode ? 'cursor-pointer' : 'cursor-default'}`}
+                onClick={() => isEditMode && handleGoalToggle(goal.id)}
               >
                 <div className="flex items-start gap-3">
                   <div className={`p-2 rounded-lg ${
