@@ -60,6 +60,7 @@ export const useSecureHealthGoals = () => {
       // Преобразуем данные и добавляем progress_percentage
       const goalsWithProgress = (data || []).map(goal => ({
         ...goal,
+        goal_type: goal.goal_type as 'daily' | 'weekly' | 'monthly' | 'yearly',
         progress_percentage: Math.floor(Math.random() * 100) // Временно рандомный прогресс
       }));
       

@@ -1,286 +1,269 @@
 
-/**
- * @fileoverview Optimized hook for health goals management
- * 
- * This hook provides a comprehensive interface for managing user health goals
- * with performance optimizations, error handling, and real-time updates.
- * 
- * @example
- * ```typescript
- * const { goals, createGoal, updateGoal, activeGoal } = useOptimizedHealthGoals();
- * 
- * // Create a new goal
- * await createGoal({
- *   title: "Walk 10k steps daily",
- *   goal_type: "steps",
- *   category: "fitness",
- *   target_value: 10000,
- *   // ... other fields
- * });
- * ```
- */
-
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSmartAuth } from './useSmartAuth';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { 
-  HealthGoal, 
-  CreateHealthGoalInput, 
-  UpdateHealthGoalInput, 
-  HealthGoalSchema,
-  CreateHealthGoalSchema 
-} from '@/types/healthGoals';
-import { HealthGoalMapper } from '@/utils/healthGoals';
+import { HealthGoal, CreateHealthGoalInput, GOAL_TYPE_CONFIG } from '@/types/healthGoals';
 
-/**
- * Return type for the useOptimizedHealthGoals hook
- */
-interface UseHealthGoalsReturn {
-  /** Array of all user's health goals */
-  goals: HealthGoal[];
-  /** Currently active goal (only one can be active at a time) */
-  activeGoal: HealthGoal | null;
-  /** Loading state for async operations */
-  isLoading: boolean;
-  /** Current error message, if any */
-  error: string | null;
-  /** Creates a new health goal */
-  createGoal: (goalData: CreateHealthGoalInput) => Promise<boolean>;
-  /** Updates an existing health goal */
-  updateGoal: (goalId: string, updates: UpdateHealthGoalInput) => Promise<boolean>;
-  /** Deletes a health goal */
-  deleteGoal: (goalId: string) => Promise<boolean>;
-  /** Updates progress for a specific goal */
-  updateProgress: (goalId: string, currentValue: number) => Promise<boolean>;
-  /** Deactivates a specific goal */
-  deactivateGoal: (goalId: string) => Promise<boolean>;
-  /** Manually reload all goals from database */
-  loadGoals: () => Promise<void>;
-}
-
-/**
- * Optimized hook for health goals management
- * 
- * Features:
- * - Memoized active goal calculation
- * - Comprehensive error handling
- * - Performance optimizations with useCallback
- * - Real-time data synchronization
- * - Input validation with Zod schemas
- * 
- * @returns {UseHealthGoalsReturn} Health goals state and management functions
- */
-export const useOptimizedHealthGoals = (): UseHealthGoalsReturn => {
-  const { user } = useSmartAuth();
+export const useOptimizedHealthGoals = () => {
+  const { user } = useAuth();
   const [goals, setGoals] = useState<HealthGoal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Memoized active goal calculation for performance
-  const activeGoal = useMemo(() => 
-    goals.find(goal => goal.is_active) || null, 
-    [goals]
-  );
-
-  /**
-   * Centralized error handling utility
-   * Logs errors and shows user-friendly messages
-   */
-  const handleError = useCallback((error: any, message: string) => {
-    console.error(`Health Goals Error: ${message}`, error);
-    setError(message);
-    toast.error(message);
-  }, []);
-
-  /**
-   * Loads all health goals for the current user
-   * Includes data transformation and error handling
-   */
-  const loadGoals = useCallback(async () => {
-    if (!user) {
+  useEffect(() => {
+    if (user) {
+      loadGoals();
+    } else {
       setIsLoading(false);
-      return;
     }
+  }, [user]);
+
+  const loadGoals = async () => {
+    if (!user) return;
 
     try {
-      setError(null);
-      const { data, error: fetchError } = await supabase
+      setIsLoading(true);
+      console.log('Loading health goals for user:', user.id);
+      
+      const { data, error } = await supabase
         .from('user_health_goals')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (fetchError) throw fetchError;
+      if (error) {
+        console.error('Error loading goals:', error);
+        throw error;
+      }
       
-      // Transform database records to application format
-      const transformedGoals = (data || []).map(HealthGoalMapper.fromDatabase);
+      console.log('Loaded goals:', data);
+      
+      // Преобразуем данные из базы в формат HealthGoal
+      const transformedGoals: HealthGoal[] = (data || []).map(dbGoal => {
+        // Определяем тип цели на основе данных
+        let goalType: 'steps' | 'exercise' | 'weight' | 'sleep' | 'water' | 'stress' | 'custom' = 'custom';
+        let title = 'Пользовательская цель';
+        let category: 'fitness' | 'nutrition' | 'sleep' | 'mental' | 'longevity' = 'fitness';
+        let targetValue: number | undefined;
+        let unit = '';
+
+        // Определяем тип цели на основе заполненных полей
+        if (dbGoal.target_steps && dbGoal.target_steps > 0) {
+          goalType = 'steps';
+          title = 'Ежедневные шаги';
+          category = 'fitness';
+          targetValue = dbGoal.target_steps;
+          unit = 'шагов';
+        } else if (dbGoal.target_exercise_minutes && dbGoal.target_exercise_minutes > 0) {
+          goalType = 'exercise';
+          title = 'Время тренировок';
+          category = 'fitness';
+          targetValue = dbGoal.target_exercise_minutes;
+          unit = 'минут';
+        } else if (dbGoal.target_sleep_hours && dbGoal.target_sleep_hours > 0) {
+          goalType = 'sleep';
+          title = 'Качество сна';
+          category = 'sleep';
+          targetValue = dbGoal.target_sleep_hours;
+          unit = 'часов';
+        } else if (dbGoal.target_water_intake && dbGoal.target_water_intake > 0) {
+          goalType = 'water';
+          title = 'Питьевой режим';
+          category = 'nutrition';
+          targetValue = dbGoal.target_water_intake;
+          unit = 'стаканов';
+        } else if (dbGoal.target_weight && dbGoal.target_weight > 0) {
+          goalType = 'weight';
+          title = 'Целевой вес';
+          category = 'fitness';
+          targetValue = dbGoal.target_weight;
+          unit = 'кг';
+        } else if (dbGoal.target_stress_level && dbGoal.target_stress_level > 0) {
+          goalType = 'stress';
+          title = 'Управление стрессом';
+          category = 'mental';
+          targetValue = dbGoal.target_stress_level;
+          unit = 'уровень';
+        }
+
+        return {
+          id: dbGoal.id,
+          user_id: dbGoal.user_id,
+          title,
+          description: `Цель создана ${new Date(dbGoal.created_at).toLocaleDateString('ru-RU')}`,
+          goal_type: goalType,
+          category,
+          priority: 'medium' as const,
+          target_value: targetValue,
+          current_value: 0,
+          unit,
+          start_date: dbGoal.start_date,
+          target_date: dbGoal.end_date || undefined,
+          is_active: dbGoal.is_active,
+          is_custom: goalType === 'custom',
+          progress_percentage: Math.floor(Math.random() * 100), // Временно рандомный прогресс
+          created_at: dbGoal.created_at,
+          updated_at: dbGoal.updated_at
+        };
+      });
+      
       setGoals(transformedGoals);
+
     } catch (error) {
-      handleError(error, 'Ошибка загрузки целей');
+      console.error('Error loading goals:', error);
+      toast.error('Ошибка загрузки целей');
     } finally {
       setIsLoading(false);
     }
-  }, [user, handleError]);
+  };
 
-  /**
-   * Creates a new health goal with validation and transformation
-   * 
-   * @param goalData - Goal data without system-generated fields
-   * @returns Promise<boolean> - Success status
-   */
-  const createGoal = useCallback(async (goalData: CreateHealthGoalInput): Promise<boolean> => {
-    if (!user) return false;
+  const createGoal = async (goalData: CreateHealthGoalInput): Promise<boolean> => {
+    if (!user) {
+      toast.error('Необходима авторизация');
+      return false;
+    }
 
     try {
-      // Validate input data with Zod schema
-      const validatedData = CreateHealthGoalSchema.parse(goalData);
+      console.log('Creating goal with data:', goalData);
       
-      // Deactivate existing active goals if this one is active
-      if (validatedData.is_active) {
-        await supabase
+      // Деактивируем все текущие цели если создаем новую активную
+      if (goalData.is_active !== false) {
+        const { error: deactivateError } = await supabase
           .from('user_health_goals')
           .update({ is_active: false })
           .eq('user_id', user.id);
+          
+        if (deactivateError) {
+          console.error('Error deactivating existing goals:', deactivateError);
+        }
       }
 
-      // Transform to database format
-      const dbData = HealthGoalMapper.toDatabase({
-        ...validatedData,
+      // Подготавливаем данные для базы данных
+      const dbData: any = {
         user_id: user.id,
-      } as HealthGoal, user.id);
+        goal_type: goalData.goal_type || 'monthly',
+        start_date: goalData.start_date || new Date().toISOString().split('T')[0],
+        end_date: goalData.target_date || null,
+        is_active: true,
+        target_steps: 0,
+        target_exercise_minutes: 0,
+        target_sleep_hours: 0,
+        target_water_intake: 0,
+        target_stress_level: 0,
+        target_weight: null
+      };
 
-      // Remove auto-generated id field for insertion
-      const { id, ...insertData } = dbData;
+      // Устанавливаем значение в зависимости от типа цели
+      const config = GOAL_TYPE_CONFIG[goalData.goal_type as keyof typeof GOAL_TYPE_CONFIG];
+      if (config && goalData.target_value) {
+        dbData[config.dbField] = goalData.target_value;
+      }
+
+      console.log('Database data to save:', dbData);
 
       const { data, error } = await supabase
         .from('user_health_goals')
-        .insert(insertData)
+        .insert(dbData)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating goal:', error);
+        throw error;
+      }
       
-      // Transform response and update local state
-      const newGoal = HealthGoalMapper.fromDatabase(data);
-      setGoals(prev => [newGoal, ...prev]);
-      toast.success('Цель создана успешно');
+      console.log('Goal created successfully:', data);
+      await loadGoals();
+      toast.success('Цель создана');
       return true;
-    } catch (error) {
-      handleError(error, 'Ошибка создания цели');
+    } catch (error: any) {
+      console.error('Error creating goal:', error);
+      toast.error(error.message || 'Ошибка создания цели');
       return false;
     }
-  }, [user, handleError]);
+  };
 
-  /**
-   * Updates an existing health goal
-   * 
-   * @param goalId - Unique identifier of the goal to update
-   * @param updates - Partial goal data to update
-   * @returns Promise<boolean> - Success status
-   */
-  const updateGoal = useCallback(async (goalId: string, updates: UpdateHealthGoalInput): Promise<boolean> => {
-    if (!user) return false;
+  const updateGoal = async (goalId: string, goalData: CreateHealthGoalInput): Promise<boolean> => {
+    if (!user) {
+      toast.error('Необходима авторизация');
+      return false;
+    }
 
     try {
+      console.log('Updating goal:', goalId, goalData);
+      
+      // Подготавливаем данные для обновления
+      const dbData: any = {
+        goal_type: goalData.goal_type || 'monthly',
+        start_date: goalData.start_date || new Date().toISOString().split('T')[0],
+        end_date: goalData.target_date || null,
+        is_active: goalData.is_active,
+        target_steps: 0,
+        target_exercise_minutes: 0,
+        target_sleep_hours: 0,
+        target_water_intake: 0,
+        target_stress_level: 0,
+        target_weight: null
+      };
+
+      // Устанавливаем значение в зависимости от типа цели
+      const config = GOAL_TYPE_CONFIG[goalData.goal_type as keyof typeof GOAL_TYPE_CONFIG];
+      if (config && goalData.target_value) {
+        dbData[config.dbField] = goalData.target_value;
+      }
+
       const { error } = await supabase
         .from('user_health_goals')
-        .update({ 
-          ...updates,
-          updated_at: new Date().toISOString() 
-        })
+        .update(dbData)
         .eq('id', goalId)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating goal:', error);
+        throw error;
+      }
       
-      // Update local state optimistically
-      setGoals(prev => prev.map(goal => 
-        goal.id === goalId ? { ...goal, ...updates } : goal
-      ));
+      await loadGoals();
       toast.success('Цель обновлена');
       return true;
-    } catch (error) {
-      handleError(error, 'Ошибка обновления цели');
+    } catch (error: any) {
+      console.error('Error updating goal:', error);
+      toast.error(error.message || 'Ошибка обновления цели');
       return false;
     }
-  }, [user, handleError]);
+  };
 
-  /**
-   * Deletes a health goal permanently
-   * 
-   * @param goalId - Unique identifier of the goal to delete
-   * @returns Promise<boolean> - Success status
-   */
-  const deleteGoal = useCallback(async (goalId: string): Promise<boolean> => {
-    if (!user) return false;
+  const deleteGoal = async (goalId: string): Promise<void> => {
+    if (!user) return;
 
     try {
+      console.log('Deleting goal:', goalId);
+      
       const { error } = await supabase
         .from('user_health_goals')
-        .delete()
+        .update({ is_active: false })
         .eq('id', goalId)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error deleting goal:', error);
+        throw error;
+      }
       
-      // Remove from local state
-      setGoals(prev => prev.filter(goal => goal.id !== goalId));
+      await loadGoals();
       toast.success('Цель удалена');
-      return true;
-    } catch (error) {
-      handleError(error, 'Ошибка удаления цели');
-      return false;
+    } catch (error: any) {
+      console.error('Error deleting goal:', error);
+      toast.error(error.message || 'Ошибка удаления цели');
     }
-  }, [user, handleError]);
-
-  /**
-   * Updates progress for a specific goal and recalculates percentage
-   * 
-   * @param goalId - Unique identifier of the goal
-   * @param currentValue - New current progress value
-   * @returns Promise<boolean> - Success status
-   */
-  const updateProgress = useCallback(async (goalId: string, currentValue: number): Promise<boolean> => {
-    const goal = goals.find(g => g.id === goalId);
-    if (!goal || !goal.target_value) return false;
-
-    // Calculate new progress percentage
-    const progressPercentage = Math.min(100, Math.round((currentValue / goal.target_value) * 100));
-    
-    return await updateGoal(goalId, { 
-      current_value: currentValue, 
-      progress_percentage: progressPercentage 
-    });
-  }, [goals, updateGoal]);
-
-  /**
-   * Deactivates a specific goal (sets is_active to false)
-   * 
-   * @param goalId - Unique identifier of the goal to deactivate
-   * @returns Promise<boolean> - Success status
-   */
-  const deactivateGoal = useCallback(async (goalId: string): Promise<boolean> => {
-    return await updateGoal(goalId, { is_active: false });
-  }, [updateGoal]);
-
-  // Load goals when user changes
-  useEffect(() => {
-    if (user) {
-      loadGoals();
-    }
-  }, [user, loadGoals]);
+  };
 
   return {
     goals,
-    activeGoal,
     isLoading,
-    error,
     createGoal,
     updateGoal,
     deleteGoal,
-    updateProgress,
-    deactivateGoal,
-    loadGoals
+    refetch: loadGoals
   };
 };

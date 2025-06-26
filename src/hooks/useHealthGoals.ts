@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from 'react';
-import { useSecureHealthGoals, HealthGoal } from './useSecureHealthGoals';
+import { useOptimizedHealthGoals } from './useOptimizedHealthGoals';
+import { HealthGoal } from '@/types/healthGoals';
 import { toast } from 'sonner';
 
-export { type HealthGoal } from './useSecureHealthGoals';
+export { type HealthGoal } from '@/types/healthGoals';
 
 export const useHealthGoals = () => {
-  const { goals, isLoading, loadGoals, deactivateGoal } = useSecureHealthGoals();
+  const { goals, isLoading, createGoal, deleteGoal, refetch } = useOptimizedHealthGoals();
   const [localGoals, setLocalGoals] = useState<HealthGoal[]>([]);
 
   useEffect(() => {
@@ -30,20 +31,11 @@ export const useHealthGoals = () => {
     }
   };
 
-  const deleteGoal = async (goalId: string) => {
-    try {
-      await deactivateGoal(goalId);
-      toast.success('Цель удалена');
-    } catch (error) {
-      toast.error('Ошибка удаления цели');
-    }
-  };
-
   return {
     goals: localGoals,
     isLoading,
     updateProgress,
     deleteGoal,
-    refetch: loadGoals
+    refetch
   };
 };
