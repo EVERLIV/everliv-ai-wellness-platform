@@ -39,14 +39,29 @@ const DynamicHealthScore: React.FC = () => {
   const calculateGoalProgress = () => {
     if (!activeGoal || !todayMetrics) return;
 
-    const progress = {
-      steps: Math.min(100, (todayMetrics.steps / activeGoal.target_steps) * 100),
-      exercise: Math.min(100, (todayMetrics.exercise_minutes / activeGoal.target_exercise_minutes) * 100),
-      sleep: Math.min(100, (todayMetrics.sleep_hours / activeGoal.target_sleep_hours) * 100),
-      water: Math.min(100, (todayMetrics.water_intake / activeGoal.target_water_intake) * 100),
-      stress: todayMetrics.stress_level <= activeGoal.target_stress_level ? 100 : 
-              Math.max(0, (1 - (todayMetrics.stress_level - activeGoal.target_stress_level) / 10) * 100)
-    };
+    // For the new goal structure, we'll only calculate progress for goals that have target values
+    const progress: any = {};
+    
+    if (activeGoal.category === 'fitness' && activeGoal.goal_type === 'steps') {
+      progress.steps = Math.min(100, (todayMetrics.steps / (activeGoal.target_value || 10000)) * 100);
+    }
+    
+    if (activeGoal.category === 'fitness' && activeGoal.goal_type === 'exercise') {
+      progress.exercise = Math.min(100, (todayMetrics.exercise_minutes / (activeGoal.target_value || 30)) * 100);
+    }
+    
+    if (activeGoal.category === 'sleep') {
+      progress.sleep = Math.min(100, (todayMetrics.sleep_hours / (activeGoal.target_value || 8)) * 100);
+    }
+    
+    if (activeGoal.category === 'nutrition' && activeGoal.goal_type === 'water') {
+      progress.water = Math.min(100, (todayMetrics.water_intake / (activeGoal.target_value || 8)) * 100);
+    }
+    
+    if (activeGoal.category === 'mental' && activeGoal.goal_type === 'stress') {
+      progress.stress = todayMetrics.stress_level <= (activeGoal.target_value || 3) ? 100 : 
+              Math.max(0, (1 - (todayMetrics.stress_level - (activeGoal.target_value || 3)) / 10) * 100);
+    }
 
     setGoalProgress(progress);
   };
@@ -130,44 +145,27 @@ const DynamicHealthScore: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Шаги</span>
-                  <span>{todayMetrics.steps.toLocaleString()} / {activeGoal.target_steps.toLocaleString()}</span>
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-semibold text-blue-800 mb-2">{activeGoal.title}</h4>
+                <p className="text-sm text-blue-600 mb-3">{activeGoal.description}</p>
+                
+                {Object.entries(goalProgress).map(([key, value]: [string, any]) => (
+                  <div key={key} className="mb-3">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="capitalize">{key}</span>
+                      <span>{value.toFixed(1)}%</span>
+                    </div>
+                    <Progress value={value} className="h-2" />
+                  </div>
+                ))}
+                
+                <div className="mt-4 p-3 bg-white rounded border">
+                  <div className="flex justify-between text-sm">
+                    <span>Общий прогресс:</span>
+                    <span>{activeGoal.progress_percentage}%</span>
+                  </div>
+                  <Progress value={activeGoal.progress_percentage} className="h-2 mt-2" />
                 </div>
-                <Progress value={goalProgress.steps} className="h-2" />
-              </div>
-              
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Упражнения</span>
-                  <span>{todayMetrics.exercise_minutes} / {activeGoal.target_exercise_minutes} мин</span>
-                </div>
-                <Progress value={goalProgress.exercise} className="h-2" />
-              </div>
-              
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Сон</span>
-                  <span>{todayMetrics.sleep_hours} / {activeGoal.target_sleep_hours} ч</span>
-                </div>
-                <Progress value={goalProgress.sleep} className="h-2" />
-              </div>
-              
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Вода</span>
-                  <span>{todayMetrics.water_intake} / {activeGoal.target_water_intake} ст</span>
-                </div>
-                <Progress value={goalProgress.water} className="h-2" />
-              </div>
-              
-              <div>
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Стресс</span>
-                  <span>{todayMetrics.stress_level} / ≤{activeGoal.target_stress_level}</span>
-                </div>
-                <Progress value={goalProgress.stress} className="h-2" />
               </div>
             </div>
           </CardContent>

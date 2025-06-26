@@ -5,20 +5,24 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useHealthGoals } from '@/hooks/useHealthGoals';
+import { useHealthGoals, HealthGoal } from '@/hooks/useHealthGoals';
 import { Target, Edit, Check, X } from 'lucide-react';
 
 const HealthGoalsManager: React.FC = () => {
-  const { goals, activeGoal, saveGoal, deactivateGoal, isLoading } = useHealthGoals();
+  const { goals, activeGoal, createGoal, deactivateGoal, isLoading } = useHealthGoals();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    target_weight: '',
-    target_steps: 10000,
-    target_exercise_minutes: 30,
-    target_sleep_hours: 8.0,
-    target_water_intake: 8.0,
-    target_stress_level: 3,
-    goal_type: 'monthly' as 'daily' | 'weekly' | 'monthly' | 'yearly'
+    title: '',
+    description: '',
+    goal_type: '',
+    category: 'fitness',
+    priority: 'medium' as 'low' | 'medium' | 'high',
+    target_value: 0,
+    unit: '',
+    target_date: '',
+    is_custom: true,
+    is_active: true,
+    progress_percentage: 0
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,36 +30,46 @@ const HealthGoalsManager: React.FC = () => {
     
     const goalData = {
       ...formData,
-      target_weight: formData.target_weight ? parseFloat(formData.target_weight) : undefined,
       start_date: new Date().toISOString().split('T')[0],
-      is_active: true
     };
 
-    const success = await saveGoal(goalData);
+    const success = await createGoal(goalData);
     if (success) {
       setIsEditing(false);
-      setFormData({
-        target_weight: '',
-        target_steps: 10000,
-        target_exercise_minutes: 30,
-        target_sleep_hours: 8.0,
-        target_water_intake: 8.0,
-        target_stress_level: 3,
-        goal_type: 'monthly'
-      });
+      resetForm();
     }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      goal_type: '',
+      category: 'fitness',
+      priority: 'medium',
+      target_value: 0,
+      unit: '',
+      target_date: '',
+      is_custom: true,
+      is_active: true,
+      progress_percentage: 0
+    });
   };
 
   const handleEditExisting = () => {
     if (activeGoal) {
       setFormData({
-        target_weight: activeGoal.target_weight?.toString() || '',
-        target_steps: activeGoal.target_steps,
-        target_exercise_minutes: activeGoal.target_exercise_minutes,
-        target_sleep_hours: activeGoal.target_sleep_hours,
-        target_water_intake: activeGoal.target_water_intake,
-        target_stress_level: activeGoal.target_stress_level,
-        goal_type: activeGoal.goal_type
+        title: activeGoal.title,
+        description: activeGoal.description || '',
+        goal_type: activeGoal.goal_type,
+        category: activeGoal.category,
+        priority: activeGoal.priority,
+        target_value: activeGoal.target_value || 0,
+        unit: activeGoal.unit || '',
+        target_date: activeGoal.target_date || '',
+        is_custom: activeGoal.is_custom,
+        is_active: activeGoal.is_active,
+        progress_percentage: activeGoal.progress_percentage
       });
       setIsEditing(true);
     }
@@ -83,30 +97,25 @@ const HealthGoalsManager: React.FC = () => {
         {activeGoal && !isEditing ? (
           <div className="space-y-4">
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <h3 className="font-semibold text-green-800 mb-2">Активная цель ({activeGoal.goal_type})</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                {activeGoal.target_weight && (
+              <h3 className="font-semibold text-green-800 mb-2">{activeGoal.title}</h3>
+              <p className="text-sm text-green-600 mb-3">{activeGoal.description}</p>
+              <div className="grid grid-cols-2 gap-3 text-sm mb-4">
+                <div>
+                  <span className="text-gray-600">Категория:</span> {activeGoal.category}
+                </div>
+                <div>
+                  <span className="text-gray-600">Приоритет:</span> {activeGoal.priority}
+                </div>
+                {activeGoal.target_value && (
                   <div>
-                    <span className="text-gray-600">Вес:</span> {activeGoal.target_weight} кг
+                    <span className="text-gray-600">Цель:</span> {activeGoal.target_value} {activeGoal.unit}
                   </div>
                 )}
                 <div>
-                  <span className="text-gray-600">Шаги:</span> {activeGoal.target_steps.toLocaleString()}
-                </div>
-                <div>
-                  <span className="text-gray-600">Упражнения:</span> {activeGoal.target_exercise_minutes} мин
-                </div>
-                <div>
-                  <span className="text-gray-600">Сон:</span> {activeGoal.target_sleep_hours} ч
-                </div>
-                <div>
-                  <span className="text-gray-600">Вода:</span> {activeGoal.target_water_intake} ст
-                </div>
-                <div>
-                  <span className="text-gray-600">Стресс:</span> ≤{activeGoal.target_stress_level}
+                  <span className="text-gray-600">Прогресс:</span> {activeGoal.progress_percentage}%
                 </div>
               </div>
-              <div className="flex gap-2 mt-4">
+              <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={handleEditExisting}>
                   <Edit className="h-4 w-4 mr-1" />
                   Изменить
@@ -124,85 +133,89 @@ const HealthGoalsManager: React.FC = () => {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="goal_type">Тип цели</Label>
-              <Select 
-                value={formData.goal_type} 
-                onValueChange={(value: any) => setFormData({...formData, goal_type: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="daily">Ежедневная</SelectItem>
-                  <SelectItem value="weekly">Еженедельная</SelectItem>
-                  <SelectItem value="monthly">Ежемесячная</SelectItem>
-                  <SelectItem value="yearly">Годовая</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="target_weight">Целевой вес (кг)</Label>
+                <Label htmlFor="title">Название цели</Label>
                 <Input
-                  id="target_weight"
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  placeholder="Например: Пробежать 5км"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="category">Категория</Label>
+                <Select 
+                  value={formData.category} 
+                  onValueChange={(value) => setFormData({...formData, category: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fitness">Фитнес</SelectItem>
+                    <SelectItem value="nutrition">Питание</SelectItem>
+                    <SelectItem value="sleep">Сон</SelectItem>
+                    <SelectItem value="mental">Ментальное здоровье</SelectItem>
+                    <SelectItem value="longevity">Долголетие</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="target_value">Целевое значение</Label>
+                <Input
+                  id="target_value"
                   type="number"
                   step="0.1"
-                  value={formData.target_weight}
-                  onChange={(e) => setFormData({...formData, target_weight: e.target.value})}
-                  placeholder="Необязательно"
+                  value={formData.target_value}
+                  onChange={(e) => setFormData({...formData, target_value: parseFloat(e.target.value) || 0})}
                 />
               </div>
               <div>
-                <Label htmlFor="target_steps">Целевые шаги</Label>
+                <Label htmlFor="unit">Единица измерения</Label>
                 <Input
-                  id="target_steps"
-                  type="number"
-                  value={formData.target_steps}
-                  onChange={(e) => setFormData({...formData, target_steps: parseInt(e.target.value) || 10000})}
+                  id="unit"
+                  value={formData.unit}
+                  onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                  placeholder="км, кг, часов"
                 />
               </div>
               <div>
-                <Label htmlFor="target_exercise_minutes">Упражнения (мин/день)</Label>
-                <Input
-                  id="target_exercise_minutes"
-                  type="number"
-                  value={formData.target_exercise_minutes}
-                  onChange={(e) => setFormData({...formData, target_exercise_minutes: parseInt(e.target.value) || 30})}
-                />
+                <Label htmlFor="priority">Приоритет</Label>
+                <Select 
+                  value={formData.priority} 
+                  onValueChange={(value: 'low' | 'medium' | 'high') => setFormData({...formData, priority: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Низкий</SelectItem>
+                    <SelectItem value="medium">Средний</SelectItem>
+                    <SelectItem value="high">Высокий</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
-                <Label htmlFor="target_sleep_hours">Сон (часов)</Label>
+                <Label htmlFor="target_date">Дата достижения</Label>
                 <Input
-                  id="target_sleep_hours"
-                  type="number"
-                  step="0.5"
-                  value={formData.target_sleep_hours}
-                  onChange={(e) => setFormData({...formData, target_sleep_hours: parseFloat(e.target.value) || 8.0})}
+                  id="target_date"
+                  type="date"
+                  value={formData.target_date}
+                  onChange={(e) => setFormData({...formData, target_date: e.target.value})}
                 />
               </div>
-              <div>
-                <Label htmlFor="target_water_intake">Вода (стаканов)</Label>
-                <Input
-                  id="target_water_intake"
-                  type="number"
-                  step="0.5"
-                  value={formData.target_water_intake}
-                  onChange={(e) => setFormData({...formData, target_water_intake: parseFloat(e.target.value) || 8.0})}
-                />
-              </div>
-              <div>
-                <Label htmlFor="target_stress_level">Макс. уровень стресса</Label>
-                <Input
-                  id="target_stress_level"
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={formData.target_stress_level}
-                  onChange={(e) => setFormData({...formData, target_stress_level: parseInt(e.target.value) || 3})}
-                />
-              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="description">Описание</Label>
+              <Input
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                placeholder="Подробное описание цели"
+              />
             </div>
 
             <div className="flex gap-2">
