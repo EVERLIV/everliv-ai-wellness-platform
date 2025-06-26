@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,13 +12,20 @@ interface BloodAnalysisResults {
     normalRange: string;
     status: 'normal' | 'high' | 'low';
     recommendation: string;
+    education: string;
+    lifestyle: string;
   }>;
   supplements: Array<{
     name: string;
     reason: string;
     dosage: string;
+    duration: string;
   }>;
   generalRecommendation: string;
+  riskFactors: string[];
+  followUpTests: string[];
+  urgencyLevel: 'low' | 'medium' | 'high';
+  nextCheckup: string;
 }
 
 export const useBloodAnalysis = () => {
