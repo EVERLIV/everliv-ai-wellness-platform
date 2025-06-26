@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
@@ -7,6 +6,10 @@ interface NavigationControlsProps {
   onSave: () => void;
   onCancel: () => void;
 }
+
+const sections = [
+  'personal', 'physical', 'mental', 'lifestyle', 'sleep', 'goals', 'medical', 'lab'
+];
 
 const NavigationControls: React.FC<NavigationControlsProps> = ({
   onSave,

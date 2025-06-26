@@ -1,45 +1,42 @@
-
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
-
-interface Section {
-  title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  component: React.ComponentType<any>;
-}
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { User, Activity, Brain, Coffee, Moon, Target, FileText, TestTube } from 'lucide-react';
 
 interface SectionNavigationProps {
-  sections: Section[];
-  currentSection: number;
-  onSectionChange: (index: number) => void;
+  currentSection: string;
+  onSectionChange: (section: string) => void;
+  completedSections: string[];
 }
 
-const SectionNavigation: React.FC<SectionNavigationProps> = ({
-  sections,
-  currentSection,
-  onSectionChange
+const sections = [
+  { id: 'personal', label: 'Личные данные', icon: User },
+  { id: 'physical', label: 'Физическое здоровье', icon: Activity },
+  { id: 'mental', label: 'Психическое здоровье', icon: Brain },
+  { id: 'lifestyle', label: 'Образ жизни', icon: Coffee },
+  { id: 'sleep', label: 'Сон', icon: Moon },
+  { id: 'goals', label: 'Цели здоровья', icon: Target },
+  { id: 'medical', label: 'Медицинская история', icon: FileText },
+  { id: 'lab', label: 'Лабораторные данные', icon: TestTube },
+];
+
+const SectionNavigation: React.FC<SectionNavigationProps> = ({ 
+  currentSection, 
+  onSectionChange,
+  completedSections 
 }) => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 mt-8">
-      {sections.map((section, index) => {
-        const Icon = section.icon;
-        return (
-          <Button
-            key={index}
-            variant={index === currentSection ? "default" : "outline"}
-            size="sm"
-            onClick={() => onSectionChange(index)}
-            className="flex flex-col gap-1 h-auto py-3"
-          >
-            <Icon className="h-4 w-4" />
-            <span className="text-xs text-center">{section.title}</span>
-            {index < currentSection && (
-              <CheckCircle className="h-3 w-3 text-green-500" />
-            )}
-          </Button>
-        );
-      })}
+    <div className="flex items-center justify-between overflow-x-auto pb-4">
+      {sections.map((section) => (
+        <Button
+          key={section.id}
+          variant={currentSection === section.id ? 'default' : 'outline'}
+          onClick={() => onSectionChange(section.id)}
+          className="flex-shrink-0 min-w-[120px]"
+        >
+          <section.icon className="h-4 w-4 mr-2" />
+          {section.label}
+        </Button>
+      ))}
     </div>
   );
 };
