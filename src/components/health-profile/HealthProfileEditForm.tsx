@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import MentalHealthSection from "./MentalHealthSection";
 import LifestyleSection from "./LifestyleSection";
 import SleepSection from "./SleepSection";
 import LabResultsSection from "./LabResultsSection";
-import RecommendationSettingsSection from "./RecommendationSettingsSection";
 import NavigationControls from "./NavigationControls";
 import MedicalHistorySection from "./MedicalHistorySection";
 import HealthGoalsSection from "./HealthGoalsSection";
@@ -32,6 +32,10 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
   const [currentSection, setCurrentSection] = useState('personal');
   const [completedSections, setCompletedSections] = useState(['personal']);
 
+  const handleLabResultsChange = (labResults: any) => {
+    onChange({ labResults });
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <SectionNavigation 
@@ -42,42 +46,42 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
 
       {currentSection === 'personal' && (
         <PersonalInfoSection 
-          healthProfile={healthProfile}
+          data={healthProfile}
           onChange={onChange}
         />
       )}
 
       {currentSection === 'physical' && (
         <PhysicalHealthSection 
-          healthProfile={healthProfile}
+          data={healthProfile}
           onChange={onChange}
         />
       )}
 
       {currentSection === 'mental' && (
         <MentalHealthSection 
-          healthProfile={healthProfile}
+          data={healthProfile}
           onChange={onChange}
         />
       )}
 
       {currentSection === 'lifestyle' && (
         <LifestyleSection 
-          healthProfile={healthProfile}
+          data={healthProfile}
           onChange={onChange}
         />
       )}
 
       {currentSection === 'sleep' && (
         <SleepSection 
-          healthProfile={healthProfile}
+          data={healthProfile}
           onChange={onChange}
         />
       )}
 
       {currentSection === 'medical' && (
         <MedicalHistorySection 
-          healthProfile={healthProfile}
+          data={healthProfile}
           onChange={onChange}
         />
       )}
@@ -92,14 +96,12 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
 
       {currentSection === 'lab' && (
         <LabResultsSection 
-          healthProfile={healthProfile}
-          onChange={onChange}
+          labResults={healthProfile.labResults || {}}
+          onChange={handleLabResultsChange}
         />
       )}
 
       <NavigationControls
-        currentSection={currentSection}
-        onSectionChange={setCurrentSection}
         onSave={onSave}
         onCancel={onCancel}
       />

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,37 +41,32 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({ healthProfi
 
       {/* Personal Information */}
       <PersonalInfoSection 
-        healthProfile={healthProfile}
+        data={healthProfile}
         onChange={() => {}}
-        readOnly
       />
 
       {/* Physical Health */}
       <PhysicalHealthSection 
-        healthProfile={healthProfile}
+        data={healthProfile}
         onChange={() => {}}
-        readOnly
       />
 
       {/* Mental Health */}
       <MentalHealthSection 
-        healthProfile={healthProfile}
+        data={healthProfile}
         onChange={() => {}}
-        readOnly
       />
 
       {/* Lifestyle */}
       <LifestyleSection 
-        healthProfile={healthProfile}
+        data={healthProfile}
         onChange={() => {}}
-        readOnly
       />
 
       {/* Sleep */}
       <SleepSection 
-        healthProfile={healthProfile}
+        data={healthProfile}
         onChange={() => {}}
-        readOnly
       />
 
       {/* Health Goals */}
@@ -82,16 +78,14 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({ healthProfi
 
       {/* Medical History */}
       <MedicalHistorySection 
-        healthProfile={healthProfile}
+        data={healthProfile}
         onChange={() => {}}
-        readOnly
       />
 
       {/* Lab Results */}
       <LabResultsSection 
-        healthProfile={healthProfile}
+        labResults={healthProfile.labResults || {}}
         onChange={() => {}}
-        readOnly
       />
     </div>
   );
