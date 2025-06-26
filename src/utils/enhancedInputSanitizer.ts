@@ -60,14 +60,4 @@ export class EnhancedInputSanitizer extends InputSanitizer {
       phone: this.sanitizeTextSecure(data.phone?.replace(/[^\d\+\-\(\)\s]/g, ''), 20)
     };
   }
-
-  // Enhanced email validation
-  private static sanitizeEmail(email: string): string {
-    if (!email || typeof email !== 'string') return '';
-    
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const sanitized = email.toLowerCase().trim().slice(0, 254); // RFC limit
-    
-    return emailRegex.test(sanitized) ? sanitized : '';
-  }
 }
