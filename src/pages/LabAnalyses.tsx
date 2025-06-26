@@ -38,17 +38,22 @@ const LabAnalyses = () => {
   useEffect(() => {
     console.log('🏥 LabAnalyses: Component state update:', {
       userId: user?.id,
+      userEmail: user?.email,
       showNewAnalysis,
       historyCount: analysisHistory?.length || 0,
       isLoadingHistory: loadingHistory,
       statistics,
-      hasResults: !!results
+      hasResults: !!results,
+      analysisHistory: analysisHistory
     });
   }, [user, showNewAnalysis, analysisHistory, loadingHistory, statistics, results]);
 
   // Логирование при монтировании компонента
   useEffect(() => {
-    console.log('🏥 LabAnalyses: Component mounted, current user:', user?.id);
+    console.log('🏥 LabAnalyses: Component mounted, current user:', {
+      id: user?.id,
+      email: user?.email
+    });
   }, []);
 
   const handleViewAnalysis = (analysisId: string) => {
@@ -92,7 +97,11 @@ const LabAnalyses = () => {
     );
   }
 
-  console.log('📊 LabAnalyses: Rendering main view with history count:', analysisHistory?.length || 0);
+  console.log('📊 LabAnalyses: Rendering main view with:', {
+    historyCount: analysisHistory?.length || 0,
+    loadingHistory,
+    statistics
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">

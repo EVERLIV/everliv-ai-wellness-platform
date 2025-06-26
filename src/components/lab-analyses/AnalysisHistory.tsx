@@ -22,7 +22,8 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   console.log('🔍 AnalysisHistory: Rendering with data:', {
     historyLength: analysisHistory?.length || 0,
     isLoading: loadingHistory,
-    firstAnalysis: analysisHistory?.[0]
+    firstAnalysis: analysisHistory?.[0],
+    allAnalyses: analysisHistory
   });
 
   const getAnalysisTypeLabel = (type: string) => {
