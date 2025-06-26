@@ -105,10 +105,6 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
     }
   };
 
-  const handleStepClick = (stepIndex: number) => {
-    setCurrentStep(stepIndex);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* Header with progress */}
@@ -142,38 +138,8 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
         </div>
       </div>
 
-      {/* Step indicators */}
-      <div className="container mx-auto px-4 py-4 max-w-4xl">
-        <div className="flex justify-center">
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {steps.map((step, index) => {
-              const Icon = step.icon;
-              const isActive = index === currentStep;
-              const isCompleted = index < currentStep;
-              
-              return (
-                <button
-                  key={step.id}
-                  onClick={() => handleStepClick(index)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
-                    isActive
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : isCompleted
-                      ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span className="hidden sm:inline">{step.title}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
       {/* Current step content */}
-      <div className="container mx-auto px-4 pb-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
         <Card className="shadow-lg border-0 bg-white/60 backdrop-blur-sm">
           <CardHeader className="text-center pb-6">
             <div className="flex justify-center mb-4">
@@ -232,7 +198,7 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
           {steps.map((_, index) => (
             <button
               key={index}
-              onClick={() => handleStepClick(index)}
+              onClick={() => setCurrentStep(index)}
               className={`w-2 h-2 rounded-full transition-all ${
                 index === currentStep
                   ? 'bg-blue-600 w-6'
