@@ -4,58 +4,60 @@ import { InputSanitizer } from '@/utils/inputSanitizer';
 
 interface UseSecureInputOptions {
   maxLength?: number;
-  allowHtml?: boolean;
-  isMedicalData?: boolean;
+  sanitizeOnChange?: boolean;
+  validateEmail?: boolean;
 }
 
-export const useSecureInput = (options: UseSecureInputOptions = {}) => {
-  const { maxLength = 1000, allowHtml = false, isMedicalData = false } = options;
-  
-  const [value, setValue] = useState('');
-  const [isValid, setIsValid] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
+export const useSecureInput = (initialValue: string = '', options: UseSecureInputOptions = {}) => {
+  const { maxLength = 1000, sanitizeOnChange = true, validateEmail = false } = options;
+  const [value, setValue] = useState(initialValue);
+  const [error, setError] = useState<string | null>(null);
 
-  const sanitizeAndValidate = useCallback((input: string) => {
-    let sanitized: string;
+  const handleChange = useCallback((newValue: string) => {
+    setError(null);
     
-    if (isMedicalData) {
-      sanitized = InputSanitizer.sanitizeMedicalData(input);
-    } else {
-      sanitized = InputSanitizer.sanitizeText(input, maxLength);
+    let sanitizedValue = newValue;
+    
+    if (sanitizeOnChange) {
+      sanitizedValue = InputSanitizer.sanitizeString(newValue);
     }
     
-    // Validation
-    if (input !== sanitized) {
-      setErrorMessage('Input contains potentially unsafe content');
-      setIsValid(false);
-    } else if (input.length > maxLength) {
-      setErrorMessage(`Input exceeds maximum length of ${maxLength} characters`);
-      setIsValid(false);
-    } else {
-      setErrorMessage('');
-      setIsValid(true);
+    if (sanitizedValue.length > maxLength) {
+      setError(`Input exceeds maximum length of ${maxLength} characters`);
+      return;
     }
     
-    return sanitized;
-  }, [maxLength, isMedicalData]);
+    if (validateEmail && sanitizedValue && !InputSanitizer.isValidEmail(sanitizedValue)) {
+      setError('Please enter a valid email address');
+    }
+    
+    setValue(sanitizedValue);
+  }, [maxLength, sanitizeOnChange, validateEmail]);
 
-  const handleInputChange = useCallback((input: string) => {
-    const sanitized = sanitizeAndValidate(input);
-    setValue(sanitized);
-  }, [sanitizeAndValidate]);
+  const getSanitizedValue = useCallback(() => {
+    return InputSanitizer.sanitizeString(value);
+  }, [value]);
 
   const reset = useCallback(() => {
-    setValue('');
-    setIsValid(true);
-    setErrorMessage('');
-  }, []);
+    setValue(initialValue);
+    setError(null);
+  }, [initialValue]);
+
+  const validate = useCallback(() => {
+    if (validateEmail && value && !InputSanitizer.isValidEmail(value)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    return true;
+  }, [value, validateEmail]);
 
   return {
     value,
-    isValid,
-    errorMessage,
-    handleInputChange,
+    error,
+    handleChange,
+    getSanitizedValue,
     reset,
-    sanitizeAndValidate
+    validate,
+    isValid: !error
   };
 };

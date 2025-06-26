@@ -1,112 +1,154 @@
 
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { AlertCircle, Upload } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Upload, FileText, X } from 'lucide-react';
 import { InputSanitizer } from '@/utils/inputSanitizer';
 
 interface SecureFileUploadProps {
   onFileSelect: (file: File) => void;
-  allowedTypes: string[];
-  maxSize: number; // in bytes
-  accept?: string;
-  className?: string;
+  acceptedTypes?: string[];
+  maxSize?: number;
+  multiple?: boolean;
 }
 
-export const SecureFileUpload = ({
-  onFileSelect,
-  allowedTypes,
-  maxSize,
-  accept,
-  className = ''
+const SecureFileUpload = ({ 
+  onFileSelect, 
+  acceptedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'],
+  maxSize = 10 * 1024 * 1024, // 10MB
+  multiple = false 
 }: SecureFileUploadProps) => {
-  const [error, setError] = useState<string | null>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [error, setError] = useState<string>('');
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const validateAndSelectFile = (file: File) => {
-    setError(null);
+  const validateFile = (file: File): { isValid: boolean; error?: string } => {
+    if (file.size > maxSize) {
+      return { isValid: false, error: `File size exceeds ${Math.round(maxSize / (1024 * 1024))}MB limit` };
+    }
     
-    const validationError = InputSanitizer.validateFileUpload(file, allowedTypes, maxSize);
+    if (!acceptedTypes.includes(file.type)) {
+      return { isValid: false, error: 'File type not allowed' };
+    }
     
-    if (validationError) {
-      setError(validationError);
+    return { isValid: true };
+  };
+
+  const handleFileSelect = (file: File) => {
+    const validation = validateFile(file);
+    
+    if (!validation.isValid) {
+      setError(validation.error || 'Invalid file');
       return;
     }
 
+    setError('');
+    setSelectedFile(file);
     onFileSelect(file);
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
-      validateAndSelectFile(file);
+      handleFileSelect(file);
     }
   };
 
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setIsDragOver(false);
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
     
-    const file = event.dataTransfer.files[0];
+    const file = e.dataTransfer.files[0];
     if (file) {
-      validateAndSelectFile(file);
+      handleFileSelect(file);
     }
   };
 
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setIsDragOver(true);
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
   };
 
-  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setIsDragOver(false);
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
   };
 
-  const handleClick = () => {
-    fileInputRef.current?.click();
+  const clearFile = () => {
+    setSelectedFile(null);
+    setError('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   return (
-    <div className={className}>
+    <div className="space-y-4">
       <div
-        className={`
-          border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
-          ${isDragOver ? 'border-primary bg-primary/5' : 'border-gray-300 hover:border-gray-400'}
-          ${error ? 'border-red-300 bg-red-50' : ''}
-        `}
+        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          isDragging 
+            ? 'border-primary bg-primary/5' 
+            : 'border-gray-300 hover:border-gray-400'
+        }`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        onClick={handleClick}
       >
         <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-        <p className="text-gray-600 mb-2">
-          Click to upload or drag and drop
-        </p>
-        <p className="text-sm text-gray-500">
-          Max size: {(maxSize / (1024 * 1024)).toFixed(1)}MB
-        </p>
-        <p className="text-xs text-gray-400 mt-1">
-          Allowed: {allowedTypes.map(type => type.split('/')[1]).join(', ')}
-        </p>
+        <div className="space-y-2">
+          <p className="text-lg font-medium">Drop files here or click to upload</p>
+          <p className="text-sm text-gray-500">
+            Supports: {acceptedTypes.map(type => type.split('/')[1]).join(', ')}
+          </p>
+          <p className="text-xs text-gray-400">
+            Maximum file size: {Math.round(maxSize / (1024 * 1024))}MB
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-4"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          Select File
+        </Button>
+        <Input
+          ref={fileInputRef}
+          type="file"
+          accept={acceptedTypes.join(',')}
+          onChange={handleInputChange}
+          multiple={multiple}
+          className="hidden"
+        />
       </div>
 
-      <Input
-        ref={fileInputRef}
-        type="file"
-        onChange={handleFileChange}
-        accept={accept}
-        className="hidden"
-      />
-
       {error && (
-        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex items-center">
-            <AlertCircle className="h-4 w-4 text-red-600 mr-2" />
-            <p className="text-sm text-red-700">{error}</p>
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {selectedFile && (
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center space-x-3">
+            <FileText className="h-8 w-8 text-gray-400" />
+            <div>
+              <p className="font-medium">{selectedFile.name}</p>
+              <p className="text-sm text-gray-500">
+                {Math.round(selectedFile.size / 1024)} KB
+              </p>
+            </div>
           </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={clearFile}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
       )}
     </div>
