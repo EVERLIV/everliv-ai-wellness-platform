@@ -1,27 +1,47 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useDailyHealthMetrics } from '@/hooks/useDailyHealthMetrics';
-import { useHealthGoals } from '@/hooks/useHealthGoals';
+import { useOptimizedHealthGoals } from '@/hooks/useOptimizedHealthGoals';
 import { TrendingUp, RefreshCw, Target } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { calculateProgress } from '@/utils/healthGoals';
 
 const DynamicHealthScore: React.FC = () => {
   const { calculateDynamicHealthScore, todayMetrics } = useDailyHealthMetrics();
-  const { activeGoal } = useHealthGoals();
+  const { activeGoal } = useOptimizedHealthGoals();
   const [healthScore, setHealthScore] = useState<number | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
-  const [goalProgress, setGoalProgress] = useState<any>({});
 
-  useEffect(() => {
-    recalculateScore();
-  }, [todayMetrics]);
+  // Memoized goal progress calculation
+  const goalProgress = useMemo(() => {
+    if (!activeGoal || !todayMetrics) return {};
 
-  useEffect(() => {
-    if (activeGoal && todayMetrics) {
-      calculateGoalProgress();
+    const progress: Record<string, number> = {};
+    
+    if (activeGoal.goal_type === 'steps' && activeGoal.target_value) {
+      progress.steps = calculateProgress(todayMetrics.steps, activeGoal.target_value);
     }
+    
+    if (activeGoal.goal_type === 'exercise' && activeGoal.target_value) {
+      progress.exercise = calculateProgress(todayMetrics.exercise_minutes, activeGoal.target_value);
+    }
+    
+    if (activeGoal.goal_type === 'sleep' && activeGoal.target_value) {
+      progress.sleep = calculateProgress(todayMetrics.sleep_hours, activeGoal.target_value);
+    }
+    
+    if (activeGoal.goal_type === 'water' && activeGoal.target_value) {
+      progress.water = calculateProgress(todayMetrics.water_intake, activeGoal.target_value);
+    }
+    
+    if (activeGoal.goal_type === 'stress' && activeGoal.target_value) {
+      progress.stress = todayMetrics.stress_level <= activeGoal.target_value ? 100 : 
+              Math.max(0, (1 - (todayMetrics.stress_level - activeGoal.target_value) / 10) * 100);
+    }
+
+    return progress;
   }, [activeGoal, todayMetrics]);
 
   const recalculateScore = async () => {
@@ -36,35 +56,9 @@ const DynamicHealthScore: React.FC = () => {
     }
   };
 
-  const calculateGoalProgress = () => {
-    if (!activeGoal || !todayMetrics) return;
-
-    // For the new goal structure, we'll only calculate progress for goals that have target values
-    const progress: any = {};
-    
-    if (activeGoal.category === 'fitness' && activeGoal.goal_type === 'steps') {
-      progress.steps = Math.min(100, (todayMetrics.steps / (activeGoal.target_value || 10000)) * 100);
-    }
-    
-    if (activeGoal.category === 'fitness' && activeGoal.goal_type === 'exercise') {
-      progress.exercise = Math.min(100, (todayMetrics.exercise_minutes / (activeGoal.target_value || 30)) * 100);
-    }
-    
-    if (activeGoal.category === 'sleep') {
-      progress.sleep = Math.min(100, (todayMetrics.sleep_hours / (activeGoal.target_value || 8)) * 100);
-    }
-    
-    if (activeGoal.category === 'nutrition' && activeGoal.goal_type === 'water') {
-      progress.water = Math.min(100, (todayMetrics.water_intake / (activeGoal.target_value || 8)) * 100);
-    }
-    
-    if (activeGoal.category === 'mental' && activeGoal.goal_type === 'stress') {
-      progress.stress = todayMetrics.stress_level <= (activeGoal.target_value || 3) ? 100 : 
-              Math.max(0, (1 - (todayMetrics.stress_level - (activeGoal.target_value || 3)) / 10) * 100);
-    }
-
-    setGoalProgress(progress);
-  };
+  useEffect(() => {
+    recalculateScore();
+  }, [todayMetrics]);
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
@@ -149,7 +143,7 @@ const DynamicHealthScore: React.FC = () => {
                 <h4 className="font-semibold text-blue-800 mb-2">{activeGoal.title}</h4>
                 <p className="text-sm text-blue-600 mb-3">{activeGoal.description}</p>
                 
-                {Object.entries(goalProgress).map(([key, value]: [string, any]) => (
+                {Object.entries(goalProgress).map(([key, value]) => (
                   <div key={key} className="mb-3">
                     <div className="flex justify-between text-sm mb-2">
                       <span className="capitalize">{key}</span>
