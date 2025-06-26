@@ -123,7 +123,7 @@ export const useAuthActions = () => {
       setIsLoading(true);
       console.log('Sending password reset email to:', email);
       
-      // Формируем корректный URL для сброса пароля
+      // Используем правильный URL для сброса пароля
       const currentOrigin = window.location.origin;
       const redirectUrl = `${currentOrigin}/reset-password`;
       
@@ -135,6 +135,7 @@ export const useAuthActions = () => {
       
       if (error) throw error;
       
+      console.log('Password reset email sent successfully');
       toast.success('Ссылка для сброса пароля отправлена на вашу почту!');
       return Promise.resolve();
     } catch (error: any) {
