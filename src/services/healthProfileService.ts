@@ -29,6 +29,8 @@ export const healthProfileService = {
   },
 
   async saveHealthProfile(healthProfile: HealthProfileData): Promise<boolean> {
+    console.log('Starting health profile save process...');
+    
     // Проверяем текущую сессию пользователя
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     
@@ -38,9 +40,16 @@ export const healthProfileService = {
       return false;
     }
 
-    console.log('Session is valid, user ID from session:', sessionData.session.user.id);
-    console.log('Saving health profile for user:', sessionData.session.user.id);
-    console.log('Health profile data:', healthProfile);
+    const userId = sessionData.session.user.id;
+    console.log('Saving health profile for user:', userId);
+    console.log('Health profile data to save:', healthProfile);
+
+    // Валидируем обязательные поля
+    if (!healthProfile.age || !healthProfile.gender || !healthProfile.height || !healthProfile.weight) {
+      console.error('Missing required fields in health profile');
+      toast.error('Пожалуйста, заполните все обязательные поля');
+      return false;
+    }
 
     // Обновляем lastUpdated для лабораторных данных
     if (healthProfile.labResults) {
@@ -48,40 +57,46 @@ export const healthProfileService = {
     }
 
     const profilePayload = {
-      user_id: sessionData.session.user.id,
+      user_id: userId,
       profile_data: healthProfile as unknown as any,
       updated_at: new Date().toISOString()
     };
 
     console.log('Saving with payload:', profilePayload);
 
-    const { data, error } = await supabase
-      .from('health_profiles')
-      .upsert(profilePayload, {
-        onConflict: 'user_id'
-      })
-      .select();
+    try {
+      const { data, error } = await supabase
+        .from('health_profiles')
+        .upsert(profilePayload, {
+          onConflict: 'user_id'
+        })
+        .select();
 
-    if (error) {
-      console.error('Error saving health profile:', error);
-      
-      // Специальная обработка ошибки RLS
-      if (error.code === '42501' || error.message.includes('row-level security')) {
-        console.error('RLS Policy violation detected');
+      if (error) {
+        console.error('Error saving health profile:', error);
         
-        // Проверяем, что пользователь действительно аутентифицирован
-        const { data: userData } = await supabase.auth.getUser();
-        console.log('Current authenticated user:', userData.user?.id);
-        
-        toast.error('Ошибка доступа к данным. Попробуйте выйти и войти в систему снова');
-      } else {
-        toast.error('Ошибка при сохранении профиля здоровья: ' + error.message);
+        // Специальная обработка ошибки RLS
+        if (error.code === '42501' || error.message.includes('row-level security')) {
+          console.error('RLS Policy violation detected');
+          
+          // Проверяем, что пользователь действительно аутентифицирован
+          const { data: userData } = await supabase.auth.getUser();
+          console.log('Current authenticated user:', userData.user?.id);
+          
+          toast.error('Ошибка доступа к данным. Попробуйте выйти и войти в систему снова');
+        } else {
+          toast.error('Ошибка при сохранении профиля здоровья: ' + error.message);
+        }
+        return false;
       }
+
+      console.log('Health profile saved successfully:', data);
+      toast.success('Профиль здоровья успешно сохранен');
+      return true;
+    } catch (error) {
+      console.error('Unexpected error saving health profile:', error);
+      toast.error('Неожиданная ошибка при сохранении профиля');
       return false;
     }
-
-    console.log('Health profile saved successfully:', data);
-    toast.success('Профиль здоровья успешно сохранен');
-    return true;
   }
 };

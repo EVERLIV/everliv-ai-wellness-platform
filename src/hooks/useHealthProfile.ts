@@ -6,6 +6,7 @@ import { HealthProfileData } from "@/types/healthProfile";
 import { healthProfileService } from "@/services/healthProfileService";
 import { labResultsProcessor } from "@/utils/labResultsProcessor";
 import { getMockHealthProfile } from "@/utils/mockHealthProfileData";
+import { toast } from "sonner";
 
 export const useHealthProfile = () => {
   const { user } = useSmartAuth();
@@ -36,6 +37,7 @@ export const useHealthProfile = () => {
       } catch (error) {
         console.error('Error fetching health profile:', error);
         setHealthProfile(null);
+        toast.error('Ошибка при загрузке профиля здоровья');
       } finally {
         setIsLoading(false);
       }
@@ -72,19 +74,30 @@ export const useHealthProfile = () => {
   const saveHealthProfile = async () => {
     if (!user) {
       console.error('Cannot save: no user logged in');
+      toast.error('Вы не авторизованы');
       return false;
     }
 
     if (!healthProfile) {
       console.error('Cannot save: no health profile data');
+      toast.error('Нет данных для сохранения');
       return false;
     }
 
-    const success = await healthProfileService.saveHealthProfile(healthProfile);
-    if (success) {
-      setEditMode(false);
+    console.log('Attempting to save health profile:', healthProfile);
+    
+    try {
+      const success = await healthProfileService.saveHealthProfile(healthProfile);
+      if (success) {
+        setEditMode(false);
+        console.log('Health profile saved successfully, exiting edit mode');
+      }
+      return success;
+    } catch (error) {
+      console.error('Error in saveHealthProfile:', error);
+      toast.error('Ошибка при сохранении профиля');
+      return false;
     }
-    return success;
   };
 
   const updateLabResultsFromAnalysis = (analysisData: any) => {

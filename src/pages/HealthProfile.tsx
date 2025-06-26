@@ -6,6 +6,7 @@ import HealthProfileDisplay from "@/components/health-profile/HealthProfileDispl
 import StepByStepHealthProfileForm from "@/components/health-profile/StepByStepHealthProfileForm";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { HealthProfileData } from "@/types/healthProfile";
+import { toast } from "sonner";
 
 const HealthProfile: React.FC = () => {
   const { 
@@ -18,18 +19,33 @@ const HealthProfile: React.FC = () => {
   } = useHealthProfile();
 
   const handleEdit = () => {
+    console.log('Entering edit mode');
     setEditMode(true);
   };
 
   const handleSave = async () => {
-    await saveHealthProfile();
+    console.log('Save button clicked');
+    try {
+      const success = await saveHealthProfile();
+      if (success) {
+        console.log('Profile saved successfully');
+        toast.success('Профиль здоровья сохранен');
+      } else {
+        console.log('Profile save failed');
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast.error('Ошибка при сохранении профиля');
+    }
   };
 
   const handleCancel = () => {
+    console.log('Cancel button clicked, exiting edit mode');
     setEditMode(false);
   };
 
   const handleCreateProfile = () => {
+    console.log('Creating new profile');
     // Создаем базовый профиль с минимальными данными
     const defaultProfile: HealthProfileData = {
       age: 25,
