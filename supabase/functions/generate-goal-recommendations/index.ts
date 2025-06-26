@@ -14,7 +14,7 @@ interface UserProfile {
   gender?: string;
   weight?: number;
   height?: number;
-  activityLevel?: string;
+  exerciseFrequency?: string;
   chronicConditions?: string[];
   medications?: string[];
   stressLevel?: number;
@@ -60,7 +60,7 @@ serve(async (req) => {
 Пол: ${userProfile.gender || 'не указан'}
 Вес: ${userProfile.weight || 'не указан'} кг
 Рост: ${userProfile.height || 'не указан'} см
-Уровень активности: ${userProfile.activityLevel || 'не указан'}
+Уровень активности: ${userProfile.exerciseFrequency || 'не указан'}
 Хронические заболевания: ${userProfile.chronicConditions?.join(', ') || 'нет'}
 Лекарства: ${userProfile.medications?.join(', ') || 'нет'}
 Уровень стресса (1-10): ${userProfile.stressLevel || 'не указан'}
@@ -68,8 +68,7 @@ serve(async (req) => {
 `;
 
     const prompt = `
-Ты - эксперт по медицине и здоровью с глубокими знаниями современных исследований. 
-Создай 2-3 персонализированные медицинские рекомендации на основе целей пользователя и его профиля.
+Ты - экспертный медицинский консультант с доступом к актуальным научным исследованиям из открытых медицинских библиотек (PubMed, Cochrane Library, Google Scholar). Твоя задача - формировать персональные рекомендации по здоровью на основе современных доказательных подходов.
 
 ЦЕЛИ ПОЛЬЗОВАТЕЛЯ:
 ${translatedGoals.join(', ')}
@@ -77,25 +76,39 @@ ${translatedGoals.join(', ')}
 ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ:
 ${profileContext}
 
-ТРЕБОВАНИЯ:
-1. Рекомендации должны быть основаны на современных научных исследованиях
-2. Учитывай профиль пользователя (возраст, пол, состояние здоровья)
-3. Каждая рекомендация должна быть конкретной и выполнимой
-4. Укажи временные рамки и ожидаемые результаты
-5. Используй доказательную медицину
+ОБЛАСТИ ДЛЯ РЕКОМЕНДАЦИЙ:
+1. Питание и нутрициология (макро/микронутриенты, функциональное питание)
+2. Современные подходы (интервальное голодание, кето, средиземноморская диета)
+3. Криотерапия и температурные воздействия
+4. Физическая активность (HIIT, силовые, кардио)
+5. Сон и циркадные ритмы
+6. Управление стрессом и ментальное здоровье
 
-Ответь в формате JSON массива объектов со следующими полями:
-- id: уникальный идентификатор
+ТРЕБОВАНИЯ К РЕКОМЕНДАЦИЯМ:
+- Научная обоснованность с ссылками на исследования
+- ОБЯЗАТЕЛЬНО указывай противопоказания
+- Персонализация под цели и ограничения
+- Практичность с пошаговыми инструкциями
+- Безопасность превыше всего
+
+Создай 2-3 приоритетные рекомендации в формате JSON массива объектов со следующими полями:
+- id: уникальный идентификатор (строка)
 - title: краткий заголовок (максимум 50 символов)
-- description: описание (максимум 100 символов)
+- description: описание (максимум 120 символов)
 - timeframe: временные рамки (например, "2-4 недели")
 - category: тип ('exercise', 'nutrition', 'sleep', 'stress', 'supplements')
 - priority: важность ('high', 'medium', 'low')
-- scientificBasis: краткое описание научного обоснования
+- scientificBasis: краткое описание научного обоснования с годом исследований
 - specificActions: массив конкретных действий (3-5 пунктов)
 
-ВАЖНО: Ответь ТОЛЬКО валидным JSON массивом, без дополнительного текста.
+ВАЖНО: 
+- Ответь ТОЛЬКО валидным JSON массивом, без markdown разметки
+- Учитывай возраст, пол и хронические заболевания для безопасности
+- Включай современные биохакинг подходы где применимо
+- Всегда добавляй предупреждение о консультации с врачом в scientificBasis
 `;
+
+    console.log('Sending request to OpenAI with profile:', userProfile);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -108,7 +121,7 @@ ${profileContext}
         messages: [
           {
             role: 'system',
-            content: 'Ты медицинский эксперт, специализирующийся на доказательной медицине и персонализированных рекомендациях. Отвечай только валидным JSON.'
+            content: 'Ты экспертный медицинский консультант, специализирующийся на доказательной медицине и персонализированных рекомендациях. Отвечай только валидным JSON без markdown разметки.'
           },
           {
             role: 'user',
@@ -121,18 +134,30 @@ ${profileContext}
     });
 
     if (!response.ok) {
+      console.error(`OpenAI API error: ${response.status}`);
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
     const aiResponse = await response.json();
-    console.log('AI Response:', aiResponse);
+    console.log('AI Response received:', aiResponse);
 
     if (!aiResponse.choices?.[0]?.message?.content) {
-      throw new Error('Invalid AI response');
+      throw new Error('Invalid AI response - no content');
     }
 
-    const recommendations = JSON.parse(aiResponse.choices[0].message.content);
-    console.log('Generated recommendations:', recommendations);
+    let content = aiResponse.choices[0].message.content.trim();
+    
+    // Удаляем markdown разметку если есть
+    if (content.startsWith('```json')) {
+      content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    } else if (content.startsWith('```')) {
+      content = content.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    }
+
+    console.log('Cleaned content:', content);
+
+    const recommendations = JSON.parse(content);
+    console.log('Parsed recommendations:', recommendations);
 
     if (!Array.isArray(recommendations)) {
       throw new Error('AI response is not an array');
@@ -146,34 +171,36 @@ ${profileContext}
   } catch (error) {
     console.error('Error in generate-goal-recommendations function:', error);
     
-    // Возвращаем fallback рекомендации в случае ошибки
+    // Возвращаем fallback рекомендации
     const fallbackRecommendations = [
       {
         id: 'fallback-1',
-        title: 'Увеличить физическую активность',
-        description: 'Добавьте 30 минут умеренной активности 5 раз в неделю',
-        timeframe: '2-4 недели',
-        category: 'exercise',
+        title: 'Интервальное голодание 16:8',
+        description: 'Современный подход к питанию для улучшения метаболизма и снижения веса',
+        timeframe: '2-4 недели адаптации',
+        category: 'nutrition',
         priority: 'high',
-        scientificBasis: 'ВОЗ рекомендует минимум 150 минут умеренной активности в неделю',
+        scientificBasis: 'Исследования 2023г показывают эффективность ИГ для метаболизма. Консультация врача обязательна',
         specificActions: [
-          'Ходьба быстрым шагом 30 минут',
-          'Плавание 2-3 раза в неделю',
-          'Силовые упражнения 2 раза в неделю'
+          'Окно питания: 12:00-20:00, голодание: 20:00-12:00',
+          'Начните с 14:10, постепенно переходя к 16:8',
+          'Пейте воду, чай, кофе без сахара в период голодания',
+          'Контролируйте самочувствие, при недомогании - прекратите'
         ]
       },
       {
         id: 'fallback-2',
-        title: 'Оптимизировать питание',
-        description: 'Сбалансированное питание с акцентом на цельные продукты',
+        title: 'Холодовая терапия',
+        description: 'Контрастный душ для активации метаболизма и укрепления иммунитета',
         timeframe: '1-2 недели',
-        category: 'nutrition',
+        category: 'stress',
         priority: 'medium',
-        scientificBasis: 'Средиземноморская диета снижает риск сердечно-сосудистых заболеваний',
+        scientificBasis: 'Исследования 2024г: холод активирует бурый жир, повышает метаболизм на 15%. Противопоказан при ССЗ',
         specificActions: [
-          'Увеличить потребление овощей и фруктов',
-          'Включить омега-3 жирные кислоты',
-          'Ограничить обработанные продукты'
+          'Начните с 30 сек холодной воды в конце душа',
+          'Постепенно увеличивайте до 2-3 минут',
+          'Температура 10-15°C, дышите глубоко и спокойно',
+          'При проблемах с сердцем - консультация кардиолога'
         ]
       }
     ];
