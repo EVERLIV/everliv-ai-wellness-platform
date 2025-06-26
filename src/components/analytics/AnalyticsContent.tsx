@@ -4,7 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import DetailedHealthRecommendations from "./DetailedHealthRecommendations";
+import HealthOverviewSection from "./HealthOverviewSection";
+import RecommendationsOverview from "./RecommendationsOverview";
 import AnalyticsActions from "./AnalyticsActions";
 import { CachedAnalytics } from "@/types/analytics";
 
@@ -56,7 +57,12 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
         isGenerating={isGenerating}
       />
 
-      <DetailedHealthRecommendations
+      <HealthOverviewSection 
+        analytics={analytics}
+        healthProfile={healthProfile}
+      />
+      
+      <RecommendationsOverview 
         analytics={analytics}
         healthProfile={healthProfile}
       />
