@@ -76,10 +76,13 @@ const SmartGoalRecommendations: React.FC = () => {
 
   const generateRecommendations = async () => {
     if (!healthProfile?.healthGoals || healthProfile.healthGoals.length === 0) {
+      console.log('No health goals found, skipping recommendations generation');
       return;
     }
 
     setIsGenerating(true);
+    console.log('Generating recommendations for goals:', healthProfile.healthGoals);
+    
     try {
       const { data, error } = await supabase.functions.invoke('generate-goal-recommendations', {
         body: {
@@ -89,7 +92,7 @@ const SmartGoalRecommendations: React.FC = () => {
             gender: healthProfile.gender,
             weight: healthProfile.weight,
             height: healthProfile.height,
-            activityLevel: healthProfile.activityLevel,
+            exerciseFrequency: healthProfile.exerciseFrequency,
             chronicConditions: healthProfile.chronicConditions,
             medications: healthProfile.medications,
             stressLevel: healthProfile.stressLevel,
@@ -104,8 +107,13 @@ const SmartGoalRecommendations: React.FC = () => {
         return;
       }
 
+      console.log('Recommendations response:', data);
+
       if (data?.recommendations) {
         setRecommendations(data.recommendations);
+        console.log('Successfully set recommendations:', data.recommendations);
+      } else {
+        console.log('No recommendations in response');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -117,7 +125,10 @@ const SmartGoalRecommendations: React.FC = () => {
 
   useEffect(() => {
     if (healthProfile?.healthGoals && healthProfile.healthGoals.length > 0) {
+      console.log('Health profile loaded with goals:', healthProfile.healthGoals);
       generateRecommendations();
+    } else {
+      console.log('No health goals found in profile');
     }
   }, [healthProfile?.healthGoals]);
 
