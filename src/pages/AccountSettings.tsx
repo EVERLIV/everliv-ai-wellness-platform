@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import Header from "@/components/Header";
 import MinimalFooter from "@/components/MinimalFooter";
+import PasswordSettings from "@/components/settings/PasswordSettings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,7 +45,6 @@ const AccountSettings: React.FC = () => {
       <Header />
       
       <div className="flex-grow pt-16">
-        {/* Header Section */}
         <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 border-b border-gray-200">
           <div className="container mx-auto px-4 py-6 max-w-7xl">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -121,6 +121,9 @@ const AccountSettings: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Смена пароля */}
+            <PasswordSettings />
 
             {/* Информация о подписке */}
             <Card>

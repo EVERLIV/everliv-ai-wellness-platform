@@ -5,6 +5,7 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useProfile } from "@/hooks/useProfile";
 import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
 import SettingsHeader from "@/components/settings/SettingsHeader";
+import PasswordSettings from "@/components/settings/PasswordSettings";
 import DashboardActivityFeed from "@/components/dashboard/DashboardActivityFeed";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,6 @@ const Settings: React.FC = () => {
     weeklyReports: true
   });
 
-  // Загружаем данные профиля при инициализации
   useEffect(() => {
     if (profileData) {
       setUserSettings(prev => ({
@@ -54,7 +54,6 @@ const Settings: React.FC = () => {
 
     if (success) {
       toast.success("Никнейм успешно сохранен");
-      // Принудительно обновляем данные профиля
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -64,7 +63,6 @@ const Settings: React.FC = () => {
   };
 
   const handleSaveAllSettings = async () => {
-    // Сохраняем никнейм в профиле
     if (userSettings.nickname.trim()) {
       const success = await updateProfile({
         nickname: userSettings.nickname.trim()
@@ -157,6 +155,9 @@ const Settings: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Смена пароля */}
+        <PasswordSettings />
 
         {/* Подписка */}
         <Card>

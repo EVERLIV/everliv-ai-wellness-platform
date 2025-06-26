@@ -64,7 +64,7 @@ export const useAuthActions = () => {
       
       const { data, error } = await supabase.auth.signUp({ 
         email, 
-        password: Math.random().toString(36), // Временный пароль, не используется
+        password: Math.random().toString(36), 
         options: {
           data: {
             full_name: userData.nickname,
@@ -76,7 +76,6 @@ export const useAuthActions = () => {
       
       if (error) throw error;
 
-      // Если пользователь создан, создаем запись в профиле
       if (data.user) {
         const { error: profileError } = await supabase
           .from('profiles')
@@ -90,11 +89,9 @@ export const useAuthActions = () => {
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
-          // Не прерываем процесс регистрации из-за ошибки профиля
         }
       }
 
-      // Отправляем welcome email после успешной регистрации
       try {
         await sendRegistrationConfirmationEmail(
           email,
@@ -104,7 +101,6 @@ export const useAuthActions = () => {
         console.log('Welcome email sent successfully');
       } catch (emailError) {
         console.error('Failed to send welcome email:', emailError);
-        // Не прерываем процесс регистрации из-за ошибки email
       }
       
       toast.success('Ссылка для подтверждения отправлена на вашу почту!');
@@ -123,17 +119,31 @@ export const useAuthActions = () => {
       setIsLoading(true);
       console.log('Sending password reset email to:', email);
       
-      // Используем правильный URL для сброса пароля
       const currentOrigin = window.location.origin;
       const redirectUrl = `${currentOrigin}/reset-password`;
       
       console.log('Reset password redirect URL:', redirectUrl);
       
+      // Сначала вызываем стандартный метод Supabase
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
       });
       
       if (error) throw error;
+      
+      // Затем отправляем кастомный email с правильной ссылкой
+      try {
+        await supabase.functions.invoke('send-password-reset', {
+          body: {
+            email: email,
+            resetUrl: redirectUrl
+          }
+        });
+        console.log('Custom password reset email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send custom email:', emailError);
+        // Не прерываем процесс, если кастомный email не отправился
+      }
       
       console.log('Password reset email sent successfully');
       toast.success('Ссылка для сброса пароля отправлена на вашу почту!');
