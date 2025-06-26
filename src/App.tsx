@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -55,7 +56,6 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const Settings = lazy(() => import("./pages/Settings"));
 const HealthProfile = lazy(() => import("./pages/HealthProfile"));
-const HealthTracking = lazy(() => import("./pages/HealthTracking"));
 const BloodAnalysis = lazy(() => import("./pages/BloodAnalysis"));
 const LabAnalyses = lazy(() => import("./pages/LabAnalyses"));
 const AnalysisDetails = lazy(() => import("./pages/AnalysisDetails"));
@@ -122,11 +122,6 @@ const App = () => (
                       <Route path="/health-profile" element={
                         <ProtectedRoute>
                           <HealthProfile />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/health-tracking" element={
-                        <ProtectedRoute>
-                          <HealthTracking />
                         </ProtectedRoute>
                       } />
                       <Route path="/blood-analysis" element={

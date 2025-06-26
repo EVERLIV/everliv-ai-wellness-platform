@@ -29,7 +29,7 @@ const MyGoalsSection: React.FC = () => {
   };
 
   const handleGoToRecommendations = () => {
-    navigate('/health-tracking');
+    navigate('/analytics');
   };
 
   if (isLoading) {
@@ -106,43 +106,8 @@ const MyGoalsSection: React.FC = () => {
               </div>
             ))}
 
-            {/* Ближайшие чекапы */}
-            {pendingCheckups.slice(0, 2).map((checkup) => {
-              const daysUntil = Math.ceil((new Date(checkup.scheduled_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-              const isOverdue = daysUntil < 0;
-              
-              return (
-                <div 
-                  key={checkup.id}
-                  className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                    isOverdue ? 'bg-orange-50 hover:bg-orange-100' : 'bg-blue-50 hover:bg-blue-100'
-                  }`}
-                >
-                  <div className={`p-2 rounded-lg ${isOverdue ? 'bg-orange-100' : 'bg-blue-100'}`}>
-                    <Clock className={`h-4 w-4 ${isOverdue ? 'text-orange-600' : 'text-blue-600'}`} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-sm text-gray-900 truncate">
-                      {checkup.title}
-                    </h4>
-                    <p className="text-xs text-gray-600">
-                      {daysUntil > 0 && `Через ${daysUntil} дн.`}
-                      {daysUntil === 0 && 'Сегодня'}
-                      {daysUntil < 0 && `Просрочен на ${Math.abs(daysUntil)} дн.`}
-                    </p>
-                  </div>
-                  <Badge 
-                    variant={isOverdue ? 'destructive' : 'secondary'}
-                    className="text-xs"
-                  >
-                    Чекап
-                  </Badge>
-                </div>
-              );
-            })}
-
             {/* Показать больше */}
-            {(activeRecommendations.length > 3 || pendingCheckups.length > 2) && (
+            {activeRecommendations.length > 3 && (
               <div className="pt-2 border-t">
                 <Button 
                   variant="ghost" 
@@ -150,7 +115,7 @@ const MyGoalsSection: React.FC = () => {
                   className="w-full"
                   onClick={handleGoToRecommendations}
                 >
-                  Показать все ({activeRecommendations.length + pendingCheckups.length})
+                  Показать все ({activeRecommendations.length})
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </div>

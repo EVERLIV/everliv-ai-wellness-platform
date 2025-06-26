@@ -9,8 +9,7 @@ const HealthGoalsSection: React.FC = () => {
   const navigate = useNavigate();
 
   const handleGoToRecommendations = () => {
-    // Переходим на страницу трекинга здоровья вместо дашборда
-    navigate('/health-tracking');
+    navigate('/analytics');
   };
 
   return (
