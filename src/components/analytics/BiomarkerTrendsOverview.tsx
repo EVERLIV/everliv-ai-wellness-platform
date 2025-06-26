@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -106,7 +107,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
       console.log('Total biomarkers found:', totalMarkers);
       console.log('Unique biomarkers:', Object.keys(biomarkerHistory).length);
 
-      // Анализируем тренды с правильной логикой
+      // Анализируем тренды с правильной логикой статусов
       const trends: BiomarkerTrend[] = [];
       let improving = 0;
       let stable = 0;
@@ -139,12 +140,25 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
               trend = 'stable';
               stable++;
             } else {
-              // Для одинакового статуса смотрим на направление изменения
-              if (latest.status === 'optimal' || latest.status === 'good') {
-                trend = 'stable';
-                stable++;
+              // Определяем тренд по направлению изменения для одинакового статуса
+              if (changePercent > 5) {
+                if (latest.status === 'optimal' || latest.status === 'good') {
+                  trend = 'improving';
+                  improving++;
+                } else {
+                  trend = 'worsening';
+                  concerning++;
+                }
+              } else if (changePercent < -5) {
+                if (latest.status === 'risk' || latest.status === 'attention') {
+                  trend = 'improving';
+                  improving++;
+                } else {
+                  trend = 'worsening';
+                  concerning++;
+                }
               } else {
-                trend = changePercent > 0 ? 'stable' : 'stable';
+                trend = 'stable';
                 stable++;
               }
             }
@@ -223,6 +237,21 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
         return 'bg-red-100 text-red-800 border-red-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'optimal':
+        return 'Оптимально';
+      case 'good':
+        return 'Хорошо';
+      case 'attention':
+        return 'Внимание';
+      case 'risk':
+        return 'Риск';
+      default:
+        return 'Неизвестно';
     }
   };
 
@@ -352,9 +381,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
                   </div>
                 </div>
                 <Badge className={`${getStatusColor(biomarker.status)} border`}>
-                  {biomarker.status === 'optimal' ? 'Оптимально' :
-                   biomarker.status === 'good' ? 'Хорошо' :
-                   biomarker.status === 'attention' ? 'Внимание' : 'Риск'}
+                  {getStatusText(biomarker.status)}
                 </Badge>
               </div>
             ))}

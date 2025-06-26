@@ -1,9 +1,6 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, TrendingUp, Activity, TestTube } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
+import { Activity, TrendingUp, AlertTriangle } from 'lucide-react';
 
 interface AnalyticsPageHeaderProps {
   healthScore: number;
@@ -14,123 +11,65 @@ const AnalyticsPageHeader: React.FC<AnalyticsPageHeaderProps> = ({
   healthScore,
   riskLevel
 }) => {
-  const navigate = useNavigate();
-
-  const getRiskLevelColor = (level: string) => {
-    switch (level?.toLowerCase()) {
+  const getRiskColor = (level: string) => {
+    switch (level.toLowerCase()) {
       case 'низкий':
-      case 'low':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'text-green-600 bg-green-50 border-green-200';
       case 'средний':
-      case 'moderate':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'text-yellow-600 bg-yellow-50 border-yellow-200';
       case 'высокий':
-      case 'high':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'критический':
-      case 'critical':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'text-red-600 bg-red-50 border-red-200';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
 
+  const getRiskIcon = (level: string) => {
+    switch (level.toLowerCase()) {
+      case 'низкий':
+        return <TrendingUp className="h-4 w-4" />;
+      case 'высокий':
+        return <AlertTriangle className="h-4 w-4" />;
+      default:
+        return <Activity className="h-4 w-4" />;
+    }
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
   return (
-    <div className="bg-gradient-to-br from-primary/10 via-white to-secondary/10 border-b border-gray-200">
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate("/dashboard")}
-              className="flex items-center gap-2 hover:bg-gray-100 px-2 sm:px-3"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Назад к панели</span>
-              <span className="sm:hidden">Назад</span>
-            </Button>
-            
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary/20 to-secondary/30 rounded-xl flex items-center justify-center shadow-sm">
-                <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+    <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl font-bold mb-4">
+            Персональная аналитика здоровья
+          </h1>
+          <p className="text-xl text-blue-100 mb-8">
+            Комплексный анализ вашего здоровья на основе данных ИИ
+          </p>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            {/* Балл здоровья */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 min-w-[200px]">
+              <div className="text-sm text-blue-100 mb-2">Балл здоровья</div>
+              <div className={`text-3xl font-bold ${getScoreColor(healthScore)}`}>
+                {healthScore}/100
               </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
-                  Аналитика здоровья
-                </h1>
-                <p className="text-sm sm:text-base text-gray-600 hidden sm:block">
-                  Персональные рекомендации на основе ваших данных здоровья
-                </p>
+            </div>
+
+            {/* Уровень риска */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 min-w-[200px]">
+              <div className="text-sm text-blue-100 mb-2">Уровень риска</div>
+              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-sm font-medium ${getRiskColor(riskLevel)}`}>
+                {getRiskIcon(riskLevel)}
+                {riskLevel}
               </div>
             </div>
           </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <Button 
-              variant="outline" 
-              className="gap-2 w-full sm:w-auto"
-              size="sm"
-              onClick={() => navigate('/lab-analyses')}
-            >
-              <TestTube className="h-4 w-4" />
-              <span className="sm:hidden">Анализы</span>
-              <span className="hidden sm:inline">Мои анализы</span>
-            </Button>
-            <Button 
-              onClick={() => navigate('/health-profile')}
-              className="gap-2 bg-primary hover:bg-secondary text-white w-full sm:w-auto"
-              size="sm"
-            >
-              <Activity className="h-4 w-4" />
-              <span className="sm:hidden">Профиль</span>
-              <span className="hidden sm:inline">Профиль здоровья</span>
-            </Button>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-          <Card className="bg-white/60 backdrop-blur-sm border border-gray-100 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-gray-600 text-sm">Общий балл</p>
-                  <p className="text-gray-900 font-semibold">65.0/100</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-white/60 backdrop-blur-sm border border-gray-100 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-secondary/10 rounded-lg flex items-center justify-center">
-                  <TestTube className="h-5 w-5 text-secondary" />
-                </div>
-                <div>
-                  <p className="text-gray-600 text-sm">Анализов</p>
-                  <p className="text-gray-900 font-semibold">2</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-white/60 backdrop-blur-sm border border-gray-100 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-gray-600 text-sm">Биомаркеров</p>
-                  <p className="text-gray-900 font-semibold">18</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

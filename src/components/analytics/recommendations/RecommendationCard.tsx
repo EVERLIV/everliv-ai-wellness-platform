@@ -3,9 +3,11 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Save, Heart, Dumbbell, Moon, Brain, Apple, TestTube } from 'lucide-react';
 import { AnalyticsRecommendation } from '@/types/analyticsRecommendations';
 import RecommendationDetails from './RecommendationDetails';
+import { useSecureProtocols } from '@/hooks/useSecureProtocols';
+import { toast } from '@/hooks/use-toast';
 
 interface RecommendationCardProps {
   recommendation: AnalyticsRecommendation;
@@ -18,74 +20,181 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   isExpanded,
   onToggleExpanded
 }) => {
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'critical': return 'bg-red-100 text-red-800 border-red-200';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+  const { createProtocol } = useSecureProtocols();
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'nutrition':
+        return <Apple className="h-4 w-4" />;
+      case 'exercise':
+        return <Dumbbell className="h-4 w-4" />;
+      case 'sleep':
+        return <Moon className="h-4 w-4" />;
+      case 'stress':
+        return <Brain className="h-4 w-4" />;
+      case 'supplements':
+        return <Heart className="h-4 w-4" />;
+      case 'biohacking':
+        return <TestTube className="h-4 w-4" />;
+      default:
+        return <Heart className="h-4 w-4" />;
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'nutrition': return 'bg-green-100 text-green-800';
-      case 'exercise': return 'bg-blue-100 text-blue-800';
-      case 'sleep': return 'bg-purple-100 text-purple-800';
-      case 'stress': return 'bg-amber-100 text-amber-800';
-      case 'supplements': return 'bg-teal-100 text-teal-800';
-      case 'biohacking': return 'bg-indigo-100 text-indigo-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'nutrition':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'exercise':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'sleep':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'stress':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'supplements':
+        return 'bg-pink-100 text-pink-800 border-pink-200';
+      case 'biohacking':
+        return 'bg-cyan-100 text-cyan-800 border-cyan-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getCategoryName = (category: string) => {
+    switch (category) {
+      case 'nutrition':
+        return 'Питание';
+      case 'exercise':
+        return 'Тренировки';
+      case 'sleep':
+        return 'Сон';
+      case 'stress':
+        return 'Стресс';
+      case 'supplements':
+        return 'Добавки';
+      case 'biohacking':
+        return 'Биохакинг';
+      default:
+        return 'Общее';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'high':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getPriorityText = (priority: string) => {
+    switch (priority) {
+      case 'critical':
+        return 'Критично';
+      case 'high':
+        return 'Высокий';
+      case 'medium':
+        return 'Средний';
+      case 'low':
+        return 'Низкий';
+      default:
+        return 'Неизвестно';
+    }
+  };
+
+  const handleSaveProtocol = async () => {
+    try {
+      const protocolData = {
+        title: recommendation.title,
+        description: recommendation.description,
+        category: getCategoryName(recommendation.category),
+        difficulty: recommendation.biohackingLevel === 'beginner' ? 'Начальный' : 
+                   recommendation.biohackingLevel === 'intermediate' ? 'Средний' : 'Продвинутый',
+        duration: recommendation.implementation.duration,
+        benefits: [recommendation.description],
+        steps: recommendation.implementation.steps,
+        status: 'not_started',
+        completion_percentage: 0
+      };
+
+      await createProtocol(protocolData);
+      
+      toast({
+        title: "Рекомендация сохранена",
+        description: "Рекомендация добавлена в ваши протоколы. Перейдите в раздел 'Мои протоколы' для отслеживания прогресса.",
+      });
+    } catch (error) {
+      console.error('Error saving protocol:', error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось сохранить рекомендацию. Попробуйте еще раз.",
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Badge className={getPriorityColor(recommendation.priority)}>
-                {recommendation.priority === 'critical' ? 'Критично' :
-                 recommendation.priority === 'high' ? 'Высокий' :
-                 recommendation.priority === 'medium' ? 'Средний' : 'Низкий'} приоритет
+              {getCategoryIcon(recommendation.category)}
+              <Badge className={`${getCategoryColor(recommendation.category)} border text-xs`}>
+                {getCategoryName(recommendation.category)}
               </Badge>
-              <Badge className={getCategoryColor(recommendation.category)}>
-                {recommendation.category === 'nutrition' ? 'Питание' :
-                 recommendation.category === 'exercise' ? 'Активность' :
-                 recommendation.category === 'sleep' ? 'Сон' :
-                 recommendation.category === 'stress' ? 'Стресс' :
-                 recommendation.category === 'supplements' ? 'Добавки' : 'Биохакинг'}
-              </Badge>
-              <Badge variant="outline">
-                {recommendation.biohackingLevel === 'beginner' ? 'Начальный' :
-                 recommendation.biohackingLevel === 'intermediate' ? 'Средний' : 'Продвинутый'}
+              <Badge className={`${getPriorityColor(recommendation.priority)} border text-xs`}>
+                {getPriorityText(recommendation.priority)}
               </Badge>
             </div>
-            <CardTitle className="text-lg font-semibold mb-2">
+            <CardTitle className="text-lg leading-tight mb-2">
               {recommendation.title}
             </CardTitle>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-sm leading-relaxed">
               {recommendation.description}
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggleExpanded}
-            className="ml-4"
-          >
-            {isExpanded ? 
-              <ChevronUp className="h-4 w-4" /> : 
-              <ChevronDown className="h-4 w-4" />
-            }
-          </Button>
+          <div className="flex items-center gap-2 ml-4">
+            <Button
+              onClick={handleSaveProtocol}
+              size="sm"
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Сохранить
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleExpanded}
+              className="flex items-center gap-1"
+            >
+              {isExpanded ? (
+                <>
+                  <ChevronUp className="h-4 w-4" />
+                  Свернуть
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-4 w-4" />
+                  Подробнее
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
       {isExpanded && (
-        <CardContent className="pt-0 space-y-4">
+        <CardContent className="pt-0">
           <RecommendationDetails recommendation={recommendation} />
         </CardContent>
       )}

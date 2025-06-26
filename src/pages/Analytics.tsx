@@ -7,7 +7,8 @@ import HealthOverviewHeader from '@/components/analytics/recommendations/HealthO
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, AlertTriangle, User, TestTube } from 'lucide-react';
+import { RefreshCw, AlertTriangle, User, TestTube, Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Analytics = () => {
   const { 
@@ -157,7 +158,7 @@ const Analytics = () => {
     );
   }
 
-  // Основная страница с рекомендациями (очищена от дублирующихся компонентов)
+  // Основная страница с рекомендациями
   return (
     <PageLayoutWithHeader
       headerComponent={
@@ -171,8 +172,17 @@ const Analytics = () => {
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         {/* Кнопки управления */}
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Персональная аналитика здоровья</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Персональные рекомендации</h1>
           <div className="flex gap-3">
+            <Link to="/my-protocols">
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Calendar className="h-4 w-4" />
+                Мои протоколы
+              </Button>
+            </Link>
             <Button
               onClick={handleGenerateAnalytics}
               disabled={isGenerating}
