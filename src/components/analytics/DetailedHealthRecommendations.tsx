@@ -1,12 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { 
-  Brain,
-  Shield,
-  Target,
-  Activity
+  Brain
 } from 'lucide-react';
 import { CachedAnalytics } from '@/types/analytics';
 import ModernRecommendationsGrid from './ModernRecommendationsGrid';

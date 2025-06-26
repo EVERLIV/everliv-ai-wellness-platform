@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import AnalyticsActions from "./AnalyticsActions";
 import DetailedHealthRecommendations from "./DetailedHealthRecommendations";
+import BiomarkerTrendsOverview from "./BiomarkerTrendsOverview";
 import { CachedAnalytics } from "@/types/analytics";
 
 interface AnalyticsContentProps {
@@ -55,6 +56,9 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
         onRefresh={onRefresh}
         isGenerating={isGenerating}
       />
+
+      {/* Динамика биомаркеров */}
+      <BiomarkerTrendsOverview trendsAnalysis={analytics.trendsAnalysis} />
 
       <DetailedHealthRecommendations
         analytics={analytics}
