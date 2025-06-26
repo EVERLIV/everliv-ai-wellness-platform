@@ -1,6 +1,8 @@
 
 import React from 'react';
-import { Activity, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface AnalyticsPageHeaderProps {
   healthScore: number;
@@ -11,62 +13,35 @@ const AnalyticsPageHeader: React.FC<AnalyticsPageHeaderProps> = ({
   healthScore,
   riskLevel
 }) => {
-  const getRiskColor = (level: string) => {
-    switch (level.toLowerCase()) {
-      case 'низкий':
-        return 'text-green-600 bg-green-50 border-green-200';
-      case 'средний':
-        return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'высокий':
-        return 'text-red-600 bg-red-50 border-red-200';
-      default:
-        return 'text-gray-600 bg-gray-50 border-gray-200';
-    }
-  };
-
-  const getRiskIcon = (level: string) => {
-    switch (level.toLowerCase()) {
-      case 'низкий':
-        return <TrendingUp className="h-4 w-4" />;
-      case 'высокий':
-        return <AlertTriangle className="h-4 w-4" />;
-      default:
-        return <Activity className="h-4 w-4" />;
-    }
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-yellow-600';
-    return 'text-red-600';
-  };
+  const navigate = useNavigate();
 
   return (
-    <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white">
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl font-bold mb-4">
-            Персональная аналитика здоровья
-          </h1>
-          <p className="text-xl text-blue-100 mb-8">
-            Комплексный анализ вашего здоровья на основе данных ИИ
-          </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            {/* Балл здоровья */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 min-w-[200px]">
-              <div className="text-sm text-blue-100 mb-2">Балл здоровья</div>
-              <div className={`text-3xl font-bold ${getScoreColor(healthScore)}`}>
-                {healthScore}/100
+    <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 border-b border-gray-200">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate("/dashboard")}
+              className="flex items-center gap-2 hover:bg-gray-100 px-2 sm:px-3"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Назад к панели</span>
+              <span className="sm:hidden">Назад</span>
+            </Button>
+            
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-xl flex items-center justify-center shadow-sm">
+                <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
               </div>
-            </div>
-
-            {/* Уровень риска */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 min-w-[200px]">
-              <div className="text-sm text-blue-100 mb-2">Уровень риска</div>
-              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-sm font-medium ${getRiskColor(riskLevel)}`}>
-                {getRiskIcon(riskLevel)}
-                {riskLevel}
+              <div>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                  Аналитика здоровья
+                </h1>
+                <p className="text-sm sm:text-base text-gray-600 hidden sm:block">
+                  Персональная оценка и рекомендации
+                </p>
               </div>
             </div>
           </div>
