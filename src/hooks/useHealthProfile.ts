@@ -72,6 +72,7 @@ export const useHealthProfile = () => {
 
       try {
         setIsLoading(true);
+        console.log('Fetching health profile for user:', user.id);
         
         const { data, error } = await supabase
           .from('health_profiles')
@@ -81,18 +82,22 @@ export const useHealthProfile = () => {
 
         if (error && error.code !== 'PGRST116') {
           console.error('Error fetching health profile:', error);
+          toast.error('Ошибка при загрузке профиля здоровья');
           setHealthProfile(null);
           return;
         }
 
         if (data?.profile_data) {
+          console.log('Health profile loaded successfully');
           setHealthProfile(data.profile_data as unknown as HealthProfileData);
         } else {
+          console.log('No health profile found for user');
           setHealthProfile(null);
         }
 
       } catch (error) {
         console.error('Error fetching health profile:', error);
+        toast.error('Произошла ошибка при загрузке профиля');
         setHealthProfile(null);
       } finally {
         setIsLoading(false);
@@ -103,6 +108,7 @@ export const useHealthProfile = () => {
   }, [user]);
 
   const updateHealthProfile = (updates: Partial<HealthProfileData>) => {
+    console.log('Updating health profile with:', updates);
     if (healthProfile) {
       const updatedProfile = { ...healthProfile, ...updates };
       setHealthProfile(updatedProfile);
@@ -127,9 +133,15 @@ export const useHealthProfile = () => {
   };
 
   const saveHealthProfile = async () => {
-    if (!user || !healthProfile) {
-      console.error('Cannot save: missing user or health profile data');
-      toast.error('Ошибка: отсутствуют данные пользователя или профиля');
+    if (!user) {
+      console.error('Cannot save: no user logged in');
+      toast.error('Необходимо войти в систему для сохранения профиля');
+      return false;
+    }
+
+    if (!healthProfile) {
+      console.error('Cannot save: no health profile data');
+      toast.error('Отсутствуют данные профиля для сохранения');
       return false;
     }
 
@@ -142,15 +154,20 @@ export const useHealthProfile = () => {
         healthProfile.labResults.lastUpdated = new Date().toISOString();
       }
 
-      const { error } = await supabase
+      const profilePayload = {
+        user_id: user.id,
+        profile_data: healthProfile as unknown as any,
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('Saving with payload:', profilePayload);
+
+      const { data, error } = await supabase
         .from('health_profiles')
-        .upsert({
-          user_id: user.id,
-          profile_data: healthProfile as unknown as any,
-          updated_at: new Date().toISOString()
-        }, {
+        .upsert(profilePayload, {
           onConflict: 'user_id'
-        });
+        })
+        .select();
 
       if (error) {
         console.error('Error saving health profile:', error);
@@ -158,9 +175,9 @@ export const useHealthProfile = () => {
         return false;
       }
 
+      console.log('Health profile saved successfully:', data);
       setEditMode(false);
       toast.success('Профиль здоровья успешно сохранен');
-      console.log('Health profile saved successfully');
       return true;
     } catch (error) {
       console.error('Error saving health profile:', error);
