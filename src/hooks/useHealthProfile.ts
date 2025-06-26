@@ -149,13 +149,24 @@ export const useHealthProfile = () => {
       console.log('Saving health profile for user:', user.id);
       console.log('Health profile data:', healthProfile);
 
+      // Проверяем текущую сессию пользователя
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !sessionData.session) {
+        console.error('No valid session found:', sessionError);
+        toast.error('Сессия истекла. Пожалуйста, войдите в систему снова');
+        return false;
+      }
+
+      console.log('Session is valid, user ID from session:', sessionData.session.user.id);
+
       // Обновляем lastUpdated для лабораторных данных
       if (healthProfile.labResults) {
         healthProfile.labResults.lastUpdated = new Date().toISOString();
       }
 
       const profilePayload = {
-        user_id: user.id,
+        user_id: sessionData.session.user.id, // Используем ID из сессии
         profile_data: healthProfile as unknown as any,
         updated_at: new Date().toISOString()
       };
@@ -171,7 +182,19 @@ export const useHealthProfile = () => {
 
       if (error) {
         console.error('Error saving health profile:', error);
-        toast.error('Ошибка при сохранении профиля здоровья: ' + error.message);
+        
+        // Специальная обработка ошибки RLS
+        if (error.code === '42501' || error.message.includes('row-level security')) {
+          console.error('RLS Policy violation detected');
+          
+          // Проверяем, что пользователь действительно аутентифицирован
+          const { data: userData } = await supabase.auth.getUser();
+          console.log('Current authenticated user:', userData.user?.id);
+          
+          toast.error('Ошибка доступа к данным. Попробуйте выйти и войти в систему снова');
+        } else {
+          toast.error('Ошибка при сохранении профиля здоровья: ' + error.message);
+        }
         return false;
       }
 
