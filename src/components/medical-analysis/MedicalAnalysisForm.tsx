@@ -125,9 +125,8 @@ const MedicalAnalysisForm: React.FC<MedicalAnalysisFormProps> = ({
               <Label>Фото результатов анализа</Label>
               <SecureFileUpload
                 onFileSelect={handleFileSelect}
-                allowedTypes={['image/jpeg', 'image/png', 'image/webp']}
-                maxSize={10 * 1024 * 1024} // 10MB
-                accept="image/*"
+                acceptedTypes={['image/jpeg', 'image/png', 'image/webp']}
+                maxSize={10 * 1024 * 1024}
               />
               {selectedFile && (
                 <div className="text-sm text-green-600">
