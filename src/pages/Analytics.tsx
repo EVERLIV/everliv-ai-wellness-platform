@@ -2,7 +2,6 @@
 import React from 'react';
 import PageLayoutWithHeader from '@/components/PageLayoutWithHeader';
 import AnalyticsPageHeader from '@/components/analytics/AnalyticsPageHeader';
-import DetailedHealthRecommendations from '@/components/analytics/DetailedHealthRecommendations';
 import EnhancedAnalyticsRecommendations from '@/components/analytics/EnhancedAnalyticsRecommendations';
 import HealthOverviewHeader from '@/components/analytics/recommendations/HealthOverviewHeader';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
@@ -158,7 +157,7 @@ const Analytics = () => {
     );
   }
 
-  // Основная страница с рекомендациями
+  // Основная страница с рекомендациями (убраны дублирующиеся компоненты)
   return (
     <PageLayoutWithHeader
       headerComponent={
@@ -170,9 +169,9 @@ const Analytics = () => {
       fullWidth
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-        {/* Кнопка обновления страницы для актуальных данных */}
+        {/* Кнопки управления */}
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Аналитика здоровья</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Персональная аналитика здоровья</h1>
           <div className="flex gap-3">
             <Button
               onClick={handleGenerateAnalytics}
@@ -197,15 +196,10 @@ const Analytics = () => {
         {/* Обзор здоровья с актуальными данными биомаркеров */}
         <HealthOverviewHeader analytics={analytics} />
         
-        {/* Новые улучшенные рекомендации */}
+        {/* Главные рекомендации на основе целей пользователя */}
         <EnhancedAnalyticsRecommendations
           analytics={analytics}
           healthProfile={healthProfile}
-        />
-        
-        {/* Существующие детальные рекомендации */}
-        <DetailedHealthRecommendations
-          analytics={analytics}
         />
         
         {analytics.lastUpdated && (
