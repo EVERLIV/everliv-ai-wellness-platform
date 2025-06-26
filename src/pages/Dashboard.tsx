@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
 import Header from "@/components/Header";
@@ -6,6 +7,7 @@ import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions"
 import DashboardHealthCharts from "@/components/dashboard/DashboardHealthCharts";
 import PersonalizedHealthTips from "@/components/dashboard/PersonalizedHealthTips";
 import MinimalFooter from "@/components/MinimalFooter";
+import MyGoalsSection from "@/components/dashboard/health-goals/MyGoalsSection";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
@@ -259,42 +261,8 @@ const Dashboard = () => {
                 </div>
               </div>
               
-              {/* Мои цели */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
-                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  Мои цели
-                </h3>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Снизить вес на 3 кг</span>
-                    <span className="text-green-600 font-medium">60%</span>
-                  </div>
-                  <Progress value={60} className="h-1.5" />
-                  
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Улучшить сон</span>
-                    <span className="text-blue-600 font-medium">75%</span>
-                  </div>
-                  <Progress value={75} className="h-1.5" />
-                  
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Нормализовать давление</span>
-                    <span className="text-orange-600 font-medium">40%</span>
-                  </div>
-                  <Progress value={40} className="h-1.5" />
-                  
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full mt-2" 
-                    onClick={() => navigate('/health-profile')}
-                  >
-                    <Target className="h-3 w-3 mr-1" />
-                    Добавить цель
-                  </Button>
-                </div>
-              </div>
+              {/* Мои цели и чекапы */}
+              <MyGoalsSection />
             </div>
           </div>
         </div>
