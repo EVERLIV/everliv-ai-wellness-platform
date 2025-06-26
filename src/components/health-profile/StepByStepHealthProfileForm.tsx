@@ -15,6 +15,8 @@ import StepContent from "./StepContent";
 import FormControls from "./FormControls";
 import MobileStepDots from "./MobileStepDots";
 import { StepConfig } from "./types";
+import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
+import HealthProfilePageHeader from "./HealthProfilePageHeader";
 
 interface StepByStepHealthProfileFormProps {
   healthProfile: HealthProfileData;
@@ -107,37 +109,42 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <StepNavigation
-        currentStep={currentStep}
-        totalSteps={steps.length}
-        onCancel={onCancel}
-      />
-
-      <StepContent
-        title={currentStepData.title}
-        subtitle={currentStepData.subtitle}
-        icon={currentStepData.icon}
-      >
-        {currentStepData.component}
-      </StepContent>
-
-      <div className="container mx-auto px-4 max-w-4xl">
-        <FormControls
-          isFirstStep={isFirstStep}
-          isLastStep={isLastStep}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          onSave={onSave}
-        />
-
-        <MobileStepDots
+    <PageLayoutWithHeader
+      headerComponent={<HealthProfilePageHeader />}
+      fullWidth={true}
+    >
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <StepNavigation
           currentStep={currentStep}
           totalSteps={steps.length}
-          onStepClick={setCurrentStep}
+          onCancel={onCancel}
         />
+
+        <StepContent
+          title={currentStepData.title}
+          subtitle={currentStepData.subtitle}
+          icon={currentStepData.icon}
+        >
+          {currentStepData.component}
+        </StepContent>
+
+        <div className="container mx-auto px-4 max-w-4xl">
+          <FormControls
+            isFirstStep={isFirstStep}
+            isLastStep={isLastStep}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+            onSave={onSave}
+          />
+
+          <MobileStepDots
+            currentStep={currentStep}
+            totalSteps={steps.length}
+            onStepClick={setCurrentStep}
+          />
+        </div>
       </div>
-    </div>
+    </PageLayoutWithHeader>
   );
 };
 
