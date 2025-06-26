@@ -4,8 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import DetailedHealthRecommendations from "./DetailedHealthRecommendations";
 import AnalyticsActions from "./AnalyticsActions";
+import DetailedHealthRecommendations from "./DetailedHealthRecommendations";
 import { CachedAnalytics } from "@/types/analytics";
 
 interface AnalyticsContentProps {
