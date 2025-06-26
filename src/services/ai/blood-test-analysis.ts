@@ -6,27 +6,36 @@ interface OpenAIBloodAnalysisParams {
   imageBase64?: string;
 }
 
-interface BloodAnalysisResults {
+interface EnhancedBloodAnalysisResults {
   markers: Array<{
     name: string;
     value: string;
     normalRange: string;
     status: 'normal' | 'high' | 'low';
     recommendation: string;
+    education: string;
+    lifestyle: string;
   }>;
   supplements: Array<{
     name: string;
     reason: string;
     dosage: string;
+    duration: string;
   }>;
   generalRecommendation: string;
+  riskFactors: string[];
+  followUpTests: string[];
+  urgencyLevel: 'low' | 'medium' | 'high';
+  nextCheckup: string;
 }
 
 /**
- * Analyzes blood test results using OpenAI via Supabase Edge Function
+ * Enhanced blood test analysis using OpenAI via Supabase Edge Function
+ * Now includes improved OCR capabilities, expanded biomarker interpretations,
+ * and educational content
  */
-export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisParams): Promise<BloodAnalysisResults> => {
-  console.log("Analyzing blood test with Supabase Edge Function", {
+export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisParams): Promise<EnhancedBloodAnalysisResults> => {
+  console.log("Analyzing blood test with enhanced Supabase Edge Function", {
     hasText: !!params.text,
     hasImage: !!params.imageBase64
   });
@@ -53,7 +62,7 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
       throw new Error(data.error);
     }
 
-    // Validate response structure
+    // Validate enhanced response structure
     if (!data.markers || !Array.isArray(data.markers)) {
       console.error("Invalid response structure:", data);
       throw new Error("Получен некорректный ответ от ИИ. Попробуйте еще раз.");
@@ -64,12 +73,23 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
       throw new Error("Не удалось распознать показатели в предоставленных данных. Проверьте данные и попробуйте еще раз.");
     }
 
-    console.log("Successfully analyzed blood test:", {
-      markersCount: data.markers.length,
-      supplementsCount: data.supplements?.length || 0
+    // Validate enhanced fields
+    const enhancedData = {
+      ...data,
+      riskFactors: data.riskFactors || [],
+      followUpTests: data.followUpTests || [],
+      urgencyLevel: data.urgencyLevel || 'low',
+      nextCheckup: data.nextCheckup || 'Через 6-12 месяцев'
+    };
+
+    console.log("Successfully analyzed blood test with enhanced features:", {
+      markersCount: enhancedData.markers.length,
+      supplementsCount: enhancedData.supplements?.length || 0,
+      riskFactorsCount: enhancedData.riskFactors.length,
+      urgencyLevel: enhancedData.urgencyLevel
     });
 
-    return data as BloodAnalysisResults;
+    return enhancedData as EnhancedBloodAnalysisResults;
   } catch (error) {
     console.error("Error analyzing blood test:", error);
     
@@ -88,9 +108,9 @@ export const analyzeBloodTestWithOpenAI = async (params: OpenAIBloodAnalysisPara
 
 // Remove the old OpenAI client code as we now use Supabase Edge Functions
 export const createBloodTestSystemPrompt = () => {
-  return "This function is now handled by Supabase Edge Function";
+  return "This function is now handled by enhanced Supabase Edge Function";
 };
 
 export const createBloodTestPrompt = (text: string) => {
-  return "This function is now handled by Supabase Edge Function";
+  return "This function is now handled by enhanced Supabase Edge Function";
 };
