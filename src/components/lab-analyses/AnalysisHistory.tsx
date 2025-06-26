@@ -1,11 +1,11 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import AnalysisCard from "./AnalysisCard";
 import EmptyAnalysisState from "./EmptyAnalysisState";
+import { AnalysisItem } from "@/types/labAnalyses";
 
 interface AnalysisHistoryProps {
-  analysisHistory: any[];
+  analysisHistory: AnalysisItem[];
   loadingHistory: boolean;
   onViewAnalysis: (analysisId: string) => void;
   onAddNewAnalysis: () => void;

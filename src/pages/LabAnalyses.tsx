@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import MinimalFooter from "@/components/MinimalFooter";
@@ -56,22 +55,22 @@ const LabAnalyses = () => {
     });
   }, []);
 
-  const handleViewAnalysis = (analysisId: string) => {
+  function handleViewAnalysis(analysisId: string) {
     console.log('🔍 LabAnalyses: Navigating to analysis details:', analysisId);
     navigate(`/analysis-details?id=${analysisId}`);
-  };
+  }
 
-  const handleNewAnalysisComplete = () => {
+  function handleNewAnalysisComplete() {
     console.log('✅ LabAnalyses: New analysis completed, refreshing history');
     refreshHistory();
-  };
+  }
 
-  const handleBackToList = () => {
+  function handleBackToList() {
     console.log('⬅️ LabAnalyses: Returning to analysis list');
     setShowNewAnalysis(false);
     setResults(null);
     setActiveTab("input");
-  };
+  }
 
   // Auto-refresh history when results are received
   useEffect(() => {
