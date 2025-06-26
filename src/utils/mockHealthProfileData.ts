@@ -1,0 +1,45 @@
+
+import { HealthProfileData } from "@/types/healthProfile";
+
+export const getMockHealthProfile = (): HealthProfileData => ({
+  age: 32,
+  gender: 'male',
+  height: 180,
+  weight: 75,
+  physicalActivity: 'moderate',
+  exerciseFrequency: 3,
+  fitnessLevel: 'intermediate',
+  stressLevel: 3,
+  anxietyLevel: 2,
+  moodChanges: 'stable',
+  mentalHealthSupport: 'family_friends',
+  smokingStatus: 'never',
+  alcoholConsumption: 'occasionally',
+  dietType: 'omnivore',
+  waterIntake: 8,
+  caffeineIntake: 2,
+  sleepHours: 7,
+  sleepQuality: 'good',
+  sleepIssues: [],
+  chronicConditions: [],
+  currentSymptoms: [],
+  familyHistory: [],
+  allergies: [],
+  medications: [],
+  previousSurgeries: [],
+  lastCheckup: '2024-01-15',
+  labResults: {
+    hemoglobin: 145,
+    erythrocytes: 4.5,
+    hematocrit: 42,
+    mcv: 90,
+    mchc: 34,
+    platelets: 280,
+    serumIron: 18,
+    cholesterol: 4.2,
+    bloodSugar: 5.1,
+    ldh: 180,
+    testDate: '2024-06-15',
+    lastUpdated: new Date().toISOString()
+  }
+});
