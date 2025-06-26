@@ -2,7 +2,7 @@
 import React from 'react';
 import PageLayoutWithHeader from '@/components/PageLayoutWithHeader';
 import AnalyticsPageHeader from '@/components/analytics/AnalyticsPageHeader';
-import AnalyticsContent from '@/components/analytics/AnalyticsContent';
+import DetailedHealthRecommendations from '@/components/analytics/DetailedHealthRecommendations';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, AlertTriangle, User, TestTube } from 'lucide-react';
@@ -158,11 +158,17 @@ const Analytics = () => {
       }
       fullWidth
     >
-      <AnalyticsContent 
-        analytics={analytics} 
-        onRefresh={handleGenerateAnalytics}
-        isGenerating={isGenerating}
-      />
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <DetailedHealthRecommendations
+          analytics={analytics}
+        />
+        
+        {analytics.lastUpdated && (
+          <div className="text-center text-sm text-gray-500 mt-8">
+            Последнее обновление: {new Date(analytics.lastUpdated).toLocaleString('ru-RU')}
+          </div>
+        )}
+      </div>
     </PageLayoutWithHeader>
   );
 };
