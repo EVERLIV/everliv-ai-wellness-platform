@@ -1387,6 +1387,7 @@ export type Database = {
           category: string
           completed_at: string | null
           completion_percentage: number
+          created_at: string
           description: string
           difficulty: string
           duration: string
@@ -1405,6 +1406,7 @@ export type Database = {
           category: string
           completed_at?: string | null
           completion_percentage?: number
+          created_at?: string
           description: string
           difficulty: string
           duration: string
@@ -1423,6 +1425,7 @@ export type Database = {
           category?: string
           completed_at?: string | null
           completion_percentage?: number
+          created_at?: string
           description?: string
           difficulty?: string
           duration?: string
