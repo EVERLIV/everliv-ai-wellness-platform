@@ -46,7 +46,27 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
     try {
       console.log('Fetching biomarker trends for user:', user.id);
 
-      // Получаем биомаркеры напрямую из таблицы biomarkers
+      // First get user's analysis IDs
+      const { data: analyses, error: analysesError } = await supabase
+        .from('medical_analyses')
+        .select('id')
+        .eq('user_id', user.id);
+
+      if (analysesError) {
+        console.error('Error fetching analyses:', analysesError);
+        setIsLoading(false);
+        return;
+      }
+
+      if (!analyses || analyses.length === 0) {
+        console.log('No analyses found for user');
+        setIsLoading(false);
+        return;
+      }
+
+      const analysisIds = analyses.map(a => a.id);
+
+      // Then get biomarkers for those analyses
       const { data: biomarkers, error: biomarkersError } = await supabase
         .from('biomarkers')
         .select(`
@@ -57,12 +77,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
           analysis_id,
           created_at
         `)
-        .eq('analysis_id', 
-          supabase
-            .from('medical_analyses')
-            .select('id')
-            .eq('user_id', user.id)
-        )
+        .in('analysis_id', analysisIds)
         .order('created_at', { ascending: false });
 
       if (biomarkersError) {
