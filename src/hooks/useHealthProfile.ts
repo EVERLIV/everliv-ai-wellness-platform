@@ -1,11 +1,9 @@
 
 import { useState, useEffect } from "react";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
-import { isDevelopmentMode } from "@/utils/devMode";
 import { HealthProfileData } from "@/types/healthProfile";
 import { healthProfileService } from "@/services/healthProfileService";
 import { labResultsProcessor } from "@/utils/labResultsProcessor";
-import { getMockHealthProfile } from "@/utils/mockHealthProfileData";
 import { toast } from "sonner";
 
 export const useHealthProfile = () => {
@@ -17,22 +15,18 @@ export const useHealthProfile = () => {
   useEffect(() => {
     const fetchHealthProfile = async () => {
       if (!user) {
+        console.log('No user found, clearing profile');
         setHealthProfile(null);
         setIsLoading(false);
         return;
       }
 
-      // In dev mode, return mock health profile with lab results
-      if (isDevelopmentMode() && user.id === 'dev-admin-12345') {
-        console.log('🔧 Dev mode: Using mock health profile with lab results');
-        setHealthProfile(getMockHealthProfile());
-        setIsLoading(false);
-        return;
-      }
+      console.log('Fetching health profile for user:', user.id);
 
       try {
         setIsLoading(true);
         const profile = await healthProfileService.fetchHealthProfile(user.id);
+        console.log('Health profile fetched:', profile);
         setHealthProfile(profile);
       } catch (error) {
         console.error('Error fetching health profile:', error);
@@ -84,13 +78,15 @@ export const useHealthProfile = () => {
       return false;
     }
 
-    console.log('Attempting to save health profile:', healthProfile);
+    console.log('Attempting to save health profile for user:', user.id);
+    console.log('Health profile data:', healthProfile);
     
     try {
       const success = await healthProfileService.saveHealthProfile(healthProfile);
       if (success) {
         setEditMode(false);
         console.log('Health profile saved successfully, exiting edit mode');
+        toast.success('Профиль здоровья успешно сохранен');
       }
       return success;
     } catch (error) {

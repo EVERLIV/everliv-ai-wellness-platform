@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { isDevelopmentMode } from "@/utils/devMode";
 
 export interface AnalysisItem {
   id: string;
@@ -50,43 +49,6 @@ const isValidUUID = (str: string): boolean => {
   return uuidRegex.test(str);
 };
 
-// Mock data for development mode
-const getMockAnalysisData = (): AnalysisItem[] => {
-  return [
-    {
-      id: "mock-analysis-1",
-      analysis_type: "blood",
-      created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-      summary: "Общий анализ крови в норме",
-      markers_count: 12,
-      input_method: 'text',
-      results: {
-        riskLevel: 'low',
-        markers: [
-          { name: "Гемоглобин", value: "145", unit: "г/л", status: "normal" },
-          { name: "Эритроциты", value: "4.2", unit: "млн/мкл", status: "normal" },
-          { name: "Лейкоциты", value: "6.8", unit: "тыс/мкл", status: "normal" }
-        ]
-      }
-    },
-    {
-      id: "mock-analysis-2", 
-      analysis_type: "biochemistry",
-      created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days ago
-      summary: "Биохимический анализ - холестерин повышен",
-      markers_count: 8,
-      input_method: 'photo',
-      results: {
-        riskLevel: 'medium',
-        markers: [
-          { name: "Холестерин общий", value: "6.2", unit: "ммоль/л", status: "high" },
-          { name: "Глюкоза", value: "5.1", unit: "ммоль/л", status: "normal" }
-        ]
-      }
-    }
-  ];
-};
-
 export const useLabAnalysesData = () => {
   const { user } = useSmartAuth();
   const [analysisHistory, setAnalysisHistory] = useState<AnalysisItem[]>([]);
@@ -101,8 +63,7 @@ export const useLabAnalysesData = () => {
   const fetchAnalysisHistory = async () => {
     console.log('🔄 useLabAnalysesData: Starting fetch for user:', {
       userId: user?.id,
-      userEmail: user?.email,
-      isDev: isDevelopmentMode()
+      userEmail: user?.email
     });
 
     if (!user?.id) {
@@ -121,37 +82,7 @@ export const useLabAnalysesData = () => {
     try {
       setLoadingHistory(true);
 
-      // В dev-режиме для dev-пользователя возвращаем mock данные
-      if (isDevelopmentMode() && user.id === 'dev-admin-12345') {
-        console.log('🔧 useLabAnalysesData: Using mock data for dev user');
-        const mockData = getMockAnalysisData();
-        setAnalysisHistory(mockData);
-        
-        // Рассчитываем статистику для mock данных
-        const totalAnalyses = mockData.length;
-        const now = new Date();
-        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const currentMonthAnalyses = mockData.filter(
-          item => new Date(item.created_at) >= firstDayOfMonth
-        ).length;
-
-        const analysisTypes: { [key: string]: number } = {};
-        mockData.forEach(item => {
-          analysisTypes[item.analysis_type] = (analysisTypes[item.analysis_type] || 0) + 1;
-        });
-
-        setStatistics({
-          totalAnalyses,
-          currentMonthAnalyses,
-          mostRecentAnalysis: mockData[0]?.created_at || null,
-          analysisTypes
-        });
-        
-        setLoadingHistory(false);
-        return;
-      }
-
-      // Проверяем, является ли user_id валидным UUID для реальных пользователей
+      // Проверяем, является ли user_id валидным UUID
       if (!isValidUUID(user.id)) {
         console.log('🚫 useLabAnalysesData: Invalid UUID format for user ID:', user.id);
         setAnalysisHistory([]);
@@ -301,9 +232,9 @@ export const useLabAnalysesData = () => {
       setStatistics(newStatistics);
 
     } catch (error) {
-      console.error('❌ useLabAnalysesData: Error loading analysis history for', user.email, ':', error);
+      console.error('❌ useLabAnalysesData: Error loading analysis history for', user?.email, ':', error);
       
-      // Не показываем toast-ошибку для dev-пользователей с невалидным UUID
+      // Показываем toast-ошибку только для валидных пользователей
       if (user?.id && isValidUUID(user.id)) {
         toast.error('Ошибка при загрузке истории анализов');
       }
