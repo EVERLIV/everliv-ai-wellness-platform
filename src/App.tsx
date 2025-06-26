@@ -1,95 +1,50 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 
+// Immediate load components (critical path)
 import Index from "./pages/Index";
-import Login from "./pages/Login";
-import RegistrationPage from "./pages/RegistrationPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import Dashboard from "./pages/Dashboard";
-import UserProfile from "./pages/UserProfile";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Pricing from "./pages/Pricing";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import LabAnalyses from "./pages/LabAnalyses";
-import AnalysisDetails from "./pages/AnalysisDetails";
-import Analytics from "./pages/Analytics";
-import MedicalKnowledge from "./pages/MedicalKnowledge";
-import AIDoctorPage from "./pages/AIDoctorPage";
-import AIDoctorBasicPage from "./pages/AIDoctorBasicPage";
-import AIDoctorPersonalPage from "./pages/AIDoctorPersonalPage";
-import NutritionDiaryPage from "./pages/NutritionDiary";
-import HealthTracking from "./pages/HealthTracking";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
-import AdminContent from "./pages/admin/AdminContent";
-import AdminAIChat from "./pages/admin/AdminAIChat";
-import AdminNutrition from "./pages/admin/AdminNutrition";
-import AdminHealthProfiles from "./pages/admin/AdminHealthProfiles";
-import AdminHealthRecommendations from "./pages/admin/AdminHealthRecommendations";
-import AdminSettings from "./pages/admin/AdminSettings";
-import Settings from "./pages/Settings";
-
-// Import additional pages
 import Home from "./pages/Home";
-import Features from "./pages/Features";
-import HowItWorks from "./pages/HowItWorks";
-import Science from "./pages/Science";
-import Partnership from "./pages/Partnership";
-import FAQ from "./pages/FAQ";
-import Support from "./pages/Support";
-import TermsOfUse from "./pages/TermsOfUse";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import Security from "./pages/Security";
-import HelpCenter from "./pages/HelpCenter";
-import ServicesPage from "./pages/ServicesPage";
-import BloodAnalysis from "./pages/BloodAnalysis";
-import HealthProfile from "./pages/HealthProfile";
-import Welcome from "./pages/Welcome";
 import NotFound from "./pages/NotFound";
-import Signup from "./pages/Signup";
-import MagicLinkLoginPage from "./pages/MagicLinkLoginPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
-import AuthConfirm from "./pages/AuthConfirm";
-import SubscriptionPage from "./pages/SubscriptionPage";
-import UserSubscription from "./pages/UserSubscription";
-import Checkout from "./pages/Checkout";
-import MoscowClinics from "./pages/MoscowClinics";
-import ProtocolTracking from "./pages/ProtocolTracking";
-import MyProtocols from "./pages/MyProtocols";
-import Community from "./pages/Community";
-import Webinars from "./pages/Webinars";
-import BiologicalAgePage from "./pages/BiologicalAge";
+import LoadingFallback from "./components/common/LoadingFallback";
 
-// Import service pages
-import BloodAnalysisServicePage from "./pages/services/BloodAnalysisServicePage";
-import AIRecommendations from "./pages/services/AIRecommendations";
-import PersonalizedSupplements from "./pages/services/PersonalizedSupplements";
-import Fasting from "./pages/services/Fasting";
-import ColdTherapy from "./pages/services/ColdTherapy";
-import OxygenTherapy from "./pages/services/OxygenTherapy";
-import BreathingPractices from "./pages/services/BreathingPractices";
+// Lazy load route modules
+const AdminRoutes = lazy(() => import("./modules/admin/AdminRoutes"));
+const ServiceRoutes = lazy(() => import("./modules/services/ServiceRoutes"));
+const PartnershipRoutes = lazy(() => import("./modules/partnerships/PartnershipRoutes"));
+const AuthRoutes = lazy(() => import("./modules/auth/AuthRoutes"));
+const ProtectedRoutes = lazy(() => import("./modules/protected/ProtectedRoutes"));
 
-// Import partnership pages
-import CorporateClients from "./pages/partnerships/CorporateClients";
-import MedicalInstitutions from "./pages/partnerships/MedicalInstitutions";
-import MedicalSpecialists from "./pages/partnerships/MedicalSpecialists";
-
-// Import admin pages
-import AdminPricing from "./pages/admin/AdminPricing";
-import AdminStatistics from "./pages/admin/AdminStatistics";
-import AdminBlog from "./pages/AdminBlog";
+// Lazy load public pages
+const Features = lazy(() => import("./pages/Features"));
+const HowItWorks = lazy(() => import("./pages/HowItWorks"));
+const Science = lazy(() => import("./pages/Science"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Partnership = lazy(() => import("./pages/Partnership"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const Support = lazy(() => import("./pages/Support"));
+const HelpCenter = lazy(() => import("./pages/HelpCenter"));
+const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const Security = lazy(() => import("./pages/Security"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const MedicalKnowledge = lazy(() => import("./pages/MedicalKnowledge"));
+const MoscowClinics = lazy(() => import("./pages/MoscowClinics"));
+const ServicesPage = lazy(() => import("./pages/ServicesPage"));
+const Community = lazy(() => import("./pages/Community"));
+const Webinars = lazy(() => import("./pages/Webinars"));
+const BiologicalAgePage = lazy(() => import("./pages/BiologicalAge"));
 
 import { SmartAuthProvider } from "./contexts/SmartAuthContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
-import ProtectedRoute from "./components/ProtectedRoute";
 import RealtimeNotifications from "./components/realtime/RealtimeNotifications";
 import DevModeIndicator from "./components/DevModeIndicator";
 
@@ -108,16 +63,18 @@ const App = () => (
       <TooltipProvider delayDuration={0}>
         <Toaster />
         <Sonner />
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingFallback />}>
           <BrowserRouter>
             <SmartAuthProvider>
               <SubscriptionProvider>
                 <DevModeIndicator />
                 <RealtimeNotifications />
                 <Routes>
-                  {/* Public Routes */}
+                  {/* Critical path routes - no lazy loading */}
                   <Route path="/" element={<Index />} />
                   <Route path="/home" element={<Home />} />
+
+                  {/* Public routes - lazy loaded */}
                   <Route path="/features" element={<Features />} />
                   <Route path="/how-it-works" element={<HowItWorks />} />
                   <Route path="/science" element={<Science />} />
@@ -141,183 +98,16 @@ const App = () => (
                   <Route path="/webinars" element={<Webinars />} />
                   <Route path="/biological-age" element={<BiologicalAgePage />} />
 
-                  {/* Auth Routes */}
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/register" element={<RegistrationPage />} />
-                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/reset-password" element={<ResetPasswordPage />} />
-                  <Route path="/magic-link" element={<MagicLinkLoginPage />} />
-                  <Route path="/auth/confirm" element={<AuthConfirm />} />
-                  <Route path="/welcome" element={<Welcome />} />
-
-                  {/* Service Pages */}
-                  <Route path="/services/blood-analysis" element={<BloodAnalysisServicePage />} />
-                  <Route path="/services/ai-recommendations" element={<AIRecommendations />} />
-                  <Route path="/services/supplements" element={<PersonalizedSupplements />} />
-                  <Route path="/services/fasting" element={<Fasting />} />
-                  <Route path="/services/cold-therapy" element={<ColdTherapy />} />
-                  <Route path="/services/oxygen-therapy" element={<OxygenTherapy />} />
-                  <Route path="/services/breathing" element={<BreathingPractices />} />
-
-                  {/* Partnership Pages */}
-                  <Route path="/partnerships/corporate" element={<CorporateClients />} />
-                  <Route path="/partnerships/medical-institutions" element={<MedicalInstitutions />} />
-                  <Route path="/partnerships/specialists" element={<MedicalSpecialists />} />
-
-                  {/* Protected Routes */}
-                  <Route path="/dashboard" element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/profile" element={
-                    <ProtectedRoute>
-                      <UserProfile />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/settings" element={
-                    <ProtectedRoute>
-                      <Settings />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/health-profile" element={
-                    <ProtectedRoute>
-                      <HealthProfile />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/health-tracking" element={
-                    <ProtectedRoute>
-                      <HealthTracking />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/blood-analysis" element={
-                    <ProtectedRoute>
-                      <BloodAnalysis />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/lab-analyses" element={
-                    <ProtectedRoute>
-                      <LabAnalyses />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/analysis-details" element={
-                    <ProtectedRoute>
-                      <AnalysisDetails />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/analytics" element={
-                    <ProtectedRoute>
-                      <Analytics />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/ai-doctor" element={
-                    <ProtectedRoute>
-                      <AIDoctorPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/ai-doctor/basic" element={
-                    <ProtectedRoute>
-                      <AIDoctorBasicPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/ai-doctor/personal" element={
-                    <ProtectedRoute>
-                      <AIDoctorPersonalPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/nutrition-diary" element={
-                    <ProtectedRoute>
-                      <NutritionDiaryPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/my-protocols" element={
-                    <ProtectedRoute>
-                      <MyProtocols />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/protocol-tracking" element={
-                    <ProtectedRoute>
-                      <ProtocolTracking />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/subscription" element={
-                    <ProtectedRoute>
-                      <SubscriptionPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/user-subscription" element={
-                    <ProtectedRoute>
-                      <UserSubscription />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/checkout" element={
-                    <ProtectedRoute>
-                      <Checkout />
-                    </ProtectedRoute>
-                  } />
-
-                  {/* Admin Routes */}
-                  <Route path="/admin" element={
-                    <ProtectedRoute>
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/users" element={
-                    <ProtectedRoute>
-                      <AdminUsers />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/analytics" element={
-                    <ProtectedRoute>
-                      <AdminAnalytics />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/content" element={
-                    <ProtectedRoute>
-                      <AdminContent />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/ai-chat" element={
-                    <ProtectedRoute>
-                      <AdminAIChat />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/nutrition" element={
-                    <ProtectedRoute>
-                      <AdminNutrition />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/health-profiles" element={
-                    <ProtectedRoute>
-                      <AdminHealthProfiles />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/health-recommendations" element={
-                    <ProtectedRoute>
-                      <AdminHealthRecommendations />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/settings" element={
-                    <ProtectedRoute>
-                      <AdminSettings />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/pricing" element={
-                    <ProtectedRoute>
-                      <AdminPricing />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/statistics" element={
-                    <ProtectedRoute>
-                      <AdminStatistics />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/admin/blog" element={
-                    <ProtectedRoute>
-                      <AdminBlog />
-                    </ProtectedRoute>
-                  } />
+                  {/* Route modules - lazy loaded */}
+                  <Route path="/services/*" element={<ServiceRoutes />} />
+                  <Route path="/partnerships/*" element={<PartnershipRoutes />} />
+                  <Route path="/admin/*" element={<AdminRoutes />} />
+                  
+                  {/* Auth routes */}
+                  <Route path="/*" element={<AuthRoutes />} />
+                  
+                  {/* Protected routes */}
+                  <Route path="/*" element={<ProtectedRoutes />} />
 
                   {/* 404 Route */}
                   <Route path="*" element={<NotFound />} />
