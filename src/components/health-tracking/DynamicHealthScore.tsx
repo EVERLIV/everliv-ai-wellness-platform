@@ -1,4 +1,11 @@
 
+/**
+ * @fileoverview Dynamic Health Score Component with Goals Integration
+ * 
+ * This component displays a dynamic health score calculation and integrates
+ * with the health goals system to show goal-specific progress tracking.
+ */
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,18 +15,48 @@ import { TrendingUp, RefreshCw, Target } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { calculateProgress } from '@/utils/healthGoals';
 
+/**
+ * Dynamic Health Score Component
+ * 
+ * Features:
+ * - Real-time health score calculation
+ * - Integration with active health goals
+ * - Goal-specific progress tracking
+ * - Color-coded score visualization
+ * - Manual score recalculation
+ * - Responsive design
+ * 
+ * Health Score Calculation:
+ * - Based on last 7 days of health metrics
+ * - Considers multiple health factors
+ * - Updates automatically when metrics change
+ * 
+ * Goals Integration:
+ * - Shows progress for active goal
+ * - Displays goal-specific metrics
+ * - Real-time progress updates
+ * 
+ * @example
+ * ```typescript
+ * <DynamicHealthScore />
+ * ```
+ */
 const DynamicHealthScore: React.FC = () => {
   const { calculateDynamicHealthScore, todayMetrics } = useDailyHealthMetrics();
   const { activeGoal } = useOptimizedHealthGoals();
   const [healthScore, setHealthScore] = useState<number | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
-  // Memoized goal progress calculation
+  /**
+   * Memoized goal progress calculation
+   * Calculates progress for different goal types based on today's metrics
+   */
   const goalProgress = useMemo(() => {
     if (!activeGoal || !todayMetrics) return {};
 
     const progress: Record<string, number> = {};
     
+    // Calculate progress based on goal type
     if (activeGoal.goal_type === 'steps' && activeGoal.target_value) {
       progress.steps = calculateProgress(todayMetrics.steps, activeGoal.target_value);
     }
@@ -37,6 +74,7 @@ const DynamicHealthScore: React.FC = () => {
     }
     
     if (activeGoal.goal_type === 'stress' && activeGoal.target_value) {
+      // For stress, lower is better, so we invert the calculation
       progress.stress = todayMetrics.stress_level <= activeGoal.target_value ? 100 : 
               Math.max(0, (1 - (todayMetrics.stress_level - activeGoal.target_value) / 10) * 100);
     }
@@ -44,6 +82,10 @@ const DynamicHealthScore: React.FC = () => {
     return progress;
   }, [activeGoal, todayMetrics]);
 
+  /**
+   * Recalculates health score manually
+   * Useful for refreshing data or troubleshooting
+   */
   const recalculateScore = async () => {
     setIsCalculating(true);
     try {
@@ -56,25 +98,32 @@ const DynamicHealthScore: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    recalculateScore();
-  }, [todayMetrics]);
-
+  /**
+   * Returns appropriate text color for health score
+   */
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
     if (score >= 60) return 'text-yellow-600';
     return 'text-red-600';
   };
 
+  /**
+   * Returns appropriate background color for health score card
+   */
   const getScoreBackground = (score: number) => {
     if (score >= 80) return 'bg-green-50 border-green-200';
     if (score >= 60) return 'bg-yellow-50 border-yellow-200';
     return 'bg-red-50 border-red-200';
   };
 
+  // Auto-recalculate score when today's metrics change
+  useEffect(() => {
+    recalculateScore();
+  }, [todayMetrics]);
+
   return (
     <div className="space-y-4">
-      {/* Динамический балл здоровья */}
+      {/* Dynamic Health Score Card */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -87,6 +136,7 @@ const DynamicHealthScore: React.FC = () => {
               size="sm" 
               onClick={recalculateScore}
               disabled={isCalculating}
+              aria-label="Пересчитать балл здоровья"
             >
               <RefreshCw className={`h-4 w-4 ${isCalculating ? 'animate-spin' : ''}`} />
             </Button>
@@ -102,6 +152,8 @@ const DynamicHealthScore: React.FC = () => {
                 <div className="text-sm text-gray-600 mb-4">
                   Балл на основе данных за последние 7 дней
                 </div>
+                
+                {/* Progress bar visualization */}
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div 
                     className={`h-3 rounded-full transition-all duration-300 ${
@@ -114,6 +166,7 @@ const DynamicHealthScore: React.FC = () => {
               </div>
             </div>
           ) : (
+            /* No data state */
             <div className="text-center py-8">
               <div className="text-gray-500">
                 {isCalculating ? 'Рассчитываем балл...' : 'Нет данных для расчета'}
@@ -128,7 +181,7 @@ const DynamicHealthScore: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Прогресс по целям */}
+      {/* Goal Progress Integration */}
       {activeGoal && todayMetrics && Object.keys(goalProgress).length > 0 && (
         <Card>
           <CardHeader>
@@ -143,6 +196,7 @@ const DynamicHealthScore: React.FC = () => {
                 <h4 className="font-semibold text-blue-800 mb-2">{activeGoal.title}</h4>
                 <p className="text-sm text-blue-600 mb-3">{activeGoal.description}</p>
                 
+                {/* Individual progress metrics */}
                 {Object.entries(goalProgress).map(([key, value]) => (
                   <div key={key} className="mb-3">
                     <div className="flex justify-between text-sm mb-2">
@@ -153,6 +207,7 @@ const DynamicHealthScore: React.FC = () => {
                   </div>
                 ))}
                 
+                {/* Overall goal progress */}
                 <div className="mt-4 p-3 bg-white rounded border">
                   <div className="flex justify-between text-sm">
                     <span>Общий прогресс:</span>

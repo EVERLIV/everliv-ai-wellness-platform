@@ -1,27 +1,51 @@
 
 import { z } from 'zod';
 
-// Zod schemas for validation
+/**
+ * Zod schema for complete health goal validation
+ * Defines the structure and validation rules for health goals
+ */
 export const HealthGoalSchema = z.object({
+  /** Unique identifier for the goal (auto-generated) */
   id: z.string().uuid().optional(),
+  /** User ID who owns the goal */
   user_id: z.string().uuid(),
+  /** Display title for the goal */
   title: z.string().min(1, 'Title is required'),
+  /** Optional detailed description */
   description: z.string().optional(),
+  /** Type of health goal being tracked */
   goal_type: z.enum(['steps', 'exercise', 'weight', 'sleep', 'water', 'stress', 'custom']),
+  /** Health category this goal belongs to */
   category: z.enum(['fitness', 'nutrition', 'sleep', 'mental', 'longevity']),
+  /** Priority level for goal completion */
   priority: z.enum(['low', 'medium', 'high']),
+  /** Target value to achieve (optional for some goal types) */
   target_value: z.number().positive().optional(),
+  /** Current progress value */
   current_value: z.number().min(0).default(0),
+  /** Unit of measurement for the goal */
   unit: z.string().optional(),
+  /** Date when goal tracking started */
   start_date: z.string(),
+  /** Optional target completion date */
   target_date: z.string().optional(),
+  /** Whether this goal is currently active */
   is_active: z.boolean().default(true),
+  /** Whether this is a custom user-defined goal */
   is_custom: z.boolean().default(false),
+  /** Percentage of goal completion (0-100) */
   progress_percentage: z.number().min(0).max(100).default(0),
+  /** Timestamp when goal was created */
   created_at: z.string().optional(),
+  /** Timestamp when goal was last updated */
   updated_at: z.string().optional(),
 });
 
+/**
+ * Schema for creating new health goals
+ * Omits auto-generated fields like id, user_id, timestamps
+ */
 export const CreateHealthGoalSchema = HealthGoalSchema.omit({ 
   id: true, 
   user_id: true, 
@@ -29,17 +53,29 @@ export const CreateHealthGoalSchema = HealthGoalSchema.omit({
   updated_at: true 
 });
 
+/**
+ * Schema for updating existing health goals
+ * Makes all fields optional except id and user_id
+ */
 export const UpdateHealthGoalSchema = HealthGoalSchema.partial().omit({ 
   id: true, 
   user_id: true 
 });
 
 // TypeScript types derived from Zod schemas
+/** Complete health goal object */
 export type HealthGoal = z.infer<typeof HealthGoalSchema>;
+
+/** Input type for creating new goals */
 export type CreateHealthGoalInput = z.infer<typeof CreateHealthGoalSchema>;
+
+/** Input type for updating existing goals */
 export type UpdateHealthGoalInput = z.infer<typeof UpdateHealthGoalSchema>;
 
-// Database mapping utilities
+/**
+ * Database table structure for user_health_goals
+ * Maps to the actual Supabase table schema
+ */
 export interface DatabaseHealthGoal {
   id: string;
   user_id: string;
@@ -57,6 +93,10 @@ export interface DatabaseHealthGoal {
   updated_at: string;
 }
 
+/**
+ * Configuration for different goal types
+ * Defines metadata, defaults, and database field mappings
+ */
 export const GOAL_TYPE_CONFIG = {
   steps: {
     title: 'Daily Steps',
@@ -102,4 +142,5 @@ export const GOAL_TYPE_CONFIG = {
   }
 } as const;
 
+/** Valid goal type keys */
 export type GoalType = keyof typeof GOAL_TYPE_CONFIG;
