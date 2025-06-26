@@ -2,11 +2,12 @@
 import React from 'react';
 import PageLayoutWithHeader from '@/components/PageLayoutWithHeader';
 import AnalyticsPageHeader from '@/components/analytics/AnalyticsPageHeader';
-import DetailedHealthRecommendations from '@/components/analytics/DetailedHealthRecommendations';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, AlertTriangle, User, TestTube } from 'lucide-react';
+import HealthOverviewSection from '@/components/analytics/HealthOverviewSection';
+import RecommendationsOverview from '@/components/analytics/RecommendationsOverview';
 
 const Analytics = () => {
   const { 
@@ -192,10 +193,17 @@ const Analytics = () => {
             </Button>
           </div>
           
-          <DetailedHealthRecommendations 
-            analytics={analytics}
-            healthProfile={healthProfile}
-          />
+          <div className="space-y-8">
+            <HealthOverviewSection 
+              analytics={analytics}
+              healthProfile={healthProfile}
+            />
+            
+            <RecommendationsOverview 
+              analytics={analytics}
+              healthProfile={healthProfile}
+            />
+          </div>
         </div>
       </div>
     </PageLayoutWithHeader>
