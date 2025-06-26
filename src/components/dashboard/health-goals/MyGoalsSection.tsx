@@ -32,7 +32,7 @@ const MyGoalsSection: React.FC = () => {
     return (
       <Card>
         <CardContent className="p-6">
-          <div className="animate-pulse">Загрузка целей...</div>
+          <div className="animate-pulse">Загрузка рекомендаций...</div>
         </CardContent>
       </Card>
     );
@@ -44,14 +44,14 @@ const MyGoalsSection: React.FC = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Target className="h-5 w-5" />
-            Мои цели
+            Мои рекомендации
           </CardTitle>
           <Button 
             variant="outline" 
             size="sm"
             onClick={() => navigate('/dashboard?tab=health')}
           >
-            Все цели
+            Все рекомендации
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </div>
@@ -61,7 +61,7 @@ const MyGoalsSection: React.FC = () => {
         {activeRecommendations.length === 0 && pendingCheckups.length === 0 ? (
           <div className="text-center py-6">
             <Target className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-            <h3 className="font-medium text-gray-900 mb-2">Нет активных целей</h3>
+            <h3 className="font-medium text-gray-900 mb-2">Нет активных рекомендаций</h3>
             <p className="text-sm text-gray-500 mb-4">
               Создайте рекомендации для улучшения здоровья
             </p>
@@ -70,7 +70,7 @@ const MyGoalsSection: React.FC = () => {
               onClick={() => navigate('/dashboard?tab=health')}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Добавить цель
+              Добавить рекомендацию
             </Button>
           </div>
         ) : (
