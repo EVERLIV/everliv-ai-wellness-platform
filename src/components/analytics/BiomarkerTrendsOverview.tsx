@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -37,7 +38,12 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
   const { user } = useSmartAuth();
   const [biomarkerTrends, setBiomarkerTrends] = useState<BiomarkerTrend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [totalBiomarkers, setTotalBiomarkers] = useState(0);
+  const [realTrendsData, setRealTrendsData] = useState({
+    improving: 0,
+    stable: 0,
+    concerning: 0,
+    totalBiomarkers: 0
+  });
 
   useEffect(() => {
     if (user) {
@@ -77,11 +83,9 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
       let totalMarkers = 0;
 
       analyses.forEach(analysis => {
-        // Проверяем, что results существует и является объектом
         if (analysis.results && typeof analysis.results === 'object') {
           const results = analysis.results as AnalysisResults;
           
-          // Проверяем, что markers существует и является массивом
           if (results.markers && Array.isArray(results.markers)) {
             results.markers.forEach((marker: any) => {
               if (marker.name && marker.value) {
@@ -100,22 +104,22 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
         }
       });
 
-      setTotalBiomarkers(totalMarkers);
       console.log('Total biomarkers found:', totalMarkers);
       console.log('Unique biomarkers:', Object.keys(biomarkerHistory).length);
 
       // Анализируем тренды
       const trends: BiomarkerTrend[] = [];
+      let improving = 0;
+      let stable = 0;
+      let concerning = 0;
       
       Object.entries(biomarkerHistory).forEach(([name, markers]) => {
         if (markers.length >= 2) {
-          // Сортируем по дате (новые первыми)
           markers.sort((a, b) => new Date(b.analysisDate).getTime() - new Date(a.analysisDate).getTime());
           
           const latest = markers[0];
           const previous = markers[1];
           
-          // Определяем тренд
           let trend: 'improving' | 'worsening' | 'stable' = 'stable';
           let changePercent = 0;
           
@@ -125,21 +129,27 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
           if (!isNaN(latestNumeric) && !isNaN(previousNumeric) && previousNumeric !== 0) {
             changePercent = ((latestNumeric - previousNumeric) / previousNumeric) * 100;
             
-            // Определяем тренд на основе изменения статуса и значения
             if (Math.abs(changePercent) < 5) {
               trend = 'stable';
+              stable++;
             } else {
-              // Для большинства биомаркеров: оптимальный статус = улучшение
               if (latest.status === 'optimal' && previous.status !== 'optimal') {
                 trend = 'improving';
+                improving++;
               } else if (latest.status !== 'optimal' && previous.status === 'optimal') {
                 trend = 'worsening';
+                concerning++;
               } else if (latest.status === 'optimal' || latest.status === 'good') {
                 trend = changePercent > 0 ? 'stable' : 'improving';
+                stable++;
               } else {
                 trend = changePercent > 0 ? 'worsening' : 'improving';
+                if (trend === 'worsening') concerning++;
+                else improving++;
               }
             }
+          } else {
+            stable++;
           }
 
           trends.push({
@@ -151,10 +161,34 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
             unit: latest.unit || '',
             changePercent: Math.abs(changePercent)
           });
+        } else if (markers.length === 1) {
+          const marker = markers[0];
+          if (marker.status === 'optimal' || marker.status === 'good') {
+            stable++;
+          } else {
+            concerning++;
+          }
+          
+          trends.push({
+            name,
+            latestValue: marker.value,
+            previousValue: '-',
+            trend: 'stable',
+            status: marker.status as 'optimal' | 'good' | 'attention' | 'risk',
+            unit: marker.unit || '',
+            changePercent: 0
+          });
         }
       });
 
-      // Сортируем по важности (проблемные первыми, потом улучшающиеся)
+      // Обновляем реальные данные трендов
+      setRealTrendsData({
+        improving,
+        stable,
+        concerning,
+        totalBiomarkers: totalMarkers
+      });
+
       trends.sort((a, b) => {
         const priorityOrder = { 'worsening': 0, 'improving': 1, 'stable': 2 };
         return priorityOrder[a.trend] - priorityOrder[b.trend];
@@ -238,13 +272,9 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
     );
   }
 
-  const improvingBiomarkers = biomarkerTrends.filter(b => b.trend === 'improving');
-  const worseningBiomarkers = biomarkerTrends.filter(b => b.trend === 'worsening');
-  const stableBiomarkers = biomarkerTrends.filter(b => b.trend === 'stable');
-
   return (
     <div className="space-y-6">
-      {/* Сводка по трендам */}
+      {/* Сводка по трендам - используем реальные данные */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className={`${getTrendColor('improving')} border-2`}>
           <CardHeader className="pb-3">
@@ -255,10 +285,10 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-700 mb-1">
-              {improvingBiomarkers.length}
+              {realTrendsData.improving}
             </div>
             <div className="text-sm text-green-600">
-              из {totalBiomarkers} биомаркеров
+              биомаркеров
             </div>
           </CardContent>
         </Card>
@@ -272,10 +302,10 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-700 mb-1">
-              {stableBiomarkers.length}
+              {realTrendsData.stable}
             </div>
             <div className="text-sm text-blue-600">
-              из {totalBiomarkers} биомаркеров
+              биомаркеров
             </div>
           </CardContent>
         </Card>
@@ -289,10 +319,10 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-700 mb-1">
-              {worseningBiomarkers.length}
+              {realTrendsData.concerning}
             </div>
             <div className="text-sm text-red-600">
-              из {totalBiomarkers} биомаркеров
+              биомаркеров
             </div>
           </CardContent>
         </Card>
