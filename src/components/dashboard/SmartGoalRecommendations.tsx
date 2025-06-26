@@ -1,136 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
-import { supabase } from '@/integrations/supabase/client';
-import { Target, Plus, Activity, Heart, Clock, Brain, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-
-interface SmartRecommendation {
-  id: string;
-  title: string;
-  description: string;
-  timeframe: string;
-  category: 'exercise' | 'nutrition' | 'sleep' | 'stress' | 'supplements';
-  priority: 'high' | 'medium' | 'low';
-  scientificBasis: string;
-  specificActions: string[];
-}
+import { Plus, Loader2 } from 'lucide-react';
+import { useSmartRecommendations } from './recommendations/useSmartRecommendations';
+import RecommendationCard from './recommendations/RecommendationCard';
+import EmptyRecommendationsState from './recommendations/EmptyRecommendationsState';
+import GeneratingRecommendationsState from './recommendations/GeneratingRecommendationsState';
 
 const SmartGoalRecommendations: React.FC = () => {
   const navigate = useNavigate();
   const { healthProfile, isLoading: profileLoading } = useHealthProfile();
-  const [recommendations, setRecommendations] = useState<SmartRecommendation[]>([]);
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'exercise': return <Activity className="h-4 w-4" />;
-      case 'nutrition': return <Heart className="h-4 w-4" />;
-      case 'sleep': return <Clock className="h-4 w-4" />;
-      case 'stress': return <Brain className="h-4 w-4" />;
-      default: return <Target className="h-4 w-4" />;
-    }
-  };
-
-  const getCategoryColors = (category: string) => {
-    switch (category) {
-      case 'exercise': 
-        return {
-          bg: 'from-purple-50 to-indigo-50',
-          border: 'border-purple-100',
-          iconBg: 'bg-purple-100',
-          iconColor: 'text-purple-600'
-        };
-      case 'nutrition':
-        return {
-          bg: 'from-green-50 to-emerald-50',
-          border: 'border-green-100',
-          iconBg: 'bg-green-100',
-          iconColor: 'text-green-600'
-        };
-      case 'sleep':
-        return {
-          bg: 'from-blue-50 to-cyan-50',
-          border: 'border-blue-100',
-          iconBg: 'bg-blue-100',
-          iconColor: 'text-blue-600'
-        };
-      case 'stress':
-        return {
-          bg: 'from-amber-50 to-orange-50',
-          border: 'border-amber-100',
-          iconBg: 'bg-amber-100',
-          iconColor: 'text-amber-600'
-        };
-      default:
-        return {
-          bg: 'from-gray-50 to-slate-50',
-          border: 'border-gray-100',
-          iconBg: 'bg-gray-100',
-          iconColor: 'text-gray-600'
-        };
-    }
-  };
-
-  const generateRecommendations = async () => {
-    if (!healthProfile?.healthGoals || healthProfile.healthGoals.length === 0) {
-      console.log('No health goals found, skipping recommendations generation');
-      return;
-    }
-
-    setIsGenerating(true);
-    console.log('Generating recommendations for goals:', healthProfile.healthGoals);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-goal-recommendations', {
-        body: {
-          healthGoals: healthProfile.healthGoals,
-          userProfile: {
-            age: healthProfile.age,
-            gender: healthProfile.gender,
-            weight: healthProfile.weight,
-            height: healthProfile.height,
-            exerciseFrequency: healthProfile.exerciseFrequency,
-            chronicConditions: healthProfile.chronicConditions,
-            medications: healthProfile.medications,
-            stressLevel: healthProfile.stressLevel,
-            sleepHours: healthProfile.sleepHours
-          }
-        }
-      });
-
-      if (error) {
-        console.error('Error generating recommendations:', error);
-        toast.error('Ошибка при генерации рекомендаций');
-        return;
-      }
-
-      console.log('Recommendations response:', data);
-
-      if (data?.recommendations) {
-        setRecommendations(data.recommendations);
-        console.log('Successfully set recommendations:', data.recommendations);
-      } else {
-        console.log('No recommendations in response');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Ошибка при генерации рекомендаций');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  useEffect(() => {
-    if (healthProfile?.healthGoals && healthProfile.healthGoals.length > 0) {
-      console.log('Health profile loaded with goals:', healthProfile.healthGoals);
-      generateRecommendations();
-    } else {
-      console.log('No health goals found in profile');
-    }
-  }, [healthProfile?.healthGoals]);
+  const { recommendations, isGenerating, generateRecommendations } = useSmartRecommendations();
 
   if (profileLoading) {
     return (
@@ -154,22 +36,7 @@ const SmartGoalRecommendations: React.FC = () => {
           <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
           Рекомендации для достижения целей
         </h3>
-        <div className="text-center py-4">
-          <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Target className="h-6 w-6 text-purple-500" />
-          </div>
-          <p className="text-sm text-gray-600 mb-3">
-            Установите цели здоровья для получения персональных рекомендаций
-          </p>
-          <Button 
-            size="sm"
-            onClick={() => navigate('/health-profile')}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-xs px-4 py-2"
-          >
-            <Plus className="h-3 w-3 mr-1" />
-            Добавить цели
-          </Button>
-        </div>
+        <EmptyRecommendationsState onNavigateToProfile={() => navigate('/health-profile')} />
       </div>
     );
   }
@@ -184,55 +51,14 @@ const SmartGoalRecommendations: React.FC = () => {
       
       <div className="space-y-3">
         {recommendations.length > 0 ? (
-          recommendations.map((recommendation) => {
-            const colors = getCategoryColors(recommendation.category);
-            return (
-              <div key={recommendation.id} className={`p-3 bg-gradient-to-r ${colors.bg} rounded-lg border ${colors.border}`}>
-                <div className="flex items-start gap-3">
-                  <div className={`w-8 h-8 ${colors.iconBg} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                    <span className={colors.iconColor}>
-                      {getCategoryIcon(recommendation.category)}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-sm font-medium text-gray-900 mb-1">
-                      {recommendation.title}
-                    </h4>
-                    <p className="text-xs text-gray-600 mb-2">
-                      {recommendation.description}
-                    </p>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <Clock className="h-3 w-3" />
-                      <span>{recommendation.timeframe}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })
+          recommendations.map((recommendation) => (
+            <RecommendationCard key={recommendation.id} recommendation={recommendation} />
+          ))
         ) : (
-          <div className="text-center py-4">
-            <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Brain className="h-6 w-6 text-purple-500" />
-            </div>
-            <p className="text-sm text-gray-600 mb-3">
-              Генерируем персональные рекомендации на основе ваших целей...
-            </p>
-            <Button 
-              size="sm"
-              variant="outline"
-              onClick={generateRecommendations}
-              disabled={isGenerating}
-              className="text-xs"
-            >
-              {isGenerating ? (
-                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              ) : (
-                <Plus className="h-3 w-3 mr-1" />
-              )}
-              {isGenerating ? 'Генерируем...' : 'Обновить рекомендации'}
-            </Button>
-          </div>
+          <GeneratingRecommendationsState 
+            isGenerating={isGenerating}
+            onRegenerateRecommendations={generateRecommendations}
+          />
         )}
       </div>
       
