@@ -88,9 +88,12 @@ export const useOptimizedHealthGoals = (): UseHealthGoalsReturn => {
         user_id: user.id,
       } as HealthGoal, user.id);
 
+      // Remove the id field for insert since it will be auto-generated
+      const { id, ...insertData } = dbData;
+
       const { data, error } = await supabase
         .from('user_health_goals')
-        .insert(dbData)
+        .insert(insertData)
         .select()
         .single();
 

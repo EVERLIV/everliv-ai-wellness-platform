@@ -4,7 +4,7 @@ import { DatabaseHealthGoal, HealthGoal, GOAL_TYPE_CONFIG, GoalType } from '@/ty
 export class HealthGoalMapper {
   static fromDatabase(dbGoal: DatabaseHealthGoal): HealthGoal {
     const goalType = this.determineGoalType(dbGoal);
-    const config = GOAL_TYPE_CONFIG[goalType as GoalType];
+    const config = GOAL_TYPE_CONFIG[goalType];
     
     return {
       id: dbGoal.id,
@@ -27,8 +27,9 @@ export class HealthGoalMapper {
     };
   }
 
-  static toDatabase(goal: HealthGoal, userId: string): Partial<DatabaseHealthGoal> {
-    const baseData = {
+  static toDatabase(goal: HealthGoal, userId: string): DatabaseHealthGoal {
+    const baseData: DatabaseHealthGoal = {
+      id: goal.id || '',
       user_id: userId,
       goal_type: goal.goal_type,
       start_date: goal.start_date,
@@ -39,6 +40,8 @@ export class HealthGoalMapper {
       target_sleep_hours: 8,
       target_water_intake: 8,
       target_stress_level: 3,
+      created_at: goal.created_at || new Date().toISOString(),
+      updated_at: goal.updated_at || new Date().toISOString(),
     };
 
     // Set specific target based on goal type
@@ -50,7 +53,7 @@ export class HealthGoalMapper {
     return baseData;
   }
 
-  private static determineGoalType(dbGoal: DatabaseHealthGoal): string {
+  private static determineGoalType(dbGoal: DatabaseHealthGoal): GoalType {
     if (dbGoal.target_weight) return 'weight';
     if (dbGoal.target_steps > 10000) return 'steps';
     if (dbGoal.target_exercise_minutes > 30) return 'exercise';
@@ -60,14 +63,14 @@ export class HealthGoalMapper {
     return 'steps'; // default
   }
 
-  private static generateTitle(goalType: string, dbGoal: DatabaseHealthGoal): string {
-    const config = GOAL_TYPE_CONFIG[goalType as GoalType];
+  private static generateTitle(goalType: GoalType, dbGoal: DatabaseHealthGoal): string {
+    const config = GOAL_TYPE_CONFIG[goalType];
     const value = this.getTargetValue(goalType, dbGoal);
     return `${config?.title || goalType}: ${value} ${config?.unit || ''}`;
   }
 
-  private static getTargetValue(goalType: string, dbGoal: DatabaseHealthGoal): number {
-    const config = GOAL_TYPE_CONFIG[goalType as GoalType];
+  private static getTargetValue(goalType: GoalType, dbGoal: DatabaseHealthGoal): number {
+    const config = GOAL_TYPE_CONFIG[goalType];
     if (!config) return 0;
     
     return (dbGoal as any)[config.dbField] || config.defaultTarget;
