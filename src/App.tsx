@@ -64,7 +64,7 @@ const AIDoctorPage = lazy(() => import("./pages/AIDoctorPage"));
 const AIDoctorBasicPage = lazy(() => import("./pages/AIDoctorBasicPage"));
 const AIDoctorPersonalPage = lazy(() => import("./pages/AIDoctorPersonalPage"));
 const NutritionDiaryPage = lazy(() => import("./pages/NutritionDiary"));
-const MyProtocols = lazy(() => import("./pages/MyProtocols"));
+const MyRecommendations = lazy(() => import("./pages/MyRecommendations"));
 const ProtocolTracking = lazy(() => import("./pages/ProtocolTracking"));
 const SubscriptionPage = lazy(() => import("./pages/SubscriptionPage"));
 const UserSubscription = lazy(() => import("./pages/UserSubscription"));
