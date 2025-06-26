@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { FEATURES } from "@/constants/subscription-features";
 import { analyzeBloodTestWithOpenAI } from "@/services/ai";
+import { useSupabaseErrorHandler } from "./useSupabaseErrorHandler";
 
 interface BloodAnalysisResults {
   markers: Array<{
@@ -31,6 +33,7 @@ interface BloodAnalysisResults {
 export const useBloodAnalysis = () => {
   const { user } = useAuth();
   const { canUseFeature, recordFeatureTrial } = useSubscription();
+  const { handleError } = useSupabaseErrorHandler();
   const [results, setResults] = useState<BloodAnalysisResults | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState("input");
@@ -69,17 +72,20 @@ export const useBloodAnalysis = () => {
       return;
     }
 
+    if (!user) {
+      toast.error("Необходимо войти в систему для анализа");
+      return;
+    }
+
     setIsAnalyzing(true);
     setApiError(null);
     
     try {
       // Record feature trial
-      if (user) {
-        if (inputMethod === "text" && canUseBloodAnalysis) {
-          await recordFeatureTrial(FEATURES.BLOOD_ANALYSIS);
-        } else if (inputMethod === "photo" && canUsePhotoAnalysis) {
-          await recordFeatureTrial(FEATURES.PHOTO_BLOOD_ANALYSIS);
-        }
+      if (inputMethod === "text" && canUseBloodAnalysis) {
+        await recordFeatureTrial(FEATURES.BLOOD_ANALYSIS);
+      } else if (inputMethod === "photo" && canUsePhotoAnalysis) {
+        await recordFeatureTrial(FEATURES.PHOTO_BLOOD_ANALYSIS);
       }
 
       let base64Image: string | undefined;
@@ -113,7 +119,7 @@ export const useBloodAnalysis = () => {
       console.error("Ошибка анализа:", error);
       const errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка при анализе";
       setApiError(errorMessage);
-      toast.error("Произошла ошибка при анализе: " + errorMessage);
+      handleError(error as Error, 'blood analysis');
     } finally {
       setIsAnalyzing(false);
     }

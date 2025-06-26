@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
 import { Suspense, lazy } from "react";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 // Immediate load components (critical path)
 import Index from "./pages/Index";
@@ -51,74 +52,83 @@ import DevModeIndicator from "./components/DevModeIndicator";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false,
+      retry: (failureCount, error) => {
+        // Don't retry on auth errors
+        if (error?.message?.includes('JWT') || error?.message?.includes('auth')) {
+          return false;
+        }
+        return failureCount < 2;
+      },
       refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
 });
 
 const App = () => (
-  <HelmetProvider>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider delayDuration={0}>
-        <Toaster />
-        <Sonner />
-        <Suspense fallback={<LoadingFallback />}>
-          <BrowserRouter>
-            <SmartAuthProvider>
-              <SubscriptionProvider>
-                <DevModeIndicator />
-                <RealtimeNotifications />
-                <Routes>
-                  {/* Critical path routes - no lazy loading */}
-                  <Route path="/" element={<Index />} />
-                  <Route path="/home" element={<Home />} />
+  <ErrorBoundary>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider delayDuration={0}>
+          <Toaster />
+          <Sonner />
+          <Suspense fallback={<LoadingFallback />}>
+            <BrowserRouter>
+              <SmartAuthProvider>
+                <SubscriptionProvider>
+                  <DevModeIndicator />
+                  <RealtimeNotifications />
+                  <Routes>
+                    {/* Critical path routes - no lazy loading */}
+                    <Route path="/" element={<Index />} />
+                    <Route path="/home" element={<Home />} />
 
-                  {/* Public routes - lazy loaded */}
-                  <Route path="/features" element={<Features />} />
-                  <Route path="/how-it-works" element={<HowItWorks />} />
-                  <Route path="/science" element={<Science />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/pricing" element={<Pricing />} />
-                  <Route path="/partnership" element={<Partnership />} />
-                  <Route path="/faq" element={<FAQ />} />
-                  <Route path="/support" element={<Support />} />
-                  <Route path="/help" element={<HelpCenter />} />
-                  <Route path="/terms" element={<TermsOfUse />} />
-                  <Route path="/privacy" element={<PrivacyPolicy />} />
-                  <Route path="/security" element={<Security />} />
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:slug" element={<BlogPost />} />
-                  <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
-                  <Route path="/specialists" element={<MedicalKnowledge />} />
-                  <Route path="/moscow-clinics" element={<MoscowClinics />} />
-                  <Route path="/services" element={<ServicesPage />} />
-                  <Route path="/community" element={<Community />} />
-                  <Route path="/webinars" element={<Webinars />} />
-                  <Route path="/biological-age" element={<BiologicalAgePage />} />
+                    {/* Public routes - lazy loaded */}
+                    <Route path="/features" element={<Features />} />
+                    <Route path="/how-it-works" element={<HowItWorks />} />
+                    <Route path="/science" element={<Science />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/pricing" element={<Pricing />} />
+                    <Route path="/partnership" element={<Partnership />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/support" element={<Support />} />
+                    <Route path="/help" element={<HelpCenter />} />
+                    <Route path="/terms" element={<TermsOfUse />} />
+                    <Route path="/privacy" element={<PrivacyPolicy />} />
+                    <Route path="/security" element={<Security />} />
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/:slug" element={<BlogPost />} />
+                    <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
+                    <Route path="/specialists" element={<MedicalKnowledge />} />
+                    <Route path="/moscow-clinics" element={<MoscowClinics />} />
+                    <Route path="/services" element={<ServicesPage />} />
+                    <Route path="/community" element={<Community />} />
+                    <Route path="/webinars" element={<Webinars />} />
+                    <Route path="/biological-age" element={<BiologicalAgePage />} />
 
-                  {/* Route modules - lazy loaded */}
-                  <Route path="/services/*" element={<ServiceRoutes />} />
-                  <Route path="/partnerships/*" element={<PartnershipRoutes />} />
-                  <Route path="/admin/*" element={<AdminRoutes />} />
-                  
-                  {/* Auth routes */}
-                  <Route path="/*" element={<AuthRoutes />} />
-                  
-                  {/* Protected routes */}
-                  <Route path="/*" element={<ProtectedRoutes />} />
+                    {/* Route modules - lazy loaded */}
+                    <Route path="/services/*" element={<ServiceRoutes />} />
+                    <Route path="/partnerships/*" element={<PartnershipRoutes />} />
+                    <Route path="/admin/*" element={<AdminRoutes />} />
+                    
+                    {/* Auth routes */}
+                    <Route path="/*" element={<AuthRoutes />} />
+                    
+                    {/* Protected routes */}
+                    <Route path="/*" element={<ProtectedRoutes />} />
 
-                  {/* 404 Route */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </SubscriptionProvider>
-            </SmartAuthProvider>
-          </BrowserRouter>
-        </Suspense>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </HelmetProvider>
+                    {/* 404 Route */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </SubscriptionProvider>
+              </SmartAuthProvider>
+            </BrowserRouter>
+          </Suspense>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
+  </ErrorBoundary>
 );
 
 export default App;
