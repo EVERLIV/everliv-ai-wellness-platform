@@ -28,6 +28,10 @@ const MyGoalsSection: React.FC = () => {
     }
   };
 
+  const handleGoToRecommendations = () => {
+    navigate('/health-tracking');
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -49,7 +53,7 @@ const MyGoalsSection: React.FC = () => {
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => navigate('/dashboard?tab=health')}
+            onClick={handleGoToRecommendations}
           >
             Все рекомендации
             <ArrowRight className="h-4 w-4 ml-2" />
@@ -67,7 +71,7 @@ const MyGoalsSection: React.FC = () => {
             </p>
             <Button 
               size="sm"
-              onClick={() => navigate('/dashboard?tab=health')}
+              onClick={handleGoToRecommendations}
             >
               <Plus className="h-4 w-4 mr-2" />
               Добавить рекомендацию
@@ -144,7 +148,7 @@ const MyGoalsSection: React.FC = () => {
                   variant="ghost" 
                   size="sm" 
                   className="w-full"
-                  onClick={() => navigate('/dashboard?tab=health')}
+                  onClick={handleGoToRecommendations}
                 >
                   Показать все ({activeRecommendations.length + pendingCheckups.length})
                   <ArrowRight className="h-4 w-4 ml-2" />

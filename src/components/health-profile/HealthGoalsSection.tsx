@@ -8,6 +8,11 @@ import { useNavigate } from 'react-router-dom';
 const HealthGoalsSection: React.FC = () => {
   const navigate = useNavigate();
 
+  const handleGoToRecommendations = () => {
+    // Переходим на страницу трекинга здоровья вместо дашборда
+    navigate('/health-tracking');
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -23,9 +28,9 @@ const HealthGoalsSection: React.FC = () => {
             Управление целями здоровья
           </h3>
           <p className="text-gray-500 mb-4">
-            Создавайте и отслеживайте рекомендации для улучшения здоровья в новом разделе
+            Создавайте и отслеживайте рекомендации для улучшения здоровья
           </p>
-          <Button onClick={() => navigate('/dashboard?tab=health')}>
+          <Button onClick={handleGoToRecommendations}>
             <ArrowRight className="h-4 w-4 mr-2" />
             Перейти к рекомендациям
           </Button>

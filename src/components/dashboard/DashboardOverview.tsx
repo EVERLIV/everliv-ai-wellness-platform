@@ -5,6 +5,7 @@ import AnalysisHistoryCard from "./AnalysisHistoryCard";
 import AppointmentsCard from "./AppointmentsCard";
 import ProtocolsProgressCard from "./ProtocolsProgressCard";
 import MyGoalsSection from "./health-goals/MyGoalsSection";
+import CheckupsSection from "./health-goals/CheckupsSection";
 
 interface DashboardOverviewProps {
   patientData: any;
@@ -18,6 +19,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ patientData }) =>
         <AnalysisHistoryCard />
         <AppointmentsCard appointments={patientData.upcomingAppointments} />
         <MyGoalsSection />
+        <CheckupsSection />
       </div>
       <div className="lg:col-span-1">
         <ProtocolsProgressCard protocols={patientData.recentProtocols} />

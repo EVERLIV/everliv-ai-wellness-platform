@@ -65,6 +65,7 @@ export const useHealthRecommendations = () => {
     if (!user) return;
 
     try {
+      const now = new Date();
       const mockCheckups: RecommendationCheckup[] = [
         {
           id: '1',
@@ -72,7 +73,7 @@ export const useHealthRecommendations = () => {
           user_id: user.id,
           title: 'Проверка активности за неделю',
           description: 'Оценить достижение цели по шагам',
-          scheduled_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          scheduled_date: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString(), // завтра
           status: 'pending',
         },
         {
@@ -81,8 +82,20 @@ export const useHealthRecommendations = () => {
           user_id: user.id,
           title: 'Анализ качества сна',
           description: 'Проверить улучшения в режиме сна',
-          scheduled_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+          scheduled_date: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(), // вчера (просрочен)
           status: 'pending',
+        },
+        {
+          id: '3',
+          recommendation_id: '1',
+          user_id: user.id,
+          title: 'Еженедельный чекап активности',
+          description: 'Проверка прогресса по физической активности',
+          scheduled_date: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+          status: 'completed',
+          rating: 8,
+          result: 'Отличный прогресс! Удалось достичь цели по шагам 5 дней из 7.',
+          completed_at: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
         }
       ];
       
@@ -111,7 +124,7 @@ export const useHealthRecommendations = () => {
       
       // Автоматически создаем чекап через неделю
       const checkup: RecommendationCheckup = {
-        id: Date.now().toString(),
+        id: (Date.now() + 1).toString(),
         recommendation_id: newRecommendation.id!,
         user_id: user.id,
         title: `Проверка: ${data.title}`,
@@ -162,7 +175,9 @@ export const useHealthRecommendations = () => {
   };
 
   const getPendingCheckups = () => {
-    return checkups.filter(c => c.status === 'pending');
+    return checkups.filter(c => c.status === 'pending').sort((a, b) => 
+      new Date(a.scheduled_date).getTime() - new Date(b.scheduled_date).getTime()
+    );
   };
 
   const getRecommendationsForAnalytics = () => {

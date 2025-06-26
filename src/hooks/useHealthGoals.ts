@@ -1,55 +1,54 @@
 
 import { useState, useEffect } from 'react';
-import { useOptimizedHealthGoals } from './useOptimizedHealthGoals';
-import { HealthGoal, CreateHealthGoalInput } from '@/types/healthGoals';
-import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
-export { type HealthGoal } from '@/types/healthGoals';
+interface HealthGoal {
+  id: string;
+  title: string;
+  description: string;
+  goal_type: string;
+  target_value: number;
+  progress_percentage: number;
+  status: 'active' | 'completed' | 'paused';
+  created_at: string;
+}
 
 export const useHealthGoals = () => {
-  const { goals, isLoading, createGoal, updateGoal, deleteGoal, refetch } = useOptimizedHealthGoals();
-  const [localGoals, setLocalGoals] = useState<HealthGoal[]>([]);
+  const { user } = useAuth();
+  const [activeGoal, setActiveGoal] = useState<HealthGoal | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setLocalGoals(goals);
-  }, [goals]);
-
-  // Find active goal
-  const activeGoal = localGoals.find(goal => goal.is_active) || null;
-
-  const updateProgress = async (goalId: string, progress: number) => {
-    try {
-      // В данном случае мы просто обновляем локальное состояние
-      // так как у нас нет API для обновления прогресса
-      setLocalGoals(prevGoals => 
-        prevGoals.map(goal => 
-          goal.id === goalId 
-            ? { ...goal, progress_percentage: Math.min(100, Math.max(0, progress)) }
-            : goal
-        )
-      );
-      toast.success('Прогресс обновлен');
-    } catch (error) {
-      toast.error('Ошибка обновления прогресса');
+    if (user) {
+      loadActiveGoal();
     }
-  };
+  }, [user]);
 
-  const deactivateGoal = async (goalId: string) => {
+  const loadActiveGoal = async () => {
     try {
-      await deleteGoal(goalId);
-      toast.success('Цель деактивирована');
+      // Заглушка для демонстрации - в реальном приложении здесь был бы запрос к API
+      const mockGoal: HealthGoal = {
+        id: '1',
+        title: 'Увеличить активность',
+        description: 'Достичь 10,000 шагов в день',
+        goal_type: 'steps',
+        target_value: 10000,
+        progress_percentage: 65,
+        status: 'active',
+        created_at: new Date().toISOString(),
+      };
+      
+      setActiveGoal(mockGoal);
     } catch (error) {
-      toast.error('Ошибка деактивации цели');
+      console.error('Ошибка загрузки активной цели:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return {
-    goals: localGoals,
     activeGoal,
     isLoading,
-    updateProgress,
-    createGoal,
-    deactivateGoal,
-    refetch
+    refetch: loadActiveGoal
   };
 };

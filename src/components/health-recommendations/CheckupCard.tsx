@@ -13,23 +13,24 @@ import {
   Star
 } from 'lucide-react';
 import { RecommendationCheckup } from '@/types/healthRecommendations';
+import { useHealthRecommendations } from '@/hooks/useHealthRecommendations';
 
 interface CheckupCardProps {
   checkup: RecommendationCheckup;
-  onComplete?: (checkupId: string, rating: number, result: string) => Promise<boolean>;
 }
 
-const CheckupCard: React.FC<CheckupCardProps> = ({ checkup, onComplete }) => {
+const CheckupCard: React.FC<CheckupCardProps> = ({ checkup }) => {
+  const { completeCheckup } = useHealthRecommendations();
   const [isCompleting, setIsCompleting] = useState(false);
   const [rating, setRating] = useState([7]);
   const [result, setResult] = useState('');
 
   const handleComplete = async () => {
-    if (!onComplete) return;
+    if (!checkup.id) return;
     
     setIsCompleting(true);
     try {
-      await onComplete(checkup.id!, rating[0], result);
+      await completeCheckup(checkup.id, rating[0], result);
       setResult('');
       setRating([7]);
     } catch (error) {
