@@ -26,8 +26,11 @@ const ForgotPasswordPage = () => {
       return;
     }
     
+    console.log('Attempting to reset password for email:', email);
+    
     try {
       await resetPassword(email);
+      console.log('Password reset email sent successfully');
       setIsSubmitted(true);
     } catch (error: any) {
       console.error("Reset password error:", error);

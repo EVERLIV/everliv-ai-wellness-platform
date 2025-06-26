@@ -123,8 +123,14 @@ export const useAuthActions = () => {
       setIsLoading(true);
       console.log('Sending password reset email to:', email);
       
+      // Формируем корректный URL для сброса пароля
+      const currentOrigin = window.location.origin;
+      const redirectUrl = `${currentOrigin}/reset-password`;
+      
+      console.log('Reset password redirect URL:', redirectUrl);
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: redirectUrl,
       });
       
       if (error) throw error;
