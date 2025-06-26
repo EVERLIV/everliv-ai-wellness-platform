@@ -7,6 +7,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { Suspense, lazy } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { QueryOptimizer } from "./components/performance/QueryOptimizer";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Immediate load components (critical path)
 import Index from "./pages/Index";
@@ -18,8 +19,6 @@ import LoadingFallback from "./components/common/LoadingFallback";
 const AdminRoutes = lazy(() => import("./modules/admin/AdminRoutes"));
 const ServiceRoutes = lazy(() => import("./modules/services/ServiceRoutes"));
 const PartnershipRoutes = lazy(() => import("./modules/partnerships/PartnershipRoutes"));
-const AuthRoutes = lazy(() => import("./modules/auth/AuthRoutes"));
-const ProtectedRoutes = lazy(() => import("./modules/protected/ProtectedRoutes"));
 
 // Lazy load public pages
 const Features = lazy(() => import("./pages/Features"));
@@ -43,6 +42,33 @@ const ServicesPage = lazy(() => import("./pages/ServicesPage"));
 const Community = lazy(() => import("./pages/Community"));
 const Webinars = lazy(() => import("./pages/Webinars"));
 const BiologicalAgePage = lazy(() => import("./pages/BiologicalAge"));
+
+// Auth pages
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const AuthConfirm = lazy(() => import("./pages/AuthConfirm"));
+const Welcome = lazy(() => import("./pages/Welcome"));
+
+// Protected pages
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
+const Settings = lazy(() => import("./pages/Settings"));
+const HealthProfile = lazy(() => import("./pages/HealthProfile"));
+const HealthTracking = lazy(() => import("./pages/HealthTracking"));
+const BloodAnalysis = lazy(() => import("./pages/BloodAnalysis"));
+const LabAnalyses = lazy(() => import("./pages/LabAnalyses"));
+const AnalysisDetails = lazy(() => import("./pages/AnalysisDetails"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const AIDoctorPage = lazy(() => import("./pages/AIDoctorPage"));
+const AIDoctorBasicPage = lazy(() => import("./pages/AIDoctorBasicPage"));
+const AIDoctorPersonalPage = lazy(() => import("./pages/AIDoctorPersonalPage"));
+const NutritionDiaryPage = lazy(() => import("./pages/NutritionDiary"));
+const MyProtocols = lazy(() => import("./pages/MyProtocols"));
+const ProtocolTracking = lazy(() => import("./pages/ProtocolTracking"));
+const SubscriptionPage = lazy(() => import("./pages/SubscriptionPage"));
+const UserSubscription = lazy(() => import("./pages/UserSubscription"));
+const Checkout = lazy(() => import("./pages/Checkout"));
 
 import { SmartAuthProvider } from "./contexts/SmartAuthContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
@@ -68,6 +94,105 @@ const App = () => (
                       {/* Critical path routes - no lazy loading */}
                       <Route path="/" element={<Index />} />
                       <Route path="/home" element={<Home />} />
+
+                      {/* Auth routes */}
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/signup" element={<Signup />} />
+                      <Route path="/reset-password" element={<ResetPassword />} />
+                      <Route path="/auth/confirm" element={<AuthConfirm />} />
+                      <Route path="/welcome" element={<Welcome />} />
+
+                      {/* Protected routes */}
+                      <Route path="/dashboard" element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/profile" element={
+                        <ProtectedRoute>
+                          <UserProfile />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/settings" element={
+                        <ProtectedRoute>
+                          <Settings />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/health-profile" element={
+                        <ProtectedRoute>
+                          <HealthProfile />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/health-tracking" element={
+                        <ProtectedRoute>
+                          <HealthTracking />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/blood-analysis" element={
+                        <ProtectedRoute>
+                          <BloodAnalysis />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/lab-analyses" element={
+                        <ProtectedRoute>
+                          <LabAnalyses />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/analysis-details" element={
+                        <ProtectedRoute>
+                          <AnalysisDetails />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/analytics" element={
+                        <ProtectedRoute>
+                          <Analytics />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/ai-doctor" element={
+                        <ProtectedRoute>
+                          <AIDoctorPage />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/ai-doctor/basic" element={
+                        <ProtectedRoute>
+                          <AIDoctorBasicPage />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/ai-doctor/personal" element={
+                        <ProtectedRoute>
+                          <AIDoctorPersonalPage />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/nutrition-diary" element={
+                        <ProtectedRoute>
+                          <NutritionDiaryPage />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/my-protocols" element={
+                        <ProtectedRoute>
+                          <MyProtocols />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/protocol-tracking" element={
+                        <ProtectedRoute>
+                          <ProtocolTracking />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/subscription" element={
+                        <ProtectedRoute>
+                          <SubscriptionPage />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/user-subscription" element={
+                        <ProtectedRoute>
+                          <UserSubscription />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/checkout" element={
+                        <ProtectedRoute>
+                          <Checkout />
+                        </ProtectedRoute>
+                      } />
 
                       {/* Public routes - lazy loaded */}
                       <Route path="/features" element={<Features />} />
@@ -97,12 +222,6 @@ const App = () => (
                       <Route path="/services/*" element={<ServiceRoutes />} />
                       <Route path="/partnerships/*" element={<PartnershipRoutes />} />
                       <Route path="/admin/*" element={<AdminRoutes />} />
-                      
-                      {/* Auth routes */}
-                      <Route path="/*" element={<AuthRoutes />} />
-                      
-                      {/* Protected routes */}
-                      <Route path="/*" element={<ProtectedRoutes />} />
 
                       {/* 404 Route */}
                       <Route path="*" element={<NotFound />} />
