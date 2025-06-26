@@ -2,12 +2,10 @@
 import React from 'react';
 import PageLayoutWithHeader from '@/components/PageLayoutWithHeader';
 import AnalyticsPageHeader from '@/components/analytics/AnalyticsPageHeader';
+import AnalyticsContent from '@/components/analytics/AnalyticsContent';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
-import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, AlertTriangle, User, TestTube } from 'lucide-react';
-import HealthOverviewSection from '@/components/analytics/HealthOverviewSection';
-import RecommendationsOverview from '@/components/analytics/RecommendationsOverview';
 
 const Analytics = () => {
   const { 
@@ -18,8 +16,6 @@ const Analytics = () => {
     hasAnalyses, 
     generateAnalytics 
   } = useCachedAnalytics();
-  
-  const { healthProfile } = useHealthProfile();
 
   const handleGenerateAnalytics = async () => {
     await generateAnalytics();
@@ -162,50 +158,11 @@ const Analytics = () => {
       }
       fullWidth
     >
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Персональная аналитика здоровья
-              </h1>
-              <p className="text-gray-600">
-                ИИ-рекомендации на основе вашего профиля здоровья и анализов
-              </p>
-            </div>
-            
-            <Button
-              onClick={handleGenerateAnalytics}
-              disabled={isGenerating}
-              variant="outline"
-            >
-              {isGenerating ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Обновляем...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Обновить анализ
-                </>
-              )}
-            </Button>
-          </div>
-          
-          <div className="space-y-8">
-            <HealthOverviewSection 
-              analytics={analytics}
-              healthProfile={healthProfile}
-            />
-            
-            <RecommendationsOverview 
-              analytics={analytics}
-              healthProfile={healthProfile}
-            />
-          </div>
-        </div>
-      </div>
+      <AnalyticsContent 
+        analytics={analytics}
+        onRefresh={handleGenerateAnalytics}
+        isGenerating={isGenerating}
+      />
     </PageLayoutWithHeader>
   );
 };
