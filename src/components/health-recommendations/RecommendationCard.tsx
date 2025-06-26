@@ -9,7 +9,12 @@ import {
   Moon, 
   Brain, 
   Heart,
-  Droplets
+  Droplets,
+  Zap,
+  Shield,
+  Bone,
+  Scale,
+  Users
 } from 'lucide-react';
 import { HealthRecommendation } from '@/types/healthRecommendations';
 
@@ -26,6 +31,12 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommendation 
       case 'sleep': return <Moon className="h-4 w-4" />;
       case 'stress': return <Brain className="h-4 w-4" />;
       case 'water': return <Droplets className="h-4 w-4" />;
+      case 'longevity': return <Zap className="h-4 w-4" />;
+      case 'cardiovascular': return <Heart className="h-4 w-4" />;
+      case 'cognitive': return <Brain className="h-4 w-4" />;
+      case 'musculoskeletal': return <Bone className="h-4 w-4" />;
+      case 'metabolism': return <Scale className="h-4 w-4" />;
+      case 'immunity': return <Shield className="h-4 w-4" />;
       default: return <Target className="h-4 w-4" />;
     }
   };
@@ -57,6 +68,11 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommendation 
       case 'sleep': return 'Сон';
       case 'mental': return 'Ментальное здоровье';
       case 'longevity': return 'Долголетие';
+      case 'cardiovascular': return 'Сердечно-сосудистая система';
+      case 'cognitive': return 'Когнитивные функции';
+      case 'musculoskeletal': return 'Костно-мышечная система';
+      case 'metabolism': return 'Метаболизм';
+      case 'immunity': return 'Иммунитет';
       default: return category;
     }
   };

@@ -3,164 +3,155 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
 import { 
-  Clock, 
   CheckCircle, 
+  Clock, 
   Calendar,
   Star
 } from 'lucide-react';
 import { RecommendationCheckup } from '@/types/healthRecommendations';
-import { useHealthRecommendations } from '@/hooks/useHealthRecommendations';
 
 interface CheckupCardProps {
   checkup: RecommendationCheckup;
+  onComplete?: (checkupId: string, rating: number, result: string) => Promise<boolean>;
 }
 
-const CheckupCard: React.FC<CheckupCardProps> = ({ checkup }) => {
-  const { completeCheckup } = useHealthRecommendations();
+const CheckupCard: React.FC<CheckupCardProps> = ({ checkup, onComplete }) => {
   const [isCompleting, setIsCompleting] = useState(false);
-  const [rating, setRating] = useState(5);
+  const [rating, setRating] = useState([7]);
   const [result, setResult] = useState('');
 
   const handleComplete = async () => {
-    const success = await completeCheckup(checkup.id!, rating, result);
-    if (success) {
+    if (!onComplete) return;
+    
+    setIsCompleting(true);
+    try {
+      await onComplete(checkup.id!, rating[0], result);
+      setResult('');
+      setRating([7]);
+    } catch (error) {
+      console.error('Ошибка завершения чекапа:', error);
+    } finally {
       setIsCompleting(false);
     }
   };
 
-  const isOverdue = new Date(checkup.scheduled_date) < new Date();
-  const daysUntil = Math.ceil((new Date(checkup.scheduled_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  const getDaysUntil = () => {
+    const today = new Date();
+    const scheduledDate = new Date(checkup.scheduled_date);
+    const diffTime = scheduledDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const daysUntil = getDaysUntil();
+  const isOverdue = daysUntil < 0;
+  const isToday = daysUntil === 0;
+
+  const getStatusColor = () => {
+    if (checkup.status === 'completed') return 'bg-green-50 border-green-200';
+    if (isOverdue) return 'bg-red-50 border-red-200';
+    if (isToday) return 'bg-orange-50 border-orange-200';
+    return 'bg-blue-50 border-blue-200';
+  };
+
+  const getStatusText = () => {
+    if (checkup.status === 'completed') return 'Завершен';
+    if (isOverdue) return `Просрочен на ${Math.abs(daysUntil)} дн.`;
+    if (isToday) return 'Сегодня';
+    return `Через ${daysUntil} дн.`;
+  };
 
   return (
-    <Card className={`hover:bg-gray-50 transition-colors ${isOverdue ? 'border-orange-200 bg-orange-50' : ''}`}>
+    <Card className={`${getStatusColor()} transition-colors`}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-start gap-3">
             <div className={`p-2 rounded-lg flex-shrink-0 ${
-              isOverdue ? 'bg-orange-100' : 'bg-blue-100'
+              checkup.status === 'completed' ? 'bg-green-100' :
+              isOverdue ? 'bg-red-100' :
+              isToday ? 'bg-orange-100' : 'bg-blue-100'
             }`}>
-              <Clock className={`h-4 w-4 ${isOverdue ? 'text-orange-600' : 'text-blue-600'}`} />
+              {checkup.status === 'completed' ? (
+                <CheckCircle className={`h-4 w-4 ${
+                  checkup.status === 'completed' ? 'text-green-600' : 'text-blue-600'
+                }`} />
+              ) : (
+                <Clock className={`h-4 w-4 ${
+                  isOverdue ? 'text-red-600' :
+                  isToday ? 'text-orange-600' : 'text-blue-600'
+                }`} />
+              )}
             </div>
             <div className="min-w-0 flex-1">
               <h4 className="font-semibold text-gray-900 mb-1">
                 {checkup.title}
               </h4>
-              <p className="text-sm text-gray-600 leading-relaxed mb-2">
+              <p className="text-sm text-gray-600 mb-2">
                 {checkup.description}
               </p>
-              
               <div className="flex items-center gap-2 text-sm text-gray-500">
-                <Calendar className="h-4 w-4" />
-                <span>
-                  {new Date(checkup.scheduled_date).toLocaleDateString('ru-RU')}
-                  {daysUntil > 0 && ` (через ${daysUntil} дн.)`}
-                  {daysUntil === 0 && ' (сегодня)'}
-                  {daysUntil < 0 && ` (просрочен на ${Math.abs(daysUntil)} дн.)`}
-                </span>
+                <Calendar className="h-3 w-3" />
+                <span>{new Date(checkup.scheduled_date).toLocaleDateString('ru-RU')}</span>
               </div>
             </div>
           </div>
-          
-          <div className="flex items-center gap-2">
-            {isOverdue && (
-              <Badge variant="destructive" className="text-xs">
-                Просрочен
-              </Badge>
-            )}
-            <Badge 
-              variant={checkup.status === 'pending' ? 'secondary' : 'default'}
-              className="text-xs"
-            >
-              {checkup.status === 'pending' ? 'Ожидает' : 
-               checkup.status === 'completed' ? 'Завершен' : 'Пропущен'}
-            </Badge>
-          </div>
+          <Badge variant={
+            checkup.status === 'completed' ? 'default' :
+            isOverdue ? 'destructive' :
+            isToday ? 'secondary' : 'outline'
+          }>
+            {getStatusText()}
+          </Badge>
         </div>
 
-        {checkup.status === 'pending' && (
-          <div className="mt-4">
-            {!isCompleting ? (
-              <Button 
-                size="sm" 
-                onClick={() => setIsCompleting(true)}
-                className="w-full"
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Завершить чекап
-              </Button>
-            ) : (
-              <div className="space-y-3 p-3 bg-white rounded-lg border">
-                <div>
-                  <Label htmlFor="rating" className="text-sm">
-                    Оценка прогресса (1-10)
-                  </Label>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Input
-                      id="rating"
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={rating}
-                      onChange={(e) => setRating(parseInt(e.target.value))}
-                      className="w-20"
-                    />
-                    <div className="flex items-center gap-1">
-                      {[...Array(rating)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="result" className="text-sm">
-                    Результат и комментарии
-                  </Label>
-                  <Textarea
-                    id="result"
-                    value={result}
-                    onChange={(e) => setResult(e.target.value)}
-                    placeholder="Опишите ваш прогресс и наблюдения..."
-                    rows={3}
-                    className="mt-1"
-                  />
-                </div>
-                
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={handleComplete} className="flex-1">
-                    Сохранить результат
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => setIsCompleting(false)}
-                  >
-                    Отмена
-                  </Button>
-                </div>
-              </div>
-            )}
+        {checkup.status === 'completed' && checkup.result && (
+          <div className="mt-4 p-3 bg-white rounded-lg border">
+            <div className="flex items-center gap-2 mb-2">
+              <Star className="h-4 w-4 text-yellow-500" />
+              <span className="text-sm font-medium">Оценка: {checkup.rating}/10</span>
+            </div>
+            <p className="text-sm text-gray-700">{checkup.result}</p>
           </div>
         )}
 
-        {checkup.status === 'completed' && checkup.result && (
-          <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium text-green-800">
-                Результат: {checkup.rating}/10
-              </span>
+        {checkup.status === 'pending' && (isToday || isOverdue) && (
+          <div className="mt-4 p-4 bg-white rounded-lg border space-y-4">
+            <div>
+              <Label className="text-sm font-medium">Результат чекапа</Label>
+              <Textarea
+                value={result}
+                onChange={(e) => setResult(e.target.value)}
+                placeholder="Опишите результаты и ваши ощущения..."
+                rows={3}
+                className="mt-1"
+              />
             </div>
-            <p className="text-sm text-green-700">{checkup.result}</p>
-            {checkup.completed_at && (
-              <p className="text-xs text-green-600 mt-1">
-                Завершен: {new Date(checkup.completed_at).toLocaleDateString('ru-RU')}
-              </p>
-            )}
+            
+            <div>
+              <Label className="text-sm font-medium">Оценка прогресса: {rating[0]}/10</Label>
+              <div className="mt-2">
+                <Slider
+                  value={rating}
+                  onValueChange={setRating}
+                  max={10}
+                  min={1}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            <Button 
+              onClick={handleComplete}
+              disabled={isCompleting || !result.trim()}
+              className="w-full"
+            >
+              {isCompleting ? 'Завершение...' : 'Завершить чекап'}
+            </Button>
           </div>
         )}
       </CardContent>
