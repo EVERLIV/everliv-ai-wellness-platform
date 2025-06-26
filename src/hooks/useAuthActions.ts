@@ -35,6 +35,29 @@ export const useAuthActions = () => {
     }
   };
 
+  const signIn = async (email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      console.log('Signing in with email and password:', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+      
+      if (error) throw error;
+      
+      toast.success('Успешный вход в систему!');
+      return Promise.resolve();
+    } catch (error: any) {
+      console.error('Password login error:', error);
+      toast.error(error.message || 'Ошибка входа');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const signUpWithMagicLink = async (email: string, userData: { nickname: string }) => {
     try {
       setIsLoading(true);
@@ -95,6 +118,50 @@ export const useAuthActions = () => {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      setIsLoading(true);
+      console.log('Sending password reset email to:', email);
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) throw error;
+      
+      toast.success('Ссылка для сброса пароля отправлена на вашу почту!');
+      return Promise.resolve();
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      toast.error(error.message || 'Ошибка отправки ссылки для сброса пароля');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updatePassword = async (password: string) => {
+    try {
+      setIsLoading(true);
+      console.log('Updating user password');
+      
+      const { error } = await supabase.auth.updateUser({
+        password: password
+      });
+      
+      if (error) throw error;
+      
+      toast.success('Пароль успешно обновлен!');
+      return Promise.resolve();
+    } catch (error: any) {
+      console.error('Password update error:', error);
+      toast.error(error.message || 'Ошибка обновления пароля');
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const signOut = async () => {
     try {
       setIsLoading(true);
@@ -108,29 +175,13 @@ export const useAuthActions = () => {
     }
   };
 
-  // Для совместимости со старыми страницами - перенаправляем на magic link
-  const resetPassword = async (email: string) => {
-    return signInWithMagicLink(email);
-  };
-
-  // Для совместимости - перенаправляем на magic link
-  const signIn = async (email: string, password: string) => {
-    return signInWithMagicLink(email);
-  };
-
-  // Заглушка для updatePassword - показываем что функция недоступна
-  const updatePassword = async (password: string) => {
-    toast.error('Обновление пароля недоступно. Используйте вход по ссылке.');
-    throw new Error('Password update not available with magic link auth');
-  };
-
   return {
     isLoading,
     signInWithMagicLink,
+    signIn,
     signUpWithMagicLink,
     signOut,
     resetPassword,
-    signIn,
     updatePassword,
   };
 };

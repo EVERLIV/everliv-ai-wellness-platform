@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -46,6 +45,7 @@ const BiologicalAgePage = lazy(() => import("./pages/BiologicalAge"));
 // Auth pages
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const AuthConfirm = lazy(() => import("./pages/AuthConfirm"));
 const Welcome = lazy(() => import("./pages/Welcome"));
@@ -98,6 +98,7 @@ const App = () => (
                       {/* Auth routes */}
                       <Route path="/login" element={<Login />} />
                       <Route path="/signup" element={<Signup />} />
+                      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                       <Route path="/reset-password" element={<ResetPassword />} />
                       <Route path="/auth/confirm" element={<AuthConfirm />} />
                       <Route path="/welcome" element={<Welcome />} />

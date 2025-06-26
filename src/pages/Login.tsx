@@ -4,15 +4,18 @@ import { Navigate, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Mail } from 'lucide-react';
+import { AlertCircle, Mail, Eye, EyeOff } from 'lucide-react';
 import AuthLayout from '@/components/AuthLayout';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [linkSent, setLinkSent] = useState(false);
-  const { signInWithMagicLink, isLoading, user } = useAuth();
+  const [authMethod, setAuthMethod] = useState<'magic-link' | 'password'>('password');
+  const { signInWithMagicLink, signIn, isLoading, user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,13 +26,22 @@ const Login = () => {
       setErrorMessage('Пожалуйста, введите email');
       return;
     }
+
+    if (authMethod === 'password' && !password) {
+      setErrorMessage('Пожалуйста, введите пароль');
+      return;
+    }
     
     try {
-      await signInWithMagicLink(email);
-      setLinkSent(true);
+      if (authMethod === 'magic-link') {
+        await signInWithMagicLink(email);
+        setLinkSent(true);
+      } else {
+        await signIn(email, password);
+      }
     } catch (error: any) {
       console.error("Login error:", error);
-      setErrorMessage(error.message || 'Ошибка при отправке ссылки');
+      setErrorMessage(error.message || 'Ошибка при входе в систему');
     }
   };
 
@@ -68,7 +80,7 @@ const Login = () => {
   return (
     <AuthLayout 
       title="Добро пожаловать!" 
-      description="Введите ваш email для получения ссылки для входа без пароля."
+      description="Войдите в свой аккаунт удобным способом."
       type="login"
     >
       {errorMessage && (
@@ -79,6 +91,34 @@ const Login = () => {
           </div>
         </div>
       )}
+
+      {/* Auth Method Selector */}
+      <div className="mb-6">
+        <div className="flex rounded-lg border border-gray-200 p-1 bg-gray-50">
+          <button
+            type="button"
+            onClick={() => setAuthMethod('password')}
+            className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+              authMethod === 'password'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Пароль
+          </button>
+          <button
+            type="button"
+            onClick={() => setAuthMethod('magic-link')}
+            className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+              authMethod === 'magic-link'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Ссылка на email
+          </button>
+        </div>
+      </div>
     
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
@@ -91,17 +131,56 @@ const Login = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
+        </div>
+
+        {authMethod === 'password' && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Пароль</Label>
+              <Link
+                to="/reset-password"
+                className="text-sm text-everliv-600 hover:underline"
+              >
+                Забыли пароль?
+              </Link>
+            </div>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Введите пароль"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {authMethod === 'magic-link' && (
           <p className="text-xs text-gray-500">
             Мы отправим вам ссылку для входа без пароля
           </p>
-        </div>
+        )}
         
         <Button 
           type="submit" 
           className="w-full bg-everliv-600 hover:bg-everliv-700"
           disabled={isLoading}
         >
-          {isLoading ? 'Отправляем...' : 'Получить ссылку для входа'}
+          {isLoading ? 'Обработка...' : 
+           authMethod === 'magic-link' ? 'Получить ссылку для входа' : 'Войти'}
         </Button>
       </form>
     </AuthLayout>
