@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, Loader2, RefreshCw } from 'lucide-react';
 import { useSmartRecommendations } from './recommendations/useSmartRecommendations';
 import RecommendationCard from './recommendations/RecommendationCard';
 import EmptyRecommendationsState from './recommendations/EmptyRecommendationsState';
@@ -13,6 +13,13 @@ const SmartGoalRecommendations: React.FC = () => {
   const navigate = useNavigate();
   const { healthProfile, isLoading: profileLoading } = useHealthProfile();
   const { recommendations, isGenerating, generateRecommendations } = useSmartRecommendations();
+
+  console.log('SmartGoalRecommendations render:', {
+    profileLoading,
+    hasHealthGoals: !!healthProfile?.healthGoals?.length,
+    recommendationsCount: recommendations.length,
+    isGenerating
+  });
 
   if (profileLoading) {
     return (
@@ -43,11 +50,22 @@ const SmartGoalRecommendations: React.FC = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
-      <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-        Рекомендации для достижения целей
-        {isGenerating && <Loader2 className="h-3 w-3 animate-spin" />}
-      </h3>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+          Рекомендации для достижения целей
+          {isGenerating && <Loader2 className="h-3 w-3 animate-spin" />}
+        </h3>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={generateRecommendations}
+          disabled={isGenerating}
+          className="h-6 px-2 text-xs"
+        >
+          <RefreshCw className={`h-3 w-3 ${isGenerating ? 'animate-spin' : ''}`} />
+        </Button>
+      </div>
       
       <div className="space-y-3">
         {recommendations.length > 0 ? (
@@ -70,7 +88,7 @@ const SmartGoalRecommendations: React.FC = () => {
           className="w-full text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-50"
         >
           <Plus className="h-3 w-3 mr-1" />
-          Персональные рекомендации
+          Настроить цели здоровья
         </Button>
       </div>
     </div>

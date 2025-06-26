@@ -47,10 +47,21 @@ serve(async (req) => {
   try {
     const { healthGoals, userProfile }: { healthGoals: string[], userProfile: UserProfile } = await req.json();
 
+    console.log('Received request:', { healthGoals, userProfile });
+
     if (!healthGoals || healthGoals.length === 0) {
+      console.log('No health goals provided');
       return new Response(
         JSON.stringify({ error: 'Health goals are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!openAIApiKey) {
+      console.log('OpenAI API key not configured');
+      return new Response(
+        JSON.stringify({ error: 'OpenAI API key not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -108,7 +119,7 @@ ${profileContext}
 - Всегда добавляй предупреждение о консультации с врачом в scientificBasis
 `;
 
-    console.log('Sending request to OpenAI with profile:', userProfile);
+    console.log('Sending request to OpenAI...');
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -134,18 +145,20 @@ ${profileContext}
     });
 
     if (!response.ok) {
-      console.error(`OpenAI API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`OpenAI API error: ${response.status} - ${errorText}`);
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
     const aiResponse = await response.json();
-    console.log('AI Response received:', aiResponse);
+    console.log('OpenAI API response received:', aiResponse);
 
     if (!aiResponse.choices?.[0]?.message?.content) {
       throw new Error('Invalid AI response - no content');
     }
 
     let content = aiResponse.choices[0].message.content.trim();
+    console.log('Raw AI content:', content);
     
     // Удаляем markdown разметку если есть
     if (content.startsWith('```json')) {
@@ -156,22 +169,41 @@ ${profileContext}
 
     console.log('Cleaned content:', content);
 
-    const recommendations = JSON.parse(content);
+    let recommendations;
+    try {
+      recommendations = JSON.parse(content);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError, 'Content:', content);
+      throw new Error('Failed to parse AI response as JSON');
+    }
+
     console.log('Parsed recommendations:', recommendations);
 
     if (!Array.isArray(recommendations)) {
+      console.error('AI response is not an array:', recommendations);
       throw new Error('AI response is not an array');
     }
 
+    // Проверяем структуру каждой рекомендации
+    const validRecommendations = recommendations.filter(rec => {
+      const isValid = rec.id && rec.title && rec.description && rec.category && rec.priority;
+      if (!isValid) {
+        console.log('Invalid recommendation:', rec);
+      }
+      return isValid;
+    });
+
+    console.log('Valid recommendations count:', validRecommendations.length);
+
     return new Response(
-      JSON.stringify({ recommendations }),
+      JSON.stringify({ recommendations: validRecommendations }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     console.error('Error in generate-goal-recommendations function:', error);
     
-    // Возвращаем fallback рекомендации
+    // Возвращаем fallback рекомендации при ошибке
     const fallbackRecommendations = [
       {
         id: 'fallback-1',
