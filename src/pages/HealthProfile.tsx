@@ -3,10 +3,8 @@ import React from "react";
 import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
 import HealthProfilePageHeader from "@/components/health-profile/HealthProfilePageHeader";
 import HealthProfileDisplay from "@/components/health-profile/HealthProfileDisplay";
-import HealthProfileEditForm from "@/components/health-profile/HealthProfileEditForm";
-import MobileHealthProfileForm from "@/components/health-profile/MobileHealthProfileForm";
+import StepByStepHealthProfileForm from "@/components/health-profile/StepByStepHealthProfileForm";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { HealthProfileData } from "@/types/healthProfile";
 
 const HealthProfile: React.FC = () => {
@@ -18,8 +16,6 @@ const HealthProfile: React.FC = () => {
     saveHealthProfile, 
     setEditMode 
   } = useHealthProfile();
-  
-  const isMobile = useIsMobile();
 
   const handleEdit = () => {
     setEditMode(true);
@@ -72,7 +68,7 @@ const HealthProfile: React.FC = () => {
         headerComponent={<HealthProfilePageHeader />}
       >
         <div className="text-center py-12">
-          <div className="bg-gray-50 rounded-xl p-8 max-w-md mx-auto">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 max-w-md mx-auto">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -96,10 +92,10 @@ const HealthProfile: React.FC = () => {
     );
   }
 
-  // Используем мобильную версию для редактирования на мобильных устройствах
-  if (isEditMode && isMobile) {
+  // Используем новый пошаговый интерфейс для редактирования
+  if (isEditMode) {
     return (
-      <MobileHealthProfileForm
+      <StepByStepHealthProfileForm
         healthProfile={healthProfile}
         onSave={handleSave}
         onCancel={handleCancel}
@@ -112,19 +108,10 @@ const HealthProfile: React.FC = () => {
     <PageLayoutWithHeader
       headerComponent={<HealthProfilePageHeader />}
     >
-      {isEditMode ? (
-        <HealthProfileEditForm
-          healthProfile={healthProfile}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          onChange={updateHealthProfile}
-        />
-      ) : (
-        <HealthProfileDisplay 
-          healthProfile={healthProfile}
-          onEdit={handleEdit}
-        />
-      )}
+      <HealthProfileDisplay 
+        healthProfile={healthProfile}
+        onEdit={handleEdit}
+      />
     </PageLayoutWithHeader>
   );
 };
