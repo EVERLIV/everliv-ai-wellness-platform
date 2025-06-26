@@ -3,7 +3,6 @@ import React from 'react';
 import { Grid } from '@/components/ui/grid';
 import QuickStatsCards from './QuickStatsCards';
 import RecentActivityFeed from './RecentActivityFeed';
-import MyGoalsSection from './health-goals/MyGoalsSection';
 import CheckupsList from './CheckupsList';
 import HealthProfileQuickView from './HealthProfileQuickView';
 
@@ -21,13 +20,12 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ patientData }) =>
       <Grid className="grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Левая колонка */}
         <div className="space-y-6">
-          <MyGoalsSection />
+          <CheckupsList />
           <HealthProfileQuickView />
         </div>
         
         {/* Правая колонка */}
         <div className="space-y-6">
-          <CheckupsList />
           <RecentActivityFeed />
         </div>
       </Grid>
