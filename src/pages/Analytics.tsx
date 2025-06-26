@@ -157,7 +157,7 @@ const Analytics = () => {
     );
   }
 
-  // Основная страница с рекомендациями (убраны дублирующиеся компоненты)
+  // Основная страница с рекомендациями (очищена от дублирующихся компонентов)
   return (
     <PageLayoutWithHeader
       headerComponent={
@@ -201,12 +201,6 @@ const Analytics = () => {
           analytics={analytics}
           healthProfile={healthProfile}
         />
-        
-        {analytics.lastUpdated && (
-          <div className="text-center text-sm text-gray-500 mt-8">
-            Последнее обновление: {new Date(analytics.lastUpdated).toLocaleString('ru-RU')}
-          </div>
-        )}
       </div>
     </PageLayoutWithHeader>
   );

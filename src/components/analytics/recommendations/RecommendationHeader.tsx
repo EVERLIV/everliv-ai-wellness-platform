@@ -18,6 +18,22 @@ const RecommendationHeader: React.FC<RecommendationHeaderProps> = ({
   isGenerating,
   onRefresh
 }) => {
+  const getGoalNameInRussian = (goal: string) => {
+    switch(goal) {
+      case 'cognitive': return 'Когнитивное здоровье';
+      case 'cardiovascular': return 'Сердечно-сосудистое здоровье';
+      case 'weight_loss': return 'Снижение веса';
+      case 'muscle_gain': return 'Набор мышечной массы';
+      case 'endurance': return 'Выносливость';
+      case 'flexibility': return 'Гибкость';
+      case 'stress_management': return 'Управление стрессом';
+      case 'sleep_improvement': return 'Улучшение сна';
+      case 'energy_boost': return 'Повышение энергии';
+      case 'immune_support': return 'Укрепление иммунитета';
+      default: return goal;
+    }
+  };
+
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -36,13 +52,7 @@ const RecommendationHeader: React.FC<RecommendationHeaderProps> = ({
           {healthProfile?.healthGoals?.length > 0 ? (
             <span>
               Рекомендации для ваших целей: <span className="text-blue-600 font-medium">
-                {healthProfile.healthGoals.map((goal: string) => {
-                  switch(goal) {
-                    case 'cognitive': return 'Когнитивное здоровье';
-                    case 'cardiovascular': return 'Сердечно-сосудистое здоровье';
-                    default: return goal;
-                  }
-                }).join(', ')}
+                {healthProfile.healthGoals.map((goal: string) => getGoalNameInRussian(goal)).join(', ')}
               </span>
             </span>
           ) : (

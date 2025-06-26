@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -107,7 +106,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
       console.log('Total biomarkers found:', totalMarkers);
       console.log('Unique biomarkers:', Object.keys(biomarkerHistory).length);
 
-      // Анализируем тренды
+      // Анализируем тренды с правильной логикой
       const trends: BiomarkerTrend[] = [];
       let improving = 0;
       let stable = 0;
@@ -129,23 +128,24 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
           if (!isNaN(latestNumeric) && !isNaN(previousNumeric) && previousNumeric !== 0) {
             changePercent = ((latestNumeric - previousNumeric) / previousNumeric) * 100;
             
-            if (Math.abs(changePercent) < 5) {
+            // Определяем тренд на основе изменения статуса
+            if (latest.status === 'optimal' && previous.status !== 'optimal') {
+              trend = 'improving';
+              improving++;
+            } else if (latest.status === 'risk' && previous.status !== 'risk') {
+              trend = 'worsening';
+              concerning++;
+            } else if (Math.abs(changePercent) < 5) {
               trend = 'stable';
               stable++;
             } else {
-              if (latest.status === 'optimal' && previous.status !== 'optimal') {
-                trend = 'improving';
-                improving++;
-              } else if (latest.status !== 'optimal' && previous.status === 'optimal') {
-                trend = 'worsening';
-                concerning++;
-              } else if (latest.status === 'optimal' || latest.status === 'good') {
-                trend = changePercent > 0 ? 'stable' : 'improving';
+              // Для одинакового статуса смотрим на направление изменения
+              if (latest.status === 'optimal' || latest.status === 'good') {
+                trend = 'stable';
                 stable++;
               } else {
-                trend = changePercent > 0 ? 'worsening' : 'improving';
-                if (trend === 'worsening') concerning++;
-                else improving++;
+                trend = changePercent > 0 ? 'stable' : 'stable';
+                stable++;
               }
             }
           } else {
@@ -163,11 +163,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
           });
         } else if (markers.length === 1) {
           const marker = markers[0];
-          if (marker.status === 'optimal' || marker.status === 'good') {
-            stable++;
-          } else {
-            concerning++;
-          }
+          stable++;
           
           trends.push({
             name,
