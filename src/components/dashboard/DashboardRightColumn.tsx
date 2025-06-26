@@ -2,7 +2,7 @@
 import React from 'react';
 import DashboardKeyMetrics from './DashboardKeyMetrics';
 import DashboardChatsList from './DashboardChatsList';
-import MyGoalsSection from './health-goals/MyGoalsSection';
+import NutritionSummarySection from './NutritionSummarySection';
 
 interface DashboardRightColumnProps {
   healthScore: number;
@@ -24,8 +24,8 @@ const DashboardRightColumn: React.FC<DashboardRightColumnProps> = ({
       {/* Мои чаты с доктором */}
       <DashboardChatsList />
       
-      {/* Мои цели и чекапы */}
-      <MyGoalsSection />
+      {/* Мое питание */}
+      <NutritionSummarySection />
     </>
   );
 };
