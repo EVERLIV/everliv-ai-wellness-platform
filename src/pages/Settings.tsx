@@ -18,7 +18,13 @@ import { toast } from "sonner";
 
 const Settings: React.FC = () => {
   const { user } = useAuth();
-  const { subscription } = useSubscription();
+  const { 
+    subscription, 
+    isLoading,
+    currentPlan, 
+    hasActiveSubscription,
+    isPremiumActive
+  } = useSubscription();
   const { profileData, updateProfile, isUpdating } = useProfile();
   
   const [userSettings, setUserSettings] = useState({
@@ -78,33 +84,16 @@ const Settings: React.FC = () => {
     }
   };
 
-  const getCurrentPlan = () => {
-    if (subscription && subscription.status === 'active') {
-      const now = new Date();
-      const expiresAt = new Date(subscription.expires_at);
-      
-      if (expiresAt > now) {
-        switch (subscription.plan_type) {
-          case 'premium':
-            return 'Премиум';
-          case 'standard':
-            return 'Стандарт';
-          case 'basic':
-            return 'Базовый';
-          default:
-            return 'Базовый';
-        }
-      }
-    }
-    return 'Базовый';
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ru-RU');
   };
 
-  const currentPlan = getCurrentPlan();
-  const hasActiveSubscription = currentPlan !== "Базовый";
+  console.log('🔍 Settings page subscription info:', {
+    currentPlan,
+    hasActiveSubscription,
+    isPremiumActive,
+    subscription
+  });
 
   return (
     <PageLayoutWithHeader
@@ -178,6 +167,11 @@ const Settings: React.FC = () => {
                   {subscription && subscription.status === 'active' && (
                     <p className="text-sm text-gray-600">
                       Действует до: {formatDate(subscription.expires_at)}
+                    </p>
+                  )}
+                  {isPremiumActive && user?.email === 'hoaandrey@gmail.com' && (
+                    <p className="text-sm text-purple-600 font-medium">
+                      VIP статус - неограниченный доступ
                     </p>
                   )}
                 </div>

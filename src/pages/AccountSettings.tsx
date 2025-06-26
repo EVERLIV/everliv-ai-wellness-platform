@@ -16,7 +16,12 @@ import { toast } from "sonner";
 
 const AccountSettings: React.FC = () => {
   const { user } = useAuth();
-  const { subscription } = useSubscription();
+  const { 
+    subscription, 
+    currentPlan, 
+    hasActiveSubscription,
+    isPremiumActive
+  } = useSubscription();
   const navigate = useNavigate();
   const [isUpdating, setIsUpdating] = useState(false);
   
@@ -134,36 +139,35 @@ const AccountSettings: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {subscription && subscription.status === 'active' ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Текущий план:</span>
-                      <div className="flex items-center gap-2">
-                        <Crown className="h-4 w-4 text-amber-600" />
-                        <span className="font-medium capitalize">{subscription.plan_type}</span>
-                      </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Текущий план:</span>
+                    <div className="flex items-center gap-2">
+                      {hasActiveSubscription && <Crown className="h-4 w-4 text-amber-600" />}
+                      <span className="font-medium">{currentPlan}</span>
                     </div>
+                  </div>
+                  {subscription && subscription.status === 'active' && (
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Действует до:</span>
                       <span className="font-medium">{formatDate(subscription.expires_at)}</span>
                     </div>
-                    <Separator />
-                    <Button 
-                      variant="outline" 
-                      onClick={() => navigate('/billing')}
-                      className="w-full"
-                    >
-                      Управление подпиской
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-gray-600 mb-4">У вас нет активной подписки</p>
-                    <Button onClick={() => navigate('/pricing')}>
-                      Выбрать план
-                    </Button>
-                  </div>
-                )}
+                  )}
+                  {isPremiumActive && user?.email === 'hoaandrey@gmail.com' && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Статус:</span>
+                      <span className="font-medium text-purple-600">VIP (неограниченный доступ)</span>
+                    </div>
+                  )}
+                  <Separator />
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate('/billing')}
+                    className="w-full"
+                  >
+                    Управление подпиской
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
