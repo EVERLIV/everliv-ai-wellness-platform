@@ -3,7 +3,9 @@ import React from 'react';
 import PageLayoutWithHeader from '@/components/PageLayoutWithHeader';
 import AnalyticsPageHeader from '@/components/analytics/AnalyticsPageHeader';
 import DetailedHealthRecommendations from '@/components/analytics/DetailedHealthRecommendations';
+import EnhancedAnalyticsRecommendations from '@/components/analytics/EnhancedAnalyticsRecommendations';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
+import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, AlertTriangle, User, TestTube } from 'lucide-react';
 
@@ -16,6 +18,8 @@ const Analytics = () => {
     hasAnalyses, 
     generateAnalytics 
   } = useCachedAnalytics();
+  
+  const { healthProfile } = useHealthProfile();
 
   const handleGenerateAnalytics = async () => {
     await generateAnalytics();
@@ -158,7 +162,14 @@ const Analytics = () => {
       }
       fullWidth
     >
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
+        {/* Новые улучшенные рекомендации */}
+        <EnhancedAnalyticsRecommendations
+          analytics={analytics}
+          healthProfile={healthProfile}
+        />
+        
+        {/* Существующие детальные рекомендации */}
         <DetailedHealthRecommendations
           analytics={analytics}
         />
