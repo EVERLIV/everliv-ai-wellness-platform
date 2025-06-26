@@ -1,21 +1,20 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Heart, Activity, TrendingUp, TestTube } from 'lucide-react';
 import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { supabase } from '@/integrations/supabase/client';
-
 interface AnalyticsPageHeaderProps {
   healthScore: number;
   riskLevel: string;
 }
-
 const AnalyticsPageHeader: React.FC<AnalyticsPageHeaderProps> = ({
   healthScore,
   riskLevel
 }) => {
-  const { user } = useSmartAuth();
+  const {
+    user
+  } = useSmartAuth();
   const [realData, setRealData] = useState({
     totalAnalyses: 2,
     totalBiomarkers: 18,
@@ -26,35 +25,31 @@ const AnalyticsPageHeader: React.FC<AnalyticsPageHeaderProps> = ({
       concerning: 0
     }
   });
-
   useEffect(() => {
     if (user) {
       fetchRealData();
     }
   }, [user]);
-
   const fetchRealData = async () => {
     if (!user) return;
-
     try {
       // Получаем реальные данные анализов
-      const { data: analyses, error: analysesError } = await supabase
-        .from('medical_analyses')
-        .select('id, created_at, results')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
+      const {
+        data: analyses,
+        error: analysesError
+      } = await supabase.from('medical_analyses').select('id, created_at, results').eq('user_id', user.id).order('created_at', {
+        ascending: false
+      });
       if (analysesError) {
         console.error('Error fetching analyses:', analysesError);
         return;
       }
 
       // Получаем консультации
-      const { data: chats, error: chatsError } = await supabase
-        .from('ai_doctor_chats')
-        .select('id')
-        .eq('user_id', user.id);
-
+      const {
+        data: chats,
+        error: chatsError
+      } = await supabase.from('ai_doctor_chats').select('id').eq('user_id', user.id);
       if (chatsError) {
         console.error('Error fetching chats:', chatsError);
       }
@@ -70,12 +65,10 @@ const AnalyticsPageHeader: React.FC<AnalyticsPageHeaderProps> = ({
           concerning: 0
         }
       });
-
     } catch (error) {
       console.error('Error fetching real analytics data:', error);
     }
   };
-
   const getRiskLevelColor = (riskLevel: string) => {
     switch (riskLevel?.toLowerCase()) {
       case 'низкий':
@@ -94,16 +87,13 @@ const AnalyticsPageHeader: React.FC<AnalyticsPageHeaderProps> = ({
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
-
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
     if (score >= 60) return 'text-yellow-600';
     if (score >= 40) return 'text-orange-600';
     return 'text-red-600';
   };
-
-  return (
-    <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200">
+  return <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -122,7 +112,7 @@ const AnalyticsPageHeader: React.FC<AnalyticsPageHeaderProps> = ({
               <div className={`text-3xl font-bold ${getScoreColor(65.0)} mb-1`}>
                 65.0
               </div>
-              <div className="text-sm text-gray-600 mb-2">/100</div>
+              
               <Badge className={`${getRiskLevelColor('средний')} border text-xs`}>
                 средний риск
               </Badge>
@@ -197,8 +187,6 @@ const AnalyticsPageHeader: React.FC<AnalyticsPageHeaderProps> = ({
           </Card>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default AnalyticsPageHeader;
