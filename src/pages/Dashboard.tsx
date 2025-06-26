@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
 import Header from "@/components/Header";
@@ -11,6 +10,7 @@ import MyGoalsSection from "@/components/dashboard/health-goals/MyGoalsSection";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { useSecureAIDoctor } from "@/hooks/useSecureAIDoctor";
 import { isDevelopmentMode } from "@/utils/devMode";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,8 @@ import {
   BarChart3,
   Utensils,
   Plus,
-  ChevronRight
+  ChevronRight,
+  Crown
 } from "lucide-react";
 
 const Dashboard = () => {
@@ -36,6 +37,7 @@ const Dashboard = () => {
   const { healthProfile } = useHealthProfile();
   const { activities } = useActivityFeed();
   const { analytics } = useAnalyticsData();
+  const { chats, isLoading: chatsLoading } = useSecureAIDoctor();
   const [isLoaded, setIsLoaded] = useState(false);
   const isDevMode = isDevelopmentMode();
   const navigate = useNavigate();
@@ -234,30 +236,75 @@ const Dashboard = () => {
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   Мои чаты с доктором
                 </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-2 bg-blue-50 rounded cursor-pointer hover:bg-blue-100 transition-colors">
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm text-gray-700">Общие вопросы</span>
+                <div className="space-y-2">
+                  {chatsLoading ? (
+                    <div className="text-center py-3">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mx-auto"></div>
                     </div>
-                    <span className="text-xs text-gray-500">2 дня назад</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 bg-green-50 rounded cursor-pointer hover:bg-green-100 transition-colors">
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="h-4 w-4 text-green-600" />
-                      <span className="text-sm text-gray-700">Анализ крови</span>
+                  ) : chats && chats.length > 0 ? (
+                    <>
+                      {chats.slice(0, 3).map((chat) => (
+                        <div 
+                          key={chat.id}
+                          className="flex items-center justify-between p-2 bg-blue-50 rounded cursor-pointer hover:bg-blue-100 transition-colors"
+                          onClick={() => navigate(`/ai-doctor/chat/${chat.id}`)}
+                        >
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <div className="flex items-center gap-1">
+                              <MessageSquare className="h-3 w-3 text-blue-600 flex-shrink-0" />
+                              {chat.title?.includes('Премиум') && (
+                                <Crown className="h-3 w-3 text-amber-500 flex-shrink-0" />
+                              )}
+                            </div>
+                            <span className="text-xs text-gray-700 truncate">{chat.title || 'Консультация'}</span>
+                          </div>
+                          <span className="text-xs text-gray-500 flex-shrink-0">
+                            {new Date(chat.created_at).toLocaleDateString('ru-RU', { 
+                              day: 'numeric', 
+                              month: 'short' 
+                            })}
+                          </span>
+                        </div>
+                      ))}
+                      {chats.length > 3 && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full text-xs h-6" 
+                          onClick={() => navigate('/ai-doctor')}
+                        >
+                          Показать все ({chats.length})
+                        </Button>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-center py-4">
+                      <MessageSquare className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+                      <p className="text-xs text-gray-500 mb-3">
+                        Нет чатов с доктором
+                      </p>
+                      <Button 
+                        size="sm" 
+                        onClick={() => navigate('/ai-doctor')}
+                        className="text-xs px-3 py-1 h-7"
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Новый чат
+                      </Button>
                     </div>
-                    <span className="text-xs text-gray-500">1 неделю назад</span>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full" 
-                    onClick={() => navigate('/ai-doctor')}
-                  >
-                    <Plus className="h-3 w-3 mr-1" />
-                    Новый чат
-                  </Button>
+                  )}
+                  
+                  {chats && chats.length > 0 && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full text-xs h-6" 
+                      onClick={() => navigate('/ai-doctor')}
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Новый чат
+                    </Button>
+                  )}
                 </div>
               </div>
               
