@@ -88,7 +88,7 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
 
       {currentSection === 'goals' && (
         <HealthGoalsSection 
-          data={healthProfile}
+          healthProfile={healthProfile}
           isEditMode={true}
           onUpdate={onChange}
         />
