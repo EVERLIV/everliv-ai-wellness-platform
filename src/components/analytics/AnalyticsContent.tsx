@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import HealthOverviewSection from "./HealthOverviewSection";
 import RecommendationsOverview from "./RecommendationsOverview";
+import DetailedRecommendationsSection from "./DetailedRecommendationsSection";
 import AnalyticsActions from "./AnalyticsActions";
 import { CachedAnalytics } from "@/types/analytics";
 
@@ -63,6 +64,11 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
       />
       
       <RecommendationsOverview 
+        analytics={analytics}
+        healthProfile={healthProfile}
+      />
+
+      <DetailedRecommendationsSection
         analytics={analytics}
         healthProfile={healthProfile}
       />
