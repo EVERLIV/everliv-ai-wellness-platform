@@ -10,9 +10,10 @@ import {
   CheckCircle, 
   Clock, 
   Calendar,
-  Star
+  Star,
+  AlertCircle
 } from 'lucide-react';
-import { RecommendationCheckup } from '@/types/healthRecommendations';
+import { RecommendationCheckup, LONGEVITY_GOALS } from '@/types/healthRecommendations';
 import { useHealthRecommendations } from '@/hooks/useHealthRecommendations';
 
 interface CheckupCardProps {
@@ -60,10 +61,21 @@ const CheckupCard: React.FC<CheckupCardProps> = ({ checkup }) => {
   };
 
   const getStatusText = () => {
-    if (checkup.status === 'completed') return 'Завершен';
+    if (checkup.status === 'completed') return 'Завершён';
     if (isOverdue) return `Просрочен на ${Math.abs(daysUntil)} дн.`;
     if (isToday) return 'Сегодня';
     return `Через ${daysUntil} дн.`;
+  };
+
+  const getRelatedGoalsText = () => {
+    if (!checkup.related_goals?.length) return '';
+    
+    const goalNames = checkup.related_goals.map(goalType => {
+      const goalInfo = Object.values(LONGEVITY_GOALS).find(g => g.type === goalType);
+      return goalInfo?.title || goalType;
+    });
+    
+    return goalNames.join(', ');
   };
 
   return (
@@ -77,12 +89,11 @@ const CheckupCard: React.FC<CheckupCardProps> = ({ checkup }) => {
               isToday ? 'bg-orange-100' : 'bg-blue-100'
             }`}>
               {checkup.status === 'completed' ? (
-                <CheckCircle className={`h-4 w-4 ${
-                  checkup.status === 'completed' ? 'text-green-600' : 'text-blue-600'
-                }`} />
+                <CheckCircle className="h-4 w-4 text-green-600" />
+              ) : isOverdue ? (
+                <AlertCircle className="h-4 w-4 text-red-600" />
               ) : (
                 <Clock className={`h-4 w-4 ${
-                  isOverdue ? 'text-red-600' :
                   isToday ? 'text-orange-600' : 'text-blue-600'
                 }`} />
               )}
@@ -94,10 +105,15 @@ const CheckupCard: React.FC<CheckupCardProps> = ({ checkup }) => {
               <p className="text-sm text-gray-600 mb-2">
                 {checkup.description}
               </p>
-              <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
                 <Calendar className="h-3 w-3" />
                 <span>{new Date(checkup.scheduled_date).toLocaleDateString('ru-RU')}</span>
               </div>
+              {checkup.related_goals && checkup.related_goals.length > 0 && (
+                <div className="text-xs text-gray-500">
+                  Связано с: {getRelatedGoalsText()}
+                </div>
+              )}
             </div>
           </div>
           <Badge variant={

@@ -25,6 +25,8 @@ export const HealthRecommendationSchema = z.object({
   created_at: z.string().optional(),
   /** Дата обновления */
   updated_at: z.string().optional(),
+  /** Связанные цели долголетия */
+  longevity_goals: z.array(z.string()).optional(),
   /** Метаданные для аналитики */
   analytics_data: z.record(z.any()).optional(),
 });
@@ -55,18 +57,79 @@ export const RecommendationCheckupSchema = z.object({
   created_at: z.string().optional(),
   /** Дата завершения */
   completed_at: z.string().optional(),
+  /** Связанные цели */
+  related_goals: z.array(z.string()).optional(),
+});
+
+/**
+ * Схема для журнала активности
+ */
+export const ActivityLogSchema = z.object({
+  id: z.string().uuid().optional(),
+  user_id: z.string().uuid(),
+  action_type: z.enum(['profile_created', 'recommendation_generated', 'checkup_created', 'checkup_completed', 'goal_selected', 'data_uploaded', 'analysis_performed']),
+  action_description: z.string(),
+  related_id: z.string().uuid().optional(),
+  metadata: z.record(z.any()).optional(),
+  timestamp: z.string(),
 });
 
 // TypeScript типы
 export type HealthRecommendation = z.infer<typeof HealthRecommendationSchema>;
 export type RecommendationCheckup = z.infer<typeof RecommendationCheckupSchema>;
+export type ActivityLog = z.infer<typeof ActivityLogSchema>;
 
 export type CreateHealthRecommendationInput = Omit<HealthRecommendation, 'id' | 'user_id' | 'created_at' | 'updated_at'>;
 export type CreateCheckupInput = Omit<RecommendationCheckup, 'id' | 'created_at' | 'completed_at'>;
 
 /**
- * Предустановленные типы рекомендаций
+ * Предустановленные цели долголетия с улучшенными названиями
  */
+export const LONGEVITY_GOALS = {
+  biological_age: {
+    title: 'Улучшить биологический возраст',
+    description: 'Снизить биологический возраст относительно хронологического через оптимизацию клеточных процессов, уменьшение воспалений и улучшение регенеративных функций организма',
+    category: 'longevity' as const,
+    type: 'longevity' as const,
+    requiredAnalyses: ['теломеры', 'маркеры воспаления', 'гормональный статус'],
+  },
+  cardiovascular: {
+    title: 'Оптимизировать сердечно-сосудистую систему',
+    description: 'Укрепить сердечную мышцу, улучшить кровообращение, нормализовать артериальное давление и снизить риск сердечно-сосудистых заболеваний',
+    category: 'cardiovascular' as const,
+    type: 'cardiovascular' as const,
+    requiredAnalyses: ['липидограмма', 'артериальное давление', 'ЭКГ'],
+  },
+  cognitive: {
+    title: 'Повысить когнитивные функции',
+    description: 'Улучшить память, концентрацию, скорость мышления и защитить от нейродегенеративных заболеваний через стимуляцию нейропластичности',
+    category: 'cognitive' as const,
+    type: 'cognitive' as const,
+    requiredAnalyses: ['нейропсихологическое тестирование', 'витамин B12', 'фолиевая кислота'],
+  },
+  musculoskeletal: {
+    title: 'Укрепить костно-мышечную систему',
+    description: 'Увеличить плотность костей, мышечную массу и силу, улучшить гибкость и координацию для предотвращения падений и травм',
+    category: 'musculoskeletal' as const,
+    type: 'musculoskeletal' as const,
+    requiredAnalyses: ['денситометрия', 'витамин D', 'кальций'],
+  },
+  metabolism: {
+    title: 'Оптимизировать метаболизм',
+    description: 'Нормализовать уровень сахара в крови, улучшить инсулиновую чувствительность, стабилизировать гормональный фон и поддержать здоровый вес',
+    category: 'metabolism' as const,
+    type: 'metabolism' as const,
+    requiredAnalyses: ['глюкоза', 'инсулин', 'HbA1c', 'гормоны щитовидной железы'],
+  },
+  immunity: {
+    title: 'Укрепить иммунную систему',
+    description: 'Повысить способность организма противостоять инфекциям, улучшить работу печени и почек, оптимизировать процессы очищения организма от токсинов',
+    category: 'immunity' as const,
+    type: 'immunity' as const,
+    requiredAnalyses: ['иммунограмма', 'общий анализ крови', 'печеночные пробы'],
+  },
+} as const;
+
 export const RECOMMENDATION_PRESETS = {
   steps: {
     title: 'Увеличить ежедневную активность',
@@ -104,41 +167,5 @@ export const RECOMMENDATION_PRESETS = {
     category: 'nutrition' as const,
     type: 'water' as const,
   },
-  // Новые цели долголетия
-  biological_age: {
-    title: 'Улучшить биологический возраст',
-    description: 'Снизить биологический возраст относительно хронологического через оптимизацию клеточных процессов, уменьшение воспалений и улучшение регенеративных функций организма',
-    category: 'longevity' as const,
-    type: 'longevity' as const,
-  },
-  cardiovascular: {
-    title: 'Оптимизировать работу сердечно-сосудистой системы',
-    description: 'Укрепить сердечную мышцу, улучшить кровообращение, нормализовать артериальное давление и снизить риск сердечно-сосудистых заболеваний',
-    category: 'cardiovascular' as const,
-    type: 'cardiovascular' as const,
-  },
-  cognitive: {
-    title: 'Повысить когнитивные функции и здоровье мозга',
-    description: 'Улучшить память, концентрацию, скорость мышления и защитить от нейродегенеративных заболеваний через стимуляцию нейропластичности',
-    category: 'cognitive' as const,
-    type: 'cognitive' as const,
-  },
-  musculoskeletal: {
-    title: 'Укрепить костно-мышечную систему',
-    description: 'Увеличить плотность костей, мышечную массу и силу, улучшить гибкость и координацию для предотвращения падений и травм в пожилом возрасте',
-    category: 'musculoskeletal' as const,
-    type: 'musculoskeletal' as const,
-  },
-  metabolism: {
-    title: 'Оптимизировать метаболизм и гормональный баланс',
-    description: 'Нормализовать уровень сахара в крови, улучшить инсулиновую чувствительность, стабилизировать гормональный фон и поддержать здоровый вес',
-    category: 'metabolism' as const,
-    type: 'metabolism' as const,
-  },
-  immunity: {
-    title: 'Укрепить иммунную систему и детоксикацию',
-    description: 'Повысить способность организма противостоять инфекциям, улучшить работу печени и почек, оптимизировать процессы очищения организма от токсинов',
-    category: 'immunity' as const,
-    type: 'immunity' as const,
-  },
+  ...LONGEVITY_GOALS,
 } as const;

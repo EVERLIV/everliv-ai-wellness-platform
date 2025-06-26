@@ -1,14 +1,14 @@
 
 import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { X, Sparkles } from 'lucide-react';
-import { RECOMMENDATION_PRESETS, CreateHealthRecommendationInput } from '@/types/healthRecommendations';
+import { X, Plus } from 'lucide-react';
+import { CreateHealthRecommendationInput, LONGEVITY_GOALS } from '@/types/healthRecommendations';
 
 interface RecommendationFormProps {
   onSubmit: (data: CreateHealthRecommendationInput) => Promise<boolean>;
@@ -22,13 +22,14 @@ const RecommendationForm: React.FC<RecommendationFormProps> = ({ onSubmit, onCan
     type: 'custom',
     category: 'fitness',
     priority: 'medium',
-    status: 'active'
+    status: 'active',
+    longevity_goals: [],
   });
-  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPresets, setShowPresets] = useState(true);
 
   const handlePresetSelect = (presetKey: string) => {
-    const preset = RECOMMENDATION_PRESETS[presetKey as keyof typeof RECOMMENDATION_PRESETS];
+    const preset = LONGEVITY_GOALS[presetKey as keyof typeof LONGEVITY_GOALS];
     if (preset) {
       setFormData({
         ...formData,
@@ -36,111 +37,94 @@ const RecommendationForm: React.FC<RecommendationFormProps> = ({ onSubmit, onCan
         description: preset.description,
         type: preset.type,
         category: preset.category,
+        longevity_goals: [preset.type],
       });
-      setSelectedPreset(presetKey);
+      setShowPresets(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.title.trim()) return;
+
     setIsSubmitting(true);
-    
-    try {
-      const success = await onSubmit(formData);
-      if (success) {
-        setFormData({
-          title: '',
-          description: '',
-          type: 'custom',
-          category: 'fitness',
-          priority: 'medium',
-          status: 'active'
-        });
-        setSelectedPreset(null);
-      }
-    } catch (error) {
-      console.error('Ошибка при создании рекомендации:', error);
-    } finally {
-      setIsSubmitting(false);
+    const success = await onSubmit(formData);
+    if (success) {
+      setFormData({
+        title: '',
+        description: '',
+        type: 'custom',
+        category: 'fitness',
+        priority: 'medium',
+        status: 'active',
+        longevity_goals: [],
+      });
+    }
+    setIsSubmitting(false);
+  };
+
+  const addLongevityGoal = (goal: string) => {
+    if (!formData.longevity_goals?.includes(goal)) {
+      setFormData({
+        ...formData,
+        longevity_goals: [...(formData.longevity_goals || []), goal]
+      });
     }
   };
 
-  const getPresetsByCategory = () => {
-    const categories = {
-      'Основные': ['steps', 'exercise', 'nutrition', 'sleep', 'stress', 'water'],
-      'Долголетие': ['biological_age', 'cardiovascular', 'cognitive', 'musculoskeletal', 'metabolism', 'immunity']
-    };
-
-    return Object.entries(categories).map(([categoryName, presets]) => ({
-      category: categoryName,
-      presets: presets.map(key => ({
-        key,
-        ...RECOMMENDATION_PRESETS[key as keyof typeof RECOMMENDATION_PRESETS]
-      }))
-    }));
+  const removeLongevityGoal = (goal: string) => {
+    setFormData({
+      ...formData,
+      longevity_goals: formData.longevity_goals?.filter(g => g !== goal) || []
+    });
   };
 
   return (
-    <div className="space-y-6">
-      {/* Быстрый выбор */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
-            Готовые шаблоны
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {getPresetsByCategory().map(({ category, presets }) => (
-              <div key={category}>
-                <h4 className="font-medium text-sm text-gray-700 mb-2">{category}</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {presets.map(({ key, title, description }) => (
-                    <div
-                      key={key}
-                      onClick={() => handlePresetSelect(key)}
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-blue-50 ${
-                        selectedPreset === key ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h5 className="font-medium text-sm text-gray-900">{title}</h5>
-                          <p className="text-xs text-gray-600 mt-1 line-clamp-2">{description}</p>
-                        </div>
-                        {selectedPreset === key && (
-                          <Badge className="ml-2">Выбрано</Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+    <Card>
+      <CardHeader>
+        <CardTitle>Создание новой рекомендации</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {showPresets && (
+          <div>
+            <h3 className="font-semibold mb-3">Выберите цель долголетия:</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {Object.entries(LONGEVITY_GOALS).map(([key, goal]) => (
+                <Button
+                  key={key}
+                  variant="outline"
+                  className="p-4 h-auto text-left justify-start"
+                  onClick={() => handlePresetSelect(key)}
+                >
+                  <div>
+                    <div className="font-medium">{goal.title}</div>
+                    <div className="text-sm text-gray-600 mt-1">{goal.description.slice(0, 80)}...</div>
+                  </div>
+                </Button>
+              ))}
+            </div>
+            <div className="mt-4 pt-4 border-t">
+              <Button 
+                variant="ghost" 
+                onClick={() => setShowPresets(false)}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Создать собственную рекомендацию
+              </Button>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        )}
 
-      {/* Форма создания */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Создать рекомендацию</CardTitle>
-            <Button variant="ghost" size="sm" onClick={onCancel}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
+        {!showPresets && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="title">Заголовок</Label>
+              <Label htmlFor="title">Название рекомендации</Label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Введите заголовок рекомендации"
+                placeholder="Например: Увеличить физическую активность"
                 required
               />
             </div>
@@ -151,16 +135,18 @@ const RecommendationForm: React.FC<RecommendationFormProps> = ({ onSubmit, onCan
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Подробно опишите рекомендацию"
+                placeholder="Подробное описание рекомендации..."
                 rows={3}
-                required
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="category">Категория</Label>
-                <Select value={formData.category} onValueChange={(value: any) => setFormData({ ...formData, category: value })}>
+                <Label>Категория</Label>
+                <Select 
+                  value={formData.category} 
+                  onValueChange={(value: any) => setFormData({ ...formData, category: value })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -180,8 +166,11 @@ const RecommendationForm: React.FC<RecommendationFormProps> = ({ onSubmit, onCan
               </div>
 
               <div>
-                <Label htmlFor="priority">Приоритет</Label>
-                <Select value={formData.priority} onValueChange={(value: any) => setFormData({ ...formData, priority: value })}>
+                <Label>Приоритет</Label>
+                <Select 
+                  value={formData.priority} 
+                  onValueChange={(value: any) => setFormData({ ...formData, priority: value })}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -195,18 +184,61 @@ const RecommendationForm: React.FC<RecommendationFormProps> = ({ onSubmit, onCan
               </div>
             </div>
 
+            <div>
+              <Label>Связанные цели долголетия</Label>
+              <div className="mt-2 space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  {formData.longevity_goals?.map((goal) => {
+                    const goalInfo = Object.values(LONGEVITY_GOALS).find(g => g.type === goal);
+                    return (
+                      <Badge key={goal} variant="secondary" className="flex items-center gap-1">
+                        {goalInfo?.title || goal}
+                        <X 
+                          className="h-3 w-3 cursor-pointer" 
+                          onClick={() => removeLongevityGoal(goal)}
+                        />
+                      </Badge>
+                    );
+                  })}
+                </div>
+                <Select onValueChange={addLongevityGoal}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Добавить цель долголетия" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(LONGEVITY_GOALS).map(([key, goal]) => (
+                      <SelectItem 
+                        key={key} 
+                        value={goal.type}
+                        disabled={formData.longevity_goals?.includes(goal.type)}
+                      >
+                        {goal.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="flex gap-2 pt-4">
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || !formData.title.trim()}>
                 {isSubmitting ? 'Создание...' : 'Создать рекомендацию'}
               </Button>
               <Button type="button" variant="outline" onClick={onCancel}>
                 Отмена
               </Button>
+              <Button 
+                type="button" 
+                variant="ghost" 
+                onClick={() => setShowPresets(true)}
+              >
+                Вернуться к целям
+              </Button>
             </div>
           </form>
-        </CardContent>
-      </Card>
-    </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
