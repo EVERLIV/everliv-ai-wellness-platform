@@ -1,8 +1,7 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Calendar, TrendingUp, Crown } from "lucide-react";
-import { AnalysisStatistics } from "@/hooks/useLabAnalysesData";
+import { AnalysisStatistics } from "@/types/labAnalyses";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 
 interface LabAnalysesStatsProps {
