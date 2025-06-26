@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +10,7 @@ interface BiomarkerTrend {
   latestValue: string;
   previousValue: string;
   trend: 'improving' | 'worsening' | 'stable';
-  status: 'optimal' | 'good' | 'attention' | 'risk';
+  status: string;
   unit?: string;
   changePercent?: number;
 }
@@ -22,16 +21,6 @@ interface BiomarkerTrendsOverviewProps {
     worsening: number;
     stable: number;
   };
-}
-
-interface AnalysisResults {
-  markers?: Array<{
-    name: string;
-    value: string | number;
-    unit?: string;
-    status: 'optimal' | 'good' | 'attention' | 'risk';
-  }>;
-  [key: string]: any;
 }
 
 const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trendsAnalysis }) => {
@@ -57,57 +46,57 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
     try {
       console.log('Fetching biomarker trends for user:', user.id);
 
-      // Получаем все анализы пользователя
-      const { data: analyses, error: analysesError } = await supabase
-        .from('medical_analyses')
-        .select('id, created_at, results')
-        .eq('user_id', user.id)
+      // Получаем биомаркеры напрямую из таблицы biomarkers
+      const { data: biomarkers, error: biomarkersError } = await supabase
+        .from('biomarkers')
+        .select(`
+          name,
+          value,
+          status,
+          reference_range,
+          analysis_id,
+          created_at
+        `)
+        .eq('analysis_id', 
+          supabase
+            .from('medical_analyses')
+            .select('id')
+            .eq('user_id', user.id)
+        )
         .order('created_at', { ascending: false });
 
-      if (analysesError) {
-        console.error('Error fetching analyses:', analysesError);
+      if (biomarkersError) {
+        console.error('Error fetching biomarkers:', biomarkersError);
         setIsLoading(false);
         return;
       }
 
-      if (!analyses || analyses.length === 0) {
-        console.log('No analyses found for user');
+      if (!biomarkers || biomarkers.length === 0) {
+        console.log('No biomarkers found for user');
         setIsLoading(false);
         return;
       }
 
-      console.log('Found analyses:', analyses.length);
+      console.log('Found biomarkers:', biomarkers.length);
 
-      // Извлекаем биомаркеры из результатов анализов
+      // Группируем биомаркеры по имени
       const biomarkerHistory: { [key: string]: any[] } = {};
       let totalMarkers = 0;
 
-      analyses.forEach(analysis => {
-        if (analysis.results && typeof analysis.results === 'object') {
-          const results = analysis.results as AnalysisResults;
-          
-          if (results.markers && Array.isArray(results.markers)) {
-            results.markers.forEach((marker: any) => {
-              if (marker.name && marker.value) {
-                if (!biomarkerHistory[marker.name]) {
-                  biomarkerHistory[marker.name] = [];
-                }
-                biomarkerHistory[marker.name].push({
-                  ...marker,
-                  analysisDate: analysis.created_at,
-                  analysisId: analysis.id
-                });
-                totalMarkers++;
-              }
-            });
+      biomarkers.forEach(biomarker => {
+        if (biomarker.name && biomarker.value) {
+          if (!biomarkerHistory[biomarker.name]) {
+            biomarkerHistory[biomarker.name] = [];
           }
+          biomarkerHistory[biomarker.name].push(biomarker);
+          totalMarkers++;
         }
       });
 
       console.log('Total biomarkers found:', totalMarkers);
       console.log('Unique biomarkers:', Object.keys(biomarkerHistory).length);
 
-      // Анализируем тренды с правильной логикой статусов
+      // Анализируем тренды
       const trends: BiomarkerTrend[] = [];
       let improving = 0;
       let stable = 0;
@@ -115,7 +104,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
       
       Object.entries(biomarkerHistory).forEach(([name, markers]) => {
         if (markers.length >= 2) {
-          markers.sort((a, b) => new Date(b.analysisDate).getTime() - new Date(a.analysisDate).getTime());
+          markers.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
           
           const latest = markers[0];
           const previous = markers[1];
@@ -129,38 +118,22 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
           if (!isNaN(latestNumeric) && !isNaN(previousNumeric) && previousNumeric !== 0) {
             changePercent = ((latestNumeric - previousNumeric) / previousNumeric) * 100;
             
-            // Определяем тренд на основе изменения статуса
-            if (latest.status === 'optimal' && previous.status !== 'optimal') {
-              trend = 'improving';
-              improving++;
-            } else if (latest.status === 'risk' && previous.status !== 'risk') {
-              trend = 'worsening';
-              concerning++;
-            } else if (Math.abs(changePercent) < 5) {
-              trend = 'stable';
-              stable++;
-            } else {
-              // Определяем тренд по направлению изменения для одинакового статуса
-              if (changePercent > 5) {
-                if (latest.status === 'optimal' || latest.status === 'good') {
-                  trend = 'improving';
-                  improving++;
-                } else {
-                  trend = 'worsening';
-                  concerning++;
-                }
-              } else if (changePercent < -5) {
-                if (latest.status === 'risk' || latest.status === 'attention') {
-                  trend = 'improving';
-                  improving++;
-                } else {
-                  trend = 'worsening';
-                  concerning++;
-                }
+            if (Math.abs(changePercent) > 5) {
+              if (latest.status === 'optimal' || latest.status === 'good') {
+                trend = changePercent > 0 ? 'improving' : 'stable';
+                if (changePercent > 0) improving++;
+                else stable++;
+              } else if (latest.status === 'risk' || latest.status === 'attention') {
+                trend = changePercent < 0 ? 'improving' : 'worsening';
+                if (changePercent < 0) improving++;
+                else concerning++;
               } else {
                 trend = 'stable';
                 stable++;
               }
+            } else {
+              trend = 'stable';
+              stable++;
             }
           } else {
             stable++;
@@ -171,8 +144,8 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
             latestValue: latest.value,
             previousValue: previous.value,
             trend,
-            status: latest.status as 'optimal' | 'good' | 'attention' | 'risk',
-            unit: latest.unit || '',
+            status: latest.status || 'unknown',
+            unit: latest.reference_range ? latest.reference_range.split(' ')[1] : '',
             changePercent: Math.abs(changePercent)
           });
         } else if (markers.length === 1) {
@@ -184,8 +157,8 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
             latestValue: marker.value,
             previousValue: '-',
             trend: 'stable',
-            status: marker.status as 'optimal' | 'good' | 'attention' | 'risk',
-            unit: marker.unit || '',
+            status: marker.status || 'unknown',
+            unit: marker.reference_range ? marker.reference_range.split(' ')[1] : '',
             changePercent: 0
           });
         }

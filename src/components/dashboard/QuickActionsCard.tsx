@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Activity, Calendar, User, FileText, Apple } from "lucide-react";
+import { Activity, Calendar, User, FileText, Apple, Target } from "lucide-react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -24,7 +24,7 @@ const QuickActionsCard = () => {
           </Link>
           <Link to="/my-protocols">
             <Button variant="outline" className="w-full justify-start">
-              <Calendar className="h-4 w-4 mr-2" />
+              <Target className="h-4 w-4 mr-2" />
               Мои протоколы
             </Button>
           </Link>
