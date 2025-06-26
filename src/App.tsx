@@ -164,9 +164,9 @@ const App = () => (
                           <NutritionDiaryPage />
                         </ProtectedRoute>
                       } />
-                      <Route path="/my-protocols" element={
+                      <Route path="/my-recommendations" element={
                         <ProtectedRoute>
-                          <MyProtocols />
+                          <MyRecommendations />
                         </ProtectedRoute>
                       } />
                       <Route path="/protocol-tracking" element={

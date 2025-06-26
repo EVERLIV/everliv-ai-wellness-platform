@@ -174,13 +174,13 @@ const Analytics = () => {
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-900">Персональные рекомендации</h1>
           <div className="flex gap-3">
-            <Link to="/my-protocols">
+            <Link to="/my-recommendations">
               <Button
                 variant="outline"
                 className="flex items-center gap-2"
               >
                 <Calendar className="h-4 w-4" />
-                Мои протоколы
+                Мои рекомендации
               </Button>
             </Link>
             <Button

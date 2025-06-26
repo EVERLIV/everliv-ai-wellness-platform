@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Activity, Calendar, User, FileText, Apple, Target } from "lucide-react";
+import { Activity, Calendar, User, FileText, Apple, BookOpen } from "lucide-react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -22,10 +22,10 @@ const QuickActionsCard = () => {
               Дневник питания
             </Button>
           </Link>
-          <Link to="/my-protocols">
+          <Link to="/my-recommendations">
             <Button variant="outline" className="w-full justify-start">
-              <Target className="h-4 w-4 mr-2" />
-              Мои протоколы
+              <BookOpen className="h-4 w-4 mr-2" />
+              Мои рекомендации
             </Button>
           </Link>
           <Link to="/profile">
@@ -40,7 +40,7 @@ const QuickActionsCard = () => {
               Анализ крови
             </Button>
           </Link>
-          <Link to="/comprehensive-analysis">
+          <Link to="/analytics">
             <Button variant="outline" className="w-full justify-start">
               <Activity className="h-4 w-4 mr-2" />
               Оценка здоровья

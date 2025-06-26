@@ -1,6 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Activity, AlertTriangle, TestTube } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSmartAuth } from '@/hooks/useSmartAuth';
@@ -213,21 +213,6 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'optimal':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'good':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'attention':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'risk':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
   const getStatusText = (status: string) => {
     switch (status) {
       case 'optimal':
@@ -237,9 +222,9 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
       case 'attention':
         return 'Внимание';
       case 'risk':
-        return 'Риск';
+        return 'Требует внимания';
       default:
-        return 'Неизвестно';
+        return 'Данные получены';
     }
   };
 
@@ -341,7 +326,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
         </Card>
       </div>
 
-      {/* Детальный список биомаркеров */}
+      {/* Детальный список биомаркеров без бейджей статуса */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -368,9 +353,9 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
                     </div>
                   </div>
                 </div>
-                <Badge className={`${getStatusColor(biomarker.status)} border`}>
+                <div className="text-sm text-gray-500">
                   {getStatusText(biomarker.status)}
-                </Badge>
+                </div>
               </div>
             ))}
             

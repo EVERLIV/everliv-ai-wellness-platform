@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Zap, FileText, BarChart3, ChevronRight } from "lucide-react";
+import { Zap, FileText, BarChart3, ChevronRight, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface QuickActionsCardProps {
@@ -36,10 +36,10 @@ const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ isMobile = false })
               variant="outline" 
               size="sm" 
               className="w-full justify-start bg-white/80 hover:bg-white border-emerald-200 hover:border-emerald-300 text-emerald-700 shadow-sm"
-              onClick={() => navigate('/analytics')}
+              onClick={() => navigate('/my-recommendations')}
             >
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Аналитика
+              <BookOpen className="h-4 w-4 mr-2" />
+              Рекомендации
             </Button>
           </div>
         </CardContent>
@@ -73,11 +73,11 @@ const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ isMobile = false })
             variant="outline" 
             size="sm" 
             className="w-full justify-between bg-white/80 hover:bg-white border-emerald-200 hover:border-emerald-300 text-emerald-700 shadow-sm group"
-            onClick={() => navigate('/analytics')}
+            onClick={() => navigate('/my-recommendations')}
           >
             <div className="flex items-center">
-              <BarChart3 className="h-4 w-4 mr-3" />
-              Посмотреть аналитику
+              <BookOpen className="h-4 w-4 mr-3" />
+              Мои рекомендации
             </div>
             <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Button>
