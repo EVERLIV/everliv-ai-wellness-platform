@@ -68,7 +68,7 @@ export const useMedicalAnalysis = () => {
     const featureType = inputMethod === "photo" ? FEATURES.PHOTO_BLOOD_ANALYSIS : FEATURES.BLOOD_ANALYSIS;
     
     try {
-      const usageCheck = await checkUsageLimit(user.id, featureType, planType, inputMethod);
+      const usageCheck = await checkUsageLimit(user.id, featureType, planType, inputMethod, user.email);
       
       if (!usageCheck.canUse) {
         toast.error(`Лимит исчерпан. ${usageCheck.message || 'Оформите подписку для продолжения.'}`);
@@ -116,7 +116,10 @@ export const useMedicalAnalysis = () => {
       });
 
       // Увеличиваем счетчик использования только после успешного анализа
-      await incrementUsage(user.id, featureType);
+      // Но только если это не премиум пользователь hoaandrey@gmail.com
+      if (user.email !== 'hoaandrey@gmail.com') {
+        await incrementUsage(user.id, featureType);
+      }
 
       setResults(analysisResults);
       setActiveTab("results");

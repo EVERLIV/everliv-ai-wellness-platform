@@ -12,6 +12,11 @@ export interface UsageData {
   updated_at: string;
 }
 
+// Функция для проверки является ли пользователь премиум
+const isPremiumUser = (userEmail: string): boolean => {
+  return userEmail === 'hoaandrey@gmail.com';
+};
+
 export const getCurrentMonthUsage = async (userId: string, featureType: string): Promise<number> => {
   const now = new Date();
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -95,10 +100,22 @@ export const checkUsageLimit = async (
   userId: string, 
   featureType: string, 
   planType: string,
-  inputMethod?: 'text' | 'photo'
+  inputMethod?: 'text' | 'photo',
+  userEmail?: string
 ): Promise<{ canUse: boolean; currentUsage: number; limit: number; message?: string }> => {
   
-  console.log('🔍 Checking usage limit:', { userId, featureType, planType, inputMethod });
+  console.log('🔍 Checking usage limit:', { userId, featureType, planType, inputMethod, userEmail });
+  
+  // Специальная проверка для премиум пользователя hoaandrey@gmail.com
+  if (userEmail && isPremiumUser(userEmail)) {
+    console.log('🎯 Premium user detected:', userEmail, 'giving unlimited access');
+    return {
+      canUse: true,
+      currentUsage: 0,
+      limit: 999,
+      message: 'Премиум пользователь - неограниченный доступ'
+    };
+  }
   
   // Для анализов - проверяем общий лимит
   if (featureType === 'lab_analyses' || featureType === 'photo_lab_analyses') {

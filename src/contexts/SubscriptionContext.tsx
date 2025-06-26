@@ -333,11 +333,17 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const planType = getCurrentPlanType();
-    return await checkUsageLimit(user.id, featureType, planType);
+    return await checkUsageLimit(user.id, featureType, planType, undefined, user.email);
   };
 
   const incrementFeatureUsage = async (featureType: string): Promise<void> => {
     if (!user?.id || !isValidUUID(user.id)) return;
+
+    // Не увеличиваем счетчик для премиум пользователя hoaandrey@gmail.com
+    if (user.email === 'hoaandrey@gmail.com') {
+      console.log('🎯 Skipping usage increment for premium user:', user.email);
+      return;
+    }
 
     try {
       await incrementUsage(user.id, featureType);
@@ -353,6 +359,153 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     console.log('🔍 Analytics access check:', { planType, canAccess: planType === 'premium' });
     return planType === 'premium';
   };
+
+  useEffect(() => {
+    if (!trialExpiresAt) {
+      setTrialTimeRemaining(null);
+      return;
+    }
+    
+    const calculateTimeRemaining = () => {
+      const now = new Date();
+      const expiresAt = new Date(trialExpiresAt);
+      const diffMs = expiresAt.getTime() - now.getTime();
+      
+      if (diffMs <= 0) {
+        setIsTrialActive(false);
+        setTrialTimeRemaining("Истек");
+        return;
+      }
+      
+      const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      
+      if (diffHrs > 0) {
+        setTrialTimeRemaining(`${diffHrs} ч ${diffMins} мин`);
+      } else {
+        setTrialTimeRemaining(`${diffMins} мин`);
+      }
+    };
+    
+    calculateTimeRemaining();
+    const timer = setInterval(calculateTimeRemaining, 60000);
+    
+    return () => clearInterval(timer);
+  }, [trialExpiresAt]);
+
+  useEffect(() => {
+    const loadSubscriptionData = async () => {
+      if (!user?.id) {
+        console.log('👤 No user, resetting subscription state');
+        setSubscription(null);
+        setFeatureTrials([]);
+        setIsLoading(false);
+        setIsTrialActive(false);
+        setTrialExpiresAt(null);
+        return;
+      }
+
+      console.log('🔄 Loading subscription data for user:', user.id, user.email);
+      setIsLoading(true);
+      
+      // Для премиум пользователя создаём виртуальную подписку
+      if (user.email && isPremiumUser(user.email)) {
+        console.log('🎯 Setting up premium subscription for known user');
+        const premiumSubscription: Subscription = {
+          id: 'premium-hoaandrey',
+          user_id: user.id,
+          plan_type: 'premium',
+          status: 'active',
+          started_at: new Date().toISOString(),
+          expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // год вперед
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        setSubscription(premiumSubscription);
+        setFeatureTrials([]);
+        setIsTrialActive(false);
+        setTrialExpiresAt(null);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Для пользователей с валидным UUID пытаемся загрузить данные из базы
+      if (isValidUUID(user.id)) {
+        try {
+          const data = await fetchSubscriptionData(user.id);
+          console.log('📊 Subscription data loaded for', user.email, ':', data);
+          
+          setSubscription(data.subscription);
+          setFeatureTrials(data.featureTrials);
+          
+          // Check trial status only if there is no active subscription
+          const hasValidSubscription = data.subscription && 
+            data.subscription.status === 'active' && 
+            new Date(data.subscription.expires_at) > new Date();
+            
+          if (!hasValidSubscription) {
+            console.log('🔍 No valid subscription, checking trial status for:', user.email);
+            const trialStatus = await checkTrialStatusService(user.id);
+            console.log('🎯 Trial status loaded for', user.email, ':', trialStatus);
+            
+            setIsTrialActive(trialStatus.isActive);
+            if (trialStatus.expiresAt) {
+              setTrialExpiresAt(new Date(trialStatus.expiresAt));
+            }
+          } else {
+            console.log('✅ Valid subscription found for', user.email, ', resetting trial');
+            setIsTrialActive(false);
+            setTrialExpiresAt(null);
+          }
+        } catch (error) {
+          console.error("❌ Error loading subscription data for", user.email, ":", error);
+        }
+      } else {
+        console.log('🔧 Dev mode detected, skipping subscription data fetch');
+        setSubscription(null);
+        setFeatureTrials([]);
+        setIsTrialActive(false);
+        setTrialExpiresAt(null);
+      }
+      
+      setIsLoading(false);
+    };
+
+    loadSubscriptionData();
+  }, [user?.id, user?.email]);
+
+  useEffect(() => {
+    if (!trialExpiresAt) {
+      setTrialTimeRemaining(null);
+      return;
+    }
+    
+    const calculateTimeRemaining = () => {
+      const now = new Date();
+      const expiresAt = new Date(trialExpiresAt);
+      const diffMs = expiresAt.getTime() - now.getTime();
+      
+      if (diffMs <= 0) {
+        setIsTrialActive(false);
+        setTrialTimeRemaining("Истек");
+        return;
+      }
+      
+      const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      
+      if (diffHrs > 0) {
+        setTrialTimeRemaining(`${diffHrs} ч ${diffMins} мин`);
+      } else {
+        setTrialTimeRemaining(`${diffMins} мин`);
+      }
+    };
+    
+    calculateTimeRemaining();
+    const timer = setInterval(calculateTimeRemaining, 60000);
+    
+    return () => clearInterval(timer);
+  }, [trialExpiresAt]);
 
   const contextValue = {
     subscription,
