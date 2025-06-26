@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,8 +13,8 @@ const HealthGoalsManager: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    goal_type: '',
-    category: 'fitness',
+    goal_type: 'custom' as 'custom' | 'steps' | 'exercise' | 'weight' | 'sleep' | 'water' | 'stress',
+    category: 'fitness' as 'fitness' | 'nutrition' | 'sleep' | 'mental' | 'longevity',
     priority: 'medium' as 'low' | 'medium' | 'high',
     target_value: 0,
     unit: '',
@@ -44,7 +43,7 @@ const HealthGoalsManager: React.FC = () => {
     setFormData({
       title: '',
       description: '',
-      goal_type: '',
+      goal_type: 'custom',
       category: 'fitness',
       priority: 'medium',
       target_value: 0,
@@ -148,7 +147,7 @@ const HealthGoalsManager: React.FC = () => {
                 <Label htmlFor="category">Категория</Label>
                 <Select 
                   value={formData.category} 
-                  onValueChange={(value) => setFormData({...formData, category: value})}
+                  onValueChange={(value: 'fitness' | 'nutrition' | 'sleep' | 'mental' | 'longevity') => setFormData({...formData, category: value})}
                 >
                   <SelectTrigger>
                     <SelectValue />
