@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export interface LabResultsData {
+  [key: string]: number | string | undefined;
   hemoglobin?: number;
   erythrocytes?: number;
   hematocrit?: number;
@@ -13,6 +14,17 @@ export interface LabResultsData {
   ldh?: number;
   testDate?: string;
   lastUpdated?: string;
+}
+
+export interface RecommendationSettings {
+  intermittentFasting: boolean;
+  coldTherapy: boolean;
+  breathingPractices: boolean;
+  supplements: boolean;
+  lifestyle: boolean;
+  nutrition: boolean;
+  exercise: boolean;
+  stress: boolean;
 }
 
 export interface HealthProfileData {
@@ -59,6 +71,9 @@ export interface HealthProfileData {
   
   // Lab Results
   labResults?: LabResultsData;
+  
+  // Recommendation Settings
+  recommendationSettings?: RecommendationSettings;
 }
 
 /**

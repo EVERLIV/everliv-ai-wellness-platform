@@ -52,7 +52,9 @@ export const generateRiskFactors = (healthProfile?: HealthProfileData): RiskFact
     });
   }
 
-  if (healthProfile.smokingStatus === 'current') {
+  if (healthProfile.smokingStatus === 'current_light' || 
+      healthProfile.smokingStatus === 'current_moderate' || 
+      healthProfile.smokingStatus === 'current_heavy') {
     riskFactors.push({
       id: 'smoking',
       factor: 'Курение',

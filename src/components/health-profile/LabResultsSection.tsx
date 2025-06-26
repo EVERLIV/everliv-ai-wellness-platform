@@ -4,33 +4,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TestTube, Microscope } from "lucide-react";
-
-interface LabResults {
-  [key: string]: number | string | undefined;
-  hemoglobin?: number;
-  erythrocytes?: number;
-  hematocrit?: number;
-  mcv?: number;
-  mchc?: number;
-  platelets?: number;
-  serumIron?: number;
-  cholesterol?: number;
-  bloodSugar?: number;
-  ldh?: number;
-  testDate?: string;
-  lastUpdated?: string;
-}
+import { LabResultsData } from "@/types/healthProfile";
 
 interface LabResultsSectionProps {
-  labResults: LabResults;
-  onChange: (updates: LabResults) => void;
+  labResults: LabResultsData;
+  onChange: (updates: LabResultsData) => void;
 }
 
 const LabResultsSection: React.FC<LabResultsSectionProps> = ({
   labResults,
   onChange
 }) => {
-  const handleChange = (field: keyof LabResults, value: string) => {
+  const handleChange = (field: keyof LabResultsData, value: string) => {
     const numericValue = value === '' ? undefined : parseFloat(value);
     onChange({ ...labResults, [field]: numericValue });
   };
