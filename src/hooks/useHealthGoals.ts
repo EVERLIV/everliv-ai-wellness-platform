@@ -1,18 +1,21 @@
 
 import { useState, useEffect } from 'react';
 import { useOptimizedHealthGoals } from './useOptimizedHealthGoals';
-import { HealthGoal } from '@/types/healthGoals';
+import { HealthGoal, CreateHealthGoalInput } from '@/types/healthGoals';
 import { toast } from 'sonner';
 
 export { type HealthGoal } from '@/types/healthGoals';
 
 export const useHealthGoals = () => {
-  const { goals, isLoading, createGoal, deleteGoal, refetch } = useOptimizedHealthGoals();
+  const { goals, isLoading, createGoal, updateGoal, deleteGoal, refetch } = useOptimizedHealthGoals();
   const [localGoals, setLocalGoals] = useState<HealthGoal[]>([]);
 
   useEffect(() => {
     setLocalGoals(goals);
   }, [goals]);
+
+  // Find active goal
+  const activeGoal = localGoals.find(goal => goal.is_active) || null;
 
   const updateProgress = async (goalId: string, progress: number) => {
     try {
@@ -31,11 +34,22 @@ export const useHealthGoals = () => {
     }
   };
 
+  const deactivateGoal = async (goalId: string) => {
+    try {
+      await deleteGoal(goalId);
+      toast.success('Цель деактивирована');
+    } catch (error) {
+      toast.error('Ошибка деактивации цели');
+    }
+  };
+
   return {
     goals: localGoals,
+    activeGoal,
     isLoading,
     updateProgress,
-    deleteGoal,
+    createGoal,
+    deactivateGoal,
     refetch
   };
 };

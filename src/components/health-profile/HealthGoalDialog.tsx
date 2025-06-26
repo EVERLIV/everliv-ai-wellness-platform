@@ -27,7 +27,7 @@ const HealthGoalDialog: React.FC<HealthGoalDialogProps> = ({
     target_sleep_hours: '8',
     target_water_intake: '8',
     target_stress_level: '3',
-    goal_type: 'monthly' as const,
+    goal_type: 'monthly' as 'daily' | 'weekly' | 'monthly' | 'yearly',
     end_date: ''
   });
 
@@ -166,7 +166,7 @@ const HealthGoalDialog: React.FC<HealthGoalDialogProps> = ({
 
           <div>
             <Label htmlFor="goal_type">Тип цели</Label>
-            <Select value={formData.goal_type} onValueChange={(value: any) => setFormData(prev => ({ ...prev, goal_type: value }))}>
+            <Select value={formData.goal_type} onValueChange={(value: 'daily' | 'weekly' | 'monthly' | 'yearly') => setFormData(prev => ({ ...prev, goal_type: value }))}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

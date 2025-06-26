@@ -1,4 +1,3 @@
-
 /**
  * @fileoverview Dynamic Health Score Component with Goals Integration
  * 
@@ -10,7 +9,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useDailyHealthMetrics } from '@/hooks/useDailyHealthMetrics';
-import { useOptimizedHealthGoals } from '@/hooks/useOptimizedHealthGoals';
+import { useHealthGoals } from '@/hooks/useHealthGoals';
 import { TrendingUp, RefreshCw, Target } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { calculateProgress } from '@/utils/healthGoals';
@@ -43,7 +42,7 @@ import { calculateProgress } from '@/utils/healthGoals';
  */
 const DynamicHealthScore: React.FC = () => {
   const { calculateDynamicHealthScore, todayMetrics } = useDailyHealthMetrics();
-  const { activeGoal } = useOptimizedHealthGoals();
+  const { activeGoal } = useHealthGoals();
   const [healthScore, setHealthScore] = useState<number | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
