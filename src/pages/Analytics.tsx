@@ -22,6 +22,33 @@ const Analytics = () => {
   
   const { healthProfile } = useHealthProfile();
 
+  // Перевод целей на русский язык
+  const translateGoal = (goal: string): string => {
+    const translations: Record<string, string> = {
+      'biological_age': 'Биологический возраст',
+      'cardiovascular': 'Сердечно-сосудистое здоровье',
+      'cognitive': 'Когнитивное здоровье',
+      'musculoskeletal': 'Опорно-двигательная система',
+      'metabolism': 'Метаболизм',
+      'muscle_gain': 'Набор мышечной массы',
+      'weight_loss': 'Снижение веса',
+      'energy_boost': 'Повышение энергии',
+      'sleep_improvement': 'Улучшение сна',
+      'stress_reduction': 'Снижение стресса',
+      'immunity_boost': 'Укрепление иммунитета',
+      'longevity': 'Увеличение продолжительности жизни',
+      'hormonal_balance': 'Гормональный баланс',
+      'digestive_health': 'Здоровье пищеварения',
+      'skin_health': 'Здоровье кожи',
+      'metabolic_health': 'Метаболическое здоровье',
+      'bone_health': 'Здоровье костей',
+      'mental_health': 'Психическое здоровье',
+      'detox': 'Детоксикация организма',
+      'athletic_performance': 'Спортивные результаты'
+    };
+    return translations[goal] || goal;
+  };
+
   const handleGenerateAnalytics = async () => {
     console.log('🔄 Manual analytics refresh triggered');
     await generateAnalytics();
@@ -172,7 +199,7 @@ const Analytics = () => {
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         {/* Кнопки управления */}
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Персональные рекомендации</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Персональные рекомендации ИИ-доктора</h1>
           <div className="flex gap-3">
             <Link to="/my-recommendations">
               <Button
@@ -202,6 +229,25 @@ const Analytics = () => {
             </Button>
           </div>
         </div>
+
+        {/* Заголовок с целями пользователя на русском языке */}
+        {healthProfile?.healthGoals && healthProfile.healthGoals.length > 0 && (
+          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-200">
+            <h2 className="text-xl font-semibold text-gray-900 mb-3">
+              Рекомендации для ваших целей:
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {healthProfile.healthGoals.map((goal, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800 border border-purple-200"
+                >
+                  {translateGoal(goal)}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Обзор здоровья с актуальными данными биомаркеров */}
         <HealthOverviewHeader analytics={analytics} />

@@ -1,7 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, TrendingDown, Activity, AlertTriangle, TestTube } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { TrendingUp, TrendingDown, Activity, AlertTriangle, TestTube, Brain, RefreshCw, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSmartAuth } from '@/hooks/useSmartAuth';
 
@@ -10,9 +12,11 @@ interface BiomarkerTrend {
   latestValue: string;
   previousValue: string;
   trend: 'improving' | 'worsening' | 'stable';
-  status: string;
+  status: 'optimal' | 'good' | 'attention' | 'risk';
   unit?: string;
   changePercent?: number;
+  aiRecommendation?: string;
+  isOutOfRange?: boolean;
 }
 
 interface BiomarkerTrendsOverviewProps {
@@ -27,6 +31,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
   const { user } = useSmartAuth();
   const [biomarkerTrends, setBiomarkerTrends] = useState<BiomarkerTrend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [realTrendsData, setRealTrendsData] = useState({
     improving: 0,
     stable: 0,
@@ -37,6 +42,27 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
   useEffect(() => {
     if (user) {
       fetchBiomarkerTrends();
+      
+      // Реал-тайм подписка на изменения
+      const channel = supabase
+        .channel(`biomarkers_${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'biomarkers'
+          },
+          () => {
+            console.log('Biomarker data updated, refreshing...');
+            fetchBiomarkerTrends();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 
@@ -46,11 +72,11 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
     try {
       console.log('Fetching biomarker trends for user:', user.id);
 
-      // First get user's analysis IDs
       const { data: analyses, error: analysesError } = await supabase
         .from('medical_analyses')
-        .select('id')
-        .eq('user_id', user.id);
+        .select('id, created_at, results')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (analysesError) {
         console.error('Error fetching analyses:', analysesError);
@@ -64,54 +90,31 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
         return;
       }
 
-      const analysisIds = analyses.map(a => a.id);
-
-      // Then get biomarkers for those analyses
-      const { data: biomarkers, error: biomarkersError } = await supabase
-        .from('biomarkers')
-        .select(`
-          name,
-          value,
-          status,
-          reference_range,
-          analysis_id,
-          created_at
-        `)
-        .in('analysis_id', analysisIds)
-        .order('created_at', { ascending: false });
-
-      if (biomarkersError) {
-        console.error('Error fetching biomarkers:', biomarkersError);
-        setIsLoading(false);
-        return;
-      }
-
-      if (!biomarkers || biomarkers.length === 0) {
-        console.log('No biomarkers found for user');
-        setIsLoading(false);
-        return;
-      }
-
-      console.log('Found biomarkers:', biomarkers.length);
-
-      // Группируем биомаркеры по имени
       const biomarkerHistory: { [key: string]: any[] } = {};
       let totalMarkers = 0;
 
-      biomarkers.forEach(biomarker => {
-        if (biomarker.name && biomarker.value) {
-          if (!biomarkerHistory[biomarker.name]) {
-            biomarkerHistory[biomarker.name] = [];
+      analyses.forEach(analysis => {
+        if (analysis.results && typeof analysis.results === 'object') {
+          const results = analysis.results as any;
+          
+          if (results.markers && Array.isArray(results.markers)) {
+            results.markers.forEach((marker: any) => {
+              if (marker.name && marker.value) {
+                if (!biomarkerHistory[marker.name]) {
+                  biomarkerHistory[marker.name] = [];
+                }
+                biomarkerHistory[marker.name].push({
+                  ...marker,
+                  analysisDate: analysis.created_at,
+                  analysisId: analysis.id
+                });
+                totalMarkers++;
+              }
+            });
           }
-          biomarkerHistory[biomarker.name].push(biomarker);
-          totalMarkers++;
         }
       });
 
-      console.log('Total biomarkers found:', totalMarkers);
-      console.log('Unique biomarkers:', Object.keys(biomarkerHistory).length);
-
-      // Анализируем тренды
       const trends: BiomarkerTrend[] = [];
       let improving = 0;
       let stable = 0;
@@ -119,13 +122,15 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
       
       Object.entries(biomarkerHistory).forEach(([name, markers]) => {
         if (markers.length >= 2) {
-          markers.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          markers.sort((a, b) => new Date(b.analysisDate).getTime() - new Date(a.analysisDate).getTime());
           
           const latest = markers[0];
           const previous = markers[1];
           
           let trend: 'improving' | 'worsening' | 'stable' = 'stable';
           let changePercent = 0;
+          let aiRecommendation = '';
+          let isOutOfRange = false;
           
           const latestNumeric = parseFloat(latest.value);
           const previousNumeric = parseFloat(previous.value);
@@ -133,15 +138,26 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
           if (!isNaN(latestNumeric) && !isNaN(previousNumeric) && previousNumeric !== 0) {
             changePercent = ((latestNumeric - previousNumeric) / previousNumeric) * 100;
             
+            // Определяем тренд и рекомендации
             if (Math.abs(changePercent) > 5) {
               if (latest.status === 'optimal' || latest.status === 'good') {
                 trend = changePercent > 0 ? 'improving' : 'stable';
-                if (changePercent > 0) improving++;
-                else stable++;
+                if (changePercent > 0) {
+                  improving++;
+                  aiRecommendation = 'Отличная динамика! Продолжайте в том же духе.';
+                } else {
+                  stable++;
+                }
               } else if (latest.status === 'risk' || latest.status === 'attention') {
                 trend = changePercent < 0 ? 'improving' : 'worsening';
-                if (changePercent < 0) improving++;
-                else concerning++;
+                isOutOfRange = true;
+                if (changePercent < 0) {
+                  improving++;
+                  aiRecommendation = 'Положительная тенденция! Рекомендуем консультацию с врачом для контроля.';
+                } else {
+                  concerning++;
+                  aiRecommendation = generateAIRecommendation(name, latestNumeric, latest.status);
+                }
               } else {
                 trend = 'stable';
                 stable++;
@@ -149,6 +165,10 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
             } else {
               trend = 'stable';
               stable++;
+              if (latest.status === 'risk' || latest.status === 'attention') {
+                isOutOfRange = true;
+                aiRecommendation = generateAIRecommendation(name, latestNumeric, latest.status);
+              }
             }
           } else {
             stable++;
@@ -159,27 +179,38 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
             latestValue: latest.value,
             previousValue: previous.value,
             trend,
-            status: latest.status || 'unknown',
-            unit: latest.reference_range ? latest.reference_range.split(' ')[1] : '',
-            changePercent: Math.abs(changePercent)
+            status: latest.status as 'optimal' | 'good' | 'attention' | 'risk',
+            unit: latest.unit || '',
+            changePercent: Math.abs(changePercent),
+            aiRecommendation,
+            isOutOfRange
           });
         } else if (markers.length === 1) {
           const marker = markers[0];
           stable++;
+          
+          let aiRecommendation = '';
+          let isOutOfRange = false;
+          
+          if (marker.status === 'risk' || marker.status === 'attention') {
+            isOutOfRange = true;
+            aiRecommendation = generateAIRecommendation(marker.name, parseFloat(marker.value), marker.status);
+          }
           
           trends.push({
             name,
             latestValue: marker.value,
             previousValue: '-',
             trend: 'stable',
-            status: marker.status || 'unknown',
-            unit: marker.reference_range ? marker.reference_range.split(' ')[1] : '',
-            changePercent: 0
+            status: marker.status as 'optimal' | 'good' | 'attention' | 'risk',
+            unit: marker.unit || '',
+            changePercent: 0,
+            aiRecommendation,
+            isOutOfRange
           });
         }
       });
 
-      // Обновляем реальные данные трендов
       setRealTrendsData({
         improving,
         stable,
@@ -187,9 +218,16 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
         totalBiomarkers: totalMarkers
       });
 
+      // Сортируем по приоритету: сначала проблемные, потом улучшающиеся, потом стабильные
       trends.sort((a, b) => {
         const priorityOrder = { 'worsening': 0, 'improving': 1, 'stable': 2 };
-        return priorityOrder[a.trend] - priorityOrder[b.trend];
+        const statusOrder = { 'risk': 0, 'attention': 1, 'good': 2, 'optimal': 3 };
+        
+        if (priorityOrder[a.trend] !== priorityOrder[b.trend]) {
+          return priorityOrder[a.trend] - priorityOrder[b.trend];
+        }
+        
+        return statusOrder[a.status] - statusOrder[b.status];
       });
 
       setBiomarkerTrends(trends);
@@ -199,7 +237,42 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
       console.error('Error analyzing biomarker trends:', error);
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
+  };
+
+  const generateAIRecommendation = (biomarkerName: string, value: number, status: string): string => {
+    const recommendations: Record<string, Record<string, string>> = {
+      'Глюкоза': {
+        'risk': 'Критически важно контролировать уровень сахара. Рекомендуется немедленная консультация эндокринолога.',
+        'attention': 'Повышенный уровень глюкозы. Ограничьте простые углеводы, увеличьте физическую активность.'
+      },
+      'Холестерин': {
+        'risk': 'Высокий риск сердечно-сосудистых заболеваний. Необходима консультация кардиолога.',
+        'attention': 'Повышенный холестерин. Рекомендуется диета с низким содержанием насыщенных жиров.'
+      },
+      'Гемоглобин': {
+        'risk': 'Критический уровень гемоглобина. Требуется срочная консультация гематолога.',
+        'attention': 'Пониженный гемоглобин. Включите в рацион железосодержащие продукты.'
+      }
+    };
+
+    const biomarkerKey = Object.keys(recommendations).find(key => 
+      biomarkerName.toLowerCase().includes(key.toLowerCase())
+    );
+
+    if (biomarkerKey && recommendations[biomarkerKey][status]) {
+      return recommendations[biomarkerKey][status];
+    }
+
+    return status === 'risk' 
+      ? 'Показатель вне нормы. Рекомендуется консультация с врачом.'
+      : 'Показатель требует внимания. Следите за динамикой.';
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchBiomarkerTrends();
   };
 
   const getTrendIcon = (trend: string) => {
@@ -213,29 +286,36 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'optimal':
-        return 'Оптимально';
+        return 'bg-green-100 text-green-800 border-green-200';
       case 'good':
-        return 'Хорошо';
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'attention':
-        return 'Внимание';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'risk':
-        return 'Требует внимания';
+        return 'bg-red-100 text-red-800 border-red-200';
       default:
-        return 'Данные получены';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'optimal': return 'Оптимально';
+      case 'good': return 'Хорошо';
+      case 'attention': return 'Внимание';
+      case 'risk': return 'Риск';
+      default: return 'Неизвестно';
     }
   };
 
   const getTrendColor = (trend: string) => {
     switch (trend) {
-      case 'improving':
-        return 'border-green-200 bg-green-50';
-      case 'worsening':
-        return 'border-red-200 bg-red-50';
-      default:
-        return 'border-blue-200 bg-blue-50';
+      case 'improving': return 'border-green-200 bg-green-50';
+      case 'worsening': return 'border-red-200 bg-red-50';
+      default: return 'border-blue-200 bg-blue-50';
     }
   };
 
@@ -272,96 +352,156 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
 
   return (
     <div className="space-y-6">
-      {/* Сводка по трендам - используем реальные данные */}
+      {/* Современная сводка по трендам с реал-тайм данными */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className={`${getTrendColor('improving')} border-2`}>
+        <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-green-700">
-              <TrendingUp className="h-5 w-5" />
+              <div className="p-2 bg-green-100 rounded-lg">
+                <TrendingUp className="h-5 w-5" />
+              </div>
               <span className="text-base font-semibold">Улучшается</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-700 mb-1">
+            <div className="text-3xl font-bold text-green-700 mb-1">
               {realTrendsData.improving}
             </div>
             <div className="text-sm text-green-600">
-              биомаркеров
+              {realTrendsData.improving === 1 ? 'биомаркер' : 'биомаркеров'}
             </div>
           </CardContent>
         </Card>
 
-        <Card className={`${getTrendColor('stable')} border-2`}>
+        <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-blue-700">
-              <Activity className="h-5 w-5" />
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Activity className="h-5 w-5" />
+              </div>
               <span className="text-base font-semibold">Стабильно</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-700 mb-1">
+            <div className="text-3xl font-bold text-blue-700 mb-1">
               {realTrendsData.stable}
             </div>
             <div className="text-sm text-blue-600">
-              биомаркеров
+              {realTrendsData.stable === 1 ? 'биомаркер' : 'биомаркеров'}
             </div>
           </CardContent>
         </Card>
 
-        <Card className={`${getTrendColor('worsening')} border-2`}>
+        <Card className="border-2 border-red-200 bg-gradient-to-br from-red-50 to-rose-50">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-red-700">
-              <AlertTriangle className="h-5 w-5" />
+              <div className="p-2 bg-red-100 rounded-lg">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
               <span className="text-base font-semibold">Требует внимания</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-700 mb-1">
+            <div className="text-3xl font-bold text-red-700 mb-1">
               {realTrendsData.concerning}
             </div>
             <div className="text-sm text-red-600">
-              биомаркеров
+              {realTrendsData.concerning === 1 ? 'биомаркер' : 'биомаркеров'}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Детальный список биомаркеров без бейджей статуса */}
-      <Card>
+      {/* Детальный список биомаркеров с ИИ рекомендациями */}
+      <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TestTube className="h-5 w-5" />
-            Динамика биомаркеров
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <TestTube className="h-5 w-5 text-purple-600" />
+              </div>
+              Динамика биомаркеров
+              <Badge variant="outline" className="ml-2">
+                Реал-тайм
+              </Badge>
+            </CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Обновить
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {biomarkerTrends.slice(0, 10).map((biomarker, index) => (
-              <div key={index} className="flex items-center justify-between p-3 rounded-lg border bg-gray-50">
-                <div className="flex items-center gap-3">
-                  {getTrendIcon(biomarker.trend)}
-                  <div>
-                    <div className="font-medium text-gray-900">{biomarker.name}</div>
-                    <div className="text-sm text-gray-600">
-                      {biomarker.previousValue} → {biomarker.latestValue}
-                      {biomarker.unit && ` ${biomarker.unit}`}
-                      {biomarker.changePercent && biomarker.changePercent > 0 && (
-                        <span className="ml-2 text-xs">
-                          ({biomarker.changePercent.toFixed(1)}%)
+              <div 
+                key={index} 
+                className={`relative p-4 rounded-xl border-2 transition-all duration-200 ${getTrendColor(biomarker.trend)} hover:shadow-lg`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                      {getTrendIcon(biomarker.trend)}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900 text-lg">
+                        {biomarker.name}
+                        {biomarker.isOutOfRange && (
+                          <AlertTriangle className="inline h-4 w-4 text-orange-500 ml-2" />
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        <span className="font-medium">
+                          {biomarker.previousValue} → {biomarker.latestValue}
+                          {biomarker.unit && ` ${biomarker.unit}`}
                         </span>
-                      )}
+                        {biomarker.changePercent && biomarker.changePercent > 0 && (
+                          <span className="ml-2 text-xs bg-white px-2 py-1 rounded-full">
+                            {biomarker.trend === 'improving' ? '+' : ''}
+                            {biomarker.changePercent.toFixed(1)}%
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
+                  <Badge className={`${getStatusColor(biomarker.status)} border text-xs px-3 py-1`}>
+                    {getStatusText(biomarker.status)}
+                  </Badge>
                 </div>
-                <div className="text-sm text-gray-500">
-                  {getStatusText(biomarker.status)}
-                </div>
+                
+                {/* ИИ рекомендации для отклонений */}
+                {biomarker.aiRecommendation && (
+                  <div className="bg-white/80 backdrop-blur-sm border border-indigo-200 rounded-lg p-3 mt-3">
+                    <div className="flex items-start gap-2">
+                      <div className="p-1 bg-indigo-100 rounded">
+                        <Brain className="h-4 w-4 text-indigo-600" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xs font-medium text-indigo-800 mb-1">
+                          ИИ-рекомендация:
+                        </div>
+                        <p className="text-sm text-indigo-700 leading-relaxed">
+                          {biomarker.aiRecommendation}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
             
             {biomarkerTrends.length > 10 && (
-              <div className="text-center text-sm text-gray-500 pt-2">
-                И еще {biomarkerTrends.length - 10} биомаркеров...
+              <div className="text-center text-sm text-gray-500 pt-4 border-t">
+                <div className="flex items-center justify-center gap-2">
+                  <Zap className="h-4 w-4 text-blue-500" />
+                  <span>И еще {biomarkerTrends.length - 10} биомаркеров в реал-тайм мониторинге</span>
+                </div>
               </div>
             )}
           </div>
