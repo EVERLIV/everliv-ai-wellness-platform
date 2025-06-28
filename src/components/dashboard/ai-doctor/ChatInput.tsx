@@ -25,18 +25,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           disabled={isProcessing}
-          className="pr-14 h-12 rounded-2xl border-gray-200 bg-white/80 backdrop-blur-sm focus:border-blue-400 focus:ring-blue-400/20 text-base placeholder:text-gray-500 transition-all duration-200"
+          className="pr-12 sm:pr-14 h-10 sm:h-12 rounded-xl sm:rounded-2xl border-gray-200 bg-white/80 backdrop-blur-sm focus:border-blue-400 focus:ring-blue-400/20 text-sm sm:text-base placeholder:text-gray-500 transition-all duration-200"
         />
         <Button
           type="submit"
           size="sm"
           disabled={!inputText.trim() || isProcessing}
-          className="absolute right-2 h-8 w-8 p-0 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-0 rounded-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+          className="absolute right-1 sm:right-2 h-6 w-6 sm:h-8 sm:w-8 p-0 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 border-0 rounded-lg sm:rounded-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
         >
           {isProcessing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
           ) : (
-            <Send className="h-4 w-4" />
+            <Send className="h-3 w-3 sm:h-4 sm:w-4" />
           )}
         </Button>
       </div>
