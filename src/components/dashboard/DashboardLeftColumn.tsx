@@ -4,6 +4,7 @@ import PersonalizedDashboardHeader from './PersonalizedDashboardHeader';
 import DashboardQuickActionsGrid from './DashboardQuickActionsGrid';
 import DashboardChatsList from './DashboardChatsList';
 import NutritionSummarySection from './NutritionSummarySection';
+import SmartGoalRecommendations from './SmartGoalRecommendations';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardLeftColumnProps {
@@ -26,6 +27,9 @@ const DashboardLeftColumn: React.FC<DashboardLeftColumnProps> = ({ userName }) =
       {/* На мобильных показываем дополнительные компоненты после приветствия */}
       {isMobile && (
         <>
+          {/* Рекомендации для достижения целей */}
+          <SmartGoalRecommendations />
+          
           {/* Данные питания */}
           <NutritionSummarySection />
           

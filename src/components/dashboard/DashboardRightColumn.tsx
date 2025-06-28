@@ -2,7 +2,7 @@
 import React from 'react';
 import DashboardKeyMetrics from './DashboardKeyMetrics';
 import QuickActionsCard from './header/QuickActionsCard';
-import MyGoalsSection from './health-goals/MyGoalsSection';
+import SmartGoalRecommendations from './SmartGoalRecommendations';
 import DashboardChatsList from './DashboardChatsList';
 import NutritionSummarySection from './NutritionSummarySection';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -30,7 +30,7 @@ const DashboardRightColumn: React.FC<DashboardRightColumnProps> = ({
       />
       
       {/* Рекомендации для достижения целей */}
-      <MyGoalsSection />
+      <SmartGoalRecommendations />
       
       {/* Данные питания */}
       <NutritionSummarySection />
