@@ -1,4 +1,3 @@
-
 import React from 'react';
 import PageLayoutWithHeader from '@/components/PageLayoutWithHeader';
 import AnalyticsPageHeader from '@/components/analytics/AnalyticsPageHeader';
@@ -7,8 +6,9 @@ import HealthOverviewHeader from '@/components/analytics/recommendations/HealthO
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, AlertTriangle, User, TestTube, Calendar } from 'lucide-react';
+import { RefreshCw, AlertTriangle, User, TestTube, Calendar, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Analytics = () => {
   const { 
@@ -21,6 +21,7 @@ const Analytics = () => {
   } = useCachedAnalytics();
   
   const { healthProfile } = useHealthProfile();
+  const isMobile = useIsMobile();
 
   // Перевод целей на русский язык
   const translateGoal = (goal: string): string => {
@@ -197,54 +198,86 @@ const Analytics = () => {
       fullWidth
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-        {/* Кнопки управления */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Персональные рекомендации ИИ-доктора</h1>
-          <div className="flex gap-3">
-            <Link to="/my-recommendations">
+        {/* Кнопки управления - адаптивные */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h1 className={`font-bold text-gray-900 ${isMobile ? 'text-2xl' : 'text-3xl'}`}>
+            Персональные рекомендации ИИ-доктора
+          </h1>
+          <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
+            <Link to="/my-recommendations" className="flex-1 sm:flex-none">
               <Button
                 variant="outline"
-                className="flex items-center gap-2"
+                size={isMobile ? "sm" : "default"}
+                className="flex items-center gap-2 w-full justify-center"
               >
                 <Calendar className="h-4 w-4" />
-                Мои рекомендации
+                {isMobile ? 'Мои рекомендации' : 'Мои рекомендации'}
               </Button>
             </Link>
             <Button
               onClick={handleGenerateAnalytics}
               disabled={isGenerating}
               variant="outline"
-              className="flex items-center gap-2"
+              size={isMobile ? "sm" : "default"}
+              className="flex items-center gap-2 flex-1 sm:flex-none justify-center"
             >
               <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
-              Обновить аналитику
+              {isMobile ? 'Обновить' : 'Обновить аналитику'}
             </Button>
             <Button
               onClick={handlePageRefresh}
               variant="outline"
-              className="flex items-center gap-2"
+              size={isMobile ? "sm" : "default"}
+              className="flex items-center gap-2 flex-1 sm:flex-none justify-center"
             >
               <RefreshCw className="h-4 w-4" />
-              Обновить данные
+              {isMobile ? 'Данные' : 'Обновить данные'}
             </Button>
           </div>
         </div>
 
-        {/* Заголовок с целями пользователя на русском языке */}
+        {/* Улучшенный адаптивный блок с целями пользователя */}
         {healthProfile?.healthGoals && healthProfile.healthGoals.length > 0 && (
-          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-6 border border-purple-200">
-            <h2 className="text-xl font-semibold text-gray-900 mb-3">
-              Рекомендации для ваших целей:
-            </h2>
-            <div className="flex flex-wrap gap-2">
+          <div className="bg-gradient-to-r from-purple-50 via-indigo-50 to-blue-50 rounded-2xl p-4 sm:p-6 border border-purple-200 shadow-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-purple-100 rounded-xl">
+                <Target className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
+              </div>
+              <h2 className={`font-semibold text-gray-900 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                Рекомендации для ваших целей
+              </h2>
+            </div>
+            
+            {/* Адаптивная сетка целей */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {healthProfile.healthGoals.map((goal, index) => (
-                <span
+                <div
                   key={index}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800 border border-purple-200"
+                  className="group hover:scale-105 transition-transform duration-200"
                 >
-                  {translateGoal(goal)}
-                </span>
+                  <div className="bg-white/80 backdrop-blur-sm border border-purple-200 rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"></div>
+                      <span className="text-xs sm:text-sm font-medium text-purple-800 uppercase tracking-wide">
+                        Цель
+                      </span>
+                    </div>
+                    <div className={`font-semibold text-gray-900 ${isMobile ? 'text-sm' : 'text-base'} leading-tight`}>
+                      {translateGoal(goal)}
+                    </div>
+                  </div>
+                </div>
               ))}
+            </div>
+
+            {/* Дополнительная информация */}
+            <div className="mt-4 p-3 bg-white/60 rounded-xl border border-purple-100">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-purple-700">
+                <div className="w-1.5 h-1.5 bg-purple-500 rounded-full animate-pulse"></div>
+                <span className="font-medium">
+                  Рекомендации персонализированы под {healthProfile.healthGoals.length} {healthProfile.healthGoals.length === 1 ? 'цель' : 'целей'}
+                </span>
+              </div>
             </div>
           </div>
         )}
