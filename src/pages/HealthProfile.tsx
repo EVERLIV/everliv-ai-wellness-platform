@@ -1,12 +1,12 @@
 
 import React from "react";
-import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
 import HealthProfilePageHeader from "@/components/health-profile/HealthProfilePageHeader";
 import HealthProfileDisplay from "@/components/health-profile/HealthProfileDisplay";
 import StepByStepHealthProfileForm from "@/components/health-profile/StepByStepHealthProfileForm";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { HealthProfileData } from "@/types/healthProfile";
 import { toast } from "sonner";
+import { Heart, Sparkles, Target } from "lucide-react";
 
 const HealthProfile: React.FC = () => {
   const { 
@@ -46,7 +46,6 @@ const HealthProfile: React.FC = () => {
 
   const handleCreateProfile = () => {
     console.log('Creating new profile');
-    // Создаем базовый профиль с минимальными данными
     const defaultProfile: HealthProfileData = {
       age: 25,
       gender: 'male',
@@ -67,65 +66,80 @@ const HealthProfile: React.FC = () => {
 
   if (isLoading) {
     return (
-      <PageLayoutWithHeader
-        headerComponent={<HealthProfilePageHeader />}
-      >
-        <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
-          <p className="text-gray-500">Загрузка профиля здоровья...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+        <HealthProfilePageHeader />
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+              <div className="flex items-center gap-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <p className="text-gray-700 font-medium">Загрузка профиля здоровья...</p>
+              </div>
+            </div>
+          </div>
         </div>
-      </PageLayoutWithHeader>
+      </div>
     );
   }
 
   if (!healthProfile) {
     return (
-      <PageLayoutWithHeader
-        headerComponent={<HealthProfilePageHeader />}
-      >
-        <div className="text-center py-12">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 max-w-md mx-auto">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+        <HealthProfilePageHeader />
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <div className="flex items-center justify-center min-h-[500px]">
+            <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-12 shadow-xl border border-white/20 max-w-lg mx-auto text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Heart className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                Создайте профиль здоровья
+              </h3>
+              <p className="text-gray-600 mb-8 leading-relaxed">
+                Получайте персональные рекомендации и отслеживайте показатели здоровья с помощью умного анализа
+              </p>
+              <div className="flex items-center gap-3 mb-6 text-sm text-gray-500">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-500" />
+                  <span>ИИ анализ</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-blue-500" />
+                  <span>Цели здоровья</span>
+                </div>
+              </div>
+              <button 
+                onClick={handleCreateProfile}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                Создать профиль
+              </button>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Профиль здоровья не найден
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Создайте свой профиль здоровья, чтобы получать персональные рекомендации и отслеживать показатели здоровья
-            </p>
-            <button 
-              onClick={handleCreateProfile}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              Создать профиль
-            </button>
           </div>
         </div>
-      </PageLayoutWithHeader>
+      </div>
     );
   }
 
   return (
-    <PageLayoutWithHeader
-      headerComponent={<HealthProfilePageHeader />}
-    >
-      {isEditMode ? (
-        <StepByStepHealthProfileForm
-          healthProfile={healthProfile}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          onChange={updateHealthProfile}
-        />
-      ) : (
-        <HealthProfileDisplay 
-          healthProfile={healthProfile}
-          onEdit={handleEdit}
-        />
-      )}
-    </PageLayoutWithHeader>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      <HealthProfilePageHeader />
+      <div className="container mx-auto px-4 py-6 max-w-6xl">
+        {isEditMode ? (
+          <StepByStepHealthProfileForm
+            healthProfile={healthProfile}
+            onSave={handleSave}
+            onCancel={handleCancel}
+            onChange={updateHealthProfile}
+          />
+        ) : (
+          <HealthProfileDisplay 
+            healthProfile={healthProfile}
+            onEdit={handleEdit}
+          />
+        )}
+      </div>
+    </div>
   );
 };
 
