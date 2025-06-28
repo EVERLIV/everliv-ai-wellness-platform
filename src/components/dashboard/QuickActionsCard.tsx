@@ -16,16 +16,16 @@ const QuickActionsCard = () => {
       </CardHeader>
       <CardContent className="pt-4">
         <div className="grid grid-cols-2 gap-3">
-          <Link to="/nutrition-diary">
-            <Button variant="outline" className="w-full justify-start">
-              <Apple className="h-4 w-4 mr-2" />
-              Дневник питания
-            </Button>
-          </Link>
           <Link to="/my-recommendations">
             <Button variant="outline" className="w-full justify-start">
               <Star className="h-4 w-4 mr-2" />
               Мои рекомендации
+            </Button>
+          </Link>
+          <Link to="/nutrition-diary">
+            <Button variant="outline" className="w-full justify-start">
+              <Apple className="h-4 w-4 mr-2" />
+              Дневник питания
             </Button>
           </Link>
           <Link to="/profile">

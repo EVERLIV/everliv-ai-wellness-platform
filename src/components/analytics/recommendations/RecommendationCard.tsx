@@ -122,7 +122,26 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
     }
 
     try {
-      const { error } = await supabase
+      // Подготавливаем данные в правильном формате для таблицы personal_recommendations
+      const sourceData = {
+        implementation: recommendation.implementation || {},
+        scientificBasis: recommendation.scientificBasis || '',
+        biohackingLevel: recommendation.biohackingLevel || 'beginner',
+        safetyWarnings: recommendation.safetyWarnings || [],
+        contraindications: recommendation.contraindications || [],
+        evidenceLevel: recommendation.evidenceLevel || 'moderate'
+      };
+
+      console.log('Saving recommendation with data:', {
+        user_id: user.id,
+        title: recommendation.title,
+        description: recommendation.description,
+        category: recommendation.category,
+        priority: recommendation.priority,
+        source_data: sourceData
+      });
+
+      const { data, error } = await supabase
         .from('personal_recommendations')
         .insert({
           user_id: user.id,
@@ -130,25 +149,21 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
           description: recommendation.description,
           category: recommendation.category,
           priority: recommendation.priority,
-          source_data: {
-            implementation: recommendation.implementation,
-            scientificBasis: recommendation.scientificBasis,
-            biohackingLevel: recommendation.biohackingLevel,
-            safetyWarnings: recommendation.safetyWarnings,
-            contraindications: recommendation.contraindications,
-            evidenceLevel: recommendation.evidenceLevel
-          }
-        });
+          source_data: sourceData
+        })
+        .select();
 
       if (error) {
-        console.error('Error saving recommendation:', error);
+        console.error('Supabase error saving recommendation:', error);
         toast({
           title: "Ошибка",
-          description: "Не удалось сохранить рекомендацию. Попробуйте еще раз.",
+          description: `Не удалось сохранить рекомендацию: ${error.message}`,
           variant: "destructive",
         });
         return;
       }
+
+      console.log('Recommendation saved successfully:', data);
       
       toast({
         title: "Рекомендация сохранена",
@@ -158,7 +173,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
       console.error('Error saving recommendation:', error);
       toast({
         title: "Ошибка",
-        description: "Не удалось сохранить рекомендацию. Попробуйте еще раз.",
+        description: "Произошла неожиданная ошибка. Попробуйте еще раз.",
         variant: "destructive",
       });
     }
