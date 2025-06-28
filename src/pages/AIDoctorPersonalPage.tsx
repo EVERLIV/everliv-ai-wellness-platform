@@ -11,7 +11,7 @@ import MinimalFooter from "@/components/MinimalFooter";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MessageSquare, Lock, Info } from "lucide-react";
+import { ArrowLeft, MessageSquare, Lock, Sparkles, Plus } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const AIDoctorPersonalPage = () => {
@@ -30,7 +30,6 @@ const AIDoctorPersonalPage = () => {
   console.log('PersonalPage - User:', user?.email, 'Premium access:', hasPersonalAIDoctorAccess);
 
   useEffect(() => {
-    // Если у пользователя НЕТ премиум доступа, отправляем на страницу выбора
     if (!hasPersonalAIDoctorAccess) {
       navigate("/ai-doctor");
       return;
@@ -96,27 +95,32 @@ const AIDoctorPersonalPage = () => {
     return null;
   }
 
-  // Если нет премиум доступа, показываем сообщение о необходимости подписки
   if (!hasPersonalAIDoctorAccess) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
         <Header />
         
         <div className="flex-grow pt-16 flex items-center justify-center p-4">
-          <Card className="max-w-md mx-auto">
-            <CardContent className="text-center py-12">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Lock className="h-8 w-8 text-gray-400" />
+          <div className="max-w-md mx-auto bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-gray-100">
+            <div className="text-center space-y-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto">
+                <Lock className="h-10 w-10 text-white" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Требуется премиум подписка</h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto text-sm">
-                Для доступа к персональному ИИ-доктору необходима премиум подписка.
-              </p>
-              <Button onClick={() => navigate("/pricing")} className="bg-gradient-to-r from-purple-600 to-amber-500">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">Премиум функция</h3>
+                <p className="text-gray-600 text-base leading-relaxed">
+                  Персональный ИИ-доктор доступен только по премиум подписке
+                </p>
+              </div>
+              <Button 
+                onClick={() => navigate("/pricing")} 
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 h-12 rounded-2xl font-medium transition-all duration-200 transform hover:scale-[1.02]"
+              >
+                <Sparkles className="h-5 w-5 mr-2" />
                 Обновить подписку
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
         
         <MinimalFooter />
@@ -125,68 +129,85 @@ const AIDoctorPersonalPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <Header />
       
-      <div className="flex-grow pt-16 flex flex-col">
-        {/* Header */}
-        <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 border-b border-gray-200">
-          <div className="container mx-auto px-4 py-4 max-w-7xl">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="flex items-center gap-3 w-full sm:w-auto">
+      <div className="flex-grow pt-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Modern Header */}
+          <div className="py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={() => navigate("/dashboard")}
-                  className="flex items-center gap-2 hover:bg-gray-100 px-2 sm:px-3"
+                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-xl px-3 py-2 transition-all duration-200"
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline">Назад к панели</span>
-                  <span className="sm:hidden">Назад</span>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Назад
                 </Button>
                 
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-100 to-amber-200 rounded-xl flex items-center justify-center shadow-sm">
-                    <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                    <Sparkles className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
-                      Премиум ИИ-Доктор EVERLIV
+                    <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                      ИИ-Доктор
                     </h1>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      Персональные консультации с доступом к истории
-                    </p>
+                    <p className="text-gray-600 text-sm">Персональные консультации</p>
                   </div>
                 </div>
               </div>
+
+              {!isMobile && (
+                <div className="flex items-center space-x-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCreateNewChat}
+                    className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-xl px-4 py-2 transition-all duration-200"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Новый чат
+                  </Button>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleShowChatHistory}
+                    className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-xl px-4 py-2 transition-all duration-200"
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    История
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
-        </div>
 
-        {/* Chat Interface */}
-        <div className="flex-1 flex flex-col min-h-0">
-          {showChatHistory ? (
-            <div className="container mx-auto px-4 py-4 max-w-4xl flex-1 flex flex-col">
-              <div className="flex-1 min-h-0">
-                <ChatHistory 
-                  onSelectChat={handleSelectChat}
-                  onCreateNewChat={handleCreateNewChat}
-                  selectedChatId={selectedChatId}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="container mx-auto px-4 py-4 max-w-4xl flex-1 flex flex-col">
-              <div className="flex-1 min-h-0">
+          {/* Chat Interface */}
+          <div className="pb-8">
+            <div className="bg-white/70 backdrop-blur-sm rounded-3xl border border-gray-100 overflow-hidden" style={{ minHeight: '70vh' }}>
+              {showChatHistory ? (
+                <div className="p-6 h-full">
+                  <ChatHistory 
+                    onSelectChat={handleSelectChat}
+                    onCreateNewChat={handleCreateNewChat}
+                    selectedChatId={selectedChatId}
+                  />
+                </div>
+              ) : (
                 <PersonalAIDoctorChatWithId 
                   chatId={selectedChatId}
                   onBack={handleBackToHistory}
                   onCreateNewChat={handleCreateNewChat}
                   onShowChatHistory={handleShowChatHistory}
                 />
-              </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
       
