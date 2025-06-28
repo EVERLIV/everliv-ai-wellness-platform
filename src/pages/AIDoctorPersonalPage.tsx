@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -133,54 +132,54 @@ const AIDoctorPersonalPage = () => {
       <Header />
       
       <div className="flex-grow pt-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-6">
           {/* Modern Header */}
-          <div className="py-6">
+          <div className="py-3 sm:py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={() => navigate("/dashboard")}
-                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-xl px-3 py-2 transition-all duration-200"
+                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 transition-all duration-200 flex-shrink-0"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Назад
+                  <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="text-adaptive-xs sm:text-sm">Назад</span>
                 </Button>
                 
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                    <Sparkles className="h-6 w-6 text-white" />
+                <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
-                  <div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                  <div className="min-w-0">
+                    <h1 className="text-adaptive-lg sm:text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mobile-text-wrap">
                       ИИ-Доктор
                     </h1>
-                    <p className="text-gray-600 text-sm">Персональные консультации</p>
+                    <p className="text-gray-600 text-adaptive-xs sm:text-sm mobile-text-wrap">Персональные консультации</p>
                   </div>
                 </div>
               </div>
 
               {!isMobile && (
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 flex-shrink-0">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleCreateNewChat}
-                    className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-xl px-4 py-2 transition-all duration-200"
+                    className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg px-3 py-2 transition-all duration-200"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Новый чат
+                    <span className="text-sm">Новый чат</span>
                   </Button>
                   
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleShowChatHistory}
-                    className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-xl px-4 py-2 transition-all duration-200"
+                    className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg px-3 py-2 transition-all duration-200"
                   >
                     <MessageSquare className="h-4 w-4 mr-2" />
-                    История
+                    <span className="text-sm">История</span>
                   </Button>
                 </div>
               )}
@@ -188,10 +187,10 @@ const AIDoctorPersonalPage = () => {
           </div>
 
           {/* Chat Interface */}
-          <div className="pb-8">
-            <div className="bg-white/70 backdrop-blur-sm rounded-3xl border border-gray-100 overflow-hidden" style={{ minHeight: '70vh' }}>
+          <div className="pb-4 sm:pb-6">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-gray-100 overflow-hidden min-w-0" style={{ minHeight: isMobile ? '65vh' : '70vh' }}>
               {showChatHistory ? (
-                <div className="p-6 h-full">
+                <div className="p-3 sm:p-4 h-full">
                   <ChatHistory 
                     onSelectChat={handleSelectChat}
                     onCreateNewChat={handleCreateNewChat}

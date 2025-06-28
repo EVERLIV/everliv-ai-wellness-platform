@@ -59,6 +59,45 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
   }
+
+  /* Глобальные правила для предотвращения переполнения текста */
+  * {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
+  }
+
+  /* Адаптивная типографика */
+  .text-adaptive-xs {
+    font-size: clamp(0.65rem, 2.5vw, 0.75rem);
+  }
+
+  .text-adaptive-sm {
+    font-size: clamp(0.75rem, 3vw, 0.875rem);
+  }
+
+  .text-adaptive-base {
+    font-size: clamp(0.875rem, 3.5vw, 1rem);
+  }
+
+  .text-adaptive-lg {
+    font-size: clamp(1rem, 4vw, 1.125rem);
+  }
+
+  /* Контейнеры для предотвращения переполнения */
+  .safe-container {
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  /* Специальные правила для мобильных устройств */
+  @media (max-width: 320px) {
+    .text-xs { font-size: 0.6rem; }
+    .text-sm { font-size: 0.7rem; }
+    .text-base { font-size: 0.8rem; }
+  }
 }
 
 @layer components {
@@ -127,5 +166,24 @@
   .pulse {
     @apply animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite];
   }
-}
 
+  /* Мобильные утилиты для чата */
+  .chat-button-mobile {
+    @apply safe-container text-wrap;
+    text-wrap: balance;
+    line-height: 1.3;
+  }
+
+  .chat-input-mobile {
+    @apply resize-none min-h-0;
+    field-sizing: content;
+  }
+
+  .mobile-text-wrap {
+    @apply safe-container;
+    word-break: break-word;
+    text-wrap: pretty;
+    hyphens: auto;
+    line-height: 1.4;
+  }
+}
