@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from "react";
-import { User, Activity, Brain, Apple, Moon, FileText, Stethoscope, Target, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { User, Activity, Brain, Apple, Moon, FileText, Stethoscope, Target } from "lucide-react";
 import { HealthProfileData } from "@/types/healthProfile";
 import PersonalInfoSection from "./PersonalInfoSection";
 import PhysicalHealthSection from "./PhysicalHealthSection";
@@ -16,6 +16,7 @@ import MobileStepDots from "./MobileStepDots";
 import { StepConfig } from "./types";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface StepByStepHealthProfileFormProps {
   healthProfile: HealthProfileData;
@@ -32,6 +33,7 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
 
+  // Используем useCallback для предотвращения лишних ререндеров
   const handleChange = useCallback((updates: Partial<HealthProfileData>) => {
     console.log('Form change:', updates);
     onChange(updates);
@@ -119,126 +121,53 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
 
   return (
     <div className="space-y-6">
-      {/* Modern Compact Progress Header */}
-      <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/30 shadow-xl p-6">
+      {/* Modern Progress Header */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Настройка профиля
-            </h2>
-            <p className="text-gray-600 text-sm">Шаг {currentStep + 1} из {steps.length}</p>
+            <h2 className="text-2xl font-bold text-gray-900">Профиль здоровья</h2>
+            <p className="text-gray-600">Заполните информацию для персональных рекомендаций</p>
           </div>
-          <Button variant="ghost" size="sm" onClick={onCancel} className="text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+          <Button variant="ghost" size="sm" onClick={onCancel} className="gap-2">
             <X className="h-4 w-4" />
+            <span className="hidden sm:inline">Отмена</span>
           </Button>
         </div>
         
+        {/* Progress bar */}
         <div className="space-y-3">
           <div className="flex justify-between text-sm text-gray-600">
-            <span className="font-medium">{currentStepData.title}</span>
-            <span className="font-semibold text-blue-600">{Math.round(progress)}%</span>
+            <span>Шаг {currentStep + 1} из {steps.length}</span>
+            <span className="font-medium text-blue-600">{Math.round(progress)}%</span>
           </div>
-          <Progress value={progress} className="h-2 bg-gray-200" />
-        </div>
-
-        {/* Step Indicators - Desktop */}
-        <div className="hidden lg:flex justify-between mt-6 px-2">
-          {steps.map((step, index) => (
-            <button
-              key={step.id}
-              onClick={() => handleStepClick(index)}
-              className={`flex flex-col items-center gap-2 p-2 rounded-lg transition-all duration-200 ${
-                index === currentStep 
-                  ? 'text-blue-600 bg-blue-50' 
-                  : index < currentStep 
-                  ? 'text-green-600 bg-green-50' 
-                  : 'text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
-                index === currentStep 
-                  ? 'border-blue-600 bg-blue-600 text-white' 
-                  : index < currentStep 
-                  ? 'border-green-600 bg-green-600 text-white' 
-                  : 'border-gray-300'
-              }`}>
-                <step.icon className="w-5 h-5" />
-              </div>
-              <span className="text-xs font-medium">{step.title}</span>
-            </button>
-          ))}
+          <Progress value={progress} className="h-2" />
         </div>
       </div>
 
       {/* Step Content */}
-      <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/30 shadow-xl overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 p-6 border-b border-white/20">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-              <currentStepData.icon className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">{currentStepData.title}</h3>
-              <p className="text-gray-600">{currentStepData.subtitle}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="p-6">
-          {currentStepData.component}
-        </div>
-      </div>
+      <StepContent
+        title={currentStepData.title}
+        subtitle={currentStepData.subtitle}
+        icon={currentStepData.icon}
+      >
+        {currentStepData.component}
+      </StepContent>
 
-      {/* Navigation Controls */}
-      <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/30 shadow-xl p-6">
-        <div className="flex items-center justify-between gap-4">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={isFirstStep}
-            className="flex items-center gap-2 border-gray-300 hover:bg-gray-50"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Назад
-          </Button>
+      {/* Form Controls */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <FormControls
+          isFirstStep={isFirstStep}
+          isLastStep={isLastStep}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+          onSave={onSave}
+        />
 
-          <div className="flex-1 text-center">
-            <span className="text-sm text-gray-500">
-              {currentStep + 1} / {steps.length}
-            </span>
-          </div>
-
-          {isLastStep ? (
-            <Button onClick={onSave} className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg">
-              Сохранить профиль
-            </Button>
-          ) : (
-            <Button
-              onClick={handleNext}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg flex items-center gap-2"
-            >
-              Далее
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          )}
-        </div>
-
-        {/* Mobile Step Dots */}
-        <div className="flex justify-center gap-2 mt-6 lg:hidden">
-          {steps.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentStep(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                index === currentStep 
-                  ? 'bg-blue-600 scale-125' 
-                  : index < currentStep 
-                  ? 'bg-green-500' 
-                  : 'bg-gray-300 hover:bg-gray-400'
-              }`}
-            />
-          ))}
-        </div>
+        <MobileStepDots
+          currentStep={currentStep}
+          totalSteps={steps.length}
+          onStepClick={handleStepClick}
+        />
       </div>
     </div>
   );
