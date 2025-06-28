@@ -60,7 +60,7 @@ const DashboardQuickActions = () => {
       features: ["Подсчет калорий", "Анализ БЖУ", "Персональные советы"]
     },
     {
-      title: "Аналитика здоровья",
+      title: "Анализ и рекомендации",
       description: "Получайте комплексную аналитику здоровья на основе всех ваших данных с прогнозами и детальными рекомендациями",
       icon: <BarChart3 className="h-8 w-8 text-purple-600" />,
       action: () => navigate("/analytics"),

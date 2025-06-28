@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { useLabAnalysesData } from "@/hooks/useLabAnalysesData";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useProfile } from "@/hooks/useProfile";
 import { 
   User, 
   TrendingUp,
@@ -25,6 +26,7 @@ interface PersonalizedDashboardHeaderProps {
 
 const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = ({ userName }) => {
   const navigate = useNavigate();
+  const { profileData } = useProfile();
   const { healthProfile, isLoading: profileLoading } = useHealthProfile();
   const { statistics, loadingHistory: analysesLoading } = useLabAnalysesData();
   const { isPremiumActive } = useSubscription();
@@ -50,6 +52,9 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
     day: 'numeric',
     month: 'short'
   });
+
+  // Получаем никнейм из профиля как приоритетный вариант
+  const displayName = profileData?.nickname || profileData?.first_name || userName || "Пользователь";
 
   // Перевод целей на русский язык
   const translateGoal = (goal: string): string => {
@@ -81,14 +86,14 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
           <div className="flex items-center gap-2">
             <div className="relative">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg">
-                {userName.charAt(0).toUpperCase()}
+                {displayName.charAt(0).toUpperCase()}
               </div>
               <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border border-white"></div>
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1">
                 <h2 className="text-base font-bold text-gray-900 truncate">
-                  {getGreeting()}, {userName}!
+                  {getGreeting()}, {displayName}!
                 </h2>
                 <Sparkles className="h-3 w-3 text-yellow-500" />
               </div>
@@ -203,7 +208,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
           </div>
         </div>
 
-        {/* Компактные быстрые действия */}
+        {/* Компактные быстрые действия - изменяем название кнопки */}
         <div className="grid grid-cols-2 gap-2">
           <Button 
             variant="outline" 
@@ -221,7 +226,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
             onClick={() => navigate('/analytics')}
           >
             <TrendingUp className="h-3 w-3 mr-1" />
-            Аналитика
+            Анализ и рекомендации
           </Button>
         </div>
       </div>
