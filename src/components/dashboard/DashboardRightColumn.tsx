@@ -4,7 +4,7 @@ import DashboardKeyMetrics from './DashboardKeyMetrics';
 import QuickActionsCard from './header/QuickActionsCard';
 import MyGoalsSection from './health-goals/MyGoalsSection';
 import DashboardChatsList from './DashboardChatsList';
-import NutritionDataCard from './NutritionDataCard';
+import NutritionSummarySection from './NutritionSummarySection';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardRightColumnProps {
@@ -33,7 +33,7 @@ const DashboardRightColumn: React.FC<DashboardRightColumnProps> = ({
       <MyGoalsSection />
       
       {/* Данные питания */}
-      <NutritionDataCard />
+      <NutritionSummarySection />
       
       {/* Чаты с ИИ доктором */}
       <DashboardChatsList />
