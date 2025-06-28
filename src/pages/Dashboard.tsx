@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
 import Header from "@/components/Header";
@@ -60,17 +59,7 @@ const Dashboard = () => {
       <div className="pt-16 flex-1">
         <DashboardLayout
           leftColumn={
-            <div className="space-y-2 sm:space-y-3">
-              <DashboardLeftColumn userName={userName} />
-              
-              {/* На мобильных показываем ключевые метрики в основной колонке */}
-              {isMobile && (
-                <DashboardKeyMetrics 
-                  healthScore={healthScore} 
-                  biologicalAge={biologicalAge} 
-                />
-              )}
-            </div>
+            <DashboardLeftColumn userName={userName} />
           }
           rightColumn={
             <DashboardRightColumn 
