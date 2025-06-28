@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +11,7 @@ interface BiomarkerTrend {
   latestValue: string;
   previousValue: string;
   trend: 'improving' | 'worsening' | 'stable';
-  status: 'optimal' | 'good' | 'attention' | 'risk';
+  status: 'optimal' | 'good' | 'attention' | 'risk' | 'normal' | 'high' | 'low' | 'unknown';
   unit?: string;
   changePercent?: number;
   aiRecommendation?: string;
@@ -135,12 +134,15 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
           const latestNumeric = parseFloat(latest.value);
           const previousNumeric = parseFloat(previous.value);
           
+          // Нормализуем статус к стандартным значениям
+          let normalizedStatus = normalizeStatus(latest.status);
+          
           if (!isNaN(latestNumeric) && !isNaN(previousNumeric) && previousNumeric !== 0) {
             changePercent = ((latestNumeric - previousNumeric) / previousNumeric) * 100;
             
             // Определяем тренд и рекомендации
             if (Math.abs(changePercent) > 5) {
-              if (latest.status === 'optimal' || latest.status === 'good') {
+              if (normalizedStatus === 'optimal' || normalizedStatus === 'good' || normalizedStatus === 'normal') {
                 trend = changePercent > 0 ? 'improving' : 'stable';
                 if (changePercent > 0) {
                   improving++;
@@ -148,7 +150,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
                 } else {
                   stable++;
                 }
-              } else if (latest.status === 'risk' || latest.status === 'attention') {
+              } else if (normalizedStatus === 'risk' || normalizedStatus === 'attention' || normalizedStatus === 'high' || normalizedStatus === 'low') {
                 trend = changePercent < 0 ? 'improving' : 'worsening';
                 isOutOfRange = true;
                 if (changePercent < 0) {
@@ -156,7 +158,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
                   aiRecommendation = 'Положительная тенденция! Рекомендуем консультацию с врачом для контроля.';
                 } else {
                   concerning++;
-                  aiRecommendation = generateAIRecommendation(name, latestNumeric, latest.status);
+                  aiRecommendation = generateAIRecommendation(name, latestNumeric, normalizedStatus);
                 }
               } else {
                 trend = 'stable';
@@ -165,9 +167,9 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
             } else {
               trend = 'stable';
               stable++;
-              if (latest.status === 'risk' || latest.status === 'attention') {
+              if (normalizedStatus === 'risk' || normalizedStatus === 'attention' || normalizedStatus === 'high' || normalizedStatus === 'low') {
                 isOutOfRange = true;
-                aiRecommendation = generateAIRecommendation(name, latestNumeric, latest.status);
+                aiRecommendation = generateAIRecommendation(name, latestNumeric, normalizedStatus);
               }
             }
           } else {
@@ -179,7 +181,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
             latestValue: latest.value,
             previousValue: previous.value,
             trend,
-            status: latest.status as 'optimal' | 'good' | 'attention' | 'risk',
+            status: normalizedStatus,
             unit: latest.unit || '',
             changePercent: Math.abs(changePercent),
             aiRecommendation,
@@ -191,10 +193,11 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
           
           let aiRecommendation = '';
           let isOutOfRange = false;
+          let normalizedStatus = normalizeStatus(marker.status);
           
-          if (marker.status === 'risk' || marker.status === 'attention') {
+          if (normalizedStatus === 'risk' || normalizedStatus === 'attention' || normalizedStatus === 'high' || normalizedStatus === 'low') {
             isOutOfRange = true;
-            aiRecommendation = generateAIRecommendation(marker.name, parseFloat(marker.value), marker.status);
+            aiRecommendation = generateAIRecommendation(marker.name, parseFloat(marker.value), normalizedStatus);
           }
           
           trends.push({
@@ -202,7 +205,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
             latestValue: marker.value,
             previousValue: '-',
             trend: 'stable',
-            status: marker.status as 'optimal' | 'good' | 'attention' | 'risk',
+            status: normalizedStatus,
             unit: marker.unit || '',
             changePercent: 0,
             aiRecommendation,
@@ -221,7 +224,7 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
       // Сортируем по приоритету: сначала проблемные, потом улучшающиеся, потом стабильные
       trends.sort((a, b) => {
         const priorityOrder = { 'worsening': 0, 'improving': 1, 'stable': 2 };
-        const statusOrder = { 'risk': 0, 'attention': 1, 'good': 2, 'optimal': 3 };
+        const statusOrder = { 'risk': 0, 'attention': 1, 'high': 2, 'low': 3, 'good': 4, 'normal': 5, 'optimal': 6 };
         
         if (priorityOrder[a.trend] !== priorityOrder[b.trend]) {
           return priorityOrder[a.trend] - priorityOrder[b.trend];
@@ -239,6 +242,38 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
       setIsLoading(false);
       setIsRefreshing(false);
     }
+  };
+
+  // Функция для нормализации статуса к стандартным значениям
+  const normalizeStatus = (status: string): 'optimal' | 'good' | 'attention' | 'risk' | 'normal' | 'high' | 'low' | 'unknown' => {
+    if (!status) return 'unknown';
+    
+    const statusLower = status.toLowerCase();
+    
+    // Приводим все возможные варианты к стандартным
+    if (statusLower.includes('optimal') || statusLower.includes('отличн') || statusLower.includes('идеальн')) {
+      return 'optimal';
+    }
+    if (statusLower.includes('good') || statusLower.includes('хорош') || statusLower.includes('норм')) {
+      return 'good';
+    }
+    if (statusLower.includes('normal') || statusLower.includes('в норме') || statusLower.includes('нормальн')) {
+      return 'normal';
+    }
+    if (statusLower.includes('attention') || statusLower.includes('внимание') || statusLower.includes('осторожн')) {
+      return 'attention';
+    }
+    if (statusLower.includes('risk') || statusLower.includes('риск') || statusLower.includes('опасн')) {
+      return 'risk';
+    }
+    if (statusLower.includes('high') || statusLower.includes('высок') || statusLower.includes('повышен')) {
+      return 'high';
+    }
+    if (statusLower.includes('low') || statusLower.includes('низк') || statusLower.includes('пониж')) {
+      return 'low';
+    }
+    
+    return 'unknown';
   };
 
   const generateAIRecommendation = (biomarkerName: string, value: number, status: string): string => {
@@ -289,13 +324,18 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'optimal':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
       case 'good':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'normal':
+        return 'bg-green-100 text-green-800 border-green-200';
       case 'attention':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'risk':
         return 'bg-red-100 text-red-800 border-red-200';
+      case 'high':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'low':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -305,8 +345,11 @@ const BiomarkerTrendsOverview: React.FC<BiomarkerTrendsOverviewProps> = ({ trend
     switch (status) {
       case 'optimal': return 'Оптимально';
       case 'good': return 'Хорошо';
+      case 'normal': return 'Норма';
       case 'attention': return 'Внимание';
       case 'risk': return 'Риск';
+      case 'high': return 'Высокий';
+      case 'low': return 'Низкий';
       default: return 'Неизвестно';
     }
   };
