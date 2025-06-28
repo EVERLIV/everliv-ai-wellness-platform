@@ -104,8 +104,7 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
             return {
               ...biomarker,
               value: numericValue,
-              status: 'filled' as const,
-              reference_range: userBiomarker.reference_range || biomarker.normal_range
+              status: 'filled' as const
             };
           }
         }
@@ -187,7 +186,7 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
     try {
       const filledBiomarkers = biomarkers.filter(b => b.status === 'filled');
       
-      // Enhanced biomarker data with user context
+      // Enhanced biomarker data with user context for gender/age-specific recommendations
       const biomarkerData = {
         chronological_age: healthProfile.age,
         gender: healthProfile.gender || 'unknown',
@@ -209,17 +208,26 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
           unit: b.unit,
           normal_range: b.normal_range,
           category: b.category,
-          reference_range: b.reference_range || b.normal_range
+          optimal_value: b.normal_range?.optimal || (b.normal_range ? (b.normal_range.min + b.normal_range.max) / 2 : undefined)
         })),
         analysis_context: {
           total_biomarkers: filledBiomarkers.length,
           accuracy_level: currentAccuracy.level,
           user_age: healthProfile.age,
-          user_gender: healthProfile.gender
+          user_gender: healthProfile.gender,
+          // Add age/gender-specific context for recommendations
+          age_group: healthProfile.age < 30 ? 'young_adult' : 
+                    healthProfile.age < 50 ? 'middle_aged' : 'senior',
+          specific_considerations: {
+            hormonal_changes: healthProfile.gender === 'female' && healthProfile.age > 40 ? 'perimenopause_menopause' :
+                            healthProfile.gender === 'male' && healthProfile.age > 50 ? 'andropause' : 'normal',
+            cardiovascular_risk: healthProfile.age > 40 ? 'increased' : 'standard',
+            metabolic_changes: healthProfile.age > 35 ? 'age_related_decline' : 'standard'
+          }
         }
       };
 
-      console.log('Calculating biological age with enhanced data:', biomarkerData);
+      console.log('Calculating biological age with enhanced gender/age-specific data:', biomarkerData);
 
       const aiResults = await analyzeBiologicalAgeWithOpenAI(biomarkerData);
       
