@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, Save, Heart, Dumbbell, Moon, Brain, Apple, TestTube } from 'lucide-react';
 import { AnalyticsRecommendation } from '@/types/analyticsRecommendations';
 import RecommendationDetails from './RecommendationDetails';
-import { useSecureProtocols } from '@/hooks/useSecureProtocols';
+import { supabase } from '@/integrations/supabase/client';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { toast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -21,7 +21,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   isExpanded,
   onToggleExpanded
 }) => {
-  const { createProtocol } = useSecureProtocols();
+  const { user } = useSmartAuth();
   const isMobile = useIsMobile();
 
   const getCategoryIcon = (category: string) => {
@@ -111,29 +111,51 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
     }
   };
 
-  const handleSaveProtocol = async () => {
-    try {
-      const protocolData = {
-        title: recommendation.title,
-        description: recommendation.description,
-        category: getCategoryName(recommendation.category),
-        difficulty: recommendation.biohackingLevel === 'beginner' ? 'Начальный' : 
-                   recommendation.biohackingLevel === 'intermediate' ? 'Средний' : 'Продвинутый',
-        duration: recommendation.implementation.duration,
-        benefits: [recommendation.description],
-        steps: recommendation.implementation.steps,
-        status: 'not_started',
-        completion_percentage: 0
-      };
+  const handleSaveRecommendation = async () => {
+    if (!user) {
+      toast({
+        title: "Ошибка",
+        description: "Необходимо войти в систему для сохранения рекомендаций",
+        variant: "destructive",
+      });
+      return;
+    }
 
-      await createProtocol(protocolData);
+    try {
+      const { error } = await supabase
+        .from('personal_recommendations')
+        .insert({
+          user_id: user.id,
+          title: recommendation.title,
+          description: recommendation.description,
+          category: recommendation.category,
+          priority: recommendation.priority,
+          source_data: {
+            implementation: recommendation.implementation,
+            scientificBasis: recommendation.scientificBasis,
+            biohackingLevel: recommendation.biohackingLevel,
+            safetyWarnings: recommendation.safetyWarnings,
+            contraindications: recommendation.contraindications,
+            evidenceLevel: recommendation.evidenceLevel
+          }
+        });
+
+      if (error) {
+        console.error('Error saving recommendation:', error);
+        toast({
+          title: "Ошибка",
+          description: "Не удалось сохранить рекомендацию. Попробуйте еще раз.",
+          variant: "destructive",
+        });
+        return;
+      }
       
       toast({
         title: "Рекомендация сохранена",
-        description: "Рекомендация добавлена в ваши протоколы. Перейдите в раздел 'Мои протоколы' для отслеживания прогресса.",
+        description: "Рекомендация добавлена в ваши персональные рекомендации. Перейдите в раздел 'Мои рекомендации' для отслеживания прогресса.",
       });
     } catch (error) {
-      console.error('Error saving protocol:', error);
+      console.error('Error saving recommendation:', error);
       toast({
         title: "Ошибка",
         description: "Не удалось сохранить рекомендацию. Попробуйте еще раз.",
@@ -165,7 +187,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
           </div>
           <div className={`flex items-center gap-2 ${isMobile ? 'w-full justify-between' : 'ml-4'}`}>
             <Button
-              onClick={handleSaveProtocol}
+              onClick={handleSaveRecommendation}
               size={isMobile ? "sm" : "sm"}
               variant="outline"
               className={`flex items-center gap-2 ${isMobile ? 'flex-1' : ''}`}

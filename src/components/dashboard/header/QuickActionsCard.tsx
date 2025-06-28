@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Zap, FileText, BarChart3, ChevronRight, BookOpen } from "lucide-react";
+import { Zap, FileText, BarChart3, ChevronRight, BookOpen, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface QuickActionsCardProps {
@@ -38,8 +38,8 @@ const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ isMobile = false })
               className="w-full justify-start bg-white/80 hover:bg-white border-emerald-200 hover:border-emerald-300 text-emerald-700 shadow-sm"
               onClick={() => navigate('/my-recommendations')}
             >
-              <BookOpen className="h-4 w-4 mr-2" />
-              Рекомендации
+              <Star className="h-4 w-4 mr-2" />
+              Мои рекомендации
             </Button>
           </div>
         </CardContent>
@@ -76,7 +76,7 @@ const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ isMobile = false })
             onClick={() => navigate('/my-recommendations')}
           >
             <div className="flex items-center">
-              <BookOpen className="h-4 w-4 mr-3" />
+              <Star className="h-4 w-4 mr-3" />
               Мои рекомендации
             </div>
             <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />

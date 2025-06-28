@@ -16,13 +16,23 @@ import {
   BookOpen,
   Utensils,
   Stethoscope,
-  Clock
+  Clock,
+  Star
 } from "lucide-react";
 
 const DashboardQuickActions = () => {
   const navigate = useNavigate();
 
   const quickActions = [
+    {
+      title: "Мои рекомендации",
+      description: "Просматривайте и отслеживайте выполнение ваших персональных рекомендаций по здоровью, сохраненных из аналитики",
+      icon: <Star className="h-8 w-8 text-yellow-600" />,
+      action: () => navigate("/my-recommendations"),
+      color: "bg-yellow-50",
+      badge: <Badge className="bg-yellow-600 text-white">Персональное</Badge>,
+      features: ["Сохраненные рекомендации", "Отслеживание прогресса", "Отметки выполнения"]
+    },
     {
       title: "Профиль здоровья",
       description: "Создайте полный профиль здоровья с персональными данными, медицинской историей и результатами анализов",
