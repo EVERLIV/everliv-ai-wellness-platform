@@ -2,6 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Activity, AlertTriangle, Brain } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface BiomarkerTrend {
   name: string;
@@ -13,6 +14,13 @@ interface BiomarkerTrend {
   changePercent?: number;
   aiRecommendation?: string;
   isOutOfRange?: boolean;
+  detailedRecommendations?: {
+    immediateActions: string[];
+    lifestyleChanges: string[];
+    supplementsToConsider: string[];
+    testsToMonitor: string[];
+    warningSignsToWatch: string[];
+  };
 }
 
 interface BiomarkerTrendItemProps {
@@ -20,6 +28,8 @@ interface BiomarkerTrendItemProps {
 }
 
 const BiomarkerTrendItem: React.FC<BiomarkerTrendItemProps> = ({ biomarker }) => {
+  const isMobile = useIsMobile();
+
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'improving':
@@ -76,25 +86,25 @@ const BiomarkerTrendItem: React.FC<BiomarkerTrendItemProps> = ({ biomarker }) =>
     <div 
       className={`relative p-4 rounded-xl border-2 transition-all duration-200 ${getTrendColor(biomarker.trend)} hover:shadow-lg`}
     >
-      <div className="flex items-start justify-between mb-3">
+      <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-start justify-between'} mb-3`}>
         <div className="flex items-center gap-3">
           <div className="p-2 bg-white rounded-lg shadow-sm">
             {getTrendIcon(biomarker.trend)}
           </div>
-          <div>
-            <div className="font-semibold text-gray-900 text-lg">
+          <div className="flex-1">
+            <div className={`font-semibold text-gray-900 ${isMobile ? 'text-base' : 'text-lg'}`}>
               {biomarker.name}
               {biomarker.isOutOfRange && (
                 <AlertTriangle className="inline h-4 w-4 text-orange-500 ml-2" />
               )}
             </div>
-            <div className="text-sm text-gray-600 mt-1">
+            <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600 mt-1`}>
               <span className="font-medium">
                 {biomarker.previousValue} → {biomarker.latestValue}
                 {biomarker.unit && ` ${biomarker.unit}`}
               </span>
               {biomarker.changePercent && biomarker.changePercent > 0 && (
-                <span className="ml-2 text-xs bg-white px-2 py-1 rounded-full">
+                <span className={`ml-2 ${isMobile ? 'text-xs' : 'text-xs'} bg-white px-2 py-1 rounded-full`}>
                   {biomarker.trend === 'improving' ? '+' : ''}
                   {biomarker.changePercent.toFixed(1)}%
                 </span>
@@ -102,7 +112,7 @@ const BiomarkerTrendItem: React.FC<BiomarkerTrendItemProps> = ({ biomarker }) =>
             </div>
           </div>
         </div>
-        <Badge className={`${getStatusColor(biomarker.status)} border text-xs px-3 py-1`}>
+        <Badge className={`${getStatusColor(biomarker.status)} border ${isMobile ? 'text-xs px-2 py-1' : 'text-xs px-3 py-1'} ${isMobile ? 'self-start' : ''}`}>
           {getStatusText(biomarker.status)}
         </Badge>
       </div>
@@ -115,14 +125,99 @@ const BiomarkerTrendItem: React.FC<BiomarkerTrendItemProps> = ({ biomarker }) =>
               <Brain className="h-4 w-4 text-indigo-600" />
             </div>
             <div className="flex-1">
-              <div className="text-xs font-medium text-indigo-800 mb-1">
+              <div className={`${isMobile ? 'text-xs' : 'text-xs'} font-medium text-indigo-800 mb-1`}>
                 ИИ-рекомендация:
               </div>
-              <p className="text-sm text-indigo-700 leading-relaxed">
+              <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-indigo-700 leading-relaxed`}>
                 {biomarker.aiRecommendation}
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Детальные рекомендации */}
+      {biomarker.detailedRecommendations && (
+        <div className="mt-4 space-y-3">
+          {biomarker.detailedRecommendations.immediateActions?.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <h5 className={`font-medium text-red-800 mb-2 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                🚨 Немедленные действия:
+              </h5>
+              <ul className="space-y-1">
+                {biomarker.detailedRecommendations.immediateActions.map((action, idx) => (
+                  <li key={idx} className={`${isMobile ? 'text-xs' : 'text-sm'} text-red-700 flex items-start gap-1`}>
+                    <span className="text-red-500 font-bold">•</span>
+                    <span>{action}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {biomarker.detailedRecommendations.lifestyleChanges?.length > 0 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <h5 className={`font-medium text-blue-800 mb-2 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                🎯 Изменения образа жизни:
+              </h5>
+              <ul className="space-y-1">
+                {biomarker.detailedRecommendations.lifestyleChanges.map((change, idx) => (
+                  <li key={idx} className={`${isMobile ? 'text-xs' : 'text-sm'} text-blue-700 flex items-start gap-1`}>
+                    <span className="text-blue-500 font-bold">•</span>
+                    <span>{change}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {biomarker.detailedRecommendations.supplementsToConsider?.length > 0 && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <h5 className={`font-medium text-green-800 mb-2 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                💊 Рекомендуемые добавки:
+              </h5>
+              <ul className="space-y-1">
+                {biomarker.detailedRecommendations.supplementsToConsider.map((supplement, idx) => (
+                  <li key={idx} className={`${isMobile ? 'text-xs' : 'text-sm'} text-green-700 flex items-start gap-1`}>
+                    <span className="text-green-500 font-bold">•</span>
+                    <span>{supplement}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {biomarker.detailedRecommendations.testsToMonitor?.length > 0 && (
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+              <h5 className={`font-medium text-purple-800 mb-2 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                🔬 Дополнительные анализы:
+              </h5>
+              <ul className="space-y-1">
+                {biomarker.detailedRecommendations.testsToMonitor.map((test, idx) => (
+                  <li key={idx} className={`${isMobile ? 'text-xs' : 'text-sm'} text-purple-700 flex items-start gap-1`}>
+                    <span className="text-purple-500 font-bold">•</span>
+                    <span>{test}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {biomarker.detailedRecommendations.warningSignsToWatch?.length > 0 && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <h5 className={`font-medium text-amber-800 mb-2 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                ⚠️ Тревожные симптомы:
+              </h5>
+              <ul className="space-y-1">
+                {biomarker.detailedRecommendations.warningSignsToWatch.map((sign, idx) => (
+                  <li key={idx} className={`${isMobile ? 'text-xs' : 'text-sm'} text-amber-700 flex items-start gap-1`}>
+                    <span className="text-amber-500 font-bold">•</span>
+                    <span>{sign}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>

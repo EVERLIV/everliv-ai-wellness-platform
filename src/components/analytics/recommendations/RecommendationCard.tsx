@@ -8,6 +8,7 @@ import { AnalyticsRecommendation } from '@/types/analyticsRecommendations';
 import RecommendationDetails from './RecommendationDetails';
 import { useSecureProtocols } from '@/hooks/useSecureProtocols';
 import { toast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface RecommendationCardProps {
   recommendation: AnalyticsRecommendation;
@@ -21,6 +22,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   onToggleExpanded
 }) => {
   const { createProtocol } = useSecureProtocols();
+  const isMobile = useIsMobile();
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -142,10 +144,10 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
 
   return (
     <Card className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
-      <CardHeader className="pb-4">
-        <div className="flex items-start justify-between">
+      <CardHeader className={`${isMobile ? 'pb-3 px-4' : 'pb-4'}`}>
+        <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-start justify-between'}`}>
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
+            <div className={`flex items-center gap-2 mb-2 ${isMobile ? 'flex-wrap' : ''}`}>
               {getCategoryIcon(recommendation.category)}
               <Badge className={`${getCategoryColor(recommendation.category)} border text-xs`}>
                 {getCategoryName(recommendation.category)}
@@ -154,38 +156,38 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
                 {getPriorityText(recommendation.priority)}
               </Badge>
             </div>
-            <CardTitle className="text-lg leading-tight mb-2">
+            <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} leading-tight mb-2`}>
               {recommendation.title}
             </CardTitle>
-            <p className="text-gray-600 text-sm leading-relaxed">
+            <p className={`text-gray-600 ${isMobile ? 'text-sm' : 'text-sm'} leading-relaxed`}>
               {recommendation.description}
             </p>
           </div>
-          <div className="flex items-center gap-2 ml-4">
+          <div className={`flex items-center gap-2 ${isMobile ? 'w-full justify-between' : 'ml-4'}`}>
             <Button
               onClick={handleSaveProtocol}
-              size="sm"
+              size={isMobile ? "sm" : "sm"}
               variant="outline"
-              className="flex items-center gap-2"
+              className={`flex items-center gap-2 ${isMobile ? 'flex-1' : ''}`}
             >
               <Save className="h-4 w-4" />
-              Сохранить
+              {isMobile ? 'Сохранить' : 'Сохранить'}
             </Button>
             <Button
               variant="ghost"
-              size="sm"
+              size={isMobile ? "sm" : "sm"}
               onClick={onToggleExpanded}
-              className="flex items-center gap-1"
+              className={`flex items-center gap-1 ${isMobile ? 'flex-1' : ''}`}
             >
               {isExpanded ? (
                 <>
                   <ChevronUp className="h-4 w-4" />
-                  Свернуть
+                  {isMobile ? 'Скрыть' : 'Свернуть'}
                 </>
               ) : (
                 <>
                   <ChevronDown className="h-4 w-4" />
-                  Подробнее
+                  {isMobile ? 'Детали' : 'Подробнее'}
                 </>
               )}
             </Button>
@@ -194,7 +196,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
       </CardHeader>
 
       {isExpanded && (
-        <CardContent className="pt-0">
+        <CardContent className={`pt-0 ${isMobile ? 'px-4' : ''}`}>
           <RecommendationDetails recommendation={recommendation} />
         </CardContent>
       )}

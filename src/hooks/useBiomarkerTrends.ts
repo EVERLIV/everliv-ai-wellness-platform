@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { normalizeStatus, generateAIRecommendation } from '@/utils/biomarkerTrendsUtils';
+import { generateDetailedBiomarkerRecommendation } from '@/services/ai/biomarker-recommendations';
 
 interface BiomarkerTrend {
   name: string;
@@ -14,6 +15,13 @@ interface BiomarkerTrend {
   changePercent?: number;
   aiRecommendation?: string;
   isOutOfRange?: boolean;
+  detailedRecommendations?: {
+    immediateActions: string[];
+    lifestyleChanges: string[];
+    supplementsToConsider: string[];
+    testsToMonitor: string[];
+    warningSignsToWatch: string[];
+  };
 }
 
 export const useBiomarkerTrends = () => {
@@ -82,7 +90,8 @@ export const useBiomarkerTrends = () => {
       let stable = 0;
       let concerning = 0;
       
-      Object.entries(biomarkerHistory).forEach(([name, markers]) => {
+      // Создаем массив промисов для параллельной обработки
+      const trendPromises = Object.entries(biomarkerHistory).map(async ([name, markers]) => {
         if (markers.length >= 2) {
           markers.sort((a, b) => new Date(b.analysisDate).getTime() - new Date(a.analysisDate).getTime());
           
@@ -93,6 +102,7 @@ export const useBiomarkerTrends = () => {
           let changePercent = 0;
           let aiRecommendation = '';
           let isOutOfRange = false;
+          let detailedRecommendations = undefined;
           
           const latestNumeric = parseFloat(latest.value);
           const previousNumeric = parseFloat(previous.value);
@@ -106,38 +116,54 @@ export const useBiomarkerTrends = () => {
               if (normalizedStatus === 'optimal' || normalizedStatus === 'good' || normalizedStatus === 'normal') {
                 trend = changePercent > 0 ? 'improving' : 'stable';
                 if (changePercent > 0) {
-                  improving++;
                   aiRecommendation = 'Отличная динамика! Продолжайте в том же духе.';
-                } else {
-                  stable++;
                 }
               } else if (normalizedStatus === 'risk' || normalizedStatus === 'attention' || normalizedStatus === 'high' || normalizedStatus === 'low') {
                 trend = changePercent < 0 ? 'improving' : 'worsening';
                 isOutOfRange = true;
                 if (changePercent < 0) {
-                  improving++;
                   aiRecommendation = 'Положительная тенденция! Рекомендуем консультацию с врачом для контроля.';
                 } else {
-                  concerning++;
                   aiRecommendation = generateAIRecommendation(name, latestNumeric, normalizedStatus);
                 }
-              } else {
-                trend = 'stable';
-                stable++;
               }
             } else {
               trend = 'stable';
-              stable++;
               if (normalizedStatus === 'risk' || normalizedStatus === 'attention' || normalizedStatus === 'high' || normalizedStatus === 'low') {
                 isOutOfRange = true;
                 aiRecommendation = generateAIRecommendation(name, latestNumeric, normalizedStatus);
               }
             }
-          } else {
-            stable++;
           }
 
-          trends.push({
+          // Генерируем детальные рекомендации для проблемных биомаркеров
+          if (isOutOfRange || normalizedStatus === 'risk' || normalizedStatus === 'attention') {
+            try {
+              const detailed = await generateDetailedBiomarkerRecommendation({
+                biomarkerName: name,
+                currentValue: latest.value,
+                normalRange: latest.normalRange || 'не указан',
+                status: normalizedStatus as any,
+                userId: user.id,
+                previousValue: previous.value,
+                trend
+              });
+              
+              if (detailed) {
+                detailedRecommendations = {
+                  immediateActions: detailed.immediateActions,
+                  lifestyleChanges: detailed.lifestyleChanges,
+                  supplementsToConsider: detailed.supplementsToConsider,
+                  testsToMonitor: detailed.testsToMonitor,
+                  warningSignsToWatch: detailed.warningSignsToWatch
+                };
+              }
+            } catch (error) {
+              console.error('Error generating detailed recommendations for', name, error);
+            }
+          }
+
+          return {
             name,
             latestValue: latest.value,
             previousValue: previous.value,
@@ -146,33 +172,69 @@ export const useBiomarkerTrends = () => {
             unit: latest.unit || '',
             changePercent: Math.abs(changePercent),
             aiRecommendation,
-            isOutOfRange
-          });
+            isOutOfRange,
+            detailedRecommendations
+          };
         } else if (markers.length === 1) {
           const marker = markers[0];
-          stable++;
-          
           let aiRecommendation = '';
           let isOutOfRange = false;
           let normalizedStatus = normalizeStatus(marker.status);
+          let detailedRecommendations = undefined;
           
           if (normalizedStatus === 'risk' || normalizedStatus === 'attention' || normalizedStatus === 'high' || normalizedStatus === 'low') {
             isOutOfRange = true;
             aiRecommendation = generateAIRecommendation(marker.name, parseFloat(marker.value), normalizedStatus);
+            
+            // Генерируем детальные рекомендации
+            try {
+              const detailed = await generateDetailedBiomarkerRecommendation({
+                biomarkerName: marker.name,
+                currentValue: marker.value,
+                normalRange: marker.normalRange || 'не указан',
+                status: normalizedStatus as any,
+                userId: user.id
+              });
+              
+              if (detailed) {
+                detailedRecommendations = {
+                  immediateActions: detailed.immediateActions,
+                  lifestyleChanges: detailed.lifestyleChanges,
+                  supplementsToConsider: detailed.supplementsToConsider,
+                  testsToMonitor: detailed.testsToMonitor,
+                  warningSignsToWatch: detailed.warningSignsToWatch
+                };
+              }
+            } catch (error) {
+              console.error('Error generating detailed recommendations for', marker.name, error);
+            }
           }
           
-          trends.push({
+          return {
             name,
             latestValue: marker.value,
             previousValue: '-',
-            trend: 'stable',
+            trend: 'stable' as const,
             status: normalizedStatus,
             unit: marker.unit || '',
             changePercent: 0,
             aiRecommendation,
-            isOutOfRange
-          });
+            isOutOfRange,
+            detailedRecommendations
+          };
         }
+        return null;
+      });
+
+      // Ждем выполнения всех промисов
+      const processedTrends = await Promise.all(trendPromises);
+      const validTrends = processedTrends.filter(trend => trend !== null) as BiomarkerTrend[];
+
+      // Подсчитываем статистику
+      validTrends.forEach(trend => {
+        if (trend.trend === 'improving') improving++;
+        else if (trend.trend === 'worsening' || trend.isOutOfRange) concerning++;
+        else stable++;
       });
 
       setRealTrendsData({
@@ -182,7 +244,7 @@ export const useBiomarkerTrends = () => {
         totalBiomarkers: totalMarkers
       });
 
-      trends.sort((a, b) => {
+      validTrends.sort((a, b) => {
         const priorityOrder = { 'worsening': 0, 'improving': 1, 'stable': 2 };
         const statusOrder = { 'risk': 0, 'attention': 1, 'high': 2, 'low': 3, 'good': 4, 'normal': 5, 'optimal': 6 };
         
@@ -193,8 +255,8 @@ export const useBiomarkerTrends = () => {
         return statusOrder[a.status] - statusOrder[b.status];
       });
 
-      setBiomarkerTrends(trends);
-      console.log('Processed trends:', trends.length);
+      setBiomarkerTrends(validTrends);
+      console.log('Processed trends with detailed recommendations:', validTrends.length);
 
     } catch (error) {
       console.error('Error analyzing biomarker trends:', error);
