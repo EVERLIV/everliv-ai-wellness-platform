@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,7 +55,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
   // Получаем никнейм из профиля как приоритетный вариант
   const displayName = profileData?.nickname || profileData?.first_name || userName || "Пользователь";
 
-  // Перевод целей на русский язык
+  // Перевод целей на русский язык - расширенный список
   const translateGoal = (goal: string): string => {
     const translations: Record<string, string> = {
       'cognitive': 'Улучшение когнитивных функций',
@@ -70,7 +69,13 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
       'longevity': 'Увеличение продолжительности жизни',
       'hormonal_balance': 'Гормональный баланс',
       'digestive_health': 'Здоровье пищеварения',
-      'skin_health': 'Здоровье кожи'
+      'skin_health': 'Здоровье кожи',
+      'biological_age': 'Биологический возраст',
+      'metabolic_health': 'Метаболическое здоровье',
+      'bone_health': 'Здоровье костей',
+      'mental_health': 'Психическое здоровье',
+      'detox': 'Детоксикация организма',
+      'athletic_performance': 'Спортивные результаты'
     };
     return translations[goal] || goal;
   };
@@ -208,7 +213,7 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
           </div>
         </div>
 
-        {/* Компактные быстрые действия - изменяем название кнопки */}
+        {/* Компактные быстрые действия */}
         <div className="grid grid-cols-2 gap-2">
           <Button 
             variant="outline" 

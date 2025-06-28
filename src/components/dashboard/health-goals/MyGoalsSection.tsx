@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +10,7 @@ const MyGoalsSection: React.FC = () => {
   const { healthProfile, isLoading } = useHealthProfile();
   const navigate = useNavigate();
 
-  // Перевод целей на русский язык
+  // Перевод целей на русский язык - расширенный список
   const translateGoal = (goal: string): string => {
     const translations: Record<string, string> = {
       'cognitive': 'Улучшение когнитивных функций',
@@ -25,7 +24,13 @@ const MyGoalsSection: React.FC = () => {
       'longevity': 'Увеличение продолжительности жизни',
       'hormonal_balance': 'Гормональный баланс',
       'digestive_health': 'Здоровье пищеварения',
-      'skin_health': 'Здоровье кожи'
+      'skin_health': 'Здоровье кожи',
+      'biological_age': 'Биологический возраст',
+      'metabolic_health': 'Метаболическое здоровье',
+      'bone_health': 'Здоровье костей',
+      'mental_health': 'Психическое здоровье',
+      'detox': 'Детоксикация организма',
+      'athletic_performance': 'Спортивные результаты'
     };
     return translations[goal] || goal;
   };

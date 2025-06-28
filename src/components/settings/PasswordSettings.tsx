@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, EyeOff, Key } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthActions } from '@/hooks/useAuthActions';
+import { toast } from 'sonner';
 
 const PasswordSettings = () => {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -15,7 +16,7 @@ const PasswordSettings = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { updatePassword, isLoading } = useAuth();
+  const { updatePassword, isLoading } = useAuthActions();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,8 +37,11 @@ const PasswordSettings = () => {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      toast.success('Пароль успешно изменен!');
     } catch (error: any) {
+      console.error('Password update error:', error);
       setError(error.message || 'Ошибка при смене пароля');
+      toast.error('Ошибка при смене пароля');
     }
   };
 
@@ -141,7 +145,7 @@ const PasswordSettings = () => {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-everliv-600 hover:bg-everliv-700"
+              className="w-full bg-blue-600 hover:bg-blue-700"
             >
               {isLoading ? 'Сохранение...' : 'Сменить пароль'}
             </Button>
