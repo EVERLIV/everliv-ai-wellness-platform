@@ -6,6 +6,7 @@ import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { useLabAnalysesData } from "@/hooks/useLabAnalysesData";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useProfile } from "@/hooks/useProfile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   User, 
   TrendingUp,
@@ -25,6 +26,7 @@ interface PersonalizedDashboardHeaderProps {
 
 const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = ({ userName }) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { profileData } = useProfile();
   const { healthProfile, isLoading: profileLoading } = useHealthProfile();
   const { statistics, loadingHistory: analysesLoading } = useLabAnalysesData();
@@ -80,15 +82,185 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
     return translations[goal] || goal;
   };
 
-  // Render for users with filled profile
-  const renderFilledProfile = () => {
+  // Мобильная версия с заполненным профилем
+  const renderMobileFilledProfile = () => {
+    const healthGoals = healthProfile?.healthGoals || [];
+    
+    return (
+      <div className="space-y-2 mobile-compact">
+        {/* Компактный заголовок */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center adaptive-gap-sm min-w-0 flex-1">
+            <div className="relative flex-shrink-0">
+              <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+              <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-green-400 rounded-full border border-white"></div>
+            </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-adaptive-sm font-bold text-gray-900 mobile-text-wrap">
+                {getGreeting()}, {displayName}!
+              </h2>
+              <div className="flex items-center adaptive-gap-sm text-adaptive-xs text-gray-500">
+                <Clock className="h-2.5 w-2.5 flex-shrink-0" />
+                <span className="mobile-text-wrap">{currentDate}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 px-1.5 py-0.5 bg-gray-50 rounded text-adaptive-xs flex-shrink-0">
+            {isPremiumActive ? 
+              <Crown className="h-2.5 w-2.5 text-yellow-500" /> : 
+              <CheckCircle className="h-2.5 w-2.5 text-gray-500" />
+            }
+            <span className="font-medium text-gray-600">
+              {isPremiumActive ? 'Pro' : 'Free'}
+            </span>
+          </div>
+        </div>
+
+        {/* Компактные цели */}
+        {healthGoals.length > 0 && (
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-2 border border-purple-100/50">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center adaptive-gap-sm">
+                <Target className="h-3 w-3 text-purple-600 flex-shrink-0" />
+                <span className="text-adaptive-xs font-semibold text-gray-900">Мои цели</span>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="xs"
+                onClick={() => navigate('/health-profile')}
+                className="text-adaptive-xs text-purple-600 hover:text-purple-700 p-1"
+              >
+                Изменить
+              </Button>
+            </div>
+            
+            <div className="space-y-1">
+              {healthGoals.slice(0, 2).map((goal, index) => (
+                <div 
+                  key={index}
+                  className="flex items-center adaptive-gap-sm p-1 bg-white/70 rounded border border-white/50"
+                >
+                  <div className="w-1 h-1 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full flex-shrink-0"></div>
+                  <span className="text-adaptive-xs font-medium text-gray-800 mobile-text-wrap truncate">
+                    {translateGoal(goal)}
+                  </span>
+                </div>
+              ))}
+              
+              {healthGoals.length > 2 && (
+                <Button 
+                  variant="ghost" 
+                  size="xs" 
+                  className="w-full text-adaptive-xs text-purple-600 hover:text-purple-700 p-1"
+                  onClick={() => navigate('/health-profile')}
+                >
+                  +{healthGoals.length - 2} еще
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Компактная статистика */}
+        <div className="grid grid-cols-2 gap-1.5">
+          <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-1.5 rounded border border-emerald-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-adaptive-sm font-bold text-emerald-600">{statistics.totalAnalyses}</div>
+                <div className="text-adaptive-xs text-gray-600">Анализы</div>
+              </div>
+              <FileText className="h-3 w-3 text-emerald-500 flex-shrink-0" />
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-1.5 rounded border border-blue-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-adaptive-sm font-bold text-blue-600">Онлайн</div>
+                <div className="text-adaptive-xs text-gray-600">Статус</div>
+              </div>
+              <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse flex-shrink-0"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Компактные действия */}
+        <div className="grid grid-cols-2 gap-1.5">
+          <Button 
+            variant="outline" 
+            size="xs"
+            className="text-adaptive-xs border-purple-200 text-purple-700 hover:bg-purple-50"
+            onClick={() => navigate('/lab-analyses')}
+          >
+            <FileText className="h-2.5 w-2.5 mr-1 flex-shrink-0" />
+            <span className="mobile-text-wrap">Анализы</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            size="xs" 
+            className="text-adaptive-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+            onClick={() => navigate('/analytics')}
+          >
+            <TrendingUp className="h-2.5 w-2.5 mr-1 flex-shrink-0" />
+            <span className="mobile-text-wrap">Аналитика</span>
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // Мобильная версия для новых пользователей
+  const renderMobileEmptyProfile = () => (
+    <div className="text-center py-3 mobile-compact">
+      <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-2">
+        <User className="h-4 w-4 text-white" />
+      </div>
+      <h2 className="text-adaptive-base font-bold text-gray-900 mb-1 mobile-text-wrap">Начните путь к здоровью!</h2>
+      <p className="text-adaptive-xs text-gray-600 mb-2 mobile-text-wrap">
+        Заполните профиль для персональных рекомендаций
+      </p>
+      
+      <div className="grid grid-cols-3 gap-1 mb-3">
+        <div className="text-center p-1.5 bg-purple-50 rounded">
+          <Target className="h-3 w-3 text-purple-600 mx-auto mb-0.5" />
+          <div className="text-adaptive-xs text-gray-600">Цели</div>
+        </div>
+        <div className="text-center p-1.5 bg-purple-50 rounded">
+          <TrendingUp className="h-3 w-3 text-purple-600 mx-auto mb-0.5" />
+          <div className="text-adaptive-xs text-gray-600">Прогресс</div>
+        </div>
+        <div className="text-center p-1.5 bg-purple-50 rounded">
+          <FileText className="h-3 w-3 text-purple-600 mx-auto mb-0.5" />
+          <div className="text-adaptive-xs text-gray-600">Анализ</div>
+        </div>
+      </div>
+      
+      <Button 
+        size="sm"
+        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-adaptive-xs"
+        onClick={() => navigate('/health-profile')}
+      >
+        <span className="mobile-text-wrap">Заполнить профиль</span>
+        <ChevronRight className="h-3 w-3 ml-1 flex-shrink-0" />
+      </Button>
+    </div>
+  );
+
+  // Десктоп версия (сокращенная для краткости)
+  const renderDesktopVersion = () => {
+    if (!isProfileComplete) {
+      return renderMobileEmptyProfile();
+    }
+    
     const healthGoals = healthProfile?.healthGoals || [];
     
     return (
       <div className="space-y-3">
-        {/* Компактный приветственный блок */}
+        {/* Приветственный блок */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center space-x-3 min-w-0">
             <div className="relative">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg">
                 {displayName.charAt(0).toUpperCase()}
@@ -238,63 +410,31 @@ const PersonalizedDashboardHeader: React.FC<PersonalizedDashboardHeaderProps> = 
     );
   };
 
-  // Render for new users
-  const renderEmptyProfile = () => (
-    <div className="text-center py-4">
-      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-3">
-        <User className="h-6 w-6 text-white" />
-      </div>
-      <h2 className="text-lg font-bold text-gray-900 mb-2">Начните свой путь к здоровью!</h2>
-      <p className="text-sm text-gray-600 mb-3">
-        Заполните профиль здоровья для персональных рекомендаций
-      </p>
-      
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="text-center p-2 bg-purple-50 rounded-lg">
-          <Target className="h-5 w-5 text-purple-600 mx-auto mb-1" />
-          <div className="text-xs text-gray-600">Цели</div>
-        </div>
-        <div className="text-center p-2 bg-purple-50 rounded-lg">
-          <TrendingUp className="h-5 w-5 text-purple-600 mx-auto mb-1" />
-          <div className="text-xs text-gray-600">Прогресс</div>
-        </div>
-        <div className="text-center p-2 bg-purple-50 rounded-lg">
-          <FileText className="h-5 w-5 text-purple-600 mx-auto mb-1" />
-          <div className="text-xs text-gray-600">Анализ</div>
-        </div>
-      </div>
-      
-      <Button 
-        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-        onClick={() => navigate('/health-profile')}
-      >
-        Заполнить профиль здоровья
-        <ChevronRight className="h-4 w-4 ml-1" />
-      </Button>
-    </div>
-  );
-
   if (profileLoading || analysesLoading) {
     return (
-      <div className="animate-pulse space-y-2">
+      <div className={`animate-pulse space-y-2 ${isMobile ? 'mobile-compact' : ''}`}>
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-gray-200 rounded-xl"></div>
+          <div className={`${isMobile ? 'w-6 h-6' : 'w-10 h-10'} bg-gray-200 rounded-xl`}></div>
           <div className="space-y-1 flex-1">
-            <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-2 bg-gray-200 rounded w-1/2"></div>
+            <div className={`${isMobile ? 'h-2' : 'h-3'} bg-gray-200 rounded w-3/4`}></div>
+            <div className={`${isMobile ? 'h-1.5' : 'h-2'} bg-gray-200 rounded w-1/2`}></div>
           </div>
         </div>
-        <div className="h-16 bg-gray-200 rounded-xl"></div>
+        <div className={`${isMobile ? 'h-12' : 'h-16'} bg-gray-200 rounded-xl`}></div>
         <div className="grid grid-cols-2 gap-2">
           {[1, 2].map(i => (
-            <div key={i} className="h-12 bg-gray-200 rounded-lg"></div>
+            <div key={i} className={`${isMobile ? 'h-8' : 'h-12'} bg-gray-200 rounded-lg`}></div>
           ))}
         </div>
       </div>
     );
   }
 
-  return isProfileComplete ? renderFilledProfile() : renderEmptyProfile();
+  if (isMobile) {
+    return isProfileComplete ? renderMobileFilledProfile() : renderMobileEmptyProfile();
+  }
+
+  return renderDesktopVersion();
 };
 
 export default PersonalizedDashboardHeader;

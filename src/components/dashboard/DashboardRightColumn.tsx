@@ -1,8 +1,8 @@
 
-import React from "react";
-import SmartGoalRecommendations from "./SmartGoalRecommendations";
-import DashboardKeyMetrics from "./DashboardKeyMetrics";
-import NutritionSummarySection from "./NutritionSummarySection";
+import React from 'react';
+import DashboardKeyMetrics from './DashboardKeyMetrics';
+import QuickActionsCard from './header/QuickActionsCard';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardRightColumnProps {
   healthScore: number;
@@ -13,20 +13,22 @@ const DashboardRightColumn: React.FC<DashboardRightColumnProps> = ({
   healthScore, 
   biologicalAge 
 }) => {
+  const isMobile = useIsMobile();
+
+  // На мобильных устройствах не отображаем правую колонку отдельно
+  if (isMobile) return null;
+
   return (
-    <div className="space-y-4">
+    <>
       {/* Ключевые показатели */}
       <DashboardKeyMetrics 
         healthScore={healthScore} 
         biologicalAge={biologicalAge} 
       />
-
-      {/* Дневник питания */}
-      <NutritionSummarySection />
-
-      {/* Умные рекомендации */}
-      <SmartGoalRecommendations />
-    </div>
+      
+      {/* Быстрые действия */}
+      <QuickActionsCard />
+    </>
   );
 };
 

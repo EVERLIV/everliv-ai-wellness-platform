@@ -50,6 +50,9 @@
 
   * {
     @apply border-border;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
   }
 
   body {
@@ -60,28 +63,35 @@
     @apply font-heading;
   }
 
-  /* Глобальные правила для предотвращения переполнения текста */
-  * {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    min-width: 0;
-  }
-
-  /* Адаптивная типографика */
+  /* Адаптивная типографика для всех размеров экранов */
   .text-adaptive-xs {
     font-size: clamp(0.65rem, 2.5vw, 0.75rem);
+    line-height: 1.3;
   }
 
   .text-adaptive-sm {
     font-size: clamp(0.75rem, 3vw, 0.875rem);
+    line-height: 1.4;
   }
 
   .text-adaptive-base {
     font-size: clamp(0.875rem, 3.5vw, 1rem);
+    line-height: 1.4;
   }
 
   .text-adaptive-lg {
     font-size: clamp(1rem, 4vw, 1.125rem);
+    line-height: 1.4;
+  }
+
+  .text-adaptive-xl {
+    font-size: clamp(1.125rem, 4.5vw, 1.25rem);
+    line-height: 1.3;
+  }
+
+  .text-adaptive-2xl {
+    font-size: clamp(1.25rem, 5vw, 1.5rem);
+    line-height: 1.3;
   }
 
   /* Контейнеры для предотвращения переполнения */
@@ -92,11 +102,72 @@
     hyphens: auto;
   }
 
-  /* Специальные правила для мобильных устройств */
+  /* Адаптивные отступы */
+  .adaptive-p-sm {
+    padding: clamp(0.5rem, 2vw, 0.75rem);
+  }
+
+  .adaptive-p-md {
+    padding: clamp(0.75rem, 3vw, 1rem);
+  }
+
+  .adaptive-p-lg {
+    padding: clamp(1rem, 4vw, 1.5rem);
+  }
+
+  /* Адаптивные gap-ы */
+  .adaptive-gap-sm {
+    gap: clamp(0.25rem, 1vw, 0.5rem);
+  }
+
+  .adaptive-gap-md {
+    gap: clamp(0.5rem, 2vw, 0.75rem);
+  }
+
+  .adaptive-gap-lg {
+    gap: clamp(0.75rem, 3vw, 1rem);
+  }
+
+  /* Специальные правила для очень маленьких экранов */
   @media (max-width: 320px) {
     .text-xs { font-size: 0.6rem; }
     .text-sm { font-size: 0.7rem; }
     .text-base { font-size: 0.8rem; }
+    
+    /* Компактные отступы для маленьких экранов */
+    .mobile-compact {
+      padding: 0.25rem !important;
+      gap: 0.25rem !important;
+    }
+    
+    .mobile-compact .text-sm {
+      font-size: 0.7rem !important;
+    }
+    
+    .mobile-compact .text-xs {
+      font-size: 0.6rem !important;
+    }
+  }
+
+  /* Правила для средних мобильных экранов */
+  @media (max-width: 480px) {
+    .mobile-optimized {
+      padding: clamp(0.375rem, 2vw, 0.5rem);
+    }
+    
+    .mobile-text-wrap {
+      word-break: break-word;
+      text-wrap: balance;
+      hyphens: auto;
+      line-height: 1.3;
+    }
+  }
+
+  /* Правила для больших мобильных экранов */
+  @media (max-width: 768px) {
+    .tablet-optimized {
+      padding: clamp(0.5rem, 2.5vw, 0.75rem);
+    }
   }
 }
 
@@ -104,7 +175,10 @@
   .btn {
     @apply inline-flex items-center justify-center rounded-md font-medium
     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
-    min-h-[44px] px-5 py-2.5 text-base transition-colors duration-300;
+    transition-colors duration-300 safe-container;
+    min-height: clamp(32px, 8vw, 44px);
+    padding: clamp(0.375rem, 2vw, 0.625rem) clamp(0.75rem, 4vw, 1.25rem);
+    font-size: clamp(0.75rem, 3.5vw, 0.875rem);
   }
   
   .btn-primary {
@@ -120,27 +194,27 @@
   }
 
   .card {
-    @apply bg-white rounded-xl border border-gray-200 shadow-sm;
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm safe-container;
   }
 
   .card-body {
-    @apply p-7;
+    @apply adaptive-p-lg;
   }
 
   .heading-xl {
-    @apply text-3xl md:text-4xl lg:text-5xl font-bold text-secondary font-heading;
+    @apply text-adaptive-2xl font-bold text-secondary font-heading mobile-text-wrap;
   }
 
   .heading-lg {
-    @apply text-2xl md:text-3xl lg:text-4xl font-bold text-secondary font-heading;
+    @apply text-adaptive-xl font-bold text-secondary font-heading mobile-text-wrap;
   }
 
   .heading-md {
-    @apply text-xl md:text-2xl font-bold text-secondary font-heading;
+    @apply text-adaptive-lg font-bold text-secondary font-heading mobile-text-wrap;
   }
 
   .heading-sm {
-    @apply text-lg md:text-xl font-semibold text-secondary font-heading;
+    @apply text-adaptive-base font-semibold text-secondary font-heading mobile-text-wrap;
   }
 
   .hero-gradient {
@@ -152,38 +226,57 @@
   }
 
   .feature-card {
-    @apply bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100;
+    @apply bg-white rounded-xl adaptive-p-md shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 safe-container;
   }
 
   .stat-card {
-    @apply bg-white rounded-xl p-6 shadow-sm border border-gray-100;
+    @apply bg-white rounded-xl adaptive-p-md shadow-sm border border-gray-100 safe-container;
   }
 
   .form-control {
-    @apply flex flex-col space-y-1.5 w-full;
+    @apply flex flex-col adaptive-gap-sm w-full safe-container;
   }
   
   .pulse {
     @apply animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite];
   }
 
-  /* Мобильные утилиты для чата */
-  .chat-button-mobile {
-    @apply safe-container text-wrap;
-    text-wrap: balance;
-    line-height: 1.3;
+  /* Мобильные утилиты для дашборда */
+  .dashboard-mobile {
+    @apply safe-container mobile-text-wrap;
   }
 
-  .chat-input-mobile {
-    @apply resize-none min-h-0;
-    field-sizing: content;
+  .dashboard-card-mobile {
+    @apply dashboard-mobile;
+    padding: clamp(0.5rem, 3vw, 1rem);
+    border-radius: clamp(0.5rem, 2vw, 0.75rem);
   }
 
-  .mobile-text-wrap {
-    @apply safe-container;
-    word-break: break-word;
-    text-wrap: pretty;
-    hyphens: auto;
-    line-height: 1.4;
+  .dashboard-button-mobile {
+    @apply dashboard-mobile;
+    min-height: clamp(28px, 7vw, 36px);
+    padding: clamp(0.25rem, 1.5vw, 0.5rem) clamp(0.5rem, 3vw, 0.75rem);
+    font-size: clamp(0.7rem, 3vw, 0.875rem);
+  }
+
+  .dashboard-grid-mobile {
+    @apply grid;
+    grid-template-columns: repeat(auto-fit, minmax(clamp(120px, 30vw, 200px), 1fr));
+    gap: clamp(0.375rem, 2vw, 0.75rem);
+  }
+
+  /* Утилиты для текста в кнопках и бейджах */
+  .button-text-mobile {
+    @apply mobile-text-wrap;
+    font-size: clamp(0.65rem, 2.8vw, 0.875rem);
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .badge-text-mobile {
+    @apply mobile-text-wrap;
+    font-size: clamp(0.6rem, 2.5vw, 0.75rem);
+    line-height: 1.1;
+    padding: clamp(0.125rem, 0.5vw, 0.25rem) clamp(0.25rem, 1vw, 0.5rem);
   }
 }
