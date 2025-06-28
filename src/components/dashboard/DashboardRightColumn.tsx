@@ -1,6 +1,8 @@
 
 import React from "react";
 import SmartGoalRecommendations from "./SmartGoalRecommendations";
+import DashboardKeyMetrics from "./DashboardKeyMetrics";
+import NutritionSummarySection from "./NutritionSummarySection";
 
 interface DashboardRightColumnProps {
   healthScore: number;
@@ -13,6 +15,15 @@ const DashboardRightColumn: React.FC<DashboardRightColumnProps> = ({
 }) => {
   return (
     <div className="space-y-4">
+      {/* Ключевые показатели */}
+      <DashboardKeyMetrics 
+        healthScore={healthScore} 
+        biologicalAge={biologicalAge} 
+      />
+
+      {/* Дневник питания */}
+      <NutritionSummarySection />
+
       {/* Умные рекомендации */}
       <SmartGoalRecommendations />
     </div>
