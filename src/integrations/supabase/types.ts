@@ -1304,11 +1304,16 @@ export type Database = {
       }
       user_health_goals: {
         Row: {
+          category: string | null
           created_at: string
+          description: string | null
           end_date: string | null
           goal_type: string
           id: string
           is_active: boolean
+          is_custom: boolean | null
+          priority: string | null
+          progress_percentage: number | null
           start_date: string
           target_exercise_minutes: number | null
           target_sleep_hours: number | null
@@ -1316,15 +1321,22 @@ export type Database = {
           target_stress_level: number | null
           target_water_intake: number | null
           target_weight: number | null
+          title: string | null
+          unit: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          category?: string | null
           created_at?: string
+          description?: string | null
           end_date?: string | null
           goal_type?: string
           id?: string
           is_active?: boolean
+          is_custom?: boolean | null
+          priority?: string | null
+          progress_percentage?: number | null
           start_date?: string
           target_exercise_minutes?: number | null
           target_sleep_hours?: number | null
@@ -1332,15 +1344,22 @@ export type Database = {
           target_stress_level?: number | null
           target_water_intake?: number | null
           target_weight?: number | null
+          title?: string | null
+          unit?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          category?: string | null
           created_at?: string
+          description?: string | null
           end_date?: string | null
           goal_type?: string
           id?: string
           is_active?: boolean
+          is_custom?: boolean | null
+          priority?: string | null
+          progress_percentage?: number | null
           start_date?: string
           target_exercise_minutes?: number | null
           target_sleep_hours?: number | null
@@ -1348,6 +1367,8 @@ export type Database = {
           target_stress_level?: number | null
           target_water_intake?: number | null
           target_weight?: number | null
+          title?: string | null
+          unit?: string | null
           updated_at?: string
           user_id?: string
         }
