@@ -47,7 +47,7 @@ export const healthProfileService = {
 
       if (data?.profile_data) {
         console.log('✅ Health profile loaded successfully');
-        return data.profile_data as HealthProfileData;
+        return data.profile_data as unknown as HealthProfileData;
       }
 
       console.log('📭 No health profile found for user');
