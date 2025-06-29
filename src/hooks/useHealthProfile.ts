@@ -1,36 +1,48 @@
 
 import { useState, useEffect } from "react";
-import { useSmartAuth } from "@/hooks/useSmartAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { HealthProfileData } from "@/types/healthProfile";
 import { healthProfileService } from "@/services/healthProfileService";
 import { labResultsProcessor } from "@/utils/labResultsProcessor";
 import { toast } from "sonner";
 
 export const useHealthProfile = () => {
-  const { user } = useSmartAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [healthProfile, setHealthProfile] = useState<HealthProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditMode, setEditMode] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchHealthProfile = async () => {
-      if (!user) {
-        console.log('No user found, clearing profile');
-        setHealthProfile(null);
-        setIsLoading(false);
+      // Ждем завершения проверки аутентификации
+      if (authLoading) {
+        console.log('🔄 Waiting for auth to complete...');
         return;
       }
 
-      console.log('Fetching health profile for user:', user.id);
+      if (!user) {
+        console.log('❌ No authenticated user found');
+        setHealthProfile(null);
+        setIsLoading(false);
+        setError('Пользователь не авторизован');
+        return;
+      }
+
+      console.log('✅ User authenticated, fetching health profile for:', user.id);
 
       try {
         setIsLoading(true);
+        setError(null);
+        
         const profile = await healthProfileService.fetchHealthProfile(user.id);
-        console.log('Health profile fetched:', profile);
+        console.log('📊 Health profile fetched:', profile ? 'Found' : 'Not found');
+        
         setHealthProfile(profile);
       } catch (error) {
-        console.error('Error fetching health profile:', error);
+        console.error('❌ Error fetching health profile:', error);
         setHealthProfile(null);
+        setError('Ошибка при загрузке профиля здоровья');
         toast.error('Ошибка при загрузке профиля здоровья');
       } finally {
         setIsLoading(false);
@@ -38,10 +50,10 @@ export const useHealthProfile = () => {
     };
 
     fetchHealthProfile();
-  }, [user]);
+  }, [user, authLoading]);
 
   const updateHealthProfile = (updates: Partial<HealthProfileData>) => {
-    console.log('Updating health profile with:', updates);
+    console.log('🔄 Updating health profile with:', updates);
     if (healthProfile) {
       const updatedProfile = { ...healthProfile, ...updates };
       setHealthProfile(updatedProfile);
@@ -67,30 +79,33 @@ export const useHealthProfile = () => {
 
   const saveHealthProfile = async () => {
     if (!user) {
-      console.error('Cannot save: no user logged in');
+      console.error('❌ Cannot save: no user logged in');
+      setError('Вы не авторизованы');
       toast.error('Вы не авторизованы');
       return false;
     }
 
     if (!healthProfile) {
-      console.error('Cannot save: no health profile data');
+      console.error('❌ Cannot save: no health profile data');
+      setError('Нет данных для сохранения');
       toast.error('Нет данных для сохранения');
       return false;
     }
 
-    console.log('Attempting to save health profile for user:', user.id);
-    console.log('Health profile data:', healthProfile);
+    console.log('💾 Attempting to save health profile for user:', user.id);
     
     try {
+      setError(null);
       const success = await healthProfileService.saveHealthProfile(healthProfile);
       if (success) {
         setEditMode(false);
-        console.log('Health profile saved successfully, exiting edit mode');
+        console.log('✅ Health profile saved successfully');
         toast.success('Профиль здоровья успешно сохранен');
       }
       return success;
     } catch (error) {
-      console.error('Error in saveHealthProfile:', error);
+      console.error('❌ Error in saveHealthProfile:', error);
+      setError('Ошибка при сохранении профиля');
       toast.error('Ошибка при сохранении профиля');
       return false;
     }
@@ -106,7 +121,8 @@ export const useHealthProfile = () => {
 
   return { 
     healthProfile, 
-    isLoading, 
+    isLoading: isLoading || authLoading, 
+    error,
     setHealthProfile,
     isEditMode,
     setEditMode,

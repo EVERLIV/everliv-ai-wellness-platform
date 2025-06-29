@@ -12,6 +12,7 @@ const HealthProfile: React.FC = () => {
   const { 
     healthProfile, 
     isLoading, 
+    error,
     isEditMode, 
     updateHealthProfile, 
     saveHealthProfile, 
@@ -19,33 +20,33 @@ const HealthProfile: React.FC = () => {
   } = useHealthProfile();
 
   const handleEdit = () => {
-    console.log('Entering edit mode');
+    console.log('✏️ Entering edit mode');
     setEditMode(true);
   };
 
   const handleSave = async () => {
-    console.log('Save button clicked');
+    console.log('💾 Save button clicked');
     try {
       const success = await saveHealthProfile();
       if (success) {
-        console.log('Profile saved successfully');
+        console.log('✅ Profile saved successfully');
         toast.success('Профиль здоровья сохранен');
       } else {
-        console.log('Profile save failed');
+        console.log('❌ Profile save failed');
       }
     } catch (error) {
-      console.error('Error saving profile:', error);
+      console.error('❌ Error saving profile:', error);
       toast.error('Ошибка при сохранении профиля');
     }
   };
 
   const handleCancel = () => {
-    console.log('Cancel button clicked, exiting edit mode');
+    console.log('❌ Cancel button clicked, exiting edit mode');
     setEditMode(false);
   };
 
   const handleCreateProfile = () => {
-    console.log('Creating new profile');
+    console.log('➕ Creating new profile');
     // Создаем базовый профиль с минимальными данными
     const defaultProfile: HealthProfileData = {
       age: 25,
@@ -73,6 +74,36 @@ const HealthProfile: React.FC = () => {
         <div className="text-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
           <p className="text-gray-500">Загрузка профиля здоровья...</p>
+        </div>
+      </PageLayoutWithHeader>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageLayoutWithHeader
+        headerComponent={<HealthProfilePageHeader />}
+      >
+        <div className="text-center py-12">
+          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-8 max-w-md mx-auto">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Ошибка загрузки профиля
+            </h3>
+            <p className="text-gray-600 mb-6">
+              {error}
+            </p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium"
+            >
+              Попробовать снова
+            </button>
+          </div>
         </div>
       </PageLayoutWithHeader>
     );
