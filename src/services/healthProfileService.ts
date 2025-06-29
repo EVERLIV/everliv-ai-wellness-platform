@@ -47,7 +47,7 @@ export const healthProfileService = {
 
       if (data?.profile_data) {
         console.log('✅ Health profile loaded successfully');
-        return data.profile_data as unknown as HealthProfileData;
+        return data.profile_data as HealthProfileData;
       }
 
       console.log('📭 No health profile found for user');
@@ -91,7 +91,7 @@ export const healthProfileService = {
 
       const profilePayload = {
         user_id: userId,
-        profile_data: healthProfile as unknown as any,
+        profile_data: healthProfile as any, // Cast to any to satisfy Supabase Json type
         updated_at: new Date().toISOString()
       };
 
@@ -116,7 +116,7 @@ export const healthProfileService = {
           // Попробуем обновить существующую запись
           const { error: updateError } = await supabase
             .from('health_profiles')
-            .update({ profile_data: healthProfile })
+            .update({ profile_data: healthProfile as any })
             .eq('user_id', userId);
             
           if (updateError) {
