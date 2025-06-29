@@ -24,10 +24,30 @@ export const useAuthState = () => {
     console.log('Auth provider mounted, checking session...');
     let mounted = true;
     
+    // Clear any invalid tokens before starting
+    const clearInvalidTokens = () => {
+      try {
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+          if (key.startsWith('sb-') && key.includes('auth-token')) {
+            const token = localStorage.getItem(key);
+            if (token && (token.includes('w435bqce2tys') || token.length < 10)) {
+              console.log('Clearing invalid token during auth state:', key);
+              localStorage.removeItem(key);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error clearing invalid tokens:', error);
+      }
+    };
+
+    clearInvalidTokens();
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event);
+        console.log('Auth state changed:', event, session ? 'Session present' : 'No session');
         
         if (!mounted) return;
         
@@ -48,15 +68,23 @@ export const useAuthState = () => {
           setAuthState(prev => ({ ...prev, isLoading: false }));
           handlePasswordRecoveryNavigation();
         } else if (event === 'INITIAL_SESSION') {
-          // Don't redirect if we already have a session and user is browsing admin pages
+          setAuthState(prev => ({ ...prev, isLoading: false }));
+        } else if (event === 'TOKEN_REFRESHED') {
+          console.log('Token refreshed successfully');
           setAuthState(prev => ({ ...prev, isLoading: false }));
         }
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (!mounted) return;
+      
+      if (error) {
+        console.error('Error getting session:', error);
+        // Clear potentially corrupted session data
+        clearInvalidTokens();
+      }
       
       console.log('Initial session check:', session ? 'Session found' : 'No session');
       setAuthState(prev => ({
@@ -68,6 +96,15 @@ export const useAuthState = () => {
       }));
       
       handleInitialSessionNavigation(session, authState.isInitialized);
+    }).catch(error => {
+      console.error('Failed to get session:', error);
+      setAuthState(prev => ({
+        ...prev,
+        session: null,
+        user: null,
+        isLoading: false,
+        isInitialized: true,
+      }));
     });
 
     return () => {

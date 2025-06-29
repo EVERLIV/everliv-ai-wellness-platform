@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -22,13 +21,27 @@ export const useAuthActions = () => {
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Magic link error details:', error);
+        throw error;
+      }
       
       toast.success('Магическая ссылка отправлена на вашу почту! Проверьте входящие сообщения.');
       return Promise.resolve();
     } catch (error: any) {
       console.error('Magic link error:', error);
-      toast.error(error.message || 'Ошибка отправки ссылки');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Ошибка отправки ссылки';
+      if (error.message?.includes('fetch')) {
+        errorMessage = 'Проблема с подключением к серверу';
+      } else if (error.message?.includes('Invalid')) {
+        errorMessage = 'Неверные данные для входа';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setIsLoading(false);
@@ -45,13 +58,28 @@ export const useAuthActions = () => {
         password: password,
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Password login error details:', error);
+        throw error;
+      }
       
+      console.log('Login successful:', data);
       toast.success('Успешный вход в систему!');
       return Promise.resolve();
     } catch (error: any) {
       console.error('Password login error:', error);
-      toast.error(error.message || 'Ошибка входа');
+      
+      // Provide more specific error messages
+      let errorMessage = 'Ошибка входа';
+      if (error.message?.includes('fetch')) {
+        errorMessage = 'Проблема с подключением к серверу';
+      } else if (error.message?.includes('Invalid login credentials')) {
+        errorMessage = 'Неверный email или пароль';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setIsLoading(false);
@@ -124,14 +152,12 @@ export const useAuthActions = () => {
       
       console.log('Reset password redirect URL:', redirectUrl);
       
-      // Сначала вызываем стандартный метод Supabase
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
       });
       
       if (error) throw error;
       
-      // Затем отправляем кастомный email с правильной ссылкой
       try {
         await supabase.functions.invoke('send-password-reset', {
           body: {
@@ -142,7 +168,6 @@ export const useAuthActions = () => {
         console.log('Custom password reset email sent successfully');
       } catch (emailError) {
         console.error('Failed to send custom email:', emailError);
-        // Не прерываем процесс, если кастомный email не отправился
       }
       
       console.log('Password reset email sent successfully');
@@ -182,11 +207,38 @@ export const useAuthActions = () => {
   const signOut = async () => {
     try {
       setIsLoading(true);
+      console.log('Signing out user');
+      
+      // Clear any cached tokens before signing out
+      try {
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+          if (key.startsWith('sb-') && key.includes('auth-token')) {
+            localStorage.removeItem(key);
+          }
+        });
+      } catch (error) {
+        console.error('Error clearing tokens:', error);
+      }
+      
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      if (error) {
+        console.error('Sign out error:', error);
+        throw error;
+      }
+      
+      console.log('Sign out successful');
     } catch (error: any) {
       console.error('Sign out error:', error);
-      toast.error(error.message || 'Ошибка выхода из системы');
+      
+      let errorMessage = 'Ошибка выхода из системы';
+      if (error.message?.includes('fetch')) {
+        errorMessage = 'Проблема с подключением к серверу';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
