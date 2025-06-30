@@ -3,7 +3,7 @@ import React from "react";
 import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
 import HealthProfilePageHeader from "@/components/health-profile/HealthProfilePageHeader";
 import HealthProfileDisplay from "@/components/health-profile/HealthProfileDisplay";
-import MinimalHealthProfileForm from "@/components/health-profile/MinimalHealthProfileForm";
+import StepByStepHealthProfileForm from "@/components/health-profile/StepByStepHealthProfileForm";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { HealthProfileData } from "@/types/healthProfile";
 import { toast } from "sonner";
@@ -171,7 +171,7 @@ const HealthProfile: React.FC = () => {
 
   if (isEditMode) {
     return (
-      <MinimalHealthProfileForm
+      <StepByStepHealthProfileForm
         healthProfile={healthProfile}
         onSave={handleSave}
         onCancel={handleCancel}
