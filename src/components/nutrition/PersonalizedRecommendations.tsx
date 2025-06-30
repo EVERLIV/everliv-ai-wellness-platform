@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Sparkles, Apple, Pill, ChefHat, AlertCircle } from 'lucide-react';
+import { Loader2, Sparkles, Apple, Pill, ChefHat, AlertCircle, BookOpen } from 'lucide-react';
 import { usePersonalizedRecommendations } from '@/hooks/usePersonalizedRecommendations';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useNutritionGoals } from '@/hooks/useNutritionGoals';
@@ -56,8 +56,13 @@ const PersonalizedRecommendations: React.FC = () => {
 
     const currentIntake = getDailyTotals();
     
-    // Конвертируем данные из health profile в формат, ожидаемый функцией
+    // Создаем профиль данных с правильной типизацией
     const profileData = {
+      id: healthProfile.id || '',
+      first_name: user?.user_metadata?.first_name || '',
+      last_name: user?.user_metadata?.last_name || '',
+      nickname: user?.user_metadata?.nickname || '',
+      date_of_birth: healthProfile.date_of_birth || null,
       age: healthProfile.age,
       gender: healthProfile.gender,
       height: healthProfile.height,
@@ -137,9 +142,6 @@ const PersonalizedRecommendations: React.FC = () => {
           <p className="mobile-text-body text-blue-700 mb-4">
             Укажите основные данные в профиле здоровья (рост, вес, пол) для получения персональных рекомендаций.
           </p>
-          <div className="text-xs text-blue-600 mb-4 p-2 bg-blue-100 rounded">
-            Отладка: Рост: {healthProfile?.height || 'нет'}, Вес: {healthProfile?.weight || 'нет'}, Пол: {healthProfile?.gender || 'нет'}
-          </div>
           <Button 
             onClick={() => window.location.href = '/health-profile'} 
             variant="outline"
@@ -163,7 +165,7 @@ const PersonalizedRecommendations: React.FC = () => {
         </CardHeader>
         <CardContent className="mobile-card-content">
           <p className="mobile-text-body text-purple-700 mb-4">
-            Установите цели по калориям и БЖУ для получения персональных рекомендаций.
+            Установите цели по калориям и макронутриентам для получения персональных рекомендаций.
           </p>
           <Button 
             onClick={() => window.location.href = '/nutrition-diary?tab=goals'} 
@@ -178,174 +180,200 @@ const PersonalizedRecommendations: React.FC = () => {
   }
 
   return (
-    <Card className="mobile-card">
-      <CardHeader className="mobile-card-header">
-        <CardTitle className="mobile-heading-secondary flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-purple-600" />
-          Персональные рекомендации
-          <Badge className="mobile-badge bg-purple-100 text-purple-800">Премиум</Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="mobile-card-content">
-        {!hasGenerated && !recommendations && (
-          <div className="text-center py-6">
-            <p className="mobile-text-body text-gray-600 mb-4">
-              Получите персональные рекомендации на основе вашего профиля здоровья и целей питания
-            </p>
-            <div className="text-xs text-gray-500 mb-4 p-2 bg-gray-50 rounded">
-              Данные профиля: рост {healthProfile?.height}см, вес {healthProfile?.weight}кг, пол {healthProfile?.gender}
-              {healthProfile?.allergies && healthProfile.allergies.length > 0 && (
-                <div>Аллергии: {healthProfile.allergies.join(', ')}</div>
-              )}
-              {healthProfile?.medications && healthProfile.medications.length > 0 && (
-                <div>Лекарства: {healthProfile.medications.join(', ')}</div>
-              )}
-              {healthProfile?.chronicConditions && healthProfile.chronicConditions.length > 0 && (
-                <div>Хронические заболевания: {healthProfile.chronicConditions.join(', ')}</div>
-              )}
-            </div>
-            <Button 
-              onClick={handleGenerateRecommendations}
-              disabled={isLoading || !canGenerateRecommendations}
-              className="mobile-button bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Генерируем рекомендации...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Получить рекомендации
-                </>
-              )}
-            </Button>
-          </div>
-        )}
-
-        {isLoading && (
-          <div className="text-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-purple-600" />
-            <p className="mobile-text-body text-gray-600">
-              Анализируем ваш профиль здоровья и генерируем персональные рекомендации...
-            </p>
-          </div>
-        )}
-
-        {recommendations && (
-          <div className="mobile-content-spacing">
-            {/* Продукты */}
-            {recommendations.foods && recommendations.foods.length > 0 && (
-              <div className="mb-6">
-                <h3 className="mobile-heading-secondary flex items-center gap-2 mb-4">
-                  <Apple className="h-5 w-5 text-green-600" />
-                  Рекомендуемые продукты
-                </h3>
-                <div className="space-y-3">
-                  {recommendations.foods.slice(0, 5).map((food, index) => (
-                    <Card key={index} className="mobile-card">
-                      <CardContent className="mobile-card-content">
-                        <div className="mobile-flex-header">
-                          <div className="flex-1 min-w-0">
-                            <h4 className="mobile-text-body font-medium text-gray-900">{food.name}</h4>
-                            <p className="mobile-text-small text-gray-600 mt-1">{food.reason}</p>
-                            <p className="mobile-text-small text-gray-500 mt-2">
-                              Порция: {food.portion}
-                            </p>
-                          </div>
-                          <div className="text-right mobile-text-small ml-4">
-                            <p className="font-medium">{food.calories} ккал</p>
-                            <p className="text-gray-500 mt-1">
-                              Б: {food.protein}г
-                            </p>
-                            <p className="text-gray-500">
-                              Ж: {food.fat}г
-                            </p>
-                            <p className="text-gray-500">
-                              У: {food.carbs}г
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Добавки */}
-            {recommendations.supplements && recommendations.supplements.length > 0 && (
-              <div className="mb-6">
-                <h3 className="mobile-heading-secondary flex items-center gap-2 mb-4">
-                  <Pill className="h-5 w-5 text-blue-600" />
-                  Рекомендуемые добавки
-                </h3>
-                <div className="space-y-3">
-                  {recommendations.supplements.slice(0, 4).map((supplement, index) => (
-                    <Card key={index} className="mobile-card">
-                      <CardContent className="mobile-card-content">
-                        <h4 className="mobile-text-body font-medium text-gray-900">{supplement.name}</h4>
-                        <p className="mobile-text-small text-gray-600 mt-1">{supplement.benefit}</p>
-                        <div className="mobile-flex-header mt-3">
-                          <Badge variant="outline" className="mobile-badge-sm">
-                            {supplement.dosage}
-                          </Badge>
-                          <span className="mobile-text-small text-gray-500">
-                            {supplement.timing}
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* План питания */}
-            {recommendations.mealPlan && recommendations.mealPlan.length > 0 && (
-              <div className="mb-6">
-                <h3 className="mobile-heading-secondary flex items-center gap-2 mb-4">
-                  <ChefHat className="h-5 w-5 text-orange-600" />
-                  План питания
-                </h3>
-                <div className="space-y-3">
-                  {recommendations.mealPlan.map((meal, index) => (
-                    <Card key={index} className="mobile-card">
-                      <CardContent className="mobile-card-content">
-                        <h4 className="mobile-text-body font-medium text-gray-900 mb-3">
-                          {meal.mealType}
-                        </h4>
-                        <ul className="mobile-text-small text-gray-600 space-y-1">
-                          {meal.foods.map((food, foodIndex) => (
-                            <li key={foodIndex} className="flex items-start gap-2">
-                              <span className="text-primary">•</span>
-                              <span>{food}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="pt-4">
+    <div className="space-y-6">
+      <Card className="mobile-card">
+        <CardHeader className="mobile-card-header">
+          <CardTitle className="mobile-heading-secondary flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-purple-600" />
+            Персональные рекомендации
+            <Badge className="mobile-badge bg-purple-100 text-purple-800">Премиум</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="mobile-card-content">
+          {!hasGenerated && !recommendations && (
+            <div className="text-center py-6">
+              <p className="mobile-text-body text-gray-600 mb-4">
+                Получите персональные рекомендации на основе вашего профиля здоровья и целей питания
+              </p>
               <Button 
                 onClick={handleGenerateRecommendations}
-                disabled={isLoading}
-                variant="outline"
-                className="mobile-button w-full"
+                disabled={isLoading || !canGenerateRecommendations}
+                className="mobile-button bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
               >
-                <Sparkles className="mr-2 h-4 w-4" />
-                Обновить рекомендации
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Генерируем рекомендации...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Получить рекомендации
+                  </>
+                )}
               </Button>
             </div>
+          )}
+
+          {isLoading && (
+            <div className="text-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-purple-600" />
+              <p className="mobile-text-body text-gray-600">
+                Анализируем ваш профиль здоровья и генерируем персональные рекомендации...
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {recommendations && (
+        <div className="space-y-6">
+          {/* Продукты */}
+          {recommendations.foods && recommendations.foods.length > 0 && (
+            <Card className="mobile-card">
+              <CardHeader className="mobile-card-header">
+                <CardTitle className="mobile-heading-secondary flex items-center gap-2">
+                  <Apple className="h-5 w-5 text-green-600" />
+                  Рекомендуемые продукты
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="mobile-card-content">
+                <div className="space-y-4">
+                  {recommendations.foods.slice(0, 5).map((food, index) => (
+                    <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="mobile-text-body font-medium text-gray-900 mb-2">{food.name}</h4>
+                          <p className="mobile-text-small text-gray-600 mb-2">{food.reason}</p>
+                          <p className="mobile-text-small text-gray-500">
+                            Порция: {food.portion}
+                          </p>
+                        </div>
+                        <div className="text-right mobile-text-small ml-4">
+                          <p className="font-medium mb-1">{food.calories} ккал</p>
+                          <div className="space-y-1 text-gray-500">
+                            <p>Б: {food.protein}г</p>
+                            <p>Ж: {food.fat}г</p>
+                            <p>У: {food.carbs}г</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Рецепты */}
+          {recommendations.foods && recommendations.foods.length > 0 && (
+            <Card className="mobile-card">
+              <CardHeader className="mobile-card-header">
+                <CardTitle className="mobile-heading-secondary flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-orange-600" />
+                  Рецепты на основе рекомендуемых продуктов
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="mobile-card-content">
+                <div className="space-y-4">
+                  {recommendations.foods.slice(0, 3).map((food, index) => (
+                    <div key={index} className="p-4 bg-orange-50 rounded-lg">
+                      <h4 className="mobile-text-body font-medium text-gray-900 mb-2">
+                        Рецепт с {food.name}
+                      </h4>
+                      <p className="mobile-text-small text-gray-600 mb-3">
+                        Полезное блюдо, которое поможет достичь ваших целей по питанию
+                      </p>
+                      <div className="flex justify-between items-center">
+                        <span className="mobile-text-small text-orange-700 font-medium">
+                          Готовить 20-30 мин
+                        </span>
+                        <Badge variant="outline" className="text-orange-700 border-orange-300">
+                          {food.calories} ккал
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Добавки */}
+          {recommendations.supplements && recommendations.supplements.length > 0 && (
+            <Card className="mobile-card">
+              <CardHeader className="mobile-card-header">
+                <CardTitle className="mobile-heading-secondary flex items-center gap-2">
+                  <Pill className="h-5 w-5 text-blue-600" />
+                  Рекомендуемые добавки
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="mobile-card-content">
+                <div className="space-y-4">
+                  {recommendations.supplements.slice(0, 4).map((supplement, index) => (
+                    <div key={index} className="p-4 bg-blue-50 rounded-lg">
+                      <h4 className="mobile-text-body font-medium text-gray-900 mb-2">{supplement.name}</h4>
+                      <p className="mobile-text-small text-gray-600 mb-3">{supplement.benefit}</p>
+                      <div className="flex justify-between items-center">
+                        <Badge variant="outline" className="text-blue-700 border-blue-300">
+                          {supplement.dosage}
+                        </Badge>
+                        <span className="mobile-text-small text-blue-600">
+                          {supplement.timing}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* План питания */}
+          {recommendations.mealPlan && recommendations.mealPlan.length > 0 && (
+            <Card className="mobile-card">
+              <CardHeader className="mobile-card-header">
+                <CardTitle className="mobile-heading-secondary flex items-center gap-2">
+                  <ChefHat className="h-5 w-5 text-green-600" />
+                  План питания
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="mobile-card-content">
+                <div className="space-y-4">
+                  {recommendations.mealPlan.map((meal, index) => (
+                    <div key={index} className="p-4 bg-green-50 rounded-lg">
+                      <h4 className="mobile-text-body font-medium text-gray-900 mb-3">
+                        {meal.mealType}
+                      </h4>
+                      <ul className="mobile-text-small text-gray-600 space-y-2">
+                        {meal.foods.map((food, foodIndex) => (
+                          <li key={foodIndex} className="flex items-start gap-2">
+                            <span className="text-green-600 mt-1">•</span>
+                            <span>{food}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="flex justify-center pt-4">
+            <Button 
+              onClick={handleGenerateRecommendations}
+              disabled={isLoading}
+              variant="outline"
+              className="mobile-button"
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Обновить рекомендации
+            </Button>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -41,7 +41,7 @@ const DailyProgress: React.FC<DailyProgressProps> = ({ selectedDate }) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="mobile-card-content">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div className="space-y-4 mb-6">
           {/* Калории */}
           <div className="space-y-2">
             <div className="flex justify-between items-center">
@@ -59,54 +59,61 @@ const DailyProgress: React.FC<DailyProgressProps> = ({ selectedDate }) => {
             </div>
           </div>
 
-          {/* Белки */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">Белки</span>
-              <span className="text-sm font-semibold text-gray-900">
-                {dailyTotals.protein.toFixed(1)} / {goals?.daily_protein || 0}г
-              </span>
+          {/* Макронутриенты */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
+              Макронутриенты
+            </h4>
+            
+            {/* Белки */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-gray-700">Белки</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  {dailyTotals.protein.toFixed(1)} / {goals?.daily_protein || 0}г
+                </span>
+              </div>
+              <Progress 
+                value={((dailyTotals.protein / (goals?.daily_protein || 1)) * 100)} 
+                className="h-2 [&>div]:bg-blue-500"
+              />
+              <div className="text-xs text-gray-500">
+                Осталось: {Math.max(0, (goals?.daily_protein || 0) - dailyTotals.protein).toFixed(1)}г
+              </div>
             </div>
-            <Progress 
-              value={((dailyTotals.protein / (goals?.daily_protein || 1)) * 100)} 
-              className="h-2 [&>div]:bg-blue-500"
-            />
-            <div className="text-xs text-gray-500">
-              Осталось: {Math.max(0, (goals?.daily_protein || 0) - dailyTotals.protein).toFixed(1)}г
-            </div>
-          </div>
 
-          {/* Углеводы */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">Углеводы</span>
-              <span className="text-sm font-semibold text-gray-900">
-                {dailyTotals.carbs.toFixed(1)} / {goals?.daily_carbs || 0}г
-              </span>
+            {/* Углеводы */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-gray-700">Углеводы</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  {dailyTotals.carbs.toFixed(1)} / {goals?.daily_carbs || 0}г
+                </span>
+              </div>
+              <Progress 
+                value={((dailyTotals.carbs / (goals?.daily_carbs || 1)) * 100)} 
+                className="h-2 [&>div]:bg-green-500"
+              />
+              <div className="text-xs text-gray-500">
+                Осталось: {Math.max(0, (goals?.daily_carbs || 0) - dailyTotals.carbs).toFixed(1)}г
+              </div>
             </div>
-            <Progress 
-              value={((dailyTotals.carbs / (goals?.daily_carbs || 1)) * 100)} 
-              className="h-2 [&>div]:bg-green-500"
-            />
-            <div className="text-xs text-gray-500">
-              Осталось: {Math.max(0, (goals?.daily_carbs || 0) - dailyTotals.carbs).toFixed(1)}г
-            </div>
-          </div>
 
-          {/* Жиры */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">Жиры</span>
-              <span className="text-sm font-semibold text-gray-900">
-                {dailyTotals.fat.toFixed(1)} / {goals?.daily_fat || 0}г
-              </span>
-            </div>
-            <Progress 
-              value={((dailyTotals.fat / (goals?.daily_fat || 1)) * 100)} 
-              className="h-2 [&>div]:bg-orange-500"
-            />
-            <div className="text-xs text-gray-500">
-              Осталось: {Math.max(0, (goals?.daily_fat || 0) - dailyTotals.fat).toFixed(1)}г
+            {/* Жиры */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-gray-700">Жиры</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  {dailyTotals.fat.toFixed(1)} / {goals?.daily_fat || 0}г
+                </span>
+              </div>
+              <Progress 
+                value={((dailyTotals.fat / (goals?.daily_fat || 1)) * 100)} 
+                className="h-2 [&>div]:bg-orange-500"
+              />
+              <div className="text-xs text-gray-500">
+                Осталось: {Math.max(0, (goals?.daily_fat || 0) - dailyTotals.fat).toFixed(1)}г
+              </div>
             </div>
           </div>
         </div>
@@ -127,11 +134,11 @@ const DailyProgress: React.FC<DailyProgressProps> = ({ selectedDate }) => {
                 <TrendingUp className="h-4 w-4 text-blue-600" />
               </div>
               <span className="text-sm text-gray-600">
-                Баланс БЖУ: {(dailyTotals.protein * 4 + dailyTotals.carbs * 4 + dailyTotals.fat * 9).toFixed(0)} ккал
+                Макронутриенты: {(dailyTotals.protein * 4 + dailyTotals.carbs * 4 + dailyTotals.fat * 9).toFixed(0)} ккал
               </span>
             </div>
             <div className="text-sm text-gray-500">
-              Последнее обновление: {new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+              Обновлено: {new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
             </div>
           </div>
         </div>
