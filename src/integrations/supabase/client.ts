@@ -78,6 +78,14 @@ const createRetryProxy = (client: any) => {
           }
         };
       }
+
+      if (prop === 'auth') {
+        return target.auth;
+      }
+
+      if (prop === 'channel' || prop === 'removeChannel') {
+        return value;
+      }
       
       return value;
     }
@@ -89,34 +97,42 @@ const createQueryProxy = (query: any) => {
     get(target, prop) {
       const value = target[prop];
       
-      // Методы, которые выполняют запрос
-      const executionMethods = [
-        'select', 'insert', 'update', 'delete', 'upsert',
+      // Методы построения запроса - не выполняют запрос, возвращают новый query builder
+      const queryBuilderMethods = [
+        'select', 'insert', 'update', 'delete', 'upsert', 'from',
+        'eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'like', 'ilike', 
+        'is', 'in', 'contains', 'containedBy', 'rangeGt', 'rangeGte',
+        'rangeLt', 'rangeLte', 'rangeAdjacent', 'overlaps', 'textSearch',
+        'match', 'not', 'or', 'filter', 'order', 'limit', 'range',
         'single', 'maybeSingle', 'csv', 'geojson'
       ];
       
-      if (executionMethods.includes(prop as string) && typeof value === 'function') {
-        return async function (...args: any[]) {
-          const operation = () => value.apply(target, args);
-          
-          try {
-            return await withRetry(operation, {
-              maxAttempts: 3,
-              baseDelay: 1000,
-              retryCondition: isRetryableError
-            });
-          } catch (error) {
-            console.error(`Supabase query failed after retries:`, error);
-            throw error;
-          }
-        };
-      }
-      
-      // Для методов построения запроса возвращаем новый прокси
       if (typeof value === 'function') {
         return function (...args: any[]) {
           const result = value.apply(target, args);
-          return createQueryProxy(result);
+          
+          // Если это метод построения запроса, возвращаем прокси
+          if (queryBuilderMethods.includes(prop as string)) {
+            // Если результат имеет then (это промис), то это выполняющий метод
+            if (result && typeof result.then === 'function') {
+              return withRetry(
+                () => value.apply(target, args),
+                {
+                  maxAttempts: 3,
+                  baseDelay: 1000,
+                  retryCondition: isRetryableError
+                }
+              ).catch(error => {
+                console.error(`Supabase query failed after retries:`, error);
+                throw error;
+              });
+            } else {
+              // Это query builder, возвращаем прокси
+              return createQueryProxy(result);
+            }
+          }
+          
+          return result;
         };
       }
       

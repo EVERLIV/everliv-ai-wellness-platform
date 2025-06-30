@@ -1,140 +1,88 @@
+import React, { useState } from "react";
+import { useMedicalKnowledge } from "@/hooks/useMedicalKnowledge";
+import MedicalKnowledgeHeader from "@/components/medical-knowledge/MedicalKnowledgeHeader";
+import MedicalKnowledgeSearch from "@/components/medical-knowledge/MedicalKnowledgeSearch";
+import CategoriesTab from "@/components/medical-knowledge/CategoriesTab";
+import ArticlesTab from "@/components/medical-knowledge/ArticlesTab";
+import SpecializationsTab from "@/components/medical-knowledge/SpecializationsTab";
+import LoadingState from "@/components/medical-knowledge/LoadingState";
+import EmptyState from "@/components/medical-knowledge/EmptyState";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
 
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Header from "@/components/Header";
-import MinimalFooter from "@/components/MinimalFooter";
-import MedicalKnowledgeSearch from '@/components/medical-knowledge/MedicalKnowledgeSearch';
-import MedicalKnowledgeHeader from '@/components/medical-knowledge/MedicalKnowledgeHeader';
-import ArticlesTab from '@/components/medical-knowledge/ArticlesTab';
-import CategoriesTab from '@/components/medical-knowledge/CategoriesTab';
-import SpecializationsTab from '@/components/medical-knowledge/SpecializationsTab';
-import { useMedicalKnowledge } from '@/hooks/useMedicalKnowledge';
-import { MedicalArticle } from '@/types/medical';
+const MedicalKnowledge = () => {
+  const { categories, articles, specializations, isLoading, error } = useMedicalKnowledge();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-const MedicalKnowledge: React.FC = () => {
-  const { categories, articles, specializations, isLoading, searchArticles } = useMedicalKnowledge();
-  const [searchResults, setSearchResults] = useState<MedicalArticle[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const filteredArticles = articles.filter(article => {
+    const searchMatch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (article.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+    const categoryMatch = selectedCategory ? article.category_id === selectedCategory : true;
+    return searchMatch && categoryMatch;
+  });
 
-  const handleSearch = async (query: string, categoryId?: string) => {
-    setIsSearching(true);
-    setHasSearched(true);
-    try {
-      const results = await searchArticles(query, categoryId);
-      setSearchResults(results);
-    } catch (error) {
-      console.error('Search error:', error);
-    } finally {
-      setIsSearching(false);
-    }
-  };
+  const filteredCategories = categories.filter(category =>
+    category.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const handleCategorySelect = (categoryId: string) => {
-    // Строгая фильтрация статей по категории
-    const categoryArticles = articles
-      .filter(article => article.category_id === categoryId)
-      .reduce((acc, current) => {
-        const existingIndex = acc.findIndex(item => item.id === current.id);
-        if (existingIndex === -1) {
-          acc.push(current);
-        }
-        return acc;
-      }, [] as MedicalArticle[]);
-    
-    setSearchResults(categoryArticles);
-    setHasSearched(true);
-  };
+  const filteredSpecializations = specializations.filter(specialization =>
+    specialization.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const handleArticleSelect = (articleId: string) => {
-    console.log('Selected article:', articleId);
-  };
+  if (isLoading) {
+    return <LoadingState />;
+  }
 
-  const handleResetSearch = () => {
-    setHasSearched(false);
-    setSearchResults([]);
-  };
-
-  const getArticleCountByCategory = (categoryId: string) => {
-    // Подсчитываем уникальные статьи по категории с точной фильтрацией
-    const uniqueArticles = articles.reduce((acc, current) => {
-      const existingIndex = acc.findIndex(item => item.id === current.id);
-      if (existingIndex === -1) {
-        acc.push(current);
-      }
-      return acc;
-    }, [] as MedicalArticle[]);
-    
-    return uniqueArticles.filter(article => article.category_id === categoryId).length;
-  };
-
-  const displayedArticles = hasSearched ? searchResults : articles;
+  if (error) {
+    return (
+      <PageLayoutWithHeader>
+        <div className="container mx-auto px-4 py-8">
+          <EmptyState 
+            title="Ошибка загрузки"
+            description={error}
+          />
+        </div>
+      </PageLayoutWithHeader>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
-      
-      <div className="flex-grow pt-16">
-        <MedicalKnowledgeHeader
-          articlesCount={articles.length}
-          categoriesCount={categories.length}
-          specializationsCount={specializations.length}
+    <PageLayoutWithHeader>
+      <div className="container mx-auto px-4 py-8 space-y-6">
+        <MedicalKnowledgeHeader />
+        <MedicalKnowledgeSearch 
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          categories={categories}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
         />
 
-        <div className="container mx-auto px-4 py-4 max-w-7xl">
-          <div className="space-y-4">
-            <MedicalKnowledgeSearch
+        <Tabs defaultValue="categories" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="categories">Категории</TabsTrigger>
+            <TabsTrigger value="articles">Статьи</TabsTrigger>
+            <TabsTrigger value="specializations">Специализации</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="categories" className="mt-6">
+            <CategoriesTab categories={filteredCategories} />
+          </TabsContent>
+
+          <TabsContent value="articles" className="mt-6">
+            <ArticlesTab 
+              articles={filteredArticles} 
               categories={categories}
-              onSearch={handleSearch}
-              isLoading={isSearching}
             />
+          </TabsContent>
 
-            <Tabs defaultValue="articles" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-4 h-auto">
-                <TabsTrigger value="articles" className="text-sm py-2">
-                  Статьи
-                </TabsTrigger>
-                <TabsTrigger value="categories" className="text-sm py-2">
-                  Категории
-                </TabsTrigger>
-                <TabsTrigger value="doctors" className="text-sm py-2">
-                  Специалисты
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="articles" className="space-y-4">
-                <ArticlesTab
-                  isLoading={isLoading}
-                  isSearching={isSearching}
-                  hasSearched={hasSearched}
-                  displayedArticles={displayedArticles}
-                  onResetSearch={handleResetSearch}
-                  onArticleSelect={handleArticleSelect}
-                />
-              </TabsContent>
-
-              <TabsContent value="categories" className="space-y-4">
-                <CategoriesTab
-                  isLoading={isLoading}
-                  categories={categories}
-                  getArticleCountByCategory={getArticleCountByCategory}
-                  onCategorySelect={handleCategorySelect}
-                />
-              </TabsContent>
-
-              <TabsContent value="doctors" className="space-y-4">
-                <SpecializationsTab
-                  isLoading={isLoading}
-                  specializations={specializations}
-                />
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
+          <TabsContent value="specializations" className="mt-6">
+            <SpecializationsTab specializations={filteredSpecializations} />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <MinimalFooter />
-    </div>
+    </PageLayoutWithHeader>
   );
 };
 
