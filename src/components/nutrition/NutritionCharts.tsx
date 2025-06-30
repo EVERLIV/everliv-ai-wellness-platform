@@ -6,55 +6,29 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Calendar, TrendingUp, Target, Activity } from "lucide-react";
 import { useFoodEntries } from "@/hooks/useFoodEntries";
 import { useNutritionGoals } from "@/hooks/useNutritionGoals";
+import { useHistoricalFoodData } from "@/hooks/useHistoricalFoodData";
 
 const NutritionCharts: React.FC = () => {
   const [dateRange, setDateRange] = useState<'week' | 'month'>('week');
   const { goals } = useNutritionGoals();
-  const [chartData, setChartData] = useState<any[]>([]);
   const [macroData, setMacroData] = useState<any[]>([]);
   
-  // Генерируем данные для графиков за неделю или месяц из реальных записей
-  const generateChartData = () => {
-    const days = dateRange === 'week' ? 7 : 30;
-    const data: any[] = [];
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      
-      // Используем хук для получения данных за конкретную дату
-      const { getDailyTotals } = useFoodEntries(date);
-      const dayTotals = getDailyTotals();
-      
-      data.push({
-        date: date.toLocaleDateString('ru-RU', { 
-          day: 'numeric', 
-          month: 'short' 
-        }),
-        calories: dayTotals.calories,
-        protein: Math.round(dayTotals.protein),
-        carbs: Math.round(dayTotals.carbs),
-        fat: Math.round(dayTotals.fat)
-      });
-    }
-    
-    return data;
-  };
-
+  // Получаем исторические данные за период
+  const days = dateRange === 'week' ? 7 : 30;
+  const { data: chartData, isLoading: chartLoading } = useHistoricalFoodData(days);
+  
   // Получаем данные для сегодняшнего дня
   const { getDailyTotals } = useFoodEntries(new Date());
   const todayTotals = getDailyTotals();
 
   useEffect(() => {
-    setChartData(generateChartData());
-    
     // Данные для круговой диаграммы макронутриентов за сегодня
     setMacroData([
       { name: 'Белки', value: Math.round(todayTotals.protein), color: '#3B82F6' },
       { name: 'Углеводы', value: Math.round(todayTotals.carbs), color: '#10B981' },
       { name: 'Жиры', value: Math.round(todayTotals.fat), color: '#F59E0B' }
     ]);
-  }, [dateRange, todayTotals]);
+  }, [todayTotals]);
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B'];
 
@@ -71,6 +45,19 @@ const NutritionCharts: React.FC = () => {
   };
 
   const goalAchievement = calculateGoalAchievement();
+
+  if (chartLoading) {
+    return (
+      <div className="mobile-content-spacing">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-4">
+            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+            <p className="text-gray-600">Загрузка аналитики питания...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mobile-content-spacing">
