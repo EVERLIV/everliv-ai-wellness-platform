@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -67,7 +68,7 @@ const Login = () => {
           <Button 
             onClick={() => setLinkSent(false)} 
             variant="outline" 
-            className="w-full"
+            className="w-full border-green-500 text-green-600 hover:bg-green-50"
           >
             Отправить другую ссылку
           </Button>
@@ -138,7 +139,7 @@ const Login = () => {
               <Label htmlFor="password">Пароль</Label>
               <Link
                 to="/reset-password"
-                className="text-sm text-purple-600 hover:text-purple-700 hover:underline"
+                className="text-sm text-green-600 hover:text-green-700 hover:underline"
               >
                 Забыли пароль?
               </Link>
@@ -175,7 +176,7 @@ const Login = () => {
         
         <Button 
           type="submit" 
-          className="w-full bg-gradient-to-r from-purple-600 to-teal-600 hover:from-purple-700 hover:to-teal-700 text-white shadow-lg"
+          className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg"
           disabled={isLoading}
         >
           {isLoading ? 'Обработка...' : 
