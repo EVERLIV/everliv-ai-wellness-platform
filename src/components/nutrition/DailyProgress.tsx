@@ -32,20 +32,29 @@ const DailyProgress: React.FC<DailyProgressProps> = ({ selectedDate }) => {
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
-          <CalendarDays className="h-4 w-4 md:h-5 md:w-5 text-blue-500" />
-          Прогресс за {formatDate(selectedDate)}
+    <Card className="overflow-hidden">
+      <CardHeader className="border-b border-gray-100">
+        <CardTitle className="flex items-center gap-3">
+          <div className="p-2 bg-blue-100 rounded-lg">
+            <CalendarDays className="h-5 w-5 text-blue-600" />
+          </div>
+          <div>
+            <span className="text-lg font-semibold text-gray-900">
+              Прогресс за {formatDate(selectedDate)}
+            </span>
+            <p className="text-sm text-gray-600 font-normal mt-1">
+              Отслеживание достижения целей по питанию
+            </p>
+          </div>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <CardContent className="pt-6">
+        <div className="responsive-grid-4 mb-6">
           {/* Калории */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs md:text-sm font-medium">Калории</span>
-              <span className="text-xs md:text-sm text-gray-600">
+              <span className="text-sm font-medium text-gray-700">Калории</span>
+              <span className="text-sm text-gray-600 font-mono">
                 {dailyTotals.calories} / {goals?.daily_calories || 0}
               </span>
             </div>
@@ -59,10 +68,10 @@ const DailyProgress: React.FC<DailyProgressProps> = ({ selectedDate }) => {
           </div>
 
           {/* Белки */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs md:text-sm font-medium">Белки</span>
-              <span className="text-xs md:text-sm text-gray-600">
+              <span className="text-sm font-medium text-gray-700">Белки</span>
+              <span className="text-sm text-gray-600 font-mono">
                 {dailyTotals.protein.toFixed(1)} / {goals?.daily_protein || 0}г
               </span>
             </div>
@@ -76,10 +85,10 @@ const DailyProgress: React.FC<DailyProgressProps> = ({ selectedDate }) => {
           </div>
 
           {/* Углеводы */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs md:text-sm font-medium">Углеводы</span>
-              <span className="text-xs md:text-sm text-gray-600">
+              <span className="text-sm font-medium text-gray-700">Углеводы</span>
+              <span className="text-sm text-gray-600 font-mono">
                 {dailyTotals.carbs.toFixed(1)} / {goals?.daily_carbs || 0}г
               </span>
             </div>
@@ -93,10 +102,10 @@ const DailyProgress: React.FC<DailyProgressProps> = ({ selectedDate }) => {
           </div>
 
           {/* Жиры */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs md:text-sm font-medium">Жиры</span>
-              <span className="text-xs md:text-sm text-gray-600">
+              <span className="text-sm font-medium text-gray-700">Жиры</span>
+              <span className="text-sm text-gray-600 font-mono">
                 {dailyTotals.fat.toFixed(1)} / {goals?.daily_fat || 0}г
               </span>
             </div>
@@ -111,23 +120,26 @@ const DailyProgress: React.FC<DailyProgressProps> = ({ selectedDate }) => {
         </div>
 
         {/* Общая статистика */}
-        <div className="mt-4 md:mt-6 pt-4 border-t">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-            <div className="flex items-center gap-2 text-xs md:text-sm">
-              <Target className="h-4 w-4 text-green-500" />
-              <span>
-                Цель калорий: {((dailyTotals.calories / (goals?.daily_calories || 1)) * 100).toFixed(0)}%
-              </span>
+        <div className="content-divider"></div>
+        <div className="responsive-grid">
+          <div className="flex items-center gap-3 text-sm">
+            <div className="p-1.5 bg-green-100 rounded">
+              <Target className="h-4 w-4 text-green-600" />
             </div>
-            <div className="flex items-center gap-2 text-xs md:text-sm">
-              <TrendingUp className="h-4 w-4 text-blue-500" />
-              <span>
-                Баланс БЖУ: {(dailyTotals.protein * 4 + dailyTotals.carbs * 4 + dailyTotals.fat * 9).toFixed(0)} ккал
-              </span>
+            <span className="text-gray-600">
+              Цель калорий: {((dailyTotals.calories / (goals?.daily_calories || 1)) * 100).toFixed(0)}%
+            </span>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <div className="p-1.5 bg-blue-100 rounded">
+              <TrendingUp className="h-4 w-4 text-blue-600" />
             </div>
-            <div className="text-xs md:text-sm text-gray-600">
-              Последнее обновление: {new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
-            </div>
+            <span className="text-gray-600">
+              Баланс БЖУ: {(dailyTotals.protein * 4 + dailyTotals.carbs * 4 + dailyTotals.fat * 9).toFixed(0)} ккал
+            </span>
+          </div>
+          <div className="text-sm text-gray-500">
+            Последнее обновление: {new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
           </div>
         </div>
       </CardContent>

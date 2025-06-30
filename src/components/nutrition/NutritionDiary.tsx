@@ -1,19 +1,20 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Calendar as CalendarIcon } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import NutritionGoals from "./NutritionGoals";
-import DailyProgress from "./DailyProgress";
-import MealEntry from "./MealEntry";
-import NutritionCharts from "./NutritionCharts";
-import PersonalizedRecommendations from "./PersonalizedRecommendations";
+import { Calendar, Plus, TrendingUp, Target } from "lucide-react";
 import { useFoodEntries } from "@/hooks/useFoodEntries";
-import { useRealtimeFoodEntries } from "@/hooks/useRealtimeFoodEntries";
+import MealEntry from "./MealEntry";
+import DailyProgress from "./DailyProgress";
+import NutritionCharts from "./NutritionCharts";
+import NutritionGoals from "./NutritionGoals";
+import PersonalizedRecommendations from "./PersonalizedRecommendations";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import ContentContainer from "@/components/layout/ContentContainer";
+import Section from "@/components/layout/Section";
 
 interface NutritionDiaryProps {
   triggerQuickAdd?: boolean;
@@ -28,199 +29,237 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
   triggerCalendar,
   onCalendarHandled
 }) => {
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [showMealEntry, setShowMealEntry] = useState(false);
-  const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('breakfast');
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
-
-  const { getSummaryByMealType, entries, deleteEntry, refreshEntries } = useFoodEntries(selectedDate);
-  const { realtimeEntries } = useRealtimeFoodEntries(selectedDate);
+  const [activeTab, setActiveTab] = useState<'diary' | 'analytics' | 'goals'>('diary');
   
-  // Combine regular entries with realtime entries
-  const allEntries = [...entries, ...realtimeEntries].filter((entry, index, self) => 
-    index === self.findIndex(e => e.id === entry.id)
-  );
-  
-  const mealSummary = getSummaryByMealType();
+  const { entries, isLoading, getSummaryByMealType, getDailyTotals } = useFoodEntries(selectedDate);
 
-  // Refresh entries when realtime entries change
-  useEffect(() => {
-    if (realtimeEntries.length > 0) {
-      refreshEntries();
-    }
-  }, [realtimeEntries.length, refreshEntries]);
-
-  // Обработка триггера быстрого добавления из заголовка
-  useEffect(() => {
-    if (triggerQuickAdd) {
-      handleQuickAdd();
-      onQuickAddHandled?.();
-    }
-  }, [triggerQuickAdd]);
-
-  // Обработка триггера календаря из заголовка
   useEffect(() => {
     if (triggerCalendar) {
       setShowCalendar(true);
       onCalendarHandled?.();
     }
-  }, [triggerCalendar]);
+  }, [triggerCalendar, onCalendarHandled]);
 
-  const handleAddMeal = (mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack') => {
-    setSelectedMealType(mealType);
-    setShowMealEntry(true);
-  };
+  const mealTypes = [
+    { key: 'breakfast', label: 'Завтрак', icon: '🌅' },
+    { key: 'lunch', label: 'Обед', icon: '☀️' },
+    { key: 'dinner', label: 'Ужин', icon: '🌙' },
+    { key: 'snack', label: 'Перекус', icon: '🍎' }
+  ] as const;
 
-  const handleQuickAdd = () => {
-    setSelectedMealType('breakfast');
-    setShowMealEntry(true);
-  };
+  const dailyTotals = getDailyTotals();
+  const summaryByMeal = getSummaryByMealType();
 
-  const handleCalendarSelect = (date: Date | undefined) => {
-    if (date) {
-      setSelectedDate(date);
-      setShowCalendar(false);
-    }
-  };
-
-  const getMealEntries = (mealType: string) => {
-    return allEntries.filter(entry => entry.meal_type === mealType);
-  };
+  if (isLoading) {
+    return (
+      <div className="nutrition-diary">
+        <ContentContainer>
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center space-y-4">
+              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+              <p className="text-gray-600">Загрузка дневника питания...</p>
+            </div>
+          </div>
+        </ContentContainer>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Popover open={showCalendar} onOpenChange={setShowCalendar}>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="w-auto justify-start text-left font-normal">
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {format(selectedDate, "d MMMM yyyy", { locale: ru })}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={handleCalendarSelect}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
-
-      <Tabs defaultValue="diary" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 h-auto p-1 bg-gray-100 rounded-xl">
-          <TabsTrigger 
-            value="diary" 
-            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-3 px-4 text-sm font-medium transition-all duration-200"
-          >
-            <span className="hidden sm:inline">Дневник</span>
-            <span className="sm:hidden">📝</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="goals"
-            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-3 px-4 text-sm font-medium transition-all duration-200"
-          >
-            <span className="hidden sm:inline">Цели</span>
-            <span className="sm:hidden">🎯</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="analytics"
-            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-3 px-4 text-sm font-medium transition-all duration-200"
-          >
-            <span className="hidden sm:inline">Аналитика</span>
-            <span className="sm:hidden">📊</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="recommendations"
-            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-3 px-4 text-sm font-medium transition-all duration-200"
-          >
-            <span className="hidden sm:inline">Советы</span>
-            <span className="sm:hidden">💡</span>
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="diary" className="space-y-6 mt-6">
-          <DailyProgress selectedDate={selectedDate} />
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {(['breakfast', 'lunch', 'dinner', 'snack'] as const).map((mealType) => {
-              const mealEntries = getMealEntries(mealType);
-              const summary = mealSummary[mealType];
-              
-              return (
-                <Card key={mealType} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base md:text-lg flex items-center justify-between">
-                      {mealType === 'breakfast' && 'Завтрак'}
-                      {mealType === 'lunch' && 'Обед'}
-                      {mealType === 'dinner' && 'Ужин'}
-                      {mealType === 'snack' && 'Перекус'}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleAddMeal(mealType)}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-1 md:space-y-2 text-xs md:text-sm text-gray-600">
-                      <p>Калории: {summary.calories}</p>
-                      <p>Белки: {summary.protein.toFixed(1)}г</p>
-                      <p>Жиры: {summary.fat.toFixed(1)}г</p>
-                      <p>Углеводы: {summary.carbs.toFixed(1)}г</p>
-                    </div>
-                    
-                    {mealEntries.length > 0 && (
-                      <div className="mt-3 md:mt-4 space-y-2">
-                        <div className="text-xs font-medium text-gray-500">Продукты:</div>
-                        {mealEntries.map((entry) => (
-                          <div key={entry.id} className="flex items-center justify-between text-xs bg-gray-50 p-2 rounded">
-                            <span className="truncate text-xs">{entry.food_name}</span>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => deleteEntry(entry.id!)}
-                              className="h-6 w-6 p-0 text-red-500 hover:text-red-700 ml-1"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
+    <div className="nutrition-diary">
+      <ContentContainer>
+        <Section spacing="md">
+          {/* Tab Navigation */}
+          <div className="mb-8">
+            <div className="border-b border-gray-200">
+              <nav className="flex space-x-8">
+                {[
+                  { key: 'diary', label: 'Дневник', icon: Calendar },
+                  { key: 'analytics', label: 'Аналитика', icon: TrendingUp },
+                  { key: 'goals', label: 'Цели', icon: Target }
+                ].map(({ key, label, icon: Icon }) => (
+                  <button
+                    key={key}
+                    onClick={() => setActiveTab(key as typeof activeTab)}
+                    className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+                      activeTab === key
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {label}
+                  </button>
+                ))}
+              </nav>
+            </div>
           </div>
-        </TabsContent>
 
-        <TabsContent value="goals" className="mt-6">
-          <NutritionGoals />
-        </TabsContent>
+          {/* Date Selector */}
+          {activeTab === 'diary' && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="heading-responsive-lg text-gray-900">
+                    Дневник питания
+                  </h2>
+                  <p className="text-gray-600 mt-1">
+                    {format(selectedDate, 'EEEE, d MMMM yyyy', { locale: ru })}
+                  </p>
+                </div>
+                <Popover open={showCalendar} onOpenChange={setShowCalendar}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Выбрать дату
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <CalendarComponent
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => {
+                        if (date) {
+                          setSelectedDate(date);
+                        }
+                        setShowCalendar(false);
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+          )}
 
-        <TabsContent value="analytics" className="mt-6">
-          <NutritionCharts />
-        </TabsContent>
+          {/* Tab Content */}
+          {activeTab === 'diary' && (
+            <div className="space-y-8">
+              {/* Daily Progress */}
+              <DailyProgress selectedDate={selectedDate} />
 
-        <TabsContent value="recommendations" className="mt-6">
-          <PersonalizedRecommendations />
-        </TabsContent>
-      </Tabs>
+              {/* Meals */}
+              <div className="space-y-6">
+                {mealTypes.map(({ key, label, icon }) => (
+                  <Card key={key} className="overflow-hidden">
+                    <CardHeader className="pb-4">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-3">
+                          <span className="text-2xl">{icon}</span>
+                          <div>
+                            <span className="text-lg font-semibold text-gray-900">{label}</span>
+                            <div className="text-sm text-gray-500 font-normal">
+                              {summaryByMeal[key].calories} ккал • 
+                              {summaryByMeal[key].protein.toFixed(1)}г белков • 
+                              {summaryByMeal[key].carbs.toFixed(1)}г углеводов • 
+                              {summaryByMeal[key].fat.toFixed(1)}г жиров
+                            </div>
+                          </div>
+                        </CardTitle>
+                        <MealEntry
+                          mealType={key}
+                          selectedDate={selectedDate}
+                          trigger={triggerQuickAdd && key === 'breakfast'}
+                          onHandled={onQuickAddHandled}
+                        />
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {entries
+                          .filter(entry => entry.meal_type === key)
+                          .map((entry) => (
+                            <div 
+                              key={entry.id} 
+                              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                            >
+                              <div className="flex-1">
+                                <h4 className="font-medium text-gray-900">{entry.food_name}</h4>
+                                <p className="text-sm text-gray-600">
+                                  {entry.portion_size && `${entry.portion_size} • `}
+                                  {entry.calories} ккал
+                                </p>
+                              </div>
+                              <div className="text-right text-sm text-gray-500">
+                                <div>{entry.protein}г белков</div>
+                                <div>{entry.carbs}г углеводов</div>
+                                <div>{entry.fat}г жиров</div>
+                              </div>
+                            </div>
+                          ))}
+                        {entries.filter(entry => entry.meal_type === key).length === 0 && (
+                          <div className="text-center py-8 text-gray-500">
+                            <p>Записи отсутствуют</p>
+                            <p className="text-sm">Добавьте первый прием пищи</p>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
 
-      {showMealEntry && (
-        <MealEntry
-          mealType={selectedMealType}
-          selectedDate={selectedDate}
-          onClose={() => setShowMealEntry(false)}
-        />
-      )}
+              {/* Daily Summary */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Итоги дня</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="stats-grid">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-primary">{dailyTotals.calories}</div>
+                      <div className="text-sm text-gray-600">Калории</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{dailyTotals.protein.toFixed(1)}г</div>
+                      <div className="text-sm text-gray-600">Белки</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">{dailyTotals.carbs.toFixed(1)}г</div>
+                      <div className="text-sm text-gray-600">Углеводы</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">{dailyTotals.fat.toFixed(1)}г</div>
+                      <div className="text-sm text-gray-600">Жиры</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === 'analytics' && (
+            <div className="space-y-8">
+              <div>
+                <h2 className="heading-responsive-lg text-gray-900 mb-2">
+                  Аналитика питания
+                </h2>
+                <p className="text-gray-600">
+                  Отслеживайте тренды и прогресс в питании
+                </p>
+              </div>
+              <NutritionCharts />
+              <PersonalizedRecommendations />
+            </div>
+          )}
+
+          {activeTab === 'goals' && (
+            <div className="space-y-8">
+              <div>
+                <h2 className="heading-responsive-lg text-gray-900 mb-2">
+                  Цели питания
+                </h2>
+                <p className="text-gray-600">
+                  Настройте персональные цели и отслеживайте прогресс
+                </p>
+              </div>
+              <NutritionGoals />
+            </div>
+          )}
+        </Section>
+      </ContentContainer>
     </div>
   );
 };
