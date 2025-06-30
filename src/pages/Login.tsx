@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -139,7 +138,7 @@ const Login = () => {
               <Label htmlFor="password">Пароль</Label>
               <Link
                 to="/reset-password"
-                className="text-sm text-everliv-600 hover:underline"
+                className="text-sm text-purple-600 hover:text-purple-700 hover:underline"
               >
                 Забыли пароль?
               </Link>
@@ -176,7 +175,7 @@ const Login = () => {
         
         <Button 
           type="submit" 
-          className="w-full bg-everliv-600 hover:bg-everliv-700"
+          className="w-full bg-gradient-to-r from-purple-600 to-teal-600 hover:from-purple-700 hover:to-teal-700 text-white shadow-lg"
           disabled={isLoading}
         >
           {isLoading ? 'Обработка...' : 
