@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useMedicalKnowledge } from "@/hooks/useMedicalKnowledge";
 import MedicalKnowledgeHeader from "@/components/medical-knowledge/MedicalKnowledgeHeader";
@@ -9,11 +10,25 @@ import LoadingState from "@/components/medical-knowledge/LoadingState";
 import EmptyState from "@/components/medical-knowledge/EmptyState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
+import { FileText, AlertCircle } from "lucide-react";
 
 const MedicalKnowledge = () => {
   const { categories, articles, specializations, isLoading, error } = useMedicalKnowledge();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const handleSearch = (query: string, categoryId?: string) => {
+    setSearchQuery(query);
+    setSelectedCategory(categoryId || null);
+    setHasSearched(true);
+  };
+
+  const handleResetSearch = () => {
+    setSearchQuery("");
+    setSelectedCategory(null);
+    setHasSearched(false);
+  };
 
   const filteredArticles = articles.filter(article => {
     const searchMatch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -30,15 +45,37 @@ const MedicalKnowledge = () => {
     specialization.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const getArticleCountByCategory = (categoryId: string) => {
+    return articles.filter(article => article.category_id === categoryId).length;
+  };
+
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    setHasSearched(true);
+  };
+
+  const handleArticleSelect = (articleId: string) => {
+    console.log('Article selected:', articleId);
+  };
+
   if (isLoading) {
     return <LoadingState />;
   }
 
   if (error) {
     return (
-      <PageLayoutWithHeader>
+      <PageLayoutWithHeader 
+        headerComponent={
+          <MedicalKnowledgeHeader 
+            articlesCount={0}
+            categoriesCount={0}
+            specializationsCount={0}
+          />
+        }
+      >
         <div className="container mx-auto px-4 py-8">
           <EmptyState 
+            icon={AlertCircle}
             title="Ошибка загрузки"
             description={error}
           />
@@ -48,15 +85,20 @@ const MedicalKnowledge = () => {
   }
 
   return (
-    <PageLayoutWithHeader>
-      <div className="container mx-auto px-4 py-8 space-y-6">
-        <MedicalKnowledgeHeader />
+    <PageLayoutWithHeader 
+      headerComponent={
+        <MedicalKnowledgeHeader 
+          articlesCount={articles.length}
+          categoriesCount={categories.length}
+          specializationsCount={specializations.length}
+        />
+      }
+    >
+      <div className="space-y-6">
         <MedicalKnowledgeSearch 
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
           categories={categories}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
+          onSearch={handleSearch}
+          isLoading={isLoading}
         />
 
         <Tabs defaultValue="categories" className="w-full">
@@ -67,18 +109,30 @@ const MedicalKnowledge = () => {
           </TabsList>
 
           <TabsContent value="categories" className="mt-6">
-            <CategoriesTab categories={filteredCategories} />
+            <CategoriesTab 
+              isLoading={isLoading}
+              categories={filteredCategories}
+              getArticleCountByCategory={getArticleCountByCategory}
+              onCategorySelect={handleCategorySelect}
+            />
           </TabsContent>
 
           <TabsContent value="articles" className="mt-6">
             <ArticlesTab 
-              articles={filteredArticles} 
-              categories={categories}
+              isLoading={isLoading}
+              isSearching={false}
+              hasSearched={hasSearched}
+              displayedArticles={filteredArticles}
+              onResetSearch={handleResetSearch}
+              onArticleSelect={handleArticleSelect}
             />
           </TabsContent>
 
           <TabsContent value="specializations" className="mt-6">
-            <SpecializationsTab specializations={filteredSpecializations} />
+            <SpecializationsTab 
+              isLoading={isLoading}
+              specializations={filteredSpecializations}
+            />
           </TabsContent>
         </Tabs>
       </div>
