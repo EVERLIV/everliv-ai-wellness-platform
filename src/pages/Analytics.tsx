@@ -70,10 +70,10 @@ const Analytics = () => {
         }
         fullWidth
       >
-        <div className="analytics-container mobile-section-spacing">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
-            <p className="mobile-text-body text-gray-500">Загрузка аналитики...</p>
+            <p className="text-gray-500">Загрузка аналитики...</p>
           </div>
         </div>
       </PageLayoutWithHeader>
@@ -92,37 +92,37 @@ const Analytics = () => {
         }
         fullWidth
       >
-        <div className="analytics-container mobile-section-spacing">
-          <div className="mobile-content-spacing">
-            <div className="mobile-flex-header">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div>
-                <h1 className="mobile-heading-primary text-gray-900">Персональная аналитика</h1>
-                <p className="mobile-text-body text-gray-600 mt-2">Ваш персональный анализ здоровья</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Персональная аналитика</h1>
+                <p className="text-gray-600 mt-2">Ваш персональный анализ здоровья</p>
               </div>
             </div>
 
             <AnalyticsDisplayCard title="Недостаточно данных для анализа" icon={AlertTriangle}>
               <div className="text-center py-6">
-                <p className="mobile-text-body text-gray-700 mb-6">
+                <p className="text-gray-700 mb-6">
                   Для генерации персональных рекомендаций необходимо:
                 </p>
                 
                 <div className="space-y-4 mb-6">
                   <div className={`flex items-center gap-3 p-4 rounded-lg ${hasHealthProfile ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
                     <User className="h-5 w-5 flex-shrink-0" />
-                    <span className="mobile-text-body">{hasHealthProfile ? '✓ Профиль здоровья создан' : 'Создать профиль здоровья'}</span>
+                    <span>{hasHealthProfile ? '✓ Профиль здоровья создан' : 'Создать профиль здоровья'}</span>
                   </div>
                   <div className={`flex items-center gap-3 p-4 rounded-lg ${hasAnalyses ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
                     <TestTube className="h-5 w-5 flex-shrink-0" />
-                    <span className="mobile-text-body">{hasAnalyses ? '✓ Анализы загружены' : 'Загрузить анализы крови'}</span>
+                    <span>{hasAnalyses ? '✓ Анализы загружены' : 'Загрузить анализы крови'}</span>
                   </div>
                 </div>
 
-                <div className="mobile-flex-actions">
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   {!hasHealthProfile && (
                     <Button 
                       onClick={() => window.location.href = '/health-profile'}
-                      className="mobile-button"
+                      className="min-h-[44px]"
                     >
                       Создать профиль
                     </Button>
@@ -131,7 +131,7 @@ const Analytics = () => {
                     <Button 
                       onClick={() => window.location.href = '/lab-analyses'}
                       variant={hasHealthProfile ? "default" : "outline"}
-                      className="mobile-button"
+                      className="min-h-[44px]"
                     >
                       Загрузить анализы
                     </Button>
@@ -157,25 +157,25 @@ const Analytics = () => {
         }
         fullWidth
       >
-        <div className="analytics-container mobile-section-spacing">
-          <div className="mobile-content-spacing">
-            <div className="mobile-flex-header">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div>
-                <h1 className="mobile-heading-primary text-gray-900">Персональная аналитика</h1>
-                <p className="mobile-text-body text-gray-600 mt-2">Ваш персональный анализ здоровья</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Персональная аналитика</h1>
+                <p className="text-gray-600 mt-2">Ваш персональный анализ здоровья</p>
               </div>
             </div>
 
             <AnalyticsDisplayCard title="Готов к анализу" icon={RefreshCw}>
               <div className="text-center py-6">
-                <p className="mobile-text-body text-gray-700 mb-6">
+                <p className="text-gray-700 mb-6">
                   Ваши данные готовы для генерации персональных рекомендаций ИИ-доктором
                 </p>
                 <Button 
                   onClick={handleGenerateAnalytics}
                   disabled={isGenerating}
                   size="lg"
-                  className="mobile-button"
+                  className="min-h-[44px]"
                 >
                   {isGenerating ? (
                     <>
@@ -205,17 +205,17 @@ const Analytics = () => {
       }
       fullWidth
     >
-      <div className="analytics-container mobile-section-spacing">
-        <div className="mobile-content-spacing">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+        <div className="space-y-8">
           {/* Header with Edit Button */}
-          <div className="mobile-flex-header">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="mobile-heading-primary text-gray-900">Персональная аналитика</h1>
-              <p className="mobile-text-body text-gray-600 mt-2">Ваш персональный анализ здоровья от ИИ-доктора</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Персональная аналитика</h1>
+              <p className="text-gray-600 mt-2">Ваш персональный анализ здоровья от ИИ-доктора</p>
             </div>
-            <div className="mobile-flex-actions">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Link to="/my-recommendations">
-                <Button variant="outline" className="mobile-button-sm">
+                <Button variant="outline" size="sm" className="min-h-[44px] w-full sm:w-auto">
                   <Calendar className="h-4 w-4 mr-2" />
                   {isMobile ? 'Мои' : 'Мои рекомендации'}
                 </Button>
@@ -224,7 +224,8 @@ const Analytics = () => {
                 onClick={handleGenerateAnalytics}
                 disabled={isGenerating}
                 variant="outline"
-                className="mobile-button-sm"
+                size="sm"
+                className="min-h-[44px] w-full sm:w-auto"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
                 Обновить
@@ -235,7 +236,7 @@ const Analytics = () => {
           {/* Health Goals Section */}
           {healthProfile?.healthGoals && healthProfile.healthGoals.length > 0 && (
             <AnalyticsDisplayCard title="Ваши цели здоровья" icon={Target}>
-              <div className="analytics-goals-grid">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {healthProfile.healthGoals.map((goal, index) => (
                   <div key={index} className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
@@ -244,7 +245,7 @@ const Analytics = () => {
                         Цель
                       </span>
                     </div>
-                    <div className="mobile-text-small font-semibold text-gray-900">
+                    <div className="text-sm font-semibold text-gray-900">
                       {translateGoal(goal)}
                     </div>
                   </div>
@@ -272,7 +273,7 @@ const Analytics = () => {
           {/* Health Profile Summary */}
           {healthProfile && (
             <AnalyticsDisplayCard title="Профиль здоровья" icon={User}>
-              <div className="analytics-grid">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <AnalyticsValueDisplay
                   label="Возраст"
                   value={`${healthProfile.age} лет`}

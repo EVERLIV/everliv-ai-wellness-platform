@@ -17,18 +17,18 @@ const AnalyticsPageHeader: React.FC<AnalyticsPageHeaderProps> = ({
 
   return (
     <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 border-b border-gray-200">
-      <div className="analytics-container py-4 sm:py-6">  
-        <div className="mobile-flex-header">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl">  
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate("/dashboard")}
-              className="mobile-touch-target flex items-center gap-2 hover:bg-gray-100 px-3"
+              className="min-h-[44px] flex items-center gap-2 hover:bg-gray-100 px-3"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline mobile-text-body">Назад к панели</span>
-              <span className="sm:hidden mobile-text-body">Назад</span>
+              <span className="hidden sm:inline">Назад к панели</span>
+              <span className="sm:hidden">Назад</span>
             </Button>
             
             <div className="flex items-center gap-3">
@@ -36,10 +36,10 @@ const AnalyticsPageHeader: React.FC<AnalyticsPageHeaderProps> = ({
                 <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
               </div>
               <div>
-                <h1 className="mobile-heading-secondary sm:mobile-heading-primary font-bold text-gray-900">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
                   Аналитика здоровья
                 </h1>
-                <p className="mobile-text-small text-gray-600 hidden sm:block">
+                <p className="text-sm sm:text-base text-gray-600 hidden sm:block">
                   Персональная оценка и рекомендации
                 </p>
               </div>
