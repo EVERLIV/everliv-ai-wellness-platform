@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Heart, Activity, TrendingUp, Calendar } from 'lucide-react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
+import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import NutritionSummarySection from './NutritionSummarySection';
 import DashboardChatsList from './DashboardChatsList';
 
@@ -13,51 +14,34 @@ interface DashboardRightColumnProps {
 }
 
 const DashboardRightColumn: React.FC<DashboardRightColumnProps> = ({ 
-  healthScore, 
-  biologicalAge 
+  healthScore: fallbackHealthScore, 
+  biologicalAge: fallbackBiologicalAge 
 }) => {
   const { healthProfile } = useHealthProfile();
+  const { analytics } = useCachedAnalytics();
 
-  // Расчет индекса здоровья на основе профиля
-  const calculateHealthScore = () => {
-    if (!healthProfile) return 75; // Базовое значение
-    
-    let score = 70; // Базовый балл
-    
-    // Факторы улучшающие здоровье
-    if (healthProfile.exerciseFrequency >= 3) score += 10;
-    if (healthProfile.sleepHours >= 7 && healthProfile.sleepHours <= 9) score += 10;
-    if (healthProfile.stressLevel <= 5) score += 5;
-    if (healthProfile.waterIntake >= 8) score += 5;
-    
-    // Факторы ухудшающие здоровье
-    if (healthProfile.stressLevel > 7) score -= 10;
-    if (healthProfile.sleepHours < 6) score -= 10;
-    if (healthProfile.exerciseFrequency < 1) score -= 10;
-    
-    return Math.max(30, Math.min(100, score));
-  };
-
-  // Расчет биологического возраста
+  // Используем данные из аналитики если они есть, иначе fallback значения
+  const currentHealthScore = analytics?.healthScore || fallbackHealthScore || 75;
+  
+  // Расчет биологического возраста на основе данных профиля здоровья
   const calculateBiologicalAge = () => {
-    if (!healthProfile?.age) return 35;
+    if (!healthProfile?.age) return fallbackBiologicalAge || 35;
     
     let bioAge = healthProfile.age;
     
     // Факторы старения
-    if (healthProfile.stressLevel > 7) bioAge += 3;
-    if (healthProfile.sleepHours < 6) bioAge += 2;
-    if (healthProfile.exerciseFrequency < 1) bioAge += 5;
+    if (healthProfile.stressLevel && healthProfile.stressLevel > 7) bioAge += 3;
+    if (healthProfile.sleepHours && healthProfile.sleepHours < 6) bioAge += 2;
+    if (healthProfile.exerciseFrequency && healthProfile.exerciseFrequency < 1) bioAge += 5;
     
     // Факторы омоложения
-    if (healthProfile.exerciseFrequency >= 4) bioAge -= 2;
-    if (healthProfile.sleepHours >= 7 && healthProfile.sleepHours <= 9) bioAge -= 1;
-    if (healthProfile.stressLevel <= 4) bioAge -= 2;
+    if (healthProfile.exerciseFrequency && healthProfile.exerciseFrequency >= 4) bioAge -= 2;
+    if (healthProfile.sleepHours && healthProfile.sleepHours >= 7 && healthProfile.sleepHours <= 9) bioAge -= 1;
+    if (healthProfile.stressLevel && healthProfile.stressLevel <= 4) bioAge -= 2;
     
-    return Math.max(20, bioAge);
+    return Math.max(18, Math.min(bioAge, healthProfile.age + 10));
   };
 
-  const currentHealthScore = calculateHealthScore();
   const currentBiologicalAge = calculateBiologicalAge();
 
   const getScoreColor = (score: number) => {
@@ -85,12 +69,17 @@ const DashboardRightColumn: React.FC<DashboardRightColumnProps> = ({
         <CardContent className="space-y-4">
           <div className="text-center">
             <div className={`text-4xl font-bold mb-2 ${getScoreColor(currentHealthScore)}`}>
-              {currentHealthScore}%
+              {Math.round(currentHealthScore)}%
             </div>
             <Progress 
               value={currentHealthScore} 
               className={`h-3 ${getScoreGradient(currentHealthScore)}`}
             />
+            {analytics && (
+              <p className="text-xs text-gray-500 mt-2">
+                Данные из ИИ-аналитики
+              </p>
+            )}
           </div>
           
           <div className="grid grid-cols-2 gap-4 pt-4 border-t">
@@ -103,6 +92,11 @@ const DashboardRightColumn: React.FC<DashboardRightColumnProps> = ({
                 {currentBiologicalAge}
               </div>
               <div className="text-xs text-gray-500">лет</div>
+              {!healthProfile && (
+                <p className="text-xs text-orange-500 mt-1">
+                  Создайте профиль для точного расчета
+                </p>
+              )}
             </div>
             
             <div className="text-center">

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
 import Header from "@/components/Header";
@@ -6,14 +7,13 @@ import MinimalFooter from "@/components/MinimalFooter";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardLeftColumn from "@/components/dashboard/DashboardLeftColumn";
 import DashboardRightColumn from "@/components/dashboard/DashboardRightColumn";
-import DashboardKeyMetrics from "@/components/dashboard/DashboardKeyMetrics";
-import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { isDevelopmentMode } from "@/utils/devMode";
 
 const Dashboard = () => {
   const { user, isLoading } = useSmartAuth();
-  const { analytics } = useAnalyticsData();
+  const { analytics } = useCachedAnalytics();
   const [isLoaded, setIsLoaded] = useState(false);
   const isMobile = useIsMobile();
   const isDevMode = isDevelopmentMode();
@@ -23,7 +23,8 @@ const Dashboard = () => {
     isLoading,
     isDevMode,
     hasUser: !!user,
-    isMobile
+    isMobile,
+    analyticsHealthScore: analytics?.healthScore
   });
 
   useEffect(() => {
@@ -48,10 +49,16 @@ const Dashboard = () => {
 
   // В dev режиме создаем фиктивного пользователя если его нет
   const userName = user?.user_metadata?.full_name || user?.user_metadata?.nickname || "Пользователь";
+  
+  // Используем данные из аналитики если они есть, иначе fallback значения
   const healthScore = analytics?.healthScore || 85;
-  const biologicalAge = analytics?.healthScore ? Math.round(35 + (100 - analytics.healthScore) * 0.3) : 42;
+  const biologicalAge = 42; // Fallback значение, будет пересчитано в компоненте
 
-  console.log('🔧 Dashboard: Rendering with user:', userName);
+  console.log('🔧 Dashboard: Rendering with data:', {
+    userName,
+    healthScore: analytics?.healthScore,
+    hasAnalytics: !!analytics
+  });
 
   return (
     <div className={`min-h-screen flex flex-col bg-gray-50 ${isMobile ? 'mobile-optimized' : ''}`}>
