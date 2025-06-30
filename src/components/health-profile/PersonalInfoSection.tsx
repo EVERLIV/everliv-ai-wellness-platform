@@ -13,6 +13,32 @@ interface PersonalInfoSectionProps {
 }
 
 const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ data, onChange }) => {
+  const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Если поле пустое, устанавливаем undefined, иначе парсим число
+    const age = value === '' ? undefined : parseInt(value, 10);
+    // Только обновляем если значение валидное или пустое
+    if (value === '' || (!isNaN(age!) && age! > 0 && age! <= 150)) {
+      onChange({ age: age || 0 });
+    }
+  };
+
+  const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const height = value === '' ? undefined : parseInt(value, 10);
+    if (value === '' || (!isNaN(height!) && height! > 0 && height! <= 300)) {
+      onChange({ height: height || 0 });
+    }
+  };
+
+  const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const weight = value === '' ? undefined : parseInt(value, 10);
+    if (value === '' || (!isNaN(weight!) && weight! > 0 && weight! <= 500)) {
+      onChange({ weight: weight || 0 });
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -28,9 +54,11 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ data, onChang
             <Input
               id="age"
               type="number"
-              value={data.age}
-              onChange={(e) => onChange({ age: parseInt(e.target.value) || 0 })}
+              value={data.age && data.age > 0 ? data.age : ''}
+              onChange={handleAgeChange}
               placeholder="Введите возраст"
+              min="1"
+              max="150"
             />
           </div>
 
@@ -53,9 +81,11 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ data, onChang
             <Input
               id="height"
               type="number"
-              value={data.height}
-              onChange={(e) => onChange({ height: parseInt(e.target.value) || 0 })}
+              value={data.height && data.height > 0 ? data.height : ''}
+              onChange={handleHeightChange}
               placeholder="Введите рост в см"
+              min="1"
+              max="300"
             />
           </div>
 
@@ -64,9 +94,11 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ data, onChang
             <Input
               id="weight"
               type="number"
-              value={data.weight}
-              onChange={(e) => onChange({ weight: parseInt(e.target.value) || 0 })}
+              value={data.weight && data.weight > 0 ? data.weight : ''}
+              onChange={handleWeightChange}
               placeholder="Введите вес в кг"
+              min="1"
+              max="500"
             />
           </div>
         </div>
