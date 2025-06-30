@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -81,7 +80,7 @@ const DashboardQuickActions = () => {
     {
       title: "ИИ-доктор",
       description: "Консультируйтесь с искусственным интеллектом по вопросам здоровья, получайте медицинские рекомендации 24/7",
-      icon: <Stethoscope className="h-8 w-8 text-blue-500" />,
+      icon: <Brain className="h-8 w-8 text-blue-500" />,
       action: () => navigate("/ai-doctor"),
       color: "bg-blue-50",
       badge: <Badge className="bg-blue-600 text-white">ИИ</Badge>,
