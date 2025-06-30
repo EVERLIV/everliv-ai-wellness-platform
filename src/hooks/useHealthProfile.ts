@@ -25,7 +25,7 @@ export const useHealthProfile = () => {
         console.log('❌ No authenticated user found');
         setHealthProfile(null);
         setIsLoading(false);
-        setError('Пользователь не авторизован');
+        setError(null); // Не показываем ошибку для неавторизованных пользователей
         return;
       }
 
@@ -39,11 +39,27 @@ export const useHealthProfile = () => {
         console.log('📊 Health profile fetched:', profile ? 'Found' : 'Not found');
         
         setHealthProfile(profile);
-      } catch (error) {
+      } catch (error: any) {
         console.error('❌ Error fetching health profile:', error);
         setHealthProfile(null);
-        setError('Ошибка при загрузке профиля здоровья');
-        toast.error('Ошибка при загрузке профиля здоровья');
+        
+        // Улучшенная обработка ошибок с более понятными сообщениями
+        let errorMessage = 'Ошибка при загрузке профиля здоровья';
+        
+        if (error.message?.includes('JWT')) {
+          errorMessage = 'Проблема с авторизацией. Попробуйте войти в систему заново';
+        } else if (error.message?.includes('row-level security')) {
+          errorMessage = 'Нет доступа к данным профиля. Обратитесь к администратору';
+        } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+          errorMessage = 'Проблема с подключением к серверу. Проверьте интернет-соединение';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        setError(errorMessage);
+        
+        // Не показываем toast для ошибок доступа, только логируем
+        console.error('Health profile fetch error:', errorMessage);
       } finally {
         setIsLoading(false);
       }
@@ -80,15 +96,17 @@ export const useHealthProfile = () => {
   const saveHealthProfile = async () => {
     if (!user) {
       console.error('❌ Cannot save: no user logged in');
-      setError('Вы не авторизованы');
-      toast.error('Вы не авторизованы');
+      const errorMsg = 'Вы не авторизованы';
+      setError(errorMsg);
+      toast.error(errorMsg);
       return false;
     }
 
     if (!healthProfile) {
       console.error('❌ Cannot save: no health profile data');
-      setError('Нет данных для сохранения');
-      toast.error('Нет данных для сохранения');
+      const errorMsg = 'Нет данных для сохранения';
+      setError(errorMsg);
+      toast.error(errorMsg);
       return false;
     }
 
@@ -103,10 +121,20 @@ export const useHealthProfile = () => {
         toast.success('Профиль здоровья успешно сохранен');
       }
       return success;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error in saveHealthProfile:', error);
-      setError('Ошибка при сохранении профиля');
-      toast.error('Ошибка при сохранении профиля');
+      
+      let errorMessage = 'Ошибка при сохранении профиля';
+      if (error.message?.includes('JWT')) {
+        errorMessage = 'Проблема с авторизацией. Попробуйте войти в систему заново';
+      } else if (error.message?.includes('row-level security')) {
+        errorMessage = 'Нет прав для сохранения данных. Обратитесь к администратору';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setError(errorMessage);
+      toast.error(errorMessage);
       return false;
     }
   };

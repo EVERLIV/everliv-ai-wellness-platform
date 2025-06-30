@@ -11,14 +11,19 @@ export const healthProfileService = {
       // Проверяем сессию перед запросом
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
-      if (sessionError || !sessionData.session) {
-        console.error('❌ No valid session for health profile fetch:', sessionError);
+      if (sessionError) {
+        console.error('❌ Session error:', sessionError);
+        throw new Error('Ошибка сессии: ' + sessionError.message);
+      }
+      
+      if (!sessionData.session) {
+        console.error('❌ No valid session for health profile fetch');
         throw new Error('Сессия истекла. Пожалуйста, войдите в систему снова');
       }
 
       if (sessionData.session.user.id !== userId) {
         console.error('❌ User ID mismatch in session');
-        throw new Error('Ошибка аутентификации');
+        throw new Error('Ошибка аутентификации: несоответствие пользователя');
       }
 
       console.log('✅ Valid session found, fetching profile data...');
@@ -31,18 +36,24 @@ export const healthProfileService = {
 
       if (error) {
         console.error('❌ Database error fetching health profile:', error);
+        
+        // Более детальная обработка ошибок
         if (error.code === 'PGRST116') {
           console.log('📭 No health profile found for user (not an error)');
           return null;
         }
         
-        // Более детальная обработка ошибок RLS
         if (error.code === '42501' || error.message.includes('row-level security')) {
           console.error('🚫 RLS Policy violation during fetch');
-          throw new Error('Нет доступа к данным профиля');
+          throw new Error('Нет доступа к данным профиля. Возможно, требуется переавторизация');
         }
         
-        throw new Error(`Ошибка базы данных: ${error.message}`);
+        if (error.code === 'PGRST301') {
+          console.error('🔐 JWT token issue');
+          throw new Error('Проблема с токеном авторизации. Войдите в систему заново');
+        }
+        
+        throw new Error(`Ошибка базы данных: ${error.message} (код: ${error.code || 'неизвестен'})`);
       }
 
       if (data?.profile_data) {
@@ -52,12 +63,18 @@ export const healthProfileService = {
 
       console.log('📭 No health profile found for user');
       return null;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Unexpected error fetching health profile:', error);
-      if (error instanceof Error) {
+      
+      // Не перезаписываем специфичные ошибки
+      if (error.message?.includes('Ошибка сессии') || 
+          error.message?.includes('Сессия истекла') ||
+          error.message?.includes('Нет доступа') ||
+          error.message?.includes('токеном авторизации')) {
         throw error;
       }
-      throw new Error('Неожиданная ошибка при загрузке профиля');
+      
+      throw new Error('Неожиданная ошибка при загрузке профиля: ' + (error.message || 'неизвестная ошибка'));
     }
   },
 
@@ -68,8 +85,14 @@ export const healthProfileService = {
       // Проверяем текущую сессию пользователя
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
-      if (sessionError || !sessionData.session) {
-        console.error('❌ No valid session found:', sessionError);
+      if (sessionError) {
+        console.error('❌ Session error during save:', sessionError);
+        toast.error('Ошибка сессии: ' + sessionError.message);
+        return false;
+      }
+      
+      if (!sessionData.session) {
+        console.error('❌ No valid session found during save');
         toast.error('Сессия истекла. Пожалуйста, войдите в систему снова');
         return false;
       }
@@ -121,9 +144,11 @@ export const healthProfileService = {
             
           if (updateError) {
             console.error('❌ Update also failed:', updateError);
-            toast.error('Ошибка при обновлении профиля');
+            toast.error('Ошибка при обновлении профиля: ' + updateError.message);
             return false;
           }
+        } else if (error.code === 'PGRST301') {
+          toast.error('Проблема с авторизацией. Войдите в систему заново');
         } else {
           toast.error('Ошибка при сохранении профиля здоровья: ' + error.message);
         }
@@ -133,9 +158,9 @@ export const healthProfileService = {
       console.log('✅ Health profile saved successfully:', data);
       toast.success('Профиль здоровья успешно сохранен');
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Unexpected error saving health profile:', error);
-      toast.error('Неожиданная ошибка при сохранении профиля');
+      toast.error('Неожиданная ошибка при сохранении профиля: ' + (error.message || 'неизвестная ошибка'));
       return false;
     }
   }

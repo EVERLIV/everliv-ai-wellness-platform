@@ -7,8 +7,12 @@ import StepByStepHealthProfileForm from "@/components/health-profile/StepByStepH
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { HealthProfileData } from "@/types/healthProfile";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const HealthProfile: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const { 
     healthProfile, 
     isLoading, 
@@ -66,6 +70,37 @@ const HealthProfile: React.FC = () => {
     setEditMode(true);
   };
 
+  // Проверяем аутентификацию пользователя
+  if (!user && !isLoading) {
+    return (
+      <PageLayoutWithHeader
+        headerComponent={<HealthProfilePageHeader />}
+      >
+        <div className="text-center py-12">
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-8 max-w-md mx-auto">
+            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Требуется авторизация
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Для доступа к профилю здоровья необходимо войти в систему
+            </p>
+            <button 
+              onClick={() => navigate('/login')}
+              className="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium"
+            >
+              Войти в систему
+            </button>
+          </div>
+        </div>
+      </PageLayoutWithHeader>
+    );
+  }
+
   if (isLoading) {
     return (
       <PageLayoutWithHeader
@@ -97,12 +132,22 @@ const HealthProfile: React.FC = () => {
             <p className="text-gray-600 mb-6">
               {error}
             </p>
-            <button 
-              onClick={() => window.location.reload()}
-              className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium"
-            >
-              Попробовать снова
-            </button>
+            <div className="space-y-3">
+              <button 
+                onClick={() => window.location.reload()}
+                className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium w-full"
+              >
+                Попробовать снова
+              </button>
+              {error.includes('авторизац') && (
+                <button 
+                  onClick={() => navigate('/login')}
+                  className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-medium w-full"
+                >
+                  Войти заново
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </PageLayoutWithHeader>
