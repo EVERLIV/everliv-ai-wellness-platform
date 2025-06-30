@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -36,24 +37,24 @@ const HealthGoalsSection: React.FC<HealthGoalsSectionProps> = ({
   };
 
   const predefinedGoals = [
-    'cognitive',
-    'cardiovascular',
-    'weight_loss',
-    'muscle_gain',
-    'energy_boost',
-    'sleep_improvement',
-    'stress_reduction',
-    'immunity_boost',
-    'longevity',
-    'hormonal_balance',
-    'digestive_health',
-    'skin_health',
-    'biological_age',
-    'metabolic_health',
-    'bone_health',
-    'mental_health',
-    'detox',
-    'athletic_performance'
+    { key: 'cognitive', label: 'Улучшение когнитивных функций' },
+    { key: 'cardiovascular', label: 'Здоровье сердечно-сосудистой системы' },
+    { key: 'weight_loss', label: 'Снижение веса' },
+    { key: 'muscle_gain', label: 'Набор мышечной массы' },
+    { key: 'energy_boost', label: 'Повышение энергии' },
+    { key: 'sleep_improvement', label: 'Улучшение сна' },
+    { key: 'stress_reduction', label: 'Снижение стресса' },
+    { key: 'immunity_boost', label: 'Укрепление иммунитета' },
+    { key: 'longevity', label: 'Увеличение продолжительности жизни' },
+    { key: 'hormonal_balance', label: 'Гормональный баланс' },
+    { key: 'digestive_health', label: 'Здоровье пищеварения' },
+    { key: 'skin_health', label: 'Здоровье кожи' },
+    { key: 'biological_age', label: 'Улучшение биологического возраста' },
+    { key: 'metabolic_health', label: 'Метаболическое здоровье' },
+    { key: 'bone_health', label: 'Здоровье костей' },
+    { key: 'mental_health', label: 'Психическое здоровье' },
+    { key: 'detox', label: 'Детоксикация организма' },
+    { key: 'athletic_performance', label: 'Спортивные результаты' }
   ];
 
   const handleAddCustomGoal = async (goalData: any) => {
@@ -78,13 +79,13 @@ const HealthGoalsSection: React.FC<HealthGoalsSectionProps> = ({
           <Label className="text-sm font-medium">Выберите цели, которые хотите достичь</Label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {predefinedGoals.map((goal) => (
-              <div key={goal} className="flex items-center space-x-2">
+              <div key={goal.key} className="flex items-center space-x-2">
                 <Checkbox
-                  id={goal}
-                  checked={(healthProfile.healthGoals || []).includes(goal)}
-                  onCheckedChange={(checked) => handleGoalChange(goal, !!checked)}
+                  id={goal.key}
+                  checked={(healthProfile.healthGoals || []).includes(goal.key)}
+                  onCheckedChange={(checked) => handleGoalChange(goal.key, !!checked)}
                 />
-                <Label htmlFor={goal}>{goal}</Label>
+                <Label htmlFor={goal.key}>{goal.label}</Label>
               </div>
             ))}
           </div>
