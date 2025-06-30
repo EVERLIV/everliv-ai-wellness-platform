@@ -136,15 +136,17 @@ const MinimalHealthProfileForm: React.FC<MinimalHealthProfileFormProps> = ({
                 </Label>
                 <Select 
                   value={healthProfile.physicalActivity || ''} 
-                  onValueChange={(value) => onChange({ physicalActivity: value as 'sedentary' | 'moderate' | 'active' })}
+                  onValueChange={(value) => onChange({ physicalActivity: value as 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' })}
                 >
                   <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500">
                     <SelectValue placeholder="Уровень активности" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="sedentary">Малоподвижный</SelectItem>
+                    <SelectItem value="light">Легкий</SelectItem>
                     <SelectItem value="moderate">Умеренный</SelectItem>
                     <SelectItem value="active">Активный</SelectItem>
+                    <SelectItem value="very_active">Очень активный</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -168,7 +170,7 @@ const MinimalHealthProfileForm: React.FC<MinimalHealthProfileFormProps> = ({
                 </Label>
                 <Select 
                   value={healthProfile.smokingStatus || ''} 
-                  onValueChange={(value) => onChange({ smokingStatus: value })}
+                  onValueChange={(value) => onChange({ smokingStatus: value as 'never' | 'former' | 'current_light' | 'current_moderate' | 'current_heavy' })}
                 >
                   <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500">
                     <SelectValue placeholder="Статус курения" />
@@ -176,7 +178,9 @@ const MinimalHealthProfileForm: React.FC<MinimalHealthProfileFormProps> = ({
                   <SelectContent>
                     <SelectItem value="never">Никогда не курил</SelectItem>
                     <SelectItem value="former">Бросил курить</SelectItem>
-                    <SelectItem value="current">Курю</SelectItem>
+                    <SelectItem value="current_light">Курю легко</SelectItem>
+                    <SelectItem value="current_moderate">Курю умеренно</SelectItem>
+                    <SelectItem value="current_heavy">Курю часто</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -187,7 +191,7 @@ const MinimalHealthProfileForm: React.FC<MinimalHealthProfileFormProps> = ({
                 </Label>
                 <Select 
                   value={healthProfile.alcoholConsumption || ''} 
-                  onValueChange={(value) => onChange({ alcoholConsumption: value })}
+                  onValueChange={(value) => onChange({ alcoholConsumption: value as 'never' | 'rarely' | 'occasionally' | 'regularly' | 'daily' })}
                 >
                   <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500">
                     <SelectValue placeholder="Частота употребления" />
@@ -195,8 +199,9 @@ const MinimalHealthProfileForm: React.FC<MinimalHealthProfileFormProps> = ({
                   <SelectContent>
                     <SelectItem value="never">Не употребляю</SelectItem>
                     <SelectItem value="rarely">Редко</SelectItem>
-                    <SelectItem value="moderate">Умеренно</SelectItem>
-                    <SelectItem value="frequent">Часто</SelectItem>
+                    <SelectItem value="occasionally">Иногда</SelectItem>
+                    <SelectItem value="regularly">Регулярно</SelectItem>
+                    <SelectItem value="daily">Ежедневно</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
