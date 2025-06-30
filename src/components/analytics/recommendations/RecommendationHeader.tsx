@@ -19,19 +19,33 @@ const RecommendationHeader: React.FC<RecommendationHeaderProps> = ({
   onRefresh
 }) => {
   const getGoalNameInRussian = (goal: string) => {
-    switch(goal) {
-      case 'cognitive': return 'Когнитивное здоровье';
-      case 'cardiovascular': return 'Сердечно-сосудистое здоровье';
-      case 'weight_loss': return 'Снижение веса';
-      case 'muscle_gain': return 'Набор мышечной массы';
-      case 'endurance': return 'Выносливость';
-      case 'flexibility': return 'Гибкость';
-      case 'stress_management': return 'Управление стрессом';
-      case 'sleep_improvement': return 'Улучшение сна';
-      case 'energy_boost': return 'Повышение энергии';
-      case 'immune_support': return 'Укрепление иммунитета';
-      default: return goal;
-    }
+    const translations: Record<string, string> = {
+      'biological_age': 'Биологический возраст',
+      'cardiovascular': 'Сердечно-сосудистое здоровье',
+      'cognitive': 'Когнитивное здоровье',
+      'musculoskeletal': 'Опорно-двигательная система',
+      'metabolism': 'Метаболизм',
+      'muscle_gain': 'Набор мышечной массы',
+      'weight_loss': 'Снижение веса',
+      'energy_boost': 'Повышение энергии',
+      'sleep_improvement': 'Улучшение сна',
+      'stress_management': 'Управление стрессом',
+      'stress_reduction': 'Снижение стресса',
+      'immunity_boost': 'Укрепление иммунитета',
+      'immune_support': 'Укрепление иммунитета',
+      'longevity': 'Увеличение продолжительности жизни',
+      'hormonal_balance': 'Гормональный баланс',
+      'digestive_health': 'Здоровье пищеварения',
+      'skin_health': 'Здоровье кожи',
+      'metabolic_health': 'Метаболическое здоровье',
+      'bone_health': 'Здоровье костей',
+      'mental_health': 'Психическое здоровье',
+      'detox': 'Детоксикация организма',
+      'athletic_performance': 'Спортивные результаты',
+      'endurance': 'Выносливость',
+      'flexibility': 'Гибкость'
+    };
+    return translations[goal] || goal;
   };
 
   return (
