@@ -2,13 +2,15 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Target, ArrowRight, Plus } from 'lucide-react';
+import { Target, Plus, Lightbulb, ArrowRight } from 'lucide-react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useNavigate } from 'react-router-dom';
+import { useSmartRecommendations } from './recommendations/useSmartRecommendations';
 
 const SmartGoalRecommendations: React.FC = () => {
   const { healthProfile } = useHealthProfile();
   const navigate = useNavigate();
+  const { recommendations, isGenerating } = useSmartRecommendations();
 
   // Переводим цели здоровья на русский
   const translateGoal = (goal: string): string => {
@@ -38,67 +40,25 @@ const SmartGoalRecommendations: React.FC = () => {
   // Получаем цели из профиля здоровья
   const healthGoals = healthProfile?.healthGoals || [];
 
-  // Генерируем рекомендации на основе профиля
-  const generateRecommendations = () => {
-    const recommendations = [];
-    
-    if (healthProfile?.stressLevel && healthProfile.stressLevel > 7) {
-      recommendations.push({
-        id: 1,
-        title: 'Снизить уровень стресса',
-        description: 'Медитация 10 минут в день',
-        progress: 0,
-        priority: 'high',
-        timeFrame: '2 недели'
-      });
-    }
-
-    if (healthProfile?.sleepHours && healthProfile.sleepHours < 7) {
-      recommendations.push({
-        id: 2,
-        title: 'Улучшить качество сна',
-        description: 'Спать по 7-8 часов в день',
-        progress: 30,
-        priority: 'high',
-        timeFrame: '1 месяц'
-      });
-    }
-
-    if (healthProfile?.exerciseFrequency && healthProfile.exerciseFrequency < 3) {
-      recommendations.push({
-        id: 3,
-        title: 'Увеличить физическую активность',
-        description: '3 тренировки в неделю',
-        progress: 20,
-        priority: 'medium',
-        timeFrame: '3 недели'
-      });
-    }
-
-    if (healthProfile?.waterIntake && healthProfile.waterIntake < 8) {
-      recommendations.push({
-        id: 4,
-        title: 'Увеличить потребление воды',
-        description: 'Пить 8 стаканов воды в день',
-        progress: 60,
-        priority: 'medium',
-        timeFrame: '1 неделя'
-      });
-    }
-
-    return recommendations.slice(0, 3); // Показываем максимум 3 рекомендации
-  };
-
-  const recommendations = generateRecommendations();
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'text-red-600 bg-red-50 border-red-200';
-      case 'medium': return 'text-orange-600 bg-orange-50 border-orange-200';
-      case 'low': return 'text-green-600 bg-green-50 border-green-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
-    }
-  };
+  if (isGenerating) {
+    return (
+      <Card className="shadow-sm border-gray-200/80">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-gray-900">
+            <Target className="h-5 w-5 text-blue-600" />
+            <span className="text-lg font-semibold">Цели здоровья</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-3">
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="shadow-sm border-gray-200/80">
@@ -132,14 +92,17 @@ const SmartGoalRecommendations: React.FC = () => {
           </div>
         )}
 
-        {/* Рекомендации на основе профиля */}
+        {/* ИИ рекомендации на основе профиля */}
         {recommendations.length > 0 && (
           <div className="space-y-3 pt-2 border-t border-gray-100">
-            <h4 className="text-sm font-medium text-gray-700">Рекомендации:</h4>
-            {recommendations.map((rec) => (
+            <h4 className="text-sm font-medium text-gray-700 flex items-center gap-1">
+              <Lightbulb className="h-4 w-4 text-yellow-500" />
+              ИИ рекомендации:
+            </h4>
+            {recommendations.slice(0, 2).map((rec) => (
               <div
                 key={rec.id}
-                className="p-3 bg-gradient-to-r from-gray-50 to-blue-50/30 rounded-lg border border-gray-200/50"
+                className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200/50"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
@@ -149,29 +112,30 @@ const SmartGoalRecommendations: React.FC = () => {
                     <p className="text-xs text-gray-600 mb-2">
                       {rec.description}
                     </p>
-                  </div>
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(rec.priority)}`}>
-                    {rec.priority === 'high' ? 'Высокий' : 
-                     rec.priority === 'medium' ? 'Средний' : 'Низкий'}
+                    <div className="text-xs text-purple-700 bg-purple-100 px-2 py-1 rounded-full inline-block">
+                      {rec.timeframe}
+                    </div>
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 mr-3">
-                    <div className="flex justify-between text-xs text-gray-600 mb-1">
-                      <span>Прогресс</span>
-                      <span>{rec.progress}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-1.5">
-                      <div 
-                        className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
-                        style={{ width: `${rec.progress}%` }}
-                      />
-                    </div>
+                {rec.scientificBasis && (
+                  <div className="mt-2 p-2 bg-blue-50/50 border border-blue-100 rounded text-xs text-blue-800">
+                    <strong>Научная основа:</strong> {rec.scientificBasis}
                   </div>
-                </div>
+                )}
               </div>
             ))}
+            
+            {recommendations.length > 2 && (
+              <Button 
+                variant="outline" 
+                className="w-full mt-2 text-xs border-purple-200 text-purple-700 hover:bg-purple-50"
+                onClick={() => navigate('/my-recommendations')}
+              >
+                <ArrowRight className="h-3 w-3 mr-1" />
+                Показать все рекомендации ({recommendations.length})
+              </Button>
+            )}
           </div>
         )}
 
