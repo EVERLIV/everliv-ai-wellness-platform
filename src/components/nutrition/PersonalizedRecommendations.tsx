@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Sparkles, Apple, Pill, ChefHat, AlertCircle } from 'lucide-react';
 import { usePersonalizedRecommendations } from '@/hooks/usePersonalizedRecommendations';
-import { useProfile } from '@/hooks/useProfile';
+import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useNutritionGoals } from '@/hooks/useNutritionGoals';
 import { useFoodEntries } from '@/hooks/useFoodEntries';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,7 +14,7 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 const PersonalizedRecommendations: React.FC = () => {
   const { user } = useAuth();
   const { subscription, isTrialActive } = useSubscription();
-  const { profileData, isLoading: profileLoading } = useProfile();
+  const { healthProfile, isLoading: profileLoading } = useHealthProfile();
   const { goals, isLoading: goalsLoading } = useNutritionGoals();
   const { getDailyTotals } = useFoodEntries(new Date());
   const { recommendations, isLoading, generateRecommendations } = usePersonalizedRecommendations();
@@ -29,13 +30,13 @@ const PersonalizedRecommendations: React.FC = () => {
     return isTrialActive;
   };
 
-  // Исправленная проверка базовой информации профиля
-  const hasBasicProfile = () => {
-    console.log('Profile data:', profileData);
-    return profileData && 
-           profileData.height && 
-           profileData.weight && 
-           profileData.gender;
+  // Проверяем наличие базовых данных профиля здоровья
+  const hasBasicHealthProfile = () => {
+    console.log('Health profile data:', healthProfile);
+    return healthProfile && 
+           healthProfile.height && 
+           healthProfile.weight && 
+           healthProfile.gender;
   };
 
   // Проверяем наличие целей питания
@@ -48,12 +49,24 @@ const PersonalizedRecommendations: React.FC = () => {
            goals.daily_fat > 0;
   };
 
-  const canGenerateRecommendations = hasBasicProfile() && hasNutritionGoals();
+  const canGenerateRecommendations = hasBasicHealthProfile() && hasNutritionGoals();
 
   const handleGenerateRecommendations = async () => {
-    if (!canGenerateRecommendations || !goals) return;
+    if (!canGenerateRecommendations || !goals || !healthProfile) return;
 
     const currentIntake = getDailyTotals();
+    
+    // Конвертируем данные из health profile в формат, ожидаемый функцией
+    const profileData = {
+      age: healthProfile.age,
+      gender: healthProfile.gender,
+      height: healthProfile.height,
+      weight: healthProfile.weight,
+      medical_conditions: healthProfile.chronicConditions || [],
+      allergies: healthProfile.allergies || [],
+      medications: healthProfile.medications || [],
+      goals: healthProfile.healthGoals || []
+    };
     
     await generateRecommendations({
       profile: profileData,
@@ -111,28 +124,28 @@ const PersonalizedRecommendations: React.FC = () => {
     );
   }
 
-  if (!hasBasicProfile()) {
+  if (!hasBasicHealthProfile()) {
     return (
       <Card className="mobile-card border-blue-200 bg-blue-50">
         <CardHeader className="mobile-card-header">
           <CardTitle className="mobile-heading-secondary flex items-center gap-2 text-blue-800">
             <AlertCircle className="h-5 w-5" />
-            Заполните профиль
+            Заполните профиль здоровья
           </CardTitle>
         </CardHeader>
         <CardContent className="mobile-card-content">
           <p className="mobile-text-body text-blue-700 mb-4">
-            Укажите основные данные (рост, вес, пол) для получения рекомендаций.
+            Укажите основные данные в профиле здоровья (рост, вес, пол) для получения персональных рекомендаций.
           </p>
           <div className="text-xs text-blue-600 mb-4 p-2 bg-blue-100 rounded">
-            Отладка: Рост: {profileData?.height || 'нет'}, Вес: {profileData?.weight || 'нет'}, Пол: {profileData?.gender || 'нет'}
+            Отладка: Рост: {healthProfile?.height || 'нет'}, Вес: {healthProfile?.weight || 'нет'}, Пол: {healthProfile?.gender || 'нет'}
           </div>
           <Button 
             onClick={() => window.location.href = '/health-profile'} 
             variant="outline"
             className="mobile-button border-blue-300 text-blue-700 hover:bg-blue-100 w-full sm:w-auto"
           >
-            Заполнить профиль
+            Заполнить профиль здоровья
           </Button>
         </CardContent>
       </Card>
@@ -177,8 +190,20 @@ const PersonalizedRecommendations: React.FC = () => {
         {!hasGenerated && !recommendations && (
           <div className="text-center py-6">
             <p className="mobile-text-body text-gray-600 mb-4">
-              Получите персональные рекомендации на основе вашего профиля и целей питания
+              Получите персональные рекомендации на основе вашего профиля здоровья и целей питания
             </p>
+            <div className="text-xs text-gray-500 mb-4 p-2 bg-gray-50 rounded">
+              Данные профиля: рост {healthProfile?.height}см, вес {healthProfile?.weight}кг, пол {healthProfile?.gender}
+              {healthProfile?.allergies && healthProfile.allergies.length > 0 && (
+                <div>Аллергии: {healthProfile.allergies.join(', ')}</div>
+              )}
+              {healthProfile?.medications && healthProfile.medications.length > 0 && (
+                <div>Лекарства: {healthProfile.medications.join(', ')}</div>
+              )}
+              {healthProfile?.chronicConditions && healthProfile.chronicConditions.length > 0 && (
+                <div>Хронические заболевания: {healthProfile.chronicConditions.join(', ')}</div>
+              )}
+            </div>
             <Button 
               onClick={handleGenerateRecommendations}
               disabled={isLoading || !canGenerateRecommendations}
@@ -203,7 +228,7 @@ const PersonalizedRecommendations: React.FC = () => {
           <div className="text-center py-8">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-purple-600" />
             <p className="mobile-text-body text-gray-600">
-              Анализируем ваш профиль и генерируем рекомендации...
+              Анализируем ваш профиль здоровья и генерируем персональные рекомендации...
             </p>
           </div>
         )}
