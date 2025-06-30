@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { withConnectionCheck } from '@/utils/retryUtils';
+import { useSupabaseErrorHandler } from './useSupabaseErrorHandler';
 
 interface ApiCallOptions {
   endpoint: string;
@@ -14,6 +16,7 @@ export const useSecureApiCall = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { session } = useAuth();
+  const { handleError } = useSupabaseErrorHandler();
 
   const makeApiCall = async <T = any>(options: ApiCallOptions): Promise<T | null> => {
     const { endpoint, method = 'GET', body, requireAuth = true } = options;
@@ -27,31 +30,34 @@ export const useSecureApiCall = () => {
     setError(null);
 
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
+      const result = await withConnectionCheck(async () => {
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
 
-      if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`;
-      }
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`;
+        }
 
-      const response = await fetch(endpoint, {
-        method,
-        headers,
-        body: body ? JSON.stringify(body) : undefined,
+        const response = await fetch(endpoint, {
+          method,
+          headers,
+          body: body ? JSON.stringify(body) : undefined,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
+      return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
       setError(errorMessage);
-      console.error('API call error:', errorMessage);
+      handleError(err as Error, 'API call');
       return null;
     } finally {
       setIsLoading(false);
@@ -71,22 +77,26 @@ export const useSecureApiCall = () => {
     setError(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke(functionName, {
-        body: payload,
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+      const result = await withConnectionCheck(async () => {
+        const { data, error } = await supabase.functions.invoke(functionName, {
+          body: payload,
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        return data;
       });
 
-      if (error) {
-        throw error;
-      }
-
-      return data;
+      return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Function call failed';
       setError(errorMessage);
-      console.error('Edge function error:', errorMessage);
+      handleError(err as Error, `Edge function: ${functionName}`);
       return null;
     } finally {
       setIsLoading(false);

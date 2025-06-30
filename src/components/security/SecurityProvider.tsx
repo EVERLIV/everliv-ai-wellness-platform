@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { SecurityHeaders } from '@/utils/securityHeaders';
 import { toast } from 'sonner';
+import NetworkStatusIndicator from '@/components/common/NetworkStatusIndicator';
 
 interface SecurityContextType {
   checkRateLimit: (key: string, maxRequests: number, windowMs: number) => boolean;
@@ -35,12 +36,33 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({ children }) 
       sessionStorage.clear();
     };
 
+    // Network error monitoring
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const error = event.reason;
+      
+      // Логируем сетевые ошибки для мониторинга
+      if (error && (
+        error.code === 'ERR_CONNECTION_RESET' ||
+        error.code === 'ERR_NETWORK' ||
+        error.message?.includes('Failed to fetch')
+      )) {
+        console.warn('🌐 Network error detected:', {
+          error: error.message || error,
+          code: error.code,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent
+        });
+      }
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
     };
   }, []);
 
@@ -61,6 +83,7 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({ children }) 
   return (
     <SecurityContext.Provider value={{ checkRateLimit, reportSecurityEvent }}>
       {children}
+      <NetworkStatusIndicator />
     </SecurityContext.Provider>
   );
 };

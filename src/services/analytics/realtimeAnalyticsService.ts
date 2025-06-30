@@ -4,11 +4,14 @@ import { toast } from "sonner";
 import { CachedAnalytics } from "@/types/analytics";
 import { generateRealTimeAnalyticsService } from "./enhancedAnalyticsService";
 import { prepareHealthProfileForAnalysis } from "@/utils/healthProfileUtils";
+import { withRetry, isRetryableError } from "@/utils/retryUtils";
 
 export class RealtimeAnalyticsService {
   private static instance: RealtimeAnalyticsService;
   private subscriptions: Map<string, any> = new Map();
   private analyticsCallbacks: Map<string, (analytics: CachedAnalytics) => void> = new Map();
+  private reconnectAttempts: Map<string, number> = new Map();
+  private maxReconnectAttempts = 5;
 
   static getInstance(): RealtimeAnalyticsService {
     if (!RealtimeAnalyticsService.instance) {
@@ -27,6 +30,43 @@ export class RealtimeAnalyticsService {
     // Сохраняем коллбек
     this.analyticsCallbacks.set(userId, onAnalyticsUpdate);
 
+    this.setupSubscriptionWithRetry(userId);
+  }
+
+  private async setupSubscriptionWithRetry(userId: string) {
+    const attempts = this.reconnectAttempts.get(userId) || 0;
+    
+    if (attempts >= this.maxReconnectAttempts) {
+      console.error(`Max reconnection attempts reached for user ${userId}`);
+      toast.error('Не удается установить соединение для обновлений в реальном времени');
+      return;
+    }
+
+    try {
+      await withRetry(
+        () => this.setupSubscriptions(userId),
+        {
+          maxAttempts: 3,
+          baseDelay: 1000,
+          retryCondition: isRetryableError
+        }
+      );
+      
+      // Сбрасываем счетчик попыток при успешном подключении
+      this.reconnectAttempts.set(userId, 0);
+    } catch (error) {
+      console.error('Failed to setup subscriptions:', error);
+      this.reconnectAttempts.set(userId, attempts + 1);
+      
+      // Повторная попытка через увеличивающийся интервал
+      const delay = Math.min(1000 * Math.pow(2, attempts), 30000);
+      setTimeout(() => {
+        this.setupSubscriptionWithRetry(userId);
+      }, delay);
+    }
+  }
+
+  private setupSubscriptions(userId: string) {
     try {
       // Подписываемся на изменения профиля здоровья с уникальным именем канала
       const healthProfileChannel = supabase
@@ -41,10 +81,18 @@ export class RealtimeAnalyticsService {
           },
           () => {
             console.log('Health profile changed, updating analytics...');
-            this.updateAnalytics(userId);
+            this.updateAnalyticsWithRetry(userId);
           }
         )
-        .subscribe();
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            console.log(`Health profile subscription active for user ${userId}`);
+          } else if (status === 'CLOSED') {
+            console.log(`Health profile subscription closed for user ${userId}`);
+            // Попытка переподключения
+            setTimeout(() => this.setupSubscriptionWithRetry(userId), 5000);
+          }
+        });
 
       // Подписываемся на изменения анализов с уникальным именем канала
       const analysesChannel = supabase
@@ -59,10 +107,18 @@ export class RealtimeAnalyticsService {
           },
           () => {
             console.log('Medical analysis changed, updating analytics...');
-            this.updateAnalytics(userId);
+            this.updateAnalyticsWithRetry(userId);
           }
         )
-        .subscribe();
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            console.log(`Medical analyses subscription active for user ${userId}`);
+          } else if (status === 'CLOSED') {
+            console.log(`Medical analyses subscription closed for user ${userId}`);
+            // Попытка переподключения
+            setTimeout(() => this.setupSubscriptionWithRetry(userId), 5000);
+          }
+        });
 
       // Сохраняем подписки
       this.subscriptions.set(`health_profile_${userId}`, healthProfileChannel);
@@ -71,6 +127,22 @@ export class RealtimeAnalyticsService {
       console.log(`Subscribed to realtime updates for user ${userId}`);
     } catch (error) {
       console.error('Error setting up realtime subscriptions:', error);
+      throw error;
+    }
+  }
+
+  private async updateAnalyticsWithRetry(userId: string) {
+    try {
+      await withRetry(
+        () => this.updateAnalytics(userId),
+        {
+          maxAttempts: 3,
+          baseDelay: 1000,
+          retryCondition: isRetryableError
+        }
+      );
+    } catch (error) {
+      console.error('Failed to update analytics after retries:', error);
     }
   }
 
@@ -106,6 +178,7 @@ export class RealtimeAnalyticsService {
       }
     } catch (error) {
       console.error('Error updating analytics:', error);
+      throw error;
     }
   }
 
@@ -132,8 +205,9 @@ export class RealtimeAnalyticsService {
       }
     }
 
-    // Удаляем коллбек
+    // Удаляем коллбек и счетчик попыток
     this.analyticsCallbacks.delete(userId);
+    this.reconnectAttempts.delete(userId);
 
     console.log(`Unsubscribed from realtime updates for user ${userId}`);
   }
@@ -149,6 +223,7 @@ export class RealtimeAnalyticsService {
     });
     this.subscriptions.clear();
     this.analyticsCallbacks.clear();
+    this.reconnectAttempts.clear();
   }
 }
 
