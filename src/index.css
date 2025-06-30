@@ -26,6 +26,17 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.375rem;
+    
+    /* Adaptive spacing */
+    --spacing-xs: 0.25rem;  /* 4px */
+    --spacing-sm: 0.5rem;   /* 8px */
+    --spacing-md: 0.75rem;  /* 12px */
+    --spacing-lg: 1rem;     /* 16px */
+    --spacing-xl: 1.5rem;   /* 24px */
+    --spacing-2xl: 2rem;    /* 32px */
+    
+    /* Touch targets */
+    --touch-target: 44px;
   }
 
   .dark {
@@ -49,20 +60,232 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 94.1%;
   }
+
+  /* Responsive spacing scale */
+  @media (min-width: 640px) {
+    :root {
+      --spacing-xs: 0.375rem; /* 6px */
+      --spacing-sm: 0.75rem;  /* 12px */
+      --spacing-md: 1rem;     /* 16px */
+      --spacing-lg: 1.5rem;   /* 24px */
+      --spacing-xl: 2rem;     /* 32px */
+      --spacing-2xl: 3rem;    /* 48px */
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    :root {
+      --spacing-xs: 0.5rem;   /* 8px */
+      --spacing-sm: 1rem;     /* 16px */
+      --spacing-md: 1.5rem;   /* 24px */
+      --spacing-lg: 2rem;     /* 32px */
+      --spacing-xl: 3rem;     /* 48px */
+      --spacing-2xl: 4rem;    /* 64px */
+    }
+  }
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+  
+  html {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+  @media (min-width: 640px) {
+    html {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    html {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+  }
+  
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    
+    /* Safe area for mobile devices */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Improved Russian text handling */
+  p, span, div, h1, h2, h3, h4, h5, h6 {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    lang: ru;
   }
 }
 
-/* Minimal Health Profile Styles */
+@layer components {
+  /* Adaptive spacing utilities */
+  .space-adaptive-xs > * + * {
+    margin-top: var(--spacing-xs);
+  }
+  
+  .space-adaptive-sm > * + * {
+    margin-top: var(--spacing-sm);
+  }
+  
+  .space-adaptive-md > * + * {
+    margin-top: var(--spacing-md);
+  }
+  
+  .space-adaptive-lg > * + * {
+    margin-top: var(--spacing-lg);
+  }
+  
+  .space-adaptive-xl > * + * {
+    margin-top: var(--spacing-xl);
+  }
+  
+  /* Padding utilities */
+  .p-adaptive-xs { padding: var(--spacing-xs); }
+  .p-adaptive-sm { padding: var(--spacing-sm); }
+  .p-adaptive-md { padding: var(--spacing-md); }
+  .p-adaptive-lg { padding: var(--spacing-lg); }
+  .p-adaptive-xl { padding: var(--spacing-xl); }
+  .p-adaptive-2xl { padding: var(--spacing-2xl); }
+  
+  .px-adaptive-xs { padding-left: var(--spacing-xs); padding-right: var(--spacing-xs); }
+  .px-adaptive-sm { padding-left: var(--spacing-sm); padding-right: var(--spacing-sm); }
+  .px-adaptive-md { padding-left: var(--spacing-md); padding-right: var(--spacing-md); }
+  .px-adaptive-lg { padding-left: var(--spacing-lg); padding-right: var(--spacing-lg); }
+  .px-adaptive-xl { padding-left: var(--spacing-xl); padding-right: var(--spacing-xl); }
+  
+  .py-adaptive-xs { padding-top: var(--spacing-xs); padding-bottom: var(--spacing-xs); }
+  .py-adaptive-sm { padding-top: var(--spacing-sm); padding-bottom: var(--spacing-sm); }
+  .py-adaptive-md { padding-top: var(--spacing-md); padding-bottom: var(--spacing-md); }
+  .py-adaptive-lg { padding-top: var(--spacing-lg); padding-bottom: var(--spacing-lg); }
+  .py-adaptive-xl { padding-top: var(--spacing-xl); padding-bottom: var(--spacing-xl); }
+  
+  /* Gap utilities */
+  .gap-adaptive-xs { gap: var(--spacing-xs); }
+  .gap-adaptive-sm { gap: var(--spacing-sm); }
+  .gap-adaptive-md { gap: var(--spacing-md); }
+  .gap-adaptive-lg { gap: var(--spacing-lg); }
+  .gap-adaptive-xl { gap: var(--spacing-xl); }
+  
+  /* Touch-friendly elements */
+  .touch-target {
+    min-height: var(--touch-target);
+    min-width: var(--touch-target);
+  }
+  
+  /* Responsive container */
+  .container-adaptive {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
+    max-width: 100%;
+  }
+  
+  @media (min-width: 640px) {
+    .container-adaptive {
+      max-width: 640px;
+      padding-left: var(--spacing-md);
+      padding-right: var(--spacing-md);
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .container-adaptive {
+      max-width: 768px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .container-adaptive {
+      max-width: 1024px;
+      padding-left: var(--spacing-lg);
+      padding-right: var(--spacing-lg);
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .container-adaptive {
+      max-width: 1280px;
+    }
+  }
+  
+  /* Grid utilities */
+  .grid-adaptive {
+    display: grid;
+    gap: var(--spacing-sm);
+    grid-template-columns: 1fr;
+  }
+  
+  @media (min-width: 640px) {
+    .grid-adaptive {
+      gap: var(--spacing-md);
+    }
+    
+    .grid-adaptive-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .grid-adaptive {
+      gap: var(--spacing-lg);
+    }
+    
+    .grid-adaptive-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  /* Text utilities */
+  .text-adaptive-xs { font-size: 0.75rem; line-height: 1.2; }
+  .text-adaptive-sm { font-size: 0.875rem; line-height: 1.3; }
+  .text-adaptive-base { font-size: 1rem; line-height: 1.4; }
+  .text-adaptive-lg { font-size: 1.125rem; line-height: 1.4; }
+  .text-adaptive-xl { font-size: 1.25rem; line-height: 1.3; }
+  .text-adaptive-2xl { font-size: 1.5rem; line-height: 1.2; }
+  .text-adaptive-3xl { font-size: 1.875rem; line-height: 1.1; }
+  .text-adaptive-4xl { font-size: 2.25rem; line-height: 1; }
+  
+  @media (min-width: 640px) {
+    .text-adaptive-xs { font-size: 0.8125rem; }
+    .text-adaptive-sm { font-size: 0.9375rem; }
+    .text-adaptive-base { font-size: 1.0625rem; }
+    .text-adaptive-lg { font-size: 1.1875rem; }
+    .text-adaptive-xl { font-size: 1.3125rem; }
+    .text-adaptive-2xl { font-size: 1.625rem; }
+    .text-adaptive-3xl { font-size: 2rem; }
+    .text-adaptive-4xl { font-size: 2.5rem; }
+  }
+  
+  @media (min-width: 1024px) {
+    .text-adaptive-xs { font-size: 0.875rem; }
+    .text-adaptive-sm { font-size: 1rem; }
+    .text-adaptive-base { font-size: 1.125rem; }
+    .text-adaptive-lg { font-size: 1.25rem; }
+    .text-adaptive-xl { font-size: 1.375rem; }
+    .text-adaptive-2xl { font-size: 1.75rem; }
+    .text-adaptive-3xl { font-size: 2.125rem; }
+    .text-adaptive-4xl { font-size: 2.75rem; }
+  }
+}
+
+/* Health Profile Minimal Styles */
 .minimal-health-profile {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
 }
@@ -72,6 +295,7 @@
   appearance: none;
   background: transparent;
   cursor: pointer;
+  height: var(--touch-target);
 }
 
 .minimal-health-profile input[type="range"]::-webkit-slider-track {
@@ -84,8 +308,8 @@
   -webkit-appearance: none;
   appearance: none;
   background: #007AFF;
-  height: 16px;
-  width: 16px;
+  height: 20px;
+  width: 20px;
   border-radius: 50%;
   cursor: pointer;
 }
@@ -99,8 +323,8 @@
 
 .minimal-health-profile input[type="range"]::-moz-range-thumb {
   background: #007AFF;
-  height: 16px;
-  width: 16px;
+  height: 20px;
+  width: 20px;
   border-radius: 50%;
   cursor: pointer;
   border: none;
@@ -119,16 +343,20 @@
   box-shadow: none !important;
 }
 
-/* Checkbox styling */
-.minimal-health-profile input[type="checkbox"] {
+/* Touch-friendly form elements */
+.minimal-health-profile input[type="checkbox"],
+.minimal-health-profile input[type="radio"] {
   border-radius: 0 !important;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 }
 
-/* Radio button styling */
 .minimal-health-profile input[type="radio"] {
   border-radius: 50% !important;
-  width: 16px;
-  height: 16px;
+}
+
+.minimal-health-profile button,
+.minimal-health-profile select,
+.minimal-health-profile input {
+  min-height: var(--touch-target);
 }

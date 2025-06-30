@@ -49,234 +49,276 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({ healthProfi
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 px-6 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-100 pb-8">
-        <div>
-          <h1 className="text-4xl font-bold text-black mb-2">
-            Профиль здоровья
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Последнее обновление: {new Date().toLocaleDateString('ru-RU')}
-          </p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container-adaptive space-adaptive-lg">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="p-adaptive-lg border-b border-gray-100">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-adaptive-md">
+              <div className="space-adaptive-xs">
+                <h1 className="text-adaptive-3xl font-bold text-black">
+                  Профиль здоровья
+                </h1>
+                <p className="text-adaptive-base text-gray-600">
+                  Последнее обновление: {new Date().toLocaleDateString('ru-RU')}
+                </p>
+              </div>
+              <Button 
+                onClick={onEdit} 
+                className="touch-target px-adaptive-lg py-adaptive-sm bg-blue-600 text-white hover:bg-blue-700 gap-adaptive-xs self-start sm:self-auto"
+              >
+                <Edit2 className="h-4 w-4" />
+                <span className="text-adaptive-sm font-medium">Редактировать</span>
+              </Button>
+            </div>
+          </div>
         </div>
-        <Button onClick={onEdit} className="px-8 py-3 bg-blue-600 text-white hover:bg-blue-700 gap-3">
-          <Edit2 className="h-5 w-5" />
-          Редактировать
-        </Button>
+
+        {/* Content Grid */}
+        <div className="grid-adaptive grid-adaptive-2 lg:grid-cols-2">
+          {/* Personal Information */}
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="p-adaptive-lg space-adaptive-lg">
+              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
+                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+                  <User className="h-5 w-5 text-blue-600" />
+                </div>
+                <h2 className="text-adaptive-xl font-bold text-black">Личная информация</h2>
+              </div>
+              
+              <div className="space-adaptive-md">
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Возраст:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.age)} лет</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Пол:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{getGenderLabel(healthProfile.gender)}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Рост:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.height)} см</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Вес:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.weight)} кг</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Health Goals */}
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="p-adaptive-lg space-adaptive-lg">
+              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
+                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+                  <Target className="h-5 w-5 text-blue-600" />
+                </div>
+                <h2 className="text-adaptive-xl font-bold text-black">Цели здоровья</h2>
+              </div>
+              
+              <div>
+                {healthProfile.healthGoals && healthProfile.healthGoals.length > 0 ? (
+                  <div className="space-adaptive-sm">
+                    {healthProfile.healthGoals.map((goal, index) => (
+                      <div key={index} className="py-adaptive-sm px-adaptive-md bg-blue-50 border-l-4 border-blue-600">
+                        <span className="text-adaptive-sm text-black font-medium">{goal}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-adaptive-sm text-gray-500 italic">Цели не указаны</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Physical Health */}
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="p-adaptive-lg space-adaptive-lg">
+              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
+                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+                  <Activity className="h-5 w-5 text-blue-600" />
+                </div>
+                <h2 className="text-adaptive-xl font-bold text-black">Физическое здоровье</h2>
+              </div>
+              
+              <div className="space-adaptive-md">
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Физическая активность:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{getActivityLabel(healthProfile.physicalActivity || '')}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Упражнения в неделю:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.exerciseFrequency)} раз</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mental Health */}
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="p-adaptive-lg space-adaptive-lg">
+              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
+                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+                  <Brain className="h-5 w-5 text-blue-600" />
+                </div>
+                <h2 className="text-adaptive-xl font-bold text-black">Психическое здоровье</h2>
+              </div>
+              
+              <div className="space-adaptive-md">
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Уровень стресса:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.stressLevel)}/10</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Уровень тревожности:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.anxietyLevel)}/10</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Качество сна:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{getQualityLabel(healthProfile.sleepQuality || '')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Lifestyle */}
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="p-adaptive-lg space-adaptive-lg">
+              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
+                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+                  <Heart className="h-5 w-5 text-blue-600" />
+                </div>
+                <h2 className="text-adaptive-xl font-bold text-black">Образ жизни</h2>
+              </div>
+              
+              <div className="space-adaptive-md">
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Курение:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.smokingStatus)}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Алкоголь:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.alcoholConsumption)}</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Потребление воды:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.waterIntake)} стаканов/день</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sleep */}
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="p-adaptive-lg space-adaptive-lg">
+              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
+                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+                  <Moon className="h-5 w-5 text-blue-600" />
+                </div>
+                <h2 className="text-adaptive-xl font-bold text-black">Сон и отдых</h2>
+              </div>
+              
+              <div className="space-adaptive-md">
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Часы сна:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.sleepHours)} часов</span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Качество сна:</span>
+                  <span className="text-adaptive-sm text-black font-medium">{getQualityLabel(healthProfile.sleepQuality || '')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Medical History - Full Width */}
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="p-adaptive-lg space-adaptive-lg">
+            <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
+              <div className="p-adaptive-xs bg-blue-100 rounded-full">
+                <FileText className="h-5 w-5 text-blue-600" />
+              </div>
+              <h2 className="text-adaptive-xl font-bold text-black">Медицинская история</h2>
+            </div>
+            
+            <div className="grid-adaptive grid-adaptive-2 lg:grid-cols-3">
+              <div className="space-adaptive-md">
+                <h3 className="text-adaptive-lg font-medium text-black mb-adaptive-md">Хронические заболевания</h3>
+                {healthProfile.chronicConditions && healthProfile.chronicConditions.length > 0 ? (
+                  <div className="space-adaptive-sm">
+                    {healthProfile.chronicConditions.map((condition, index) => (
+                      <div key={index} className="py-adaptive-sm px-adaptive-sm bg-red-50 border-l-4 border-red-200">
+                        <span className="text-adaptive-sm text-black">{condition}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-adaptive-sm text-gray-500 italic">Не указаны</p>
+                )}
+              </div>
+
+              <div className="space-adaptive-md">
+                <h3 className="text-adaptive-lg font-medium text-black mb-adaptive-md">Принимаемые лекарства</h3>
+                {healthProfile.medications && healthProfile.medications.length > 0 ? (
+                  <div className="space-adaptive-sm">
+                    {healthProfile.medications.map((medication, index) => (
+                      <div key={index} className="py-adaptive-sm px-adaptive-sm bg-green-50 border-l-4 border-green-200">
+                        <span className="text-adaptive-sm text-black">{medication}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-adaptive-sm text-gray-500 italic">Не указаны</p>
+                )}
+              </div>
+
+              <div className="space-adaptive-md">
+                <h3 className="text-adaptive-lg font-medium text-black mb-adaptive-md">Аллергии</h3>
+                {healthProfile.allergies && healthProfile.allergies.length > 0 ? (
+                  <div className="space-adaptive-sm">
+                    {healthProfile.allergies.map((allergy, index) => (
+                      <div key={index} className="py-adaptive-sm px-adaptive-sm bg-yellow-50 border-l-4 border-yellow-200">
+                        <span className="text-adaptive-sm text-black">{allergy}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-adaptive-sm text-gray-500 italic">Не указаны</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Lab Results */}
+        {healthProfile.labResults && (
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="p-adaptive-lg space-adaptive-lg">
+              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
+                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+                  <TestTube className="h-5 w-5 text-blue-600" />
+                </div>
+                <h2 className="text-adaptive-xl font-bold text-black">Результаты анализов</h2>
+              </div>
+              
+              <div className="space-adaptive-md">
+                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
+                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Дата анализов:</span>
+                  <span className="text-adaptive-sm text-black font-medium">
+                    {healthProfile.labResults.testDate 
+                      ? new Date(healthProfile.labResults.testDate).toLocaleDateString('ru-RU')
+                      : 'Не указана'
+                    }
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Personal Information */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 mb-6">
-            <User className="h-6 w-6 text-blue-600" />
-            <h2 className="text-2xl font-bold text-black">Личная информация</h2>
-          </div>
-          
-          <div className="space-y-4 pl-9">
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Возраст:</span>
-              <span className="text-black font-medium">{formatValue(healthProfile.age)} лет</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Пол:</span>
-              <span className="text-black font-medium">{getGenderLabel(healthProfile.gender)}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Рост:</span>
-              <span className="text-black font-medium">{formatValue(healthProfile.height)} см</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Вес:</span>
-              <span className="text-black font-medium">{formatValue(healthProfile.weight)} кг</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Health Goals */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 mb-6">
-            <Target className="h-6 w-6 text-blue-600" />
-            <h2 className="text-2xl font-bold text-black">Цели здоровья</h2>
-          </div>
-          
-          <div className="pl-9">
-            {healthProfile.healthGoals && healthProfile.healthGoals.length > 0 ? (
-              <div className="space-y-3">
-                {healthProfile.healthGoals.map((goal, index) => (
-                  <div key={index} className="py-2 px-4 bg-blue-50 border-l-4 border-blue-600">
-                    <span className="text-black font-medium">{goal}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 italic">Цели не указаны</p>
-            )}
-          </div>
-        </div>
-
-        {/* Physical Health */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 mb-6">
-            <Activity className="h-6 w-6 text-blue-600" />
-            <h2 className="text-2xl font-bold text-black">Физическое здоровье</h2>
-          </div>
-          
-          <div className="space-y-4 pl-9">
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Физическая активность:</span>
-              <span className="text-black font-medium">{getActivityLabel(healthProfile.physicalActivity || '')}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Упражнения в неделю:</span>
-              <span className="text-black font-medium">{formatValue(healthProfile.exerciseFrequency)} раз</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Mental Health */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 mb-6">
-            <Brain className="h-6 w-6 text-blue-600" />
-            <h2 className="text-2xl font-bold text-black">Психическое здоровье</h2>
-          </div>
-          
-          <div className="space-y-4 pl-9">
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Уровень стресса:</span>
-              <span className="text-black font-medium">{formatValue(healthProfile.stressLevel)}/10</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Уровень тревожности:</span>
-              <span className="text-black font-medium">{formatValue(healthProfile.anxietyLevel)}/10</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Качество сна:</span>
-              <span className="text-black font-medium">{getQualityLabel(healthProfile.sleepQuality || '')}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Lifestyle */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 mb-6">
-            <Heart className="h-6 w-6 text-blue-600" />
-            <h2 className="text-2xl font-bold text-black">Образ жизни</h2>
-          </div>
-          
-          <div className="space-y-4 pl-9">
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Курение:</span>
-              <span className="text-black font-medium">{formatValue(healthProfile.smokingStatus)}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Алкоголь:</span>
-              <span className="text-black font-medium">{formatValue(healthProfile.alcoholConsumption)}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Потребление воды:</span>
-              <span className="text-black font-medium">{formatValue(healthProfile.waterIntake)} стаканов/день</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Sleep */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 mb-6">
-            <Moon className="h-6 w-6 text-blue-600" />
-            <h2 className="text-2xl font-bold text-black">Сон и отдых</h2>
-          </div>
-          
-          <div className="space-y-4 pl-9">
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Часы сна:</span>
-              <span className="text-black font-medium">{formatValue(healthProfile.sleepHours)} часов</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Качество сна:</span>
-              <span className="text-black font-medium">{getQualityLabel(healthProfile.sleepQuality || '')}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Medical History - Full Width */}
-      <div className="space-y-6 border-t border-gray-100 pt-8">
-        <div className="flex items-center gap-3 mb-6">
-          <FileText className="h-6 w-6 text-blue-600" />
-          <h2 className="text-2xl font-bold text-black">Медицинская история</h2>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pl-9">
-          <div>
-            <h3 className="text-lg font-medium text-black mb-4">Хронические заболевания</h3>
-            {healthProfile.chronicConditions && healthProfile.chronicConditions.length > 0 ? (
-              <div className="space-y-2">
-                {healthProfile.chronicConditions.map((condition, index) => (
-                  <div key={index} className="py-2 px-3 bg-red-50 border-l-4 border-red-200">
-                    <span className="text-black">{condition}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 italic">Не указаны</p>
-            )}
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium text-black mb-4">Принимаемые лекарства</h3>
-            {healthProfile.medications && healthProfile.medications.length > 0 ? (
-              <div className="space-y-2">
-                {healthProfile.medications.map((medication, index) => (
-                  <div key={index} className="py-2 px-3 bg-green-50 border-l-4 border-green-200">
-                    <span className="text-black">{medication}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 italic">Не указаны</p>
-            )}
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium text-black mb-4">Аллергии</h3>
-            {healthProfile.allergies && healthProfile.allergies.length > 0 ? (
-              <div className="space-y-2">
-                {healthProfile.allergies.map((allergy, index) => (
-                  <div key={index} className="py-2 px-3 bg-yellow-50 border-l-4 border-yellow-200">
-                    <span className="text-black">{allergy}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 italic">Не указаны</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Lab Results */}
-      {healthProfile.labResults && (
-        <div className="space-y-6 border-t border-gray-100 pt-8">
-          <div className="flex items-center gap-3 mb-6">
-            <TestTube className="h-6 w-6 text-blue-600" />
-            <h2 className="text-2xl font-bold text-black">Результаты анализов</h2>
-          </div>
-          
-          <div className="pl-9">
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-600 font-medium">Дата анализов:</span>
-              <span className="text-black font-medium">
-                {healthProfile.labResults.testDate 
-                  ? new Date(healthProfile.labResults.testDate).toLocaleDateString('ru-RU')
-                  : 'Не указана'
-                }
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
