@@ -1,0 +1,82 @@
+
+@layer components {
+  /* Базовые отступы для контента - ОБЯЗАТЕЛЬНО для всех компонентов */
+  .content-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  .content-padding-sm {
+    @apply px-3 sm:px-4 lg:px-6;
+  }
+  
+  .content-padding-lg {
+    @apply px-6 sm:px-8 lg:px-12;
+  }
+  
+  .content-padding-internal {
+    @apply px-3 py-2 sm:px-4 sm:py-3;
+  }
+  
+  /* Отступы для разделов */
+  .section-spacing {
+    @apply py-8 sm:py-12 lg:py-16;
+  }
+  
+  .section-spacing-sm {
+    @apply py-6 sm:py-8 lg:py-10;
+  }
+  
+  .section-spacing-lg {
+    @apply py-12 sm:py-16 lg:py-24;
+  }
+  
+  /* Контейнеры с правильными отступами */
+  .page-container {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+  
+  .content-container {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl;
+  }
+  
+  /* Grid отступы */
+  .grid-spacing {
+    @apply gap-4 sm:gap-6;
+  }
+  
+  .grid-spacing-sm {
+    @apply gap-3 sm:gap-4;
+  }
+  
+  .grid-spacing-lg {
+    @apply gap-6 sm:gap-8;
+  }
+  
+  /* Адаптивные сетки */
+  .responsive-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+  }
+  
+  .responsive-grid-2 {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6;
+  }
+  
+  .responsive-grid-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6;
+  }
+  
+  /* Touch targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  /* Разделители */
+  .content-divider {
+    @apply border-t border-gray-200 my-6 sm:my-8;
+  }
+  
+  /* Анимации */
+  .animate-in {
+    @apply animate-fade-in;
+  }
+}

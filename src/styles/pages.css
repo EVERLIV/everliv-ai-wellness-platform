@@ -1,0 +1,101 @@
+
+/* Специальные стили для здоровья и питания */
+.health-profile {
+  @apply min-h-screen bg-gray-50;
+}
+
+.health-profile .card {
+  @apply bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+.health-profile .card-header {
+  @apply p-6 border-b border-gray-100;
+}
+
+.health-profile .card-content {
+  @apply p-6;
+}
+
+.health-profile .info-row {
+  @apply flex flex-col sm:flex-row sm:justify-between py-3 px-2 border-b border-gray-100 last:border-b-0;
+}
+
+.health-profile .info-row .label {
+  @apply text-sm font-medium text-gray-600 mb-1 sm:mb-0 px-1;
+}
+
+.health-profile .info-row .value {
+  @apply text-sm font-semibold text-gray-900 px-1;
+}
+
+.nutrition-diary {
+  @apply min-h-screen bg-gray-50;
+}
+
+.nutrition-diary .card {
+  @apply bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
+}
+
+.nutrition-diary .card-header {
+  @apply p-6 border-b border-gray-100;
+}
+
+.nutrition-diary .card-content {
+  @apply p-6;
+}
+
+.nutrition-diary .stats-item {
+  @apply text-center p-4 bg-gray-50 rounded-lg;
+}
+
+.nutrition-diary .stats-item .value {
+  @apply text-2xl font-bold text-primary mb-1;
+}
+
+.nutrition-diary .stats-item .label {
+  @apply text-sm text-gray-600;
+}
+
+.nutrition-diary .meal-item {
+  @apply flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors;
+}
+
+.nutrition-diary .meal-item .info {
+  @apply flex-1 px-2;
+}
+
+.nutrition-diary .meal-item .name {
+  @apply font-medium text-gray-900 mb-1;
+}
+
+.nutrition-diary .meal-item .details {
+  @apply text-sm text-gray-600;
+}
+
+.nutrition-diary .meal-item .nutrition {
+  @apply text-right text-sm text-gray-500 px-2;
+}
+
+.nutrition-diary .progress-section {
+  @apply space-y-4 p-4;
+}
+
+.nutrition-diary .progress-item {
+  @apply space-y-2;
+}
+
+.nutrition-diary .progress-header {
+  @apply flex items-center justify-between px-1;
+}
+
+.nutrition-diary .progress-label {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.nutrition-diary .progress-value {
+  @apply text-sm text-gray-600 font-mono;
+}
+
+.nutrition-diary .progress-remaining {
+  @apply text-xs text-gray-500 px-1;
+}

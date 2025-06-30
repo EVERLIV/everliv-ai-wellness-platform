@@ -1,0 +1,116 @@
+
+@layer components {
+  /* Отступы для карточек - КРИТИЧНО для решения проблемы */
+  .card-padding {
+    @apply p-4 sm:p-6;
+  }
+  
+  .card-padding-sm {
+    @apply p-3 sm:p-4;
+  }
+  
+  .card-padding-lg {
+    @apply p-6 sm:p-8;
+  }
+  
+  /* Внутренние отступы для текста в карточках */
+  .card-content-padding {
+    @apply px-4 py-3 sm:px-6 sm:py-4;
+  }
+  
+  /* Отступы для текста */
+  .text-spacing {
+    @apply space-y-3 sm:space-y-4;
+  }
+  
+  .text-spacing-sm {
+    @apply space-y-2 sm:space-y-3;
+  }
+  
+  .text-spacing-lg {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  .text-content {
+    @apply px-2 py-1 sm:px-3 sm:py-1.5;
+  }
+  
+  /* Отступы для форм */
+  .form-spacing {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  .form-spacing-sm {
+    @apply space-y-3 sm:space-y-4;
+  }
+  
+  .form-group {
+    @apply space-y-2;
+  }
+  
+  .form-group label {
+    @apply block text-sm font-medium text-gray-700 px-1;
+  }
+  
+  /* Группы кнопок */
+  .button-group {
+    @apply flex flex-wrap gap-2 sm:gap-3;
+  }
+  
+  /* Списки карточек */
+  .card-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+  }
+  
+  .card-list {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  /* Навигация */
+  .nav-spacing {
+    @apply space-x-4 sm:space-x-6;
+  }
+  
+  /* Индикаторы статуса */
+  .status-indicator {
+    @apply inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium;
+  }
+  
+  /* Адаптивный текст с отступами */
+  .text-responsive {
+    @apply text-sm sm:text-base px-1;
+  }
+  
+  .text-responsive-lg {
+    @apply text-base sm:text-lg px-1;
+  }
+  
+  .heading-responsive {
+    @apply text-lg sm:text-xl font-semibold px-1;
+  }
+  
+  .heading-responsive-lg {
+    @apply text-xl sm:text-2xl lg:text-3xl font-bold px-1;
+  }
+  
+  /* Специальные классы для исправления проблем с отступами */
+  .info-item {
+    @apply flex justify-between items-center py-2 px-3 hover:bg-gray-50 rounded-md;
+  }
+  
+  .info-label {
+    @apply text-sm font-medium text-gray-600 px-1;
+  }
+  
+  .info-value {
+    @apply text-sm font-semibold text-gray-900 px-1;
+  }
+  
+  .section-title {
+    @apply text-lg font-semibold text-gray-900 mb-4 px-2;
+  }
+  
+  .section-description {
+    @apply text-sm text-gray-600 mb-6 px-2;
+  }
+}
