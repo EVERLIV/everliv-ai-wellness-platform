@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -122,7 +123,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
     }
 
     try {
-      // Подготавливаем данные в правильном формате для таблицы personal_recommendations
+      // Подготавливаем данные для сохранения в health_recommendations
       const sourceData = {
         implementation: recommendation.implementation || {},
         scientificBasis: recommendation.scientificBasis || '',
@@ -132,23 +133,27 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
         evidenceLevel: recommendation.evidenceLevel || 'moderate'
       };
 
-      console.log('Saving recommendation with data:', {
+      console.log('Saving recommendation to health_recommendations:', {
         user_id: user.id,
         title: recommendation.title,
         description: recommendation.description,
         category: recommendation.category,
         priority: recommendation.priority,
+        type: 'ai_generated',
+        status: 'active',
         source_data: sourceData
       });
 
       const { data, error } = await supabase
-        .from('personal_recommendations')
+        .from('health_recommendations')
         .insert({
           user_id: user.id,
           title: recommendation.title,
           description: recommendation.description,
           category: recommendation.category,
           priority: recommendation.priority,
+          type: 'ai_generated',
+          status: 'active',
           source_data: sourceData
         })
         .select();

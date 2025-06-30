@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,7 +16,9 @@ import {
   TestTube,
   Trash2,
   Calendar,
-  ArrowLeft
+  ArrowLeft,
+  CheckCircle,
+  Clock
 } from 'lucide-react';
 
 interface SavedRecommendation {
@@ -50,13 +51,20 @@ const MyRecommendations = () => {
 
     try {
       setIsLoading(true);
+      console.log('Fetching recommendations for user:', user.id);
+      
       const { data, error } = await supabase
         .from('health_recommendations')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching recommendations:', error);
+        throw error;
+      }
+      
+      console.log('Fetched recommendations:', data);
       setRecommendations(data || []);
     } catch (error: any) {
       console.error('Ошибка при загрузке рекомендаций:', error);
@@ -258,16 +266,16 @@ const MyRecommendations = () => {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/analytics")}
                 className="flex items-center gap-2 hover:bg-gray-100"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Назад
+                Назад к аналитике
               </Button>
               <h1 className="text-2xl font-bold text-gray-900">Мои рекомендации</h1>
             </div>
             <p className="text-gray-600 mt-2">
-              Персональные рекомендации, сохраненные из дашборда и аналитики здоровья
+              Персональные рекомендации, сохраненные из аналитики здоровья
             </p>
           </div>
         </div>
@@ -275,7 +283,12 @@ const MyRecommendations = () => {
       fullWidth
     >
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {recommendations.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+            <p className="text-gray-500">Загрузка рекомендаций...</p>
+          </div>
+        ) : recommendations.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <TestTube className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -283,16 +296,11 @@ const MyRecommendations = () => {
                 Нет сохраненных рекомендаций
               </h3>
               <p className="text-gray-600 mb-4">
-                Сохраните рекомендации из дашборда или аналитики здоровья, чтобы отслеживать их выполнение
+                Сохраните рекомендации из аналитики здоровья, чтобы отслеживать их выполнение
               </p>
-              <div className="flex gap-2 justify-center">
-                <Button onClick={() => navigate('/dashboard')}>
-                  Перейти к дашборду
-                </Button>
-                <Button variant="outline" onClick={() => navigate('/analytics')}>
-                  Перейти к аналитике
-                </Button>
-              </div>
+              <Button onClick={() => navigate('/analytics')}>
+                Перейти к аналитике
+              </Button>
             </CardContent>
           </Card>
         ) : (
@@ -302,7 +310,7 @@ const MyRecommendations = () => {
                 <CardHeader className="pb-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
                         {getCategoryIcon(recommendation.category)}
                         <Badge className={`${getCategoryColor(recommendation.category)} border text-xs`}>
                           {getCategoryName(recommendation.category)}
@@ -310,22 +318,28 @@ const MyRecommendations = () => {
                         <Badge className={`${getPriorityColor(recommendation.priority)} border text-xs`}>
                           {getPriorityText(recommendation.priority)}
                         </Badge>
-                        {recommendation.status === 'completed' && (
+                        {recommendation.status === 'completed' ? (
                           <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
+                            <CheckCircle className="h-3 w-3 mr-1" />
                             Выполнено
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-orange-100 text-orange-800 border-orange-200 text-xs">
+                            <Clock className="h-3 w-3 mr-1" />
+                            Активно
                           </Badge>
                         )}
                         <Badge className="bg-blue-100 text-blue-800 border-blue-200 text-xs">
-                          {recommendation.type === 'ai_generated' ? 'ИИ' : 'Аналитика'}
+                          ИИ-рекомендация
                         </Badge>
                       </div>
                       <CardTitle className="text-lg leading-tight mb-2">
                         {recommendation.title}
                       </CardTitle>
-                      <p className="text-gray-600 text-sm leading-relaxed">
+                      <p className="text-gray-600 text-sm leading-relaxed mb-3">
                         {recommendation.description}
                       </p>
-                      <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
                         <Calendar className="h-3 w-3" />
                         <span>
                           Сохранено: {new Date(recommendation.created_at).toLocaleDateString('ru-RU')}
@@ -338,8 +352,9 @@ const MyRecommendations = () => {
                           onClick={() => markAsCompleted(recommendation.id)}
                           size="sm"
                           variant="outline"
-                          className="bg-green-50 hover:bg-green-100 border-green-200"
+                          className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700"
                         >
+                          <CheckCircle className="h-4 w-4 mr-1" />
                           Выполнено
                         </Button>
                       )}
