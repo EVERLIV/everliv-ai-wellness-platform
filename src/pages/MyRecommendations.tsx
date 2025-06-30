@@ -28,8 +28,8 @@ interface SavedRecommendation {
   priority: string;
   source_data: any;
   created_at: string;
-  is_completed: boolean;
-  completed_at: string | null;
+  status: string;
+  type: string;
 }
 
 const MyRecommendations = () => {
@@ -51,7 +51,7 @@ const MyRecommendations = () => {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('personal_recommendations')
+        .from('health_recommendations')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -160,10 +160,10 @@ const MyRecommendations = () => {
   const markAsCompleted = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('personal_recommendations')
+        .from('health_recommendations')
         .update({ 
-          is_completed: true,
-          completed_at: new Date().toISOString()
+          status: 'completed',
+          updated_at: new Date().toISOString()
         })
         .eq('id', id);
 
@@ -172,7 +172,7 @@ const MyRecommendations = () => {
       setRecommendations(prev => 
         prev.map(rec => 
           rec.id === id 
-            ? { ...rec, is_completed: true, completed_at: new Date().toISOString() }
+            ? { ...rec, status: 'completed' }
             : rec
         )
       );
@@ -194,7 +194,7 @@ const MyRecommendations = () => {
   const deleteRecommendation = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('personal_recommendations')
+        .from('health_recommendations')
         .delete()
         .eq('id', id);
 
@@ -267,7 +267,7 @@ const MyRecommendations = () => {
               <h1 className="text-2xl font-bold text-gray-900">Мои рекомендации</h1>
             </div>
             <p className="text-gray-600 mt-2">
-              Персональные рекомендации, сохраненные из аналитики здоровья
+              Персональные рекомендации, сохраненные из дашборда и аналитики здоровья
             </p>
           </div>
         </div>
@@ -283,11 +283,16 @@ const MyRecommendations = () => {
                 Нет сохраненных рекомендаций
               </h3>
               <p className="text-gray-600 mb-4">
-                Сохраните рекомендации из аналитики здоровья, чтобы отслеживать их выполнение
+                Сохраните рекомендации из дашборда или аналитики здоровья, чтобы отслеживать их выполнение
               </p>
-              <Button onClick={() => navigate('/analytics')}>
-                Перейти к аналитике
-              </Button>
+              <div className="flex gap-2 justify-center">
+                <Button onClick={() => navigate('/dashboard')}>
+                  Перейти к дашборду
+                </Button>
+                <Button variant="outline" onClick={() => navigate('/analytics')}>
+                  Перейти к аналитике
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ) : (
@@ -305,11 +310,14 @@ const MyRecommendations = () => {
                         <Badge className={`${getPriorityColor(recommendation.priority)} border text-xs`}>
                           {getPriorityText(recommendation.priority)}
                         </Badge>
-                        {recommendation.is_completed && (
+                        {recommendation.status === 'completed' && (
                           <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
                             Выполнено
                           </Badge>
                         )}
+                        <Badge className="bg-blue-100 text-blue-800 border-blue-200 text-xs">
+                          {recommendation.type === 'ai_generated' ? 'ИИ' : 'Аналитика'}
+                        </Badge>
                       </div>
                       <CardTitle className="text-lg leading-tight mb-2">
                         {recommendation.title}
@@ -322,15 +330,10 @@ const MyRecommendations = () => {
                         <span>
                           Сохранено: {new Date(recommendation.created_at).toLocaleDateString('ru-RU')}
                         </span>
-                        {recommendation.completed_at && (
-                          <span>
-                            • Выполнено: {new Date(recommendation.completed_at).toLocaleDateString('ru-RU')}
-                          </span>
-                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
-                      {!recommendation.is_completed && (
+                      {recommendation.status !== 'completed' && (
                         <Button
                           onClick={() => markAsCompleted(recommendation.id)}
                           size="sm"
