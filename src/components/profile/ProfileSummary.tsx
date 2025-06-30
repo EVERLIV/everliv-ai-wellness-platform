@@ -10,7 +10,11 @@ interface ProfileSummaryProps {
 
 const ProfileSummary = ({ profileData, isLoading }: ProfileSummaryProps) => {
   if (isLoading) {
-    return <div className="flex justify-center py-4">Загрузка...</div>;
+    return (
+      <div className="flex justify-center py-8">
+        <div className="text-content">Загрузка...</div>
+      </div>
+    );
   }
 
   const getInitials = () => {
@@ -45,36 +49,36 @@ const ProfileSummary = ({ profileData, isLoading }: ProfileSummaryProps) => {
 
   return (
     <Card className="mb-6">
-      <CardContent className="p-6">
+      <CardContent className="card-content-padding">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
           <Avatar className="h-24 w-24">
             <AvatarFallback className="text-xl">{getInitials()}</AvatarFallback>
           </Avatar>
           
-          <div className="space-y-2 text-center md:text-left">
-            <h2 className="text-2xl font-bold">
+          <div className="space-y-4 text-center md:text-left flex-1">
+            <h2 className="heading-responsive-lg">
               {profileData?.first_name || ''} {profileData?.last_name || ''}
             </h2>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-              <div className="text-center p-2 bg-gray-50 rounded">
-                <div className="text-sm text-gray-500">Возраст</div>
-                <div className="font-medium">{calculateAge() || 'Не указан'}</div>
+            <div className="responsive-grid-4">
+              <div className="stats-item">
+                <div className="text-sm text-gray-500 mb-1">Возраст</div>
+                <div className="info-value">{calculateAge() || 'Не указан'}</div>
               </div>
               
-              <div className="text-center p-2 bg-gray-50 rounded">
-                <div className="text-sm text-gray-500">Пол</div>
-                <div className="font-medium">{getGenderText()}</div>
+              <div className="stats-item">
+                <div className="text-sm text-gray-500 mb-1">Пол</div>
+                <div className="info-value">{getGenderText()}</div>
               </div>
               
-              <div className="text-center p-2 bg-gray-50 rounded">
-                <div className="text-sm text-gray-500">Рост</div>
-                <div className="font-medium">{profileData?.height ? `${profileData.height} см` : 'Не указан'}</div>
+              <div className="stats-item">
+                <div className="text-sm text-gray-500 mb-1">Рост</div>
+                <div className="info-value">{profileData?.height ? `${profileData.height} см` : 'Не указан'}</div>
               </div>
               
-              <div className="text-center p-2 bg-gray-50 rounded">
-                <div className="text-sm text-gray-500">Вес</div>
-                <div className="font-medium">{profileData?.weight ? `${profileData.weight} кг` : 'Не указан'}</div>
+              <div className="stats-item">
+                <div className="text-sm text-gray-500 mb-1">Вес</div>
+                <div className="info-value">{profileData?.weight ? `${profileData.weight} кг` : 'Не указан'}</div>
               </div>
             </div>
           </div>

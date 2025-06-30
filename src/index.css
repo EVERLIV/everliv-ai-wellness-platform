@@ -58,7 +58,7 @@
   
   html {
     font-size: 16px;
-    line-height: 1.5;
+    line-height: 1.6;
     scroll-behavior: smooth;
   }
   
@@ -70,15 +70,18 @@
     hyphens: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
   }
   
-  /* Improved text handling */
-  p, span, div, h1, h2, h3, h4, h5, h6 {
+  /* Глобальные отступы для всего текста */
+  p, span, div, li, label, h1, h2, h3, h4, h5, h6 {
     word-break: break-word;
     overflow-wrap: break-word;
     hyphens: auto;
+  }
+  
+  /* Обязательные отступы для всех текстовых элементов внутри контейнеров */
+  .card p, .card span, .card div:not(.flex):not(.grid), .card li {
+    @apply px-1 py-0.5;
   }
   
   /* Focus styles */
@@ -89,7 +92,7 @@
 }
 
 @layer components {
-  /* Universal content padding */
+  /* Базовые отступы для контента - ОБЯЗАТЕЛЬНО для всех компонентов */
   .content-padding {
     @apply px-4 sm:px-6 lg:px-8;
   }
@@ -102,20 +105,24 @@
     @apply px-6 sm:px-8 lg:px-12;
   }
   
-  /* Section spacing */
+  .content-padding-internal {
+    @apply px-3 py-2 sm:px-4 sm:py-3;
+  }
+  
+  /* Отступы для разделов */
   .section-spacing {
-    @apply py-12 sm:py-16 lg:py-20;
+    @apply py-8 sm:py-12 lg:py-16;
   }
   
   .section-spacing-sm {
-    @apply py-8 sm:py-10 lg:py-12;
+    @apply py-6 sm:py-8 lg:py-10;
   }
   
   .section-spacing-lg {
-    @apply py-16 sm:py-20 lg:py-24;
+    @apply py-12 sm:py-16 lg:py-24;
   }
   
-  /* Card spacing */
+  /* Отступы для карточек - КРИТИЧНО для решения проблемы */
   .card-padding {
     @apply p-4 sm:p-6;
   }
@@ -128,12 +135,17 @@
     @apply p-6 sm:p-8;
   }
   
+  /* Внутренние отступы для текста в карточках */
+  .card-content-padding {
+    @apply px-4 py-3 sm:px-6 sm:py-4;
+  }
+  
   /* Touch targets */
   .touch-target {
     @apply min-h-[44px] min-w-[44px];
   }
   
-  /* Text spacing */
+  /* Отступы для текста */
   .text-spacing {
     @apply space-y-3 sm:space-y-4;
   }
@@ -146,7 +158,11 @@
     @apply space-y-4 sm:space-y-6;
   }
   
-  /* Form spacing */
+  .text-content {
+    @apply px-2 py-1 sm:px-3 sm:py-1.5;
+  }
+  
+  /* Отступы для форм */
   .form-spacing {
     @apply space-y-4 sm:space-y-6;
   }
@@ -155,7 +171,15 @@
     @apply space-y-3 sm:space-y-4;
   }
   
-  /* Grid spacing */
+  .form-group {
+    @apply space-y-2;
+  }
+  
+  .form-group label {
+    @apply block text-sm font-medium text-gray-700 px-1;
+  }
+  
+  /* Grid отступы */
   .grid-spacing {
     @apply gap-4 sm:gap-6;
   }
@@ -168,7 +192,7 @@
     @apply gap-6 sm:gap-8;
   }
   
-  /* Mobile-first responsive grids */
+  /* Адаптивные сетки */
   .responsive-grid {
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
   }
@@ -181,7 +205,7 @@
     @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6;
   }
   
-  /* Consistent containers */
+  /* Контейнеры с правильными отступами */
   .page-container {
     @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
   }
@@ -190,21 +214,12 @@
     @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl;
   }
   
-  /* Button groups */
+  /* Группы кнопок */
   .button-group {
     @apply flex flex-wrap gap-2 sm:gap-3;
   }
   
-  /* Form groups */
-  .form-group {
-    @apply space-y-2;
-  }
-  
-  .form-group label {
-    @apply block text-sm font-medium text-gray-700;
-  }
-  
-  /* Card layouts */
+  /* Списки карточек */
   .card-grid {
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
   }
@@ -213,137 +228,162 @@
     @apply space-y-4 sm:space-y-6;
   }
   
-  /* Navigation spacing */
+  /* Навигация */
   .nav-spacing {
     @apply space-x-4 sm:space-x-6;
   }
   
-  /* Status indicators */
+  /* Индикаторы статуса */
   .status-indicator {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium;
   }
   
-  /* Dividers */
+  /* Разделители */
   .content-divider {
     @apply border-t border-gray-200 my-6 sm:my-8;
   }
   
-  /* Animation classes */
+  /* Анимации */
   .animate-in {
     @apply animate-fade-in;
   }
   
-  /* Responsive text */
+  /* Адаптивный текст с отступами */
   .text-responsive {
-    @apply text-sm sm:text-base;
+    @apply text-sm sm:text-base px-1;
   }
   
   .text-responsive-lg {
-    @apply text-base sm:text-lg;
+    @apply text-base sm:text-lg px-1;
   }
   
   .heading-responsive {
-    @apply text-lg sm:text-xl font-semibold;
+    @apply text-lg sm:text-xl font-semibold px-1;
   }
   
   .heading-responsive-lg {
-    @apply text-xl sm:text-2xl lg:text-3xl font-bold;
+    @apply text-xl sm:text-2xl lg:text-3xl font-bold px-1;
   }
+  
+  /* Специальные классы для исправления проблем с отступами */
+  .info-item {
+    @apply flex justify-between items-center py-2 px-3 hover:bg-gray-50 rounded-md;
+  }
+  
+  .info-label {
+    @apply text-sm font-medium text-gray-600 px-1;
+  }
+  
+  .info-value {
+    @apply text-sm font-semibold text-gray-900 px-1;
+  }
+  
+  .section-title {
+    @apply text-lg font-semibold text-gray-900 mb-4 px-2;
+  }
+  
+  .section-description {
+    @apply text-sm text-gray-600 mb-6 px-2;
+  }
+</layer>
+
+/* Специальные стили для здоровья и питания */
+.health-profile {
+  @apply min-h-screen bg-gray-50;
 }
 
-/* Utility classes for consistent design */
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  
-  .text-pretty {
-    text-wrap: pretty;
-  }
-  
-  /* Safe area utilities */
-  .safe-top {
-    padding-top: env(safe-area-inset-top);
-  }
-  
-  .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  .safe-left {
-    padding-left: env(safe-area-inset-left);
-  }
-  
-  .safe-right {
-    padding-right: env(safe-area-inset-right);
-  }
-  
-  /* Scroll utilities */
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+.health-profile .card {
+  @apply bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
 }
 
-/* Component-specific styles */
+.health-profile .card-header {
+  @apply p-6 border-b border-gray-100;
+}
+
+.health-profile .card-content {
+  @apply p-6;
+}
+
+.health-profile .info-row {
+  @apply flex flex-col sm:flex-row sm:justify-between py-3 px-2 border-b border-gray-100 last:border-b-0;
+}
+
+.health-profile .info-row .label {
+  @apply text-sm font-medium text-gray-600 mb-1 sm:mb-0 px-1;
+}
+
+.health-profile .info-row .value {
+  @apply text-sm font-semibold text-gray-900 px-1;
+}
+
 .nutrition-diary {
   @apply min-h-screen bg-gray-50;
 }
 
 .nutrition-diary .card {
-  @apply bg-white border border-gray-200 rounded-lg shadow-card hover:shadow-card-hover transition-shadow duration-200;
+  @apply bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200;
 }
 
 .nutrition-diary .card-header {
-  @apply p-content border-b border-gray-100;
+  @apply p-6 border-b border-gray-100;
 }
 
 .nutrition-diary .card-content {
-  @apply p-content;
+  @apply p-6;
 }
 
-.nutrition-diary .form-group {
+.nutrition-diary .stats-item {
+  @apply text-center p-4 bg-gray-50 rounded-lg;
+}
+
+.nutrition-diary .stats-item .value {
+  @apply text-2xl font-bold text-primary mb-1;
+}
+
+.nutrition-diary .stats-item .label {
+  @apply text-sm text-gray-600;
+}
+
+.nutrition-diary .meal-item {
+  @apply flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors;
+}
+
+.nutrition-diary .meal-item .info {
+  @apply flex-1 px-2;
+}
+
+.nutrition-diary .meal-item .name {
+  @apply font-medium text-gray-900 mb-1;
+}
+
+.nutrition-diary .meal-item .details {
+  @apply text-sm text-gray-600;
+}
+
+.nutrition-diary .meal-item .nutrition {
+  @apply text-right text-sm text-gray-500 px-2;
+}
+
+.nutrition-diary .progress-section {
+  @apply space-y-4 p-4;
+}
+
+.nutrition-diary .progress-item {
   @apply space-y-2;
 }
 
-.nutrition-diary .form-group label {
-  @apply block text-sm font-medium text-gray-700;
+.nutrition-diary .progress-header {
+  @apply flex items-center justify-between px-1;
 }
 
-.nutrition-diary .form-group input,
-.nutrition-diary .form-group select,
-.nutrition-diary .form-group textarea {
-  @apply w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200;
+.nutrition-diary .progress-label {
+  @apply text-sm font-medium text-gray-700;
 }
 
-.nutrition-diary .button-group {
-  @apply flex flex-wrap gap-2 sm:gap-3;
+.nutrition-diary .progress-value {
+  @apply text-sm text-gray-600 font-mono;
 }
 
-.nutrition-diary .stats-grid {
-  @apply grid grid-cols-2 sm:grid-cols-4 gap-4;
-}
-
-.nutrition-diary .meal-section {
-  @apply space-y-4;
-}
-
-.nutrition-diary .meal-header {
-  @apply flex items-center justify-between p-4 bg-gray-50 rounded-lg;
-}
-
-.nutrition-diary .meal-content {
-  @apply space-y-3;
-}
-
-.nutrition-diary .progress-bar {
-  @apply w-full bg-gray-200 rounded-full h-2;
-}
-
-.nutrition-diary .progress-fill {
-  @apply h-2 rounded-full transition-all duration-300;
+.nutrition-diary .progress-remaining {
+  @apply text-xs text-gray-500 px-1;
 }

@@ -49,274 +49,278 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({ healthProfi
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container-adaptive space-adaptive-lg">
+    <div className="health-profile">
+      <div className="page-container section-spacing">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-adaptive-lg border-b border-gray-100">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-adaptive-md">
-              <div className="space-adaptive-xs">
-                <h1 className="text-adaptive-3xl font-bold text-black">
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="text-spacing-sm">
+                <h1 className="heading-responsive-lg text-black">
                   Профиль здоровья
                 </h1>
-                <p className="text-adaptive-base text-gray-600">
+                <p className="text-responsive text-gray-600">
                   Последнее обновление: {new Date().toLocaleDateString('ru-RU')}
                 </p>
               </div>
               <Button 
                 onClick={onEdit} 
-                className="touch-target px-adaptive-lg py-adaptive-sm bg-blue-600 text-white hover:bg-blue-700 gap-adaptive-xs self-start sm:self-auto"
+                className="touch-target bg-blue-600 text-white hover:bg-blue-700 gap-2 self-start sm:self-auto"
               >
                 <Edit2 className="h-4 w-4" />
-                <span className="text-adaptive-sm font-medium">Редактировать</span>
+                <span className="text-sm font-medium">Редактировать</span>
               </Button>
             </div>
-          </div>
-        </div>
+          </CardHeader>
+        </Card>
 
         {/* Content Grid */}
-        <div className="grid-adaptive grid-adaptive-2 lg:grid-cols-2">
+        <div className="responsive-grid-2 lg:grid-cols-2">
           {/* Personal Information */}
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-adaptive-lg space-adaptive-lg">
-              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
-                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-full">
                   <User className="h-5 w-5 text-blue-600" />
                 </div>
-                <h2 className="text-adaptive-xl font-bold text-black">Личная информация</h2>
+                <span className="text-lg font-bold text-black">Личная информация</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-1">
+                <div className="info-row">
+                  <span className="info-label">Возраст:</span>
+                  <span className="info-value">{formatValue(healthProfile.age)} лет</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Пол:</span>
+                  <span className="info-value">{getGenderLabel(healthProfile.gender)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Рост:</span>
+                  <span className="info-value">{formatValue(healthProfile.height)} см</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Вес:</span>
+                  <span className="info-value">{formatValue(healthProfile.weight)} кг</span>
+                </div>
               </div>
-              
-              <div className="space-adaptive-md">
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Возраст:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.age)} лет</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Пол:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{getGenderLabel(healthProfile.gender)}</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Рост:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.height)} см</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Вес:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.weight)} кг</span>
-                </div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Health Goals */}
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-adaptive-lg space-adaptive-lg">
-              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
-                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-full">
                   <Target className="h-5 w-5 text-blue-600" />
                 </div>
-                <h2 className="text-adaptive-xl font-bold text-black">Цели здоровья</h2>
-              </div>
-              
-              <div>
-                {healthProfile.healthGoals && healthProfile.healthGoals.length > 0 ? (
-                  <div className="space-adaptive-sm">
-                    {healthProfile.healthGoals.map((goal, index) => (
-                      <div key={index} className="py-adaptive-sm px-adaptive-md bg-blue-50 border-l-4 border-blue-600">
-                        <span className="text-adaptive-sm text-black font-medium">{goal}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-adaptive-sm text-gray-500 italic">Цели не указаны</p>
-                )}
-              </div>
-            </div>
-          </div>
+                <span className="text-lg font-bold text-black">Цели здоровья</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="content-padding-internal">
+              {healthProfile.healthGoals && healthProfile.healthGoals.length > 0 ? (
+                <div className="text-spacing-sm">
+                  {healthProfile.healthGoals.map((goal, index) => (
+                    <div key={index} className="info-item border-l-4 border-blue-600 bg-blue-50">
+                      <span className="text-sm text-black font-medium">{goal}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 italic content-padding-internal">Цели не указаны</p>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Physical Health */}
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-adaptive-lg space-adaptive-lg">
-              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
-                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-full">
                   <Activity className="h-5 w-5 text-blue-600" />
                 </div>
-                <h2 className="text-adaptive-xl font-bold text-black">Физическое здоровье</h2>
-              </div>
-              
-              <div className="space-adaptive-md">
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Физическая активность:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{getActivityLabel(healthProfile.physicalActivity || '')}</span>
+                <span className="text-lg font-bold text-black">Физическое здоровье</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-1">
+                <div className="info-row">
+                  <span className="info-label">Физическая активность:</span>
+                  <span className="info-value">{getActivityLabel(healthProfile.physicalActivity || '')}</span>
                 </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Упражнения в неделю:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.exerciseFrequency)} раз</span>
+                <div className="info-row">
+                  <span className="info-label">Упражнения в неделю:</span>
+                  <span className="info-value">{formatValue(healthProfile.exerciseFrequency)} раз</span>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Mental Health */}
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-adaptive-lg space-adaptive-lg">
-              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
-                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-full">
                   <Brain className="h-5 w-5 text-blue-600" />
                 </div>
-                <h2 className="text-adaptive-xl font-bold text-black">Психическое здоровье</h2>
+                <span className="text-lg font-bold text-black">Психическое здоровье</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-1">
+                <div className="info-row">
+                  <span className="info-label">Уровень стресса:</span>
+                  <span className="info-value">{formatValue(healthProfile.stressLevel)}/10</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Уровень тревожности:</span>
+                  <span className="info-value">{formatValue(healthProfile.anxietyLevel)}/10</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Качество сна:</span>
+                  <span className="info-value">{getQualityLabel(healthProfile.sleepQuality || '')}</span>
+                </div>
               </div>
-              
-              <div className="space-adaptive-md">
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Уровень стресса:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.stressLevel)}/10</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Уровень тревожности:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.anxietyLevel)}/10</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Качество сна:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{getQualityLabel(healthProfile.sleepQuality || '')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Lifestyle */}
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-adaptive-lg space-adaptive-lg">
-              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
-                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-full">
                   <Heart className="h-5 w-5 text-blue-600" />
                 </div>
-                <h2 className="text-adaptive-xl font-bold text-black">Образ жизни</h2>
+                <span className="text-lg font-bold text-black">Образ жизни</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-1">
+                <div className="info-row">
+                  <span className="info-label">Курение:</span>
+                  <span className="info-value">{formatValue(healthProfile.smokingStatus)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Алкоголь:</span>
+                  <span className="info-value">{formatValue(healthProfile.alcoholConsumption)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Потребление воды:</span>
+                  <span className="info-value">{formatValue(healthProfile.waterIntake)} стаканов/день</span>
+                </div>
               </div>
-              
-              <div className="space-adaptive-md">
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Курение:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.smokingStatus)}</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Алкоголь:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.alcoholConsumption)}</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Потребление воды:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.waterIntake)} стаканов/день</span>
-                </div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Sleep */}
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-adaptive-lg space-adaptive-lg">
-              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
-                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-full">
                   <Moon className="h-5 w-5 text-blue-600" />
                 </div>
-                <h2 className="text-adaptive-xl font-bold text-black">Сон и отдых</h2>
-              </div>
-              
-              <div className="space-adaptive-md">
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Часы сна:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{formatValue(healthProfile.sleepHours)} часов</span>
+                <span className="text-lg font-bold text-black">Сон и отдых</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-1">
+                <div className="info-row">
+                  <span className="info-label">Часы сна:</span>
+                  <span className="info-value">{formatValue(healthProfile.sleepHours)} часов</span>
                 </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Качество сна:</span>
-                  <span className="text-adaptive-sm text-black font-medium">{getQualityLabel(healthProfile.sleepQuality || '')}</span>
+                <div className="info-row">
+                  <span className="info-label">Качество сна:</span>
+                  <span className="info-value">{getQualityLabel(healthProfile.sleepQuality || '')}</span>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Medical History - Full Width */}
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-adaptive-lg space-adaptive-lg">
-            <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
-              <div className="p-adaptive-xs bg-blue-100 rounded-full">
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-full">
                 <FileText className="h-5 w-5 text-blue-600" />
               </div>
-              <h2 className="text-adaptive-xl font-bold text-black">Медицинская история</h2>
-            </div>
-            
-            <div className="grid-adaptive grid-adaptive-2 lg:grid-cols-3">
-              <div className="space-adaptive-md">
-                <h3 className="text-adaptive-lg font-medium text-black mb-adaptive-md">Хронические заболевания</h3>
+              <span className="text-lg font-bold text-black">Медицинская история</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="responsive-grid lg:grid-cols-3">
+              <div className="content-padding-internal">
+                <h3 className="section-title">Хронические заболевания</h3>
                 {healthProfile.chronicConditions && healthProfile.chronicConditions.length > 0 ? (
-                  <div className="space-adaptive-sm">
+                  <div className="text-spacing-sm">
                     {healthProfile.chronicConditions.map((condition, index) => (
-                      <div key={index} className="py-adaptive-sm px-adaptive-sm bg-red-50 border-l-4 border-red-200">
-                        <span className="text-adaptive-sm text-black">{condition}</span>
+                      <div key={index} className="info-item border-l-4 border-red-200 bg-red-50">
+                        <span className="text-sm text-black">{condition}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-adaptive-sm text-gray-500 italic">Не указаны</p>
+                  <p className="text-sm text-gray-500 italic">Не указаны</p>
                 )}
               </div>
 
-              <div className="space-adaptive-md">
-                <h3 className="text-adaptive-lg font-medium text-black mb-adaptive-md">Принимаемые лекарства</h3>
+              <div className="content-padding-internal">
+                <h3 className="section-title">Принимаемые лекарства</h3>
                 {healthProfile.medications && healthProfile.medications.length > 0 ? (
-                  <div className="space-adaptive-sm">
+                  <div className="text-spacing-sm">
                     {healthProfile.medications.map((medication, index) => (
-                      <div key={index} className="py-adaptive-sm px-adaptive-sm bg-green-50 border-l-4 border-green-200">
-                        <span className="text-adaptive-sm text-black">{medication}</span>
+                      <div key={index} className="info-item border-l-4 border-green-200 bg-green-50">
+                        <span className="text-sm text-black">{medication}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-adaptive-sm text-gray-500 italic">Не указаны</p>
+                  <p className="text-sm text-gray-500 italic">Не указаны</p>
                 )}
               </div>
 
-              <div className="space-adaptive-md">
-                <h3 className="text-adaptive-lg font-medium text-black mb-adaptive-md">Аллергии</h3>
+              <div className="content-padding-internal">
+                <h3 className="section-title">Аллергии</h3>
                 {healthProfile.allergies && healthProfile.allergies.length > 0 ? (
-                  <div className="space-adaptive-sm">
+                  <div className="text-spacing-sm">
                     {healthProfile.allergies.map((allergy, index) => (
-                      <div key={index} className="py-adaptive-sm px-adaptive-sm bg-yellow-50 border-l-4 border-yellow-200">
-                        <span className="text-adaptive-sm text-black">{allergy}</span>
+                      <div key={index} className="info-item border-l-4 border-yellow-200 bg-yellow-50">
+                        <span className="text-sm text-black">{allergy}</span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-adaptive-sm text-gray-500 italic">Не указаны</p>
+                  <p className="text-sm text-gray-500 italic">Не указаны</p>
                 )}
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Lab Results */}
         {healthProfile.labResults && (
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="p-adaptive-lg space-adaptive-lg">
-              <div className="flex items-center gap-adaptive-sm mb-adaptive-lg">
-                <div className="p-adaptive-xs bg-blue-100 rounded-full">
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-full">
                   <TestTube className="h-5 w-5 text-blue-600" />
                 </div>
-                <h2 className="text-adaptive-xl font-bold text-black">Результаты анализов</h2>
+                <span className="text-lg font-bold text-black">Результаты анализов</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="info-row">
+                <span className="info-label">Дата анализов:</span>
+                <span className="info-value">
+                  {healthProfile.labResults.testDate 
+                    ? new Date(healthProfile.labResults.testDate).toLocaleDateString('ru-RU')
+                    : 'Не указана'
+                  }
+                </span>
               </div>
-              
-              <div className="space-adaptive-md">
-                <div className="flex flex-col sm:flex-row sm:justify-between py-adaptive-sm border-b border-gray-100">
-                  <span className="text-adaptive-sm text-gray-600 font-medium mb-1 sm:mb-0">Дата анализов:</span>
-                  <span className="text-adaptive-sm text-black font-medium">
-                    {healthProfile.labResults.testDate 
-                      ? new Date(healthProfile.labResults.testDate).toLocaleDateString('ru-RU')
-                      : 'Не указана'
-                    }
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>
