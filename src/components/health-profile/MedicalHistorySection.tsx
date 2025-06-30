@@ -44,6 +44,51 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     onChange({ allergies: newAllergies });
   };
 
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      // Проверяем валидность даты перед форматированием
+      try {
+        const isValidDate = date instanceof Date && !isNaN(date.getTime());
+        if (isValidDate) {
+          onChange({ lastCheckup: date.toISOString().split('T')[0] });
+        } else {
+          console.error('Invalid date selected:', date);
+          onChange({ lastCheckup: '' });
+        }
+      } catch (error) {
+        console.error('Error processing date:', error);
+        onChange({ lastCheckup: '' });
+      }
+    } else {
+      onChange({ lastCheckup: '' });
+    }
+  };
+
+  const getSelectedDate = () => {
+    if (!data.lastCheckup) return undefined;
+    
+    try {
+      const date = new Date(data.lastCheckup);
+      const isValidDate = date instanceof Date && !isNaN(date.getTime());
+      return isValidDate ? date : undefined;
+    } catch (error) {
+      console.error('Error parsing date:', error);
+      return undefined;
+    }
+  };
+
+  const getFormattedDate = () => {
+    const selectedDate = getSelectedDate();
+    if (!selectedDate) return "Выберите дату";
+    
+    try {
+      return format(selectedDate, "dd MMMM yyyy", { locale: ru });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return "Выберите дату";
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -110,15 +155,21 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-start text-left font-normal">
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {data.lastCheckup ? format(new Date(data.lastCheckup), "dd MMMM yyyy", { locale: ru }) : "Выберите дату"}
+                {getFormattedDate()}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
               <Calendar
                 mode="single"
-                selected={data.lastCheckup ? new Date(data.lastCheckup) : undefined}
-                onSelect={(date) => onChange({ lastCheckup: date ? date.toISOString().split('T')[0] : '' })}
+                selected={getSelectedDate()}
+                onSelect={handleDateSelect}
                 initialFocus
+                disabled={(date) => {
+                  // Отключаем даты в будущем
+                  const today = new Date();
+                  today.setHours(23, 59, 59, 999);
+                  return date > today;
+                }}
               />
             </PopoverContent>
           </Popover>
