@@ -82,6 +82,11 @@ const DashboardChatsList: React.FC = () => {
     }
   };
 
+  const handleChatClick = (chatId: string) => {
+    console.log('Navigating to chat:', chatId);
+    navigate(`/ai-doctor?chat=${chatId}`);
+  };
+
   if (isLoading) {
     return (
       <Card className="shadow-sm border-gray-200/80">
@@ -133,7 +138,7 @@ const DashboardChatsList: React.FC = () => {
               <div
                 key={chat.id}
                 className="p-3 bg-gradient-to-r from-gray-50 to-purple-50/30 rounded-lg border border-gray-200/50 hover:shadow-sm transition-all duration-200 cursor-pointer"
-                onClick={() => navigate(`/ai-doctor/${chat.id}`)}
+                onClick={() => handleChatClick(chat.id)}
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2 flex-1 min-w-0">

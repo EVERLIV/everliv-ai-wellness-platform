@@ -6,12 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Target, Plus, ArrowRight, AlertTriangle, TestTube, Clock } from 'lucide-react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useNavigate } from 'react-router-dom';
+import { useHealthGoalsManager } from '@/hooks/useHealthGoalsManager';
+import SimpleGoalCreator from '@/components/goals/SimpleGoalCreator';
 
 const MyGoalsSection: React.FC = () => {
   const {
     healthProfile,
     isLoading
   } = useHealthProfile();
+  const { goals } = useHealthGoalsManager();
   const navigate = useNavigate();
 
   // Перевод целей на русский язык - расширенный список
@@ -43,7 +46,7 @@ const MyGoalsSection: React.FC = () => {
   const goalRecommendations = [
     {
       id: '1',
-      title: 'Анализы крови',
+      title: 'Лабораторные анализы',
       description: 'Расширенная метаболическая панель, Маркеры воспаления',
       priority: 'high',
       category: 'Анализы',
@@ -104,15 +107,19 @@ const MyGoalsSection: React.FC = () => {
   }
 
   const healthGoals = healthProfile?.healthGoals || [];
+  const userGoals = goals || [];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      {/* Упрощенное создание целей */}
+      <SimpleGoalCreator />
+
       {/* Мои цели из профиля здоровья */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
             <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-            Мои цели здоровья
+            Цели из профиля здоровья
           </h3>
           <Button 
             variant="ghost" 
@@ -164,6 +171,59 @@ const MyGoalsSection: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Созданные цели пользователем */}
+      {userGoals.length > 0 && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              Мои созданные цели
+            </h3>
+          </div>
+          
+          <div className="space-y-2">
+            {userGoals.slice(0, 3).map((goal) => (
+              <div key={goal.id} className="flex items-start justify-between p-3 bg-green-50/30 rounded-lg border border-green-200/50">
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900 text-sm mb-1">
+                    {goal.title}
+                  </h4>
+                  {goal.description && (
+                    <p className="text-xs text-gray-600 mb-2">
+                      {goal.description.length > 80 ? 
+                        goal.description.substring(0, 80) + '...' : 
+                        goal.description
+                      }
+                    </p>
+                  )}
+                  {goal.target_date && (
+                    <div className="text-xs text-green-700">
+                      Цель до: {new Date(goal.target_date).toLocaleDateString('ru-RU')}
+                    </div>
+                  )}
+                </div>
+                <div className="text-xs text-gray-500 ml-2">
+                  {goal.progress_percentage || 0}%
+                </div>
+              </div>
+            ))}
+            
+            {userGoals.length > 3 && (
+              <div className="pt-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full text-xs h-6"
+                >
+                  Показать все ({userGoals.length})
+                  <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Рекомендации для достижения целей */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
