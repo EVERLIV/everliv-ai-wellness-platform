@@ -1,21 +1,15 @@
+
 import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
 import { HealthProfileData } from '@/types/healthProfile';
-import { 
-  Target, 
-  TrendingDown, 
-  TrendingUp, 
-  Moon, 
-  Shield, 
-  Zap, 
-  Heart, 
-  Activity,
-  Plus,
-  X
-} from 'lucide-react';
+import { User, Save, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MinimalHealthProfileFormProps {
   healthProfile: HealthProfileData;
@@ -24,748 +18,340 @@ interface MinimalHealthProfileFormProps {
   onChange: (updates: Partial<HealthProfileData>) => void;
 }
 
-const HEALTH_GOALS = [
-  {
-    id: 'weight_loss',
-    icon: TrendingDown,
-    title: 'Похудение',
-    description: 'Достижение и поддержание здорового веса'
-  },
-  {
-    id: 'muscle_gain',
-    icon: TrendingUp,
-    title: 'Набор мышечной массы',
-    description: 'Увеличение силы и мышечного тонуса'
-  },
-  {
-    id: 'better_sleep',
-    icon: Moon,
-    title: 'Улучшение сна',
-    description: 'Качественный и восстанавливающий отдых'
-  },
-  {
-    id: 'stress_reduction',
-    icon: Shield,
-    title: 'Снижение стресса',
-    description: 'Управление стрессом и эмоциональным состоянием'
-  },
-  {
-    id: 'energy_boost',
-    icon: Zap,
-    title: 'Повышение энергии',
-    description: 'Больше энергии для ежедневных задач'
-  },
-  {
-    id: 'digestion',
-    icon: Heart,
-    title: 'Улучшение пищеварения',
-    description: 'Здоровье желудочно-кишечного тракта'
-  },
-  {
-    id: 'immunity',
-    icon: Shield,
-    title: 'Укрепление иммунитета',
-    description: 'Защита от заболеваний и инфекций'
-  },
-  {
-    id: 'diabetes_control',
-    icon: Activity,
-    title: 'Контроль диабета',
-    description: 'Управление уровнем сахара в крови'
-  }
-];
-
-const COMMON_MEDICATIONS = [
-  'Аспирин', 'Ибупрофен', 'Парацетамол', 'Витамин D', 'Омега-3', 
-  'Магний', 'Метформин', 'Лизиноприл', 'Симвастатин', 'Левотироксин'
-];
-
-const COMMON_CONDITIONS = [
-  'Гипертония', 'Диабет 2 типа', 'Астма', 'Аллергический ринит', 
-  'Мигрень', 'Остеохондроз', 'Гастрит', 'Анемия'
-];
-
-const COMMON_BIOMARKERS = [
-  'Холестерин общий', 'ЛПНП', 'ЛПВП', 'Триглицериды', 'Глюкоза',
-  'Гемоглобин', 'Ферритин', 'Витамин B12', 'Витамин D', 'ТТГ',
-  'Креатинин', 'АЛТ', 'АСТ', 'С-реактивный белок'
-];
-
 const MinimalHealthProfileForm: React.FC<MinimalHealthProfileFormProps> = ({
   healthProfile,
   onSave,
   onCancel,
   onChange
 }) => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [selectedGoals, setSelectedGoals] = useState<string[]>(healthProfile.healthGoals || []);
-  const [customGoal, setCustomGoal] = useState('');
-  const [showCustomGoal, setShowCustomGoal] = useState(false);
-  const [selectedMedications, setSelectedMedications] = useState<string[]>(healthProfile.medications || []);
-  const [selectedConditions, setSelectedConditions] = useState<string[]>(healthProfile.chronicConditions || []);
-  const [selectedBiomarkers, setSelectedBiomarkers] = useState<string[]>([]);
+  const [currentStep, setCurrentStep] = useState(0);
+  const isMobile = useIsMobile();
 
-  const handleGoalToggle = (goalId: string) => {
-    const newGoals = selectedGoals.includes(goalId)
-      ? selectedGoals.filter(id => id !== goalId)
-      : [...selectedGoals, goalId];
-    
-    setSelectedGoals(newGoals);
-    onChange({ healthGoals: newGoals });
-  };
-
-  const handleAddCustomGoal = () => {
-    if (customGoal.trim()) {
-      const newGoals = [...selectedGoals, customGoal.trim()];
-      setSelectedGoals(newGoals);
-      onChange({ healthGoals: newGoals });
-      setCustomGoal('');
-      setShowCustomGoal(false);
+  const steps = [
+    {
+      title: 'Основная информация',
+      fields: ['age', 'gender', 'height', 'weight']
+    },
+    {
+      title: 'Образ жизни',
+      fields: ['physicalActivity', 'exerciseFrequency', 'smokingStatus', 'alcoholConsumption']
+    },
+    {
+      title: 'Здоровье и сон',
+      fields: ['sleepHours', 'stressLevel', 'waterIntake']
     }
-  };
+  ];
 
-  const handleMedicationToggle = (medication: string) => {
-    const newMedications = selectedMedications.includes(medication)
-      ? selectedMedications.filter(m => m !== medication)
-      : [...selectedMedications, medication];
-    
-    setSelectedMedications(newMedications);
-    onChange({ medications: newMedications });
-  };
+  const progress = ((currentStep + 1) / steps.length) * 100;
 
-  const handleConditionToggle = (condition: string) => {
-    const newConditions = selectedConditions.includes(condition)
-      ? selectedConditions.filter(c => c !== condition)
-      : [...selectedConditions, condition];
-    
-    setSelectedConditions(newConditions);
-    onChange({ chronicConditions: newConditions });
-  };
-
-  const handleInputChange = (field: keyof HealthProfileData, value: any) => {
-    onChange({ [field]: value });
-  };
-
-  const handleNext = () => {
-    if (currentStep < 7) {
+  const nextStep = () => {
+    if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
   };
 
-  const handleBack = () => {
-    if (currentStep > 1) {
+  const prevStep = () => {
+    if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
   };
 
-  const isStepValid = () => {
+  const renderStepContent = () => {
     switch (currentStep) {
-      case 1:
-        return selectedGoals.length > 0;
-      case 2:
-        return healthProfile.age && healthProfile.gender && healthProfile.height && healthProfile.weight;
-      default:
-        return true;
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-white minimal-health-profile">
-      <div className="container-adaptive py-adaptive-xl">
-        {/* Header */}
-        <div className="text-center mb-adaptive-2xl">
-          <h1 className="text-adaptive-4xl font-bold text-black mb-adaptive-md">
-            Создание профиля здоровья
-          </h1>
-          <p className="text-adaptive-lg text-gray-600">
-            Настройте ваши цели для персонализированных рекомендаций
-          </p>
-        </div>
-
-        {/* Progress */}
-        <div className="mb-adaptive-2xl">
-          <div className="flex justify-between items-center mb-adaptive-sm">
-            <span className="text-adaptive-sm text-gray-600">Шаг {currentStep} из 7</span>
-            <span className="text-adaptive-sm text-gray-600">{Math.round((currentStep / 7) * 100)}%</span>
-          </div>
-          <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-blue-600 transition-all duration-300 rounded-full"
-              style={{ width: `${(currentStep / 7) * 100}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Step 1: Health Goals */}
-        {currentStep === 1 && (
-          <div className="space-adaptive-xl">
-            <div className="text-center mb-adaptive-xl">
-              <h2 className="text-adaptive-3xl font-bold text-black mb-adaptive-sm">
-                Ваши цели здоровья
-              </h2>
-              <p className="text-adaptive-base text-gray-600">
-                Выберите основные направления для улучшения здоровья
-              </p>
-            </div>
-            
-            <div className="grid-adaptive grid-adaptive-2 mb-adaptive-xl">
-              {HEALTH_GOALS.map((goal) => {
-                const Icon = goal.icon;
-                const isSelected = selectedGoals.includes(goal.id);
-                
-                return (
-                  <div
-                    key={goal.id}
-                    onClick={() => handleGoalToggle(goal.id)}
-                    className={`p-adaptive-lg border cursor-pointer transition-colors touch-target ${
-                      isSelected 
-                        ? 'border-blue-600 bg-blue-50' 
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-start gap-adaptive-md">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => handleGoalToggle(goal.id)}
-                        className="w-5 h-5 text-blue-600 border-gray-300 mt-1 touch-target"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-adaptive-sm mb-adaptive-sm">
-                          <Icon className={`w-5 h-5 flex-shrink-0 ${isSelected ? 'text-blue-600' : 'text-gray-400'}`} />
-                          <h3 className={`text-adaptive-base font-medium break-words ${isSelected ? 'text-blue-600' : 'text-black'}`}>
-                            {goal.title}
-                          </h3>
-                        </div>
-                        <p className="text-adaptive-sm text-gray-600 break-words">
-                          {goal.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Custom Goal */}
-            <div className="border-t border-gray-200 pt-adaptive-xl">
-              {!showCustomGoal ? (
-                <button
-                  onClick={() => setShowCustomGoal(true)}
-                  className="flex items-center gap-adaptive-sm text-blue-600 hover:text-blue-700 touch-target"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="text-adaptive-sm">Добавить свою цель</span>
-                </button>
-              ) : (
-                <div className="space-adaptive-md">
-                  <div>
-                    <Label className="text-adaptive-sm text-gray-600 mb-adaptive-sm block">Ваша цель</Label>
-                    <Input
-                      value={customGoal}
-                      onChange={(e) => setCustomGoal(e.target.value)}
-                      className="border-0 border-b border-gray-200 px-0 focus:border-blue-600 touch-target"
-                      placeholder="Введите вашу цель здоровья"
-                    />
-                  </div>
-                  <div className="flex gap-adaptive-sm">
-                    <button
-                      onClick={handleAddCustomGoal}
-                      className="px-adaptive-md py-adaptive-sm bg-blue-600 text-white hover:bg-blue-700 touch-target text-adaptive-sm"
-                    >
-                      Добавить
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowCustomGoal(false);
-                        setCustomGoal('');
-                      }}
-                      className="px-adaptive-md py-adaptive-sm text-gray-600 hover:text-black touch-target text-adaptive-sm"
-                    >
-                      Отмена
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <p className="text-adaptive-xs text-gray-500 mt-adaptive-xl text-center">
-              Это поможет нам дать вам точные рекомендации
-            </p>
-          </div>
-        )}
-
-        {/* Step 2: Basic Information */}
-        {currentStep === 2 && (
-          <div className="space-adaptive-xl">
-            <div className="text-center mb-adaptive-xl">
-              <h2 className="text-adaptive-3xl font-bold text-black mb-adaptive-sm">
-                Базовая информация
-              </h2>
-              <p className="text-adaptive-base text-gray-600">
-                Основные данные о вашем здоровье
-              </p>
-            </div>
-            
-            <div className="space-adaptive-xl max-w-2xl mx-auto">
-              <div className="grid-adaptive grid-adaptive-2">
-                <div>
-                  <Label className="text-adaptive-sm text-gray-600 mb-adaptive-sm block font-medium">Возраст</Label>
-                  <Input
-                    type="number"
-                    value={healthProfile.age || ''}
-                    onChange={(e) => handleInputChange('age', parseInt(e.target.value))}
-                    className="border-0 border-b-2 border-gray-200 px-0 py-adaptive-sm text-adaptive-base focus:border-blue-600 touch-target"
-                    placeholder="Введите ваш возраст"
-                  />
-                </div>
-                <div>
-                  <Label className="text-adaptive-sm text-gray-600 mb-adaptive-sm block font-medium">Пол</Label>
-                  <select
-                    value={healthProfile.gender || ''}
-                    onChange={(e) => handleInputChange('gender', e.target.value)}
-                    className="w-full border-0 border-b-2 border-gray-200 px-0 py-adaptive-sm text-adaptive-base focus:border-blue-600 bg-white touch-target"
-                  >
-                    <option value="">Выберите пол</option>
-                    <option value="male">Мужской</option>
-                    <option value="female">Женский</option>
-                    <option value="other">Другой</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div className="grid-adaptive grid-adaptive-2">
-                <div>
-                  <Label className="text-adaptive-sm text-gray-600 mb-adaptive-sm block font-medium">Рост (см)</Label>
-                  <Input
-                    type="number"
-                    value={healthProfile.height || ''}
-                    onChange={(e) => handleInputChange('height', parseInt(e.target.value))}
-                    className="border-0 border-b-2 border-gray-200 px-0 py-adaptive-sm text-adaptive-base focus:border-blue-600 touch-target"
-                    placeholder="Введите ваш рост"
-                  />
-                </div>
-                <div>
-                  <Label className="text-adaptive-sm text-gray-600 mb-adaptive-sm block font-medium">Вес (кг)</Label>
-                  <Input
-                    type="number"
-                    value={healthProfile.weight || ''}
-                    onChange={(e) => handleInputChange('weight', parseInt(e.target.value))}
-                    className="border-0 border-b-2 border-gray-200 px-0 py-adaptive-sm text-adaptive-base focus:border-blue-600 touch-target"
-                    placeholder="Введите ваш вес"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Physical Health */}
-        {currentStep === 3 && (
-          <div className="space-adaptive-xl">
-            <div className="text-center mb-adaptive-xl">
-              <h2 className="text-adaptive-3xl font-bold text-black mb-adaptive-sm">
-                Физическое здоровье
-              </h2>
-              <p className="text-adaptive-base text-gray-600">
-                Ваш уровень активности и физические показатели
-              </p>
-            </div>
-
-            <div className="space-adaptive-xl max-w-3xl mx-auto">
-              <div>
-                <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium">Уровень физической активности</Label>
-                <div className="grid-adaptive grid-adaptive-2 lg:grid-cols-3">
-                  {[
-                    { value: 'sedentary', label: 'Малоподвижный', desc: 'Сидячая работа, мало движения' },
-                    { value: 'moderate', label: 'Умеренный', desc: 'Легкие упражнения 1-3 раза в неделю' },
-                    { value: 'active', label: 'Активный', desc: 'Регулярные тренировки 3-5 раз в неделю' }
-                  ].map((option) => (
-                    <label key={option.value} className="flex items-start gap-adaptive-sm cursor-pointer p-adaptive-md border border-gray-200 hover:border-gray-300 touch-target">
-                      <input
-                        type="radio"
-                        name="activity"
-                        value={option.value}
-                        checked={healthProfile.physicalActivity === option.value}
-                        onChange={(e) => handleInputChange('physicalActivity', e.target.value)}
-                        className="mt-1 w-4 h-4 text-blue-600"
-                      />
-                      <div className="min-w-0">
-                        <div className="font-medium text-black text-adaptive-sm mb-1 break-words">{option.label}</div>
-                        <div className="text-adaptive-xs text-gray-600 break-words">{option.desc}</div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium">
-                  Частота упражнений (раз в неделю): {healthProfile.exerciseFrequency || 0}
+      case 0:
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="age" className="text-sm font-semibold text-gray-700">
+                  Возраст *
                 </Label>
-                <input
-                  type="range"
-                  min="0"
-                  max="7"
-                  value={healthProfile.exerciseFrequency || 0}
-                  onChange={(e) => handleInputChange('exerciseFrequency', parseInt(e.target.value))}
-                  className="w-full h-2 bg-gray-200 cursor-pointer touch-target"
+                <Input
+                  id="age"
+                  type="number"
+                  placeholder="Введите ваш возраст"
+                  value={healthProfile.age || ''}
+                  onChange={(e) => onChange({ age: parseInt(e.target.value) || 0 })}
+                  className="h-12 text-base border-2 focus:border-blue-500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="gender" className="text-sm font-semibold text-gray-700">
+                  Пол *
+                </Label>
+                <Select 
+                  value={healthProfile.gender || ''} 
+                  onValueChange={(value) => onChange({ gender: value as 'male' | 'female' | 'other' })}
+                >
+                  <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500">
+                    <SelectValue placeholder="Выберите пол" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Мужской</SelectItem>
+                    <SelectItem value="female">Женский</SelectItem>
+                    <SelectItem value="other">Другой</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="height" className="text-sm font-semibold text-gray-700">
+                  Рост (см) *
+                </Label>
+                <Input
+                  id="height"
+                  type="number"
+                  placeholder="Введите рост в см"
+                  value={healthProfile.height || ''}
+                  onChange={(e) => onChange({ height: parseInt(e.target.value) || 0 })}
+                  className="h-12 text-base border-2 focus:border-blue-500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="weight" className="text-sm font-semibold text-gray-700">
+                  Вес (кг) *
+                </Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  placeholder="Введите вес в кг"
+                  value={healthProfile.weight || ''}
+                  onChange={(e) => onChange({ weight: parseInt(e.target.value) || 0 })}
+                  className="h-12 text-base border-2 focus:border-blue-500"
                 />
               </div>
             </div>
           </div>
-        )}
+        );
 
-        {/* Step 4: Mental Health */}
-        {currentStep === 4 && (
-          <div className="space-adaptive-xl">
-            <div className="text-center mb-adaptive-xl">
-              <h2 className="text-adaptive-3xl font-bold text-black mb-adaptive-sm">
-                Психическое здоровье
-              </h2>
-              <p className="text-adaptive-base text-gray-600 mb-adaptive-sm">
-                Ваше эмоциональное состояние и уровень стресса
-              </p>
-            </div>
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-700">
+                  Физическая активность
+                </Label>
+                <Select 
+                  value={healthProfile.physicalActivity || ''} 
+                  onValueChange={(value) => onChange({ physicalActivity: value as 'sedentary' | 'moderate' | 'active' })}
+                >
+                  <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500">
+                    <SelectValue placeholder="Уровень активности" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sedentary">Малоподвижный</SelectItem>
+                    <SelectItem value="moderate">Умеренный</SelectItem>
+                    <SelectItem value="active">Активный</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="space-adaptive-xl max-w-3xl mx-auto">
-              <div className="space-adaptive-xl">
-                <div>
-                  <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium text-lg">
-                    Уровень стресса (1-10): {healthProfile.stressLevel || 5}
-                  </Label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    value={healthProfile.stressLevel || 5}
-                    onChange={(e) => handleInputChange('stressLevel', parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-200 cursor-pointer touch-target"
-                  />
-                  <div className="flex justify-between text-sm text-gray-500 mt-2">
-                    <span>Низкий</span>
-                    <span>Высокий</span>
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-700">
+                  Тренировки в неделю
+                </Label>
+                <Input
+                  type="number"
+                  placeholder="Количество тренировок"
+                  value={healthProfile.exerciseFrequency || ''}
+                  onChange={(e) => onChange({ exerciseFrequency: parseInt(e.target.value) || 0 })}
+                  className="h-12 text-base border-2 focus:border-blue-500"
+                />
+              </div>
 
-                <div>
-                  <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium text-lg">
-                    Уровень тревожности (1-10): {healthProfile.anxietyLevel || 5}
-                  </Label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    value={healthProfile.anxietyLevel || 5}
-                    onChange={(e) => handleInputChange('anxietyLevel', parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-200 cursor-pointer touch-target"
-                  />
-                  <div className="flex justify-between text-sm text-gray-500 mt-2">
-                    <span>Низкий</span>
-                    <span>Высокий</span>
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-700">
+                  Курение
+                </Label>
+                <Select 
+                  value={healthProfile.smokingStatus || ''} 
+                  onValueChange={(value) => onChange({ smokingStatus: value })}
+                >
+                  <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500">
+                    <SelectValue placeholder="Статус курения" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="never">Никогда не курил</SelectItem>
+                    <SelectItem value="former">Бросил курить</SelectItem>
+                    <SelectItem value="current">Курю</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div>
-                  <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium text-lg">Качество сна</Label>
-                  <div className="grid-adaptive grid-adaptive-2 gap-adaptive-md">
-                    {[
-                      { value: 'poor', label: 'Плохое' },
-                      { value: 'fair', label: 'Удовлетворительное' },
-                      { value: 'good', label: 'Хорошее' },
-                      { value: 'excellent', label: 'Отличное' }
-                    ].map((option) => (
-                      <label key={option.value} className="flex items-center gap-adaptive-sm cursor-pointer">
-                        <input
-                          type="radio"
-                          name="sleepQuality"
-                          value={option.value}
-                          checked={healthProfile.sleepQuality === option.value}
-                          onChange={(e) => handleInputChange('sleepQuality', e.target.value)}
-                          className="w-4 h-4 text-blue-600"
-                        />
-                        <span className="text-black">{option.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-700">
+                  Потребление алкоголя
+                </Label>
+                <Select 
+                  value={healthProfile.alcoholConsumption || ''} 
+                  onValueChange={(value) => onChange({ alcoholConsumption: value })}
+                >
+                  <SelectTrigger className="h-12 text-base border-2 focus:border-blue-500">
+                    <SelectValue placeholder="Частота употребления" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="never">Не употребляю</SelectItem>
+                    <SelectItem value="rarely">Редко</SelectItem>
+                    <SelectItem value="moderate">Умеренно</SelectItem>
+                    <SelectItem value="frequent">Часто</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
-        )}
+        );
 
-        {/* Step 5: Lifestyle */}
-        {currentStep === 5 && (
-          <div className="space-adaptive-xl">
-            <div className="text-center mb-adaptive-xl">
-              <h2 className="text-adaptive-3xl font-bold text-black mb-adaptive-sm">
-                Образ жизни
-              </h2>
-              <p className="text-adaptive-base text-gray-600 mb-adaptive-sm">
-                Ваши привычки и образ жизни
-              </p>
-            </div>
+      case 2:
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-700">
+                  Часы сна в сутки
+                </Label>
+                <Input
+                  type="number"
+                  placeholder="Обычное количество часов сна"
+                  value={healthProfile.sleepHours || ''}
+                  onChange={(e) => onChange({ sleepHours: parseInt(e.target.value) || 0 })}
+                  className="h-12 text-base border-2 focus:border-blue-500"
+                />
+              </div>
 
-            <div className="space-adaptive-xl max-w-3xl mx-auto">
-              <div className="space-adaptive-xl">
-                <div>
-                  <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium text-lg">Курение</Label>
-                  <div className="grid-adaptive grid-adaptive-2 gap-adaptive-md">
-                    {[
-                      { value: 'never', label: 'Никогда не курил' },
-                      { value: 'former', label: 'Бросил курить' },
-                      { value: 'current_light', label: 'Курю редко' },
-                      { value: 'current_heavy', label: 'Курю регулярно' }
-                    ].map((option) => (
-                      <label key={option.value} className="flex items-center gap-adaptive-sm cursor-pointer">
-                        <input
-                          type="radio"
-                          name="smoking"
-                          value={option.value}
-                          checked={healthProfile.smokingStatus === option.value}
-                          onChange={(e) => handleInputChange('smokingStatus', e.target.value)}
-                          className="w-4 h-4 text-blue-600"
-                        />
-                        <span className="text-black">{option.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-700">
+                  Уровень стресса (1-10)
+                </Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="10"
+                  placeholder="Оцените от 1 до 10"
+                  value={healthProfile.stressLevel || ''}
+                  onChange={(e) => onChange({ stressLevel: parseInt(e.target.value) || 5 })}
+                  className="h-12 text-base border-2 focus:border-blue-500"
+                />
+              </div>
 
-                <div>
-                  <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium text-lg">Употребление алкоголя</Label>
-                  <div className="grid-adaptive grid-adaptive-2 gap-adaptive-md">
-                    {[
-                      { value: 'never', label: 'Не употребляю' },
-                      { value: 'rarely', label: 'Редко' },
-                      { value: 'occasionally', label: 'Иногда' },
-                      { value: 'regularly', label: 'Регулярно' }
-                    ].map((option) => (
-                      <label key={option.value} className="flex items-center gap-adaptive-sm cursor-pointer">
-                        <input
-                          type="radio"
-                          name="alcohol"
-                          value={option.value}
-                          checked={healthProfile.alcoholConsumption === option.value}
-                          onChange={(e) => handleInputChange('alcoholConsumption', e.target.value)}
-                          className="w-4 h-4 text-blue-600"
-                        />
-                        <span className="text-black">{option.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium text-lg">
-                    Потребление воды (стаканов в день): {healthProfile.waterIntake || 6}
-                  </Label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="15"
-                    value={healthProfile.waterIntake || 6}
-                    onChange={(e) => handleInputChange('waterIntake', parseInt(e.target.value))}
-                    className="w-full h-2 bg-gray-200 cursor-pointer touch-target"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-700">
+                  Потребление воды (стаканов в день)
+                </Label>
+                <Input
+                  type="number"
+                  placeholder="Количество стаканов воды"
+                  value={healthProfile.waterIntake || ''}
+                  onChange={(e) => onChange({ waterIntake: parseInt(e.target.value) || 0 })}
+                  className="h-12 text-base border-2 focus:border-blue-500"
+                />
               </div>
             </div>
           </div>
-        )}
+        );
 
-        {/* Step 6: Medical History */}
-        {currentStep === 6 && (
-          <div className="space-adaptive-xl">
-            <div className="text-center mb-adaptive-xl">
-              <h2 className="text-adaptive-3xl font-bold text-black mb-adaptive-sm">
-                Медицинская история
-              </h2>
-              <p className="text-adaptive-base text-gray-600 mb-adaptive-sm">
-                Заболевания, лекарства и аллергии
-              </p>
-            </div>
+      default:
+        return null;
+    }
+  };
 
-            <div className="space-adaptive-xl max-w-3xl mx-auto">
-              <div className="space-adaptive-xl">
-                <div>
-                  <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium text-lg">Хронические заболевания</Label>
-                  <div className="grid-adaptive grid-adaptive-2 gap-adaptive-md mb-adaptive-lg">
-                    {COMMON_CONDITIONS.map((condition) => (
-                      <label key={condition} className="flex items-center gap-adaptive-sm cursor-pointer p-adaptive-md border border-gray-200 hover:border-gray-300 touch-target">
-                        <input
-                          type="checkbox"
-                          checked={selectedConditions.includes(condition)}
-                          onChange={() => handleConditionToggle(condition)}
-                          className="w-4 h-4 text-blue-600"
-                        />
-                        <span className="text-black">{condition}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <div>
-                    <Label className="text-adaptive-lg text-gray-600 mb-adaptive-sm block">Другие заболевания</Label>
-                    <Textarea
-                      value={healthProfile.chronicConditions?.filter(c => !COMMON_CONDITIONS.includes(c)).join(', ') || ''}
-                      onChange={(e) => {
-                        const others = e.target.value.split(', ').filter(Boolean);
-                        const all = [...selectedConditions, ...others];
-                        handleInputChange('chronicConditions', all);
-                      }}
-                      className="border border-gray-200 focus:border-blue-600 p-4"
-                      placeholder="Перечислите через запятую"
-                      rows={2}
-                    />
-                  </div>
+  return (
+    <div className={`min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 ${isMobile ? 'px-4 py-6' : 'px-6 py-8'}`}>
+      <div className={`max-w-4xl mx-auto ${isMobile ? 'space-y-4' : 'space-y-6'}`}>
+        {/* Header */}
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardHeader className={isMobile ? 'p-4' : 'p-6'}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <User className="h-6 w-6 text-blue-600" />
                 </div>
-
                 <div>
-                  <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium text-lg">Принимаемые лекарства</Label>
-                  <div className="grid-adaptive grid-adaptive-2 gap-adaptive-md mb-adaptive-lg">
-                    {COMMON_MEDICATIONS.map((medication) => (
-                      <label key={medication} className="flex items-center gap-adaptive-sm cursor-pointer p-adaptive-md border border-gray-200 hover:border-gray-300 touch-target">
-                        <input
-                          type="checkbox"
-                          checked={selectedMedications.includes(medication)}
-                          onChange={() => handleMedicationToggle(medication)}
-                          className="w-4 h-4 text-blue-600"
-                        />
-                        <span className="text-black">{medication}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <div>
-                    <Label className="text-adaptive-lg text-gray-600 mb-adaptive-sm block">Другие лекарства</Label>
-                    <Input
-                      value={healthProfile.medications?.filter(m => !COMMON_MEDICATIONS.includes(m)).join(', ') || ''}
-                      onChange={(e) => {
-                        const others = e.target.value.split(', ').filter(Boolean);
-                        const all = [...selectedMedications, ...others];
-                        handleInputChange('medications', all);
-                      }}
-                      className="border-0 border-b-2 border-gray-200 px-0 py-3 focus:border-blue-600"
-                      placeholder="Перечислите через запятую"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium text-lg">Аллергии</Label>
-                  <Input
-                    value={healthProfile.allergies?.join(', ') || ''}
-                    onChange={(e) => handleInputChange('allergies', e.target.value.split(', ').filter(Boolean))}
-                    className="border-0 border-b-2 border-gray-200 px-0 py-3 focus:border-blue-600"
-                    placeholder="Перечислите аллергии через запятую"
-                  />
+                  <CardTitle className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-gray-900`}>
+                    Создание профиля здоровья
+                  </CardTitle>
+                  <p className={`${isMobile ? 'text-sm' : 'text-base'} text-gray-600 mt-1`}>
+                    Шаг {currentStep + 1} из {steps.length}: {steps[currentStep].title}
+                  </p>
                 </div>
               </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={onCancel}
+                className="text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+              >
+                <X className="h-5 w-5" />
+              </Button>
             </div>
-          </div>
-        )}
-
-        {/* Step 7: Lab Results & Biomarkers */}
-        {currentStep === 7 && (
-          <div className="space-adaptive-xl">
-            <div className="text-center mb-adaptive-xl">
-              <h2 className="text-adaptive-3xl font-bold text-black mb-adaptive-sm">
-                Анализы и биомаркеры
-              </h2>
-              <p className="text-adaptive-base text-gray-600 mb-adaptive-sm">
-                Результаты последних лабораторных исследований
-              </p>
-            </div>
-
-            <div className="space-adaptive-xl max-w-3xl mx-auto">
-              <div className="space-adaptive-xl">
-                <div>
-                  <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium text-lg">Отслеживаемые биомаркеры</Label>
-                  <div className="grid-adaptive grid-adaptive-2 gap-adaptive-md mb-adaptive-lg">
-                    {COMMON_BIOMARKERS.map((biomarker) => (
-                      <label key={biomarker} className="flex items-center gap-adaptive-sm cursor-pointer p-adaptive-md border border-gray-200 hover:border-gray-300 touch-target">
-                        <input
-                          type="checkbox"
-                          checked={selectedBiomarkers.includes(biomarker)}
-                          onChange={() => {
-                            const newBiomarkers = selectedBiomarkers.includes(biomarker)
-                              ? selectedBiomarkers.filter(b => b !== biomarker)
-                              : [...selectedBiomarkers, biomarker];
-                            setSelectedBiomarkers(newBiomarkers);
-                          }}
-                          className="w-4 h-4 text-blue-600"
-                        />
-                        <span className="text-black">{biomarker}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid-adaptive grid-adaptive-2 gap-adaptive-md">
-                  <div>
-                    <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium">Дата последних анализов</Label>
-                    <Input
-                      type="date"
-                      value={healthProfile.labResults?.testDate || ''}
-                      onChange={(e) => handleInputChange('labResults', { 
-                        ...healthProfile.labResults, 
-                        testDate: e.target.value 
-                      })}
-                      className="border-0 border-b-2 border-gray-200 px-0 py-adaptive-sm focus:border-blue-600 touch-target"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-adaptive-lg text-gray-600 mb-adaptive-lg block font-medium text-lg">Дополнительные сведения</Label>
-                  <Textarea
-                    placeholder="Укажите дополнительную медицинскую информацию, особенности здоровья или цели лечения"
-                    className="border border-gray-200 focus:border-blue-600 p-4"
-                    rows={4}
-                  />
-                </div>
+            
+            <div className="mt-4 space-y-2">
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Прогресс заполнения</span>
+                <span className="font-medium text-blue-600">{Math.round(progress)}%</span>
               </div>
+              <Progress value={progress} className="h-2" />
             </div>
-          </div>
-        )}
+          </CardHeader>
+        </Card>
+
+        {/* Form Content */}
+        <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+          <CardContent className={isMobile ? 'p-4' : 'p-8'}>
+            {renderStepContent()}
+          </CardContent>
+        </Card>
 
         {/* Navigation */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-adaptive-md mt-adaptive-2xl pt-adaptive-xl border-t border-gray-100">
-          <div>
-            {currentStep > 1 && (
-              <button
-                onClick={handleBack}
-                className="text-gray-600 hover:text-black transition-colors text-adaptive-base touch-target px-adaptive-sm py-adaptive-xs"
-              >
-                ← Назад
-              </button>
-            )}
-          </div>
-          
-          <div className="flex gap-adaptive-lg w-full sm:w-auto">
-            <button
-              onClick={onCancel}
-              className="flex-1 sm:flex-none px-adaptive-xl py-adaptive-sm text-gray-600 hover:text-black transition-colors text-adaptive-base touch-target"
-            >
-              Отменить
-            </button>
-            
-            {currentStep < 7 ? (
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardContent className={isMobile ? 'p-4' : 'p-6'}>
+            <div className={`flex ${isMobile ? 'flex-col gap-3' : 'justify-between items-center'}`}>
               <Button
-                onClick={handleNext}
-                disabled={!isStepValid()}
-                className="flex-1 sm:flex-none px-adaptive-xl py-adaptive-sm bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:text-gray-500 text-adaptive-base font-medium touch-target"
+                variant="outline"
+                onClick={prevStep}
+                disabled={currentStep === 0}
+                className={`${isMobile ? 'w-full' : ''} h-12 px-6 border-2 hover:bg-gray-50 text-gray-700 font-medium`}
               >
-                Продолжить
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Назад
               </Button>
-            ) : (
-              <Button
-                onClick={onSave}
-                className="flex-1 sm:flex-none px-adaptive-xl py-adaptive-sm bg-blue-600 text-white hover:bg-blue-700 text-adaptive-base font-medium touch-target"
-              >
-                Сохранить профиль
-              </Button>
-            )}
-          </div>
-        </div>
+              
+              <div className={`${isMobile ? 'flex justify-center' : ''}`}>
+                <div className="flex gap-2">
+                  {steps.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`h-2 w-8 rounded-full transition-colors ${
+                        index === currentStep ? 'bg-blue-600' : 
+                        index < currentStep ? 'bg-green-500' : 'bg-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {currentStep === steps.length - 1 ? (
+                <Button
+                  onClick={onSave}
+                  className={`${isMobile ? 'w-full' : ''} h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200`}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Сохранить профиль
+                </Button>
+              ) : (
+                <Button
+                  onClick={nextStep}
+                  className={`${isMobile ? 'w-full' : ''} h-12 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200`}
+                >
+                  Далее
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

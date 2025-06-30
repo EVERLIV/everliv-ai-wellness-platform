@@ -1,91 +1,98 @@
 
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { MessageSquare, Bot, Clock, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useSecureAIDoctor } from '@/hooks/useSecureAIDoctor';
-import { MessageSquare, Plus, Crown } from 'lucide-react';
 
 const DashboardChatsList: React.FC = () => {
   const navigate = useNavigate();
-  const { chats, isLoading: chatsLoading } = useSecureAIDoctor();
+
+  const recentChats = [
+    {
+      id: 1,
+      title: 'Консультация о питании',
+      lastMessage: 'Рекомендую увеличить потребление овощей...',
+      timestamp: '2 часа назад',
+      type: 'nutrition'
+    },
+    {
+      id: 2,
+      title: 'Анализ симптомов',
+      lastMessage: 'Основываясь на ваших симптомах...',
+      timestamp: '1 день назад',
+      type: 'symptoms'
+    },
+    {
+      id: 3,
+      title: 'План тренировок',
+      lastMessage: 'Начните с 3 тренировок в неделю...',
+      timestamp: '3 дня назад',
+      type: 'fitness'
+    }
+  ];
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'nutrition': return 'bg-green-100 text-green-700';
+      case 'symptoms': return 'bg-red-100 text-red-700';
+      case 'fitness': return 'bg-blue-100 text-blue-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
-      <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-        Мои чаты с доктором
-      </h3>
-      <div className="space-y-2">
-        {chatsLoading ? (
-          <div className="text-center py-3">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mx-auto"></div>
-          </div>
-        ) : chats && chats.length > 0 ? (
-          <>
-            {chats.slice(0, 3).map((chat) => (
-              <div 
-                key={chat.id}
-                className="flex items-center justify-between p-2 bg-blue-50 rounded cursor-pointer hover:bg-blue-100 transition-colors"
-                onClick={() => navigate(`/ai-doctor/chat/${chat.id}`)}
-              >
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div className="flex items-center gap-1">
-                    <MessageSquare className="h-3 w-3 text-blue-600 flex-shrink-0" />
-                    {chat.title?.includes('Премиум') && (
-                      <Crown className="h-3 w-3 text-amber-500 flex-shrink-0" />
-                    )}
-                  </div>
-                  <span className="text-xs text-gray-700 truncate">{chat.title || 'Консультация'}</span>
-                </div>
-                <span className="text-xs text-gray-500 flex-shrink-0">
-                  {new Date(chat.created_at).toLocaleDateString('ru-RU', { 
-                    day: 'numeric', 
-                    month: 'short' 
-                  })}
-                </span>
-              </div>
-            ))}
-            {chats.length > 3 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="w-full text-xs h-6" 
-                onClick={() => navigate('/ai-doctor')}
-              >
-                Показать все ({chats.length})
-              </Button>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-4">
-            <MessageSquare className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-            <p className="text-xs text-gray-500 mb-3">
-              Нет чатов с доктором
-            </p>
-            <Button 
-              size="sm" 
-              onClick={() => navigate('/ai-doctor')}
-              className="text-xs px-3 py-1 h-7"
-            >
-              <Plus className="h-3 w-3 mr-1" />
-              Новый чат
-            </Button>
-          </div>
-        )}
-        
-        {chats && chats.length > 0 && (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full text-xs h-6" 
+    <Card className="shadow-sm border-gray-200/80">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-gray-900">
+          <MessageSquare className="h-5 w-5 text-purple-600" />
+          <span className="text-lg font-semibold">Последние чаты</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {recentChats.map((chat) => (
+          <div
+            key={chat.id}
+            className="p-3 bg-gradient-to-r from-gray-50 to-purple-50/30 rounded-lg border border-gray-200/50 hover:shadow-sm transition-all duration-200 cursor-pointer"
             onClick={() => navigate('/ai-doctor')}
           >
-            <Plus className="h-3 w-3 mr-1" />
-            Новый чат
-          </Button>
-        )}
-      </div>
-    </div>
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Bot className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                <h4 className="font-medium text-gray-900 text-sm">
+                  {chat.title}
+                </h4>
+              </div>
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(chat.type)}`}>
+                {chat.type === 'nutrition' ? 'Питание' : 
+                 chat.type === 'symptoms' ? 'Симптомы' : 'Фитнес'}
+              </span>
+            </div>
+            
+            <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+              {chat.lastMessage}
+            </p>
+            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <Clock className="h-3 w-3" />
+                <span>{chat.timestamp}</span>
+              </div>
+              <ArrowRight className="h-3 w-3 text-gray-400" />
+            </div>
+          </div>
+        ))}
+        
+        <Button 
+          variant="outline" 
+          className="w-full mt-4 border-purple-200 text-purple-700 hover:bg-purple-50"
+          onClick={() => navigate('/ai-doctor')}
+        >
+          <MessageSquare className="h-4 w-4 mr-2" />
+          Новый чат с ИИ доктором
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
 
