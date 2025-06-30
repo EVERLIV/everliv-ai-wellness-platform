@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -9,27 +9,28 @@ export const useSmartRecommendations = () => {
   const { healthProfile } = useHealthProfile();
   const [recommendations, setRecommendations] = useState<SmartRecommendation[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  // Используем ref для отслеживания предыдущих целей
+  const previousGoalsRef = useRef<string[]>([]);
+  const recommendationsGeneratedRef = useRef(false);
+
+  // Функция для сравнения массивов целей
+  const areGoalsEqual = (goals1: string[], goals2: string[]) => {
+    if (goals1.length !== goals2.length) return false;
+    const sorted1 = [...goals1].sort();
+    const sorted2 = [...goals2].sort();
+    return sorted1.every((goal, index) => goal === sorted2[index]);
+  };
 
   const generateRecommendations = async () => {
     if (!healthProfile?.healthGoals || healthProfile.healthGoals.length === 0) {
-      console.log('No health goals found, skipping recommendations generation');
+      console.log('No health goals found, clearing recommendations');
       setRecommendations([]);
       return;
     }
 
     setIsGenerating(true);
     console.log('Generating recommendations for goals:', healthProfile.healthGoals);
-    console.log('User profile data:', {
-      age: healthProfile.age,
-      gender: healthProfile.gender,
-      weight: healthProfile.weight,
-      height: healthProfile.height,
-      exerciseFrequency: healthProfile.exerciseFrequency,
-      chronicConditions: healthProfile.chronicConditions,
-      medications: healthProfile.medications,
-      stressLevel: healthProfile.stressLevel,
-      sleepHours: healthProfile.sleepHours
-    });
     
     try {
       const { data, error } = await supabase.functions.invoke('generate-goal-recommendations', {
@@ -75,15 +76,12 @@ export const useSmartRecommendations = () => {
         return;
       }
 
-      console.log('Function response data:', data);
-
       if (data?.recommendations && Array.isArray(data.recommendations)) {
         console.log('Successfully received recommendations:', data.recommendations);
         setRecommendations(data.recommendations);
         toast.success('Персональные рекомендации готовы!');
       } else {
         console.log('No recommendations in response or invalid format');
-        toast.error('Не удалось получить рекомендации');
         setRecommendations([]);
       }
     } catch (error) {
@@ -96,18 +94,49 @@ export const useSmartRecommendations = () => {
   };
 
   useEffect(() => {
-    if (healthProfile?.healthGoals && healthProfile.healthGoals.length > 0) {
-      console.log('Health profile loaded with goals:', healthProfile.healthGoals);
-      generateRecommendations();
+    const currentGoals = healthProfile?.healthGoals || [];
+    const previousGoals = previousGoalsRef.current;
+
+    // Проверяем, есть ли цели и изменились ли они
+    if (currentGoals.length > 0) {
+      const goalsChanged = !areGoalsEqual(currentGoals, previousGoals);
+      const needsGeneration = goalsChanged || !recommendationsGeneratedRef.current;
+
+      if (needsGeneration) {
+        console.log('Goals changed or first generation:', {
+          previousGoals,
+          currentGoals,
+          goalsChanged,
+          firstGeneration: !recommendationsGeneratedRef.current
+        });
+        
+        generateRecommendations();
+        recommendationsGeneratedRef.current = true;
+        previousGoalsRef.current = [...currentGoals];
+      } else {
+        console.log('Goals unchanged, skipping regeneration');
+      }
     } else {
-      console.log('No health goals found in profile, clearing recommendations');
+      console.log('No health goals found, clearing recommendations');
       setRecommendations([]);
+      recommendationsGeneratedRef.current = false;
+      previousGoalsRef.current = [];
     }
-  }, [healthProfile?.healthGoals, healthProfile?.age, healthProfile?.gender, healthProfile?.weight]);
+  }, [
+    healthProfile?.healthGoals?.join(','), // Используем join для точного отслеживания изменений
+    healthProfile?.age,
+    healthProfile?.gender,
+    healthProfile?.weight
+  ]);
 
   return {
     recommendations,
     isGenerating,
-    generateRecommendations
+    generateRecommendations: () => {
+      // Принудительная генерация - сбрасываем флаги
+      recommendationsGeneratedRef.current = false;
+      previousGoalsRef.current = [];
+      generateRecommendations();
+    }
   };
 };

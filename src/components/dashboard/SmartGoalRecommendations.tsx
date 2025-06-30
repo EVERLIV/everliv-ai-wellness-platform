@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Target, Plus, Lightbulb, ArrowRight, Maximize2 } from 'lucide-react';
@@ -13,33 +14,36 @@ const SmartGoalRecommendations: React.FC = () => {
   const { recommendations, isGenerating } = useSmartRecommendations();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  // Переводим цели здоровья на русский
+  // Мемоизируем переводы для стабильности
+  const goalTranslations = useMemo(() => ({
+    'cognitive': 'Улучшение когнитивных функций',
+    'cardiovascular': 'Здоровье сердечно-сосудистой системы',
+    'weight_loss': 'Снижение веса',
+    'muscle_gain': 'Набор мышечной массы',
+    'energy_boost': 'Повышение энергии',
+    'sleep_improvement': 'Улучшение сна',
+    'stress_reduction': 'Снижение стресса',
+    'immunity_boost': 'Укрепление иммунитета',
+    'longevity': 'Увеличение продолжительности жизни',
+    'hormonal_balance': 'Гормональный баланс',
+    'digestive_health': 'Здоровье пищеварения',
+    'skin_health': 'Здоровье кожи',
+    'biological_age': 'Биологический возраст',
+    'metabolic_health': 'Метаболическое здоровье',
+    'bone_health': 'Здоровье костей',
+    'mental_health': 'Психическое здоровье',
+    'detox': 'Детоксикация организма',
+    'athletic_performance': 'Спортивные результаты'
+  }), []);
+
   const translateGoal = (goal: string): string => {
-    const translations: Record<string, string> = {
-      'cognitive': 'Улучшение когнитивных функций',
-      'cardiovascular': 'Здоровье сердечно-сосудистой системы',
-      'weight_loss': 'Снижение веса',
-      'muscle_gain': 'Набор мышечной массы',
-      'energy_boost': 'Повышение энергии',
-      'sleep_improvement': 'Улучшение сна',
-      'stress_reduction': 'Снижение стресса',
-      'immunity_boost': 'Укрепление иммунитета',
-      'longevity': 'Увеличение продолжительности жизни',
-      'hormonal_balance': 'Гормональный баланс',
-      'digestive_health': 'Здоровье пищеварения',
-      'skin_health': 'Здоровье кожи',
-      'biological_age': 'Биологический возраст',
-      'metabolic_health': 'Метаболическое здоровье',
-      'bone_health': 'Здоровье костей',
-      'mental_health': 'Психическое здоровье',
-      'detox': 'Детоксикация организма',
-      'athletic_performance': 'Спортивные результаты'
-    };
-    return translations[goal] || goal;
+    return goalTranslations[goal as keyof typeof goalTranslations] || goal;
   };
 
-  // Получаем цели из профиля здоровья
-  const healthGoals = healthProfile?.healthGoals || [];
+  // Мемоизируем цели из профиля для стабильности
+  const healthGoals = useMemo(() => {
+    return healthProfile?.healthGoals || [];
+  }, [healthProfile?.healthGoals]);
 
   if (isGenerating) {
     return (
@@ -76,7 +80,7 @@ const SmartGoalRecommendations: React.FC = () => {
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-gray-700 mb-2">Ваши цели:</h4>
               {healthGoals.slice(0, 3).map((goal, index) => (
-                <div key={index} className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg">
+                <div key={`goal-${goal}-${index}`} className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   <span className="text-sm text-gray-800">{translateGoal(goal)}</span>
                 </div>
@@ -115,7 +119,7 @@ const SmartGoalRecommendations: React.FC = () => {
               
               {recommendations.slice(0, 2).map((rec) => (
                 <div
-                  key={rec.id}
+                  key={`rec-${rec.id}`}
                   className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200/50"
                 >
                   <div className="flex items-start justify-between mb-2">
