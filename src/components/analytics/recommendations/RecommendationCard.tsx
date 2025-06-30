@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -185,41 +184,39 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   };
 
   return (
-    <Card className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
-      <CardHeader className={`${isMobile ? 'pb-3 px-4' : 'pb-4'}`}>
-        <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-start justify-between'}`}>
+    <Card className="recommendation-card-mobile border-l-blue-500">
+      <CardHeader className="mobile-card-header">
+        <div className="recommendation-header-mobile">
           <div className="flex-1">
-            <div className={`flex items-center gap-2 mb-2 ${isMobile ? 'flex-wrap' : ''}`}>
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
               {getCategoryIcon(recommendation.category)}
-              <Badge className={`${getCategoryColor(recommendation.category)} border text-xs`}>
+              <Badge className={`mobile-badge-sm ${getCategoryColor(recommendation.category)} border`}>
                 {getCategoryName(recommendation.category)}
               </Badge>
-              <Badge className={`${getPriorityColor(recommendation.priority)} border text-xs`}>
+              <Badge className={`mobile-badge-sm ${getPriorityColor(recommendation.priority)} border`}>
                 {getPriorityText(recommendation.priority)}
               </Badge>
             </div>
-            <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} leading-tight mb-2`}>
+            <CardTitle className="mobile-heading-secondary leading-tight mb-3">
               {recommendation.title}
             </CardTitle>
-            <p className={`text-gray-600 ${isMobile ? 'text-sm' : 'text-sm'} leading-relaxed`}>
+            <p className="mobile-text-body text-gray-600 leading-relaxed">
               {recommendation.description}
             </p>
           </div>
-          <div className={`flex items-center gap-2 ${isMobile ? 'w-full justify-between' : 'ml-4'}`}>
+          <div className="recommendation-actions-mobile">
             <Button
               onClick={handleSaveRecommendation}
-              size={isMobile ? "sm" : "sm"}
               variant="outline"
-              className={`flex items-center gap-2 ${isMobile ? 'flex-1' : ''}`}
+              className="mobile-button-sm flex items-center gap-2"
             >
               <Save className="h-4 w-4" />
-              {isMobile ? 'Сохранить' : 'Сохранить'}
+              Сохранить
             </Button>
             <Button
               variant="ghost"
-              size={isMobile ? "sm" : "sm"}
               onClick={onToggleExpanded}
-              className={`flex items-center gap-1 ${isMobile ? 'flex-1' : ''}`}
+              className="mobile-button-sm flex items-center gap-2"
             >
               {isExpanded ? (
                 <>
@@ -238,7 +235,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
       </CardHeader>
 
       {isExpanded && (
-        <CardContent className={`pt-0 ${isMobile ? 'px-4' : ''}`}>
+        <CardContent className="mobile-card-content">
           <RecommendationDetails recommendation={recommendation} />
         </CardContent>
       )}

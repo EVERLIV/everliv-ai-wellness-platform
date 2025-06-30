@@ -1,0 +1,106 @@
+
+@layer components {
+  /* Мобильная оптимизация для аналитики */
+  .analytics-container {
+    @apply w-full max-w-none sm:max-w-3xl lg:max-w-4xl xl:max-w-6xl mx-auto;
+    @apply px-3 sm:px-4 lg:px-6;
+  }
+  
+  .analytics-content-spacing {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  /* Мобильная типографика */
+  .mobile-heading-primary {
+    @apply text-xl sm:text-2xl lg:text-3xl font-bold leading-tight;
+  }
+  
+  .mobile-heading-secondary {
+    @apply text-lg sm:text-xl lg:text-2xl font-semibold leading-snug;
+  }
+  
+  .mobile-text-body {
+    @apply text-base sm:text-base leading-relaxed;
+  }
+  
+  .mobile-text-small {
+    @apply text-sm sm:text-base leading-relaxed;
+  }
+  
+  /* Мобильные карточки */
+  .mobile-card {
+    @apply p-4 sm:p-5 lg:p-6 rounded-lg border bg-white shadow-sm;
+  }
+  
+  .mobile-card-header {
+    @apply pb-3 sm:pb-4;
+  }
+  
+  .mobile-card-content {
+    @apply pt-0 p-4 sm:p-5 lg:p-6;
+  }
+  
+  /* Touch targets для мобильных */
+  .mobile-touch-target {
+    @apply min-h-[44px] min-w-[44px] touch-manipulation;
+  }
+  
+  .mobile-button {
+    @apply px-4 py-3 text-base font-medium rounded-lg min-h-[44px] min-w-[44px];
+    @apply transition-all duration-200 touch-manipulation;
+  }
+  
+  .mobile-button-sm {
+    @apply px-3 py-2 text-sm font-medium rounded-md min-h-[40px] min-w-[40px];
+  }
+  
+  /* Мобильные badge */
+  .mobile-badge {
+    @apply px-3 py-1.5 text-sm font-medium rounded-full;
+  }
+  
+  .mobile-badge-sm {
+    @apply px-2 py-1 text-xs font-medium rounded-full;
+  }
+  
+  /* Responsive grids для мобильных */
+  .analytics-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6;
+  }
+  
+  .analytics-goals-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4;
+  }
+  
+  /* Мобильные отступы для рекомендаций */
+  .recommendation-card-mobile {
+    @apply border-l-4 hover:shadow-md transition-shadow;
+    @apply p-4 sm:p-5 lg:p-6 space-y-3 sm:space-y-4;
+  }
+  
+  .recommendation-header-mobile {
+    @apply space-y-3 sm:space-y-4;
+  }
+  
+  .recommendation-actions-mobile {
+    @apply flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto;
+  }
+  
+  /* Флекс контейнеры для мобильных */
+  .mobile-flex-header {
+    @apply flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4;
+  }
+  
+  .mobile-flex-actions {
+    @apply flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto;
+  }
+  
+  /* Отступы для контента */
+  .mobile-section-spacing {
+    @apply py-4 sm:py-6 lg:py-8;
+  }
+  
+  .mobile-content-spacing {
+    @apply space-y-4 sm:space-y-5 lg:space-y-6;
+  }
+}

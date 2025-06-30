@@ -18,14 +18,14 @@ const AnalyticsDisplayCard: React.FC<AnalyticsDisplayCardProps> = ({
   className = ""
 }) => {
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Icon className="h-5 w-5" />
+    <Card className={`mobile-card ${className}`}>
+      <CardHeader className="mobile-card-header">
+        <CardTitle className="mobile-heading-secondary flex items-center gap-2">
+          <Icon className="h-5 w-5 flex-shrink-0" />
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="mobile-card-content">
         {children}
       </CardContent>
     </Card>
