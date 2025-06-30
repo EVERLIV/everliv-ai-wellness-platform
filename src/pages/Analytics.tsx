@@ -4,14 +4,13 @@ import PageLayoutWithHeader from '@/components/PageLayoutWithHeader';
 import AnalyticsPageHeader from '@/components/analytics/AnalyticsPageHeader';
 import AnalyticsScoreCard from '@/components/analytics/AnalyticsScoreCard';
 import AnalyticsBiomarkersCard from '@/components/analytics/AnalyticsBiomarkersCard';
-import AnalyticsRecommendationsCard from '@/components/analytics/AnalyticsRecommendationsCard';
 import AnalyticsDisplayCard from '@/components/analytics/AnalyticsDisplayCard';
 import AnalyticsValueDisplay from '@/components/analytics/AnalyticsValueDisplay';
+import EnhancedAnalyticsRecommendations from '@/components/analytics/EnhancedAnalyticsRecommendations';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { RefreshCw, AlertTriangle, User, TestTube, Calendar, Target, Edit, Activity, Brain, Apple } from 'lucide-react';
+import { RefreshCw, AlertTriangle, User, TestTube, Calendar, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -58,11 +57,6 @@ const Analytics = () => {
   const handleGenerateAnalytics = async () => {
     console.log('🔄 Manual analytics refresh triggered');
     await generateAnalytics();
-  };
-
-  const handlePageRefresh = () => {
-    console.log('🔄 Page refresh triggered');
-    window.location.reload();
   };
 
   if (isLoading) {
@@ -259,8 +253,11 @@ const Analytics = () => {
         {/* Biomarkers Analysis */}
         <AnalyticsBiomarkersCard analytics={analytics} />
 
-        {/* Personal Recommendations */}
-        <AnalyticsRecommendationsCard analytics={analytics} />
+        {/* Enhanced Personal Recommendations */}
+        <EnhancedAnalyticsRecommendations 
+          analytics={analytics} 
+          healthProfile={healthProfile}
+        />
 
         {/* Health Profile Summary */}
         {healthProfile && (
