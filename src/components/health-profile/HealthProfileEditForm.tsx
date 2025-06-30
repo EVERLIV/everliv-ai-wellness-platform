@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { User, Activity, Brain, Heart, Moon, FileText, Settings, Save, X, Apple, Stethoscope, Target } from "lucide-react";
+import { User, Activity, Brain, Heart, Moon, FileText, Settings, Save, X, Apple, Stethoscope, Target, Pill } from "lucide-react";
 import { HealthProfileData, LabResultsData } from "@/types/healthProfile";
 import PersonalInfoSection from "./PersonalInfoSection";
 import PhysicalHealthSection from "./PhysicalHealthSection";
@@ -13,6 +13,7 @@ import SleepSection from "./SleepSection";
 import LabResultsSection from "./LabResultsSection";
 import NavigationControls from "./NavigationControls";
 import MedicalHistorySection from "./MedicalHistorySection";
+import MedicationsSection from "./MedicationsSection";
 import HealthGoalsSection from "./HealthGoalsSection";
 import SectionNavigation from "./SectionNavigation";
 
@@ -81,6 +82,13 @@ const HealthProfileEditForm: React.FC<HealthProfileEditFormProps> = ({
 
       {currentSection === 'medical' && (
         <MedicalHistorySection 
+          data={healthProfile}
+          onChange={onChange}
+        />
+      )}
+
+      {currentSection === 'medications' && (
+        <MedicationsSection 
           data={healthProfile}
           onChange={onChange}
         />

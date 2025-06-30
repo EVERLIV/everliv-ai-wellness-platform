@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from "react";
-import { User, Activity, Brain, Apple, Moon, FileText, Stethoscope, Target } from "lucide-react";
+import { User, Activity, Brain, Apple, Moon, FileText, Stethoscope, Target, Pill } from "lucide-react";
 import { HealthProfileData } from "@/types/healthProfile";
 import PersonalInfoSection from "./PersonalInfoSection";
 import PhysicalHealthSection from "./PhysicalHealthSection";
@@ -9,6 +9,7 @@ import LifestyleSection from "./LifestyleSection";
 import SleepSection from "./SleepSection";
 import LabResultsSection from "./LabResultsSection";
 import MedicalHistorySection from "./MedicalHistorySection";
+import MedicationsSection from "./MedicationsSection";
 import HealthGoalsSection from "./HealthGoalsSection";
 import StepContent from "./StepContent";
 import FormControls from "./FormControls";
@@ -88,6 +89,13 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
       subtitle: "Заболевания и лечение",
       icon: FileText,
       component: <MedicalHistorySection data={healthProfile} onChange={handleChange} />
+    },
+    {
+      id: 'medications',
+      title: "Принимаемые лекарства",
+      subtitle: "Текущие препараты и добавки",
+      icon: Pill,
+      component: <MedicationsSection data={healthProfile} onChange={handleChange} />
     },
     {
       id: 'lab',
