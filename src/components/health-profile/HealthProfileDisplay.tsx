@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Edit2, User, Activity, Brain, Heart, Moon, FileText, Target, Flask } from 'lucide-react';
+import { Edit2, User, Activity, Brain, Heart, Moon, FileText, Target, TestTube } from 'lucide-react';
 import { HealthProfileData } from '@/types/healthProfile';
 
 interface HealthProfileDisplayProps {
@@ -260,7 +260,7 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({ healthProfi
       {healthProfile.labResults && (
         <div className="space-y-6 border-t border-gray-100 pt-8">
           <div className="flex items-center gap-3 mb-6">
-            <Flask className="h-6 w-6 text-blue-600" />
+            <TestTube className="h-6 w-6 text-blue-600" />
             <h2 className="text-2xl font-bold text-black">Результаты анализов</h2>
           </div>
           
