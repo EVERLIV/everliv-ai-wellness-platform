@@ -1,6 +1,6 @@
 
-import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import React, { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,10 +12,17 @@ import { toast } from "sonner";
 interface MealEntryProps {
   mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
   selectedDate: Date;
-  onClose: () => void;
+  trigger?: boolean;
+  onHandled?: () => void;
 }
 
-const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }) => {
+const MealEntry: React.FC<MealEntryProps> = ({ 
+  mealType, 
+  selectedDate, 
+  trigger = false,
+  onHandled 
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [entryMode, setEntryMode] = useState<'manual' | 'camera' | 'upload'>('manual');
   const [foodData, setFoodData] = useState({
     food_name: '',
@@ -30,11 +37,32 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
   const { analyzeImage, isAnalyzing } = useFoodImageAnalysis();
   const [isSaving, setIsSaving] = useState(false);
 
+  // Handle external trigger
+  useEffect(() => {
+    if (trigger) {
+      setIsOpen(true);
+      onHandled?.();
+    }
+  }, [trigger, onHandled]);
+
   const mealTitles = {
     breakfast: 'Завтрак',
     lunch: 'Обед',
     dinner: 'Ужин',
     snack: 'Перекус'
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+    setFoodData({
+      food_name: '',
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      portion_size: ''
+    });
+    setEntryMode('manual');
   };
 
   const handleSave = async () => {
@@ -55,7 +83,7 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
         image_url: null,
         entry_date: selectedDate.toISOString().split('T')[0]
       });
-      onClose();
+      handleClose();
     } catch (error) {
       console.error('Error saving food entry:', error);
     } finally {
@@ -109,7 +137,13 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
   };
 
   return (
-    <Dialog open onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-2">
+          <Plus className="h-4 w-4" />
+          Добавить
+        </Button>
+      </DialogTrigger>
       <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] mx-auto overflow-hidden">
         <DialogHeader>
           <DialogTitle className="text-lg">Добавить {mealTitles[mealType]}</DialogTitle>
@@ -254,7 +288,7 @@ const MealEntry: React.FC<MealEntryProps> = ({ mealType, selectedDate, onClose }
 
         {/* Кнопки действий */}
         <div className="flex flex-col gap-2 pt-4 border-t">
-          <Button variant="outline" onClick={onClose} className="w-full text-sm" disabled={isSaving}>
+          <Button variant="outline" onClick={handleClose} className="w-full text-sm" disabled={isSaving}>
             Отмена
           </Button>
           <Button 
