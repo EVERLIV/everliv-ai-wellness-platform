@@ -11,7 +11,9 @@ import {
   Utensils,
   Heart,
   Stethoscope,
-  ChevronRight
+  ChevronRight,
+  BookOpen,
+  Activity
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -67,6 +69,22 @@ const DashboardQuickActionsGrid: React.FC = () => {
       path: '/my-recommendations',
       gradient: 'from-indigo-500 to-indigo-600',
       iconColor: 'text-indigo-100'
+    },
+    {
+      icon: Activity,
+      title: 'Биологический возраст',
+      description: 'Оценка и улучшение',
+      path: '/biological-age',
+      gradient: 'from-pink-500 to-pink-600',
+      iconColor: 'text-pink-100'
+    },
+    {
+      icon: BookOpen,
+      title: 'База знаний',
+      description: 'Медицинские статьи',
+      path: '/knowledge-base',
+      gradient: 'from-teal-500 to-teal-600',
+      iconColor: 'text-teal-100'
     }
   ];
 

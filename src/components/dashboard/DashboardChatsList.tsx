@@ -2,35 +2,67 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Bot, Clock, ArrowRight } from 'lucide-react';
+import { MessageSquare, Bot, Clock, ArrowRight, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useSecureAIDoctor } from '@/hooks/useSecureAIDoctor';
 
 const DashboardChatsList: React.FC = () => {
   const navigate = useNavigate();
+  const { chats, isLoading } = useSecureAIDoctor();
 
-  const recentChats = [
-    {
-      id: 1,
-      title: 'Консультация о питании',
-      lastMessage: 'Рекомендую увеличить потребление овощей...',
-      timestamp: '2 часа назад',
-      type: 'nutrition'
-    },
-    {
-      id: 2,
-      title: 'Анализ симптомов',
-      lastMessage: 'Основываясь на ваших симптомах...',
-      timestamp: '1 день назад',
-      type: 'symptoms'
-    },
-    {
-      id: 3,
-      title: 'План тренировок',
-      lastMessage: 'Начните с 3 тренировок в неделю...',
-      timestamp: '3 дня назад',
-      type: 'fitness'
-    }
-  ];
+  // Получаем последние 3 чата
+  const recentChats = chats.slice(0, 3).map(chat => {
+    const lastMessage = chat.ai_doctor_messages && chat.ai_doctor_messages.length > 0 
+      ? chat.ai_doctor_messages[chat.ai_doctor_messages.length - 1]
+      : null;
+
+    // Определяем тип чата на основе содержания
+    const getChatType = (title: string, content: string) => {
+      const lowerTitle = title.toLowerCase();
+      const lowerContent = content.toLowerCase();
+      
+      if (lowerTitle.includes('питание') || lowerContent.includes('питание') || lowerContent.includes('диета')) {
+        return 'nutrition';
+      }
+      if (lowerTitle.includes('симптом') || lowerContent.includes('симптом') || lowerContent.includes('боль')) {
+        return 'symptoms';
+      }
+      if (lowerTitle.includes('тренировк') || lowerContent.includes('упражнение') || lowerContent.includes('спорт')) {
+        return 'fitness';
+      }
+      return 'general';
+    };
+
+    const chatType = getChatType(chat.title, lastMessage?.content || '');
+
+    return {
+      id: chat.id,
+      title: chat.title,
+      lastMessage: lastMessage?.content ? 
+        (lastMessage.content.length > 50 ? 
+          lastMessage.content.substring(0, 50) + '...' : 
+          lastMessage.content) : 
+        'Чат создан',
+      timestamp: formatTimeAgo(new Date(chat.updated_at)),
+      type: chatType
+    };
+  });
+
+  function formatTimeAgo(date: Date): string {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'только что';
+    if (diffInMinutes < 60) return `${diffInMinutes} мин назад`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours} ч назад`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays} дн назад`;
+    
+    return date.toLocaleDateString('ru-RU');
+  }
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -41,6 +73,38 @@ const DashboardChatsList: React.FC = () => {
     }
   };
 
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case 'nutrition': return 'Питание';
+      case 'symptoms': return 'Симптомы';
+      case 'fitness': return 'Фитнес';
+      default: return 'Общее';
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Card className="shadow-sm border-gray-200/80">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-gray-900">
+            <MessageSquare className="h-5 w-5 text-purple-600" />
+            <span className="text-lg font-semibold">Последние чаты</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="p-3 bg-gray-100 rounded-lg">
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="shadow-sm border-gray-200/80">
       <CardHeader className="pb-3">
@@ -50,47 +114,63 @@ const DashboardChatsList: React.FC = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {recentChats.map((chat) => (
-          <div
-            key={chat.id}
-            className="p-3 bg-gradient-to-r from-gray-50 to-purple-50/30 rounded-lg border border-gray-200/50 hover:shadow-sm transition-all duration-200 cursor-pointer"
-            onClick={() => navigate('/ai-doctor')}
-          >
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Bot className="h-4 w-4 text-purple-600 flex-shrink-0" />
-                <h4 className="font-medium text-gray-900 text-sm">
-                  {chat.title}
-                </h4>
-              </div>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(chat.type)}`}>
-                {chat.type === 'nutrition' ? 'Питание' : 
-                 chat.type === 'symptoms' ? 'Симптомы' : 'Фитнес'}
-              </span>
-            </div>
-            
-            <p className="text-xs text-gray-600 mb-2 line-clamp-2">
-              {chat.lastMessage}
-            </p>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <Clock className="h-3 w-3" />
-                <span>{chat.timestamp}</span>
-              </div>
-              <ArrowRight className="h-3 w-3 text-gray-400" />
-            </div>
+        {recentChats.length === 0 ? (
+          <div className="text-center py-4">
+            <MessageSquare className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+            <p className="text-sm text-gray-500 mb-3">Чаты с ИИ доктором отсутствуют</p>
+            <Button 
+              size="sm" 
+              onClick={() => navigate('/ai-doctor')}
+              className="text-xs"
+            >
+              <Plus className="h-3 w-3 mr-1" />
+              Начать чат
+            </Button>
           </div>
-        ))}
-        
-        <Button 
-          variant="outline" 
-          className="w-full mt-4 border-purple-200 text-purple-700 hover:bg-purple-50"
-          onClick={() => navigate('/ai-doctor')}
-        >
-          <MessageSquare className="h-4 w-4 mr-2" />
-          Новый чат с ИИ доктором
-        </Button>
+        ) : (
+          <>
+            {recentChats.map((chat) => (
+              <div
+                key={chat.id}
+                className="p-3 bg-gradient-to-r from-gray-50 to-purple-50/30 rounded-lg border border-gray-200/50 hover:shadow-sm transition-all duration-200 cursor-pointer"
+                onClick={() => navigate(`/ai-doctor/${chat.id}`)}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <Bot className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                    <h4 className="font-medium text-gray-900 text-sm truncate">
+                      {chat.title}
+                    </h4>
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ml-2 ${getTypeColor(chat.type)}`}>
+                    {getTypeLabel(chat.type)}
+                  </span>
+                </div>
+                
+                <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                  {chat.lastMessage}
+                </p>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <Clock className="h-3 w-3" />
+                    <span>{chat.timestamp}</span>
+                  </div>
+                  <ArrowRight className="h-3 w-3 text-gray-400" />
+                </div>
+              </div>
+            ))}
+            
+            <Button 
+              variant="outline" 
+              className="w-full mt-4 border-purple-200 text-purple-700 hover:bg-purple-50"
+              onClick={() => navigate('/ai-doctor')}
+            >
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Все чаты с ИИ доктором
+            </Button>
+          </>
+        )}
       </CardContent>
     </Card>
   );
