@@ -41,6 +41,7 @@ serve(async (req) => {
 ПРИОРИТЕТНЫЕ ЦЕЛИ ПОЛЬЗОВАТЕЛЯ:
 ${userGoals.map(goal => {
   switch(goal) {
+    case 'biological_age': return '- Биологический возраст (антиэйджинг, продление молодости)';
     case 'cognitive': return '- Когнитивное здоровье (улучшение памяти, концентрации, ментальной ясности)';
     case 'cardiovascular': return '- Сердечно-сосудистое здоровье (укрепление сердца, сосудов, выносливости)';
     case 'weight_loss': return '- Снижение веса (жиросжигание, метаболизм)';
@@ -51,6 +52,11 @@ ${userGoals.map(goal => {
     case 'sleep_improvement': return '- Улучшение сна (качество, продолжительность)';
     case 'energy_boost': return '- Повышение энергии (бодрость, митохондрии)';
     case 'immune_support': return '- Укрепление иммунитета (защита от болезней)';
+    case 'metabolism': return '- Метаболизм (ускорение обмена веществ)';
+    case 'metabolic_health': return '- Метаболическое здоровье (инсулин, глюкоза)';
+    case 'musculoskeletal': return '- Опорно-двигательная система (кости, суставы)';
+    case 'athletic_performance': return '- Спортивные результаты (выносливость, сила)';
+    case 'skin_health': return '- Здоровье кожи (омоложение, защита)';
     default: return `- ${goal}`;
   }
 }).join('\n')}
@@ -205,31 +211,6 @@ ${healthProfile ? `
           scientificBasis: 'Мета-анализ 2024г: средиземноморская диета + ягоды улучшают память на 25%',
           biohackingLevel: 'beginner'
         });
-
-        goalsBasedFallback.push({
-          id: 'cognitive-supplements',
-          title: 'Ноотропные добавки для мозга',
-          description: 'Научно обоснованные добавки для улучшения когнитивных функций',
-          category: 'supplements',
-          priority: 'high',
-          evidenceLevel: 'rct',
-          safetyWarnings: ['Консультация с неврологом', 'Мониторинг давления'],
-          contraindications: ['Эпилепсия', 'Биполярное расстройство'],
-          implementation: {
-            steps: [
-              'Омега-3 DHA: 1000-2000мг для нейропластичности',
-              'Львиная грива: 500-1000мг для нейрогенеза',
-              'Фосфатидилсерин: 100мг для клеточных мембран',
-              'Витамин B12: 500мкг для нервной системы',
-              'Магний глицинат: 200мг для нейротрансмиссии'
-            ],
-            duration: '8-12 недель для устойчивых изменений',
-            frequency: 'ежедневно во время еды',
-            dosage: 'DHA: 1000-2000мг, Львиная грива: 500-1000мг'
-          },
-          scientificBasis: 'РКИ 2024г: комплекс ноотропов улучшает память и внимание на 30%',
-          biohackingLevel: 'intermediate'
-        });
       }
 
       if (userGoals?.includes('cardiovascular')) {
@@ -257,34 +238,9 @@ ${healthProfile ? `
           scientificBasis: 'Мета-анализ 2024г: HIIT улучшает кардиореспираторную выносливость на 15-25%',
           biohackingLevel: 'intermediate'
         });
-
-        goalsBasedFallback.push({
-          id: 'cardio-supplements-goal',
-          title: 'Кардиопротективные добавки',
-          description: 'Добавки для поддержки сердечно-сосудистой системы и снижения рисков',
-          category: 'supplements',
-          priority: 'medium',
-          evidenceLevel: 'rct',
-          safetyWarnings: ['Контроль МНО при антикоагулянтах', 'Консультация кардиолога'],
-          contraindications: ['Аллергия на рыбу', 'Прием варфарина'],
-          implementation: {
-            steps: [
-              'Омега-3 EPA/DHA: 2000мг для противовоспалительного эффекта',
-              'Коэнзим Q10: 100-200мг для митохондрий сердца',
-              'Магний: 400мг для сердечного ритма',
-              'Витамин K2: 100мкг для кальциевого обмена',
-              'Боярышник: 300мг для поддержки сердца'
-            ],
-            duration: '12-16 недель для стабильного эффекта',
-            frequency: 'ежедневно во время еды',
-            dosage: 'Омега-3: 2000мг, CoQ10: 100-200мг'
-          },
-          scientificBasis: 'РКИ 2024г: комплекс кардиодобавок снижает риск ССЗ на 20-30%',
-          biohackingLevel: 'beginner'
-        });
       }
 
-      // Добавляем универсальные рекомендации для всех
+      // Добавляем универсальные рекомендации
       goalsBasedFallback.push({
         id: 'universal-testing',
         title: 'Анализы для точной оценки здоровья',

@@ -16,24 +16,34 @@ export const useRecommendationsGeneration = (
   const [lastAttempt, setLastAttempt] = useState<Date | null>(null);
 
   useEffect(() => {
-    if (user && healthProfile?.healthGoals) {
+    if (user && healthProfile?.healthGoals && analytics) {
       generateRecommendations();
     }
-  }, [user, healthProfile]);
+  }, [user, healthProfile, analytics]);
 
   const generateRecommendations = async () => {
-    if (!user || !healthProfile?.healthGoals || isGenerating) return;
+    if (!user || !healthProfile?.healthGoals || !analytics || isGenerating) return;
 
     setIsGenerating(true);
     setLastAttempt(new Date());
 
     try {
-      console.log('🔄 Generating recommendations for goals:', healthProfile.healthGoals);
+      console.log('🔄 Generating recommendations with data:', { 
+        healthGoals: healthProfile.healthGoals,
+        analytics: analytics,
+        userProfile: healthProfile 
+      });
 
       const { data, error } = await supabase.functions.invoke('generate-analytics-recommendations', {
         body: {
-          healthGoals: healthProfile.healthGoals,
-          userProfile: {
+          analytics: {
+            healthScore: analytics.healthScore,
+            riskLevel: analytics.riskLevel,
+            concerns: analytics.concerns || [],
+            strengths: analytics.strengths || [],
+            biomarkers: analytics.biomarkers || []
+          },
+          healthProfile: {
             age: healthProfile.age,
             gender: healthProfile.gender,
             weight: healthProfile.weight,
@@ -42,7 +52,9 @@ export const useRecommendationsGeneration = (
             medications: healthProfile.medications || [],
             stressLevel: healthProfile.stressLevel,
             sleepHours: healthProfile.sleepHours
-          }
+          },
+          userGoals: healthProfile.healthGoals,
+          focusOnGoals: true
         }
       });
 
