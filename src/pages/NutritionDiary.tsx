@@ -1,20 +1,28 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
 import NutritionDiary from "@/components/nutrition/NutritionDiary";
 import NutritionDiaryHeader from "@/components/nutrition/NutritionDiaryHeader";
 
 const NutritionDiaryPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [initialTab, setInitialTab] = useState<'diary' | 'analytics' | 'goals'>('diary');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'goals' || tab === 'analytics') {
+      setInitialTab(tab as 'diary' | 'analytics' | 'goals');
+    }
+  }, [searchParams]);
 
   const handleQuickAdd = () => {
-    // Передаем сигнал в основной компонент для открытия быстрого добавления
     setShowQuickAdd(true);
   };
 
   const handleCalendarClick = () => {
-    // Передаем сигнал в основной компонент для открытия календаря
     setShowCalendar(true);
   };
 
@@ -28,6 +36,7 @@ const NutritionDiaryPage: React.FC = () => {
       }
     >
       <NutritionDiary 
+        initialTab={initialTab}
         triggerQuickAdd={showQuickAdd}
         onQuickAddHandled={() => setShowQuickAdd(false)}
         triggerCalendar={showCalendar}
