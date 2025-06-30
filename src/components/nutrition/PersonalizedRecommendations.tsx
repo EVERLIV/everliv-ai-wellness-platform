@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -52,17 +51,17 @@ const PersonalizedRecommendations: React.FC = () => {
   const canGenerateRecommendations = hasBasicHealthProfile() && hasNutritionGoals();
 
   const handleGenerateRecommendations = async () => {
-    if (!canGenerateRecommendations || !goals || !healthProfile) return;
+    if (!canGenerateRecommendations || !goals || !healthProfile || !user) return;
 
     const currentIntake = getDailyTotals();
     
     // Создаем профиль данных с правильной типизацией
     const profileData = {
-      id: healthProfile.id || '',
+      id: user.id, // Используем ID пользователя
       first_name: user?.user_metadata?.first_name || '',
       last_name: user?.user_metadata?.last_name || '',
       nickname: user?.user_metadata?.nickname || '',
-      date_of_birth: healthProfile.date_of_birth || null,
+      date_of_birth: null, // HealthProfileData не содержит date_of_birth
       age: healthProfile.age,
       gender: healthProfile.gender,
       height: healthProfile.height,
