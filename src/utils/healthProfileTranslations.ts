@@ -32,7 +32,9 @@ export const translateHealthProfileData = {
     'never': 'Никогда не курил(а)',
     'former': 'Бросил(а) курить',
     'occasional': 'Курю изредка',
-    'regular': 'Курю регулярно'
+    'regular': 'Курю регулярно',
+    'current_light': 'Курю легкие сигареты',
+    'current_heavy': 'Курю много'
   },
 
   // Алкоголь
@@ -41,7 +43,8 @@ export const translateHealthProfileData = {
     'rarely': 'Редко (несколько раз в год)',
     'occasionally': 'Иногда (несколько раз в месяц)',
     'weekly': 'Еженедельно',
-    'daily': 'Ежедневно'
+    'daily': 'Ежедневно',
+    'regularly': 'Регулярно'
   },
 
   // Тип питания
@@ -79,6 +82,17 @@ export const translateHealthProfileData = {
     'fair': 'Удовлетворительное',
     'good': 'Хорошее',
     'excellent': 'Отличное'
+  },
+
+  // Результаты анализов (лабораторные показатели)
+  labResults: {
+    'mcv': 'Средний объем эритроцита (MCV)',
+    'serumIron': 'Сывороточное железо',
+    'bloodSugar': 'Уровень сахара в крови',
+    'hemoglobin': 'Гемоглобин',
+    'cholesterol': 'Холестерин',
+    'testDate': 'Дата анализа',
+    'lastUpdated': 'Последнее обновление'
   },
 
   // Цели здоровья
@@ -145,4 +159,34 @@ export const translateHealthGoals = (goals: string[]): string[] => {
 
 export const translateMedications = (medications: string[]): string[] => {
   return medications.map(medication => translateValue('medications', medication));
+};
+
+// Функция для перевода названий лабораторных показателей
+export const translateLabResultKey = (key: string): string => {
+  return translateValue('labResults', key);
+};
+
+// Функция для форматирования значений лабораторных показателей
+export const formatLabResultValue = (key: string, value: any): string => {
+  if (key === 'testDate' || key === 'lastUpdated') {
+    if (typeof value === 'string') {
+      try {
+        return new Date(value).toLocaleDateString('ru-RU');
+      } catch {
+        return value;
+      }
+    }
+  }
+  
+  // Добавляем единицы измерения для некоторых показателей
+  const unitsMap: Record<string, string> = {
+    'mcv': 'фл',
+    'serumIron': 'мкмоль/л',
+    'bloodSugar': 'ммоль/л',
+    'hemoglobin': 'г/л',
+    'cholesterol': 'ммоль/л'
+  };
+  
+  const unit = unitsMap[key];
+  return unit ? `${value} ${unit}` : String(value);
 };

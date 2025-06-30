@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { User, Activity, Brain, Apple, Moon, FileText, Stethoscope, Target, Pill, Edit } from "lucide-react";
 import { HealthProfileData } from "@/types/healthProfile";
-import { translateValue, translateHealthGoals, translateMedications } from "@/utils/healthProfileTranslations";
+import { translateValue, translateHealthGoals, translateMedications, translateLabResultKey, formatLabResultValue } from "@/utils/healthProfileTranslations";
 import HealthProfileValueDisplay from "./HealthProfileValueDisplay";
 
 interface HealthProfileDisplayProps {
@@ -346,8 +346,8 @@ const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
                 return (
                   <HealthProfileValueDisplay
                     key={key}
-                    label={key}
-                    value={typeof value === 'number' ? value.toString() : String(value)}
+                    label={translateLabResultKey(key)}
+                    value={formatLabResultValue(key, value)}
                   />
                 );
               }
