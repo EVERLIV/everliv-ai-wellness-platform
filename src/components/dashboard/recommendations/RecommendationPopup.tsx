@@ -48,37 +48,19 @@ const RecommendationPopup: React.FC<RecommendationPopupProps> = ({
     setSavingStates(prev => ({ ...prev, [recommendation.id]: true }));
 
     try {
-      // Используем raw SQL query для обхода проблемы с типами TypeScript
-      const { error } = await supabase.rpc('exec_sql', {
-        sql: `INSERT INTO health_recommendations (user_id, title, description, category, priority, type, status) 
-              VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        params: [
-          user.id,
-          recommendation.title,
-          recommendation.description,
-          recommendation.category,
-          recommendation.priority,
-          'ai_generated',
-          'active'
-        ]
-      });
+      const { error } = await supabase
+        .from('health_recommendations')
+        .insert({
+          user_id: user.id,
+          title: recommendation.title,
+          description: recommendation.description,
+          category: recommendation.category,
+          priority: recommendation.priority,
+          type: 'ai_generated',
+          status: 'active'
+        });
 
-      if (error) {
-        // Fallback: прямая вставка через SQL
-        const { error: insertError } = await supabase
-          .from('health_recommendations' as any)
-          .insert({
-            user_id: user.id,
-            title: recommendation.title,
-            description: recommendation.description,
-            category: recommendation.category,
-            priority: recommendation.priority,
-            type: 'ai_generated',
-            status: 'active'
-          });
-
-        if (insertError) throw insertError;
-      }
+      if (error) throw error;
 
       setSavedStates(prev => ({ ...prev, [recommendation.id]: true }));
       toast.success('Рекомендация сохранена!');
