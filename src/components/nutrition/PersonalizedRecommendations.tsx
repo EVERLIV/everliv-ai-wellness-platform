@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,8 +29,9 @@ const PersonalizedRecommendations: React.FC = () => {
     return isTrialActive;
   };
 
-  // Проверяем базовую информацию профиля
+  // Исправленная проверка базовой информации профиля
   const hasBasicProfile = () => {
+    console.log('Profile data:', profileData);
     return profileData && 
            profileData.height && 
            profileData.weight && 
@@ -40,6 +40,7 @@ const PersonalizedRecommendations: React.FC = () => {
 
   // Проверяем наличие целей питания
   const hasNutritionGoals = () => {
+    console.log('Nutrition goals:', goals);
     return goals && 
            goals.daily_calories > 0 && 
            goals.daily_protein > 0 && 
@@ -123,6 +124,9 @@ const PersonalizedRecommendations: React.FC = () => {
           <p className="mobile-text-body text-blue-700 mb-4">
             Укажите основные данные (рост, вес, пол) для получения рекомендаций.
           </p>
+          <div className="text-xs text-blue-600 mb-4 p-2 bg-blue-100 rounded">
+            Отладка: Рост: {profileData?.height || 'нет'}, Вес: {profileData?.weight || 'нет'}, Пол: {profileData?.gender || 'нет'}
+          </div>
           <Button 
             onClick={() => window.location.href = '/health-profile'} 
             variant="outline"
