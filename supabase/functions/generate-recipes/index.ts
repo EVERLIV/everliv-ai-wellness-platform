@@ -36,7 +36,7 @@ serve(async (req) => {
 - Время приготовления: от 15 до 45 минут
 - Сложность: легкая или средняя
 
-Верни результат в формате JSON:
+Верни результат ТОЛЬКО в виде чистого JSON без дополнительного форматирования:
 {
   "recipes": [
     {
@@ -78,7 +78,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'Ты опытный повар и диетолог. Создавай полезные и вкусные рецепты на основе указанных продуктов.'
+            content: 'Ты опытный повар и диетолог. Создавай полезные и вкусные рецепты на основе указанных продуктов. Отвечай ТОЛЬКО в формате JSON без дополнительного текста или форматирования.'
           },
           {
             role: 'user',
@@ -103,13 +103,23 @@ serve(async (req) => {
       throw new Error('Не удалось получить рецепты от OpenAI')
     }
 
+    // Очищаем ответ от markdown форматирования
+    let cleanContent = content.trim()
+    if (cleanContent.startsWith('```json')) {
+      cleanContent = cleanContent.replace(/```json\n?/, '').replace(/\n?```$/, '')
+    }
+    if (cleanContent.startsWith('```')) {
+      cleanContent = cleanContent.replace(/```\n?/, '').replace(/\n?```$/, '')
+    }
+
     // Парсим JSON ответ
     let recipes
     try {
-      const parsedContent = JSON.parse(content)
+      const parsedContent = JSON.parse(cleanContent)
       recipes = parsedContent.recipes || []
     } catch (parseError) {
       console.error('Ошибка парсинга JSON:', parseError)
+      console.error('Содержимое ответа:', cleanContent)
       throw new Error('Ошибка обработки ответа от OpenAI')
     }
 
