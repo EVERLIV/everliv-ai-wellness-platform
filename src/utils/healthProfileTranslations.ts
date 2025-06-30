@@ -79,6 +79,54 @@ export const translateHealthProfileData = {
     'fair': 'Удовлетворительное',
     'good': 'Хорошее',
     'excellent': 'Отличное'
+  },
+
+  // Цели здоровья
+  healthGoals: {
+    'cognitive': 'Улучшение когнитивных функций',
+    'cardiovascular': 'Здоровье сердечно-сосудистой системы',
+    'weight_loss': 'Снижение веса',
+    'muscle_gain': 'Набор мышечной массы',
+    'energy_boost': 'Повышение энергии',
+    'sleep_improvement': 'Улучшение сна',
+    'stress_reduction': 'Снижение стресса',
+    'immunity_boost': 'Укрепление иммунитета',
+    'longevity': 'Увеличение продолжительности жизни',
+    'hormonal_balance': 'Гормональный баланс',
+    'digestive_health': 'Здоровье пищеварения',
+    'skin_health': 'Здоровье кожи',
+    'biological_age': 'Улучшение биологического возраста',
+    'metabolic_health': 'Метаболическое здоровье',
+    'bone_health': 'Здоровье костей',
+    'mental_health': 'Психическое здоровье',
+    'detox': 'Детоксикация организма',
+    'athletic_performance': 'Спортивные результаты',
+    'musculoskeletal': 'Здоровье опорно-двигательного аппарата',
+    'metabolism': 'Улучшение метаболизма'
+  },
+
+  // Лекарства и добавки
+  medications: {
+    'aspirin': 'Аспирин (кардиомагнил)',
+    'metformin': 'Метформин',
+    'statins': 'Статины (аторвастатин, розувастатин)',
+    'ace_inhibitors': 'Ингибиторы АПФ (лизиноприл, эналаприл)',
+    'beta_blockers': 'Бета-блокаторы (бисопролол, метопролол)',
+    'calcium_blockers': 'Блокаторы кальциевых каналов (амлодипин)',
+    'diuretics': 'Диуретики (индапамид, гидрохлортиазид)',
+    'ppi': 'Ингибиторы протонной помпы (омепразол, пантопразол)',
+    'thyroid_hormones': 'Гормоны щитовидной железы (L-тироксин)',
+    'insulin': 'Инсулин',
+    'warfarin': 'Варфарин',
+    'direct_anticoagulants': 'Прямые антикоагулянты (ривароксабан, апиксабан)',
+    'antidepressants': 'Антидепрессанты',
+    'nsaids': 'НПВС (ибупрофен, диклофенак)',
+    'contraceptives': 'Оральные контрацептивы',
+    'vitamin_d': 'Витамин D',
+    'b12': 'Витамин B12',
+    'omega3': 'Омега-3',
+    'magnesium': 'Магний',
+    'probiotics': 'Пробиотики'
   }
 };
 
@@ -88,4 +136,13 @@ export const translateValue = (category: keyof typeof translateHealthProfileData
     return translations[value as keyof typeof translations];
   }
   return value;
+};
+
+// Специальные функции для перевода массивов
+export const translateHealthGoals = (goals: string[]): string[] => {
+  return goals.map(goal => translateValue('healthGoals', goal));
+};
+
+export const translateMedications = (medications: string[]): string[] => {
+  return medications.map(medication => translateValue('medications', medication));
 };

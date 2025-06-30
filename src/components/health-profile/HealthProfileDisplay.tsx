@@ -1,328 +1,361 @@
 
-import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Edit2, User, Activity, Brain, Heart, Moon, FileText, Target, TestTube } from 'lucide-react';
-import { HealthProfileData } from '@/types/healthProfile';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { User, Activity, Brain, Apple, Moon, FileText, Stethoscope, Target, Pill, Edit } from "lucide-react";
+import { HealthProfileData } from "@/types/healthProfile";
+import { translateValue, translateHealthGoals, translateMedications } from "@/utils/healthProfileTranslations";
+import HealthProfileValueDisplay from "./HealthProfileValueDisplay";
 
 interface HealthProfileDisplayProps {
   healthProfile: HealthProfileData;
   onEdit: () => void;
 }
 
-const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({ healthProfile, onEdit }) => {
-  const formatValue = (value: any): string => {
-    if (value === null || value === undefined) return 'Не указано';
-    if (Array.isArray(value)) {
-      return value.length > 0 ? value.join(', ') : 'Не указано';
-    }
-    if (typeof value === 'boolean') return value ? 'Да' : 'Нет';
-    return String(value);
+const HealthProfileDisplay: React.FC<HealthProfileDisplayProps> = ({
+  healthProfile,
+  onEdit
+}) => {
+  const calculateBMI = (weight: number, height: number): number => {
+    const heightInMeters = height / 100;
+    return weight / (heightInMeters * heightInMeters);
   };
 
-  const getActivityLabel = (activity: string) => {
-    const labels = {
-      'sedentary': 'Малоподвижный',
-      'moderate': 'Умеренный', 
-      'active': 'Активный'
-    };
-    return labels[activity as keyof typeof labels] || activity;
+  const getBMICategory = (bmi: number): string => {
+    if (bmi < 18.5) return "Недостаточный вес";
+    if (bmi < 25) return "Нормальный вес";
+    if (bmi < 30) return "Избыточный вес";
+    return "Ожирение";
   };
 
-  const getQualityLabel = (quality: string) => {
-    const labels = {
-      'poor': 'Плохое',
-      'fair': 'Удовлетворительное',
-      'good': 'Хорошее', 
-      'excellent': 'Отличное'
-    };
-    return labels[quality as keyof typeof labels] || quality;
-  };
-
-  const getGenderLabel = (gender: string) => {
-    const labels = {
-      'male': 'Мужской',
-      'female': 'Женский',
-      'other': 'Другой'
-    };
-    return labels[gender as keyof typeof labels] || gender;
-  };
+  const bmi = calculateBMI(healthProfile.weight, healthProfile.height);
 
   return (
-    <div className="health-profile">
-      <div className="page-container section-spacing">
-        {/* Header */}
-        <Card className="mb-8">
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="text-spacing-sm">
-                <h1 className="heading-responsive-lg text-black">
-                  Профиль здоровья
-                </h1>
-                <p className="text-responsive text-gray-600">
-                  Последнее обновление: {new Date().toLocaleDateString('ru-RU')}
-                </p>
-              </div>
-              <Button 
-                onClick={onEdit} 
-                className="touch-target bg-blue-600 text-white hover:bg-blue-700 gap-2 self-start sm:self-auto"
-              >
-                <Edit2 className="h-4 w-4" />
-                <span className="text-sm font-medium">Редактировать</span>
-              </Button>
-            </div>
-          </CardHeader>
-        </Card>
-
-        {/* Content Grid */}
-        <div className="responsive-grid-2 lg:grid-cols-2">
-          {/* Personal Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-full">
-                  <User className="h-5 w-5 text-blue-600" />
-                </div>
-                <span className="text-lg font-bold text-black">Личная информация</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-1">
-                <div className="info-row">
-                  <span className="info-label">Возраст:</span>
-                  <span className="info-value">{formatValue(healthProfile.age)} лет</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Пол:</span>
-                  <span className="info-value">{getGenderLabel(healthProfile.gender)}</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Рост:</span>
-                  <span className="info-value">{formatValue(healthProfile.height)} см</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Вес:</span>
-                  <span className="info-value">{formatValue(healthProfile.weight)} кг</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Health Goals */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-full">
-                  <Target className="h-5 w-5 text-blue-600" />
-                </div>
-                <span className="text-lg font-bold text-black">Цели здоровья</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="content-padding-internal">
-              {healthProfile.healthGoals && healthProfile.healthGoals.length > 0 ? (
-                <div className="text-spacing-sm">
-                  {healthProfile.healthGoals.map((goal, index) => (
-                    <div key={index} className="info-item border-l-4 border-blue-600 bg-blue-50">
-                      <span className="text-sm text-black font-medium">{goal}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500 italic content-padding-internal">Цели не указаны</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Physical Health */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-full">
-                  <Activity className="h-5 w-5 text-blue-600" />
-                </div>
-                <span className="text-lg font-bold text-black">Физическое здоровье</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-1">
-                <div className="info-row">
-                  <span className="info-label">Физическая активность:</span>
-                  <span className="info-value">{getActivityLabel(healthProfile.physicalActivity || '')}</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Упражнения в неделю:</span>
-                  <span className="info-value">{formatValue(healthProfile.exerciseFrequency)} раз</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Mental Health */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-full">
-                  <Brain className="h-5 w-5 text-blue-600" />
-                </div>
-                <span className="text-lg font-bold text-black">Психическое здоровье</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-1">
-                <div className="info-row">
-                  <span className="info-label">Уровень стресса:</span>
-                  <span className="info-value">{formatValue(healthProfile.stressLevel)}/10</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Уровень тревожности:</span>
-                  <span className="info-value">{formatValue(healthProfile.anxietyLevel)}/10</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Качество сна:</span>
-                  <span className="info-value">{getQualityLabel(healthProfile.sleepQuality || '')}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Lifestyle */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-full">
-                  <Heart className="h-5 w-5 text-blue-600" />
-                </div>
-                <span className="text-lg font-bold text-black">Образ жизни</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-1">
-                <div className="info-row">
-                  <span className="info-label">Курение:</span>
-                  <span className="info-value">{formatValue(healthProfile.smokingStatus)}</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Алкоголь:</span>
-                  <span className="info-value">{formatValue(healthProfile.alcoholConsumption)}</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Потребление воды:</span>
-                  <span className="info-value">{formatValue(healthProfile.waterIntake)} стаканов/день</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Sleep */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-full">
-                  <Moon className="h-5 w-5 text-blue-600" />
-                </div>
-                <span className="text-lg font-bold text-black">Сон и отдых</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-1">
-                <div className="info-row">
-                  <span className="info-label">Часы сна:</span>
-                  <span className="info-value">{formatValue(healthProfile.sleepHours)} часов</span>
-                </div>
-                <div className="info-row">
-                  <span className="info-label">Качество сна:</span>
-                  <span className="info-value">{getQualityLabel(healthProfile.sleepQuality || '')}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Header with Edit Button */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Профиль здоровья</h1>
+          <p className="text-gray-600">Ваши персональные данные о здоровье</p>
         </div>
+        <Button onClick={onEdit} className="flex items-center gap-2">
+          <Edit className="h-4 w-4" />
+          Редактировать
+        </Button>
+      </div>
 
-        {/* Medical History - Full Width */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-full">
-                <FileText className="h-5 w-5 text-blue-600" />
+      {/* Personal Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Личная информация
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <HealthProfileValueDisplay
+            label="Возраст"
+            value={`${healthProfile.age} лет`}
+          />
+          <HealthProfileValueDisplay
+            label="Пол"
+            value={translateValue('gender', healthProfile.gender)}
+          />
+          <HealthProfileValueDisplay
+            label="Рост"
+            value={`${healthProfile.height} см`}
+          />
+          <HealthProfileValueDisplay
+            label="Вес"
+            value={`${healthProfile.weight} кг`}
+          />
+          <HealthProfileValueDisplay
+            label="ИМТ"
+            value={`${bmi.toFixed(1)} (${getBMICategory(bmi)})`}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Physical Health */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5" />
+            Физическое здоровье
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {healthProfile.physicalActivity && (
+            <HealthProfileValueDisplay
+              label="Физическая активность"
+              value={translateValue('physicalActivity', healthProfile.physicalActivity)}
+            />
+          )}
+          <HealthProfileValueDisplay
+            label="Частота тренировок"
+            value={`${healthProfile.exerciseFrequency} раз в неделю`}
+          />
+          {healthProfile.fitnessLevel && (
+            <HealthProfileValueDisplay
+              label="Уровень подготовки"
+              value={translateValue('fitnessLevel', healthProfile.fitnessLevel)}
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Mental Health */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5" />
+            Психическое здоровье
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <HealthProfileValueDisplay
+            label="Уровень стресса"
+            value={`${healthProfile.stressLevel}/10`}
+          />
+          <HealthProfileValueDisplay
+            label="Уровень тревожности"
+            value={`${healthProfile.anxietyLevel}/10`}
+          />
+          {healthProfile.moodChanges && (
+            <HealthProfileValueDisplay
+              label="Изменения настроения"
+              value={translateValue('moodChanges', healthProfile.moodChanges)}
+            />
+          )}
+          {healthProfile.mentalHealthSupport && (
+            <HealthProfileValueDisplay
+              label="Поддержка психического здоровья"
+              value={translateValue('mentalHealthSupport', healthProfile.mentalHealthSupport)}
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Lifestyle */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Apple className="h-5 w-5" />
+            Образ жизни
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {healthProfile.smokingStatus && (
+            <HealthProfileValueDisplay
+              label="Курение"
+              value={translateValue('smokingStatus', healthProfile.smokingStatus)}
+            />
+          )}
+          {healthProfile.alcoholConsumption && (
+            <HealthProfileValueDisplay
+              label="Употребление алкоголя"
+              value={translateValue('alcoholConsumption', healthProfile.alcoholConsumption)}
+            />
+          )}
+          {healthProfile.dietType && (
+            <HealthProfileValueDisplay
+              label="Тип питания"
+              value={translateValue('dietType', healthProfile.dietType)}
+            />
+          )}
+          <HealthProfileValueDisplay
+            label="Потребление воды"
+            value={`${healthProfile.waterIntake} стаканов в день`}
+          />
+          <HealthProfileValueDisplay
+            label="Потребление кофеина"
+            value={`${healthProfile.caffeineIntake} чашек в день`}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Sleep */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Moon className="h-5 w-5" />
+            Сон и отдых
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <HealthProfileValueDisplay
+            label="Часы сна"
+            value={`${healthProfile.sleepHours} часов`}
+          />
+          {healthProfile.sleepQuality && (
+            <HealthProfileValueDisplay
+              label="Качество сна"
+              value={translateValue('sleepQuality', healthProfile.sleepQuality)}
+            />
+          )}
+          {healthProfile.sleepIssues && healthProfile.sleepIssues.length > 0 && (
+            <div className="col-span-full">
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Проблемы со сном
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {healthProfile.sleepIssues.map((issue, index) => (
+                  <Badge key={index} variant="outline">{issue}</Badge>
+                ))}
               </div>
-              <span className="text-lg font-bold text-black">Медицинская история</span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Health Goals */}
+      {healthProfile.healthGoals && healthProfile.healthGoals.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5" />
+              Цели здоровья
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="responsive-grid lg:grid-cols-3">
-              <div className="content-padding-internal">
-                <h3 className="section-title">Хронические заболевания</h3>
-                {healthProfile.chronicConditions && healthProfile.chronicConditions.length > 0 ? (
-                  <div className="text-spacing-sm">
-                    {healthProfile.chronicConditions.map((condition, index) => (
-                      <div key={index} className="info-item border-l-4 border-red-200 bg-red-50">
-                        <span className="text-sm text-black">{condition}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500 italic">Не указаны</p>
-                )}
-              </div>
-
-              <div className="content-padding-internal">
-                <h3 className="section-title">Принимаемые лекарства</h3>
-                {healthProfile.medications && healthProfile.medications.length > 0 ? (
-                  <div className="text-spacing-sm">
-                    {healthProfile.medications.map((medication, index) => (
-                      <div key={index} className="info-item border-l-4 border-green-200 bg-green-50">
-                        <span className="text-sm text-black">{medication}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500 italic">Не указаны</p>
-                )}
-              </div>
-
-              <div className="content-padding-internal">
-                <h3 className="section-title">Аллергии</h3>
-                {healthProfile.allergies && healthProfile.allergies.length > 0 ? (
-                  <div className="text-spacing-sm">
-                    {healthProfile.allergies.map((allergy, index) => (
-                      <div key={index} className="info-item border-l-4 border-yellow-200 bg-yellow-50">
-                        <span className="text-sm text-black">{allergy}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500 italic">Не указаны</p>
-                )}
-              </div>
+            <div className="flex flex-wrap gap-2">
+              {translateHealthGoals(healthProfile.healthGoals).map((goal, index) => (
+                <Badge key={index} variant="secondary">{goal}</Badge>
+              ))}
             </div>
           </CardContent>
         </Card>
+      )}
 
-        {/* Lab Results */}
-        {healthProfile.labResults && (
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-full">
-                  <TestTube className="h-5 w-5 text-blue-600" />
-                </div>
-                <span className="text-lg font-bold text-black">Результаты анализов</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="info-row">
-                <span className="info-label">Дата анализов:</span>
-                <span className="info-value">
-                  {healthProfile.labResults.testDate 
-                    ? new Date(healthProfile.labResults.testDate).toLocaleDateString('ru-RU')
-                    : 'Не указана'
-                  }
-                </span>
+      {/* Medical History */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Медицинская история
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {healthProfile.chronicConditions && healthProfile.chronicConditions.length > 0 && (
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Хронические заболевания
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {healthProfile.chronicConditions.map((condition, index) => (
+                  <Badge key={index} variant="outline">{condition}</Badge>
+                ))}
               </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+            </div>
+          )}
+
+          {healthProfile.currentSymptoms && healthProfile.currentSymptoms.length > 0 && (
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Текущие симптомы
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {healthProfile.currentSymptoms.map((symptom, index) => (
+                  <Badge key={index} variant="outline">{symptom}</Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {healthProfile.familyHistory && healthProfile.familyHistory.length > 0 && (
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Семейный анамнез
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {healthProfile.familyHistory.map((history, index) => (
+                  <Badge key={index} variant="outline">{history}</Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {healthProfile.allergies && healthProfile.allergies.length > 0 && (
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Аллергии
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {healthProfile.allergies.map((allergy, index) => (
+                  <Badge key={index} variant="destructive">{allergy}</Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {healthProfile.previousSurgeries && healthProfile.previousSurgeries.length > 0 && (
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Перенесенные операции
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {healthProfile.previousSurgeries.map((surgery, index) => (
+                  <Badge key={index} variant="outline">{surgery}</Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {healthProfile.lastCheckup && (
+            <HealthProfileValueDisplay
+              label="Последний медосмотр"
+              value={new Date(healthProfile.lastCheckup).toLocaleDateString('ru-RU')}
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Medications */}
+      {healthProfile.medications && healthProfile.medications.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Pill className="h-5 w-5" />
+              Принимаемые лекарства
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {translateMedications(healthProfile.medications).map((medication, index) => (
+                <Badge key={index} variant="secondary">{medication}</Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Lab Results */}
+      {healthProfile.labResults && Object.keys(healthProfile.labResults).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Stethoscope className="h-5 w-5" />
+              Результаты анализов
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Object.entries(healthProfile.labResults).map(([key, value]) => {
+              if (value !== undefined && value !== null && value !== '') {
+                return (
+                  <HealthProfileValueDisplay
+                    key={key}
+                    label={key}
+                    value={typeof value === 'number' ? value.toString() : String(value)}
+                  />
+                );
+              }
+              return null;
+            })}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
