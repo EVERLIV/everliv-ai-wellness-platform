@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -197,9 +196,9 @@ const MyGoalsSection: React.FC = () => {
                       }
                     </p>
                   )}
-                  {goal.target_date && (
+                  {goal.end_date && (
                     <div className="text-xs text-green-700">
-                      Цель до: {new Date(goal.target_date).toLocaleDateString('ru-RU')}
+                      Цель до: {new Date(goal.end_date).toLocaleDateString('ru-RU')}
                     </div>
                   )}
                 </div>
