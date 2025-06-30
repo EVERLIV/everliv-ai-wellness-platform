@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -10,47 +10,67 @@ import { useNutritionGoals } from "@/hooks/useNutritionGoals";
 const NutritionCharts: React.FC = () => {
   const [dateRange, setDateRange] = useState<'week' | 'month'>('week');
   const { goals } = useNutritionGoals();
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [macroData, setMacroData] = useState<any[]>([]);
   
-  // Генерируем данные для графиков за неделю или месяц
+  // Генерируем данные для графиков за неделю или месяц из реальных записей
   const generateChartData = () => {
     const days = dateRange === 'week' ? 7 : 30;
-    const data = [];
+    const data: any[] = [];
     
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
       
-      // Симулируем данные (в реальном приложении здесь будут реальные данные)
-      const calories = Math.floor(Math.random() * 800) + 1200;
-      const protein = Math.floor(Math.random() * 50) + 50;
-      const carbs = Math.floor(Math.random() * 100) + 150;
-      const fat = Math.floor(Math.random() * 40) + 40;
+      // Используем хук для получения данных за конкретную дату
+      const { getDailyTotals } = useFoodEntries(date);
+      const dayTotals = getDailyTotals();
       
       data.push({
         date: date.toLocaleDateString('ru-RU', { 
           day: 'numeric', 
           month: 'short' 
         }),
-        calories,
-        protein,
-        carbs,
-        fat
+        calories: dayTotals.calories,
+        protein: Math.round(dayTotals.protein),
+        carbs: Math.round(dayTotals.carbs),
+        fat: Math.round(dayTotals.fat)
       });
     }
     
     return data;
   };
 
-  const chartData = generateChartData();
-  
-  // Данные для круговой диаграммы макронутриентов
-  const macroData = chartData.length > 0 ? [
-    { name: 'Белки', value: chartData[chartData.length - 1].protein, color: '#3B82F6' },
-    { name: 'Углеводы', value: chartData[chartData.length - 1].carbs, color: '#10B981' },
-    { name: 'Жиры', value: chartData[chartData.length - 1].fat, color: '#F59E0B' }
-  ] : [];
+  // Получаем данные для сегодняшнего дня
+  const { getDailyTotals } = useFoodEntries(new Date());
+  const todayTotals = getDailyTotals();
+
+  useEffect(() => {
+    setChartData(generateChartData());
+    
+    // Данные для круговой диаграммы макронутриентов за сегодня
+    setMacroData([
+      { name: 'Белки', value: Math.round(todayTotals.protein), color: '#3B82F6' },
+      { name: 'Углеводы', value: Math.round(todayTotals.carbs), color: '#10B981' },
+      { name: 'Жиры', value: Math.round(todayTotals.fat), color: '#F59E0B' }
+    ]);
+  }, [dateRange, todayTotals]);
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B'];
+
+  // Вычисляем статистику достижения целей на основе реальных данных
+  const calculateGoalAchievement = () => {
+    if (!goals) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+    
+    return {
+      calories: Math.min(100, Math.round((todayTotals.calories / goals.daily_calories) * 100)),
+      protein: Math.min(100, Math.round((todayTotals.protein / goals.daily_protein) * 100)),
+      carbs: Math.min(100, Math.round((todayTotals.carbs / goals.daily_carbs) * 100)),
+      fat: Math.min(100, Math.round((todayTotals.fat / goals.daily_fat) * 100))
+    };
+  };
+
+  const goalAchievement = calculateGoalAchievement();
 
   return (
     <div className="mobile-content-spacing">
@@ -104,7 +124,12 @@ const NutritionCharts: React.FC = () => {
                   <Tooltip />
                   <Bar dataKey="calories" fill="#6366F1" radius={4} />
                   {goals && (
-                    <Bar dataKey={() => goals.daily_calories} fill="#E5E7EB" opacity={0.3} />
+                    <Bar 
+                      dataKey={() => goals.daily_calories} 
+                      fill="#E5E7EB" 
+                      opacity={0.3} 
+                      name="Цель калорий"
+                    />
                   )}
                 </BarChart>
               </ResponsiveContainer>
@@ -192,34 +217,46 @@ const NutritionCharts: React.FC = () => {
             <CardHeader className="mobile-card-header">
               <CardTitle className="mobile-heading-secondary flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-indigo-600" />
-                Достижение целей
+                Достижение целей сегодня
               </CardTitle>
             </CardHeader>
             <CardContent className="mobile-card-content">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
                   <div className="text-2xl font-bold text-purple-600 mb-1">
-                    {Math.floor(Math.random() * 30 + 70)}%
+                    {goalAchievement.calories}%
                   </div>
                   <div className="mobile-text-small text-purple-700">Калории</div>
+                  <div className="mobile-text-small text-gray-500 mt-1">
+                    {todayTotals.calories} / {goals.daily_calories}
+                  </div>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600 mb-1">
-                    {Math.floor(Math.random() * 30 + 70)}%
+                    {goalAchievement.protein}%
                   </div>
                   <div className="mobile-text-small text-blue-700">Белки</div>
+                  <div className="mobile-text-small text-gray-500 mt-1">
+                    {Math.round(todayTotals.protein)}г / {goals.daily_protein}г
+                  </div>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
                   <div className="text-2xl font-bold text-green-600 mb-1">
-                    {Math.floor(Math.random() * 30 + 70)}%
+                    {goalAchievement.carbs}%
                   </div>
                   <div className="mobile-text-small text-green-700">Углеводы</div>
+                  <div className="mobile-text-small text-gray-500 mt-1">
+                    {Math.round(todayTotals.carbs)}г / {goals.daily_carbs}г
+                  </div>
                 </div>
                 <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg">
                   <div className="text-2xl font-bold text-orange-600 mb-1">
-                    {Math.floor(Math.random() * 30 + 70)}%
+                    {goalAchievement.fat}%
                   </div>
                   <div className="mobile-text-small text-orange-700">Жиры</div>
+                  <div className="mobile-text-small text-gray-500 mt-1">
+                    {Math.round(todayTotals.fat)}г / {goals.daily_fat}г
+                  </div>
                 </div>
               </div>
             </CardContent>

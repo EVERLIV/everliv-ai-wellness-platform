@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Sparkles, Apple, Pill, ChefHat, AlertCircle, BookOpen } from 'lucide-react';
+import { Loader2, Sparkles, Apple, Pill, ChefHat, AlertCircle, BookOpen, Save, Clock, Users } from 'lucide-react';
 import { usePersonalizedRecommendations } from '@/hooks/usePersonalizedRecommendations';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useNutritionGoals } from '@/hooks/useNutritionGoals';
 import { useFoodEntries } from '@/hooks/useFoodEntries';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useRecipes } from '@/hooks/useRecipes';
 
 const PersonalizedRecommendations: React.FC = () => {
   const { user } = useAuth();
@@ -17,7 +18,9 @@ const PersonalizedRecommendations: React.FC = () => {
   const { goals, isLoading: goalsLoading } = useNutritionGoals();
   const { getDailyTotals } = useFoodEntries(new Date());
   const { recommendations, isLoading, generateRecommendations } = usePersonalizedRecommendations();
+  const { generateRecipes, saveRecipe, isGenerating, isSaving } = useRecipes();
   const [hasGenerated, setHasGenerated] = useState(false);
+  const [generatedRecipes, setGeneratedRecipes] = useState<any[]>([]);
 
   // Проверяем, есть ли у пользователя премиум доступ
   const hasPremiumAccess = () => {
@@ -79,6 +82,17 @@ const PersonalizedRecommendations: React.FC = () => {
     });
     
     setHasGenerated(true);
+  };
+
+  const handleGenerateRecipes = async () => {
+    if (!recommendations?.foods || recommendations.foods.length === 0) return;
+
+    const recipes = await generateRecipes(recommendations.foods.slice(0, 5));
+    setGeneratedRecipes(recipes);
+  };
+
+  const handleSaveRecipe = async (recipe: any) => {
+    await saveRecipe(recipe);
   };
 
   if (!user) {
@@ -264,36 +278,136 @@ const PersonalizedRecommendations: React.FC = () => {
             </Card>
           )}
 
-          {/* Рецепты */}
+          {/* Рецепты на основе рекомендуемых продуктов */}
           {recommendations.foods && recommendations.foods.length > 0 && (
             <Card className="mobile-card">
               <CardHeader className="mobile-card-header">
-                <CardTitle className="mobile-heading-secondary flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-orange-600" />
-                  Рецепты на основе рекомендуемых продуктов
-                </CardTitle>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="mobile-heading-secondary flex items-center gap-2">
+                    <ChefHat className="h-5 w-5 text-orange-600" />
+                    Рецепты на основе рекомендуемых продуктов
+                  </CardTitle>
+                  <Button 
+                    onClick={handleGenerateRecipes}
+                    disabled={isGenerating}
+                    variant="outline"
+                    className="mobile-button-sm"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Генерируем...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Создать рецепты
+                      </>
+                    )}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="mobile-card-content">
-                <div className="space-y-4">
-                  {recommendations.foods.slice(0, 3).map((food, index) => (
-                    <div key={index} className="p-4 bg-orange-50 rounded-lg">
-                      <h4 className="mobile-text-body font-medium text-gray-900 mb-2">
-                        Рецепт с {food.name}
-                      </h4>
-                      <p className="mobile-text-small text-gray-600 mb-3">
-                        Полезное блюдо, которое поможет достичь ваших целей по питанию
-                      </p>
-                      <div className="flex justify-between items-center">
-                        <span className="mobile-text-small text-orange-700 font-medium">
-                          Готовить 20-30 мин
-                        </span>
-                        <Badge variant="outline" className="text-orange-700 border-orange-300">
-                          {food.calories} ккал
-                        </Badge>
+                {generatedRecipes.length > 0 ? (
+                  <div className="space-y-6">
+                    {generatedRecipes.map((recipe, index) => (
+                      <div key={index} className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <h4 className="mobile-text-body font-bold text-gray-900 mb-2">
+                              {recipe.title}
+                            </h4>
+                            <p className="mobile-text-small text-gray-700 mb-3">
+                              {recipe.description}
+                            </p>
+                            <div className="flex items-center gap-4 mb-4">
+                              <div className="flex items-center gap-1 text-orange-700">
+                                <Clock className="h-4 w-4" />
+                                <span className="mobile-text-small">{recipe.cooking_time} мин</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-orange-700">
+                                <Users className="h-4 w-4" />
+                                <span className="mobile-text-small capitalize">{recipe.difficulty === 'easy' ? 'Легко' : 'Средне'}</span>
+                              </div>
+                              {recipe.nutrition_info && (
+                                <Badge variant="outline" className="text-orange-700 border-orange-300">
+                                  {recipe.nutrition_info.calories} ккал
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            onClick={() => handleSaveRecipe(recipe)}
+                            disabled={isSaving}
+                            size="sm"
+                            className="bg-orange-600 hover:bg-orange-700 text-white"
+                          >
+                            {isSaving ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Save className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <h5 className="font-medium text-gray-900 mb-2">Ингредиенты:</h5>
+                            <ul className="mobile-text-small text-gray-700 space-y-1">
+                              {recipe.ingredients.map((ingredient: any, idx: number) => (
+                                <li key={idx} className="flex items-start gap-2">
+                                  <span className="text-orange-600 mt-1">•</span>
+                                  <span>{ingredient.name} - {ingredient.amount} {ingredient.unit}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          
+                          <div>
+                            <h5 className="font-medium text-gray-900 mb-2">Приготовление:</h5>
+                            <ol className="mobile-text-small text-gray-700 space-y-2">
+                              {recipe.instructions.map((instruction: string, idx: number) => (
+                                <li key={idx} className="flex items-start gap-2">
+                                  <span className="text-orange-600 font-medium min-w-[20px]">{idx + 1}.</span>
+                                  <span>{instruction}</span>
+                                </li>
+                              ))}
+                            </ol>
+                          </div>
+                        </div>
+
+                        {recipe.nutrition_info && (
+                          <div className="mt-4 p-3 bg-white/60 rounded-lg">
+                            <h5 className="font-medium text-gray-900 mb-2">Пищевая ценность:</h5>
+                            <div className="grid grid-cols-4 gap-4 mobile-text-small">
+                              <div className="text-center">
+                                <div className="font-medium text-gray-900">{recipe.nutrition_info.calories}</div>
+                                <div className="text-gray-600">ккал</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-medium text-gray-900">{recipe.nutrition_info.protein}г</div>
+                                <div className="text-gray-600">Белки</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-medium text-gray-900">{recipe.nutrition_info.carbs}г</div>
+                                <div className="text-gray-600">Углеводы</div>
+                              </div>
+                              <div className="text-center">
+                                <div className="font-medium text-gray-900">{recipe.nutrition_info.fat}г</div>
+                                <div className="text-gray-600">Жиры</div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <ChefHat className="h-12 w-12 mx-auto mb-3 text-orange-400" />
+                    <p className="mobile-text-body">Нажмите "Создать рецепты" для генерации рецептов на основе рекомендуемых продуктов</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

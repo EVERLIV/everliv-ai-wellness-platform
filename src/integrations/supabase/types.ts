@@ -1503,6 +1503,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_recipes: {
+        Row: {
+          category: string | null
+          cooking_time: number | null
+          created_at: string
+          description: string | null
+          difficulty: string | null
+          id: string
+          ingredients: Json
+          instructions: Json
+          nutrition_info: Json | null
+          source_foods: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          cooking_time?: number | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          id?: string
+          ingredients?: Json
+          instructions?: Json
+          nutrition_info?: Json | null
+          source_foods?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          cooking_time?: number | null
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          id?: string
+          ingredients?: Json
+          instructions?: Json
+          nutrition_info?: Json | null
+          source_foods?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
