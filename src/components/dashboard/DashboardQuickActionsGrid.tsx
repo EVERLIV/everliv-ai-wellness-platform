@@ -10,7 +10,7 @@ import {
   Calendar,
   Utensils,
   Heart,
-  Stethoscope,
+  TestTube,
   ChevronRight,
   BookOpen,
   Activity
@@ -55,10 +55,10 @@ const DashboardQuickActionsGrid: React.FC = () => {
       iconColor: 'text-orange-100'
     },
     {
-      icon: Stethoscope,
-      title: 'Анализы крови',
+      icon: TestTube,
+      title: 'Лабораторные анализы',
       description: 'Результаты тестов',
-      path: '/blood-analysis',
+      path: '/lab-analyses',
       gradient: 'from-purple-500 to-purple-600',
       iconColor: 'text-purple-100'
     },

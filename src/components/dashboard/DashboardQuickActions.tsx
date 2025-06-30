@@ -15,7 +15,7 @@ import {
   TrendingUp,
   BookOpen,
   Utensils,
-  Stethoscope,
+  TestTube,
   Clock,
   Star
 } from "lucide-react";
@@ -52,9 +52,9 @@ const DashboardQuickActions = () => {
       features: ["Анализ биомаркеров", "ИИ-расчеты", "Персональные рекомендации"]
     },
     {
-      title: "Ваши Анализы",
+      title: "Лабораторные анализы",
       description: "Загружайте и анализируйте результаты лабораторных исследований с помощью ИИ для получения персональных рекомендаций",
-      icon: <FileText className="h-8 w-8 text-blue-600" />,
+      icon: <TestTube className="h-8 w-8 text-blue-600" />,
       action: () => navigate("/lab-analyses"),
       color: "bg-blue-50",
       badge: <Badge className="bg-blue-600 text-white">ИИ-анализ</Badge>,
