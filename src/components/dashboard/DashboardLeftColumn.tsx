@@ -1,10 +1,9 @@
 
 import React from 'react';
-import PersonalizedDashboardHeader from './PersonalizedDashboardHeader';
+import SimpleWelcomeCard from './SimpleWelcomeCard';
 import DashboardQuickActionsGrid from './DashboardQuickActionsGrid';
-import DashboardChatsList from './DashboardChatsList';
-import NutritionSummarySection from './NutritionSummarySection';
 import SmartGoalRecommendations from './SmartGoalRecommendations';
+import DashboardRightColumn from './DashboardRightColumn';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardLeftColumnProps {
@@ -15,27 +14,22 @@ const DashboardLeftColumn: React.FC<DashboardLeftColumnProps> = ({ userName }) =
   const isMobile = useIsMobile();
 
   return (
-    <div className="space-y-2 sm:space-y-3">
-      {/* Персонализированный заголовок */}
-      <PersonalizedDashboardHeader userName={userName} />
+    <div className="space-y-4">
+      {/* Simple Welcome Block */}
+      <SimpleWelcomeCard userName={userName} />
       
-      {/* Быстрые действия */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-2 sm:p-4 mobile-compact">
-        <DashboardQuickActionsGrid />
-      </div>
+      {/* Quick Actions */}
+      <DashboardQuickActionsGrid />
       
-      {/* На мобильных показываем дополнительные компоненты после приветствия */}
+      {/* Goals Section */}
+      <SmartGoalRecommendations />
+      
+      {/* Health Index and other sections for mobile */}
       {isMobile && (
-        <>
-          {/* Рекомендации для достижения целей */}
-          <SmartGoalRecommendations />
-          
-          {/* Данные питания */}
-          <NutritionSummarySection />
-          
-          {/* Чаты с ИИ доктором */}
-          <DashboardChatsList />
-        </>
+        <DashboardRightColumn 
+          healthScore={80} 
+          biologicalAge={35} 
+        />
       )}
     </div>
   );

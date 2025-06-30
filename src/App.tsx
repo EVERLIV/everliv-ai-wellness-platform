@@ -2,7 +2,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
 import { Suspense, lazy } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -207,6 +207,7 @@ const App = () => (
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:slug" element={<BlogPost />} />
                       <Route path="/medical-knowledge" element={<MedicalKnowledge />} />
+                      <Route path="/knowledge-base" element={<Navigate to="/medical-knowledge" replace />} />
                       <Route path="/specialists" element={<MedicalKnowledge />} />
                       <Route path="/moscow-clinics" element={<MoscowClinics />} />
                       <Route path="/services" element={<ServicesPage />} />
