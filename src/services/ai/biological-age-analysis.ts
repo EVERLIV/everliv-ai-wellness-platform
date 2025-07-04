@@ -1,5 +1,5 @@
 
-import { initializeOpenAI } from './openai-client';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BiologicalAgeAnalysisData {
   chronological_age: number;
@@ -41,131 +41,41 @@ interface BiologicalAgeResult {
   missingAnalyses: string[];
 }
 
-// Функция для преобразования числового значения частоты упражнений в текст
-const getExerciseFrequencyText = (frequency: number): string => {
-  switch (frequency) {
-    case 0: return 'Не занимаюсь';
-    case 1: return '1 раз в неделю';
-    case 2: return '2-3 раза в неделю';
-    case 3: return '4-5 раз в неделю';
-    case 4: return 'Ежедневно';
-    default: return `${frequency} раз в неделю`;
-  }
-};
-
 export async function analyzeBiologicalAgeWithOpenAI(data: BiologicalAgeAnalysisData): Promise<BiologicalAgeResult> {
   try {
-    const openai = initializeOpenAI();
-    const exerciseText = getExerciseFrequencyText(data.lifestyle_factors.exercise_frequency);
-    
-    const prompt = `
-Проанализируй биомаркеры и определи биологический возраст:
+    console.log('Отправляем запрос к Edge Function для анализа биологического возраста...');
 
-Базовая информация:
-- Хронологический возраст: ${data.chronological_age} лет
-- Пол: ${data.gender}
-- Рост: ${data.height} см
-- Вес: ${data.weight} кг
-- Частота физических упражнений: ${exerciseText}
-- Уровень стресса (1-10): ${data.lifestyle_factors.stress_level}
-- Часы сна: ${data.lifestyle_factors.sleep_hours}
-- Статус курения: ${data.lifestyle_factors.smoking_status}
-- Потребление алкоголя: ${data.lifestyle_factors.alcohol_consumption}
-- Хронические заболевания: ${data.chronic_conditions.join(', ') || 'Нет'}
-- Принимаемые препараты: ${data.medications.join(', ') || 'Нет'}
-
-Биомаркеры:
-${data.biomarkers.map(b => `
-- ${b.name}: ${b.value} ${b.unit} (норма: ${b.normal_range.min}-${b.normal_range.max}${b.normal_range.optimal ? `, оптимально: ${b.normal_range.optimal}` : ''})
-`).join('')}
-
-Задача:
-1. Определи биологический возраст на основе предоставленных данных
-2. Объясни, какие факторы влияют на результат
-3. Дай рекомендации по улучшению показателей
-4. Укажи, какие дополнительные анализы могут повысить точность оценки
-
-Отвечай СТРОГО в формате JSON:
-{
-  "biologicalAge": число,
-  "deviation": число (разница с хронологическим возрастом, может быть отрицательной),
-  "confidenceLevel": число от 1 до 100,
-  "detailedAnalysis": "подробное объяснение на русском языке",
-  "recommendations": [
-    {
-      "category": "категория рекомендации",
-      "recommendation": "текст рекомендации",
-      "priority": "high/medium/low"
-    }
-  ],
-  "missingAnalyses": ["список анализов, которые помогут повысить точность"]
-}
-`;
-
-    console.log('Отправляем запрос к OpenAI для анализа биологического возраста...');
-
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: 'Ты эксперт по биологическому возрасту и биомаркерам. Анализируй данные медицинских анализов и определяй биологический возраст человека. Отвечай только в формате JSON без дополнительного текста.'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.3,
-      max_tokens: 2000
+    const { data: result, error } = await supabase.functions.invoke('biological-age-analysis', {
+      body: data
     });
 
-    const content = response.choices[0]?.message?.content;
-    if (!content) {
-      throw new Error('Пустой ответ от OpenAI');
+    if (error) {
+      console.error('Ошибка Edge Function:', error);
+      throw new Error(error.message || 'Ошибка при обращении к сервису анализа');
     }
 
-    console.log('Получен ответ от OpenAI:', content.substring(0, 200) + '...');
-
-    try {
-      const result = JSON.parse(content) as BiologicalAgeResult;
-      
-      // Валидация результата
-      if (typeof result.biologicalAge !== 'number' || result.biologicalAge < 0) {
-        throw new Error('Некорректный биологический возраст в ответе');
-      }
-      
-      return result;
-    } catch (parseError) {
-      console.error('Ошибка парсинга JSON:', parseError);
-      console.log('Ответ OpenAI:', content);
-      
-      // Fallback результат
-      return {
-        biologicalAge: data.chronological_age,
-        deviation: 0,
-        confidenceLevel: 50,
-        detailedAnalysis: 'Не удалось получить детальный анализ от ИИ. Попробуйте еще раз.',
-        recommendations: [
-          {
-            category: 'Общие',
-            recommendation: 'Регулярно проходите медицинские обследования',
-            priority: 'medium'
-          }
-        ],
-        missingAnalyses: []
-      };
+    if (!result) {
+      throw new Error('Пустой ответ от сервиса анализа');
     }
+
+    // Валидация результата
+    if (typeof result.biologicalAge !== 'number' || result.biologicalAge < 0) {
+      throw new Error('Некорректный биологический возраст в ответе');
+    }
+
+    console.log('Получен результат анализа биологического возраста');
+    return result as BiologicalAgeResult;
+
   } catch (error) {
-    console.error('Ошибка при обращении к OpenAI:', error);
+    console.error('Ошибка при анализе биологического возраста:', error);
     
     // Более детальная информация об ошибке
     if (error instanceof Error) {
-      if (error.message.includes('API key')) {
-        throw new Error('Ошибка API ключа OpenAI. Проверьте настройки в переменных окружения.');
-      } else if (error.message.includes('quota')) {
-        throw new Error('Превышен лимит запросов к OpenAI. Попробуйте позже.');
-      } else if (error.message.includes('network')) {
+      if (error.message.includes('API key') || error.message.includes('OPENAI_API_KEY')) {
+        throw new Error('Ошибка конфигурации ИИ. Обратитесь к администратору.');
+      } else if (error.message.includes('quota') || error.message.includes('лимит')) {
+        throw new Error('Превышен лимит запросов к ИИ. Попробуйте позже.');
+      } else if (error.message.includes('network') || error.message.includes('подключени')) {
         throw new Error('Проблема с подключением к интернету. Проверьте соединение.');
       }
     }
