@@ -16,11 +16,13 @@ import {
   Activity,
   Info,
   Minus,
-  Plus
+  Plus,
+  ArrowLeft
 } from "lucide-react";
 import { useLabAnalysesData } from "@/hooks/useLabAnalysesData";
 import BiomarkerTrendChart from "@/components/analysis-details/BiomarkerTrendChart";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
@@ -52,6 +54,7 @@ const BIOMARKER_DESCRIPTIONS: { [key: string]: string } = {
 const MyBiomarkers = () => {
   const { analysisHistory, loadingHistory } = useLabAnalysesData();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [expandedBiomarker, setExpandedBiomarker] = useState<string | null>(null);
@@ -158,38 +161,47 @@ const MyBiomarkers = () => {
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Header />
       <div className="pt-16 flex-1">
-        {/* Заголовок страницы */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-8 md:py-12">
-          <div className="container mx-auto px-4 max-w-7xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-white/20 rounded-lg">
-                <TestTube className="h-8 w-8" />
+        {/* Заголовок страницы в стиле lab-analyses */}
+        <div className="bg-gradient-to-br from-emerald-50 via-white to-emerald-50 border-b border-gray-200">
+          <div className="container mx-auto px-4 py-6 max-w-7xl">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate("/dashboard")}
+                  className="flex items-center gap-2 hover:bg-gray-100 px-2 sm:px-3"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline">Назад к панели</span>
+                  <span className="sm:hidden">Назад</span>
+                </Button>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center shadow-sm">
+                    <TestTube className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
+                      Мои биомаркеры
+                    </h1>
+                    <p className="text-sm sm:text-base text-gray-600 hidden sm:block">
+                      Отслеживайте динамику ваших показателей здоровья
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold">Мои биомаркеры</h1>
-                <p className="text-blue-100 mt-1">
-                  Отслеживайте динамику ваших показателей здоровья
-                </p>
-              </div>
-            </div>
-            
-            {/* Статистика */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-              <div className="bg-white/10 rounded-lg p-4">
-                <div className="text-2xl font-bold">{biomarkers.length}</div>
-                <div className="text-blue-100 text-sm">Биомаркеров</div>
-              </div>
-              <div className="bg-white/10 rounded-lg p-4">
-                <div className="text-2xl font-bold text-green-300">{statusCounts.normal}</div>
-                <div className="text-blue-100 text-sm">В норме</div>
-              </div>
-              <div className="bg-white/10 rounded-lg p-4">
-                <div className="text-2xl font-bold text-red-300">{statusCounts.high}</div>
-                <div className="text-blue-100 text-sm">Выше нормы</div>
-              </div>
-              <div className="bg-white/10 rounded-lg p-4">
-                <div className="text-2xl font-bold text-yellow-300">{statusCounts.low}</div>
-                <div className="text-blue-100 text-sm">Ниже нормы</div>
+
+              <div className="flex flex-col items-end gap-2">
+                <Button 
+                  onClick={() => navigate('/lab-analyses')}
+                  className="gap-2 shadow-md hover:shadow-lg transition-all w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white"
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="sm:hidden">Добавить</span>
+                  <span className="hidden sm:inline">Добавить анализ</span>
+                </Button>
               </div>
             </div>
           </div>
@@ -215,8 +227,9 @@ const MyBiomarkers = () => {
             <>
               {/* Поиск и фильтры */}
               <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1 relative">
+                <div className="flex flex-col gap-4">
+                  {/* Поиск */}
+                  <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <Input
                       placeholder="Поиск биомаркеров..."
@@ -226,22 +239,57 @@ const MyBiomarkers = () => {
                     />
                   </div>
                   
-                  <Tabs value={selectedStatus} onValueChange={setSelectedStatus} className="w-full md:w-auto">
-                    <TabsList className="grid w-full grid-cols-4 md:w-auto">
-                      <TabsTrigger value="all" className="text-xs">
-                        Все ({statusCounts.all})
-                      </TabsTrigger>
-                      <TabsTrigger value="normal" className="text-xs">
-                        Норма ({statusCounts.normal})
-                      </TabsTrigger>
-                      <TabsTrigger value="high" className="text-xs">
-                        Выше ({statusCounts.high})
-                      </TabsTrigger>
-                      <TabsTrigger value="low" className="text-xs">
-                        Ниже ({statusCounts.low})
-                      </TabsTrigger>
-                    </TabsList>
-                  </Tabs>
+                  {/* Улучшенные табы с числами */}
+                  <div className="w-full">
+                    <Tabs value={selectedStatus} onValueChange={setSelectedStatus} className="w-full">
+                      <TabsList className={`grid w-full grid-cols-4 bg-gray-100 p-1 rounded-lg`}>
+                        <TabsTrigger 
+                          value="all" 
+                          className={`relative flex items-center justify-center gap-1 px-2 py-2 text-sm font-medium transition-all ${
+                            isMobile ? 'text-xs flex-col gap-0.5' : 'text-sm gap-2'
+                          } data-[state=active]:bg-white data-[state=active]:shadow-sm`}
+                        >
+                          <span>Все</span>
+                          <span className="inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-medium bg-gray-500 text-white rounded-full min-w-[18px] h-[18px]">
+                            {statusCounts.all}
+                          </span>
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="normal" 
+                          className={`relative flex items-center justify-center gap-1 px-2 py-2 text-sm font-medium transition-all ${
+                            isMobile ? 'text-xs flex-col gap-0.5' : 'text-sm gap-2'
+                          } data-[state=active]:bg-white data-[state=active]:shadow-sm`}
+                        >
+                          <span>Норма</span>
+                          <span className="inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-medium bg-green-500 text-white rounded-full min-w-[18px] h-[18px]">
+                            {statusCounts.normal}
+                          </span>
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="high" 
+                          className={`relative flex items-center justify-center gap-1 px-2 py-2 text-sm font-medium transition-all ${
+                            isMobile ? 'text-xs flex-col gap-0.5' : 'text-sm gap-2'
+                          } data-[state=active]:bg-white data-[state=active]:shadow-sm`}
+                        >
+                          <span>{isMobile ? 'Выше' : 'Выше'}</span>
+                          <span className="inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-medium bg-red-500 text-white rounded-full min-w-[18px] h-[18px]">
+                            {statusCounts.high}
+                          </span>
+                        </TabsTrigger>
+                        <TabsTrigger 
+                          value="low" 
+                          className={`relative flex items-center justify-center gap-1 px-2 py-2 text-sm font-medium transition-all ${
+                            isMobile ? 'text-xs flex-col gap-0.5' : 'text-sm gap-2'
+                          } data-[state=active]:bg-white data-[state=active]:shadow-sm`}
+                        >
+                          <span>{isMobile ? 'Ниже' : 'Ниже'}</span>
+                          <span className="inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-medium bg-yellow-500 text-white rounded-full min-w-[18px] h-[18px]">
+                            {statusCounts.low}
+                          </span>
+                        </TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                  </div>
                 </div>
               </div>
 
