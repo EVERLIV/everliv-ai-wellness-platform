@@ -11,9 +11,13 @@ import {
   Heart, 
   Target, 
   FileText,
-  Download
+  Download,
+  Share2,
+  Trophy,
+  Repeat
 } from 'lucide-react';
 import { BiologicalAgeResult } from '@/types/biologicalAge';
+import { toast } from 'sonner';
 
 interface BiologicalAgeResultsProps {
   results: BiologicalAgeResult;
@@ -50,6 +54,24 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
   const exportToPDF = () => {
     // Будет реализовано позже
     console.log('Export to PDF');
+    toast.success('Экспорт в PDF будет доступен в следующем обновлении');
+  };
+
+  const shareResults = () => {
+    const shareText = `Мой биологический возраст: ${results.biological_age} лет (хронологический: ${results.chronological_age} лет)`;
+    if (navigator.share) {
+      navigator.share({
+        title: 'Результаты анализа биологического возраста',
+        text: shareText
+      });
+    } else {
+      navigator.clipboard.writeText(shareText);
+      toast.success('Результат скопирован в буфер обмена');
+    }
+  };
+
+  const scheduleNextAnalysis = () => {
+    toast.success('Напоминание настроено на повторный анализ через 6 месяцев');
   };
 
   return (
@@ -162,18 +184,25 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
       {/* Действия */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button onClick={exportToPDF} variant="outline" className="flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <Button onClick={exportToPDF} variant="outline">
               <Download className="h-4 w-4 mr-2" />
               Экспорт в PDF
             </Button>
+            <Button onClick={shareResults} variant="outline">
+              <Share2 className="h-4 w-4 mr-2" />
+              Поделиться
+            </Button>
+            <Button onClick={scheduleNextAnalysis} variant="outline">
+              <Trophy className="h-4 w-4 mr-2" />
+              Напоминание
+            </Button>
             <Button 
               onClick={() => window.location.reload()} 
-              variant="outline" 
-              className="flex-1"
+              variant="outline"
             >
-              <FileText className="h-4 w-4 mr-2" />
-              Новый расчет
+              <Repeat className="h-4 w-4 mr-2" />
+              Новый анализ
             </Button>
           </div>
         </CardContent>

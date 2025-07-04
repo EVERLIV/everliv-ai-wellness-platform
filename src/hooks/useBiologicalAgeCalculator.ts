@@ -162,11 +162,23 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
   }, [biomarkers]);
 
   const handleBiomarkerValueChange = (biomarkerId: string, value: number) => {
-    setBiomarkers(prev => prev.map(biomarker => 
-      biomarker.id === biomarkerId 
-        ? { ...biomarker, value, status: 'filled' as const }
-        : biomarker
-    ));
+    setBiomarkers(prev => {
+      const newBiomarkers = prev.map(biomarker => 
+        biomarker.id === biomarkerId 
+          ? { ...biomarker, value, status: 'filled' as const }
+          : biomarker
+      );
+      
+      // Check for achievements
+      const filledCount = newBiomarkers.filter(b => b.status === 'filled').length;
+      
+      // Import and check achievements dynamically to avoid circular dependencies
+      import('@/components/biological-age/AchievementToast').then(({ checkAchievements }) => {
+        checkAchievements(filledCount, newBiomarkers);
+      });
+      
+      return newBiomarkers;
+    });
   };
 
   const calculateBiologicalAge = async () => {

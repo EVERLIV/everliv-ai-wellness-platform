@@ -82,7 +82,7 @@ const DashboardQuickActionsGrid: React.FC = () => {
     {
       icon: TrendingUp,
       title: 'Биологический возраст',
-      description: 'Оценка и улучшение',
+      description: 'Пошаговый анализ',
       path: '/biological-age',
       gradient: 'from-pink-500 to-pink-600',
       iconColor: 'text-pink-100'
