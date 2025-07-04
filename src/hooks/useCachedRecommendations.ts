@@ -15,10 +15,22 @@ interface CachedRecommendationsHook {
   lastUpdated: Date | null;
 }
 
-// Функция для создания хэша источников данных
+// Функция для создания хэша источников данных (Unicode-safe)
 const createSourceHash = (data: any): string => {
-  const hashData = JSON.stringify(data);
-  return btoa(hashData).slice(0, 32); // Простой хэш на основе base64
+  try {
+    if (!data || typeof data !== 'object') {
+      return 'empty-data';
+    }
+    
+    const hashData = JSON.stringify(data);
+    // Используем encodeURIComponent для обработки Unicode символов
+    const safeString = encodeURIComponent(hashData);
+    return btoa(safeString).slice(0, 32);
+  } catch (error) {
+    console.warn('Error creating source hash, using fallback:', error);
+    // Fallback: простой хэш на основе длины и случайного числа
+    return `fallback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
 };
 
 export const useCachedRecommendations = (
@@ -52,15 +64,20 @@ export const useCachedRecommendations = (
       }
 
       if (data) {
-        const currentHash = createSourceHash(sourceData);
-        
-        // Проверяем, актуальны ли кэшированные данные
-        if (data.source_hash === currentHash) {
-          setRecommendations(data.recommendations_data);
-          setLastUpdated(new Date(data.updated_at));
-          console.log(`✅ Loaded cached ${type} recommendations:`, data.recommendations_data);
-        } else {
-          console.log(`🔄 Source data changed for ${type}, generating new recommendations`);
+        try {
+          const currentHash = createSourceHash(sourceData);
+          
+          // Проверяем, актуальны ли кэшированные данные
+          if (data.source_hash === currentHash) {
+            setRecommendations(data.recommendations_data);
+            setLastUpdated(new Date(data.updated_at));
+            console.log(`✅ Loaded cached ${type} recommendations:`, data.recommendations_data);
+          } else {
+            console.log(`🔄 Source data changed for ${type}, generating new recommendations`);
+            await generateNewRecommendations();
+          }
+        } catch (error) {
+          console.error('Error processing cached data, regenerating:', error);
           await generateNewRecommendations();
         }
       } else {
@@ -78,6 +95,12 @@ export const useCachedRecommendations = (
   const generateNewRecommendations = async () => {
     if (!user || !sourceData) {
       console.log(`❌ Cannot generate ${type} recommendations:`, { hasUser: !!user, hasSourceData: !!sourceData });
+      return;
+    }
+
+    // Валидация sourceData
+    if (typeof sourceData !== 'object' || Object.keys(sourceData).length === 0) {
+      console.warn(`⚠️ Invalid sourceData for ${type} recommendations:`, sourceData);
       return;
     }
 
