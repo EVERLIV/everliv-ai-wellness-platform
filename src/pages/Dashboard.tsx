@@ -20,7 +20,7 @@ const Dashboard = () => {
   const isDevMode = isDevelopmentMode();
   
   // Инициализируем отслеживание изменений для инвалидации кэша рекомендаций
-  useRecommendationsInvalidation();
+  // useRecommendationsInvalidation(); // Временно отключено для отладки
 
   console.log('🔧 Dashboard: Auth state check', {
     user: user?.email,

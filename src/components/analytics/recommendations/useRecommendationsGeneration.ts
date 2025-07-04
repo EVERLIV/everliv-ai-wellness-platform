@@ -10,31 +10,37 @@ export const useRecommendationsGeneration = (
 ) => {
   const { user } = useSmartAuth();
 
-  // Создаем источник данных для отслеживания изменений
-  const sourceData = {
+  // Создаем источник данных для отслеживания изменений только если все данные доступны
+  const sourceData = analytics && healthProfile ? {
     analytics: {
-      healthScore: analytics?.healthScore,
-      riskLevel: analytics?.riskLevel,
-      concerns: analytics?.concerns || [],
-      strengths: analytics?.strengths || [],
-      biomarkers: analytics?.biomarkers || []
+      healthScore: analytics.healthScore,
+      riskLevel: analytics.riskLevel,
+      concerns: analytics.concerns || [],
+      strengths: analytics.strengths || [],
+      biomarkers: analytics.biomarkers || []
     },
     healthProfile: {
-      age: healthProfile?.age,
-      gender: healthProfile?.gender,
-      weight: healthProfile?.weight,
-      height: healthProfile?.height,
-      exerciseFrequency: healthProfile?.exerciseFrequency,
-      medications: healthProfile?.medications || [],
-      stressLevel: healthProfile?.stressLevel,
-      sleepHours: healthProfile?.sleepHours,
-      healthGoals: healthProfile?.healthGoals || []
+      age: healthProfile.age,
+      gender: healthProfile.gender,
+      weight: healthProfile.weight,
+      height: healthProfile.height,
+      exerciseFrequency: healthProfile.exerciseFrequency,
+      medications: healthProfile.medications || [],
+      stressLevel: healthProfile.stressLevel,
+      sleepHours: healthProfile.sleepHours,
+      healthGoals: healthProfile.healthGoals || []
     }
-  };
+  } : null;
 
   // Функция для генерации рекомендаций
   const generateRecommendations = async (): Promise<AnalyticsRecommendation[]> => {
-    if (!user || !healthProfile?.healthGoals || !analytics) {
+    if (!user || !healthProfile?.healthGoals || !analytics || !sourceData) {
+      console.log('❌ Missing required data for analytics recommendations:', {
+        hasUser: !!user,
+        hasHealthGoals: !!(healthProfile?.healthGoals?.length),
+        hasAnalytics: !!analytics,
+        hasSourceData: !!sourceData
+      });
       return [];
     }
 

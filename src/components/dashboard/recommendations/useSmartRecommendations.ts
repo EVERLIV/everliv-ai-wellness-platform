@@ -6,33 +6,49 @@ import { SmartRecommendation } from './types';
 export const useSmartRecommendations = () => {
   const { healthProfile } = useHealthProfile();
 
-  // Создаем источник данных для отслеживания изменений
-  const sourceData = {
-    healthGoals: healthProfile?.healthGoals || [],
+  // Создаем источник данных для отслеживания изменений только если данные доступны
+  const sourceData = healthProfile?.healthGoals?.length > 0 ? {
+    healthGoals: healthProfile.healthGoals,
     userProfile: {
-      age: healthProfile?.age,
-      gender: healthProfile?.gender,
-      weight: healthProfile?.weight,
-      height: healthProfile?.height,
-      exerciseFrequency: healthProfile?.exerciseFrequency,
-      chronicConditions: healthProfile?.chronicConditions,
-      medications: healthProfile?.medications,
-      stressLevel: healthProfile?.stressLevel,
-      sleepHours: healthProfile?.sleepHours
+      age: healthProfile.age,
+      gender: healthProfile.gender,
+      weight: healthProfile.weight,
+      height: healthProfile.height,
+      exerciseFrequency: healthProfile.exerciseFrequency,
+      chronicConditions: healthProfile.chronicConditions,
+      medications: healthProfile.medications,
+      stressLevel: healthProfile.stressLevel,
+      sleepHours: healthProfile.sleepHours
     }
-  };
+  } : null;
 
   // Функция для генерации рекомендаций
   const generateRecommendations = async (): Promise<SmartRecommendation[]> => {
-    if (!healthProfile?.healthGoals || healthProfile.healthGoals.length === 0) {
-      console.log('No health goals found for dashboard recommendations');
+    if (!healthProfile?.healthGoals || healthProfile.healthGoals.length === 0 || !sourceData) {
+      console.log('❌ Missing required data for dashboard recommendations:', {
+        hasHealthGoals: !!(healthProfile?.healthGoals?.length),
+        hasSourceData: !!sourceData
+      });
       return [];
     }
 
     console.log('🔄 Generating dashboard recommendations for goals:', healthProfile.healthGoals);
     
     const { data, error } = await supabase.functions.invoke('generate-goal-recommendations', {
-      body: sourceData
+      body: {
+        healthGoals: healthProfile.healthGoals,
+        userProfile: {
+          age: healthProfile.age,
+          gender: healthProfile.gender,
+          weight: healthProfile.weight,
+          height: healthProfile.height,
+          exerciseFrequency: healthProfile.exerciseFrequency,
+          chronicConditions: healthProfile.chronicConditions,
+          medications: healthProfile.medications,
+          stressLevel: healthProfile.stressLevel,
+          sleepHours: healthProfile.sleepHours
+        }
+      }
     });
 
     if (error) {

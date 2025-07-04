@@ -25,10 +25,19 @@ const EnhancedAnalyticsRecommendations: React.FC<EnhancedAnalyticsRecommendation
     generateRecommendations
   } = useRecommendationsGeneration(analytics, healthProfile);
 
-  // Определяем статус кэширования
   const isCached = lastAttempt && !isGenerating;
   const cacheAge = lastAttempt ? Date.now() - new Date(lastAttempt).getTime() : 0;
   const isCacheRecent = cacheAge < 3600000; // Меньше часа
+
+  console.log('📊 Analytics recommendations state:', {
+    recommendationsCount: recommendations.length,
+    isGenerating,
+    lastAttempt,
+    isCached,
+    analytics: !!analytics,
+    healthProfile: !!healthProfile,
+    healthGoals: healthProfile?.healthGoals?.length || 0
+  });
 
   // Отслеживаем статус подключения
   useEffect(() => {

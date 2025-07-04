@@ -76,9 +76,13 @@ export const useCachedRecommendations = (
 
   // Генерация новых рекомендаций
   const generateNewRecommendations = async () => {
-    if (!user || !sourceData) return;
+    if (!user || !sourceData) {
+      console.log(`❌ Cannot generate ${type} recommendations:`, { hasUser: !!user, hasSourceData: !!sourceData });
+      return;
+    }
 
     try {
+      console.log(`🔄 Generating new ${type} recommendations with data:`, sourceData);
       setIsGenerating(true);
       
       const newRecommendations = await generatorFunction();
@@ -140,12 +144,20 @@ export const useCachedRecommendations = (
     await generateNewRecommendations();
   };
 
-  // Эффект для загрузки рекомендаций при изменении пользователя или типа
+  // Эффект для загрузки рекомендаций при изменении пользователя, типа или данных
   useEffect(() => {
-    if (user && sourceData) {
+    if (user && sourceData && Object.keys(sourceData).length > 0) {
+      console.log(`🔄 Loading ${type} recommendations for user`, { sourceData });
       loadCachedRecommendations();
+    } else {
+      console.log(`⚠️ Missing data for ${type} recommendations:`, { 
+        hasUser: !!user, 
+        hasSourceData: !!sourceData,
+        sourceDataKeys: sourceData ? Object.keys(sourceData) : []
+      });
+      setIsLoading(false);
     }
-  }, [user, type]); // Намеренно НЕ включаем sourceData в зависимости
+  }, [user, type, JSON.stringify(sourceData)]); // Добавляем sourceData в зависимости
 
   return {
     recommendations,

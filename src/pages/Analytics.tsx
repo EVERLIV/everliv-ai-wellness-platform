@@ -29,7 +29,7 @@ const Analytics = () => {
   const isMobile = useIsMobile();
   
   // Инициализируем отслеживание изменений для инвалидации кэша рекомендаций
-  useRecommendationsInvalidation();
+  // useRecommendationsInvalidation(); // Временно отключено для отладки
 
   // Перевод целей на русский язык
   const translateGoal = (goal: string): string => {
