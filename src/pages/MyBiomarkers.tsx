@@ -37,19 +37,7 @@ interface BiomarkerData {
   description?: string;
 }
 
-// Описания биомаркеров
-const BIOMARKER_DESCRIPTIONS: { [key: string]: string } = {
-  'Эритроциты': 'Красные кровяные тельца, переносят кислород от легких к тканям организма',
-  'Гемоглобин': 'Белок в эритроцитах, который связывает и переносит кислород',
-  'Лейкоциты': 'Белые кровяные тельца, основные клетки иммунной системы',
-  'Тромбоциты': 'Клетки крови, отвечающие за свертываемость и остановку кровотечений',
-  'Глюкоза': 'Основной источник энергии для клеток организма',
-  'Холестерин': 'Жироподобное вещество, необходимое для построения клеточных мембран',
-  'АЛТ': 'Фермент печени, показатель функции печени',
-  'АСТ': 'Фермент, показатель состояния печени и сердечной мышцы',
-  'Креатинин': 'Продукт обмена веществ в мышцах, показатель функции почек',
-  'Мочевина': 'Конечный продукт белкового обмена, показатель функции почек',
-};
+import { getBiomarkerInfo } from '@/data/expandedBiomarkers';
 
 const MyBiomarkers = () => {
   const { analysisHistory, loadingHistory } = useLabAnalysesData();
@@ -108,7 +96,7 @@ const MyBiomarkers = () => {
         lastUpdated: latestValue.date,
         analysisCount: sortedValues.length,
         trend,
-        description: BIOMARKER_DESCRIPTIONS[name]
+        description: getBiomarkerInfo(name)
       };
     }).sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
   };

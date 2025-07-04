@@ -1,309 +1,399 @@
+// Расширенная база данных биомаркеров на основе российских медицинских источников
+// Источники: Клинические рекомендации МЗ РФ, российские лабораторные стандарты
 
-export interface ExpandedBiomarker {
-  id: number;
-  code: string;
+export interface BiomarkerInfo {
   name: string;
-  nameRu: string;
-  category: string;
-  subcategory?: string;
-  unit: string;
-  normalRangeMaleMin: number;
-  normalRangeMaleMax: number;
-  normalRangeFemaleMin: number;
-  normalRangeFemaleMax: number;
-  ageRanges?: {
-    [key: string]: {
-      maleMin: number;
-      maleMax: number;
-      femaleMin: number;
-      femaleMax: number;
-    };
-  };
-  optimalRangeMaleMin?: number;
-  optimalRangeMaleMax?: number;
-  optimalRangeFemaleMin?: number;
-  optimalRangeFemaleMax?: number;
   description: string;
-  descriptionRu: string;
+  normalRange?: string;
+  function: string;
   clinicalSignificance: string;
-  clinicalSignificanceRu: string;
-  significanceHigh: string;
-  significanceHighRu: string;
-  significanceLow: string;
-  significanceLowRu: string;
   associatedConditions: string[];
-  associatedConditionsRu: string[];
-  recommendations: string;
-  recommendationsRu: string;
-  laboratoryMethod?: string;
-  interferences?: string[];
-  interferencesRu?: string[];
-  lastUpdated: string;
-  references: string[];
-  currentValue?: number;
-  status?: 'optimal' | 'good' | 'attention' | 'high' | 'low' | 'critical';
+  category: 'blood' | 'biochemistry' | 'immunology' | 'hormones' | 'coagulation' | 'lipids' | 'enzymes' | 'other';
 }
 
-export const expandedBiomarkersData: Record<string, ExpandedBiomarker> = {
-  // Общий анализ крови - Эритроциты и гемоглобин
-  hemoglobin: {
-    id: 1,
-    code: "HGB",
-    name: "Hemoglobin",
-    nameRu: "Гемоглобин",
-    category: "Общий анализ крови",
-    subcategory: "Эритроцитарные показатели",
-    unit: "г/л",
-    normalRangeMaleMin: 130,
-    normalRangeMaleMax: 170,
-    normalRangeFemaleMin: 120,
-    normalRangeFemaleMax: 150,
-    optimalRangeMaleMin: 140,
-    optimalRangeMaleMax: 160,
-    optimalRangeFemaleMin: 125,
-    optimalRangeFemaleMax: 145,
-    ageRanges: {
-      "18-30": { maleMin: 132, maleMax: 173, femaleMin: 117, femaleMax: 155 },
-      "31-50": { maleMin: 130, maleMax: 170, femaleMin: 120, femaleMax: 150 },
-      "51-70": { maleMin: 125, maleMax: 165, femaleMin: 115, femaleMax: 145 },
-      "70+": { maleMin: 120, maleMax: 160, femaleMin: 110, femaleMax: 140 }
-    },
-    description: "Iron-containing oxygen-transport metalloprotein in red blood cells",
-    descriptionRu: "Железосодержащий белок эритроцитов, переносящий кислород от легких к тканям",
-    clinicalSignificance: "Essential for oxygen transport; indicates oxygen-carrying capacity of blood",
-    clinicalSignificanceRu: "Ключевой показатель кислородтransportной способности крови",
-    significanceHigh: "Polycythemia, dehydration, chronic hypoxia, smoking, high altitude",
-    significanceHighRu: "Полицитемия, обезвоживание, хроническая гипоксия, курение, высокогорье",
-    significanceLow: "Iron deficiency anemia, chronic bleeding, hemolysis, chronic kidney disease",
-    significanceLowRu: "Железодефицитная анемия, хронические кровотечения, гемолиз, ХБП",
-    associatedConditions: [
-      "Iron deficiency anemia", "Thalassemia", "Chronic kidney disease", 
-      "Gastrointestinal bleeding", "Polycythemia vera"
-    ],
-    associatedConditionsRu: [
-      "Железодефицитная анемия", "Талассемия", "Хроническая болезнь почек",
-      "Желудочно-кишечные кровотечения", "Истинная полицитемия"
-    ],
-    recommendations: "Iron supplementation for deficiency, investigate bleeding sources, hydration assessment",
-    recommendationsRu: "При дефиците - препараты железа, поиск источников кровотечения, оценка гидратации",
-    laboratoryMethod: "Automated hematology analyzer, spectrophotometry",
-    interferences: ["Lipemia", "High WBC count", "Hemolysis"],
-    interferencesRu: ["Липемия", "Высокий лейкоцитоз", "Гемолиз"],
-    lastUpdated: "2024-12-01",
-    references: [
-      "WHO. Haemoglobin concentrations for the diagnosis of anaemia. 2011",
-      "Клинические рекомендации МЗ РФ по анемиям. 2023"
-    ]
+export const EXPANDED_BIOMARKERS: { [key: string]: BiomarkerInfo } = {
+  // Общий анализ крови
+  'Эритроциты': {
+    name: 'Эритроциты (RBC)',
+    description: 'Красные кровяные тельца, основные переносчики кислорода в организме. Содержат гемоглобин и обеспечивают доставку О2 к тканям и органам.',
+    normalRange: '4.0-5.5 × 10¹²/л (мужчины), 3.7-4.7 × 10¹²/л (женщины)',
+    function: 'Транспорт кислорода от легких к тканям и углекислого газа обратно к легким',
+    clinicalSignificance: 'Отражает способность крови переносить кислород и может указывать на анемию, полицитемию или обезвоживание',
+    associatedConditions: ['Анемия', 'Полицитемия', 'Дефицит железа', 'Хроническая почечная недостаточность'],
+    category: 'blood'
+  },
+  
+  'Гемоглобин': {
+    name: 'Гемоглобин (Hb)',
+    description: 'Железосодержащий белок эритроцитов, ответственный за связывание и транспорт кислорода. Состоит из белка глобина и железосодержащей группы гема.',
+    normalRange: '130-160 г/л (мужчины), 120-140 г/л (женщины)',
+    function: 'Связывание кислорода в легких и его доставка к тканям организма',
+    clinicalSignificance: 'Основной показатель для диагностики анемий различного происхождения',
+    associatedConditions: ['Железодефицитная анемия', 'B12-дефицитная анемия', 'Талассемия', 'Серповидноклеточная анемия'],
+    category: 'blood'
   },
 
-  erythrocytes: {
-    id: 2,
-    code: "RBC",
-    name: "Red Blood Cell Count",
-    nameRu: "Эритроциты",
-    category: "Общий анализ крови",
-    subcategory: "Эритроцитарные показатели",
-    unit: "×10¹²/л",
-    normalRangeMaleMin: 4.2,
-    normalRangeMaleMax: 5.6,
-    normalRangeFemaleMin: 3.8,
-    normalRangeFemaleMax: 5.0,
-    optimalRangeMaleMin: 4.5,
-    optimalRangeMaleMax: 5.3,
-    optimalRangeFemaleMin: 4.0,
-    optimalRangeFemaleMax: 4.7,
-    description: "Number of red blood cells per unit volume of blood",
-    descriptionRu: "Количество эритроцитов в единице объема крови",
-    clinicalSignificance: "Reflects oxygen-carrying capacity and bone marrow function",
-    clinicalSignificanceRu: "Отражает кислородную емкость крови и функцию костного мозга",
-    significanceHigh: "Polycythemia, dehydration, high altitude adaptation, lung disease",
-    significanceHighRu: "Полицитемия, дегидратация, адаптация к высокогорью, заболевания легких",
-    significanceLow: "Anemia, blood loss, bone marrow disorders, chronic diseases",
-    significanceLowRu: "Анемия, кровопотеря, заболевания костного мозга, хронические болезни",
-    associatedConditions: [
-      "Polycythemia vera", "Secondary polycythemia", "Iron deficiency anemia",
-      "Chronic kidney disease", "Bone marrow failure"
-    ],
-    associatedConditionsRu: [
-      "Истинная полицитемия", "Вторичная полицитемия", "Железодефицитная анемия",
-      "Хроническая болезнь почек", "Недостаточность костного мозга"
-    ],
-    recommendations: "Evaluate with hemoglobin and hematocrit; investigate underlying causes",
-    recommendationsRu: "Оценивать совместно с гемоглобином и гематокритом; поиск причин",
-    lastUpdated: "2024-12-01",
-    references: [
-      "International Council for Standardization in Haematology. 2013",
-      "Российские клинические рекомендации по гематологии. 2023"
-    ]
+  'Лейкоциты': {
+    name: 'Лейкоциты (WBC)',
+    description: 'Белые кровяные тельца, основные клетки иммунной системы. Включают нейтрофилы, лимфоциты, моноциты, эозинофилы и базофилы.',
+    normalRange: '4.0-9.0 × 10⁹/л',
+    function: 'Защита организма от инфекций, воспалительных процессов и чужеродных веществ',
+    clinicalSignificance: 'Повышение указывает на воспаление или инфекцию, снижение - на иммунодефицит',
+    associatedConditions: ['Бактериальные инфекции', 'Вирусные инфекции', 'Лейкоз', 'Иммунодефицит'],
+    category: 'blood'
   },
 
-  // Биохимические показатели - Липидный профиль
-  totalCholesterol: {
-    id: 3,
-    code: "CHOL",
-    name: "Total Cholesterol",
-    nameRu: "Холестерин общий",
-    category: "Биохимический анализ",
-    subcategory: "Липидный профиль",
-    unit: "ммоль/л",
-    normalRangeMaleMin: 3.0,
-    normalRangeMaleMax: 5.2,
-    normalRangeFemaleMin: 3.0,
-    normalRangeFemaleMax: 5.2,
-    optimalRangeMaleMin: 3.0,
-    optimalRangeMaleMax: 4.5,
-    optimalRangeFemaleMin: 3.0,
-    optimalRangeFemaleMax: 4.5,
-    description: "Total amount of cholesterol in blood including LDL, HDL, and VLDL",
-    descriptionRu: "Общее количество холестерина в крови, включая ЛПНП, ЛПВП и ЛПОНП",
-    clinicalSignificance: "Major risk factor for cardiovascular disease; essential for cell membrane function",
-    clinicalSignificanceRu: "Основной фактор риска сердечно-сосудистых заболеваний",
-    significanceHigh: "Increased cardiovascular risk, familial hypercholesterolemia, diabetes, hypothyroidism",
-    significanceHighRu: "Повышенный сердечно-сосудистый риск, семейная гиперхолестеринемия, диабет, гипотиреоз",
-    significanceLow: "Malnutrition, liver disease, hyperthyroidism, certain medications",
-    significanceLowRu: "Недоедание, заболевания печени, гипертиреоз, некоторые лекарства",
-    associatedConditions: [
-      "Coronary artery disease", "Atherosclerosis", "Familial hypercholesterolemia",
-      "Type 2 diabetes", "Metabolic syndrome"
-    ],
-    associatedConditionsRu: [
-      "Ишемическая болезнь сердца", "Атеросклероз", "Семейная гиперхолестеринемия",
-      "Сахарный диабет 2 типа", "Метаболический синдром"
-    ],
-    recommendations: "Dietary modification, statins if indicated, lifestyle changes, regular monitoring",
-    recommendationsRu: "Диетотерапия, статины по показаниям, изменение образа жизни, регулярный контроль",
-    laboratoryMethod: "Enzymatic colorimetric assay",
-    interferences: ["Non-fasting state", "Recent meals", "Alcohol consumption"],
-    interferencesRu: ["Недавний прием пищи", "Употребление алкоголя", "Нарушение голодания"],
-    lastUpdated: "2024-12-01",
-    references: [
-      "ESC/EAS Guidelines for management of dyslipidaemias. 2019",
-      "Клинические рекомендации по дислипидемиям МЗ РФ. 2023"
-    ]
+  'Тромбоциты': {
+    name: 'Тромбоциты (PLT)',
+    description: 'Кровяные пластинки, участвующие в процессе свертывания крови и поддержании гемостаза.',
+    normalRange: '150-400 × 10⁹/л',
+    function: 'Первичный гемостаз, агрегация и формирование тромбов при повреждении сосудов',
+    clinicalSignificance: 'Снижение ведет к кровоточивости, повышение - к тромбозам',
+    associatedConditions: ['Тромбоцитопения', 'Тромбоцитоз', 'ДВС-синдром', 'Гемофилия'],
+    category: 'coagulation'
   },
 
-  ldlCholesterol: {
-    id: 4,
-    code: "LDL",
-    name: "LDL Cholesterol",
-    nameRu: "Холестерин ЛПНП",
-    category: "Биохимический анализ",
-    subcategory: "Липидный профиль",
-    unit: "ммоль/л",
-    normalRangeMaleMin: 1.0,
-    normalRangeMaleMax: 3.0,
-    normalRangeFemaleMin: 1.0,
-    normalRangeFemaleMax: 3.0,
-    optimalRangeMaleMin: 1.0,
-    optimalRangeMaleMax: 2.5,
-    optimalRangeFemaleMin: 1.0,
-    optimalRangeFemaleMax: 2.5,
-    description: "Low-density lipoprotein cholesterol, 'bad' cholesterol",
-    descriptionRu: "Холестерин липопротеинов низкой плотности, 'плохой' холестерин",
-    clinicalSignificance: "Primary target for cardiovascular risk reduction",
-    clinicalSignificanceRu: "Основная мишень для снижения сердечно-сосудистого риска",
-    significanceHigh: "Increased atherosclerosis risk, requires immediate intervention",
-    significanceHighRu: "Повышенный риск атеросклероза, требует немедленного вмешательства",
-    significanceLow: "Generally protective, but very low levels may indicate malnutrition",
-    significanceLowRu: "Обычно защитный эффект, но очень низкие уровни могут указывать на недоедание",
-    associatedConditions: [
-      "Atherosclerosis", "Coronary artery disease", "Stroke", "Peripheral artery disease"
-    ],
-    associatedConditionsRu: [
-      "Атеросклероз", "Ишемическая болезнь сердца", "Инсульт", "Заболевания периферических артерий"
-    ],
-    recommendations: "Statin therapy, PCSK9 inhibitors for high-risk patients, lifestyle modification",
-    recommendationsRu: "Статины, ингибиторы PCSK9 для пациентов высокого риска, изменение образа жизни",
-    lastUpdated: "2024-12-01",
-    references: [
-      "2019 ESC/EAS Guidelines for the management of dyslipidaemias",
-      "Российские рекомендации ВНОК по диагностике и коррекции нарушений липидного обмена. 2023"
-    ]
+  // Биохимические показатели
+  'Глюкоза': {
+    name: 'Глюкоза крови',
+    description: 'Основной источник энергии для клеток организма. Регулируется инсулином и контринсулярными гормонами.',
+    normalRange: '3.3-5.5 ммоль/л (натощак)',
+    function: 'Обеспечение энергетических потребностей всех клеток организма',
+    clinicalSignificance: 'Повышение указывает на сахарный диабет, снижение - на гипогликемию',
+    associatedConditions: ['Сахарный диабет 1 типа', 'Сахарный диабет 2 типа', 'Гипогликемия', 'Метаболический синдром'],
+    category: 'biochemistry'
+  },
+
+  'Холестерин общий': {
+    name: 'Холестерин общий',
+    description: 'Жироподобное вещество, необходимое для синтеза клеточных мембран, желчных кислот и стероидных гормонов.',
+    normalRange: 'До 5.2 ммоль/л',
+    function: 'Структурный компонент клеточных мембран, предшественник желчных кислот и гормонов',
+    clinicalSignificance: 'Повышение - фактор риска атеросклероза и сердечно-сосудистых заболеваний',
+    associatedConditions: ['Атеросклероз', 'ИБС', 'Семейная гиперхолестеринемия', 'Метаболический синдром'],
+    category: 'lipids'
+  },
+
+  'Холестерин': {
+    name: 'Холестерин общий',
+    description: 'Жироподобное вещество, необходимое для синтеза клеточных мембран, желчных кислот и стероидных гормонов.',
+    normalRange: 'До 5.2 ммоль/л',
+    function: 'Структурный компонент клеточных мембран, предшественник желчных кислот и гормонов',
+    clinicalSignificance: 'Повышение - фактор риска атеросклероза и сердечно-сосудистых заболеваний',
+    associatedConditions: ['Атеросклероз', 'ИБС', 'Семейная гиперхолестеринемия', 'Метаболический синдром'],
+    category: 'lipids'
+  },
+
+  'Холестерин ЛПВП': {
+    name: 'Холестерин ЛПВП (HDL)',
+    description: 'Липопротеины высокой плотности, "хороший" холестерин, который транспортирует холестерин из тканей в печень.',
+    normalRange: 'Мужчины: >1.0 ммоль/л, Женщины: >1.2 ммоль/л',
+    function: 'Обратный транспорт холестерина от периферических тканей к печени',
+    clinicalSignificance: 'Высокие уровни защищают от атеросклероза, низкие - увеличивают риск ССЗ',
+    associatedConditions: ['Атеросклероз', 'ИБС', 'Метаболический синдром'],
+    category: 'lipids'
+  },
+
+  'Холестерин ЛПНП': {
+    name: 'Холестерин ЛПНП (LDL)',
+    description: 'Липопротеины низкой плотности, "плохой" холестерин, который может откладываться в стенках артерий.',
+    normalRange: 'До 3.0 ммоль/л',
+    function: 'Транспорт холестерина от печени к периферическим тканям',
+    clinicalSignificance: 'Повышение - основной фактор риска атеросклероза и ИБС',
+    associatedConditions: ['Атеросклероз', 'ИБС', 'Инфаркт миокарда', 'Инсульт'],
+    category: 'lipids'
+  },
+
+  'Триглицериды': {
+    name: 'Триглицериды',
+    description: 'Основная форма накопления жиров в организме, источник энергии и компонент клеточных мембран.',
+    normalRange: 'До 1.7 ммоль/л',
+    function: 'Энергетический резерв организма, компонент клеточных мембран',
+    clinicalSignificance: 'Повышение связано с риском панкреатита и сердечно-сосудистых заболеваний',
+    associatedConditions: ['Панкреатит', 'Метаболический синдром', 'Ожирение', 'Сахарный диабет'],
+    category: 'lipids'
+  },
+
+  // Ферменты
+  'АЛТ': {
+    name: 'Аланинаминотрансфераза (АЛТ)',
+    description: 'Фермент, участвующий в обмене аминокислот. Высокая концентрация в печени, сердце, скелетных мышцах.',
+    normalRange: 'Мужчины: до 41 Ед/л, Женщины: до 31 Ед/л',
+    function: 'Катализирует реакции переаминирования аланина и альфа-кетоглутаровой кислоты',
+    clinicalSignificance: 'Повышение указывает на повреждение печени, миокарда или скелетных мышц',
+    associatedConditions: ['Гепатит', 'Цирроз печени', 'Инфаркт миокарда', 'Миозит'],
+    category: 'enzymes'
+  },
+
+  'АСТ': {
+    name: 'Аспартатаминотрансфераза (АСТ)',
+    description: 'Фермент, участвующий в обмене аминокислот. Высокая активность в миокарде, печени, скелетных мышцах.',
+    normalRange: 'Мужчины: до 40 Ед/л, Женщины: до 32 Ед/л',
+    function: 'Катализирует реакции переаминирования аспарагиновой кислоты',
+    clinicalSignificance: 'Повышение указывает на повреждение миокарда, печени или мышечной ткани',
+    associatedConditions: ['Инфаркт миокарда', 'Гепатит', 'Миопатия', 'Гемолиз'],
+    category: 'enzymes'
+  },
+
+  'ЩФ': {
+    name: 'Щелочная фосфатаза (ЩФ)',
+    description: 'Фермент, участвующий в реакциях дефосфорилирования. Высокая активность в печени, костной ткани, кишечнике.',
+    normalRange: '40-150 Ед/л',
+    function: 'Гидролиз эфиров фосфорной кислоты в щелочной среде',
+    clinicalSignificance: 'Повышение при заболеваниях печени, костей, злокачественных опухолях',
+    associatedConditions: ['Холестаз', 'Болезнь Педжета', 'Остеосаркома', 'Метастазы в печень'],
+    category: 'enzymes'
+  },
+
+  'ГГТ': {
+    name: 'Гамма-глутамилтрансфераза (ГГТ)',
+    description: 'Фермент, участвующий в обмене аминокислот. Высокая концентрация в печени, почках, поджелудочной железе.',
+    normalRange: 'Мужчины: до 61 Ед/л, Женщины: до 36 Ед/л',
+    function: 'Участвует в транспорте аминокислот через клеточные мембраны',
+    clinicalSignificance: 'Чувствительный маркер поражения печени, особенно при алкогольном гепатите',
+    associatedConditions: ['Алкогольная болезнь печени', 'Холестаз', 'Лекарственный гепатит'],
+    category: 'enzymes'
+  },
+
+  // Функция почек
+  'Креатинин': {
+    name: 'Креатинин',
+    description: 'Конечный продукт обмена креатина в мышцах. Выводится почками в неизмененном виде.',
+    normalRange: 'Мужчины: 62-115 мкмоль/л, Женщины: 53-97 мкмоль/л',
+    function: 'Конечный продукт креатин-фосфатной реакции в мышечной ткани',
+    clinicalSignificance: 'Основной маркер функции почек, повышается при снижении СКФ',
+    associatedConditions: ['Хроническая болезнь почек', 'Острая почечная недостаточность', 'Мышечная дистрофия'],
+    category: 'biochemistry'
+  },
+
+  'Мочевина': {
+    name: 'Мочевина',
+    description: 'Основной азотсодержащий продукт белкового обмена. Синтезируется в печени, выводится почками.',
+    normalRange: '2.5-8.3 ммоль/л',
+    function: 'Конечный продукт обезвреживания аммиака в орнитиновом цикле',
+    clinicalSignificance: 'Повышение при почечной недостаточности, дегидратации, высокобелковой диете',
+    associatedConditions: ['Почечная недостаточность', 'Дегидратация', 'Желудочно-кишечное кровотечение'],
+    category: 'biochemistry'
+  },
+
+  'Мочевая кислота': {
+    name: 'Мочевая кислота',
+    description: 'Конечный продукт обмена пуриновых нуклеотидов. При избытке может кристаллизоваться в суставах.',
+    normalRange: 'Мужчины: 200-420 мкмоль/л, Женщины: 140-340 мкмоль/л',
+    function: 'Конечный продукт катаболизма пуриновых оснований',
+    clinicalSignificance: 'Повышение при подагре, почечной недостаточности, опухолевом лизис-синдроме',
+    associatedConditions: ['Подагра', 'Мочекаменная болезнь', 'Метаболический синдром'],
+    category: 'biochemistry'
+  },
+
+  // Белки
+  'Общий белок': {
+    name: 'Общий белок',
+    description: 'Суммарная концентрация всех белков сыворотки крови, включая альбумины и глобулины.',
+    normalRange: '64-84 г/л',
+    function: 'Поддержание онкотического давления, транспорт веществ, иммунная защита',
+    clinicalSignificance: 'Отражает белково-синтетическую функцию печени и состояние иммунитета',
+    associatedConditions: ['Цирроз печени', 'Нефротический синдром', 'Множественная миелома'],
+    category: 'biochemistry'
+  },
+
+  'Альбумин': {
+    name: 'Альбумин',
+    description: 'Основной белок плазмы крови, синтезируемый печенью. Составляет 60% от общего белка.',
+    normalRange: '35-52 г/л',
+    function: 'Поддержание онкотического давления, транспорт лекарств и гормонов',
+    clinicalSignificance: 'Снижение при заболеваниях печени, почек, недостаточности питания',
+    associatedConditions: ['Цирроз печени', 'Нефротический синдром', 'Белково-энергетическая недостаточность'],
+    category: 'biochemistry'
+  },
+
+  // Электролиты
+  'Натрий': {
+    name: 'Натрий (Na+)',
+    description: 'Основной катион внеклеточной жидкости, регулирует водно-солевой баланс и осмотическое давление.',
+    normalRange: '136-145 ммоль/л',
+    function: 'Регуляция объема внеклеточной жидкости, нервно-мышечная проводимость',
+    clinicalSignificance: 'Нарушения связаны с дисбалансом воды и натрия в организме',
+    associatedConditions: ['Дегидратация', 'Гипергидратация', 'Синдром неадекватной секреции АДГ'],
+    category: 'biochemistry'
+  },
+
+  'Калий': {
+    name: 'Калий (K+)',
+    description: 'Основной внутриклеточный катион, критически важен для работы сердца и нервно-мышечной системы.',
+    normalRange: '3.5-5.1 ммоль/л',
+    function: 'Поддержание мембранного потенциала, сокращение мышц, проведение нервных импульсов',
+    clinicalSignificance: 'Изменения могут вызывать опасные нарушения сердечного ритма',
+    associatedConditions: ['Аритмии', 'Почечная недостаточность', 'Прием диуретиков'],
+    category: 'biochemistry'
+  },
+
+  'Хлориды': {
+    name: 'Хлориды (Cl-)',
+    description: 'Основной анион внеклеточной жидкости, поддерживает кислотно-щелочное равновесие.',
+    normalRange: '98-107 ммоль/л',
+    function: 'Поддержание осмотического давления и кислотно-щелочного баланса',
+    clinicalSignificance: 'Изменения часто сопровождают нарушения водно-электролитного баланса',
+    associatedConditions: ['Рвота', 'Диарея', 'Почечная недостаточность'],
+    category: 'biochemistry'
+  },
+
+  // Минералы и витамины
+  'Железо': {
+    name: 'Железо сыворотки',
+    description: 'Микроэлемент, необходимый для синтеза гемоглобина и функционирования многих ферментов.',
+    normalRange: 'Мужчины: 11.6-31.3 мкмоль/л, Женщины: 6.6-26.0 мкмоль/л',
+    function: 'Транспорт кислорода, участие в окислительно-восстановительных реакциях',
+    clinicalSignificance: 'Дефицит ведет к железодефицитной анемии, избыток - к гемохроматозу',
+    associatedConditions: ['Железодефицитная анемия', 'Гемохроматоз', 'Талассемия'],
+    category: 'biochemistry'
+  },
+
+  'Ферритин': {
+    name: 'Ферритин',
+    description: 'Белок, депонирующий железо в клетках. Лучший показатель запасов железа в организме.',
+    normalRange: 'Мужчины: 30-400 мкг/л, Женщины: 13-150 мкг/л',
+    function: 'Депонирование и мобилизация железа в клетках',
+    clinicalSignificance: 'Отражает запасы железа в организме, повышается при воспалении',
+    associatedConditions: ['Железодефицит', 'Гемохроматоз', 'Воспалительные заболевания'],
+    category: 'biochemistry'
+  },
+
+  'Витамин B12': {
+    name: 'Витамин B12 (цианокобаламин)',
+    description: 'Водорастворимый витамин, необходимый для кроветворения и функционирования нервной системы.',
+    normalRange: '191-663 пмоль/л',
+    function: 'Синтез ДНК, образование эритроцитов, миелинизация нервов',
+    clinicalSignificance: 'Дефицит вызывает мегалобластную анемию и неврологические нарушения',
+    associatedConditions: ['B12-дефицитная анемия', 'Фуникулярный миелоз', 'Атрофический гастрит'],
+    category: 'biochemistry'
+  },
+
+  'Фолиевая кислота': {
+    name: 'Фолиевая кислота (витамин B9)',
+    description: 'Водорастворимый витамин, необходимый для синтеза ДНК и деления клеток.',
+    normalRange: '10-42.4 нмоль/л',
+    function: 'Синтез пуриновых и пиримидиновых нуклеотидов, метаболизм аминокислот',
+    clinicalSignificance: 'Дефицит вызывает мегалобластную анемию и дефекты нервной трубки плода',
+    associatedConditions: ['Фолиеводефицитная анемия', 'Дефекты нервной трубки', 'Мальабсорбция'],
+    category: 'biochemistry'
   },
 
   // Гормоны щитовидной железы
-  tsh: {
-    id: 5,
-    code: "TSH",
-    name: "Thyroid Stimulating Hormone",
-    nameRu: "Тиреотропный гормон",
-    category: "Гормональные исследования",
-    subcategory: "Гормоны щитовидной железы",
-    unit: "мЕд/л",
-    normalRangeMaleMin: 0.4,
-    normalRangeMaleMax: 4.0,
-    normalRangeFemaleMin: 0.4,
-    normalRangeFemaleMax: 4.0,
-    optimalRangeMaleMin: 0.5,
-    optimalRangeMaleMax: 2.5,
-    optimalRangeFemaleMin: 0.5,
-    optimalRangeFemaleMax: 2.5,
-    description: "Hormone that regulates thyroid function",
-    descriptionRu: "Гормон, регулирующий функцию щитовидной железы",
-    clinicalSignificance: "Primary screening test for thyroid dysfunction",
-    clinicalSignificanceRu: "Основной скрининговый тест для оценки функции щитовидной железы",
-    significanceHigh: "Primary hypothyroidism, thyroid hormone resistance, TSH-secreting tumors",
-    significanceHighRu: "Первичный гипотиреоз, резистентность к тиреоидным гормонам, ТТГ-секретирующие опухоли",
-    significanceLow: "Hyperthyroidism, central hypothyroidism, excess thyroid hormone",
-    significanceLowRu: "Гипертиреоз, центральный гипотиреоз, избыток тиреоидных гормонов",
-    associatedConditions: [
-      "Hashimoto's thyroiditis", "Graves' disease", "Thyroid nodules", "Subclinical thyroid dysfunction"
-    ],
-    associatedConditionsRu: [
-      "Тиреоидит Хашимото", "Болезнь Грейвса", "Узлы щитовидной железы", "Субклинические нарушения функции ЩЖ"
-    ],
-    recommendations: "Repeat testing, thyroid ultrasound, endocrinologist consultation if abnormal",
-    recommendationsRu: "Повторное исследование, УЗИ щитовидной железы, консультация эндокринолога при отклонениях",
-    laboratoryMethod: "Chemiluminescent microparticle immunoassay",
-    interferences: ["Biotin supplementation", "Heterophile antibodies", "Recent contrast agents"],
-    interferencesRu: ["Прием биотина", "Гетерофильные антитела", "Недавнее введение контрастных веществ"],
-    lastUpdated: "2024-12-01",
-    references: [
-      "2016 American Thyroid Association Guidelines for Diagnosis and Management of Hyperthyroidism",
-      "Клинические рекомендации РАЭ по диагностике и лечению заболеваний щитовидной железы. 2023"
-    ]
+  'ТТГ': {
+    name: 'Тиреотропный гормон (ТТГ)',
+    description: 'Гормон гипофиза, регулирующий функцию щитовидной железы. Основной скрининговый тест.',
+    normalRange: '0.4-4.0 мМЕ/л',
+    function: 'Стимуляция синтеза и секреции гормонов щитовидной железы',
+    clinicalSignificance: 'Повышение при гипотиреозе, снижение при гипертиреозе',
+    associatedConditions: ['Гипотиреоз', 'Гипертиреоз', 'Аутоиммунный тиреоидит'],
+    category: 'hormones'
   },
 
-  // Витамины
-  vitaminD: {
-    id: 6,
-    code: "25OHD",
-    name: "25-Hydroxyvitamin D",
-    nameRu: "Витамин D (25-OH)",
-    category: "Витамины и микроэлементы",
-    subcategory: "Жирорастворимые витамины",
-    unit: "нг/мл",
-    normalRangeMaleMin: 30,
-    normalRangeMaleMax: 100,
-    normalRangeFemaleMin: 30,
-    normalRangeFemaleMax: 100,
-    optimalRangeMaleMin: 40,
-    optimalRangeMaleMax: 60,
-    optimalRangeFemaleMin: 40,
-    optimalRangeFemaleMax: 60,
-    description: "Storage form of vitamin D, best indicator of vitamin D status",
-    descriptionRu: "Транспортная форма витамина D, лучший показатель статуса витамина D",
-    clinicalSignificance: "Essential for bone health, immune function, and calcium homeostasis",
-    clinicalSignificanceRu: "Необходим для здоровья костей, иммунной функции и гомеостаза кальция",
-    significanceHigh: "Generally not toxic unless >150 ng/mL; may indicate oversupplementation",
-    significanceHighRu: "Обычно не токсичен до 150 нг/мл; может указывать на передозировку добавок",
-    significanceLow: "Increased fracture risk, muscle weakness, immune dysfunction, seasonal depression",
-    significanceLowRu: "Повышенный риск переломов, мышечная слабость, иммунная дисфункция, сезонная депрессия",
-    associatedConditions: [
-      "Osteoporosis", "Rickets", "Osteomalacia", "Autoimmune diseases", "Seasonal affective disorder"
-    ],
-    associatedConditionsRu: [
-      "Остеопороз", "Рахит", "Остеомаляция", "Аутоиммунные заболевания", "Сезонное аффективное расстройство"
-    ],
-    recommendations: "Vitamin D3 supplementation 1000-4000 IU daily, sun exposure, dietary sources",
-    recommendationsRu: "Добавки витамина D3 1000-4000 МЕ/день, солнечное облучение, пищевые источники",
-    laboratoryMethod: "Liquid chromatography-tandem mass spectrometry (LC-MS/MS)",
-    interferences: ["25-OH-D2 vs D3 forms", "Vitamin D binding protein variants"],
-    interferencesRu: ["Различие форм D2 и D3", "Варианты витамин D-связывающего белка"],
-    lastUpdated: "2024-12-01",
-    references: [
-      "Endocrine Society Clinical Practice Guideline on Vitamin D. 2024",
-      "Российская ассоциация эндокринологов. Дефицит витамина D у взрослых. 2023"
-    ]
+  'Т4 свободный': {
+    name: 'Тироксин свободный (Т4 св)',
+    description: 'Основной гормон щитовидной железы в активной форме, не связанной с белками.',
+    normalRange: '9.0-22.0 пмоль/л',
+    function: 'Регуляция основного обмена, роста и развития организма',
+    clinicalSignificance: 'Отражает истинную функциональную активность щитовидной железы',
+    associatedConditions: ['Гипотиреоз', 'Тиреотоксикоз', 'Зоб'],
+    category: 'hormones'
+  },
+
+  'Т3 свободный': {
+    name: 'Трийодтиронин свободный (Т3 св)',
+    description: 'Наиболее активный гормон щитовидной железы, образуется из Т4 в периферических тканях.',
+    normalRange: '2.6-5.7 пмоль/л',
+    function: 'Основной регулятор метаболических процессов в клетках',
+    clinicalSignificance: 'Повышается раньше Т4 при гипертиреозе, может быть нормальным при гипотиреозе',
+    associatedConditions: ['Т3-тиреотоксикоз', 'Болезнь Грейвса', 'Автономная аденома ЩЖ'],
+    category: 'hormones'
+  },
+
+  // Онкомаркеры
+  'ПСА общий': {
+    name: 'Простатспецифический антиген общий (ПСА)',
+    description: 'Фермент, вырабатываемый клетками предстательной железы. Специфический маркер патологии простаты.',
+    normalRange: 'До 4.0 нг/мл (до 50 лет), до 6.5 нг/мл (50-70 лет)',
+    function: 'Разжижение семенной жидкости после эякуляции',
+    clinicalSignificance: 'Скрининг рака предстательной железы у мужчин старше 50 лет',
+    associatedConditions: ['Рак предстательной железы', 'Доброкачественная гиперплазия простаты', 'Простатит'],
+    category: 'other'
+  },
+
+  'АФП': {
+    name: 'Альфа-фетопротеин (АФП)',
+    description: 'Эмбриональный белок, в норме вырабатывается печенью плода. У взрослых - онкомаркер.',
+    normalRange: 'До 15 МЕ/мл',
+    function: 'Транспорт веществ у плода, иммуносупрессия во время беременности',
+    clinicalSignificance: 'Повышение при гепатоцеллюлярной карциноме, герминогенных опухолях',
+    associatedConditions: ['Гепатоцеллюлярная карцинома', 'Тератома', 'Дефекты нервной трубки плода'],
+    category: 'other'
+  },
+
+  // Коагуляция
+  'Протромбиновое время': {
+    name: 'Протромбиновое время (ПТ)',
+    description: 'Время свертывания плазмы при активации внешнего пути гемостаза.',
+    normalRange: '11-16 секунд',
+    function: 'Оценка внешнего пути свертывания крови',
+    clinicalSignificance: 'Контроль терапии варфарином, оценка функции печени',
+    associatedConditions: ['Дефицит факторов свертывания', 'Заболевания печени', 'ДВС-синдром'],
+    category: 'coagulation'
+  },
+
+  'МНО': {
+    name: 'Международное нормализованное отношение (МНО)',
+    description: 'Стандартизированный показатель протромбинового времени для контроля антикоагулянтной терапии.',
+    normalRange: '0.8-1.2 (без терапии)',
+    function: 'Стандартизированная оценка системы гемостаза',
+    clinicalSignificance: 'Контроль терапии антикоагулянтами непрямого действия',
+    associatedConditions: ['Тромбозы', 'Фибрилляция предсердий', 'Протезирование клапанов сердца'],
+    category: 'coagulation'
+  },
+
+  'АЧТВ': {
+    name: 'Активированное частичное тромбопластиновое время (АЧТВ)',
+    description: 'Время свертывания плазмы при активации внутреннего пути гемостаза.',
+    normalRange: '25-35 секунд',
+    function: 'Оценка внутреннего пути свертывания крови',
+    clinicalSignificance: 'Контроль терапии гепарином, диагностика коагулопатий',
+    associatedConditions: ['Гемофилия', 'Болезнь Виллебранда', 'Антифосфолипидный синдром'],
+    category: 'coagulation'
+  },
+
+  'Фибриноген': {
+    name: 'Фибриноген',
+    description: 'Белок острой фазы, предшественник фибрина в процессе свертывания крови.',
+    normalRange: '2.0-4.0 г/л',
+    function: 'Образование фибрина и стабилизация тромба',
+    clinicalSignificance: 'Повышается при воспалении, снижается при ДВС-синдроме',
+    associatedConditions: ['ДВС-синдром', 'Воспалительные заболевания', 'Тромбозы'],
+    category: 'coagulation'
   }
+};
+
+// Функция для получения информации о биомаркере
+export const getBiomarkerInfo = (name: string): string => {
+  const biomarker = EXPANDED_BIOMARKERS[name];
+  return biomarker ? biomarker.description : `Информация о биомаркере "${name}" будет добавлена в будущих обновлениях`;
+};
+
+// Функция для получения категории биомаркера
+export const getBiomarkerCategory = (name: string): string => {
+  const biomarker = EXPANDED_BIOMARKERS[name];
+  if (!biomarker) return 'other';
+  
+  const categoryNames = {
+    'blood': 'Общий анализ крови',
+    'biochemistry': 'Биохимия',
+    'immunology': 'Иммунология',
+    'hormones': 'Гормоны',
+    'coagulation': 'Гемостаз',
+    'lipids': 'Липидный профиль',
+    'enzymes': 'Ферменты',
+    'other': 'Другие'
+  };
+  
+  return categoryNames[biomarker.category] || 'Другие';
 };
