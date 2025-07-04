@@ -64,6 +64,7 @@ const AIDoctorPage = lazy(() => import("./pages/AIDoctorPage"));
 const AIDoctorBasicPage = lazy(() => import("./pages/AIDoctorBasicPage"));
 const AIDoctorPersonalPage = lazy(() => import("./pages/AIDoctorPersonalPage"));
 const NutritionDiaryPage = lazy(() => import("./pages/NutritionDiary"));
+const MyBiomarkers = lazy(() => import("./pages/MyBiomarkers"));
 const MyRecommendations = lazy(() => import("./pages/MyRecommendations"));
 const ProtocolTracking = lazy(() => import("./pages/ProtocolTracking"));
 const SubscriptionPage = lazy(() => import("./pages/SubscriptionPage"));
@@ -162,6 +163,11 @@ const App = () => (
                       <Route path="/nutrition-diary" element={
                         <ProtectedRoute>
                           <NutritionDiaryPage />
+                        </ProtectedRoute>
+                      } />
+                       <Route path="/my-biomarkers" element={
+                        <ProtectedRoute>
+                          <MyBiomarkers />
                         </ProtectedRoute>
                       } />
                       <Route path="/my-recommendations" element={

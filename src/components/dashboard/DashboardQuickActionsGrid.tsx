@@ -13,7 +13,8 @@ import {
   TestTube,
   ChevronRight,
   BookOpen,
-  Activity
+  Activity,
+  TrendingUp
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -63,6 +64,14 @@ const DashboardQuickActionsGrid: React.FC = () => {
       iconColor: 'text-purple-100'
     },
     {
+      icon: Activity,
+      title: 'Мои биомаркеры',
+      description: 'Динамика показателей',
+      path: '/my-biomarkers',
+      gradient: 'from-cyan-500 to-cyan-600',
+      iconColor: 'text-cyan-100'
+    },
+    {
       icon: FileText,
       title: 'Рекомендации',
       description: 'Персональные советы',
@@ -71,7 +80,7 @@ const DashboardQuickActionsGrid: React.FC = () => {
       iconColor: 'text-indigo-100'
     },
     {
-      icon: Activity,
+      icon: TrendingUp,
       title: 'Биологический возраст',
       description: 'Оценка и улучшение',
       path: '/biological-age',
