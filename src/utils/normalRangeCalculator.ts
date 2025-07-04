@@ -52,18 +52,18 @@ const AGE_GENDER_ADJUSTMENTS: AgeGenderAdjustment = {
   },
   'glucose': {
     male: {
-      '18-29': { min: 3.9, max: 5.6, optimal: 4.5 },
-      '30-39': { min: 4.0, max: 5.8, optimal: 4.7 },
-      '40-49': { min: 4.1, max: 6.0, optimal: 4.9 },
-      '50-59': { min: 4.2, max: 6.2, optimal: 5.1 },
-      '60+': { min: 4.3, max: 6.5, optimal: 5.3 }
+      '18-29': { min: 3.3, max: 5.5, optimal: 4.3 },
+      '30-39': { min: 3.3, max: 5.5, optimal: 4.4 },
+      '40-49': { min: 3.3, max: 5.5, optimal: 4.5 },
+      '50-59': { min: 3.3, max: 6.1, optimal: 4.7 },
+      '60+': { min: 3.3, max: 6.1, optimal: 5.0 }
     },
     female: {
-      '18-29': { min: 3.8, max: 5.4, optimal: 4.3 },
-      '30-39': { min: 3.9, max: 5.6, optimal: 4.5 },
-      '40-49': { min: 4.0, max: 5.8, optimal: 4.7 },
-      '50-59': { min: 4.1, max: 6.0, optimal: 4.9 },
-      '60+': { min: 4.2, max: 6.2, optimal: 5.1 }
+      '18-29': { min: 3.3, max: 5.5, optimal: 4.2 },
+      '30-39': { min: 3.3, max: 5.5, optimal: 4.3 },
+      '40-49': { min: 3.3, max: 5.5, optimal: 4.4 },
+      '50-59': { min: 3.3, max: 6.1, optimal: 4.6 },
+      '60+': { min: 3.3, max: 6.1, optimal: 4.8 }
     }
   },
   'testosterone': {

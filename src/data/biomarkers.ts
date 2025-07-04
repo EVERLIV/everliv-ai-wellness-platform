@@ -9,7 +9,7 @@ export const BIOMARKERS: Biomarker[] = [
     category: 'cardiovascular',
     description: 'Общий уровень холестерина в крови',
     analysis_type: 'Анализ крови на липидный профиль',
-    normal_range: { min: 3.0, max: 5.2, optimal: 4.5 },
+    normal_range: { min: 3.0, max: 5.2, optimal: 4.2 },
     unit: 'ммоль/л',
     status: 'not_filled',
     importance: 'high'
@@ -20,7 +20,7 @@ export const BIOMARKERS: Biomarker[] = [
     category: 'cardiovascular',
     description: 'Липопротеины низкой плотности',
     analysis_type: 'Анализ крови на липидный профиль',
-    normal_range: { min: 1.0, max: 3.0, optimal: 2.0 },
+    normal_range: { min: 0.0, max: 3.0, optimal: 2.0 },
     unit: 'ммоль/л',
     status: 'not_filled',
     importance: 'high'
@@ -31,7 +31,7 @@ export const BIOMARKERS: Biomarker[] = [
     category: 'cardiovascular',
     description: 'Липопротеины высокой плотности',
     analysis_type: 'Анализ крови на липидный профиль',
-    normal_range: { min: 1.0, max: 2.5, optimal: 1.5 },
+    normal_range: { min: 1.0, max: 3.0, optimal: 1.6 },
     unit: 'ммоль/л',
     status: 'not_filled',
     importance: 'high'
@@ -77,7 +77,7 @@ export const BIOMARKERS: Biomarker[] = [
     category: 'metabolic',
     description: 'Уровень сахара в крови натощак',
     analysis_type: 'Анализ крови на глюкозу',
-    normal_range: { min: 3.9, max: 6.1, optimal: 5.0 },
+    normal_range: { min: 3.3, max: 5.5, optimal: 4.5 },
     unit: 'ммоль/л',
     status: 'not_filled',
     importance: 'high'
@@ -248,8 +248,8 @@ export const BIOMARKERS: Biomarker[] = [
     category: 'oxidative_stress',
     description: '25-гидроксивитамин D',
     analysis_type: 'Анализ крови на 25-OH витамин D',
-    normal_range: { min: 75, max: 250, optimal: 125 },
-    unit: 'нмоль/л',
+    normal_range: { min: 30, max: 100, optimal: 50 },
+    unit: 'нг/мл',
     status: 'not_filled',
     importance: 'high'
   },
