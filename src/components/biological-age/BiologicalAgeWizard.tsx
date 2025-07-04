@@ -97,10 +97,11 @@ const BiologicalAgeWizard: React.FC<BiologicalAgeWizardProps> = ({
   }, [filledBiomarkers.length]);
 
   const getEssentialBiomarkers = () => {
+    // Return the most critical biomarkers for quick analysis
     return biomarkers.filter(b => 
       b.importance === 'high' && 
-      ['cardiovascular', 'metabolic', 'hormonal'].includes(b.category)
-    ).slice(0, 8);
+      ['cardiovascular', 'metabolic', 'hormonal', 'oxidative_stress'].includes(b.category)
+    ).slice(0, 8); // Ensure exactly 8 for quick start
   };
 
   const getExtendedBiomarkers = () => {
@@ -148,8 +149,8 @@ const BiologicalAgeWizard: React.FC<BiologicalAgeWizardProps> = ({
 
   const handleQuickStart = () => {
     setSelectedMode('quick');
-    // Auto-fill with reasonable defaults or skip to results
-    setCurrentStep(WIZARD_STEPS.length - 1);
+    // Start with essential biomarkers for quick input
+    setCurrentStep(1); // Go to essential step instead of jumping to results
   };
 
   const handleStepByStep = () => {
@@ -189,10 +190,10 @@ const BiologicalAgeWizard: React.FC<BiologicalAgeWizardProps> = ({
       <div className="grid md:grid-cols-2 gap-6">
         <QuickStartOption 
           title="Быстрый старт"
-          description="Базовый анализ с минимумом данных"
+          description="Только 8 ключевых показателей"
           icon={Zap}
-          duration="2-3 минуты"
-          accuracy="60-70%"
+          duration="5-7 минут"
+          accuracy="65-75%"
           onClick={handleQuickStart}
         />
         
@@ -240,18 +241,27 @@ const BiologicalAgeWizard: React.FC<BiologicalAgeWizardProps> = ({
     const stepBiomarkers = getCurrentStepBiomarkers();
     const step = WIZARD_STEPS[currentStep];
     
+    // For quick start mode, only show essential biomarkers in first step
+    const displayBiomarkers = selectedMode === 'quick' && currentStep === 1 
+      ? getEssentialBiomarkers().slice(0, 8) // Limit to 8 for quick start
+      : stepBiomarkers;
+    
     return (
       <div className="space-y-6">
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
             <step.icon className="h-6 w-6 text-blue-600" />
-            <h2 className="text-xl font-bold">{step.title}</h2>
+            <h2 className="text-xl font-bold">
+              {selectedMode === 'quick' ? 'Быстрый анализ - Основные показатели' : step.title}
+            </h2>
           </div>
-          <p className="text-gray-600">{step.description}</p>
+          <p className="text-gray-600">
+            {selectedMode === 'quick' ? 'Заполните 8 ключевых биомаркеров для быстрого расчета' : step.description}
+          </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
-          {stepBiomarkers.map(biomarker => (
+          {displayBiomarkers.map(biomarker => (
             <BiomarkerStepCard
               key={biomarker.id}
               biomarker={biomarker}
@@ -273,8 +283,13 @@ const BiologicalAgeWizard: React.FC<BiologicalAgeWizardProps> = ({
 
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Заполнено: {stepBiomarkers.filter(b => b.status === 'filled').length} из {stepBiomarkers.length}
+              Заполнено: {displayBiomarkers.filter(b => b.status === 'filled').length} из {displayBiomarkers.length}
             </p>
+            {selectedMode === 'quick' && (
+              <p className="text-xs text-green-600 mt-1">
+                Быстрый режим: только ключевые показатели
+              </p>
+            )}
           </div>
 
           <div className="flex gap-2">
@@ -287,14 +302,16 @@ const BiologicalAgeWizard: React.FC<BiologicalAgeWizardProps> = ({
                 <Trophy className="ml-2 h-4 w-4" />
               </Button>
             )}
-            <Button 
-              variant="outline"
-              onClick={nextStep}
-              disabled={currentStep >= WIZARD_STEPS.length - 2}
-            >
-              Далее
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
+            {selectedMode !== 'quick' && (
+              <Button 
+                variant="outline"
+                onClick={nextStep}
+                disabled={currentStep >= WIZARD_STEPS.length - 2}
+              >
+                Далее
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </div>
