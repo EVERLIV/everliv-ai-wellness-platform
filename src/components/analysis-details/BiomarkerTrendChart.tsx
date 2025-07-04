@@ -25,17 +25,22 @@ interface TrendData {
 
 // Нормальные диапазоны для основных биомаркеров
 const NORMAL_RANGES: { [key: string]: { min: number; max: number; unit: string } } = {
-  'Эритроциты': { min: 4.0, max: 5.4, unit: '×10¹²/л' },
+  'Эритроциты': { min: 6.5, max: 13.0, unit: '×10¹²/л' },
   'Гемоглобин': { min: 120, max: 160, unit: 'г/л' },
   'Лейкоциты': { min: 4.0, max: 9.0, unit: '×10⁹/л' },
   'Тромбоциты': { min: 150, max: 400, unit: '×10⁹/л' },
   'Глюкоза': { min: 3.3, max: 5.5, unit: 'ммоль/л' },
   'Холестерин': { min: 3.0, max: 5.2, unit: 'ммоль/л' },
+  'Холестерин общий': { min: 3.0, max: 5.2, unit: 'ммоль/л' },
+  'ЛПНП': { min: 0.0, max: 3.0, unit: 'ммоль/л' },
+  'ЛПВП': { min: 1.0, max: 2.2, unit: 'ммоль/л' },
+  'Триглицериды': { min: 0.0, max: 1.7, unit: 'ммоль/л' },
   'АЛТ': { min: 10, max: 40, unit: 'Ед/л' },
   'АСТ': { min: 10, max: 40, unit: 'Ед/л' },
   'Креатинин': { min: 60, max: 115, unit: 'мкмоль/л' },
   'Мочевина': { min: 2.5, max: 8.3, unit: 'ммоль/л' },
-  'Билирубин общий': { min: 5, max: 21, unit: 'мкмоль/л' }
+  'Билирубин общий': { min: 5, max: 21, unit: 'мкмоль/л' },
+  'Билирубин прямой': { min: 0, max: 5, unit: 'мкмоль/л' }
 };
 
 const BiomarkerTrendChart: React.FC<BiomarkerTrendChartProps> = ({ biomarkerName, normalRange }) => {
@@ -230,7 +235,7 @@ const BiomarkerTrendChart: React.FC<BiomarkerTrendChartProps> = ({ biomarkerName
         )}
       </CardHeader>
       <CardContent className="p-0">
-        <div className={`${isMobile ? 'h-80' : 'h-96'} p-4`}>
+        <div className={`${isMobile ? 'h-64' : 'h-72'} p-4`}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart 
               data={trendData}

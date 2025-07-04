@@ -104,140 +104,151 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
         {/* Кнопки для раскрытия дополнительной информации */}
         <div className="flex gap-2">
           {shouldShowDetailedRecommendations && (
-            <Collapsible open={showDetails} onOpenChange={handleShowDetails}>
-              <CollapsibleTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  {isLoadingRecommendations ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : showDetails ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                  <TrendingUp className="h-4 w-4" />
-                  ИИ-рекомендации
-                </Button>
-              </CollapsibleTrigger>
-              
-              <CollapsibleContent className="mt-3">
-                {isLoadingRecommendations ? (
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span className="text-sm text-gray-600">Генерируем персональные рекомендации...</span>
-                    </div>
-                  </div>
-                ) : recommendationsError ? (
-                  <div className="p-3 bg-red-50 rounded-lg border border-red-200">
-                    <p className="text-sm text-red-800">{recommendationsError}</p>
-                  </div>
-                ) : aiRecommendations ? (
-                  <div className="space-y-4">
-                    {/* Питание */}
-                    {aiRecommendations.dietaryRecommendations.length > 0 && (
-                      <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                        <h4 className="font-medium text-green-900 mb-2">🥗 Рекомендации по питанию:</h4>
-                        <ul className="text-sm text-green-800 space-y-1">
-                          {aiRecommendations.dietaryRecommendations.map((rec, index) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <span className="text-green-600 mt-1">•</span>
-                              <span>{rec}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* Образ жизни */}
-                    {aiRecommendations.lifestyleChanges.length > 0 && (
-                      <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <h4 className="font-medium text-blue-900 mb-2">🏃‍♂️ Изменения образа жизни:</h4>
-                        <ul className="text-sm text-blue-800 space-y-1">
-                          {aiRecommendations.lifestyleChanges.map((change, index) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <span className="text-blue-600 mt-1">•</span>
-                              <span>{change}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* Добавки */}
-                    {aiRecommendations.supplementsToConsider.length > 0 && (
-                      <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
-                        <h4 className="font-medium text-orange-900 mb-2">💊 Добавки для рассмотрения с врачом:</h4>
-                        <ul className="text-sm text-orange-800 space-y-1">
-                          {aiRecommendations.supplementsToConsider.map((supplement, index) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <span className="text-orange-600 mt-1">•</span>
-                              <span>{supplement}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* Когда пересдать */}
-                    {aiRecommendations.whenToRetest && (
-                      <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-                        <h4 className="font-medium text-purple-900 mb-2">📅 Когда пересдать анализ:</h4>
-                        <p className="text-sm text-purple-800">{aiRecommendations.whenToRetest}</p>
-                      </div>
-                    )}
-
-                    {/* Тревожные симптомы */}
-                    {aiRecommendations.warningSignsToWatch.length > 0 && (
-                      <div className="p-3 bg-red-50 rounded-lg border border-red-200">
-                        <h4 className="font-medium text-red-900 mb-2">⚠️ Симптомы, требующие внимания:</h4>
-                        <ul className="text-sm text-red-800 space-y-1">
-                          {aiRecommendations.warningSignsToWatch.map((symptom, index) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <span className="text-red-600 mt-1">•</span>
-                              <span>{symptom}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* Дополнительные анализы */}
-                    {aiRecommendations.additionalTests.length > 0 && (
-                      <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <h4 className="font-medium text-gray-900 mb-2">🔬 Дополнительные анализы:</h4>
-                        <ul className="text-sm text-gray-800 space-y-1">
-                          {aiRecommendations.additionalTests.map((test, index) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <span className="text-gray-600 mt-1">•</span>
-                              <span>{test}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                    <p className="text-sm text-yellow-800">Рекомендации временно недоступны. Попробуйте позже.</p>
-                  </div>
-                )}
-              </CollapsibleContent>
-            </Collapsible>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2"
+              onClick={handleShowDetails}
+            >
+              {isLoadingRecommendations ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : showDetails ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+              <TrendingUp className="h-4 w-4" />
+              ИИ-рекомендации
+            </Button>
           )}
 
-          <Collapsible open={showTrend} onOpenChange={setShowTrend}>
-            <CollapsibleTrigger asChild>
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
-                {showTrend ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                <Activity className="h-4 w-4" />
-                Динамика
-              </Button>
-            </CollapsibleTrigger>
-            
-            <CollapsibleContent className="mt-3">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-2"
+            onClick={() => setShowTrend(!showTrend)}
+          >
+            {showTrend ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            <Activity className="h-4 w-4" />
+            Динамика
+          </Button>
+        </div>
+
+        {/* Контент всегда в одном месте */}
+        <div className="space-y-3">
+          {/* ИИ-рекомендации */}
+          {shouldShowDetailedRecommendations && showDetails && (
+            <div className="border-l-4 border-blue-500 pl-4">
+              {isLoadingRecommendations ? (
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-gray-600">Генерируем персональные рекомендации...</span>
+                  </div>
+                </div>
+              ) : recommendationsError ? (
+                <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+                  <p className="text-sm text-red-800">{recommendationsError}</p>
+                </div>
+              ) : aiRecommendations ? (
+                <div className="space-y-4">
+                  {/* Питание */}
+                  {aiRecommendations.dietaryRecommendations.length > 0 && (
+                    <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                      <h4 className="font-medium text-green-900 mb-2">🥗 Рекомендации по питанию:</h4>
+                      <ul className="text-sm text-green-800 space-y-1">
+                        {aiRecommendations.dietaryRecommendations.map((rec, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-green-600 mt-1">•</span>
+                            <span>{rec}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Образ жизни */}
+                  {aiRecommendations.lifestyleChanges.length > 0 && (
+                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <h4 className="font-medium text-blue-900 mb-2">🏃‍♂️ Изменения образа жизни:</h4>
+                      <ul className="text-sm text-blue-800 space-y-1">
+                        {aiRecommendations.lifestyleChanges.map((change, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-blue-600 mt-1">•</span>
+                            <span>{change}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Добавки */}
+                  {aiRecommendations.supplementsToConsider.length > 0 && (
+                    <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
+                      <h4 className="font-medium text-orange-900 mb-2">💊 Добавки для рассмотрения с врачом:</h4>
+                      <ul className="text-sm text-orange-800 space-y-1">
+                        {aiRecommendations.supplementsToConsider.map((supplement, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-orange-600 mt-1">•</span>
+                            <span>{supplement}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Когда пересдать */}
+                  {aiRecommendations.whenToRetest && (
+                    <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <h4 className="font-medium text-purple-900 mb-2">📅 Когда пересдать анализ:</h4>
+                      <p className="text-sm text-purple-800">{aiRecommendations.whenToRetest}</p>
+                    </div>
+                  )}
+
+                  {/* Тревожные симптомы */}
+                  {aiRecommendations.warningSignsToWatch.length > 0 && (
+                    <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+                      <h4 className="font-medium text-red-900 mb-2">⚠️ Симптомы, требующие внимания:</h4>
+                      <ul className="text-sm text-red-800 space-y-1">
+                        {aiRecommendations.warningSignsToWatch.map((symptom, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-red-600 mt-1">•</span>
+                            <span>{symptom}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Дополнительные анализы */}
+                  {aiRecommendations.additionalTests.length > 0 && (
+                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <h4 className="font-medium text-gray-900 mb-2">🔬 Дополнительные анализы:</h4>
+                      <ul className="text-sm text-gray-800 space-y-1">
+                        {aiRecommendations.additionalTests.map((test, index) => (
+                          <li key={index} className="flex items-start gap-2">
+                            <span className="text-gray-600 mt-1">•</span>
+                            <span>{test}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <p className="text-sm text-yellow-800">Рекомендации временно недоступны. Попробуйте позже.</p>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Динамика */}
+          {showTrend && (
+            <div className="border-l-4 border-purple-500 pl-4">
               <BiomarkerTrendChart biomarkerName={name} />
-            </CollapsibleContent>
-          </Collapsible>
+            </div>
+          )}
         </div>
 
         {/* Показываем сообщение только для нормальных показателей */}

@@ -111,7 +111,7 @@ const AnalysisDetails: React.FC = () => {
           onPrint={handlePrint}
         />
 
-        <div className="container mx-auto px-4 py-6 max-w-6xl print:py-4">
+        <div className="container mx-auto px-4 py-6 max-w-7xl print:py-4">
           <BiomarkersList biomarkers={analysisData.biomarkers} />
 
           {/* Дисклеймер для печати */}
