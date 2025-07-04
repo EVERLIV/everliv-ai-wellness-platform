@@ -139,6 +139,36 @@ export type Database = {
         }
         Relationships: []
       }
+      cached_recommendations: {
+        Row: {
+          created_at: string
+          id: string
+          recommendations_data: Json
+          recommendations_type: string
+          source_hash: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recommendations_data?: Json
+          recommendations_type: string
+          source_hash: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recommendations_data?: Json
+          recommendations_type?: string
+          source_hash?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_health_metrics: {
         Row: {
           activity_level: number | null

@@ -8,6 +8,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardLeftColumn from "@/components/dashboard/DashboardLeftColumn";
 import DashboardRightColumn from "@/components/dashboard/DashboardRightColumn";
 import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
+import { useRecommendationsInvalidation } from "@/hooks/useRecommendationsInvalidation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { isDevelopmentMode } from "@/utils/devMode";
 
@@ -17,6 +18,9 @@ const Dashboard = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const isMobile = useIsMobile();
   const isDevMode = isDevelopmentMode();
+  
+  // Инициализируем отслеживание изменений для инвалидации кэша рекомендаций
+  useRecommendationsInvalidation();
 
   console.log('🔧 Dashboard: Auth state check', {
     user: user?.email,

@@ -9,6 +9,7 @@ import AnalyticsValueDisplay from '@/components/analytics/AnalyticsValueDisplay'
 import EnhancedAnalyticsRecommendations from '@/components/analytics/EnhancedAnalyticsRecommendations';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
+import { useRecommendationsInvalidation } from '@/hooks/useRecommendationsInvalidation';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, AlertTriangle, User, TestTube, Calendar, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -26,6 +27,9 @@ const Analytics = () => {
   
   const { healthProfile } = useHealthProfile();
   const isMobile = useIsMobile();
+  
+  // Инициализируем отслеживание изменений для инвалидации кэша рекомендаций
+  useRecommendationsInvalidation();
 
   // Перевод целей на русский язык
   const translateGoal = (goal: string): string => {
