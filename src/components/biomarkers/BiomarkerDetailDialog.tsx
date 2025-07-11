@@ -333,9 +333,9 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
         </div>
 
         {/* Контейнер графика */}
-        <div className="relative bg-muted/30 rounded-lg p-4">
+        <div className="relative bg-muted/30 rounded-lg p-4 pb-8">
           {/* Ось Y с значениями */}
-          <div className="absolute left-0 top-4 bottom-12 w-12 flex flex-col justify-between text-xs text-muted-foreground">
+          <div className="absolute left-0 top-4 bottom-16 w-12 flex flex-col justify-between text-xs text-muted-foreground">
             <div className="text-right pr-2">{overallMax.toFixed(1)}</div>
             <div className="text-right pr-2">{(overallMax / 2).toFixed(1)}</div>
             <div className="text-right pr-2">0</div>
@@ -349,15 +349,15 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
                 <div 
                   key={percent}
                   className="absolute w-full border-t border-dotted border-muted-foreground/20"
-                  style={{ bottom: `${percent + 12}%` }}
+                  style={{ bottom: `${percent + 16}%` }}
                 />
               ))}
               {/* Базовая линия (0) */}
-              <div className="absolute w-full border-t border-muted-foreground/40 bottom-12" />
+              <div className="absolute w-full border-t border-muted-foreground/40 bottom-16" />
             </div>
             
             {/* Столбцы данных */}
-            <div className="absolute bottom-12 left-0 right-0 flex items-end justify-between px-2" style={{ height: '176px' }}>
+            <div className="absolute bottom-16 left-0 right-0 flex items-end justify-between px-2" style={{ height: '168px' }}>
               {chartData.map((data, index) => {
                 const heightPercent = range > 0 ? (data.value / range) * 100 : 0;
                 const normalRange = biomarker?.normalRange || '';
@@ -382,17 +382,17 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
                     {/* Столбец - привязан к bottom */}
                     <div className="absolute bottom-0 flex justify-center w-full">
                       <div 
-                        className={`w-8 rounded-t transition-all duration-300 hover:opacity-80 ${
+                        className={`w-8 rounded-t-sm transition-all duration-300 hover:opacity-80 ${
                           isInNormal ? 'bg-green-500' :
                           hasNormalRange && data.value > maxNormal ? 'bg-red-500' : 'bg-orange-500'
                         }`}
                         style={{ 
-                          height: `${Math.max(heightPercent * 1.76, 4)}px`,
+                          height: `${Math.max(heightPercent * 1.68, 4)}px`,
                         }}
                       />
                       
                       {/* Значение над столбцом */}
-                      <div className="absolute -top-6 text-xs font-medium bg-background/80 px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      <div className="absolute -top-5 text-xs font-medium bg-background/90 px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-sm">
                         {data.value.toFixed(1)}
                       </div>
                     </div>
@@ -403,10 +403,10 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
           </div>
           
           {/* Даты под графиком */}
-          <div className="ml-12 flex justify-between px-2 mt-2">
+          <div className="ml-12 flex justify-between px-2 mt-3">
             {chartData.map((data, index) => (
               <div key={index} className="flex-1 max-w-16 text-center">
-                <div className="text-xs text-muted-foreground leading-none transform -rotate-45 origin-center">
+                <div className="text-xs text-muted-foreground leading-none">
                   {data.date}
                 </div>
               </div>
