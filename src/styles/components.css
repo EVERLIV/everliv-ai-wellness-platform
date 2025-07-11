@@ -114,93 +114,21 @@
     @apply text-sm text-gray-600 mb-6 px-2;
   }
 
-  /* Адаптивные стили для TabsList - глобальные для всего сайта */
-  
-  /* Базовые стили для всех TabsList */
-  [data-radix-tabs-list] {
-    @apply grid w-full bg-muted p-1 rounded-lg h-auto min-h-[40px];
+  /* Простые утилиты для табов */
+  .tab-badge {
+    @apply !inline-flex !items-center !justify-center !text-xs !font-medium !px-1.5 !py-0.5 !rounded-full;
+    @apply !bg-muted-foreground !text-background !transition-colors !min-w-[20px] !h-5 !flex-shrink-0;
   }
 
-  /* TabsTrigger адаптивные стили */
-  [data-radix-tabs-trigger] {
-    @apply flex items-center justify-center px-2 py-2 text-xs font-medium rounded-md transition-all;
-    @apply data-[state=active]:bg-background data-[state=active]:text-foreground;
-    @apply data-[state=inactive]:text-muted-foreground;
-    @apply min-h-[36px] whitespace-nowrap;
+  .tab-badge-normal {
+    @apply !bg-green-500 !text-white !inline-flex !items-center !justify-center !text-xs !font-medium !px-1.5 !py-0.5 !rounded-full !min-w-[20px] !h-5 !flex-shrink-0;
   }
 
-  /* Адаптация для разного количества вкладок */
-  [data-tabs="2"] {
-    @apply grid-cols-2;
+  .tab-badge-high {
+    @apply !bg-red-500 !text-white !inline-flex !items-center !justify-center !text-xs !font-medium !px-1.5 !py-0.5 !rounded-full !min-w-[20px] !h-5 !flex-shrink-0;
   }
 
-  [data-tabs="3"] {
-    @apply grid-cols-3;
-  }
-
-  [data-tabs="4"] {
-    @apply grid-cols-2 sm:grid-cols-4;
-  }
-
-  [data-tabs="5"] {
-    @apply grid-cols-2 sm:grid-cols-3 lg:grid-cols-5;
-  }
-
-  [data-tabs="6"] {
-    @apply grid-cols-2 sm:grid-cols-3 lg:grid-cols-6;
-  }
-
-  /* Мобильная адаптация для вкладок с 4+ элементами */
-  @media (max-width: 640px) {
-    [data-tabs="4"] [data-radix-tabs-trigger] {
-      @apply flex-col gap-1 text-xs px-1 py-2;
-    }
-    
-    [data-tabs="5"] [data-radix-tabs-trigger],
-    [data-tabs="6"] [data-radix-tabs-trigger] {
-      @apply flex-col gap-1 text-xs px-1 py-2;
-    }
-  }
-
-  /* Стили для Badge в TabsTrigger */
-  [data-radix-tabs-trigger] .tab-badge {
-    @apply inline-flex items-center justify-center text-xs font-medium px-1.5 py-0.5 rounded-full;
-    @apply bg-muted-foreground text-background;
-    @apply transition-colors min-w-[20px] h-5;
-  }
-
-  [data-radix-tabs-trigger][data-state="active"] .tab-badge {
-    @apply bg-primary text-primary-foreground;
-  }
-
-  /* Специальные стили для статусных badges */
-  [data-radix-tabs-trigger] .tab-badge-normal {
-    @apply bg-green-500 text-white;
-  }
-
-  [data-radix-tabs-trigger] .tab-badge-high {
-    @apply bg-red-500 text-white;
-  }
-
-  [data-radix-tabs-trigger] .tab-badge-low {
-    @apply bg-yellow-500 text-white;
-  }
-
-  /* Исправление для мобильных устройств - предотвращение наложения */
-  @media (max-width: 640px) {
-    [data-radix-tabs-trigger] {
-      @apply overflow-hidden;
-    }
-    
-    [data-radix-tabs-trigger] span {
-      @apply truncate max-w-full;
-    }
-    
-    [data-radix-tabs-trigger] .tab-badge,
-    [data-radix-tabs-trigger] .tab-badge-normal,
-    [data-radix-tabs-trigger] .tab-badge-high,
-    [data-radix-tabs-trigger] .tab-badge-low {
-      @apply text-xs px-1 py-0.5 min-w-[16px] h-4 flex-shrink-0;
-    }
+  .tab-badge-low {
+    @apply !bg-yellow-500 !text-white !inline-flex !items-center !justify-center !text-xs !font-medium !px-1.5 !py-0.5 !rounded-full !min-w-[20px] !h-5 !flex-shrink-0;
   }
 }

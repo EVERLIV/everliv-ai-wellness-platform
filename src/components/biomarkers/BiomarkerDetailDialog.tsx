@@ -158,11 +158,31 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Обзор</TabsTrigger>
-            <TabsTrigger value="history">История</TabsTrigger>
-            <TabsTrigger value="trends">Динамика</TabsTrigger>
-            <TabsTrigger value="recommendations">Рекомендации</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-muted p-1 rounded-lg h-auto min-h-[44px]">
+            <TabsTrigger 
+              value="overview"
+              className="!flex !items-center !justify-center !px-2 !py-3 !text-xs !font-medium !rounded-md !transition-all !min-h-[36px] !overflow-hidden !whitespace-nowrap !text-center"
+            >
+              Обзор
+            </TabsTrigger>
+            <TabsTrigger 
+              value="history"
+              className="!flex !items-center !justify-center !px-2 !py-3 !text-xs !font-medium !rounded-md !transition-all !min-h-[36px] !overflow-hidden !whitespace-nowrap !text-center"
+            >
+              История
+            </TabsTrigger>
+            <TabsTrigger 
+              value="trends"
+              className="!flex !items-center !justify-center !px-2 !py-3 !text-xs !font-medium !rounded-md !transition-all !min-h-[36px] !overflow-hidden !whitespace-nowrap !text-center"
+            >
+              Динамика
+            </TabsTrigger>
+            <TabsTrigger 
+              value="recommendations"
+              className="!flex !items-center !justify-center !px-1 !py-3 !text-xs !font-medium !rounded-md !transition-all !min-h-[36px] !overflow-hidden !whitespace-nowrap !text-center"
+            >
+              Советы
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
