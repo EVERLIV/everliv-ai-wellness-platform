@@ -331,12 +331,14 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
     const normalRange = biomarker?.normalRange || '';
     let minNormal = minValue;
     let maxNormal = maxValue;
+    let hasNormalRange = false;
     
     if (normalRange.includes('-')) {
       const [min, max] = normalRange.split('-').map(s => parseFloat(s.trim()));
       if (!isNaN(min) && !isNaN(max)) {
         minNormal = min;
         maxNormal = max;
+        hasNormalRange = true;
       }
     }
     
@@ -345,85 +347,112 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
     const range = overallMax - overallMin;
 
     return (
-      <div className="relative h-48 mt-4">
-        {/* Зона нормы */}
-        {normalRange.includes('-') && (
-          <div 
-            className="absolute inset-x-0 bg-green-100 border-t border-b border-green-200"
-            style={{
-              bottom: `${((minNormal - overallMin) / range) * 100}%`,
-              height: `${((maxNormal - minNormal) / range) * 100}%`
-            }}
-          />
-        )}
-        
-        <div className="absolute inset-0 flex items-end justify-between">
-          {chartData.map((data, index) => {
-            const height = range > 0 ? ((data.value - overallMin) / range) * 100 : 50;
-            const isLatest = index === chartData.length - 1;
-            const isInNormal = normalRange.includes('-') && 
-              data.value >= minNormal && data.value <= maxNormal;
-            
-            return (
-              <div key={index} className="flex flex-col items-center flex-1 max-w-12">
-                <div 
-                  className={`w-6 rounded-t-sm mb-1 transition-colors ${
-                    isInNormal ? 'bg-green-500' :
-                    data.value > maxNormal ? 'bg-red-500' : 'bg-orange-500'
-                  }`}
-                  style={{ height: `${Math.max(height, 5)}%` }}
-                />
-                {isLatest && (
-                  <div className="text-xs font-semibold text-center mb-1">
-                    {data.value.toFixed(1)}
-                  </div>
-                )}
-                <div className="text-xs text-muted-foreground text-center leading-none">
-                  {data.date}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        
-        {/* Горизонтальные линии сетки */}
-        <div className="absolute inset-0 pointer-events-none">
-          {[25, 50, 75].map(percent => (
-            <div 
-              key={percent}
-              className="absolute w-full border-t border-dotted border-muted-foreground/20"
-              style={{ bottom: `${percent}%` }}
-            />
-          ))}
-          
-          {/* Линии нормы */}
-          {normalRange.includes('-') && (
-            <>
-              <div 
-                className="absolute w-full border-t-2 border-green-500"
-                style={{ bottom: `${((minNormal - overallMin) / range) * 100}%` }}
-              />
-              <div 
-                className="absolute w-full border-t-2 border-green-500"
-                style={{ bottom: `${((maxNormal - overallMin) / range) * 100}%` }}
-              />
-            </>
+      <div className="mt-6">
+        {/* Заголовок графика */}
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-medium">Динамика показателя</h3>
+          {hasNormalRange && (
+            <div className="text-xs text-muted-foreground">
+              Норма: {normalRange}
+            </div>
           )}
         </div>
-        
-        {/* Значения на оси Y */}
-        <div className="absolute right-0 top-0 bottom-0 w-12 flex flex-col justify-between text-xs text-muted-foreground">
-          <div>{overallMax.toFixed(1)}</div>
-          <div>{((overallMax + overallMin) / 2).toFixed(1)}</div>
-          <div>{overallMin.toFixed(1)}</div>
-        </div>
-        
-        {/* Легенда нормы */}
-        {normalRange.includes('-') && (
-          <div className="absolute top-2 left-2 text-xs text-green-600 bg-white/80 px-2 py-1 rounded">
-            Норма: {normalRange}
+
+        {/* Контейнер графика */}
+        <div className="relative bg-muted/30 rounded-lg p-4">
+          {/* Ось Y с значениями */}
+          <div className="absolute left-0 top-4 bottom-4 w-12 flex flex-col justify-between text-xs text-muted-foreground">
+            <div className="text-right pr-2">{overallMax.toFixed(1)}</div>
+            <div className="text-right pr-2">{((overallMax + overallMin) / 2).toFixed(1)}</div>
+            <div className="text-right pr-2">{overallMin.toFixed(1)}</div>
           </div>
-        )}
+
+          {/* Область графика */}
+          <div className="ml-12 relative" style={{ height: '200px' }}>
+            {/* Горизонтальные линии сетки */}
+            <div className="absolute inset-0">
+              {[25, 50, 75].map(percent => (
+                <div 
+                  key={percent}
+                  className="absolute w-full border-t border-dotted border-muted-foreground/20"
+                  style={{ bottom: `${percent}%` }}
+                />
+              ))}
+            </div>
+
+            {/* Зона нормы */}
+            {hasNormalRange && (
+              <>
+                <div 
+                  className="absolute inset-x-0 bg-green-100/50 border-t border-b border-green-300/50"
+                  style={{
+                    bottom: `${((minNormal - overallMin) / range) * 100}%`,
+                    height: `${((maxNormal - minNormal) / range) * 100}%`
+                  }}
+                />
+                {/* Линии границ нормы */}
+                <div 
+                  className="absolute w-full border-t-2 border-green-500/60 border-dashed"
+                  style={{ bottom: `${((minNormal - overallMin) / range) * 100}%` }}
+                />
+                <div 
+                  className="absolute w-full border-t-2 border-green-500/60 border-dashed"
+                  style={{ bottom: `${((maxNormal - overallMin) / range) * 100}%` }}
+                />
+              </>
+            )}
+            
+            {/* Столбцы данных */}
+            <div className="absolute inset-0 flex items-end justify-between px-2">
+              {chartData.map((data, index) => {
+                const height = range > 0 ? ((data.value - overallMin) / range) * 100 : 50;
+                const isInNormal = hasNormalRange && 
+                  data.value >= minNormal && data.value <= maxNormal;
+                
+                return (
+                  <div key={index} className="flex flex-col items-center flex-1 max-w-16 group">
+                    {/* Столбец */}
+                    <div className="relative flex justify-center w-full mb-2">
+                      <div 
+                        className={`w-8 rounded-t transition-all duration-300 hover:opacity-80 ${
+                          isInNormal ? 'bg-green-500' :
+                          data.value > maxNormal ? 'bg-red-500' : 'bg-orange-500'
+                        }`}
+                        style={{ height: `${Math.max(height * 2, 10)}px` }}
+                      />
+                      
+                      {/* Значение над столбцом */}
+                      <div className="absolute -top-6 text-xs font-medium bg-background/80 px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                        {data.value.toFixed(1)}
+                      </div>
+                    </div>
+                    
+                    {/* Дата под столбцом */}
+                    <div className="text-xs text-center text-muted-foreground leading-none transform -rotate-45 origin-center mt-1">
+                      {data.date}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Легенда */}
+        <div className="flex items-center justify-center gap-4 mt-4 text-xs">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-green-500 rounded"></div>
+            <span>В норме</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-red-500 rounded"></div>
+            <span>Выше нормы</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-orange-500 rounded"></div>
+            <span>Ниже нормы</span>
+          </div>
+        </div>
       </div>
     );
   };
