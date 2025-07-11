@@ -200,18 +200,22 @@ const MyBiomarkers = () => {
             
             {/* Фильтры */}
             <Tabs value={selectedStatus} onValueChange={setSelectedStatus}>
-              <TabsList className="grid w-full grid-cols-4 h-8">
-                <TabsTrigger value="all" className="text-xs">
-                  Все {statusCounts.all}
+              <TabsList data-tabs="4">
+                <TabsTrigger value="all">
+                  <span>Все</span>
+                  <span className="tab-badge">{statusCounts.all}</span>
                 </TabsTrigger>
-                <TabsTrigger value="normal" className="text-xs">
-                  Норма {statusCounts.normal}
+                <TabsTrigger value="normal">
+                  <span>Норма</span>
+                  <span className="tab-badge-normal">{statusCounts.normal}</span>
                 </TabsTrigger>
-                <TabsTrigger value="high" className="text-xs">
-                  Выше {statusCounts.high}
+                <TabsTrigger value="high">
+                  <span>Выше</span>
+                  <span className="tab-badge-high">{statusCounts.high}</span>
                 </TabsTrigger>
-                <TabsTrigger value="low" className="text-xs">
-                  Ниже {statusCounts.low}
+                <TabsTrigger value="low">
+                  <span>Ниже</span>
+                  <span className="tab-badge-low">{statusCounts.low}</span>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
