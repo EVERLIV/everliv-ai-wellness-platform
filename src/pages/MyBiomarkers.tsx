@@ -23,6 +23,7 @@ import { getBiomarkerInfo } from '@/data/expandedBiomarkers';
 import { getBiomarkerNorm } from '@/data/biomarkerNorms';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { calculateBiomarkerStatus } from '@/utils/biomarkerStatus';
 
 interface BiomarkerData {
   name: string;
@@ -94,17 +95,25 @@ const MyBiomarkers = () => {
             // Используем вычисленные нормы или данные из анализа
             const normalRange = marker.reference_range || marker.normal_range || marker.normalRange || calculatedNorm;
             
+            // Вычисляем статус на основе значения и нормы
+            const calculatedStatus = calculateBiomarkerStatus(marker.value, normalRange);
+            
             biomarkerMap.set(name, {
               values: [],
               normalRange: normalRange,
-              status: marker.status || 'normal'
+              status: calculatedStatus
             });
           }
           
-          biomarkerMap.get(name)!.values.push({
+          const biomarkerData = biomarkerMap.get(name)!;
+          biomarkerData.values.push({
             value: marker.value,
             date: analysis.created_at
           });
+          
+          // Обновляем статус для последнего значения
+          const latestStatus = calculateBiomarkerStatus(marker.value, biomarkerData.normalRange);
+          biomarkerData.status = latestStatus;
         });
       }
     });
