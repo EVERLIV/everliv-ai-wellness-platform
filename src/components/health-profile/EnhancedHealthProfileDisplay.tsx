@@ -110,12 +110,12 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <div className="w-full overflow-x-auto">
-          <TabsList className="grid grid-cols-4 w-full min-w-max md:min-w-0 h-9 mb-4">
-            <TabsTrigger value="overview" className="text-xs px-2">Обзор</TabsTrigger>
-            <TabsTrigger value="static" className="text-xs px-2">Статические</TabsTrigger>
-            <TabsTrigger value="dynamic" className="text-xs px-2">Динамические</TabsTrigger>
-            <TabsTrigger value="medical" className="text-xs px-2">Медицинские</TabsTrigger>
+        <div className="flex flex-col md:flex-row md:justify-center mb-4">
+          <TabsList className="flex flex-col md:flex-row w-full md:w-auto gap-1 md:gap-0 h-auto md:h-9 p-1">
+            <TabsTrigger value="overview" className="w-full md:w-auto text-xs px-3 py-2 justify-start md:justify-center">Обзор</TabsTrigger>
+            <TabsTrigger value="static" className="w-full md:w-auto text-xs px-3 py-2 justify-start md:justify-center">Статические</TabsTrigger>
+            <TabsTrigger value="dynamic" className="w-full md:w-auto text-xs px-3 py-2 justify-start md:justify-center">Динамические</TabsTrigger>
+            <TabsTrigger value="medical" className="w-full md:w-auto text-xs px-3 py-2 justify-start md:justify-center">Медицинские</TabsTrigger>
           </TabsList>
         </div>
 
