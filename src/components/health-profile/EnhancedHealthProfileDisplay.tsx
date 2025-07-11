@@ -96,103 +96,124 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
   const bmi = calculateBMI(healthProfile.weight, healthProfile.height);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-3 p-2 md:p-4">
-      {/* Header with Edit Button */}
-      <div className="flex justify-between items-center mb-3">
+    <div className="max-w-6xl mx-auto space-y-4 p-3 md:p-6">
+      {/* Компактный Header */}
+      <div className="flex justify-between items-start mb-4">
         <div>
-          <h1 className="text-lg md:text-2xl font-bold text-gray-900">Ваш профиль здоровья</h1>
-          <p className="text-xs md:text-sm text-gray-600">Отслеживайте свое здоровье и прогресс</p>
+          <h1 className="text-xl font-semibold text-gray-900">Профиль здоровья</h1>
+          <p className="text-sm text-gray-500">Мониторинг состояния здоровья</p>
         </div>
-        <Button onClick={onEdit} size="sm" className="flex items-center gap-1 text-xs h-7">
-          <Edit className="h-3 w-3" />
+        <Button onClick={onEdit} variant="outline" size="sm" className="text-xs">
+          <Edit className="h-3 w-3 mr-1" />
           Редактировать
         </Button>
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-8">
-          <TabsTrigger value="overview" className="text-xs">Обзор</TabsTrigger>
-          <TabsTrigger value="static" className="text-xs">Статические</TabsTrigger>
-          <TabsTrigger value="dynamic" className="text-xs">Динамические</TabsTrigger>
-          <TabsTrigger value="medical" className="text-xs">Медицинские</TabsTrigger>
-        </TabsList>
+        <div className="w-full overflow-x-auto">
+          <TabsList className="grid grid-cols-4 w-full min-w-max md:min-w-0 h-9 mb-4">
+            <TabsTrigger value="overview" className="text-xs px-2">Обзор</TabsTrigger>
+            <TabsTrigger value="static" className="text-xs px-2">Статические</TabsTrigger>
+            <TabsTrigger value="dynamic" className="text-xs px-2">Динамические</TabsTrigger>
+            <TabsTrigger value="medical" className="text-xs px-2">Медицинские</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Обзор */}
-        <TabsContent value="overview" className="space-y-3 mt-3">
-          {/* Основные показатели */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <User className="h-4 w-4" />
-                Основные показатели
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-0">
-              <div className="text-center p-2 bg-gradient-to-br from-blue-50 to-blue-100 rounded">
-                <div className="text-sm font-bold text-blue-600">{healthProfile.age}</div>
-                <div className="text-xs text-blue-700">лет</div>
-              </div>
-              <div className="text-center p-2 bg-gradient-to-br from-green-50 to-green-100 rounded">
-                <div className="text-sm font-bold text-green-600">{healthProfile.height}</div>
-                <div className="text-xs text-green-700">см</div>
-              </div>
-              <div className="text-center p-2 bg-gradient-to-br from-purple-50 to-purple-100 rounded">
-                <div className="text-sm font-bold text-purple-600">{healthProfile.weight}</div>
-                <div className="text-xs text-purple-700">кг</div>
-              </div>
-              <div className="text-center p-2 bg-gradient-to-br from-orange-50 to-orange-100 rounded">
-                <div className="text-sm font-bold text-orange-600">{bmi.toFixed(1)}</div>
-                <div className="text-xs text-orange-700">ИМТ</div>
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="overview" className="space-y-4 mt-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Основные показатели */}
+            <Card className="border border-gray-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-medium">Основная информация</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-3 pt-0">
+                <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <div className="text-lg font-semibold text-blue-700">{healthProfile.age}</div>
+                  <div className="text-xs text-blue-600">лет</div>
+                </div>
+                <div className="text-center p-3 bg-green-50 rounded-lg border border-green-100">
+                  <div className="text-lg font-semibold text-green-700">{healthProfile.height}</div>
+                  <div className="text-xs text-green-600">см</div>
+                </div>
+                <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-100">
+                  <div className="text-lg font-semibold text-purple-700">{healthProfile.weight}</div>
+                  <div className="text-xs text-purple-600">кг</div>
+                </div>
+                <div className="text-center p-3 bg-orange-50 rounded-lg border border-orange-100">
+                  <div className="text-lg font-semibold text-orange-700">{bmi.toFixed(1)}</div>
+                  <div className="text-xs text-orange-600">ИМТ</div>
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Последние динамические показатели */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <TrendingUp className="h-4 w-4" />
-                Последние показатели
-              </CardTitle>
+            {/* Цели здоровья */}
+            <Card className="border border-gray-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base font-medium">Цели здоровья</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                {healthProfile.healthGoals && healthProfile.healthGoals.length > 0 ? (
+                  <div className="space-y-2">
+                    {translateHealthGoals(healthProfile.healthGoals).slice(0, 4).map((goal, index) => (
+                      <div key={index} className="p-2 bg-gray-50 rounded border text-sm">
+                        {goal}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-gray-500">
+                    <Target className="h-6 w-6 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm">Цели здоровья не установлены</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Последние показатели */}
+          <Card className="border border-gray-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-medium">Последние показатели</CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               {dailyMetrics.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                   {dailyMetrics[0].steps && (
-                    <div className="text-center p-2 bg-blue-50 rounded">
-                      <div className="text-xs font-semibold text-blue-600">{dailyMetrics[0].steps}</div>
-                      <div className="text-xs text-blue-700">шагов</div>
+                    <div className="text-center p-3 bg-blue-50 rounded border border-blue-100">
+                      <div className="text-sm font-semibold text-blue-700">{dailyMetrics[0].steps}</div>
+                      <div className="text-xs text-blue-600">шагов</div>
                     </div>
                   )}
                   {dailyMetrics[0].weight && (
-                    <div className="text-center p-2 bg-purple-50 rounded">
-                      <div className="text-xs font-semibold text-purple-600">{dailyMetrics[0].weight}</div>
-                      <div className="text-xs text-purple-700">кг</div>
+                    <div className="text-center p-3 bg-purple-50 rounded border border-purple-100">
+                      <div className="text-sm font-semibold text-purple-700">{dailyMetrics[0].weight}</div>
+                      <div className="text-xs text-purple-600">кг</div>
                     </div>
                   )}
                   {dailyMetrics[0].sleep_hours && (
-                    <div className="text-center p-2 bg-indigo-50 rounded">
-                      <div className="text-xs font-semibold text-indigo-600">{dailyMetrics[0].sleep_hours}</div>
-                      <div className="text-xs text-indigo-700">часов сна</div>
+                    <div className="text-center p-3 bg-indigo-50 rounded border border-indigo-100">
+                      <div className="text-sm font-semibold text-indigo-700">{dailyMetrics[0].sleep_hours}</div>
+                      <div className="text-xs text-indigo-600">часов сна</div>
                     </div>
                   )}
                   {dailyMetrics[0].exercise_minutes && (
-                    <div className="text-center p-2 bg-green-50 rounded">
-                      <div className="text-xs font-semibold text-green-600">{dailyMetrics[0].exercise_minutes}</div>
-                      <div className="text-xs text-green-700">мин тренировок</div>
+                    <div className="text-center p-3 bg-green-50 rounded border border-green-100">
+                      <div className="text-sm font-semibold text-green-700">{dailyMetrics[0].exercise_minutes}</div>
+                      <div className="text-xs text-green-600">мин тренировок</div>
                     </div>
                   )}
                   {dailyMetrics[0].water_intake && (
-                    <div className="text-center p-2 bg-cyan-50 rounded">
-                      <div className="text-xs font-semibold text-cyan-600">{dailyMetrics[0].water_intake}</div>
-                      <div className="text-xs text-cyan-700">л воды</div>
+                    <div className="text-center p-3 bg-cyan-50 rounded border border-cyan-100">
+                      <div className="text-sm font-semibold text-cyan-700">{dailyMetrics[0].water_intake}</div>
+                      <div className="text-xs text-cyan-600">л воды</div>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="text-center py-4 text-gray-500">
+                <div className="text-center py-6 text-gray-500">
                   <Calendar className="h-6 w-6 mx-auto mb-2 text-gray-400" />
-                  <p className="text-xs">Начните отслеживать ваши ежедневные показатели</p>
+                  <p className="text-sm">Начните отслеживать показатели</p>
                 </div>
               )}
             </CardContent>
