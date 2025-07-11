@@ -38,6 +38,12 @@ interface BiomarkerHistory {
   analysisId: string;
 }
 
+interface AIComment {
+  summary: string;
+  recommendation: string;
+  riskLevel: 'low' | 'medium' | 'high';
+}
+
 const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
   isOpen,
   onClose,
@@ -47,10 +53,13 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
   const [history, setHistory] = useState<BiomarkerHistory[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<'all' | '1year' | '6mon' | '3mon' | '1mon'>('all');
+  const [aiComment, setAiComment] = useState<AIComment | null>(null);
+  const [loadingAiComment, setLoadingAiComment] = useState(false);
 
   useEffect(() => {
     if (biomarker && isOpen) {
       fetchBiomarkerHistory();
+      fetchAIComment();
     }
   }, [biomarker, isOpen]);
 
@@ -87,6 +96,44 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
       console.error('Error fetching biomarker history:', error);
     } finally {
       setLoadingHistory(false);
+    }
+  };
+
+  const fetchAIComment = async () => {
+    if (!biomarker || !user) return;
+
+    setLoadingAiComment(true);
+    try {
+      const response = await supabase.functions.invoke('generate-biomarker-analysis', {
+        body: {
+          biomarkerName: biomarker.name,
+          currentValue: biomarker.latestValue,
+          normalRange: biomarker.normalRange,
+          status: biomarker.status,
+          trend: biomarker.trend,
+          history: history.slice(0, 5) // последние 5 значений
+        }
+      });
+
+      if (response.data) {
+        setAiComment(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching AI comment:', error);
+      // Fallback статический комментарий
+      setAiComment({
+        summary: `Ваш уровень ${biomarker.name} составляет ${biomarker.latestValue}, что ${
+          biomarker.status === 'normal' ? 'находится в пределах нормы' :
+          biomarker.status === 'high' ? 'превышает нормальные значения' : 'ниже нормальных значений'
+        }.`,
+        recommendation: biomarker.status !== 'normal' ? 
+          'Рекомендуется консультация с врачом для дальнейшего обследования и корректировки лечения.' :
+          'Продолжайте поддерживать здоровый образ жизни для сохранения нормальных показателей.',
+        riskLevel: biomarker.status === 'normal' ? 'low' : 
+          biomarker.status === 'high' ? 'high' : 'medium'
+      });
+    } finally {
+      setLoadingAiComment(false);
     }
   };
 
@@ -237,7 +284,7 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
                 <TrendingDown className="h-4 w-4 text-red-500" />
               ) : null}
               <span className="text-sm text-red-500">
-                {trendPercentage > 0 ? 'Increased' : 'Decreased'} on {Math.abs(trendPercentage).toFixed(0)}%
+                {trendPercentage > 0 ? 'Увеличение' : 'Снижение'} на {Math.abs(trendPercentage).toFixed(0)}%
               </span>
               <span className="text-xs text-muted-foreground ml-auto">
                 {format(new Date(biomarker.lastUpdated), 'dd MMM yyyy', { locale: ru })}
@@ -264,7 +311,7 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
         {/* Референсные значения */}
         <div className="px-4 pb-3">
           <p className="text-xs text-muted-foreground mb-2">
-            Reference values for user
+            Референсные значения для пользователя
           </p>
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${
@@ -283,11 +330,11 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
         <div className="px-4 pb-3">
           <div className="flex gap-1 bg-muted/50 p-1 rounded-lg">
             {[
-              { key: 'all', label: 'All' },
-              { key: '1year', label: '1 year' },
-              { key: '6mon', label: '6 mon' },
-              { key: '3mon', label: '3 mon' },
-              { key: '1mon', label: '1 mon' }
+              { key: 'all', label: 'Все' },
+              { key: '1year', label: '1 год' },
+              { key: '6mon', label: '6 мес' },
+              { key: '3mon', label: '3 мес' },
+              { key: '1mon', label: '1 мес' }
             ].map(period => (
               <button
                 key={period.key}
@@ -317,10 +364,40 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
 
         {/* Комментарий к анализу */}
         <div className="p-4 border-t">
-          <h3 className="text-sm font-medium mb-2">Commentary on the analysis</h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            {getBiomarkerInfo(biomarker.name) || 'Дополнительная информация об этом биомаркере будет доступна позже.'}
-          </p>
+          <h3 className="text-sm font-medium mb-2">Комментарий к анализу</h3>
+          {loadingAiComment ? (
+            <div className="flex items-center gap-2 py-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span className="text-xs text-muted-foreground">Генерируем анализ...</span>
+            </div>
+          ) : aiComment ? (
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {aiComment.summary}
+                </p>
+              </div>
+              
+              <div className="bg-muted/30 p-3 rounded-lg">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className={`w-2 h-2 rounded-full ${
+                    aiComment.riskLevel === 'low' ? 'bg-green-500' :
+                    aiComment.riskLevel === 'medium' ? 'bg-yellow-500' : 'bg-red-500'
+                  }`} />
+                  <span className="text-xs font-medium">
+                    Рекомендации
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {aiComment.recommendation}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {getBiomarkerInfo(biomarker.name) || 'Дополнительная информация об этом биомаркере будет доступна позже.'}
+            </p>
+          )}
         </div>
       </DialogContent>
     </Dialog>
