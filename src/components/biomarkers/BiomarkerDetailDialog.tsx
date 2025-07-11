@@ -1,26 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   TrendingUp, 
   TrendingDown, 
-  Calendar, 
-  Activity, 
-  Info, 
-  Heart,
-  Target,
-  AlertTriangle,
-  TestTube,
+  ArrowLeft,
+  Share,
+  Edit,
+  Trash2,
   Loader2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import BiomarkerTrendChart from '@/components/analysis-details/BiomarkerTrendChart';
 import { getBiomarkerInfo } from '@/data/expandedBiomarkers';
 import { getBiomarkerNorm } from '@/data/biomarkerNorms';
 
@@ -44,15 +38,6 @@ interface BiomarkerHistory {
   analysisId: string;
 }
 
-interface AIRecommendation {
-  dietaryRecommendations?: string[];
-  lifestyleChanges?: string[];
-  supplementsToConsider?: string[];
-  whenToRetest?: string;
-  warningSignsToWatch?: string[];
-  additionalTests?: string[];
-}
-
 const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
   isOpen,
   onClose,
@@ -60,14 +45,12 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
 }) => {
   const { user } = useAuth();
   const [history, setHistory] = useState<BiomarkerHistory[]>([]);
-  const [recommendation, setRecommendation] = useState<AIRecommendation | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  const [loadingRecommendation, setLoadingRecommendation] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState<'all' | '1year' | '6mon' | '3mon' | '1mon'>('all');
 
   useEffect(() => {
     if (biomarker && isOpen) {
       fetchBiomarkerHistory();
-      fetchAIRecommendation();
     }
   }, [biomarker, isOpen]);
 
@@ -107,316 +90,238 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
     }
   };
 
-  const fetchAIRecommendation = async () => {
-    if (!biomarker || biomarker.status === 'normal') return;
+  const calculateTrendPercentage = () => {
+    if (history.length < 2) return null;
+    
+    const latest = parseFloat(history[0].value);
+    const previous = parseFloat(history[1].value);
+    
+    if (isNaN(latest) || isNaN(previous)) return null;
+    
+    const percentage = ((latest - previous) / previous) * 100;
+    return percentage;
+  };
 
-    setLoadingRecommendation(true);
-    try {
-      const response = await supabase.functions.invoke('generate-biomarker-recommendations', {
-        body: {
-          biomarkerName: biomarker.name,
-          currentValue: biomarker.latestValue,
-          normalRange: biomarker.normalRange,
-          status: biomarker.status
-        }
-      });
-
-      if (response.data) {
-        setRecommendation(response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching AI recommendation:', error);
-    } finally {
-      setLoadingRecommendation(false);
+  const filterHistoryByPeriod = () => {
+    if (selectedPeriod === 'all') return history;
+    
+    const now = new Date();
+    let cutoffDate = new Date();
+    
+    switch (selectedPeriod) {
+      case '1year':
+        cutoffDate.setFullYear(now.getFullYear() - 1);
+        break;
+      case '6mon':
+        cutoffDate.setMonth(now.getMonth() - 6);
+        break;
+      case '3mon':
+        cutoffDate.setMonth(now.getMonth() - 3);
+        break;
+      case '1mon':
+        cutoffDate.setMonth(now.getMonth() - 1);
+        break;
     }
+    
+    return history.filter(record => new Date(record.date) >= cutoffDate);
+  };
+
+  const getChartData = () => {
+    const filteredHistory = filterHistoryByPeriod();
+    return filteredHistory.reverse().map(record => ({
+      date: format(new Date(record.date), 'dd MMM', { locale: ru }),
+      value: parseFloat(record.value) || 0,
+      originalDate: record.date
+    }));
+  };
+
+  const renderChart = () => {
+    const chartData = getChartData();
+    if (chartData.length === 0) return null;
+
+    const maxValue = Math.max(...chartData.map(d => d.value));
+    const minValue = Math.min(...chartData.map(d => d.value));
+    const range = maxValue - minValue;
+    const padding = range * 0.1;
+    const adjustedMax = maxValue + padding;
+    const adjustedMin = Math.max(0, minValue - padding);
+
+    return (
+      <div className="relative h-48 mt-4">
+        <div className="absolute inset-0 flex items-end justify-between">
+          {chartData.map((data, index) => {
+            const height = range > 0 ? ((data.value - adjustedMin) / (adjustedMax - adjustedMin)) * 100 : 50;
+            const isLatest = index === chartData.length - 1;
+            
+            return (
+              <div key={index} className="flex flex-col items-center flex-1 max-w-12">
+                <div 
+                  className={`w-6 rounded-t-sm mb-1 ${
+                    biomarker?.status === 'high' ? 'bg-red-500' : 
+                    biomarker?.status === 'low' ? 'bg-orange-500' : 
+                    'bg-green-500'
+                  }`}
+                  style={{ height: `${height}%` }}
+                />
+                {isLatest && (
+                  <div className="text-xs font-semibold text-center mb-1">
+                    {data.value.toFixed(1)}
+                  </div>
+                )}
+                <div className="text-xs text-muted-foreground text-center leading-none">
+                  {data.date}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Горизонтальные линии сетки */}
+        <div className="absolute inset-0 pointer-events-none">
+          {[0, 25, 50, 75, 100].map(percent => (
+            <div 
+              key={percent}
+              className="absolute w-full border-t border-dotted border-muted-foreground/20"
+              style={{ bottom: `${percent}%` }}
+            />
+          ))}
+        </div>
+        
+        {/* Значения на оси Y */}
+        <div className="absolute right-0 top-0 bottom-0 w-8 flex flex-col justify-between text-xs text-muted-foreground">
+          <div>{adjustedMax.toFixed(0)}</div>
+          <div>{((adjustedMax + adjustedMin) / 2).toFixed(0)}</div>
+          <div>{adjustedMin.toFixed(0)}</div>
+        </div>
+      </div>
+    );
   };
 
   if (!biomarker) return null;
 
-  const description = getBiomarkerInfo(biomarker.name);
+  const trendPercentage = calculateTrendPercentage();
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${
-              biomarker.status === 'normal' ? 'bg-green-100' :
-              biomarker.status === 'high' ? 'bg-red-100' : 'bg-orange-100'
-            }`}>
-              <TestTube className={`h-5 w-5 ${
-                biomarker.status === 'normal' ? 'text-green-600' :
-                biomarker.status === 'high' ? 'text-red-600' : 'text-orange-600'
-              }`} />
-            </div>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto p-0">
+        {/* Заголовок */}
+        <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="h-8 w-8 p-0"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
             <div>
-              <h2 className="text-xl font-semibold">{biomarker.name}</h2>
-              <p className="text-sm text-muted-foreground">
-                Последнее обновление: {format(new Date(biomarker.lastUpdated), 'dd MMMM yyyy', { locale: ru })}
+              <h1 className="font-semibold text-base">{biomarker.name}</h1>
+              <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                {biomarker.name.toLowerCase().replace(/\s+/g, '-')}
               </p>
             </div>
-          </DialogTitle>
-        </DialogHeader>
+          </div>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <Share className="h-4 w-4" />
+          </Button>
+        </div>
 
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-muted p-1 rounded-lg h-auto min-h-[44px]">
-            <TabsTrigger 
-              value="overview"
-              className="!flex !items-center !justify-center !px-2 !py-3 !text-xs !font-medium !rounded-md !transition-all !min-h-[36px] !overflow-hidden !whitespace-nowrap !text-center"
-            >
-              Обзор
-            </TabsTrigger>
-            <TabsTrigger 
-              value="history"
-              className="!flex !items-center !justify-center !px-2 !py-3 !text-xs !font-medium !rounded-md !transition-all !min-h-[36px] !overflow-hidden !whitespace-nowrap !text-center"
-            >
-              История
-            </TabsTrigger>
-            <TabsTrigger 
-              value="trends"
-              className="!flex !items-center !justify-center !px-2 !py-3 !text-xs !font-medium !rounded-md !transition-all !min-h-[36px] !overflow-hidden !whitespace-nowrap !text-center"
-            >
-              Динамика
-            </TabsTrigger>
-            <TabsTrigger 
-              value="recommendations"
-              className="!flex !items-center !justify-center !px-1 !py-3 !text-xs !font-medium !rounded-md !transition-all !min-h-[36px] !overflow-hidden !whitespace-nowrap !text-center"
-            >
-              Советы
-            </TabsTrigger>
-          </TabsList>
+        {/* Тренд и дата */}
+        {trendPercentage !== null && (
+          <div className="px-4 pt-3">
+            <div className="flex items-center gap-2">
+              {biomarker.trend === 'up' ? (
+                <TrendingUp className="h-4 w-4 text-red-500" />
+              ) : biomarker.trend === 'down' ? (
+                <TrendingDown className="h-4 w-4 text-red-500" />
+              ) : null}
+              <span className="text-sm text-red-500">
+                {trendPercentage > 0 ? 'Increased' : 'Decreased'} on {Math.abs(trendPercentage).toFixed(0)}%
+              </span>
+              <span className="text-xs text-muted-foreground ml-auto">
+                {format(new Date(biomarker.lastUpdated), 'dd MMM yyyy', { locale: ru })}
+              </span>
+            </div>
+          </div>
+        )}
 
-          <TabsContent value="overview" className="space-y-4">
-            {/* Текущее состояние */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Activity className="h-5 w-5" />
-                  Текущее состояние
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Текущее значение</p>
-                    <p className="text-2xl font-bold">{biomarker.latestValue}</p>
-                  </div>
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Норма</p>
-                    <p className="text-lg font-semibold">{biomarker.normalRange}</p>
-                  </div>
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Статус</p>
-                    <Badge 
-                      variant={
-                        biomarker.status === 'normal' ? 'default' :
-                        biomarker.status === 'high' ? 'destructive' : 'secondary'
-                      }
-                    >
-                      {biomarker.status === 'normal' ? 'В норме' :
-                       biomarker.status === 'high' ? 'Выше нормы' : 'Ниже нормы'}
-                    </Badge>
-                  </div>
-                </div>
+        {/* Основное значение */}
+        <div className="px-4 py-2">
+          <div className="flex items-center justify-between">
+            <span className="text-3xl font-bold">{biomarker.latestValue}</span>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
 
-                <div className="mt-4 flex items-center gap-2">
-                  {biomarker.trend === 'up' && (
-                    <div className="flex items-center gap-1 text-green-600">
-                      <TrendingUp className="h-4 w-4" />
-                      <span className="text-sm">Растущий тренд</span>
-                    </div>
-                  )}
-                  {biomarker.trend === 'down' && (
-                    <div className="flex items-center gap-1 text-red-600">
-                      <TrendingDown className="h-4 w-4" />
-                      <span className="text-sm">Убывающий тренд</span>
-                    </div>
-                  )}
-                  {biomarker.trend === 'stable' && (
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                      <span className="text-sm">Стабильные значения</span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+        {/* Референсные значения */}
+        <div className="px-4 pb-3">
+          <p className="text-xs text-muted-foreground mb-2">
+            Reference values for user
+          </p>
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${
+              biomarker.status === 'normal' ? 'bg-green-500' :
+              biomarker.status === 'high' ? 'bg-red-500' : 'bg-orange-500'
+            }`} />
+            <span className="text-sm font-medium">
+              {biomarker.status === 'normal' ? 'Норма' :
+               biomarker.status === 'high' ? 'Выше нормы' : 'Ниже нормы'}
+            </span>
+            <span className="text-sm ml-auto">{biomarker.normalRange}</span>
+          </div>
+        </div>
 
-            {/* Описание */}
-            {description && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Info className="h-5 w-5" />
-                    Что показывает этот биомаркер
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm leading-relaxed">{description}</p>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
+        {/* Вкладки периодов */}
+        <div className="px-4 pb-3">
+          <div className="flex gap-1 bg-muted/50 p-1 rounded-lg">
+            {[
+              { key: 'all', label: 'All' },
+              { key: '1year', label: '1 year' },
+              { key: '6mon', label: '6 mon' },
+              { key: '3mon', label: '3 mon' },
+              { key: '1mon', label: '1 mon' }
+            ].map(period => (
+              <button
+                key={period.key}
+                onClick={() => setSelectedPeriod(period.key as any)}
+                className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+                  selectedPeriod === period.key
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {period.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-          <TabsContent value="history" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  История значений ({biomarker.analysisCount} записей)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loadingHistory ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                  </div>
-                ) : (
-                  <div className="space-y-3 max-h-60 overflow-y-auto">
-                    {history.map((record, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <div>
-                          <p className="font-semibold">{record.value}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {format(new Date(record.date), 'dd MMM yyyy, HH:mm', { locale: ru })}
-                          </p>
-                        </div>
-                        {index === 0 && (
-                          <Badge variant="outline">Последнее</Badge>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+        {/* График */}
+        <div className="px-4 pb-4">
+          {loadingHistory ? (
+            <div className="flex items-center justify-center h-48">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          ) : (
+            renderChart()
+          )}
+        </div>
 
-          <TabsContent value="trends" className="space-y-4">
-            <BiomarkerTrendChart biomarkerName={biomarker.name} />
-          </TabsContent>
-
-          <TabsContent value="recommendations" className="space-y-4">
-            {biomarker.status === 'normal' ? (
-              <Card>
-                <CardContent className="p-6 text-center">
-                  <Heart className="h-12 w-12 text-green-500 mx-auto mb-3" />
-                  <h3 className="text-lg font-semibold mb-2">Показатель в норме!</h3>
-                  <p className="text-muted-foreground">
-                    Ваш {biomarker.name} находится в пределах нормы. 
-                    Продолжайте поддерживать здоровый образ жизни.
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <>
-                {loadingRecommendation ? (
-                  <Card>
-                    <CardContent className="p-6 text-center">
-                      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3" />
-                      <p>Генерируем персональные рекомендации...</p>
-                    </CardContent>
-                  </Card>
-                ) : recommendation ? (
-                  <div className="space-y-4">
-                    {recommendation.dietaryRecommendations && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2 text-green-600">
-                            <Target className="h-5 w-5" />
-                            Рекомендации по питанию
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-2">
-                            {recommendation.dietaryRecommendations.map((rec, index) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <span className="text-green-500 mt-1">•</span>
-                                <span className="text-sm">{rec}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {recommendation.lifestyleChanges && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2 text-blue-600">
-                            <Activity className="h-5 w-5" />
-                            Изменения образа жизни
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-2">
-                            {recommendation.lifestyleChanges.map((change, index) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-1">•</span>
-                                <span className="text-sm">{change}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {recommendation.warningSignsToWatch && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2 text-orange-600">
-                            <AlertTriangle className="h-5 w-5" />
-                            На что обратить внимание
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-2">
-                            {recommendation.warningSignsToWatch.map((sign, index) => (
-                              <li key={index} className="flex items-start gap-2">
-                                <span className="text-orange-500 mt-1">•</span>
-                                <span className="text-sm">{sign}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    {recommendation.whenToRetest && (
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2 text-purple-600">
-                            <Calendar className="h-5 w-5" />
-                            Когда пересдать анализ
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm">{recommendation.whenToRetest}</p>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
-                ) : (
-                  <Card>
-                    <CardContent className="p-6 text-center">
-                      <AlertTriangle className="h-8 w-8 text-yellow-500 mx-auto mb-3" />
-                      <p className="text-muted-foreground">
-                        Не удалось загрузить рекомендации. Попробуйте позже.
-                      </p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="mt-3"
-                        onClick={fetchAIRecommendation}
-                      >
-                        Попробовать снова
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-              </>
-            )}
-          </TabsContent>
-        </Tabs>
+        {/* Комментарий к анализу */}
+        <div className="p-4 border-t">
+          <h3 className="text-sm font-medium mb-2">Commentary on the analysis</h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {getBiomarkerInfo(biomarker.name) || 'Дополнительная информация об этом биомаркере будет доступна позже.'}
+          </p>
+        </div>
       </DialogContent>
     </Dialog>
   );
