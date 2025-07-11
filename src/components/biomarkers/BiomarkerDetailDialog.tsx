@@ -71,27 +71,21 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
 
     setLoadingHistory(true);
     try {
-      const { data: analyses } = await supabase
-        .from('medical_analyses')
-        .select('id, created_at, results')
-        .eq('user_id', user.id)
+      // Получаем данные из таблицы biomarkers
+      const { data: biomarkers } = await supabase
+        .from('biomarkers')
+        .select('value, created_at, analysis_id')
+        .eq('name', biomarker.name)
         .order('created_at', { ascending: false });
 
-      if (analyses) {
-        const biomarkerHistory: BiomarkerHistory[] = [];
-        
-        analyses.forEach(analysis => {
-          if (analysis.results?.markers) {
-            const marker = analysis.results.markers.find((m: any) => m.name === biomarker.name);
-            if (marker) {
-              biomarkerHistory.push({
-                value: marker.value,
-                date: analysis.created_at,
-                analysisId: analysis.id
-              });
-            }
-          }
-        });
+      if (biomarkers) {
+        const biomarkerHistory: BiomarkerHistory[] = biomarkers
+          .filter(b => b.value && !isNaN(parseFloat(b.value)))
+          .map(b => ({
+            value: b.value,
+            date: b.created_at,
+            analysisId: b.analysis_id
+          }));
 
         setHistory(biomarkerHistory);
       }
@@ -405,30 +399,32 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
             {/* Столбцы данных */}
             <div className="absolute inset-0 flex items-end justify-between px-2">
               {chartData.map((data, index) => {
-                const height = range > 0 ? ((data.value - overallMin) / range) * 100 : 50;
+                const heightPercent = range > 0 ? ((data.value - overallMin) / range) * 100 : 0;
                 const isInNormal = hasNormalRange && 
                   data.value >= minNormal && data.value <= maxNormal;
                 
                 return (
-                  <div key={index} className="flex flex-col items-center flex-1 max-w-16 group">
-                    {/* Столбец */}
-                    <div className="relative flex justify-center w-full mb-2">
+                  <div key={index} className="flex flex-col items-center flex-1 max-w-16 group relative h-full">
+                    {/* Столбец - привязан к bottom */}
+                    <div className="absolute bottom-8 flex justify-center w-full">
                       <div 
                         className={`w-8 rounded-t transition-all duration-300 hover:opacity-80 ${
                           isInNormal ? 'bg-green-500' :
                           data.value > maxNormal ? 'bg-red-500' : 'bg-orange-500'
                         }`}
-                        style={{ height: `${Math.max(height * 2, 10)}px` }}
+                        style={{ 
+                          height: `${Math.max(heightPercent * 1.8, 8)}px`,
+                        }}
                       />
                       
                       {/* Значение над столбцом */}
-                      <div className="absolute -top-6 text-xs font-medium bg-background/80 px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute -top-6 text-xs font-medium bg-background/80 px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                         {data.value.toFixed(1)}
                       </div>
                     </div>
                     
                     {/* Дата под столбцом */}
-                    <div className="text-xs text-center text-muted-foreground leading-none transform -rotate-45 origin-center mt-1">
+                    <div className="absolute bottom-0 text-xs text-center text-muted-foreground leading-none transform -rotate-45 origin-center w-full">
                       {data.date}
                     </div>
                   </div>
