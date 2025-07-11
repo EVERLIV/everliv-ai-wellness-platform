@@ -251,9 +251,10 @@ const MyBiomarkers = () => {
             <Button 
               onClick={() => navigate('/lab-analyses')}
               size="sm"
-              className="text-xs"
+              className="h-8 px-3 text-xs font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center gap-1.5 shadow-sm"
             >
               <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Добавить анализы</span>
             </Button>
           </div>
         </div>

@@ -17,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { getBiomarkerInfo } from '@/data/expandedBiomarkers';
 import { getBiomarkerNorm } from '@/data/biomarkerNorms';
+import { getBiomarkerDescription } from '@/data/biomarkerDescriptions';
 import BiomarkerEditDialog from './BiomarkerEditDialog';
 
 interface BiomarkerDetailDialogProps {
@@ -447,8 +448,8 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
             </Button>
             <div>
               <h1 className="font-semibold text-base">{biomarker.name}</h1>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                {biomarker.name.toLowerCase().replace(/\s+/g, '-')}
+              <p className="text-xs text-muted-foreground">
+                {getBiomarkerDescription(biomarker.name)}
               </p>
             </div>
           </div>
