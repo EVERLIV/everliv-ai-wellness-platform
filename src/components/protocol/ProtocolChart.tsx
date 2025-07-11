@@ -36,7 +36,7 @@ export const ProtocolChart = ({ data, xAxisKey }: ProtocolChartProps) => {
   // Настраиваем цвета для линий
   const colors = ["#3b82f6", "#10b981", "#f97316", "#8b5cf6", "#ef4444"];
   
-  const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+  const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white shadow-lg rounded p-3 border border-gray-100">
