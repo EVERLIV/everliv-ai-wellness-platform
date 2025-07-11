@@ -144,7 +144,7 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
     setIsEditDialogOpen(true);
   };
 
-  const handleEditSave = async (data: { value: string; date: Date; status: 'normal' | 'high' | 'low' }) => {
+  const handleEditSave = async (data: { value: string; date: Date }) => {
     if (!biomarker || !user) return;
 
     try {
@@ -160,7 +160,7 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
         const latestAnalysis = analyses[0];
         const updatedMarkers = latestAnalysis.results?.markers?.map((marker: any) => 
           marker.name === biomarker.name 
-            ? { ...marker, value: data.value, status: data.status }
+            ? { ...marker, value: data.value }
             : marker
         ) || [];
 

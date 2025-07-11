@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
@@ -22,7 +21,6 @@ interface BiomarkerEditDialogProps {
   onSave: (data: {
     value: string;
     date: Date;
-    status: 'normal' | 'high' | 'low';
   }) => void;
 }
 
@@ -34,13 +32,11 @@ const BiomarkerEditDialog: React.FC<BiomarkerEditDialogProps> = ({
 }) => {
   const [value, setValue] = useState(biomarker?.latestValue || '');
   const [date, setDate] = useState<Date>(biomarker ? new Date(biomarker.lastUpdated) : new Date());
-  const [status, setStatus] = useState<'normal' | 'high' | 'low'>(biomarker?.status || 'normal');
 
   const handleSave = () => {
     onSave({
       value,
       date,
-      status,
     });
     onClose();
   };
@@ -88,25 +84,11 @@ const BiomarkerEditDialog: React.FC<BiomarkerEditDialogProps> = ({
             </Popover>
           </div>
 
-          <div>
-            <Label htmlFor="status">Статус</Label>
-            <Select value={status} onValueChange={(value: 'normal' | 'high' | 'low') => setStatus(value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Выберите статус" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="normal">В норме</SelectItem>
-                <SelectItem value="high">Выше нормы</SelectItem>
-                <SelectItem value="low">Ниже нормы</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="flex gap-2 pt-4">
             <Button onClick={handleSave} className="flex-1">
               Сохранить
             </Button>
-            <Button onClick={onClose} variant="outline" className="flex-1">
+            <Button variant="outline" onClick={onClose} className="flex-1">
               Отмена
             </Button>
           </div>
