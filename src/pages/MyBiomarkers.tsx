@@ -200,21 +200,33 @@ const MyBiomarkers = () => {
             
             {/* Фильтры */}
             <Tabs value={selectedStatus} onValueChange={setSelectedStatus}>
-              <TabsList data-tabs="4">
-                <TabsTrigger value="all">
-                  <span>Все</span>
+              <TabsList data-tabs="4" className="grid w-full grid-cols-2 sm:grid-cols-4 bg-muted p-1 rounded-lg h-auto min-h-[40px]">
+                <TabsTrigger 
+                  value="all"
+                  className="flex items-center justify-center px-1 py-2 text-xs font-medium rounded-md transition-all min-h-[36px] flex-col gap-1 sm:flex-row sm:gap-2"
+                >
+                  <span className="truncate">Все</span>
                   <span className="tab-badge">{statusCounts.all}</span>
                 </TabsTrigger>
-                <TabsTrigger value="normal">
-                  <span>Норма</span>
+                <TabsTrigger 
+                  value="normal"
+                  className="flex items-center justify-center px-1 py-2 text-xs font-medium rounded-md transition-all min-h-[36px] flex-col gap-1 sm:flex-row sm:gap-2"
+                >
+                  <span className="truncate">Норма</span>
                   <span className="tab-badge-normal">{statusCounts.normal}</span>
                 </TabsTrigger>
-                <TabsTrigger value="high">
-                  <span>Выше</span>
+                <TabsTrigger 
+                  value="high"
+                  className="flex items-center justify-center px-1 py-2 text-xs font-medium rounded-md transition-all min-h-[36px] flex-col gap-1 sm:flex-row sm:gap-2"
+                >
+                  <span className="truncate">Выше</span>
                   <span className="tab-badge-high">{statusCounts.high}</span>
                 </TabsTrigger>
-                <TabsTrigger value="low">
-                  <span>Ниже</span>
+                <TabsTrigger 
+                  value="low"
+                  className="flex items-center justify-center px-1 py-2 text-xs font-medium rounded-md transition-all min-h-[36px] flex-col gap-1 sm:flex-row sm:gap-2"
+                >
+                  <span className="truncate">Ниже</span>
                   <span className="tab-badge-low">{statusCounts.low}</span>
                 </TabsTrigger>
               </TabsList>
