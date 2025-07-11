@@ -1,27 +1,20 @@
 import React, { useState } from "react";
 import Header from "@/components/Header";
 import MinimalFooter from "@/components/MinimalFooter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   TestTube, 
   Search, 
-  Filter, 
-  Calendar, 
   TrendingUp, 
   TrendingDown, 
-  Activity,
-  Info,
-  Minus,
-  Plus,
-  ArrowLeft
+  ArrowLeft,
+  Plus
 } from "lucide-react";
 import { useLabAnalysesData } from "@/hooks/useLabAnalysesData";
-import BiomarkerTrendChart from "@/components/analysis-details/BiomarkerTrendChart";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -34,18 +27,13 @@ interface BiomarkerData {
   lastUpdated: string;
   analysisCount: number;
   trend: 'up' | 'down' | 'stable';
-  description?: string;
 }
-
-import { getBiomarkerInfo } from '@/data/expandedBiomarkers';
 
 const MyBiomarkers = () => {
   const { analysisHistory, loadingHistory } = useLabAnalysesData();
-  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [expandedBiomarker, setExpandedBiomarker] = useState<string | null>(null);
 
   // Обрабатываем данные биомаркеров
   const processBiomarkerData = (): BiomarkerData[] => {
@@ -95,8 +83,7 @@ const MyBiomarkers = () => {
         status: data.status,
         lastUpdated: latestValue.date,
         analysisCount: sortedValues.length,
-        trend,
-        description: getBiomarkerInfo(name)
+        trend
       };
     }).sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
   };
@@ -133,283 +120,144 @@ const MyBiomarkers = () => {
 
   if (loadingHistory) {
     return (
-      <div className="min-h-screen flex flex-col bg-slate-50">
+      <div className="min-h-screen bg-background">
         <Header />
-        <div className="flex-grow flex items-center justify-center pt-16">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            <p className="text-gray-500">Загрузка биомаркеров...</p>
-          </div>
+        <div className="pt-16 flex items-center justify-center h-96">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen bg-background">
       <Header />
-      <div className="pt-16 flex-1">
-        {/* Заголовок страницы */}
-        <div className="bg-card border-b">
-          <div className="analytics-container">
-            <div className="mobile-flex-header py-4 sm:py-6">
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => navigate("/dashboard")}
-                  className="mobile-touch-target hover:bg-muted"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline">Назад к панели</span>
-                  <span className="sm:hidden">Назад</span>
-                </Button>
-                
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
-                    <TestTube className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <h1 className="mobile-heading-primary">
-                      Мои биомаркеры
-                    </h1>
-                    <p className="mobile-text-small text-muted-foreground hidden sm:block">
-                      Отслеживайте динамику ваших показателей здоровья
-                    </p>
-                  </div>
-                </div>
-              </div>
-
+      
+      {/* Компактный заголовок */}
+      <div className="pt-16 bg-card border-b">
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
               <Button 
-                onClick={() => navigate('/lab-analyses')}
-                className="mobile-button gap-2"
+                variant="ghost" 
                 size="sm"
+                onClick={() => navigate("/dashboard")}
+                className="p-2"
               >
-                <Plus className="h-4 w-4" />
-                <span className="sm:hidden">Добавить</span>
-                <span className="hidden sm:inline">Добавить анализ</span>
+                <ArrowLeft className="h-4 w-4" />
               </Button>
+              <h1 className="text-lg font-semibold">Биомаркеры</h1>
             </div>
+            <Button 
+              onClick={() => navigate('/lab-analyses')}
+              size="sm"
+              className="text-xs"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
           </div>
         </div>
+      </div>
 
-        <div className="analytics-container mobile-section-spacing">
-          {biomarkers.length === 0 ? (
-            <Card className="mobile-card text-center">
-              <CardContent className="mobile-card-content">
-                <div className="w-16 h-16 mx-auto bg-muted rounded-2xl flex items-center justify-center mb-4">
-                  <TestTube className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <h3 className="mobile-heading-secondary mb-2">
-                  Нет данных о биомаркерах
-                </h3>
-                <p className="mobile-text-body text-muted-foreground mb-4">
-                  Добавьте анализы крови, чтобы начать отслеживать динамику ваших биомаркеров
-                </p>
-                <Button 
-                  onClick={() => window.location.href = '/lab-analyses'}
-                  className="mobile-button"
-                >
-                  Добавить анализы
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <>
-              {/* Поиск и фильтры */}
-              <Card className="mobile-card mb-4">
-                <CardContent className="content-padding-internal">
-                  {/* Поиск */}
-                  <div className="relative mb-4">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input
-                      placeholder="Поиск биомаркеров..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-9 mobile-touch-target"
-                    />
-                  </div>
-                  
-                  {/* Компактные табы */}
-                  <Tabs value={selectedStatus} onValueChange={setSelectedStatus} className="w-full">
-                    <TabsList className="grid w-full grid-cols-4 bg-muted p-1 rounded-lg h-auto">
-                      <TabsTrigger 
-                        value="all" 
-                        className={`flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium ${
-                          isMobile ? 'flex-col gap-0.5' : 'gap-1'
-                        } data-[state=active]:bg-background`}
-                      >
-                        <span>Все</span>
-                        <span className="mobile-badge-sm bg-muted-foreground text-background">
-                          {statusCounts.all}
-                        </span>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="normal" 
-                        className={`flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium ${
-                          isMobile ? 'flex-col gap-0.5' : 'gap-1'
-                        } data-[state=active]:bg-background`}
-                      >
-                        <span>Норма</span>
-                        <span className="mobile-badge-sm bg-green-500 text-white">
-                          {statusCounts.normal}
-                        </span>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="high" 
-                        className={`flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium ${
-                          isMobile ? 'flex-col gap-0.5' : 'gap-1'
-                        } data-[state=active]:bg-background`}
-                      >
-                        <span>Выше</span>
-                        <span className="mobile-badge-sm bg-red-500 text-white">
-                          {statusCounts.high}
-                        </span>
-                      </TabsTrigger>
-                      <TabsTrigger 
-                        value="low" 
-                        className={`flex items-center justify-center gap-1 px-2 py-2 text-xs font-medium ${
-                          isMobile ? 'flex-col gap-0.5' : 'gap-1'
-                        } data-[state=active]:bg-background`}
-                      >
-                        <span>Ниже</span>
-                        <span className="mobile-badge-sm bg-yellow-500 text-white">
-                          {statusCounts.low}
-                        </span>
-                      </TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                </CardContent>
-              </Card>
+      <div className="p-4 space-y-4">
+        {biomarkers.length === 0 ? (
+          <div className="text-center py-8">
+            <TestTube className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+            <h3 className="text-base font-medium mb-2">Нет данных</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Добавьте анализы для отслеживания биомаркеров
+            </p>
+            <Button size="sm" onClick={() => navigate('/lab-analyses')}>
+              Добавить анализы
+            </Button>
+          </div>
+        ) : (
+          <>
+            {/* Поиск */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Поиск..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 h-9"
+              />
+            </div>
+            
+            {/* Фильтры */}
+            <Tabs value={selectedStatus} onValueChange={setSelectedStatus}>
+              <TabsList className="grid w-full grid-cols-4 h-8">
+                <TabsTrigger value="all" className="text-xs">
+                  Все {statusCounts.all}
+                </TabsTrigger>
+                <TabsTrigger value="normal" className="text-xs">
+                  Норма {statusCounts.normal}
+                </TabsTrigger>
+                <TabsTrigger value="high" className="text-xs">
+                  Выше {statusCounts.high}
+                </TabsTrigger>
+                <TabsTrigger value="low" className="text-xs">
+                  Ниже {statusCounts.low}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
-              {/* Список биомаркеров */}
-              <div className="space-y-3">
-                {filteredBiomarkers.map((biomarker) => (
-                  <Card key={biomarker.name} className="mobile-card overflow-hidden">
-                    <CardHeader className="mobile-card-header">
-                      <div className="mobile-flex-header">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className={`p-2 rounded-lg ${
-                            biomarker.status === 'normal' 
-                              ? 'bg-green-100 border border-green-200' :
-                            biomarker.status === 'high' 
-                              ? 'bg-red-100 border border-red-200'
-                              : 'bg-yellow-100 border border-yellow-200'
-                          }`}>
-                            <TestTube className={`h-4 w-4 ${
-                              biomarker.status === 'normal' ? 'text-green-600' :
-                              biomarker.status === 'high' ? 'text-red-600' : 'text-yellow-600'
-                            }`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="mobile-text-body font-semibold truncate">{biomarker.name}</h3>
-                            <div className="flex flex-wrap items-center gap-2 mt-1">
-                              <Badge 
-                                variant={
-                                  biomarker.status === 'normal' ? 'default' :
-                                  biomarker.status === 'high' ? 'destructive' : 'secondary'
-                                }
-                                className="mobile-badge-sm"
-                              >
-                                {biomarker.status === 'normal' ? 'Норма' :
-                                 biomarker.status === 'high' ? 'Выше нормы' : 'Ниже нормы'}
-                              </Badge>
-                              <div className="flex items-center gap-1 mobile-text-small text-muted-foreground">
-                                {biomarker.trend === 'up' && <TrendingUp className="h-3 w-3 text-green-600" />}
-                                {biomarker.trend === 'down' && <TrendingDown className="h-3 w-3 text-red-600" />}
-                                {biomarker.trend === 'stable' && <Minus className="h-3 w-3 text-muted-foreground" />}
-                                <Calendar className="h-3 w-3" />
-                                <span className="truncate">
-                                  {format(new Date(biomarker.lastUpdated), 'dd MMM yyyy', { locale: ru })}
-                                </span>
-                              </div>
-                            </div>
+            {/* Список биомаркеров */}
+            <div className="space-y-2">
+              {filteredBiomarkers.map((biomarker) => (
+                <Card key={biomarker.name} className="overflow-hidden">
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-3">
+                      {/* Статус индикатор */}
+                      <div className={`w-1 h-12 rounded-full ${
+                        biomarker.status === 'normal' ? 'bg-green-500' :
+                        biomarker.status === 'high' ? 'bg-red-500' : 'bg-orange-500'
+                      }`} />
+                      
+                      {/* Основная информация */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="text-sm font-medium truncate">{biomarker.name}</h3>
+                          <div className="flex items-center gap-1">
+                            {biomarker.trend === 'up' && <TrendingUp className="h-3 w-3 text-green-600" />}
+                            {biomarker.trend === 'down' && <TrendingDown className="h-3 w-3 text-red-600" />}
+                            <span className="text-xs text-muted-foreground">
+                              {format(new Date(biomarker.lastUpdated), 'dd.MM', { locale: ru })}
+                            </span>
                           </div>
                         </div>
                         
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setExpandedBiomarker(
-                            expandedBiomarker === biomarker.name ? null : biomarker.name
-                          )}
-                          className="mobile-touch-target hover:bg-muted flex-shrink-0"
-                        >
-                          {expandedBiomarker === biomarker.name ? (
-                            <Minus className="h-4 w-4" />
-                          ) : (
-                            <Plus className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    
-                    <CardContent className="mobile-card-content">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                        <div className="bg-muted/50 p-3 rounded-lg">
-                          <div className="mobile-text-small text-muted-foreground mb-1">Текущее значение</div>
-                          <div className="mobile-text-body font-semibold truncate">{biomarker.latestValue}</div>
-                        </div>
-                        <div className="bg-muted/50 p-3 rounded-lg">
-                          <div className="mobile-text-small text-muted-foreground mb-1">Норма</div>
-                          <div className="mobile-text-small font-medium truncate">{biomarker.normalRange}</div>
-                        </div>
-                        <div className="bg-muted/50 p-3 rounded-lg">
-                          <div className="mobile-text-small text-muted-foreground mb-1">Анализов</div>
-                          <div className="mobile-text-small font-medium">{biomarker.analysisCount}</div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold">{biomarker.latestValue}</span>
+                          <Badge 
+                            variant={
+                              biomarker.status === 'normal' ? 'default' :
+                              biomarker.status === 'high' ? 'destructive' : 'secondary'
+                            }
+                            className="text-xs h-5"
+                          >
+                            {biomarker.status === 'normal' ? 'Норма' :
+                             biomarker.status === 'high' ? 'Повышен' : 'Понижен'}
+                          </Badge>
                         </div>
                       </div>
-
-                      {/* Раскрывающаяся секция */}
-                      {expandedBiomarker === biomarker.name && (
-                        <div className="border-t pt-4 space-y-3">
-                          {/* Описание биомаркера */}
-                          {biomarker.description && (
-                            <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                              <div className="flex items-start gap-2">
-                                <div className="p-1 bg-blue-100 rounded">
-                                  <Info className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                                </div>
-                                <div className="flex-1">
-                                  <h4 className="mobile-text-small font-medium text-blue-900 mb-1">
-                                    За что отвечает {biomarker.name}
-                                  </h4>
-                                  <p className="mobile-text-small text-blue-800 leading-relaxed">{biomarker.description}</p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* График динамики */}
-                          <div className="bg-card p-3 rounded-lg border">
-                            <BiomarkerTrendChart biomarkerName={biomarker.name} />
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {filteredBiomarkers.length === 0 && (
-                <Card className="mobile-card text-center">
-                  <CardContent className="mobile-card-content">
-                    <div className="w-16 h-16 mx-auto bg-muted rounded-2xl flex items-center justify-center mb-4">
-                      <Filter className="h-8 w-8 text-muted-foreground" />
                     </div>
-                    <h3 className="mobile-heading-secondary mb-2">
-                      Биомаркеры не найдены
-                    </h3>
-                    <p className="mobile-text-body text-muted-foreground">
-                      Попробуйте изменить параметры поиска или фильтры
-                    </p>
                   </CardContent>
                 </Card>
-              )}
-            </>
-          )}
-        </div>
+              ))}
+            </div>
+
+            {filteredBiomarkers.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-sm text-muted-foreground">
+                  Не найдено биомаркеров по заданным критериям
+                </p>
+              </div>
+            )}
+          </>
+        )}
       </div>
+      
       <MinimalFooter />
     </div>
   );
