@@ -137,6 +137,60 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
     }
   };
 
+  const handleEdit = () => {
+    // TODO: Открыть модальное окно редактирования
+    console.log('Редактирование биомаркера:', biomarker?.name);
+  };
+
+  const handleDelete = async () => {
+    if (!biomarker || !user) return;
+    
+    const confirmed = window.confirm(`Вы уверены, что хотите удалить все записи о "${biomarker.name}"?`);
+    if (!confirmed) return;
+
+    try {
+      // Получаем все анализы пользователя
+      const { data: analyses } = await supabase
+        .from('medical_analyses')
+        .select('id, results')
+        .eq('user_id', user.id);
+
+      if (analyses) {
+        // Обновляем каждый анализ, удаляя из него данный биомаркер
+        for (const analysis of analyses) {
+          if (analysis.results?.markers) {
+            const updatedMarkers = analysis.results.markers.filter(
+              (marker: any) => marker.name !== biomarker.name
+            );
+            
+            await supabase
+              .from('medical_analyses')
+              .update({
+                results: {
+                  ...analysis.results,
+                  markers: updatedMarkers
+                }
+              })
+              .eq('id', analysis.id);
+          }
+        }
+        
+        // Также удаляем из таблицы biomarkers
+        await supabase
+          .from('biomarkers')
+          .delete()
+          .eq('name', biomarker.name);
+
+        alert('Биомаркер успешно удален');
+        onClose();
+        // Можно добавить callback для обновления списка
+      }
+    } catch (error) {
+      console.error('Ошибка при удалении биомаркера:', error);
+      alert('Произошла ошибка при удалении биомаркера');
+    }
+  };
+
   const calculateTrendPercentage = () => {
     if (history.length < 2) return null;
     
@@ -298,10 +352,20 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-3xl font-bold">{biomarker.latestValue}</span>
             <div className="flex gap-2">
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0"
+                onClick={handleEdit}
+              >
                 <Edit className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
+                onClick={handleDelete}
+              >
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>

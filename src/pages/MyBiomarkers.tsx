@@ -88,8 +88,10 @@ const MyBiomarkers = () => {
               userProfile?.date_of_birth
             );
             
+            console.log(`Норма для ${name}:`, calculatedNorm, 'пользователь:', userProfile);
+            
             // Используем вычисленные нормы или данные из анализа
-            const normalRange = marker.normal_range || marker.normalRange || calculatedNorm;
+            const normalRange = marker.reference_range || marker.normal_range || marker.normalRange || calculatedNorm;
             
             biomarkerMap.set(name, {
               values: [],
