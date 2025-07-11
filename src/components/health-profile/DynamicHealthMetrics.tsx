@@ -183,18 +183,18 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Заголовок с кнопкой добавления */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Динамические показатели</h2>
-          <p className="text-gray-600">Отслеживайте изменения ваших показателей здоровья</p>
+          <h2 className="text-sm font-bold text-gray-900">Динамические показатели</h2>
+          <p className="text-xs text-gray-600">Отслеживайте изменения ваших показателей здоровья</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Добавить показатели
+            <Button size="sm" className="flex items-center gap-1 text-xs h-7">
+              <Plus className="h-3 w-3" />
+              Добавить
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
@@ -375,7 +375,7 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
       </div>
 
       {/* Карточки с показателями */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         {metricCards.map((card) => {
           const latestValue = getLatestValue(card.key);
           const change = getMetricChange(card.key);
@@ -385,37 +385,34 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
             <Card 
               key={card.key}
               className={cn(
-                "cursor-pointer transition-all hover:shadow-md",
-                selectedMetric === card.key && `ring-2 ring-${card.color}-500`,
-                card.borderColor
+                "cursor-pointer transition-all hover:shadow-sm border-0 shadow-sm",
+                selectedMetric === card.key && `ring-1 ring-${card.color}-500`
               )}
               onClick={() => setSelectedMetric(card.key)}
             >
-              <CardContent className={cn("p-4", card.bgColor)}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{card.title}</p>
+              <CardContent className={cn("p-2", card.bgColor)}>
+                <div className="flex items-center space-x-2">
+                  <Icon className={cn("h-3 w-3 flex-shrink-0", card.textColor)} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-gray-600 truncate">{card.title}</p>
                     {latestValue !== undefined ? (
-                      <div className="flex items-baseline gap-2">
-                        <p className={cn("text-2xl font-bold", card.textColor)}>
-                          {card.key === 'steps' ? latestValue.toLocaleString() : latestValue}
+                      <div className="flex items-baseline justify-between">
+                        <p className={cn("text-xs font-bold truncate", card.textColor)}>
+                          {card.key === 'steps' ? latestValue.toLocaleString() : latestValue}{card.unit && <span className="text-xs text-gray-500 ml-1">{card.unit}</span>}
                         </p>
-                        <span className="text-xs text-gray-500">{card.unit}</span>
+                        {change && (
+                          <span className={cn(
+                            "text-xs ml-1",
+                            parseFloat(change) > 0 ? "text-green-600" : "text-red-600"
+                          )}>
+                            {parseFloat(change) > 0 ? '+' : ''}{change}%
+                          </span>
+                        )}
                       </div>
                     ) : (
-                      <p className="text-lg text-gray-400">Нет данных</p>
-                    )}
-                    {change && (
-                      <div className={cn(
-                        "flex items-center gap-1 text-xs",
-                        parseFloat(change) > 0 ? "text-green-600" : "text-red-600"
-                      )}>
-                        <TrendingUp className="h-3 w-3" />
-                        {parseFloat(change) > 0 ? '+' : ''}{change}%
-                      </div>
+                      <p className="text-xs text-gray-400">Нет данных</p>
                     )}
                   </div>
-                  <Icon className={cn("h-8 w-8", card.textColor)} />
                 </div>
               </CardContent>
             </Card>
@@ -424,41 +421,41 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
       </div>
 
       {/* График выбранного показателя */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5" />
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <BarChart3 className="h-4 w-4" />
             График: {metricCards.find(c => c.key === selectedMetric)?.title}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           {(() => {
             const chartData = getChartData(selectedMetric);
             const selectedCard = metricCards.find(c => c.key === selectedMetric);
             
             if (chartData.length === 0) {
               return (
-                <div className="h-64 flex items-center justify-center text-gray-500">
+                <div className="h-32 flex items-center justify-center text-gray-500">
                   <div className="text-center">
-                    <BarChart3 className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                    <p>Нет данных для отображения</p>
+                    <BarChart3 className="h-6 w-6 mx-auto mb-2 text-gray-400" />
+                    <p className="text-xs">Нет данных для отображения</p>
                   </div>
                 </div>
               );
             }
 
             return (
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: 10 }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis 
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: 10 }}
                     axisLine={false}
                     tickLine={false}
                   />
@@ -468,7 +465,8 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
                     contentStyle={{
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       border: '1px solid #e5e7eb',
-                      borderRadius: '8px'
+                      borderRadius: '8px',
+                      fontSize: '12px'
                     }}
                   />
                   <Line 
@@ -476,8 +474,8 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
                     dataKey="value" 
                     stroke="#6366f1"
                     strokeWidth={2}
-                    dot={{ fill: "#6366f1", strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, fill: "#4f46e5" }}
+                    dot={{ fill: "#6366f1", strokeWidth: 2, r: 3 }}
+                    activeDot={{ r: 5, fill: "#4f46e5" }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -488,34 +486,34 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
 
       {/* Таблица последних записей */}
       {metrics.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Последние записи</CardTitle>
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">Последние записи</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-2">Дата</th>
-                    <th className="text-left p-2">Вес</th>
-                    <th className="text-left p-2">Шаги</th>
-                    <th className="text-left p-2">Сон</th>
-                    <th className="text-left p-2">Тренировки</th>
-                    <th className="text-left p-2">Заметки</th>
+                    <th className="text-left p-1 text-xs">Дата</th>
+                    <th className="text-left p-1 text-xs">Вес</th>
+                    <th className="text-left p-1 text-xs">Шаги</th>
+                    <th className="text-left p-1 text-xs">Сон</th>
+                    <th className="text-left p-1 text-xs">Трен.</th>
+                    <th className="text-left p-1 text-xs">Заметки</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {metrics.slice(0, 10).map((metric) => (
+                  {metrics.slice(0, 5).map((metric) => (
                     <tr key={metric.id} className="border-b hover:bg-gray-50">
-                      <td className="p-2">
-                        {format(new Date(metric.date), 'dd.MM.yyyy', { locale: ru })}
+                      <td className="p-1 text-xs">
+                        {format(new Date(metric.date), 'dd.MM', { locale: ru })}
                       </td>
-                      <td className="p-2">{metric.weight ? `${metric.weight} кг` : '—'}</td>
-                      <td className="p-2">{metric.steps ? metric.steps.toLocaleString() : '—'}</td>
-                      <td className="p-2">{metric.sleep_hours ? `${metric.sleep_hours} ч` : '—'}</td>
-                      <td className="p-2">{metric.exercise_minutes ? `${metric.exercise_minutes} мин` : '—'}</td>
-                      <td className="p-2">{metric.notes || '—'}</td>
+                      <td className="p-1 text-xs">{metric.weight ? `${metric.weight}кг` : '—'}</td>
+                      <td className="p-1 text-xs">{metric.steps ? metric.steps.toLocaleString() : '—'}</td>
+                      <td className="p-1 text-xs">{metric.sleep_hours ? `${metric.sleep_hours}ч` : '—'}</td>
+                      <td className="p-1 text-xs">{metric.exercise_minutes ? `${metric.exercise_minutes}м` : '—'}</td>
+                      <td className="p-1 text-xs truncate max-w-20">{metric.notes || '—'}</td>
                     </tr>
                   ))}
                 </tbody>
