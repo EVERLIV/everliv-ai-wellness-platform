@@ -3,6 +3,7 @@ import React from "react";
 import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
 import HealthProfilePageHeader from "@/components/health-profile/HealthProfilePageHeader";
 import HealthProfileDisplay from "@/components/health-profile/HealthProfileDisplay";
+import EnhancedHealthProfileDisplay from "@/components/health-profile/EnhancedHealthProfileDisplay";
 import StepByStepHealthProfileForm from "@/components/health-profile/StepByStepHealthProfileForm";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { HealthProfileData } from "@/types/healthProfile";
@@ -184,7 +185,7 @@ const HealthProfile: React.FC = () => {
     <PageLayoutWithHeader
       headerComponent={<HealthProfilePageHeader />}
     >
-      <HealthProfileDisplay 
+      <EnhancedHealthProfileDisplay 
         healthProfile={healthProfile}
         onEdit={handleEdit}
       />
