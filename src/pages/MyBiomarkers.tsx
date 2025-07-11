@@ -32,6 +32,7 @@ interface BiomarkerData {
   lastUpdated: string;
   analysisCount: number;
   trend: 'up' | 'down' | 'stable';
+  deviationPercentage?: number;
 }
 
 const MyBiomarkers = () => {
@@ -108,6 +109,46 @@ const MyBiomarkers = () => {
       }
     });
 
+    // Функция для расчета процентного отклонения от нормы
+    const calculateDeviationPercentage = (value: string, normalRange: string, status: string): number | undefined => {
+      if (status === 'normal') return undefined;
+      
+      const currentValue = parseFloat(value);
+      if (isNaN(currentValue)) return undefined;
+
+      // Парсим норму (например, "120-150 г/л" или ">1.0 ммоль/л")
+      let minNormal = 0;
+      let maxNormal = 0;
+
+      // Обработка различных форматов норм
+      if (normalRange.includes('-')) {
+        const [min, max] = normalRange.split('-').map(s => parseFloat(s.trim()));
+        minNormal = min;
+        maxNormal = max;
+      } else if (normalRange.startsWith('>')) {
+        minNormal = parseFloat(normalRange.substring(1));
+        maxNormal = Infinity;
+      } else if (normalRange.startsWith('<')) {
+        minNormal = 0;
+        maxNormal = parseFloat(normalRange.substring(1));
+      } else {
+        // Попытка извлечь число из строки
+        const match = normalRange.match(/(\d+(?:\.\d+)?)/);
+        if (match) {
+          minNormal = maxNormal = parseFloat(match[1]);
+        }
+      }
+
+      let deviation = 0;
+      if (status === 'high' && maxNormal !== Infinity) {
+        deviation = ((currentValue - maxNormal) / maxNormal) * 100;
+      } else if (status === 'low' && minNormal > 0) {
+        deviation = ((minNormal - currentValue) / minNormal) * 100;
+      }
+
+      return Math.abs(deviation);
+    };
+
     // Преобразуем в массив с вычислением трендов
     return Array.from(biomarkerMap.entries()).map(([name, data]) => {
       const sortedValues = data.values.sort((a, b) => 
@@ -118,6 +159,12 @@ const MyBiomarkers = () => {
       const trend = sortedValues.length > 1 ? 
         calculateTrend(sortedValues) : 'stable';
 
+      const deviationPercentage = calculateDeviationPercentage(
+        latestValue.value, 
+        data.normalRange, 
+        data.status
+      );
+
       return {
         name,
         latestValue: latestValue.value,
@@ -125,7 +172,8 @@ const MyBiomarkers = () => {
         status: data.status,
         lastUpdated: latestValue.date,
         analysisCount: sortedValues.length,
-        trend
+        trend,
+        deviationPercentage
       };
     }).sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
   };
@@ -300,7 +348,16 @@ const MyBiomarkers = () => {
                         </div>
                         
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-semibold">{biomarker.latestValue}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold">{biomarker.latestValue}</span>
+                            {biomarker.deviationPercentage && biomarker.deviationPercentage > 0 && (
+                              <span className={`text-xs ${
+                                biomarker.status === 'high' ? 'text-red-500' : 'text-orange-500'
+                              }`}>
+                                {biomarker.status === 'high' ? '+' : '-'}{biomarker.deviationPercentage.toFixed(0)}%
+                              </span>
+                            )}
+                          </div>
                           <Badge 
                             variant={
                               biomarker.status === 'normal' ? 'default' :
@@ -311,6 +368,10 @@ const MyBiomarkers = () => {
                             {biomarker.status === 'normal' ? 'Норма' :
                              biomarker.status === 'high' ? 'Повышен' : 'Понижен'}
                           </Badge>
+                        </div>
+                        
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Дата анализа: {format(new Date(biomarker.lastUpdated), 'dd.MM.yyyy HH:mm', { locale: ru })}
                         </div>
                       </div>
                     </div>

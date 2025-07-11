@@ -17,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { getBiomarkerInfo } from '@/data/expandedBiomarkers';
 import { getBiomarkerNorm } from '@/data/biomarkerNorms';
+import BiomarkerEditDialog from './BiomarkerEditDialog';
 
 interface BiomarkerDetailDialogProps {
   isOpen: boolean;
@@ -55,6 +56,7 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
   const [selectedPeriod, setSelectedPeriod] = useState<'all' | '1year' | '6mon' | '3mon' | '1mon'>('all');
   const [aiComment, setAiComment] = useState<AIComment | null>(null);
   const [loadingAiComment, setLoadingAiComment] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
     if (biomarker && isOpen) {
@@ -138,8 +140,89 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
   };
 
   const handleEdit = () => {
-    // TODO: Открыть модальное окно редактирования
-    console.log('Редактирование биомаркера:', biomarker?.name);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditSave = async (data: { value: string; date: Date; status: 'normal' | 'high' | 'low' }) => {
+    if (!biomarker || !user) return;
+
+    try {
+      // Обновляем последний анализ с новыми данными
+      const { data: analyses } = await supabase
+        .from('medical_analyses')
+        .select('id, results')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (analyses && analyses.length > 0) {
+        const latestAnalysis = analyses[0];
+        const updatedMarkers = latestAnalysis.results?.markers?.map((marker: any) => 
+          marker.name === biomarker.name 
+            ? { ...marker, value: data.value, status: data.status }
+            : marker
+        ) || [];
+
+        await supabase
+          .from('medical_analyses')
+          .update({
+            results: {
+              ...latestAnalysis.results,
+              markers: updatedMarkers
+            },
+            created_at: data.date.toISOString()
+          })
+          .eq('id', latestAnalysis.id);
+
+        alert('Биомаркер успешно обновлен');
+        // Перезагружаем данные
+        fetchBiomarkerHistory();
+      }
+    } catch (error) {
+      console.error('Ошибка при обновлении биомаркера:', error);
+      alert('Произошла ошибка при обновлении биомаркера');
+    }
+  };
+
+  // Функция для расчета процентного отклонения от нормы
+  const calculateDeviationPercentage = () => {
+    if (!biomarker || biomarker.status === 'normal') return null;
+    
+    const currentValue = parseFloat(biomarker.latestValue);
+    if (isNaN(currentValue)) return null;
+
+    // Парсим норму (например, "120-150 г/л" или ">1.0 ммоль/л")
+    const normalRange = biomarker.normalRange;
+    let minNormal = 0;
+    let maxNormal = 0;
+
+    // Обработка различных форматов норм
+    if (normalRange.includes('-')) {
+      const [min, max] = normalRange.split('-').map(s => parseFloat(s.trim()));
+      minNormal = min;
+      maxNormal = max;
+    } else if (normalRange.startsWith('>')) {
+      minNormal = parseFloat(normalRange.substring(1));
+      maxNormal = Infinity;
+    } else if (normalRange.startsWith('<')) {
+      minNormal = 0;
+      maxNormal = parseFloat(normalRange.substring(1));
+    } else {
+      // Попытка извлечь число из строки
+      const match = normalRange.match(/(\d+(?:\.\d+)?)/);
+      if (match) {
+        minNormal = maxNormal = parseFloat(match[1]);
+      }
+    }
+
+    let deviation = 0;
+    if (biomarker.status === 'high' && maxNormal !== Infinity) {
+      deviation = ((currentValue - maxNormal) / maxNormal) * 100;
+    } else if (biomarker.status === 'low' && minNormal > 0) {
+      deviation = ((minNormal - currentValue) / minNormal) * 100;
+    }
+
+    return Math.abs(deviation);
   };
 
   const handleDelete = async () => {
@@ -242,27 +325,52 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
 
     const maxValue = Math.max(...chartData.map(d => d.value));
     const minValue = Math.min(...chartData.map(d => d.value));
-    const range = maxValue - minValue;
-    const padding = range * 0.1;
-    const adjustedMax = maxValue + padding;
-    const adjustedMin = Math.max(0, minValue - padding);
+    
+    // Парсим норму для визуализации на графике
+    const normalRange = biomarker?.normalRange || '';
+    let minNormal = minValue;
+    let maxNormal = maxValue;
+    
+    if (normalRange.includes('-')) {
+      const [min, max] = normalRange.split('-').map(s => parseFloat(s.trim()));
+      if (!isNaN(min) && !isNaN(max)) {
+        minNormal = min;
+        maxNormal = max;
+      }
+    }
+    
+    const overallMin = Math.min(minValue, minNormal) * 0.9;
+    const overallMax = Math.max(maxValue, maxNormal) * 1.1;
+    const range = overallMax - overallMin;
 
     return (
       <div className="relative h-48 mt-4">
+        {/* Зона нормы */}
+        {normalRange.includes('-') && (
+          <div 
+            className="absolute inset-x-0 bg-green-100 border-t border-b border-green-200"
+            style={{
+              bottom: `${((minNormal - overallMin) / range) * 100}%`,
+              height: `${((maxNormal - minNormal) / range) * 100}%`
+            }}
+          />
+        )}
+        
         <div className="absolute inset-0 flex items-end justify-between">
           {chartData.map((data, index) => {
-            const height = range > 0 ? ((data.value - adjustedMin) / (adjustedMax - adjustedMin)) * 100 : 50;
+            const height = range > 0 ? ((data.value - overallMin) / range) * 100 : 50;
             const isLatest = index === chartData.length - 1;
+            const isInNormal = normalRange.includes('-') && 
+              data.value >= minNormal && data.value <= maxNormal;
             
             return (
               <div key={index} className="flex flex-col items-center flex-1 max-w-12">
                 <div 
-                  className={`w-6 rounded-t-sm mb-1 ${
-                    biomarker?.status === 'high' ? 'bg-red-500' : 
-                    biomarker?.status === 'low' ? 'bg-orange-500' : 
-                    'bg-green-500'
+                  className={`w-6 rounded-t-sm mb-1 transition-colors ${
+                    isInNormal ? 'bg-green-500' :
+                    data.value > maxNormal ? 'bg-red-500' : 'bg-orange-500'
                   }`}
-                  style={{ height: `${height}%` }}
+                  style={{ height: `${Math.max(height, 5)}%` }}
                 />
                 {isLatest && (
                   <div className="text-xs font-semibold text-center mb-1">
@@ -279,21 +387,42 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
         
         {/* Горизонтальные линии сетки */}
         <div className="absolute inset-0 pointer-events-none">
-          {[0, 25, 50, 75, 100].map(percent => (
+          {[25, 50, 75].map(percent => (
             <div 
               key={percent}
               className="absolute w-full border-t border-dotted border-muted-foreground/20"
               style={{ bottom: `${percent}%` }}
             />
           ))}
+          
+          {/* Линии нормы */}
+          {normalRange.includes('-') && (
+            <>
+              <div 
+                className="absolute w-full border-t-2 border-green-500"
+                style={{ bottom: `${((minNormal - overallMin) / range) * 100}%` }}
+              />
+              <div 
+                className="absolute w-full border-t-2 border-green-500"
+                style={{ bottom: `${((maxNormal - overallMin) / range) * 100}%` }}
+              />
+            </>
+          )}
         </div>
         
         {/* Значения на оси Y */}
-        <div className="absolute right-0 top-0 bottom-0 w-8 flex flex-col justify-between text-xs text-muted-foreground">
-          <div>{adjustedMax.toFixed(0)}</div>
-          <div>{((adjustedMax + adjustedMin) / 2).toFixed(0)}</div>
-          <div>{adjustedMin.toFixed(0)}</div>
+        <div className="absolute right-0 top-0 bottom-0 w-12 flex flex-col justify-between text-xs text-muted-foreground">
+          <div>{overallMax.toFixed(1)}</div>
+          <div>{((overallMax + overallMin) / 2).toFixed(1)}</div>
+          <div>{overallMin.toFixed(1)}</div>
         </div>
+        
+        {/* Легенда нормы */}
+        {normalRange.includes('-') && (
+          <div className="absolute top-2 left-2 text-xs text-green-600 bg-white/80 px-2 py-1 rounded">
+            Норма: {normalRange}
+          </div>
+        )}
       </div>
     );
   };
@@ -350,7 +479,22 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
         {/* Основное значение */}
         <div className="px-4 py-2">
           <div className="flex items-center justify-between">
-            <span className="text-3xl font-bold">{biomarker.latestValue}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-3xl font-bold">{biomarker.latestValue}</span>
+              {(() => {
+                const deviation = calculateDeviationPercentage();
+                if (deviation && deviation > 0) {
+                  return (
+                    <span className={`text-xs ${
+                      biomarker.status === 'high' ? 'text-red-500' : 'text-orange-500'
+                    }`}>
+                      {biomarker.status === 'high' ? '+' : '-'}{deviation.toFixed(0)}%
+                    </span>
+                  );
+                }
+                return null;
+              })()}
+            </div>
             <div className="flex gap-2">
               <Button 
                 variant="ghost" 
@@ -464,6 +608,14 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
           )}
         </div>
       </DialogContent>
+
+      {/* Модальное окно редактирования */}
+      <BiomarkerEditDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        biomarker={biomarker}
+        onSave={handleEditSave}
+      />
     </Dialog>
   );
 };
