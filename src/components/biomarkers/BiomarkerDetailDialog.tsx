@@ -71,12 +71,25 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
 
     setLoadingHistory(true);
     try {
-      // Получаем данные из таблицы biomarkers
+      // Получаем данные из таблицы biomarkers с фильтром по пользователю через medical_analyses
       const { data: biomarkers } = await supabase
         .from('biomarkers')
-        .select('value, created_at, analysis_id')
+        .select(`
+          value, 
+          created_at, 
+          analysis_id,
+          medical_analyses!inner(user_id)
+        `)
         .eq('name', biomarker.name)
+        .eq('medical_analyses.user_id', user.id)
         .order('created_at', { ascending: false });
+
+      console.log('🔍 Загруженные биомаркеры для графика:', {
+        biomarkerName: biomarker.name,
+        userId: user.id,
+        count: biomarkers?.length || 0,
+        data: biomarkers?.map(b => ({ value: b.value, date: b.created_at })) || []
+      });
 
       if (biomarkers) {
         const biomarkerHistory: BiomarkerHistory[] = biomarkers
