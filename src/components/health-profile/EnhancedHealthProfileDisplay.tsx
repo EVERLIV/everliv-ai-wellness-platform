@@ -18,7 +18,8 @@ import {
   TrendingUp,
   Calendar,
   Weight,
-  Moon as SleepIcon
+  Moon as SleepIcon,
+  ArrowLeft
 } from "lucide-react";
 import { HealthProfileData } from "@/types/healthProfile";
 import { translateValue, translateHealthGoals, translateMedications, translateLabResultKey, formatLabResultValue } from "@/utils/healthProfileTranslations";
@@ -97,13 +98,15 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
 
   return (
     <div className="max-w-6xl mx-auto space-y-4 p-3 md:p-6">
-      {/* Компактный Header */}
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">Профиль здоровья</h1>
-          <p className="text-sm text-gray-500">Мониторинг состояния здоровья</p>
+      {/* Мини Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" className="p-1 h-7 w-7">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="text-lg font-medium text-gray-900">Профиль здоровья</h1>
         </div>
-        <Button onClick={onEdit} variant="outline" size="sm" className="text-xs">
+        <Button onClick={onEdit} variant="outline" size="sm" className="text-xs h-6 px-2">
           <Edit className="h-3 w-3 mr-1" />
           Редактировать
         </Button>
