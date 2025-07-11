@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import MinimalFooter from "@/components/MinimalFooter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -20,6 +20,9 @@ import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import BiomarkerDetailDialog from "@/components/biomarkers/BiomarkerDetailDialog";
 import { getBiomarkerInfo } from '@/data/expandedBiomarkers';
+import { getBiomarkerNorm } from '@/data/biomarkerNorms';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface BiomarkerData {
   name: string;
@@ -33,11 +36,34 @@ interface BiomarkerData {
 
 const MyBiomarkers = () => {
   const { analysisHistory, loadingHistory } = useLabAnalysesData();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedBiomarker, setSelectedBiomarker] = useState<BiomarkerData | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+
+  // Загружаем профиль пользователя
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!user) return;
+      
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('gender, date_of_birth')
+          .eq('id', user.id)
+          .single();
+        
+        setUserProfile(data);
+      } catch (error) {
+        console.error('Ошибка загрузки профиля:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
 
   // Обрабатываем данные биомаркеров
   const processBiomarkerData = (): BiomarkerData[] => {
@@ -55,9 +81,19 @@ const MyBiomarkers = () => {
         analysis.results.markers.forEach((marker: any) => {
           const name = marker.name;
           if (!biomarkerMap.has(name)) {
+            // Получаем нормы с учетом пола и возраста
+            const calculatedNorm = getBiomarkerNorm(
+              name,
+              userProfile?.gender,
+              userProfile?.date_of_birth
+            );
+            
+            // Используем вычисленные нормы или данные из анализа
+            const normalRange = marker.normal_range || marker.normalRange || calculatedNorm;
+            
             biomarkerMap.set(name, {
               values: [],
-              normalRange: marker.normal_range || marker.normalRange || 'Не указан',
+              normalRange: normalRange,
               status: marker.status || 'normal'
             });
           }

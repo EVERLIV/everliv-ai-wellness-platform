@@ -22,6 +22,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import BiomarkerTrendChart from '@/components/analysis-details/BiomarkerTrendChart';
 import { getBiomarkerInfo } from '@/data/expandedBiomarkers';
+import { getBiomarkerNorm } from '@/data/biomarkerNorms';
 
 interface BiomarkerDetailDialogProps {
   isOpen: boolean;
