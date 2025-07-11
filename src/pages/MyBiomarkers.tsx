@@ -18,6 +18,8 @@ import { useLabAnalysesData } from "@/hooks/useLabAnalysesData";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import BiomarkerDetailDialog from "@/components/biomarkers/BiomarkerDetailDialog";
+import { getBiomarkerInfo } from '@/data/expandedBiomarkers';
 
 interface BiomarkerData {
   name: string;
@@ -34,6 +36,8 @@ const MyBiomarkers = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [selectedBiomarker, setSelectedBiomarker] = useState<BiomarkerData | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
 
   // Обрабатываем данные биомаркеров
   const processBiomarkerData = (): BiomarkerData[] => {
@@ -100,6 +104,16 @@ const MyBiomarkers = () => {
     
     if (Math.abs(change) < 5) return 'stable';
     return change > 0 ? 'up' : 'down';
+  };
+
+  const handleBiomarkerClick = (biomarker: BiomarkerData) => {
+    setSelectedBiomarker(biomarker);
+    setIsDetailDialogOpen(true);
+  };
+
+  const handleCloseDetailDialog = () => {
+    setIsDetailDialogOpen(false);
+    setSelectedBiomarker(null);
   };
 
   const biomarkers = processBiomarkerData();
@@ -205,7 +219,11 @@ const MyBiomarkers = () => {
             {/* Список биомаркеров */}
             <div className="space-y-2">
               {filteredBiomarkers.map((biomarker) => (
-                <Card key={biomarker.name} className="overflow-hidden">
+                <Card 
+                  key={biomarker.name} 
+                  className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => handleBiomarkerClick(biomarker)}
+                >
                   <CardContent className="p-3">
                     <div className="flex items-center gap-3">
                       {/* Статус индикатор */}
@@ -257,6 +275,13 @@ const MyBiomarkers = () => {
           </>
         )}
       </div>
+      
+      {/* Диалог детального просмотра биомаркера */}
+      <BiomarkerDetailDialog
+        isOpen={isDetailDialogOpen}
+        onClose={handleCloseDetailDialog}
+        biomarker={selectedBiomarker}
+      />
       
       <MinimalFooter />
     </div>
