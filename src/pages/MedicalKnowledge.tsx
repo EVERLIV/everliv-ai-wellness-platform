@@ -6,6 +6,7 @@ import MedicalKnowledgeSearch from "@/components/medical-knowledge/MedicalKnowle
 import CategoriesTab from "@/components/medical-knowledge/CategoriesTab";
 import ArticlesTab from "@/components/medical-knowledge/ArticlesTab";
 import SpecializationsTab from "@/components/medical-knowledge/SpecializationsTab";
+import BiomarkersTab from "@/components/medical-knowledge/BiomarkersTab";
 import LoadingState from "@/components/medical-knowledge/LoadingState";
 import EmptyState from "@/components/medical-knowledge/EmptyState";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -101,12 +102,17 @@ const MedicalKnowledge = () => {
           isLoading={isLoading}
         />
 
-        <Tabs defaultValue="categories" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="biomarkers" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="biomarkers">Биомаркеры</TabsTrigger>
             <TabsTrigger value="categories">Категории</TabsTrigger>
             <TabsTrigger value="articles">Статьи</TabsTrigger>
             <TabsTrigger value="specializations">Специализации</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="biomarkers" className="mt-6">
+            <BiomarkersTab searchQuery={searchQuery} />
+          </TabsContent>
 
           <TabsContent value="categories" className="mt-6">
             <CategoriesTab 
