@@ -25,23 +25,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { DailyHealthMetrics } from "@/hooks/useDailyHealthMetrics";
 
-interface DailyMetric {
-  id: string;
-  date: string;
-  steps?: number;
-  exercise_minutes?: number;
-  weight?: number;
-  sleep_hours?: number;
-  sleep_quality?: number;
-  stress_level?: number;
-  mood_level?: number;
-  water_intake?: number;
-  notes?: string;
-}
 
 interface DynamicHealthMetricsProps {
-  metrics: DailyMetric[];
+  metrics: DailyHealthMetrics[];
   isLoading: boolean;
   onMetricsUpdate: () => void;
 }
@@ -50,7 +38,6 @@ interface MetricFormData {
   date: Date;
   steps?: number;
   exercise_minutes?: number;
-  weight?: number;
   sleep_hours?: number;
   sleep_quality?: number;
   stress_level?: number;
@@ -59,7 +46,7 @@ interface MetricFormData {
   notes?: string;
 }
 
-type MetricKey = 'weight' | 'steps' | 'sleep_hours' | 'exercise_minutes';
+type MetricKey = 'steps' | 'sleep_hours' | 'exercise_minutes';
 
 const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
   metrics,
@@ -69,7 +56,7 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
   const { user } = useAuth();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState<MetricKey>('weight');
+  const [selectedMetric, setSelectedMetric] = useState<MetricKey>('steps');
   const [formData, setFormData] = useState<MetricFormData>({
     date: new Date()
   });
@@ -86,7 +73,6 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
           date: format(formData.date, 'yyyy-MM-dd'),
           steps: formData.steps,
           exercise_minutes: formData.exercise_minutes,
-          weight: formData.weight,
           sleep_hours: formData.sleep_hours,
           sleep_quality: formData.sleep_quality,
           stress_level: formData.stress_level,
@@ -140,16 +126,6 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
   };
 
   const metricCards = [
-    {
-      key: 'weight' as MetricKey,
-      title: 'Вес',
-      icon: Weight,
-      unit: 'кг',
-      color: 'purple',
-      bgColor: 'bg-purple-50',
-      textColor: 'text-purple-600',
-      borderColor: 'border-purple-200'
-    },
     {
       key: 'steps' as MetricKey,
       title: 'Шаги',
@@ -233,19 +209,6 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
 
               {/* Поля ввода показателей */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Вес (кг)</Label>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    value={formData.weight || ''}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      weight: e.target.value ? parseFloat(e.target.value) : undefined 
-                    }))}
-                    placeholder="70.5"
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label>Шаги</Label>
                   <Input
@@ -496,7 +459,6 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
                 <thead>
                   <tr className="border-b">
                     <th className="text-left p-1 text-xs">Дата</th>
-                    <th className="text-left p-1 text-xs">Вес</th>
                     <th className="text-left p-1 text-xs">Шаги</th>
                     <th className="text-left p-1 text-xs">Сон</th>
                     <th className="text-left p-1 text-xs">Трен.</th>
@@ -509,7 +471,6 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
                       <td className="p-1 text-xs">
                         {format(new Date(metric.date), 'dd.MM', { locale: ru })}
                       </td>
-                      <td className="p-1 text-xs">{metric.weight ? `${metric.weight}кг` : '—'}</td>
                       <td className="p-1 text-xs">{metric.steps ? metric.steps.toLocaleString() : '—'}</td>
                       <td className="p-1 text-xs">{metric.sleep_hours ? `${metric.sleep_hours}ч` : '—'}</td>
                       <td className="p-1 text-xs">{metric.exercise_minutes ? `${metric.exercise_minutes}м` : '—'}</td>

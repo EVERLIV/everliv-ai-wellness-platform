@@ -24,6 +24,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useHealthGoalsManager } from "@/hooks/useHealthGoalsManager";
 import { useDailyHealthMetrics } from "@/hooks/useDailyHealthMetrics";
+import DynamicHealthMetrics from "./DynamicHealthMetrics";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Link } from "react-router-dom";
@@ -40,7 +41,7 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
 }) => {
   const { user } = useAuth();
   const { goals } = useHealthGoalsManager();
-  const { metrics: dailyMetrics, todayMetrics, isLoading: metricsLoading } = useDailyHealthMetrics();
+  const { metrics: dailyMetrics, todayMetrics, isLoading: metricsLoading, loadMetrics } = useDailyHealthMetrics();
 
   const calculateBMI = (weight: number, height: number): number => {
     const heightInMeters = height / 100;
@@ -257,6 +258,15 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
                     )}
                   </div>
                 </div>
+              </section>
+
+              {/* Метрики здоровья */}
+              <section className="border-t border-gray-200 pt-8">
+                <DynamicHealthMetrics 
+                  metrics={dailyMetrics}
+                  isLoading={metricsLoading}
+                  onMetricsUpdate={loadMetrics}
+                />
               </section>
 
               {/* Цели здоровья */}
