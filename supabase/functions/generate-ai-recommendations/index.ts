@@ -44,26 +44,66 @@ serve(async (req) => {
     console.log('Generating AI recommendations for user:', user.id);
 
     // Получаем данные пользователя
-    const { data: profile } = await supabaseClient
+    console.log('Fetching user data for user:', user.id);
+    
+    // Получаем профиль пользователя
+    const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .maybeSingle();
 
-    const { data: analyses } = await supabaseClient
-      .from('medical_analyses')
-      .select(`*, biomarkers (*)`)
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(3);
+    if (profileError) {
+      console.error('Profile fetch error:', profileError);
+    }
+    console.log('Profile data:', profile);
 
-    const { data: healthMetrics } = await supabaseClient
+    // Получаем биомаркеры из последних анализов
+    const { data: biomarkers, error: biomarkersError } = await supabaseClient
+      .from('biomarkers')
+      .select(`
+        *,
+        medical_analyses!inner(
+          user_id,
+          created_at,
+          analysis_type
+        )
+      `)
+      .eq('medical_analyses.user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (biomarkersError) {
+      console.error('Biomarkers fetch error:', biomarkersError);
+    }
+    console.log('Biomarkers data:', biomarkers?.length || 0, 'items');
+
+    // Получаем метрики здоровья за последний месяц
+    const { data: healthMetrics, error: metricsError } = await supabaseClient
       .from('daily_health_metrics')
       .select('*')
       .eq('user_id', user.id)
       .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
       .order('date', { ascending: false });
 
+    if (metricsError) {
+      console.error('Health metrics fetch error:', metricsError);
+    }
+    console.log('Health metrics data:', healthMetrics?.length || 0, 'items');
+
+    // Получаем аналитику пользователя
+    const { data: analytics, error: analyticsError } = await supabaseClient
+      .from('user_analytics')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (analyticsError) {
+      console.error('Analytics fetch error:', analyticsError);
+    }
+    console.log('Analytics data:', analytics?.length || 0, 'items');
+
+    // Формируем данные для анализа
     const analysisData = {
       profile: {
         age: profile?.date_of_birth ? new Date().getFullYear() - new Date(profile.date_of_birth).getFullYear() : null,
@@ -74,28 +114,35 @@ serve(async (req) => {
         medications: profile?.medications || [],
         goals: profile?.goals || []
       },
-      biomarkers: analyses?.flatMap(a => a.biomarkers || []).map((b: any) => ({
+      biomarkers: biomarkers?.map((b: any) => ({
         name: b.name,
         value: b.value,
         reference_range: b.reference_range,
-        status: b.status
+        status: b.status,
+        created_at: b.created_at
       })) || [],
       health_metrics: {
+        total_entries: healthMetrics?.length || 0,
         avg_weight: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.weight || 0), 0) / healthMetrics.length : 0,
         avg_steps: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.steps || 0), 0) / healthMetrics.length : 0,
         avg_sleep: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.sleep_hours || 0), 0) / healthMetrics.length : 0,
         avg_exercise: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.exercise_minutes || 0), 0) / healthMetrics.length : 0,
         avg_water: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.water_intake || 0), 0) / healthMetrics.length : 0,
-        avg_stress: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.stress_level || 0), 0) / healthMetrics.length : 0
-      }
+        avg_stress: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.stress_level || 0), 0) / healthMetrics.length : 0,
+        avg_mood: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.mood_level || 0), 0) / healthMetrics.length : 0,
+        avg_nutrition: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.nutrition_quality || 0), 0) / healthMetrics.length : 0
+      },
+      analytics: analytics?.[0]?.analytics_data || null
     };
 
-    console.log('Analysis data prepared:', {
+    console.log('Analysis data summary:', {
       hasProfile: !!analysisData.profile,
       biomarkersCount: analysisData.biomarkers.length,
-      hasHealthMetrics: !!analysisData.health_metrics,
-      avgWeight: analysisData.health_metrics.avg_weight,
-      avgSteps: analysisData.health_metrics.avg_steps
+      healthMetricsEntries: analysisData.health_metrics.total_entries,
+      hasAnalytics: !!analysisData.analytics,
+      profileAge: analysisData.profile.age,
+      avgSteps: analysisData.health_metrics.avg_steps,
+      avgSleep: analysisData.health_metrics.avg_sleep
     });
 
     const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
