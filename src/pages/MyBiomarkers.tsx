@@ -34,6 +34,7 @@ interface BiomarkerData {
   analysisCount: number;
   trend: 'up' | 'down' | 'stable';
   deviationPercentage?: number;
+  unit?: string;
 }
 
 const MyBiomarkers = () => {
@@ -72,47 +73,73 @@ const MyBiomarkers = () => {
     if (!analysisHistory || !Array.isArray(analysisHistory)) return [];
 
     const biomarkerMap = new Map<string, {
-      values: Array<{ value: string; date: string }>;
+      values: Array<{ value: string; date: string; unit?: string }>;
       normalRange: string;
       status: 'normal' | 'high' | 'low';
+      unit?: string;
     }>();
 
-    // Собираем все данные биомаркеров
+    // Собираем все данные биомаркеров из results
     analysisHistory.forEach(analysis => {
       if (analysis.results?.markers) {
         analysis.results.markers.forEach((marker: any) => {
           const name = marker.name;
           if (!biomarkerMap.has(name)) {
-            // Получаем нормы с учетом пола и возраста
-            const calculatedNorm = getBiomarkerNorm(
-              name,
-              userProfile?.gender,
-              userProfile?.date_of_birth
-            );
+            // Используем данные из results (более полные)
+            const normalRange = marker.referenceRange || marker.reference_range || marker.normal_range || marker.normalRange || 
+                               getBiomarkerNorm(name, userProfile?.gender, userProfile?.date_of_birth) || 'Не определена';
             
-            console.log(`Норма для ${name}:`, calculatedNorm, 'пользователь:', userProfile);
+            // Извлекаем единицу измерения из value или используем отдельное поле unit
+            let unit = marker.unit || '';
+            let cleanValue = marker.value || '';
             
-            // Используем вычисленные нормы или данные из анализа
-            const normalRange = marker.reference_range || marker.normal_range || marker.normalRange || calculatedNorm;
+            // Если единица в самом значении, извлекаем её
+            if (typeof cleanValue === 'string' && /[a-zA-Zа-яА-Я%/°^]/.test(cleanValue)) {
+              const valueMatch = cleanValue.match(/^([0-9,.\s]+)(.*)$/);
+              if (valueMatch) {
+                cleanValue = valueMatch[1].trim();
+                unit = unit || valueMatch[2].trim();
+              }
+            }
+            
+            console.log(`Обработка биомаркера ${name}:`, {
+              originalValue: marker.value,
+              cleanValue,
+              unit,
+              normalRange,
+              referenceRange: marker.referenceRange
+            });
             
             // Вычисляем статус на основе значения и нормы
-            const calculatedStatus = calculateBiomarkerStatus(marker.value, normalRange);
+            const calculatedStatus = calculateBiomarkerStatus(cleanValue, normalRange);
             
             biomarkerMap.set(name, {
               values: [],
-              normalRange: normalRange,
-              status: calculatedStatus
+              normalRange,
+              status: marker.status || calculatedStatus,
+              unit
             });
           }
           
           const biomarkerData = biomarkerMap.get(name)!;
+          
+          // Извлекаем чистое значение без единиц для расчетов
+          let cleanValue = marker.value || '';
+          if (typeof cleanValue === 'string') {
+            const valueMatch = cleanValue.match(/^([0-9,.\s]+)/);
+            if (valueMatch) {
+              cleanValue = valueMatch[1].trim();
+            }
+          }
+          
           biomarkerData.values.push({
-            value: marker.value,
-            date: analysis.created_at
+            value: cleanValue,
+            date: analysis.created_at,
+            unit: biomarkerData.unit
           });
           
           // Обновляем статус для последнего значения
-          const latestStatus = calculateBiomarkerStatus(marker.value, biomarkerData.normalRange);
+          const latestStatus = marker.status || calculateBiomarkerStatus(cleanValue, biomarkerData.normalRange);
           biomarkerData.status = latestStatus;
         });
       }
@@ -120,9 +147,10 @@ const MyBiomarkers = () => {
 
     // Функция для расчета процентного отклонения от нормы
     const calculateDeviationPercentage = (value: string, normalRange: string, status: string): number | undefined => {
-      if (status === 'normal') return undefined;
+      if (status === 'normal' || !normalRange || normalRange === 'Не определена') return undefined;
       
-      const currentValue = parseFloat(value);
+      // Нормализуем значение - заменяем запятую на точку
+      const currentValue = parseFloat(value.replace(',', '.'));
       if (isNaN(currentValue)) return undefined;
 
       // Парсим норму (например, "120-150 г/л" или ">1.0 ммоль/л")
@@ -131,25 +159,38 @@ const MyBiomarkers = () => {
 
       // Обработка различных форматов норм
       if (normalRange.includes('-')) {
-        const [min, max] = normalRange.split('-').map(s => parseFloat(s.trim()));
-        minNormal = min;
-        maxNormal = max;
+        const parts = normalRange.split('-');
+        const min = parseFloat(parts[0].trim().replace(',', '.'));
+        const max = parseFloat(parts[1].trim().replace(',', '.'));
+        if (!isNaN(min) && !isNaN(max)) {
+          minNormal = min;
+          maxNormal = max;
+        }
       } else if (normalRange.startsWith('>')) {
-        minNormal = parseFloat(normalRange.substring(1));
-        maxNormal = Infinity;
+        const min = parseFloat(normalRange.substring(1).replace(',', '.'));
+        if (!isNaN(min)) {
+          minNormal = min;
+          maxNormal = Infinity;
+        }
       } else if (normalRange.startsWith('<')) {
-        minNormal = 0;
-        maxNormal = parseFloat(normalRange.substring(1));
+        const max = parseFloat(normalRange.substring(1).replace(',', '.'));
+        if (!isNaN(max)) {
+          minNormal = 0;
+          maxNormal = max;
+        }
       } else {
         // Попытка извлечь число из строки
-        const match = normalRange.match(/(\d+(?:\.\d+)?)/);
+        const match = normalRange.match(/(\d+(?:[,.]\d+)?)/);
         if (match) {
-          minNormal = maxNormal = parseFloat(match[1]);
+          const value = parseFloat(match[1].replace(',', '.'));
+          if (!isNaN(value)) {
+            minNormal = maxNormal = value;
+          }
         }
       }
 
       let deviation = 0;
-      if (status === 'high' && maxNormal !== Infinity) {
+      if (status === 'high' && maxNormal !== Infinity && maxNormal > 0) {
         deviation = ((currentValue - maxNormal) / maxNormal) * 100;
       } else if (status === 'low' && minNormal > 0) {
         deviation = ((minNormal - currentValue) / minNormal) * 100;
@@ -168,21 +209,27 @@ const MyBiomarkers = () => {
       const trend = sortedValues.length > 1 ? 
         calculateTrend(sortedValues) : 'stable';
 
+      // Для отображения используем оригинальное значение с единицами
+      const displayValue = latestValue.unit ? 
+        `${latestValue.value} ${latestValue.unit}` : 
+        latestValue.value;
+
       const deviationPercentage = calculateDeviationPercentage(
-        latestValue.value, 
+        latestValue.value.replace(',', '.'), // Нормализуем для расчетов
         data.normalRange, 
         data.status
       );
 
       return {
         name,
-        latestValue: latestValue.value,
+        latestValue: displayValue,
         normalRange: data.normalRange,
         status: data.status,
         lastUpdated: latestValue.date,
         analysisCount: sortedValues.length,
         trend,
-        deviationPercentage
+        deviationPercentage,
+        unit: data.unit
       };
     }).sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
   };
@@ -190,8 +237,9 @@ const MyBiomarkers = () => {
   const calculateTrend = (values: Array<{ value: string; date: string }>): 'up' | 'down' | 'stable' => {
     if (values.length < 2) return 'stable';
     
-    const first = parseFloat(values[0].value);
-    const last = parseFloat(values[values.length - 1].value);
+    // Нормализуем значения - заменяем запятые на точки для парсинга
+    const first = parseFloat(values[0].value.replace(',', '.'));
+    const last = parseFloat(values[values.length - 1].value.replace(',', '.'));
     
     if (isNaN(first) || isNaN(last)) return 'stable';
     

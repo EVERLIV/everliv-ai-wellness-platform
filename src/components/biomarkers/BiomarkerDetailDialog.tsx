@@ -219,35 +219,51 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
   const calculateDeviationPercentage = () => {
     if (!biomarker || biomarker.status === 'normal') return null;
     
-    const currentValue = parseFloat(biomarker.latestValue);
+    // Нормализуем значение - заменяем запятую на точку
+    const currentValue = parseFloat(biomarker.latestValue.replace(',', '.'));
     if (isNaN(currentValue)) return null;
 
     // Парсим норму (например, "120-150 г/л" или ">1.0 ммоль/л")
     const normalRange = biomarker.normalRange;
+    if (!normalRange || normalRange === 'Не определена') return null;
+    
     let minNormal = 0;
     let maxNormal = 0;
 
     // Обработка различных форматов норм
     if (normalRange.includes('-')) {
-      const [min, max] = normalRange.split('-').map(s => parseFloat(s.trim()));
-      minNormal = min;
-      maxNormal = max;
+      const parts = normalRange.split('-');
+      const min = parseFloat(parts[0].trim().replace(',', '.'));
+      const max = parseFloat(parts[1].trim().replace(',', '.'));
+      if (!isNaN(min) && !isNaN(max)) {
+        minNormal = min;
+        maxNormal = max;
+      }
     } else if (normalRange.startsWith('>')) {
-      minNormal = parseFloat(normalRange.substring(1));
-      maxNormal = Infinity;
+      const min = parseFloat(normalRange.substring(1).replace(',', '.'));
+      if (!isNaN(min)) {
+        minNormal = min;
+        maxNormal = Infinity;
+      }
     } else if (normalRange.startsWith('<')) {
-      minNormal = 0;
-      maxNormal = parseFloat(normalRange.substring(1));
+      const max = parseFloat(normalRange.substring(1).replace(',', '.'));
+      if (!isNaN(max)) {
+        minNormal = 0;
+        maxNormal = max;
+      }
     } else {
       // Попытка извлечь число из строки
-      const match = normalRange.match(/(\d+(?:\.\d+)?)/);
+      const match = normalRange.match(/(\d+(?:[,.]\d+)?)/);
       if (match) {
-        minNormal = maxNormal = parseFloat(match[1]);
+        const value = parseFloat(match[1].replace(',', '.'));
+        if (!isNaN(value)) {
+          minNormal = maxNormal = value;
+        }
       }
     }
 
     let deviation = 0;
-    if (biomarker.status === 'high' && maxNormal !== Infinity) {
+    if (biomarker.status === 'high' && maxNormal !== Infinity && maxNormal > 0) {
       deviation = ((currentValue - maxNormal) / maxNormal) * 100;
     } else if (biomarker.status === 'low' && minNormal > 0) {
       deviation = ((minNormal - currentValue) / minNormal) * 100;
@@ -308,8 +324,9 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
   const calculateTrendPercentage = () => {
     if (history.length < 2) return null;
     
-    const latest = parseFloat(history[0].value);
-    const previous = parseFloat(history[1].value);
+    // Нормализуем значения - заменяем запятые на точки
+    const latest = parseFloat(history[0].value.replace(',', '.'));
+    const previous = parseFloat(history[1].value.replace(',', '.'));
     
     if (isNaN(latest) || isNaN(previous)) return null;
     
@@ -345,7 +362,7 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
     const filteredHistory = filterHistoryByPeriod();
     return filteredHistory.reverse().map(record => ({
       date: format(new Date(record.date), 'dd MMM', { locale: ru }),
-      value: parseFloat(record.value) || 0,
+      value: parseFloat(record.value.replace(',', '.')) || 0, // Нормализуем значения
       originalDate: record.date
     }));
   };
