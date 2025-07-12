@@ -65,41 +65,37 @@ const UserHealthGoalsTab: React.FC<UserHealthGoalsTabProps> = ({ healthProfile }
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Заголовок */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Мои цели здоровья</h2>
-          <p className="text-muted-foreground">Ваши персональные цели, созданные при настройке профиля</p>
-        </div>
+      <div>
+        <h2 className="text-base font-medium text-gray-900 mb-1">Мои цели здоровья</h2>
+        <p className="text-sm text-gray-500">Ваши персональные цели, созданные при настройке профиля</p>
       </div>
 
       {/* Цели из профиля здоровья */}
       {healthProfile?.healthGoals && healthProfile.healthGoals.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-foreground">Цели из профиля здоровья</h3>
-          <div className="grid gap-4">
+          <h3 className="text-sm font-medium text-gray-900">Цели из профиля здоровья</h3>
+          <div className="space-y-3">
             {translateHealthGoals(healthProfile.healthGoals).map((goal: string, index: number) => (
-              <Card key={`profile-${index}`} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-lg font-semibold">{goal}</h3>
-                        <Badge className="bg-blue-50 text-blue-700 border-blue-200">
-                          Из профиля
-                        </Badge>
-                        <Badge className="bg-green-50 text-green-700 border-green-200">
-                          Активная
-                        </Badge>
-                      </div>
-                      <p className="text-muted-foreground mb-3">
-                        Цель создана при настройке профиля здоровья
-                      </p>
+              <div key={`profile-${index}`} className="bg-white border border-gray-100 rounded-lg p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="text-sm font-medium text-gray-900">{goal}</h4>
+                      <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-blue-50 text-blue-700">
+                        Из профиля
+                      </span>
+                      <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-green-50 text-green-700">
+                        Активная
+                      </span>
                     </div>
+                    <p className="text-sm text-gray-500">
+                      Цель создана при настройке профиля здоровья
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -107,74 +103,70 @@ const UserHealthGoalsTab: React.FC<UserHealthGoalsTabProps> = ({ healthProfile }
 
       {/* Пользовательские цели */}
       {goals.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Пока нет пользовательских целей</h3>
-            <p className="text-muted-foreground">
-              Пользовательские цели создаются при заполнении профиля здоровья
-            </p>
-          </CardContent>
-        </Card>
+        <div className="text-center py-12">
+          <Target className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+          <h3 className="text-sm font-medium text-gray-900 mb-2">Пока нет пользовательских целей</h3>
+          <p className="text-sm text-gray-500">
+            Пользовательские цели создаются при заполнении профиля здоровья
+          </p>
+        </div>
       ) : (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-foreground">Пользовательские цели</h3>
-          <div className="grid gap-4">
+          <h3 className="text-sm font-medium text-gray-900">Пользовательские цели</h3>
+          <div className="space-y-3">
             {goals.map((goal) => (
-              <Card key={goal.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-lg font-semibold">{goal.title}</h3>
-                        <Badge className={getPriorityColor(goal.priority || 'medium')}>
-                          {getPriorityText(goal.priority || 'medium')}
-                        </Badge>
-                        <Badge variant="outline">
-                          {getCategoryText(goal.category || 'other')}
-                        </Badge>
-                        {goal.is_active && (
-                          <Badge className="bg-green-50 text-green-700 border-green-200">
-                            Активная
-                          </Badge>
-                        )}
-                      </div>
-
-                      {goal.description && (
-                        <p className="text-muted-foreground mb-3">{goal.description}</p>
+              <div key={goal.id} className="bg-white border border-gray-100 rounded-lg p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="text-sm font-medium text-gray-900">{goal.title}</h4>
+                      <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs ${getPriorityColor(goal.priority || 'medium')}`}>
+                        {getPriorityText(goal.priority || 'medium')}
+                      </span>
+                      <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-700">
+                        {getCategoryText(goal.category || 'other')}
+                      </span>
+                      {goal.is_active && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-green-50 text-green-700">
+                          Активная
+                        </span>
                       )}
+                    </div>
 
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        {goal.end_date && (
-                          <div className="flex items-center gap-1">
-                            <CalendarIcon className="h-4 w-4" />
-                            <span>
-                              До: {format(new Date(goal.end_date), "d MMMM yyyy", { locale: ru })}
-                            </span>
-                          </div>
-                        )}
+                    {goal.description && (
+                      <p className="text-sm text-gray-500 mb-2">{goal.description}</p>
+                    )}
+
+                    <div className="flex items-center gap-4 text-xs text-gray-400">
+                      {goal.end_date && (
                         <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
+                          <CalendarIcon className="h-3 w-3" />
                           <span>
-                            Создана: {goal.created_at ? format(new Date(goal.created_at), "d MMMM", { locale: ru }) : 'Неизвестно'}
+                            До: {format(new Date(goal.end_date), "d MMMM yyyy", { locale: ru })}
                           </span>
                         </div>
+                      )}
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        <span>
+                          Создана: {goal.created_at ? format(new Date(goal.created_at), "d MMMM", { locale: ru }) : 'Неизвестно'}
+                        </span>
                       </div>
                     </div>
-
-                    <div className="flex gap-2 ml-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteGoal(goal.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
                   </div>
-                </CardContent>
-              </Card>
+
+                  <div className="flex gap-2 ml-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteGoal(goal.id)}
+                      className="text-red-600 hover:text-red-700 h-7 w-7 p-0"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
