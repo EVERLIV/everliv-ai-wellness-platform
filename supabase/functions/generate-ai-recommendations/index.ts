@@ -7,6 +7,37 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Функция для расчета полноты данных
+function calculateCompletenessScore(aiProfile: any): number {
+  let score = 0;
+  let maxScore = 0;
+
+  // Базовые демографические данные (20 баллов)
+  maxScore += 20;
+  if (aiProfile.age) score += 5;
+  if (aiProfile.gender) score += 5;
+  if (aiProfile.height && aiProfile.weight) score += 10;
+
+  // Профиль здоровья (30 баллов)
+  maxScore += 30;
+  if (aiProfile.health_profile_data) score += 30;
+
+  // Биомаркеры (25 баллов)
+  maxScore += 25;
+  const biomarkersCount = aiProfile.biomarkers?.length || 0;
+  if (biomarkersCount > 0) score += Math.min(25, biomarkersCount * 2);
+
+  // Метрики образа жизни (15 баллов)
+  maxScore += 15;
+  if (aiProfile.health_metrics_count_30d > 0) score += Math.min(15, aiProfile.health_metrics_count_30d);
+
+  // Питание (10 баллов)
+  maxScore += 10;
+  if (aiProfile.nutrition_tracking_days_30d > 0) score += Math.min(10, aiProfile.nutrition_tracking_days_30d);
+
+  return Math.round((score / maxScore) * 100);
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -43,172 +74,96 @@ serve(async (req) => {
 
     console.log('Generating AI recommendations for user:', user.id);
 
-    // Получаем данные пользователя
-    console.log('Fetching user data for user:', user.id);
+    // Получаем агрегированные данные из нового VIEW
+    console.log('Fetching aggregated user data from view for user:', user.id);
     
-    // Получаем профиль пользователя из таблицы profiles
-    const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles')
+    const { data: aiProfile, error: profileError } = await supabaseClient
+      .from('user_health_ai_profile')
       .select('*')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .maybeSingle();
 
     if (profileError) {
-      console.error('Profile fetch error:', profileError);
+      console.error('AI profile fetch error:', profileError);
     }
-    console.log('Profile data:', profile);
+    console.log('AI profile data loaded:', !!aiProfile);
 
-    // Получаем профиль здоровья из health_profiles
-    const { data: healthProfile, error: healthProfileError } = await supabaseClient
-      .from('health_profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
-    if (healthProfileError) {
-      console.error('Health profile fetch error:', healthProfileError);
-    }
-    console.log('Health profile data:', healthProfile);
-
-    // Получаем медицинские анализы
-    const { data: analyses, error: analysesError } = await supabaseClient
-      .from('medical_analyses')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (analysesError) {
-      console.error('Analyses fetch error:', analysesError);
-    }
-    console.log('Medical analyses:', analyses?.length || 0, 'items');
-
-    // Получаем биомаркеры для всех анализов пользователя
-    let biomarkers = [];
-    if (analyses && analyses.length > 0) {
-      const analysisIds = analyses.map(a => a.id);
-      const { data: biomarkersData, error: biomarkersError } = await supabaseClient
-        .from('biomarkers')
-        .select('*')
-        .in('analysis_id', analysisIds)
-        .order('created_at', { ascending: false });
-
-      if (biomarkersError) {
-        console.error('Biomarkers fetch error:', biomarkersError);
-      } else {
-        biomarkers = biomarkersData || [];
-      }
-    }
-    console.log('Biomarkers data:', biomarkers.length, 'items');
-
-    // Получаем записи о питании
-    const { data: foodEntries, error: foodError } = await supabaseClient
-      .from('food_entries')
-      .select('*')
-      .eq('user_id', user.id)
-      .gte('entry_date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-      .order('entry_date', { ascending: false });
-
-    if (foodError) {
-      console.error('Food entries fetch error:', foodError);
-    }
-    console.log('Food entries:', foodEntries?.length || 0, 'items');
-
-    // Получаем метрики здоровья
-    const { data: healthMetrics, error: metricsError } = await supabaseClient
-      .from('daily_health_metrics')
-      .select('*')
-      .eq('user_id', user.id)
-      .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-      .order('date', { ascending: false });
-
-    if (metricsError) {
-      console.error('Health metrics fetch error:', metricsError);
-    }
-    console.log('Health metrics data:', healthMetrics?.length || 0, 'items');
-
-    // Формируем данные для анализа
-    const analysisData = {
-      profile: {
-        // Данные из profiles
-        first_name: profile?.first_name,
-        last_name: profile?.last_name,
-        age: profile?.date_of_birth ? new Date().getFullYear() - new Date(profile.date_of_birth).getFullYear() : null,
-        gender: profile?.gender,
-        height: profile?.height,
-        weight: profile?.weight,
-        medical_conditions: profile?.medical_conditions || [],
-        medications: profile?.medications || [],
-        goals: profile?.goals || [],
-        // Данные из health_profiles
-        health_profile_data: healthProfile?.profile_data || null
+    // Формируем структурированные данные для ИИ
+    const analysisData = aiProfile ? {
+      demographics: {
+        age: aiProfile.age,
+        gender: aiProfile.gender,
+        height: aiProfile.height,
+        weight: aiProfile.weight,
+        bmi: aiProfile.bmi,
+        name: `${aiProfile.first_name || ''} ${aiProfile.last_name || ''}`.trim()
       },
-      biomarkers: biomarkers.map((b: any) => ({
-        name: b.name,
-        value: b.value,
-        reference_range: b.reference_range,
-        status: b.status,
-        created_at: b.created_at
-      })),
-      analyses_summary: analyses?.map((a: any) => ({
-        type: a.analysis_type,
-        date: a.created_at,
-        summary: a.summary,
-        risk_level: a.results?.riskLevel
-      })) || [],
+      medical_profile: {
+        conditions: aiProfile.medical_conditions || [],
+        allergies: aiProfile.allergies || [],
+        medications: aiProfile.medications || [],
+        profile_goals: aiProfile.profile_goals || [],
+        health_profile_data: aiProfile.health_profile_data
+      },
+      biomarkers: {
+        total_count: aiProfile.biomarkers?.length || 0,
+        latest_data: aiProfile.biomarkers || [],
+        analyses_count: aiProfile.analyses_count || 0,
+        last_test_date: aiProfile.last_analysis_date
+      },
+      lifestyle_metrics: {
+        tracking_period_days: aiProfile.health_metrics_count_30d || 0,
+        averages_30d: {
+          weight: aiProfile.avg_weight_30d,
+          steps: aiProfile.avg_steps_30d,
+          sleep_hours: aiProfile.avg_sleep_30d,
+          exercise_minutes: aiProfile.avg_exercise_30d,
+          stress_level: aiProfile.avg_stress_30d,
+          mood_level: aiProfile.avg_mood_30d,
+          water_intake: aiProfile.avg_water_30d,
+          nutrition_quality: aiProfile.avg_nutrition_30d
+        }
+      },
       nutrition: {
-        total_entries: foodEntries?.length || 0,
-        recent_calories: foodEntries?.length ? foodEntries.reduce((sum: number, f: any) => sum + (f.calories || 0), 0) / foodEntries.length : 0,
-        recent_protein: foodEntries?.length ? foodEntries.reduce((sum: number, f: any) => sum + (f.protein || 0), 0) / foodEntries.length : 0,
-        recent_carbs: foodEntries?.length ? foodEntries.reduce((sum: number, f: any) => sum + (f.carbs || 0), 0) / foodEntries.length : 0,
-        recent_fat: foodEntries?.length ? foodEntries.reduce((sum: number, f: any) => sum + (f.fat || 0), 0) / foodEntries.length : 0
+        tracking_days_30d: aiProfile.nutrition_tracking_days_30d || 0,
+        averages_30d: {
+          calories: aiProfile.avg_calories_30d,
+          protein: aiProfile.avg_protein_30d,
+          carbs: aiProfile.avg_carbs_30d,
+          fat: aiProfile.avg_fat_30d
+        }
       },
-      health_metrics: {
-        total_entries: healthMetrics?.length || 0,
-        avg_weight: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.weight || 0), 0) / healthMetrics.length : 0,
-        avg_steps: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.steps || 0), 0) / healthMetrics.length : 0,
-        avg_sleep: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.sleep_hours || 0), 0) / healthMetrics.length : 0,
-        avg_exercise: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.exercise_minutes || 0), 0) / healthMetrics.length : 0,
-        avg_water: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.water_intake || 0), 0) / healthMetrics.length : 0,
-        avg_stress: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.stress_level || 0), 0) / healthMetrics.length : 0,
-        avg_mood: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.mood_level || 0), 0) / healthMetrics.length : 0,
-        avg_nutrition: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.nutrition_quality || 0), 0) / healthMetrics.length : 0
+      goals: aiProfile.user_goals || [],
+      data_completeness: {
+        has_basic_profile: !!(aiProfile.age && aiProfile.gender),
+        has_health_profile: !!aiProfile.health_profile_data,
+        has_biomarkers: (aiProfile.biomarkers?.length || 0) > 0,
+        has_lifestyle_data: (aiProfile.health_metrics_count_30d || 0) > 0,
+        has_nutrition_data: (aiProfile.nutrition_tracking_days_30d || 0) > 0,
+        completeness_score: calculateCompletenessScore(aiProfile)
       }
-    };
+    } : null;
 
     console.log('Analysis data summary:', {
-      hasProfile: !!analysisData.profile,
-      hasHealthProfile: !!analysisData.profile.health_profile_data,
-      biomarkersCount: analysisData.biomarkers.length,
-      analysesCount: analysisData.analyses_summary.length,
-      nutritionEntries: analysisData.nutrition.total_entries,
-      healthMetricsEntries: analysisData.health_metrics.total_entries,
-      profileAge: analysisData.profile.age,
-      avgSteps: analysisData.health_metrics.avg_steps,
-      avgSleep: analysisData.health_metrics.avg_sleep
+      hasProfile: !!analysisData,
+      demographics: analysisData?.demographics,
+      biomarkersCount: analysisData?.biomarkers.total_count,
+      lifestyleTrackingDays: analysisData?.lifestyle_metrics.tracking_period_days,
+      nutritionTrackingDays: analysisData?.nutrition.tracking_days_30d,
+      completenessScore: analysisData?.data_completeness.completeness_score
     });
 
-    // Отладочная информация о данных
-    console.log('Detailed data check:', {
-      profile: !!profile,
-      healthProfile: !!healthProfile,
-      biomarkers: biomarkers.length,
-      healthMetrics: healthMetrics?.length || 0,
-      foodEntries: foodEntries?.length || 0,
-      profileGender: profile?.gender,
-      profileAge: profile?.date_of_birth ? new Date().getFullYear() - new Date(profile.date_of_birth).getFullYear() : null,
-      healthProfileData: !!healthProfile?.profile_data
-    });
+    // Проверяем наличие данных для анализа
+    const hasMinimalData = analysisData && (
+      analysisData.demographics.age || 
+      analysisData.demographics.gender ||
+      analysisData.medical_profile.health_profile_data ||
+      analysisData.biomarkers.total_count > 0 || 
+      analysisData.lifestyle_metrics.tracking_period_days > 0 ||
+      analysisData.nutrition.tracking_days_30d > 0
+    );
 
-    // Проверяем наличие достаточных данных для полного анализа
-    const hasMinimalData = analysisData.profile.age || 
-                          analysisData.profile.gender ||
-                          analysisData.profile.health_profile_data ||
-                          analysisData.biomarkers.length > 0 || 
-                          analysisData.analyses_summary.length > 0 ||
-                          analysisData.nutrition.total_entries > 0 ||
-                          analysisData.health_metrics.total_entries > 0;
-
-    // Даже если основных данных мало, попробуем сгенерировать базовые рекомендации
+    // Если данных мало, генерируем базовые рекомендации
     if (!hasMinimalData) {
       console.log('Insufficient data for full AI analysis, providing basic recommendations');
       
@@ -304,9 +259,10 @@ serve(async (req) => {
         recommendations: basicRecommendations,
         note: 'Базовые рекомендации. Заполните профиль для персонализированного анализа.',
         data_status: {
-          hasProfile: !!analysisData.profile,
-          biomarkersCount: analysisData.biomarkers.length,
-          healthMetricsEntries: analysisData.health_metrics.total_entries
+          hasProfile: !!analysisData,
+          biomarkersCount: analysisData?.biomarkers.total_count || 0,
+          lifestyleTrackingDays: analysisData?.lifestyle_metrics.tracking_period_days || 0,
+          completenessScore: analysisData?.data_completeness.completeness_score || 0
         }
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -528,7 +484,8 @@ ${JSON.stringify(analysisData, null, 2)}
 
     return new Response(JSON.stringify({ 
       recommendations,
-      saved_count: recommendationsToSave.length 
+      saved_count: recommendationsToSave.length,
+      data_completeness_score: analysisData.data_completeness.completeness_score
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

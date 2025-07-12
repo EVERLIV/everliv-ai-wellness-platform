@@ -1651,7 +1651,46 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_health_ai_profile: {
+        Row: {
+          age: number | null
+          allergies: string[] | null
+          analyses_count: number | null
+          avg_calories_30d: number | null
+          avg_carbs_30d: number | null
+          avg_exercise_30d: number | null
+          avg_fat_30d: number | null
+          avg_mood_30d: number | null
+          avg_nutrition_30d: number | null
+          avg_protein_30d: number | null
+          avg_sleep_30d: number | null
+          avg_steps_30d: number | null
+          avg_stress_30d: number | null
+          avg_water_30d: number | null
+          avg_weight_30d: number | null
+          biomarkers: Json | null
+          bmi: number | null
+          date_of_birth: string | null
+          first_name: string | null
+          gender: string | null
+          health_metrics_count_30d: number | null
+          health_profile_created: string | null
+          health_profile_data: Json | null
+          height: number | null
+          last_analysis_date: string | null
+          last_name: string | null
+          medical_conditions: string[] | null
+          medications: string[] | null
+          nutrition_tracking_days_30d: number | null
+          profile_created: string | null
+          profile_goals: string[] | null
+          profile_updated: string | null
+          user_goals: Json | null
+          user_id: string | null
+          weight: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_dynamic_health_score: {

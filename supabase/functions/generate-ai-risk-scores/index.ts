@@ -52,146 +52,118 @@ serve(async (req) => {
 
     console.log('Generating AI risk scores for user:', user.id);
 
-    // Получаем данные пользователя
-    console.log('Fetching user data for user:', user.id);
+    // Получаем агрегированные данные из нового VIEW
+    console.log('Fetching aggregated user data from view for user:', user.id);
     
-    // Получаем профиль пользователя из таблицы profiles
-    const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles')
+    const { data: aiProfile, error: profileError } = await supabaseClient
+      .from('user_health_ai_profile')
       .select('*')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .maybeSingle();
 
     if (profileError) {
-      console.error('Profile fetch error:', profileError);
+      console.error('AI profile fetch error:', profileError);
     }
-    console.log('Profile data:', profile);
+    console.log('AI profile data loaded:', !!aiProfile);
 
-    // Получаем профиль здоровья из health_profiles
-    const { data: healthProfile, error: healthProfileError } = await supabaseClient
-      .from('health_profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
-    if (healthProfileError) {
-      console.error('Health profile fetch error:', healthProfileError);
-    }
-    console.log('Health profile data:', healthProfile);
-
-    // Получаем медицинские анализы
-    const { data: analyses, error: analysesError } = await supabaseClient
-      .from('medical_analyses')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (analysesError) {
-      console.error('Analyses fetch error:', analysesError);
-    }
-    console.log('Medical analyses:', analyses?.length || 0, 'items');
-
-    // Получаем биомаркеры для всех анализов пользователя
-    let biomarkers = [];
-    if (analyses && analyses.length > 0) {
-      const analysisIds = analyses.map(a => a.id);
-      const { data: biomarkersData, error: biomarkersError } = await supabaseClient
-        .from('biomarkers')
-        .select('*')
-        .in('analysis_id', analysisIds)
-        .order('created_at', { ascending: false });
-
-      if (biomarkersError) {
-        console.error('Biomarkers fetch error:', biomarkersError);
-      } else {
-        biomarkers = biomarkersData || [];
-      }
-    }
-    console.log('Biomarkers data:', biomarkers.length, 'items');
-
-    // Получаем метрики здоровья
-    const { data: healthMetrics, error: metricsError } = await supabaseClient
-      .from('daily_health_metrics')
-      .select('*')
-      .eq('user_id', user.id)
-      .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-      .order('date', { ascending: false });
-
-    if (metricsError) {
-      console.error('Health metrics fetch error:', metricsError);
-    }
-    console.log('Health metrics data:', healthMetrics?.length || 0, 'items');
-
-    // Отладочная информация о данных
-    console.log('Data check:', {
-      profile: !!profile,
-      healthProfile: !!healthProfile,
-      biomarkers: biomarkers.length,
-      healthMetrics: healthMetrics?.length || 0,
-      profileGender: profile?.gender,
-      profileAge: profile?.date_of_birth ? new Date().getFullYear() - new Date(profile.date_of_birth).getFullYear() : null
-    });
-
-    // Проверяем наличие данных для анализа - теперь более гибкая проверка
-    const hasAnyData = profile || 
-                      healthProfile || 
-                      (biomarkers && biomarkers.length > 0) || 
-                      (healthMetrics && healthMetrics.length > 0);
-
-    // Даже если данных мало, генерируем базовые риски
-    if (!hasAnyData) {
-      console.log('No user data found, generating basic risk assessment');
-    }
-
-    // Формируем данные для анализа
-    const analysisData = {
-      profile: {
-        // Данные из profiles
-        first_name: profile?.first_name,
-        age: profile?.date_of_birth ? new Date().getFullYear() - new Date(profile.date_of_birth).getFullYear() : null,
-        gender: profile?.gender,
-        height: profile?.height,
-        weight: profile?.weight,
-        medical_conditions: profile?.medical_conditions || [],
-        medications: profile?.medications || [],
-        allergies: profile?.allergies || [],
-        // Данные из health_profiles
-        health_profile_data: healthProfile?.profile_data || null
+    // Формируем структурированные данные для ИИ
+    const analysisData = aiProfile ? {
+      demographics: {
+        age: aiProfile.age,
+        gender: aiProfile.gender,
+        height: aiProfile.height,
+        weight: aiProfile.weight,
+        bmi: aiProfile.bmi,
+        name: `${aiProfile.first_name || ''} ${aiProfile.last_name || ''}`.trim()
       },
-      biomarkers: biomarkers.map((b: any) => ({
-        name: b.name,
-        value: b.value,
-        reference_range: b.reference_range,
-        status: b.status
-      })),
-      analyses_summary: analyses?.map((a: any) => ({
-        type: a.analysis_type,
-        date: a.created_at,
-        summary: a.summary,
-        risk_level: a.results?.riskLevel
-      })) || [],
-      lifestyle: {
-        entries_count: healthMetrics?.length || 0,
-        avg_sleep: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.sleep_hours || 0), 0) / healthMetrics.length : 0,
-        avg_steps: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.steps || 0), 0) / healthMetrics.length : 0,
-        avg_exercise: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.exercise_minutes || 0), 0) / healthMetrics.length : 0,
-        avg_stress: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.stress_level || 0), 0) / healthMetrics.length : 0,
-        avg_nutrition: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.nutrition_quality || 0), 0) / healthMetrics.length : 0,
-        avg_water: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.water_intake || 0), 0) / healthMetrics.length : 0,
-        avg_mood: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.mood_level || 0), 0) / healthMetrics.length : 0
-      }
-    };
+      medical_profile: {
+        conditions: aiProfile.medical_conditions || [],
+        allergies: aiProfile.allergies || [],
+        medications: aiProfile.medications || [],
+        profile_goals: aiProfile.profile_goals || [],
+        health_profile_data: aiProfile.health_profile_data
+      },
+      biomarkers: {
+        total_count: aiProfile.biomarkers?.length || 0,
+        latest_data: aiProfile.biomarkers || [],
+        analyses_count: aiProfile.analyses_count || 0,
+        last_test_date: aiProfile.last_analysis_date
+      },
+      lifestyle_metrics: {
+        tracking_period_days: aiProfile.health_metrics_count_30d || 0,
+        averages_30d: {
+          weight: aiProfile.avg_weight_30d,
+          steps: aiProfile.avg_steps_30d,
+          sleep_hours: aiProfile.avg_sleep_30d,
+          exercise_minutes: aiProfile.avg_exercise_30d,
+          stress_level: aiProfile.avg_stress_30d,
+          mood_level: aiProfile.avg_mood_30d,
+          water_intake: aiProfile.avg_water_30d,
+          nutrition_quality: aiProfile.avg_nutrition_30d
+        }
+      },
+      nutrition: {
+        tracking_days_30d: aiProfile.nutrition_tracking_days_30d || 0,
+        averages_30d: {
+          calories: aiProfile.avg_calories_30d,
+          protein: aiProfile.avg_protein_30d,
+          carbs: aiProfile.avg_carbs_30d,
+          fat: aiProfile.avg_fat_30d
+        }
+      },
+      goals: aiProfile.user_goals || []
+    } : null;
 
     console.log('Analysis data summary:', {
-      hasProfile: !!analysisData.profile,
-      hasHealthProfile: !!analysisData.profile.health_profile_data,
-      biomarkersCount: analysisData.biomarkers.length,
-      analysesCount: analysisData.analyses_summary.length,
-      healthMetricsEntries: analysisData.lifestyle.entries_count,
-      profileAge: analysisData.profile.age,
-      avgSteps: analysisData.lifestyle.avg_steps,
-      avgSleep: analysisData.lifestyle.avg_sleep
+      hasProfile: !!analysisData,
+      demographics: analysisData?.demographics,
+      biomarkersCount: analysisData?.biomarkers.total_count,
+      lifestyleTrackingDays: analysisData?.lifestyle_metrics.tracking_period_days,
+      nutritionTrackingDays: analysisData?.nutrition.tracking_days_30d
     });
+
+    // Проверяем наличие данных для анализа - даже минимальные данные позволяют провести базовый анализ
+    const hasAnyData = analysisData && (
+      analysisData.demographics.age || 
+      analysisData.demographics.gender ||
+      analysisData.medical_profile.health_profile_data ||
+      analysisData.biomarkers.total_count > 0 || 
+      analysisData.lifestyle_metrics.tracking_period_days > 0 ||
+      analysisData.nutrition.tracking_days_30d > 0
+    );
+
+    // Если данных совсем нет, генерируем базовые общие риски
+    if (!hasAnyData) {
+      console.log('No user data found, generating basic risk assessment');
+      
+      const basicRiskScores = {
+        general_health: {
+          name: "Общее состояние здоровья",
+          percentage: 15,
+          level: "Низкий",
+          description: "Недостаточно данных для детального анализа. Рекомендуется заполнить профиль здоровья",
+          factors: ["Отсутствие данных о здоровье", "Требуется медицинское обследование"],
+          period: "текущий",
+          mechanism: "Заполните профиль для получения персонализированного анализа рисков"
+        },
+        lifestyle: {
+          name: "Факторы образа жизни",
+          percentage: 10,
+          level: "Низкий",
+          description: "Общие рекомендации по здоровому образу жизни",
+          factors: ["Регулярная активность", "Сбалансированное питание", "Качественный сон"],
+          period: "постоянно",
+          mechanism: "Профилактика основных заболеваний через здоровый образ жизни"
+        }
+      };
+
+      return new Response(JSON.stringify({ 
+        riskScores: basicRiskScores,
+        note: "Базовая оценка рисков. Заполните профиль для детального анализа."
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
     if (!anthropicKey) {
