@@ -10,6 +10,7 @@ import DashboardQuickActionsGrid from '@/components/dashboard/DashboardQuickActi
 import DashboardChatsList from '@/components/dashboard/DashboardChatsList';
 import NutritionSummarySection from '@/components/dashboard/NutritionSummarySection';
 import MyGoalsSection from '@/components/dashboard/health-goals/MyGoalsSection';
+import PriorityMetricsSection from '@/components/dashboard/PriorityMetricsSection';
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -82,6 +83,9 @@ const DashboardPage = () => {
           {/* Левая колонка - Быстрые действия */}
           <div className="lg:col-span-2 space-y-6">
             <DashboardQuickActionsGrid />
+
+            {/* Приоритетные метрики */}
+            <PriorityMetricsSection />
           </div>
 
           {/* Правая колонка - Данные здоровья */}
