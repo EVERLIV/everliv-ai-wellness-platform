@@ -55,7 +55,7 @@ serve(async (req) => {
     // Получаем данные пользователя
     console.log('Fetching user data for user:', user.id);
     
-    // Получаем профиль пользователя
+    // Получаем профиль пользователя из таблицы profiles
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('*')
@@ -67,26 +67,49 @@ serve(async (req) => {
     }
     console.log('Profile data:', profile);
 
-    // Получаем биомаркеры из последних анализов
-    const { data: biomarkers, error: biomarkersError } = await supabaseClient
-      .from('biomarkers')
-      .select(`
-        *,
-        medical_analyses!inner(
-          user_id,
-          created_at,
-          analysis_type
-        )
-      `)
-      .eq('medical_analyses.user_id', user.id)
+    // Получаем профиль здоровья из health_profiles
+    const { data: healthProfile, error: healthProfileError } = await supabaseClient
+      .from('health_profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (healthProfileError) {
+      console.error('Health profile fetch error:', healthProfileError);
+    }
+    console.log('Health profile data:', healthProfile);
+
+    // Получаем медицинские анализы
+    const { data: analyses, error: analysesError } = await supabaseClient
+      .from('medical_analyses')
+      .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
-    if (biomarkersError) {
-      console.error('Biomarkers fetch error:', biomarkersError);
+    if (analysesError) {
+      console.error('Analyses fetch error:', analysesError);
     }
-    console.log('Biomarkers data:', biomarkers?.length || 0, 'items');
+    console.log('Medical analyses:', analyses?.length || 0, 'items');
 
-    // Получаем метрики здоровья за последний месяц
+    // Получаем биомаркеры для всех анализов пользователя
+    let biomarkers = [];
+    if (analyses && analyses.length > 0) {
+      const analysisIds = analyses.map(a => a.id);
+      const { data: biomarkersData, error: biomarkersError } = await supabaseClient
+        .from('biomarkers')
+        .select('*')
+        .in('analysis_id', analysisIds)
+        .order('created_at', { ascending: false });
+
+      if (biomarkersError) {
+        console.error('Biomarkers fetch error:', biomarkersError);
+      } else {
+        biomarkers = biomarkersData || [];
+      }
+    }
+    console.log('Biomarkers data:', biomarkers.length, 'items');
+
+    // Получаем метрики здоровья
     const { data: healthMetrics, error: metricsError } = await supabaseClient
       .from('daily_health_metrics')
       .select('*')
@@ -100,7 +123,12 @@ serve(async (req) => {
     console.log('Health metrics data:', healthMetrics?.length || 0, 'items');
 
     // Проверяем наличие данных для анализа
-    if (!profile && (!biomarkers || biomarkers.length === 0) && (!healthMetrics || healthMetrics.length === 0)) {
+    const hasAnyData = profile || 
+                      healthProfile || 
+                      (biomarkers && biomarkers.length > 0) || 
+                      (healthMetrics && healthMetrics.length > 0);
+
+    if (!hasAnyData) {
       console.error('No user data found for analysis');
       return new Response(JSON.stringify({ 
         error: 'Недостаточно данных для анализа. Пожалуйста, заполните профиль и добавьте данные о здоровье.' 
@@ -113,19 +141,29 @@ serve(async (req) => {
     // Формируем данные для анализа
     const analysisData = {
       profile: {
+        // Данные из profiles
+        first_name: profile?.first_name,
         age: profile?.date_of_birth ? new Date().getFullYear() - new Date(profile.date_of_birth).getFullYear() : null,
         gender: profile?.gender,
         height: profile?.height,
         weight: profile?.weight,
         medical_conditions: profile?.medical_conditions || [],
         medications: profile?.medications || [],
-        allergies: profile?.allergies || []
+        allergies: profile?.allergies || [],
+        // Данные из health_profiles
+        health_profile_data: healthProfile?.profile_data || null
       },
-      biomarkers: biomarkers?.map((b: any) => ({
+      biomarkers: biomarkers.map((b: any) => ({
         name: b.name,
         value: b.value,
         reference_range: b.reference_range,
         status: b.status
+      })),
+      analyses_summary: analyses?.map((a: any) => ({
+        type: a.analysis_type,
+        date: a.created_at,
+        summary: a.summary,
+        risk_level: a.results?.riskLevel
       })) || [],
       lifestyle: {
         entries_count: healthMetrics?.length || 0,
@@ -141,7 +179,9 @@ serve(async (req) => {
 
     console.log('Analysis data summary:', {
       hasProfile: !!analysisData.profile,
+      hasHealthProfile: !!analysisData.profile.health_profile_data,
       biomarkersCount: analysisData.biomarkers.length,
+      analysesCount: analysisData.analyses_summary.length,
       healthMetricsEntries: analysisData.lifestyle.entries_count,
       profileAge: analysisData.profile.age,
       avgSteps: analysisData.lifestyle.avg_steps,

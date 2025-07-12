@@ -189,7 +189,11 @@ serve(async (req) => {
 
     // Проверяем наличие достаточных данных для полного анализа
     const hasMinimalData = analysisData.profile.age || 
+                          analysisData.profile.gender ||
+                          analysisData.profile.health_profile_data ||
                           analysisData.biomarkers.length > 0 || 
+                          analysisData.analyses_summary.length > 0 ||
+                          analysisData.nutrition.total_entries > 0 ||
                           analysisData.health_metrics.total_entries > 0;
 
     if (!hasMinimalData) {
