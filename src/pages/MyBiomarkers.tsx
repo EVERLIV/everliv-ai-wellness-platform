@@ -211,6 +211,11 @@ const MyBiomarkers = () => {
     setSelectedBiomarker(null);
   };
 
+  const handleBiomarkerUpdate = () => {
+    // Принудительно перезагружаем данные анализов
+    window.location.reload();
+  };
+
   const biomarkers = processBiomarkerData();
 
   // Фильтрация биомаркеров
@@ -406,6 +411,7 @@ const MyBiomarkers = () => {
         isOpen={isDetailDialogOpen}
         onClose={handleCloseDetailDialog}
         biomarker={selectedBiomarker}
+        onBiomarkerUpdate={handleBiomarkerUpdate}
       />
       
       <MinimalFooter />

@@ -32,6 +32,7 @@ interface BiomarkerDetailDialogProps {
     analysisCount: number;
     trend: 'up' | 'down' | 'stable';
   } | null;
+  onBiomarkerUpdate?: () => void;
 }
 
 interface BiomarkerHistory {
@@ -50,6 +51,7 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
   isOpen,
   onClose,
   biomarker,
+  onBiomarkerUpdate,
 }) => {
   const { user } = useAuth();
   const [history, setHistory] = useState<BiomarkerHistory[]>([]);
@@ -155,7 +157,7 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
     if (!biomarker || !user) return;
 
     try {
-      // Обновляем последний анализ с новыми данными
+      // Получаем последний анализ пользователя
       const { data: analyses } = await supabase
         .from('medical_analyses')
         .select('id, results')
@@ -171,6 +173,7 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
             : marker
         ) || [];
 
+        // Обновляем анализ
         await supabase
           .from('medical_analyses')
           .update({
@@ -178,13 +181,33 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
               ...latestAnalysis.results,
               markers: updatedMarkers
             },
-            created_at: data.date.toISOString()
+            updated_at: new Date().toISOString()
           })
           .eq('id', latestAnalysis.id);
 
-        alert('Биомаркер успешно обновлен');
-        // Перезагружаем данные
-        fetchBiomarkerHistory();
+        // Обновляем соответствующую запись в таблице biomarkers
+        await supabase
+          .from('biomarkers')
+          .update({
+            value: data.value,
+            created_at: data.date.toISOString()
+          })
+          .eq('analysis_id', latestAnalysis.id)
+          .eq('name', biomarker.name);
+
+        // Перезагружаем данные истории
+        await fetchBiomarkerHistory();
+        
+        // Обновляем текущий биомаркер для отображения
+        biomarker.latestValue = data.value;
+        biomarker.lastUpdated = data.date.toISOString();
+        
+        setIsEditDialogOpen(false);
+        
+        // Если есть callback для обновления родительского компонента
+        if (onBiomarkerUpdate) {
+          onBiomarkerUpdate();
+        }
       }
     } catch (error) {
       console.error('Ошибка при обновлении биомаркера:', error);
