@@ -145,6 +145,115 @@ serve(async (req) => {
       avgSleep: analysisData.health_metrics.avg_sleep
     });
 
+    // Проверяем наличие достаточных данных для полного анализа
+    const hasMinimalData = analysisData.profile.age || 
+                          analysisData.biomarkers.length > 0 || 
+                          analysisData.health_metrics.total_entries > 0;
+
+    if (!hasMinimalData) {
+      console.log('Insufficient data for full AI analysis, providing basic recommendations');
+      
+      // Возвращаем базовые рекомендации при отсутствии данных
+      const basicRecommendations = {
+        prognostic: [
+          {
+            title: "Создание базовой картины здоровья",
+            content: "Для точного прогноза рекомендуется заполнить профиль здоровья и добавить данные о биомаркерах",
+            priority: "high"
+          },
+          {
+            title: "Мониторинг ключевых показателей",
+            content: "Начните отслеживать основные метрики: вес, активность, сон и стресс для построения трендов",
+            priority: "medium"
+          },
+          {
+            title: "Профилактический подход",
+            content: "Регулярные проверки здоровья помогут выявить риски на ранней стадии",
+            priority: "medium"
+          }
+        ],
+        actionable: [
+          {
+            title: "Заполните профиль здоровья",
+            content: "Укажите возраст, пол, рост, вес и основные медицинские данные для персонализированных рекомендаций",
+            priority: "high"
+          },
+          {
+            title: "Добавьте результаты анализов",
+            content: "Загрузите последние анализы крови для оценки биомаркеров и выявления дисбалансов",
+            priority: "high"
+          },
+          {
+            title: "Начните отслеживать активность",
+            content: "Ежедневно записывайте количество шагов, качество сна и уровень стресса",
+            priority: "medium"
+          },
+          {
+            title: "Основы здорового образа жизни",
+            content: "150 минут умеренной физической активности в неделю, 7-9 часов сна, сбалансированное питание",
+            priority: "medium"
+          }
+        ],
+        personalized: [
+          {
+            title: "Начальная оценка здоровья",
+            content: "Пройдите базовое медицинское обследование включая общий анализ крови и биохимию",
+            priority: "high"
+          },
+          {
+            title: "Установка целей здоровья",
+            content: "Определите 2-3 приоритетные цели для улучшения здоровья на ближайшие 3 месяца",
+            priority: "medium"
+          },
+          {
+            title: "Консультация специалиста",
+            content: "Обратитесь к терапевту для составления индивидуального плана профилактики",
+            priority: "medium"
+          }
+        ]
+      };
+
+      // Сохраняем базовые рекомендации
+      const recommendationsToSave = [];
+      
+      for (const [type, recs] of Object.entries(basicRecommendations)) {
+        for (const rec of recs) {
+          recommendationsToSave.push({
+            user_id: user.id,
+            recommendation_type: type,
+            title: rec.title,
+            content: rec.content,
+            priority: rec.priority,
+            source_data: { note: 'Basic recommendations due to insufficient data' }
+          });
+        }
+      }
+
+      if (recommendationsToSave.length > 0) {
+        const { error: saveError } = await supabaseClient
+          .from('ai_recommendations')
+          .insert(recommendationsToSave);
+
+        if (saveError) {
+          console.error('Error saving basic recommendations:', saveError);
+        } else {
+          console.log('Successfully saved basic recommendations');
+        }
+      }
+
+      return new Response(JSON.stringify({ 
+        recommendations: basicRecommendations,
+        note: 'Базовые рекомендации. Заполните профиль для персонализированного анализа.',
+        data_status: {
+          hasProfile: !!analysisData.profile,
+          biomarkersCount: analysisData.biomarkers.length,
+          healthMetricsEntries: analysisData.health_metrics.total_entries
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
     if (!anthropicKey) {
       throw new Error('ANTHROPIC_API_KEY not found');
