@@ -85,7 +85,7 @@ const Dashboard = () => {
       </div>
       
       {/* Персонализированные подсказки по здоровью */}
-      <PersonalizedHealthTips />
+      {/* <PersonalizedHealthTips /> */}
       
       <MinimalFooter />
     </div>
