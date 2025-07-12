@@ -23,6 +23,7 @@ import { translateValue, translateHealthGoals, translateMedications, translateLa
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useHealthGoalsManager } from "@/hooks/useHealthGoalsManager";
+import { useDailyHealthMetrics } from "@/hooks/useDailyHealthMetrics";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Link } from "react-router-dom";
@@ -32,19 +33,6 @@ interface EnhancedHealthProfileDisplayProps {
   onEdit: () => void;
 }
 
-interface DailyMetric {
-  id: string;
-  date: string;
-  steps?: number;
-  exercise_minutes?: number;
-  weight?: number;
-  sleep_hours?: number;
-  sleep_quality?: number;
-  stress_level?: number;
-  mood_level?: number;
-  water_intake?: number;
-  notes?: string;
-}
 
 const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> = ({
   healthProfile,
@@ -52,7 +40,7 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
 }) => {
   const { user } = useAuth();
   const { goals } = useHealthGoalsManager();
-  const [dailyMetrics, setDailyMetrics] = useState<DailyMetric[]>([]);
+  const { metrics: dailyMetrics, todayMetrics, isLoading: metricsLoading } = useDailyHealthMetrics();
 
   const calculateBMI = (weight: number, height: number): number => {
     const heightInMeters = height / 100;
@@ -66,27 +54,6 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
     return "Ожирение";
   };
 
-  const fetchDailyMetrics = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('daily_health_metrics')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('date', { ascending: false })
-        .limit(30);
-
-      if (error) throw error;
-      setDailyMetrics(data || []);
-    } catch (error) {
-      console.error('Error fetching daily metrics:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchDailyMetrics();
-  }, [user]);
 
   const bmi = calculateBMI(healthProfile.weight, healthProfile.height);
 
@@ -276,15 +243,15 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
                         <div className="text-sm text-gray-900">{healthProfile.waterIntake} стаканов</div>
                       </div>
                     </div>
-                    {dailyMetrics.length > 0 && (
+                    {(todayMetrics || dailyMetrics.length > 0) && (
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs text-gray-500 mb-1">Последние шаги</label>
-                          <div className="text-sm text-gray-900">{dailyMetrics[0].steps?.toLocaleString() || 'Нет данных'}</div>
+                          <div className="text-sm text-gray-900">{(todayMetrics?.steps || dailyMetrics[0]?.steps)?.toLocaleString() || 'Нет данных'}</div>
                         </div>
                         <div>
                           <label className="block text-xs text-gray-500 mb-1">Тренировки (мин)</label>
-                          <div className="text-sm text-gray-900">{dailyMetrics[0].exercise_minutes || 'Нет данных'}</div>
+                          <div className="text-sm text-gray-900">{todayMetrics?.exercise_minutes || dailyMetrics[0]?.exercise_minutes || 'Нет данных'}</div>
                         </div>
                       </div>
                     )}
@@ -463,12 +430,6 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
                       <div className="space-y-1">
                         <label className="block text-xs text-gray-500">Качество сна</label>
                         <div className="text-sm text-gray-900">{dailyMetrics[0].sleep_quality}/10</div>
-                      </div>
-                    )}
-                    {dailyMetrics[0].weight && (
-                      <div className="space-y-1">
-                        <label className="block text-xs text-gray-500">Текущий вес</label>
-                        <div className="text-sm text-gray-900">{dailyMetrics[0].weight} кг</div>
                       </div>
                     )}
                   </div>
