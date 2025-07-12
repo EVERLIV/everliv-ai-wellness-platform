@@ -122,20 +122,25 @@ serve(async (req) => {
     }
     console.log('Health metrics data:', healthMetrics?.length || 0, 'items');
 
-    // Проверяем наличие данных для анализа
+    // Отладочная информация о данных
+    console.log('Data check:', {
+      profile: !!profile,
+      healthProfile: !!healthProfile,
+      biomarkers: biomarkers.length,
+      healthMetrics: healthMetrics?.length || 0,
+      profileGender: profile?.gender,
+      profileAge: profile?.date_of_birth ? new Date().getFullYear() - new Date(profile.date_of_birth).getFullYear() : null
+    });
+
+    // Проверяем наличие данных для анализа - теперь более гибкая проверка
     const hasAnyData = profile || 
                       healthProfile || 
                       (biomarkers && biomarkers.length > 0) || 
                       (healthMetrics && healthMetrics.length > 0);
 
+    // Даже если данных мало, генерируем базовые риски
     if (!hasAnyData) {
-      console.error('No user data found for analysis');
-      return new Response(JSON.stringify({ 
-        error: 'Недостаточно данных для анализа. Пожалуйста, заполните профиль и добавьте данные о здоровье.' 
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      console.log('No user data found, generating basic risk assessment');
     }
 
     // Формируем данные для анализа

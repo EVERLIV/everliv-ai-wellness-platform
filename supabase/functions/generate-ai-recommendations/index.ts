@@ -187,6 +187,18 @@ serve(async (req) => {
       avgSleep: analysisData.health_metrics.avg_sleep
     });
 
+    // Отладочная информация о данных
+    console.log('Detailed data check:', {
+      profile: !!profile,
+      healthProfile: !!healthProfile,
+      biomarkers: biomarkers.length,
+      healthMetrics: healthMetrics?.length || 0,
+      foodEntries: foodEntries?.length || 0,
+      profileGender: profile?.gender,
+      profileAge: profile?.date_of_birth ? new Date().getFullYear() - new Date(profile.date_of_birth).getFullYear() : null,
+      healthProfileData: !!healthProfile?.profile_data
+    });
+
     // Проверяем наличие достаточных данных для полного анализа
     const hasMinimalData = analysisData.profile.age || 
                           analysisData.profile.gender ||
@@ -196,6 +208,7 @@ serve(async (req) => {
                           analysisData.nutrition.total_entries > 0 ||
                           analysisData.health_metrics.total_entries > 0;
 
+    // Даже если основных данных мало, попробуем сгенерировать базовые рекомендации
     if (!hasMinimalData) {
       console.log('Insufficient data for full AI analysis, providing basic recommendations');
       

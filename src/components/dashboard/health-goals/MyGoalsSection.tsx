@@ -54,88 +54,58 @@ const MyGoalsSection: React.FC = () => {
   const userGoals = goals || [];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {/* Цели из профиля здоровья */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
-          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-          Цели из профиля здоровья
-        </h3>
-        
-        {healthGoals.length === 0 ? (
-          <div className="text-center py-4 bg-gray-50/50 rounded-lg border border-gray-200/50">
-            <Target className="h-6 w-6 mx-auto text-gray-400 mb-2" />
-            <p className="text-xs text-gray-500 mb-2">Цели не заданы</p>
-            <Button 
-              size="sm" 
-              onClick={() => navigate('/health-profile')} 
-              className="text-xs px-3 py-1.5 hover:bg-blue-600 hover:shadow-none transition-none"
-            >
-              Добавить цели
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {healthGoals.slice(0, 4).map((goal, index) => (
-              <div key={index} className="flex items-center gap-2 p-2.5 bg-purple-50/50 rounded-lg border border-purple-200/30">
-                <div className="w-1.5 h-1.5 bg-purple-500 rounded-full flex-shrink-0"></div>
-                <span className="text-sm text-gray-800 font-medium">
-                  {translateGoal(goal)}
-                </span>
-              </div>
-            ))}
-            {healthGoals.length > 4 && (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium text-gray-900">Мои цели</h3>
+        <Button 
+          size="sm" 
+          variant="ghost"
+          onClick={() => navigate('/health-profile')} 
+          className="text-xs h-7 px-2"
+        >
+          Все цели
+        </Button>
+      </div>
+      
+      {healthGoals.length === 0 && userGoals.length === 0 ? (
+        <div className="text-center py-3 bg-gray-50/50 rounded-lg border border-gray-200/50">
+          <Target className="h-4 w-4 mx-auto text-gray-400 mb-1" />
+          <p className="text-xs text-gray-500 mb-2">Цели не заданы</p>
+          <Button 
+            size="sm" 
+            onClick={() => navigate('/health-profile')} 
+            className="text-xs px-3 py-1 h-6"
+          >
+            Добавить
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-1.5">
+          {/* Показываем все цели вместе, максимум 3 */}
+          {[...healthGoals.slice(0, 2), ...userGoals.slice(0, 1)].map((goal, index) => (
+            <div key={typeof goal === 'string' ? `health-${index}` : `user-${goal.id}`} 
+                 className="flex items-center gap-2 p-2 bg-gray-50/50 rounded border border-gray-200/30">
+              <div className={`w-1 h-1 rounded-full flex-shrink-0 ${typeof goal === 'string' ? 'bg-purple-500' : 'bg-green-500'}`}></div>
+              <span className="text-xs text-gray-700 truncate">
+                {typeof goal === 'string' ? translateGoal(goal) : goal.title}
+              </span>
+            </div>
+          ))}
+          
+          {(healthGoals.length + userGoals.length) > 3 && (
+            <div className="text-center">
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => navigate('/health-profile')} 
-                className="w-full text-xs mt-2 hover:bg-transparent hover:shadow-none transition-none"
+                className="text-xs h-6 px-2"
               >
-                Показать еще {healthGoals.length - 4}
+                +{(healthGoals.length + userGoals.length) - 3} еще
               </Button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Созданные цели пользователем */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
-          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-          Мои созданные цели
-        </h3>
-        
-        {userGoals.length === 0 ? (
-          <div className="text-center py-4 bg-gray-50/50 rounded-lg border border-gray-200/50">
-            <Target className="h-6 w-6 mx-auto text-gray-400 mb-2" />
-            <p className="text-xs text-gray-500">Нет созданных целей</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {userGoals.slice(0, 4).map((goal) => (
-              <div key={goal.id} className="p-2.5 bg-green-50/50 rounded-lg border border-green-200/30">
-                <h4 className="font-medium text-gray-800 text-sm mb-1">
-                  {goal.title}
-                </h4>
-                {goal.end_date && (
-                  <div className="text-xs text-green-700">
-                    До: {new Date(goal.end_date).toLocaleDateString('ru-RU')}
-                  </div>
-                )}
-              </div>
-            ))}
-            {userGoals.length > 4 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="w-full text-xs mt-2 hover:bg-transparent hover:shadow-none transition-none"
-              >
-                Показать еще {userGoals.length - 4}
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
