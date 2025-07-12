@@ -43,10 +43,11 @@ interface MetricFormData {
   stress_level?: number;
   mood_level?: number;
   water_intake?: number;
+  weight?: number;
   notes?: string;
 }
 
-type MetricKey = 'steps' | 'sleep_hours' | 'exercise_minutes';
+type MetricKey = 'steps' | 'sleep_hours' | 'exercise_minutes' | 'weight';
 
 const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
   metrics,
@@ -78,6 +79,7 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
           stress_level: formData.stress_level,
           mood_level: formData.mood_level,
           water_intake: formData.water_intake,
+          weight: formData.weight,
           notes: formData.notes
         }, {
           onConflict: 'user_id,date',
@@ -155,6 +157,16 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
       bgColor: 'bg-green-50',
       textColor: 'text-green-600',
       borderColor: 'border-green-200'
+    },
+    {
+      key: 'weight' as MetricKey,
+      title: 'Вес',
+      icon: Weight,
+      unit: 'кг',
+      color: 'purple',
+      bgColor: 'bg-purple-50',
+      textColor: 'text-purple-600',
+      borderColor: 'border-purple-200'
     }
   ];
 
@@ -301,6 +313,19 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
                     placeholder="2.5"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>Вес (кг)</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={formData.weight || ''}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      weight: e.target.value ? parseFloat(e.target.value) : undefined 
+                    }))}
+                    placeholder="70.5"
+                  />
+                </div>
               </div>
 
               {/* Заметки */}
@@ -348,12 +373,12 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
             <Card 
               key={card.key}
               className={cn(
-                "cursor-pointer transition-all hover:shadow-sm border-0 shadow-sm",
-                selectedMetric === card.key && `ring-1 ring-${card.color}-500`
+                "cursor-pointer transition-all hover:bg-gray-50",
+                selectedMetric === card.key && "bg-gray-100"
               )}
               onClick={() => setSelectedMetric(card.key)}
             >
-              <CardContent className={cn("p-2", card.bgColor)}>
+              <CardContent className="p-2">
                 <div className="flex items-center space-x-2">
                   <Icon className={cn("h-3 w-3 flex-shrink-0", card.textColor)} />
                   <div className="min-w-0 flex-1">
@@ -384,7 +409,7 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
       </div>
 
       {/* График выбранного показателя */}
-      <Card className="border-0 shadow-sm">
+      <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-sm">
             <BarChart3 className="h-4 w-4" />
@@ -449,7 +474,7 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
 
       {/* Таблица последних записей */}
       {metrics.length > 0 && (
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm">Последние записи</CardTitle>
           </CardHeader>
@@ -462,6 +487,7 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
                     <th className="text-left p-1 text-xs">Шаги</th>
                     <th className="text-left p-1 text-xs">Сон</th>
                     <th className="text-left p-1 text-xs">Трен.</th>
+                    <th className="text-left p-1 text-xs">Вес</th>
                     <th className="text-left p-1 text-xs">Заметки</th>
                   </tr>
                 </thead>
@@ -474,6 +500,7 @@ const DynamicHealthMetrics: React.FC<DynamicHealthMetricsProps> = ({
                       <td className="p-1 text-xs">{metric.steps ? metric.steps.toLocaleString() : '—'}</td>
                       <td className="p-1 text-xs">{metric.sleep_hours ? `${metric.sleep_hours}ч` : '—'}</td>
                       <td className="p-1 text-xs">{metric.exercise_minutes ? `${metric.exercise_minutes}м` : '—'}</td>
+                      <td className="p-1 text-xs">{metric.weight ? `${metric.weight}кг` : '—'}</td>
                       <td className="p-1 text-xs truncate max-w-20">{metric.notes || '—'}</td>
                     </tr>
                   ))}

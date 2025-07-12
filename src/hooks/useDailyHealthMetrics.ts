@@ -19,6 +19,7 @@ export interface DailyHealthMetrics {
   nutrition_quality: number;
   cigarettes_count: number;
   alcohol_units: number;
+  weight: number;
   notes?: string;
   created_at?: string;
   updated_at?: string;
