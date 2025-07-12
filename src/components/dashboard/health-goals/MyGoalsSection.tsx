@@ -33,7 +33,8 @@ const MyGoalsSection: React.FC = () => {
       'bone_health': 'Здоровье костей',
       'mental_health': 'Психическое здоровье',
       'detox': 'Детоксикация организма',
-      'athletic_performance': 'Спортивные результаты'
+      'athletic_performance': 'Спортивные результаты',
+      'musculoskeletal': 'Здоровье опорно-двигательного аппарата'
     };
     return translations[goal] || goal;
   };
@@ -113,14 +114,9 @@ const MyGoalsSection: React.FC = () => {
           <div className="space-y-2">
             {userGoals.slice(0, 4).map((goal) => (
               <div key={goal.id} className="p-2.5 bg-green-50/50 rounded-lg border border-green-200/30">
-                <div className="flex items-start justify-between mb-1">
-                  <h4 className="font-medium text-gray-800 text-sm">
-                    {goal.title}
-                  </h4>
-                  <span className="text-xs text-gray-500 ml-2">
-                    {goal.progress_percentage || 0}%
-                  </span>
-                </div>
+                <h4 className="font-medium text-gray-800 text-sm mb-1">
+                  {goal.title}
+                </h4>
                 {goal.end_date && (
                   <div className="text-xs text-green-700">
                     До: {new Date(goal.end_date).toLocaleDateString('ru-RU')}
