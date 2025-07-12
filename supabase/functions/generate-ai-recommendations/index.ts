@@ -46,7 +46,7 @@ serve(async (req) => {
     // Получаем данные пользователя
     console.log('Fetching user data for user:', user.id);
     
-    // Получаем профиль пользователя
+    // Получаем профиль пользователя из таблицы profiles
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('*')
@@ -58,26 +58,62 @@ serve(async (req) => {
     }
     console.log('Profile data:', profile);
 
-    // Получаем биомаркеры из последних анализов
-    const { data: biomarkers, error: biomarkersError } = await supabaseClient
-      .from('biomarkers')
-      .select(`
-        *,
-        medical_analyses!inner(
-          user_id,
-          created_at,
-          analysis_type
-        )
-      `)
-      .eq('medical_analyses.user_id', user.id)
+    // Получаем профиль здоровья из health_profiles
+    const { data: healthProfile, error: healthProfileError } = await supabaseClient
+      .from('health_profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (healthProfileError) {
+      console.error('Health profile fetch error:', healthProfileError);
+    }
+    console.log('Health profile data:', healthProfile);
+
+    // Получаем медицинские анализы
+    const { data: analyses, error: analysesError } = await supabaseClient
+      .from('medical_analyses')
+      .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
-    if (biomarkersError) {
-      console.error('Biomarkers fetch error:', biomarkersError);
+    if (analysesError) {
+      console.error('Analyses fetch error:', analysesError);
     }
-    console.log('Biomarkers data:', biomarkers?.length || 0, 'items');
+    console.log('Medical analyses:', analyses?.length || 0, 'items');
 
-    // Получаем метрики здоровья за последний месяц
+    // Получаем биомаркеры для всех анализов пользователя
+    let biomarkers = [];
+    if (analyses && analyses.length > 0) {
+      const analysisIds = analyses.map(a => a.id);
+      const { data: biomarkersData, error: biomarkersError } = await supabaseClient
+        .from('biomarkers')
+        .select('*')
+        .in('analysis_id', analysisIds)
+        .order('created_at', { ascending: false });
+
+      if (biomarkersError) {
+        console.error('Biomarkers fetch error:', biomarkersError);
+      } else {
+        biomarkers = biomarkersData || [];
+      }
+    }
+    console.log('Biomarkers data:', biomarkers.length, 'items');
+
+    // Получаем записи о питании
+    const { data: foodEntries, error: foodError } = await supabaseClient
+      .from('food_entries')
+      .select('*')
+      .eq('user_id', user.id)
+      .gte('entry_date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+      .order('entry_date', { ascending: false });
+
+    if (foodError) {
+      console.error('Food entries fetch error:', foodError);
+    }
+    console.log('Food entries:', foodEntries?.length || 0, 'items');
+
+    // Получаем метрики здоровья
     const { data: healthMetrics, error: metricsError } = await supabaseClient
       .from('daily_health_metrics')
       .select('*')
@@ -90,37 +126,42 @@ serve(async (req) => {
     }
     console.log('Health metrics data:', healthMetrics?.length || 0, 'items');
 
-    // Получаем аналитику пользователя
-    const { data: analytics, error: analyticsError } = await supabaseClient
-      .from('user_analytics')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(1);
-
-    if (analyticsError) {
-      console.error('Analytics fetch error:', analyticsError);
-    }
-    console.log('Analytics data:', analytics?.length || 0, 'items');
-
     // Формируем данные для анализа
     const analysisData = {
       profile: {
+        // Данные из profiles
+        first_name: profile?.first_name,
+        last_name: profile?.last_name,
         age: profile?.date_of_birth ? new Date().getFullYear() - new Date(profile.date_of_birth).getFullYear() : null,
         gender: profile?.gender,
         height: profile?.height,
         weight: profile?.weight,
         medical_conditions: profile?.medical_conditions || [],
         medications: profile?.medications || [],
-        goals: profile?.goals || []
+        goals: profile?.goals || [],
+        // Данные из health_profiles
+        health_profile_data: healthProfile?.profile_data || null
       },
-      biomarkers: biomarkers?.map((b: any) => ({
+      biomarkers: biomarkers.map((b: any) => ({
         name: b.name,
         value: b.value,
         reference_range: b.reference_range,
         status: b.status,
         created_at: b.created_at
+      })),
+      analyses_summary: analyses?.map((a: any) => ({
+        type: a.analysis_type,
+        date: a.created_at,
+        summary: a.summary,
+        risk_level: a.results?.riskLevel
       })) || [],
+      nutrition: {
+        total_entries: foodEntries?.length || 0,
+        recent_calories: foodEntries?.length ? foodEntries.reduce((sum: number, f: any) => sum + (f.calories || 0), 0) / foodEntries.length : 0,
+        recent_protein: foodEntries?.length ? foodEntries.reduce((sum: number, f: any) => sum + (f.protein || 0), 0) / foodEntries.length : 0,
+        recent_carbs: foodEntries?.length ? foodEntries.reduce((sum: number, f: any) => sum + (f.carbs || 0), 0) / foodEntries.length : 0,
+        recent_fat: foodEntries?.length ? foodEntries.reduce((sum: number, f: any) => sum + (f.fat || 0), 0) / foodEntries.length : 0
+      },
       health_metrics: {
         total_entries: healthMetrics?.length || 0,
         avg_weight: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.weight || 0), 0) / healthMetrics.length : 0,
@@ -131,15 +172,16 @@ serve(async (req) => {
         avg_stress: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.stress_level || 0), 0) / healthMetrics.length : 0,
         avg_mood: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.mood_level || 0), 0) / healthMetrics.length : 0,
         avg_nutrition: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.nutrition_quality || 0), 0) / healthMetrics.length : 0
-      },
-      analytics: analytics?.[0]?.analytics_data || null
+      }
     };
 
     console.log('Analysis data summary:', {
       hasProfile: !!analysisData.profile,
+      hasHealthProfile: !!analysisData.profile.health_profile_data,
       biomarkersCount: analysisData.biomarkers.length,
+      analysesCount: analysisData.analyses_summary.length,
+      nutritionEntries: analysisData.nutrition.total_entries,
       healthMetricsEntries: analysisData.health_metrics.total_entries,
-      hasAnalytics: !!analysisData.analytics,
       profileAge: analysisData.profile.age,
       avgSteps: analysisData.health_metrics.avg_steps,
       avgSleep: analysisData.health_metrics.avg_sleep
