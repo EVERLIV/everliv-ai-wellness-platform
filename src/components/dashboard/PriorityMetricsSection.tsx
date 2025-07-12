@@ -9,11 +9,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface RiskScore {
+  name: string;
   percentage: number;
   level: string;
   description: string;
   factors: string[];
   period: string;
+  mechanism?: string;
 }
 
 const PriorityMetricsSection = () => {
@@ -22,10 +24,10 @@ const PriorityMetricsSection = () => {
   const { toast } = useToast();
   
   const [riskScores, setRiskScores] = useState<{[key: string]: RiskScore}>({
-    cardiovascular: { percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' },
-    diabetes: { percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' },
-    neurodegeneration: { percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' },
-    metabolic: { percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' }
+    disease1: { name: 'Загрузка...', percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' },
+    disease2: { name: 'Загрузка...', percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' },
+    disease3: { name: 'Загрузка...', percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' },
+    disease4: { name: 'Загрузка...', percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' }
   });
   const [isLoadingRisks, setIsLoadingRisks] = useState(false);
 
@@ -69,10 +71,10 @@ const PriorityMetricsSection = () => {
   }, []);
 
   const aiRiskScores = [
-    { title: 'Сердечно-сосудистый риск', value: riskScores.cardiovascular.percentage, period: riskScores.cardiovascular.period, level: riskScores.cardiovascular.level, description: riskScores.cardiovascular.description, factors: riskScores.cardiovascular.factors.join(', ') },
-    { title: 'Диабет 2 типа', value: riskScores.diabetes.percentage, period: riskScores.diabetes.period, level: riskScores.diabetes.level, description: riskScores.diabetes.description, factors: riskScores.diabetes.factors.join(', ') },
-    { title: 'Нейродегенерация', value: riskScores.neurodegeneration.percentage, period: riskScores.neurodegeneration.period, level: riskScores.neurodegeneration.level, description: riskScores.neurodegeneration.description, factors: riskScores.neurodegeneration.factors.join(', ') },
-    { title: 'Метаболический синдром', value: riskScores.metabolic.percentage, period: riskScores.metabolic.period, level: riskScores.metabolic.level, description: riskScores.metabolic.description, factors: riskScores.metabolic.factors.join(', ') }
+    { title: riskScores.disease1.name, value: riskScores.disease1.percentage, period: riskScores.disease1.period, level: riskScores.disease1.level, description: riskScores.disease1.description, factors: riskScores.disease1.factors.join(', '), mechanism: riskScores.disease1.mechanism },
+    { title: riskScores.disease2.name, value: riskScores.disease2.percentage, period: riskScores.disease2.period, level: riskScores.disease2.level, description: riskScores.disease2.description, factors: riskScores.disease2.factors.join(', '), mechanism: riskScores.disease2.mechanism },
+    { title: riskScores.disease3.name, value: riskScores.disease3.percentage, period: riskScores.disease3.period, level: riskScores.disease3.level, description: riskScores.disease3.description, factors: riskScores.disease3.factors.join(', '), mechanism: riskScores.disease3.mechanism },
+    { title: riskScores.disease4.name, value: riskScores.disease4.percentage, period: riskScores.disease4.period, level: riskScores.disease4.level, description: riskScores.disease4.description, factors: riskScores.disease4.factors.join(', '), mechanism: riskScores.disease4.mechanism }
   ];
 
   const getRiskLevel = (value: number) => {
