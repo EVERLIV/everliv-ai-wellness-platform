@@ -94,85 +94,85 @@ const NutritionSummarySection: React.FC = () => {
 
   return (
     <Card className="shadow-sm border-gray-200/80">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-gray-900">
-          <Utensils className="h-5 w-5 text-green-600" />
-          <span className="text-lg font-semibold">Питание сегодня</span>
+          <Utensils className="h-4 w-4 text-green-600" />
+          <span className="text-base font-semibold">Питание сегодня</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {/* Calories */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-orange-500" />
-              <span className="text-sm font-medium text-gray-700">Калории</span>
+            <div className="flex items-center gap-1.5">
+              <Zap className="h-3 w-3 text-orange-500" />
+              <span className="text-xs font-medium text-gray-700">Калории</span>
             </div>
-            <span className="text-sm text-gray-600">
-              {Math.round(dailyTotals.calories)} / {nutritionGoals.daily_calories} ккал
+            <span className="text-xs text-gray-600">
+              {Math.round(dailyTotals.calories)} / {nutritionGoals.daily_calories}
             </span>
           </div>
           <Progress 
             value={(dailyTotals.calories / nutritionGoals.daily_calories) * 100} 
-            className={`h-2 ${getProgressColor((dailyTotals.calories / nutritionGoals.daily_calories) * 100)}`}
+            className={`h-1.5 ${getProgressColor((dailyTotals.calories / nutritionGoals.daily_calories) * 100)}`}
           />
         </div>
 
         {/* Protein */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 bg-purple-500 rounded-full"></div>
-              <span className="text-sm font-medium text-gray-700">Белки</span>
+            <div className="flex items-center gap-1.5">
+              <div className="h-3 w-3 bg-purple-500 rounded-full"></div>
+              <span className="text-xs font-medium text-gray-700">Белки</span>
             </div>
-            <span className="text-sm text-gray-600">
+            <span className="text-xs text-gray-600">
               {Math.round(dailyTotals.protein)} / {nutritionGoals.daily_protein} г
             </span>
           </div>
           <Progress 
             value={(dailyTotals.protein / nutritionGoals.daily_protein) * 100} 
-            className={`h-2 ${getProgressColor((dailyTotals.protein / nutritionGoals.daily_protein) * 100)}`}
+            className={`h-1.5 ${getProgressColor((dailyTotals.protein / nutritionGoals.daily_protein) * 100)}`}
           />
         </div>
 
         {/* Carbs */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 bg-yellow-500 rounded-full"></div>
-              <span className="text-sm font-medium text-gray-700">Углеводы</span>
+            <div className="flex items-center gap-1.5">
+              <div className="h-3 w-3 bg-yellow-500 rounded-full"></div>
+              <span className="text-xs font-medium text-gray-700">Углеводы</span>
             </div>
-            <span className="text-sm text-gray-600">
+            <span className="text-xs text-gray-600">
               {Math.round(dailyTotals.carbs)} / {nutritionGoals.daily_carbs} г
             </span>
           </div>
           <Progress 
             value={(dailyTotals.carbs / nutritionGoals.daily_carbs) * 100} 
-            className={`h-2 ${getProgressColor((dailyTotals.carbs / nutritionGoals.daily_carbs) * 100)}`}
+            className={`h-1.5 ${getProgressColor((dailyTotals.carbs / nutritionGoals.daily_carbs) * 100)}`}
           />
         </div>
 
         {/* Fat */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 bg-red-500 rounded-full"></div>
-              <span className="text-sm font-medium text-gray-700">Жиры</span>
+            <div className="flex items-center gap-1.5">
+              <div className="h-3 w-3 bg-red-500 rounded-full"></div>
+              <span className="text-xs font-medium text-gray-700">Жиры</span>
             </div>
-            <span className="text-sm text-gray-600">
+            <span className="text-xs text-gray-600">
               {Math.round(dailyTotals.fat)} / {nutritionGoals.daily_fat} г
             </span>
           </div>
           <Progress 
             value={(dailyTotals.fat / nutritionGoals.daily_fat) * 100} 
-            className={`h-2 ${getProgressColor((dailyTotals.fat / nutritionGoals.daily_fat) * 100)}`}
+            className={`h-1.5 ${getProgressColor((dailyTotals.fat / nutritionGoals.daily_fat) * 100)}`}
           />
         </div>
 
         <div className="pt-2 border-t border-gray-200/50">
           <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>Приемов пищи: {entries.length}</span>
-            <span>Обновлено: {new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
+            <span>Приемов: {entries.length}</span>
+            <span>{new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
           </div>
         </div>
       </CardContent>

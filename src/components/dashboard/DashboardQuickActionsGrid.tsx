@@ -106,42 +106,42 @@ const DashboardQuickActionsGrid: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between px-2">
-        <h3 className={`font-semibold text-gray-900 ${isMobile ? 'text-lg' : 'text-xl'}`}>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between px-1">
+        <h3 className={`font-semibold text-gray-900 ${isMobile ? 'text-base' : 'text-lg'}`}>
           Быстрые действия
         </h3>
       </div>
       
-      <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-2 lg:grid-cols-3 gap-4'}`}>
+      <div className={`grid ${isMobile ? 'grid-cols-1 gap-2' : 'grid-cols-2 lg:grid-cols-3 gap-3'}`}>
         {actions.map((action) => (
           <Button
             key={action.path}
             variant="ghost"
             className={`
-              h-auto p-0 group hover:scale-[1.02] transition-all duration-200
+              h-auto p-0 group hover:scale-[1.01] transition-all duration-200
               ${isMobile ? 'w-full' : ''}
             `}
             onClick={() => navigate(action.path)}
           >
             <div className={`
-              w-full bg-gradient-to-br ${action.gradient} rounded-lg p-4 text-left
-              shadow-lg hover:shadow-xl transition-all duration-200
-              ${isMobile ? 'min-h-[80px]' : 'min-h-[100px]'}
+              w-full bg-gradient-to-br ${action.gradient} rounded-lg p-3 text-left
+              shadow-md hover:shadow-lg transition-all duration-200
+              ${isMobile ? 'min-h-[60px]' : 'min-h-[70px]'}
             `}>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <action.icon className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'} ${action.iconColor}`} />
-                    <h4 className={`font-semibold text-white ${isMobile ? 'text-sm' : 'text-base'}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <action.icon className={`${isMobile ? 'h-4 w-4' : 'h-4 w-4'} ${action.iconColor} flex-shrink-0`} />
+                    <h4 className={`font-medium text-white truncate ${isMobile ? 'text-xs' : 'text-sm'}`}>
                       {action.title}
                     </h4>
                   </div>
-                  <p className={`text-white/80 ${isMobile ? 'text-xs' : 'text-sm'} leading-relaxed`}>
+                  <p className={`text-white/80 ${isMobile ? 'text-xs' : 'text-xs'} leading-tight truncate`}>
                     {action.description}
                   </p>
                 </div>
-                <ChevronRight className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-white/60 group-hover:text-white transition-colors flex-shrink-0 ml-2`} />
+                <ChevronRight className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-white/60 group-hover:text-white transition-colors flex-shrink-0 ml-2`} />
               </div>
             </div>
           </Button>

@@ -76,64 +76,64 @@ const DashboardPage = () => {
           <div className="space-y-6">
             {/* Индекс здоровья */}
             <Card className="shadow-sm border-gray-200/80">
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-gray-900">
-                  <Heart className="h-5 w-5 text-red-500" />
-                  <span className="text-lg font-semibold">Индекс здоровья</span>
+                  <Heart className="h-4 w-4 text-red-500" />
+                  <span className="text-base font-semibold">Индекс здоровья</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {analyticsLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
-                    <p className="text-sm text-gray-600">Загружаем индекс здоровья...</p>
+                  <div className="text-center py-6">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                    <p className="text-xs text-gray-600">Загружаем индекс здоровья...</p>
                   </div>
                 ) : currentHealthScore !== undefined ? (
                   <div className="text-center">
-                    <div className={`text-4xl font-bold mb-2 ${getScoreColor(currentHealthScore)}`}>
+                    <div className={`text-3xl font-bold mb-2 ${getScoreColor(currentHealthScore)}`}>
                       {Math.round(currentHealthScore)}%
                     </div>
                     <Progress 
                       value={currentHealthScore} 
-                      className={`h-3 ${getScoreGradient(currentHealthScore)}`}
+                      className={`h-2 ${getScoreGradient(currentHealthScore)}`}
                     />
                     {analytics && (
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs text-gray-500 mt-1">
                         Данные из ИИ-аналитики
                       </p>
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <Heart className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                    <p className="text-sm text-gray-600">Нет данных об индексе здоровья</p>
+                  <div className="text-center py-6">
+                    <Heart className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-xs text-gray-600">Нет данных об индексе здоровья</p>
                     <p className="text-xs text-gray-500 mt-1">Заполните профиль для получения аналитики</p>
                   </div>
                 )}
                 
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t">
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1 mb-1">
-                      <Activity className="h-4 w-4 text-blue-500" />
-                      <span className="text-sm text-gray-600">Биовозраст</span>
+                      <Activity className="h-3 w-3 text-blue-500" />
+                      <span className="text-xs text-gray-600">Биовозраст</span>
                     </div>
-                    <div className="text-2xl font-semibold text-gray-900">
+                    <div className="text-xl font-semibold text-gray-900">
                       {currentBiologicalAge}
                     </div>
                     <div className="text-xs text-gray-500">лет</div>
                     {!healthProfile && (
                       <p className="text-xs text-orange-500 mt-1">
-                        Создайте профиль для точного расчета
+                        Создайте профиль
                       </p>
                     )}
                   </div>
                   
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1 mb-1">
-                      <TrendingUp className="h-4 w-4 text-green-500" />
-                      <span className="text-sm text-gray-600">Тренд</span>
+                      <TrendingUp className="h-3 w-3 text-green-500" />
+                      <span className="text-xs text-gray-600">Тренд</span>
                     </div>
-                    <div className="text-2xl font-semibold text-green-600">
+                    <div className="text-xl font-semibold text-green-600">
                       +2.1
                     </div>
                     <div className="text-xs text-gray-500">за неделю</div>

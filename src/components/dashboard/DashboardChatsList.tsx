@@ -112,21 +112,21 @@ const DashboardChatsList: React.FC = () => {
 
   return (
     <Card className="shadow-sm border-gray-200/80">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-gray-900">
-          <MessageSquare className="h-5 w-5 text-purple-600" />
-          <span className="text-lg font-semibold">Последние чаты</span>
+          <MessageSquare className="h-4 w-4 text-purple-600" />
+          <span className="text-base font-semibold">Истории чатов с ИИ</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-2">
         {recentChats.length === 0 ? (
-          <div className="text-center py-4">
-            <MessageSquare className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-            <p className="text-sm text-gray-500 mb-3">Чаты с ИИ доктором отсутствуют</p>
+          <div className="text-center py-3">
+            <MessageSquare className="h-6 w-6 mx-auto text-gray-400 mb-2" />
+            <p className="text-xs text-gray-500 mb-2">Чаты с ИИ доктором отсутствуют</p>
             <Button 
               size="sm" 
               onClick={() => navigate('/ai-doctor')}
-              className="text-xs"
+              className="text-xs h-7"
             >
               <Plus className="h-3 w-3 mr-1" />
               Начать чат
@@ -137,29 +137,29 @@ const DashboardChatsList: React.FC = () => {
             {recentChats.map((chat) => (
               <div
                 key={chat.id}
-                className="p-3 bg-gradient-to-r from-gray-50 to-purple-50/30 rounded-lg border border-gray-200/50 hover:shadow-sm transition-all duration-200 cursor-pointer"
+                className="p-2 bg-gradient-to-r from-gray-50 to-purple-50/30 rounded-md border border-gray-200/50 hover:shadow-sm transition-all duration-200 cursor-pointer"
                 onClick={() => handleChatClick(chat.id)}
               >
-                <div className="flex items-start justify-between mb-2">
+                <div className="flex items-start justify-between mb-1">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <Bot className="h-4 w-4 text-purple-600 flex-shrink-0" />
-                    <h4 className="font-medium text-gray-900 text-sm truncate">
+                    <Bot className="h-3 w-3 text-purple-600 flex-shrink-0" />
+                    <h4 className="font-medium text-gray-900 text-xs truncate">
                       {chat.title}
                     </h4>
                   </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ml-2 ${getTypeColor(chat.type)}`}>
+                  <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ml-1 ${getTypeColor(chat.type)}`}>
                     {getTypeLabel(chat.type)}
                   </span>
                 </div>
                 
-                <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+                <p className="text-xs text-gray-600 mb-1 line-clamp-1">
                   {chat.lastMessage}
                 </p>
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <Clock className="h-3 w-3" />
-                    <span>{chat.timestamp}</span>
+                    <Clock className="h-2.5 w-2.5" />
+                    <span className="text-xs">{chat.timestamp}</span>
                   </div>
                   <ArrowRight className="h-3 w-3 text-gray-400" />
                 </div>
@@ -168,10 +168,10 @@ const DashboardChatsList: React.FC = () => {
             
             <Button 
               variant="outline" 
-              className="w-full mt-4 border-purple-200 text-purple-700 hover:bg-purple-50"
+              className="w-full mt-3 border-purple-200 text-purple-700 hover:bg-purple-50 h-8 text-xs"
               onClick={() => navigate('/ai-doctor')}
             >
-              <MessageSquare className="h-4 w-4 mr-2" />
+              <MessageSquare className="h-3 w-3 mr-1" />
               Все чаты с ИИ доктором
             </Button>
           </>
