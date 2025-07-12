@@ -5,33 +5,6 @@ import { Progress } from '@/components/ui/progress';
 import { TrendingUp, TrendingDown, Heart, Brain, Activity, Bone, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
 
 const PriorityMetricsSection = () => {
-  // Центральные показатели
-  const heroMetrics = [
-    {
-      title: 'Биологический возраст',
-      value: '28.4',
-      unit: 'лет',
-      trend: -3.2,
-      description: 'от хронологического',
-      status: 'excellent'
-    },
-    {
-      title: 'Индекс витальности',
-      value: '87',
-      unit: '/100',
-      trend: 5,
-      description: 'за месяц',
-      status: 'good'
-    },
-    {
-      title: 'Скорость старения',
-      value: '0.85',
-      unit: '',
-      trend: -15,
-      description: 'замедленная на 15%',
-      status: 'excellent'
-    }
-  ];
 
   // ИИ-скоры рисков
   const riskScores = [
@@ -131,39 +104,6 @@ const PriorityMetricsSection = () => {
 
   return (
     <div className="space-y-4">
-      {/* Центральные показатели */}
-      <Card className="shadow-sm border-gray-200/80">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            📊 Центральные показатели
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {heroMetrics.map((metric, index) => (
-              <div key={index} className="bg-gray-50/50 rounded-lg p-4 border border-gray-200/50">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">
-                    {metric.value}
-                    <span className="text-sm font-normal text-gray-600 ml-1">
-                      {metric.unit}
-                    </span>
-                  </div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">
-                    {metric.title}
-                  </h4>
-                  <div className="flex items-center justify-center gap-1 text-xs">
-                    {getTrendIcon(metric.trend)}
-                    <span className={metric.trend > 0 ? 'text-green-600' : 'text-red-600'}>
-                      {Math.abs(metric.trend)} {metric.description}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* ИИ-скоры рисков */}
       <Card className="shadow-sm border-gray-200/80">

@@ -146,13 +146,16 @@ const DashboardPage = () => {
                   
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1 mb-1">
-                      <TrendingUp className="h-3 w-3 text-green-500" />
-                      <span className="text-xs text-gray-600">Тренд</span>
+                      <Activity className="h-3 w-3 text-blue-500" />
+                      <span className="text-xs text-gray-600">Скорость старения</span>
                     </div>
-                    <div className="text-xl font-semibold text-green-600">
-                      +2.1
+                    <div className="text-xl font-semibold text-gray-900">
+                      0.85
                     </div>
-                    <div className="text-xs text-gray-500">за неделю</div>
+                    <div className="text-xs text-gray-500">коэффициент</div>
+                    <div className="text-xs text-green-600 mt-1">
+                      ↓15% улучшение
+                    </div>
                   </div>
                 </div>
               </CardContent>
