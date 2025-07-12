@@ -102,16 +102,16 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
       id: 'goals',
       label: 'Мои цели',
       icon: Target,
-      content: <UserHealthGoalsTab />
+      content: <UserHealthGoalsTab healthProfile={healthProfile} />
     },
     {
-      id: 'overview',
-      label: 'Обзор',
+      id: 'profile',
+      label: 'Профиль',
       icon: User,
       content: (
         <div className="space-y-6">
+          {/* Основные показатели */}
           <div className="grid gap-4 md:grid-cols-2">
-            {/* Основные показатели */}
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -139,99 +139,64 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
               </CardContent>
             </Card>
 
-            {/* Цели здоровья */}
+            {/* Последние показатели */}
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Цели здоровья из профиля
+                  <Activity className="h-5 w-5" />
+                  Последние показатели
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                {healthProfile.healthGoals && healthProfile.healthGoals.length > 0 ? (
-                  <div className="space-y-3">
-                    {translateHealthGoals(healthProfile.healthGoals).slice(0, 4).map((goal, index) => (
-                      <div key={index} className="p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border text-sm font-medium">
-                        {goal}
+                {dailyMetrics.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    {dailyMetrics[0].steps && (
+                      <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+                        <div className="text-lg font-bold text-blue-700">{dailyMetrics[0].steps}</div>
+                        <div className="text-xs text-blue-600">шагов</div>
                       </div>
-                    ))}
+                    )}
+                    {dailyMetrics[0].weight && (
+                      <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
+                        <div className="text-lg font-bold text-purple-700">{dailyMetrics[0].weight}</div>
+                        <div className="text-xs text-purple-600">кг</div>
+                      </div>
+                    )}
+                    {dailyMetrics[0].sleep_hours && (
+                      <div className="text-center p-4 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl border border-indigo-200">
+                        <div className="text-lg font-bold text-indigo-700">{dailyMetrics[0].sleep_hours}</div>
+                        <div className="text-xs text-indigo-600">часов сна</div>
+                      </div>
+                    )}
+                    {dailyMetrics[0].exercise_minutes && (
+                      <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
+                        <div className="text-lg font-bold text-green-700">{dailyMetrics[0].exercise_minutes}</div>
+                        <div className="text-xs text-green-600">мин тренировок</div>
+                      </div>
+                    )}
+                    {dailyMetrics[0].water_intake && (
+                      <div className="text-center p-4 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl border border-cyan-200">
+                        <div className="text-lg font-bold text-cyan-700">{dailyMetrics[0].water_intake}</div>
+                        <div className="text-xs text-cyan-600">л воды</div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
-                    <Target className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
-                    <p className="text-sm font-medium">Цели здоровья не установлены</p>
-                    <p className="text-xs mt-1">Отредактируйте профиль для добавления целей</p>
+                    <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
+                    <p className="text-sm font-medium">Начните отслеживать показатели</p>
                   </div>
                 )}
               </CardContent>
             </Card>
           </div>
 
-          {/* Последние показатели */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Последние показатели
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              {dailyMetrics.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                  {dailyMetrics[0].steps && (
-                    <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
-                      <div className="text-lg font-bold text-blue-700">{dailyMetrics[0].steps}</div>
-                      <div className="text-xs text-blue-600">шагов</div>
-                    </div>
-                  )}
-                  {dailyMetrics[0].weight && (
-                    <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
-                      <div className="text-lg font-bold text-purple-700">{dailyMetrics[0].weight}</div>
-                      <div className="text-xs text-purple-600">кг</div>
-                    </div>
-                  )}
-                  {dailyMetrics[0].sleep_hours && (
-                    <div className="text-center p-4 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl border border-indigo-200">
-                      <div className="text-lg font-bold text-indigo-700">{dailyMetrics[0].sleep_hours}</div>
-                      <div className="text-xs text-indigo-600">часов сна</div>
-                    </div>
-                  )}
-                  {dailyMetrics[0].exercise_minutes && (
-                    <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
-                      <div className="text-lg font-bold text-green-700">{dailyMetrics[0].exercise_minutes}</div>
-                      <div className="text-xs text-green-600">мин тренировок</div>
-                    </div>
-                  )}
-                  {dailyMetrics[0].water_intake && (
-                    <div className="text-center p-4 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl border border-cyan-200">
-                      <div className="text-lg font-bold text-cyan-700">{dailyMetrics[0].water_intake}</div>
-                      <div className="text-xs text-cyan-600">л воды</div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-12 text-muted-foreground">
-                  <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
-                  <p className="text-sm font-medium">Начните отслеживать показатели</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      )
-    },
-    {
-      id: 'static',
-      label: 'Профиль',
-      icon: User,
-      content: (
-        <div className="space-y-6">
-          {/* Personal Information */}
+          {/* Личная информация детально */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Личная информация
+                Детальная информация
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-0">
@@ -258,7 +223,7 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
             </CardContent>
           </Card>
 
-          {/* Medical History */}
+          {/* Медицинская история */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -307,28 +272,27 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
               )}
             </CardContent>
           </Card>
-        </div>
-      )
-    },
-    {
-      id: 'dynamic',
-      label: 'Метрики',
-      icon: Activity,
-      content: (
-        <DynamicHealthMetrics 
-          metrics={dailyMetrics}
-          isLoading={isLoadingMetrics}
-          onMetricsUpdate={fetchDailyMetrics}
-        />
-      )
-    },
-    {
-      id: 'medical',
-      label: 'Медицинские',
-      icon: Stethoscope,
-      content: (
-        <div className="space-y-6">
-          {/* Medications */}
+
+          {/* Цели здоровья из профиля */}
+          {healthProfile.healthGoals && healthProfile.healthGoals.length > 0 && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  Цели здоровья из профиля
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="flex flex-wrap gap-2">
+                  {translateHealthGoals(healthProfile.healthGoals).map((goal, index) => (
+                    <Badge key={index} variant="secondary" className="text-sm px-3 py-1">{goal}</Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Лекарства */}
           {healthProfile.medications && healthProfile.medications.length > 0 && (
             <Card>
               <CardHeader className="pb-3">
@@ -347,7 +311,7 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
             </Card>
           )}
 
-          {/* Lab Results */}
+          {/* Результаты анализов */}
           {healthProfile.labResults && Object.keys(healthProfile.labResults).length > 0 && (
             <Card>
               <CardHeader className="pb-3">
@@ -371,26 +335,19 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
               </CardContent>
             </Card>
           )}
-
-          {/* Health Goals */}
-          {healthProfile.healthGoals && healthProfile.healthGoals.length > 0 && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Цели здоровья
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex flex-wrap gap-2">
-                  {translateHealthGoals(healthProfile.healthGoals).map((goal, index) => (
-                    <Badge key={index} variant="secondary" className="text-sm px-3 py-1">{goal}</Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
+      )
+    },
+    {
+      id: 'metrics',
+      label: 'Метрики',
+      icon: Activity,
+      content: (
+        <DynamicHealthMetrics 
+          metrics={dailyMetrics}
+          isLoading={isLoadingMetrics}
+          onMetricsUpdate={fetchDailyMetrics}
+        />
       )
     }
   ];

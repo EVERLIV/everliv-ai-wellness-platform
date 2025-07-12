@@ -2,57 +2,20 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Target, Plus, Edit, Trash2, Calendar as CalendarIcon, CheckCircle, Clock } from 'lucide-react';
+import { Target, Trash2, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { useHealthGoalsManager } from '@/hooks/useHealthGoalsManager';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { translateHealthGoals } from '@/utils/healthProfileTranslations';
 
-interface NewGoal {
-  title: string;
-  description: string;
-  category: string;
-  priority: string;
-  endDate?: Date;
+
+interface UserHealthGoalsTabProps {
+  healthProfile: any;
 }
 
-const UserHealthGoalsTab: React.FC = () => {
-  const { goals, createCustomGoal, deleteGoal, isLoading } = useHealthGoalsManager();
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newGoal, setNewGoal] = useState<NewGoal>({
-    title: '',
-    description: '',
-    category: 'fitness',
-    priority: 'medium'
-  });
-
-  const handleCreateGoal = async () => {
-    if (!newGoal.title.trim()) return;
-
-    const success = await createCustomGoal({
-      title: newGoal.title,
-      description: newGoal.description,
-      category: newGoal.category,
-      priority: newGoal.priority as 'low' | 'medium' | 'high',
-      start_date: new Date().toISOString().split('T')[0],
-      end_date: newGoal.endDate?.toISOString().split('T')[0] || undefined
-    });
-
-    if (success) {
-      setNewGoal({
-        title: '',
-        description: '',
-        category: 'fitness',
-        priority: 'medium'
-      });
-      setShowCreateForm(false);
-    }
-  };
+const UserHealthGoalsTab: React.FC<UserHealthGoalsTabProps> = ({ healthProfile }) => {
+  const { goals, deleteGoal, isLoading } = useHealthGoalsManager();
 
   const handleDeleteGoal = async (goalId: string | undefined) => {
     if (!goalId) return;
@@ -111,81 +74,109 @@ const UserHealthGoalsTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Список целей */}
+      {/* Цели из профиля здоровья */}
+      {healthProfile?.healthGoals && healthProfile.healthGoals.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-foreground">Цели из профиля здоровья</h3>
+          <div className="grid gap-4">
+            {translateHealthGoals(healthProfile.healthGoals).map((goal: string, index: number) => (
+              <Card key={`profile-${index}`} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <h3 className="text-lg font-semibold">{goal}</h3>
+                        <Badge className="bg-blue-50 text-blue-700 border-blue-200">
+                          Из профиля
+                        </Badge>
+                        <Badge className="bg-green-50 text-green-700 border-green-200">
+                          Активная
+                        </Badge>
+                      </div>
+                      <p className="text-muted-foreground mb-3">
+                        Цель создана при настройке профиля здоровья
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Пользовательские цели */}
       {goals.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Пока нет созданных целей</h3>
+            <h3 className="text-lg font-semibold mb-2">Пока нет пользовательских целей</h3>
             <p className="text-muted-foreground">
-              Ваши цели создаются при заполнении профиля здоровья
+              Пользовательские цели создаются при заполнении профиля здоровья
             </p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
-          {goals.map((goal) => (
-            <Card key={goal.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-3">
-                      <h3 className="text-lg font-semibold">{goal.title}</h3>
-                      <Badge className={getPriorityColor(goal.priority || 'medium')}>
-                        {getPriorityText(goal.priority || 'medium')}
-                      </Badge>
-                      <Badge variant="outline">
-                        {getCategoryText(goal.category || 'other')}
-                      </Badge>
-                      {goal.is_active && (
-                        <Badge className="bg-green-50 text-green-700 border-green-200">
-                          Активная
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-foreground">Пользовательские цели</h3>
+          <div className="grid gap-4">
+            {goals.map((goal) => (
+              <Card key={goal.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <h3 className="text-lg font-semibold">{goal.title}</h3>
+                        <Badge className={getPriorityColor(goal.priority || 'medium')}>
+                          {getPriorityText(goal.priority || 'medium')}
                         </Badge>
+                        <Badge variant="outline">
+                          {getCategoryText(goal.category || 'other')}
+                        </Badge>
+                        {goal.is_active && (
+                          <Badge className="bg-green-50 text-green-700 border-green-200">
+                            Активная
+                          </Badge>
+                        )}
+                      </div>
+
+                      {goal.description && (
+                        <p className="text-muted-foreground mb-3">{goal.description}</p>
                       )}
-                    </div>
 
-                    {goal.description && (
-                      <p className="text-muted-foreground mb-3">{goal.description}</p>
-                    )}
-
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      {goal.end_date && (
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        {goal.end_date && (
+                          <div className="flex items-center gap-1">
+                            <CalendarIcon className="h-4 w-4" />
+                            <span>
+                              До: {format(new Date(goal.end_date), "d MMMM yyyy", { locale: ru })}
+                            </span>
+                          </div>
+                        )}
                         <div className="flex items-center gap-1">
-                          <CalendarIcon className="h-4 w-4" />
+                          <Clock className="h-4 w-4" />
                           <span>
-                            До: {format(new Date(goal.end_date), "d MMMM yyyy", { locale: ru })}
+                            Создана: {goal.created_at ? format(new Date(goal.created_at), "d MMMM", { locale: ru }) : 'Неизвестно'}
                           </span>
                         </div>
-                      )}
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span>
-                          Создана: {goal.created_at ? format(new Date(goal.created_at), "d MMMM", { locale: ru }) : 'Неизвестно'}
-                        </span>
                       </div>
-                      {goal.progress_percentage !== undefined && (
-                        <div className="flex items-center gap-1">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Прогресс: {goal.progress_percentage}%</span>
-                        </div>
-                      )}
+                    </div>
+
+                    <div className="flex gap-2 ml-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteGoal(goal.id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-
-                  <div className="flex gap-2 ml-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeleteGoal(goal.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       )}
     </div>
