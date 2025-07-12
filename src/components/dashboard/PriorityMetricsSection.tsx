@@ -99,12 +99,19 @@ const PriorityMetricsSection = () => {
   const generateAIRecommendations = async () => {
     setIsLoadingRecommendations(true);
     try {
+      console.log('Starting generateAIRecommendations...');
       const session = await supabase.auth.getSession();
       if (!session.data.session) {
         console.error('No authenticated session found');
+        toast({
+          title: "Ошибка",
+          description: "Не найдена активная сессия пользователя",
+          variant: "destructive",
+        });
         return;
       }
 
+      console.log('Calling generate-ai-recommendations function...');
       const { data, error } = await supabase.functions.invoke('generate-ai-recommendations', {
         headers: {
           Authorization: `Bearer ${session.data.session.access_token}`,
@@ -112,28 +119,38 @@ const PriorityMetricsSection = () => {
         },
       });
 
+      console.log('Function response received:', { data, error });
+
       if (error) {
         console.error('Error generating AI recommendations:', error);
         toast({
           title: "Ошибка",
-          description: "Не удалось сгенерировать ИИ-рекомендации",
+          description: `Не удалось сгенерировать ИИ-рекомендации: ${error.message}`,
           variant: "destructive",
         });
         return;
       }
 
+      console.log('AI recommendations generated successfully:', data);
       if (data?.recommendations) {
         setAiRecommendations(data.recommendations);
         toast({
           title: "Успешно",
           description: "ИИ-рекомендации обновлены",
         });
+      } else {
+        console.warn('No recommendations in response:', data);
+        toast({
+          title: "Предупреждение",
+          description: "Получен ответ без рекомендаций",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error calling function:', error);
       toast({
         title: "Ошибка",
-        description: "Произошла ошибка при генерации ИИ-рекомендаций",
+        description: `Произошла ошибка при генерации ИИ-рекомендаций: ${error.message}`,
         variant: "destructive",
       });
     } finally {
