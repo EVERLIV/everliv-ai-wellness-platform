@@ -53,6 +53,7 @@ export const useBiomarkers = () => {
 
       if (biomarkersError) throw biomarkersError;
 
+      console.log('Raw biomarkers from DB:', biomarkersData);
       setBiomarkers(biomarkersData || []);
     } catch (err) {
       console.error('Error fetching biomarkers:', err);
@@ -68,7 +69,21 @@ export const useBiomarkers = () => {
 
   // Функция для определения топ-5 худших биомаркеров
   const getTop5WorstBiomarkers = (): Biomarker[] => {
-    if (!biomarkers.length) return [];
+    console.log('=== DEBUG: getTop5WorstBiomarkers ===');
+    console.log('Total biomarkers:', biomarkers.length);
+    
+    if (!biomarkers.length) {
+      console.log('No biomarkers found');
+      return [];
+    }
+
+    // Показываем все биомаркеры для отладки
+    console.log('All biomarkers:', biomarkers.map(b => ({
+      name: b.name,
+      value: b.value,
+      status: b.status,
+      created_at: b.created_at
+    })));
 
     // Группируем биомаркеры по имени, берем последние значения
     const latestBiomarkers = biomarkers.reduce((acc, biomarker) => {
@@ -79,45 +94,73 @@ export const useBiomarkers = () => {
       return acc;
     }, {} as Record<string, Biomarker>);
 
-    // Список всех проблемных статусов
+    console.log('Latest biomarkers by name:', Object.keys(latestBiomarkers).map(key => ({
+      name: key,
+      value: latestBiomarkers[key].value,
+      status: latestBiomarkers[key].status
+    })));
+
+    // Список всех проблемных статусов (расширенный)
     const problematicStatuses = [
       'critical', 'high', 'elevated', 'low', 'below_normal', 
-      'above_normal', 'attention', 'borderline', 'abnormal'
+      'above_normal', 'attention', 'borderline', 'abnormal',
+      'понижен', 'повышен', 'высокий', 'низкий', 'критический'
     ];
 
     // Фильтруем биомаркеры с проблемными статусами
     const problematicBiomarkers = Object.values(latestBiomarkers)
       .filter(b => {
-        if (!b.status) return false;
-        const status = b.status.toLowerCase();
-        return problematicStatuses.includes(status);
+        if (!b.status) {
+          console.log(`Biomarker ${b.name} has no status`);
+          return false;
+        }
+        const status = b.status.toLowerCase().trim();
+        const isProblematic = problematicStatuses.some(ps => status.includes(ps.toLowerCase()));
+        console.log(`Biomarker ${b.name} status: "${b.status}" -> problematic: ${isProblematic}`);
+        return isProblematic;
       });
 
-    console.log('All biomarkers:', biomarkers);
-    console.log('Latest biomarkers:', latestBiomarkers);
-    console.log('Problematic biomarkers:', problematicBiomarkers);
+    console.log('Problematic biomarkers found:', problematicBiomarkers.length);
+    console.log('Problematic biomarkers:', problematicBiomarkers.map(b => ({
+      name: b.name,
+      status: b.status,
+      value: b.value
+    })));
 
     // Сортируем по статусу: сначала критические, потом требующие внимания
-    return problematicBiomarkers
+    const sortedBiomarkers = problematicBiomarkers
       .sort((a, b) => {
         const statusPriority = {
           'critical': 0,
+          'критический': 0,
           'high': 1,
+          'высокий': 1,
           'elevated': 2,
+          'повышен': 2,
           'above_normal': 3,
           'low': 4,
+          'низкий': 4,
+          'понижен': 4,
           'below_normal': 5,
           'attention': 6,
           'borderline': 7,
           'abnormal': 8
         } as Record<string, number>;
         
-        const aPriority = statusPriority[a.status?.toLowerCase() || ''] ?? 999;
-        const bPriority = statusPriority[b.status?.toLowerCase() || ''] ?? 999;
+        const aPriority = statusPriority[a.status?.toLowerCase().trim() || ''] ?? 999;
+        const bPriority = statusPriority[b.status?.toLowerCase().trim() || ''] ?? 999;
         
         return aPriority - bPriority;
       })
       .slice(0, 5);
+
+    console.log('Final sorted biomarkers:', sortedBiomarkers.map(b => ({
+      name: b.name,
+      status: b.status,
+      value: b.value
+    })));
+
+    return sortedBiomarkers;
   };
 
   return {
