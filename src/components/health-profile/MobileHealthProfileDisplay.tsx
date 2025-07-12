@@ -43,7 +43,26 @@ const MobileHealthProfileDisplay: React.FC<MobileHealthProfileDisplayProps> = ({
   };
 
   const bmi = calculateBMI(healthProfile.weight, healthProfile.height);
-  const healthGoals = goals || [];
+  
+  // Объединяем цели из базы данных и из профиля
+  const databaseGoals = goals || [];
+  const profileGoals = healthProfile.healthGoals || [];
+  
+  // Преобразуем цели из профиля в формат для отображения
+  const convertedProfileGoals = profileGoals.map((goal, index) => ({
+    id: `profile-${index}`,
+    title: goal,
+    description: '',
+    category: 'health',
+    priority: 'medium' as const,
+    progress_percentage: undefined // Убираем прогресс
+  }));
+  
+  // Сначала свои цели, потом из профиля
+  const allGoals = [
+    ...databaseGoals.map(goal => ({ ...goal, progress_percentage: undefined })), // Убираем прогресс
+    ...convertedProfileGoals
+  ];
 
   const getPriorityColor = (priority: string | null | undefined) => {
     switch (priority) {
@@ -174,29 +193,20 @@ const MobileHealthProfileDisplay: React.FC<MobileHealthProfileDisplayProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {healthGoals.length > 0 ? (
+          {allGoals.length > 0 ? (
             <div className="grid gap-3 sm:gap-4">
-              {healthGoals.slice(0, 3).map((goal) => (
-                <div key={goal.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3">
+              {allGoals.slice(0, 6).map((goal) => (
+                <div key={goal.id} className="flex flex-col p-3 sm:p-4 border rounded-lg gap-3">
                   <div className="flex-1">
                     <h3 className="font-medium">{goal.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{goal.description}</p>
+                    {goal.description && (
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{goal.description}</p>
+                    )}
                     <div className="flex flex-wrap items-center gap-2 mt-2">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(goal.priority)}`}>
                         {getPriorityText(goal.priority)}
                       </span>
                       <span className="text-xs text-muted-foreground">{getCategoryText(goal.category)}</span>
-                    </div>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <div className="text-left sm:text-right">
-                      <div className="text-lg font-semibold">{goal.progress_percentage || 0}%</div>
-                      <div className="w-full sm:w-20 bg-muted rounded-full h-2 mt-1">
-                        <div 
-                          className="bg-purple-600 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${goal.progress_percentage || 0}%` }}
-                        ></div>
-                      </div>
                     </div>
                   </div>
                 </div>
