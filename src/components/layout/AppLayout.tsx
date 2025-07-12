@@ -224,19 +224,19 @@ export function AppLayout({ children }: AppLayoutProps) {
       </header>
 
       {/* Основной контент с боковым меню */}
-      <div className="flex flex-1 pt-0">
+      <div className="flex flex-1">
         <SidebarProvider>
           <AppSidebar />
           
           <div className="flex flex-1 flex-col min-w-0">
-            {/* Кнопка открытия меню */}
-            <div className="p-4 border-b bg-background">
+            {/* Кнопка открытия меню с отступом от навбара */}
+            <div className="p-4 border-b bg-background mt-14">
               <SidebarTrigger />
             </div>
             
             {/* Основной контент с правильными отступами */}
-            <main className="flex-1 overflow-auto bg-background pt-4">
-              <div className="container mx-auto px-4 max-w-none min-h-full">
+            <main className="flex-1 overflow-auto bg-background">
+              <div className="container mx-auto px-4 py-6 max-w-none min-h-full">
                 {children}
               </div>
             </main>
