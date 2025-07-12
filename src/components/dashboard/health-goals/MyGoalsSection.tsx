@@ -68,14 +68,14 @@ const MyGoalsSection: React.FC = () => {
             <Button 
               size="sm" 
               onClick={() => navigate('/health-profile')} 
-              className="text-xs px-3 py-1.5"
+              className="text-xs px-3 py-1.5 hover:bg-blue-600 hover:shadow-none transition-none"
             >
               Добавить цели
             </Button>
           </div>
         ) : (
           <div className="space-y-2">
-            {healthGoals.map((goal, index) => (
+            {healthGoals.slice(0, 4).map((goal, index) => (
               <div key={index} className="flex items-center gap-2 p-2.5 bg-purple-50/50 rounded-lg border border-purple-200/30">
                 <div className="w-1.5 h-1.5 bg-purple-500 rounded-full flex-shrink-0"></div>
                 <span className="text-sm text-gray-800 font-medium">
@@ -83,6 +83,16 @@ const MyGoalsSection: React.FC = () => {
                 </span>
               </div>
             ))}
+            {healthGoals.length > 4 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate('/health-profile')} 
+                className="w-full text-xs mt-2 hover:bg-transparent hover:shadow-none transition-none"
+              >
+                Показать еще {healthGoals.length - 4}
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -101,7 +111,7 @@ const MyGoalsSection: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-2">
-            {userGoals.map((goal) => (
+            {userGoals.slice(0, 4).map((goal) => (
               <div key={goal.id} className="p-2.5 bg-green-50/50 rounded-lg border border-green-200/30">
                 <div className="flex items-start justify-between mb-1">
                   <h4 className="font-medium text-gray-800 text-sm">
@@ -118,6 +128,15 @@ const MyGoalsSection: React.FC = () => {
                 )}
               </div>
             ))}
+            {userGoals.length > 4 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full text-xs mt-2 hover:bg-transparent hover:shadow-none transition-none"
+              >
+                Показать еще {userGoals.length - 4}
+              </Button>
+            )}
           </div>
         )}
       </div>
