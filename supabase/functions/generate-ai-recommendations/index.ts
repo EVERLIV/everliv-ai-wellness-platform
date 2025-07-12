@@ -169,7 +169,7 @@ ${JSON.stringify(analysisData, null, 2)}
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-sonnet-20240229',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 4000,
         messages: [
           {
@@ -180,10 +180,43 @@ ${JSON.stringify(analysisData, null, 2)}
       })
     });
 
+    console.log('Anthropic API response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Anthropic API error:', errorText);
-      throw new Error(`Anthropic API error: ${response.status}`);
+      console.error('Anthropic API error details:', errorText);
+      
+      // Возвращаем fallback рекомендации при ошибке API
+      const fallbackRecommendations = {
+        prognostic: [
+          {
+            title: "Базовый мониторинг здоровья",
+            content: "Продолжайте регулярные обследования для отслеживания изменений показателей",
+            priority: "medium"
+          }
+        ],
+        actionable: [
+          {
+            title: "Поддержание активности",
+            content: "Регулярные физические упражнения 150 минут в неделю умеренной интенсивности",
+            priority: "high"
+          }
+        ],
+        personalized: [
+          {
+            title: "Персональная консультация",
+            content: "Рекомендуется обратиться к врачу для детального анализа показателей",
+            priority: "medium"
+          }
+        ]
+      };
+      
+      return new Response(JSON.stringify({ 
+        recommendations: fallbackRecommendations,
+        note: "Использованы базовые рекомендации из-за временной недоступности ИИ"
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const anthropicData = await response.json();

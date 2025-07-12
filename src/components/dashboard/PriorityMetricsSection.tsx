@@ -53,6 +53,7 @@ const PriorityMetricsSection = () => {
         return;
       }
 
+      console.log('Calling generate-ai-risk-scores function...');
       const { data, error } = await supabase.functions.invoke('generate-ai-risk-scores', {
         headers: {
           Authorization: `Bearer ${session.data.session.access_token}`,
@@ -60,7 +61,7 @@ const PriorityMetricsSection = () => {
         },
       });
 
-      console.log('Function response:', { data, error });
+      console.log('Function response received:', { data, error });
 
       if (error) {
         console.error('Error generating AI risk scores:', error);
@@ -75,12 +76,13 @@ const PriorityMetricsSection = () => {
       console.log('AI risk scores generated successfully:', data);
       if (data?.riskScores) {
         setRiskScores(data.riskScores);
-        toast({
-          title: "Успешно",
-          description: "ИИ-скоры рисков обновлены",
-        });
       } else {
         console.warn('No risk scores in response:', data);
+        toast({
+          title: "Предупреждение",
+          description: "Получен ответ без данных о рисках",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Error calling function:', error);
@@ -477,7 +479,7 @@ const PriorityMetricsSection = () => {
               {/* Actionable рекомендации */}
               <div className="space-y-3">
                 <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
-                  Actionable рекомендации
+                  Практические рекомендации
                 </h4>
                 {aiRecommendations.actionable.length > 0 ? (
                   <div className="space-y-2">

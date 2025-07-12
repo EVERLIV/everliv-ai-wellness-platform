@@ -212,7 +212,7 @@ ${JSON.stringify(analysisData, null, 2)}
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-sonnet-20240229',
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 3000,
         messages: [
           {
@@ -223,10 +223,12 @@ ${JSON.stringify(analysisData, null, 2)}
       })
     });
 
+    console.log('Anthropic API response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Anthropic API error:', errorText);
-      throw new Error(`Anthropic API error: ${response.status}`);
+      console.error('Anthropic API error details:', errorText);
+      throw new Error(`Anthropic API error: ${response.status} - ${errorText}`);
     }
 
     const anthropicData = await response.json();
