@@ -90,6 +90,14 @@ serve(async (req) => {
       }
     };
 
+    console.log('Analysis data prepared:', {
+      hasProfile: !!analysisData.profile,
+      biomarkersCount: analysisData.biomarkers.length,
+      hasHealthMetrics: !!analysisData.health_metrics,
+      avgWeight: analysisData.health_metrics.avg_weight,
+      avgSteps: analysisData.health_metrics.avg_steps
+    });
+
     const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
     if (!anthropicKey) {
       throw new Error('ANTHROPIC_API_KEY not found');
@@ -113,7 +121,7 @@ ${JSON.stringify(analysisData, null, 2)}
 - Предсказание рисков на основе текущих показателей
 - Временные рамки достижения целей
 
-2. ACTIONABLE РЕКОМЕНДАЦИИ  
+2. ПРАКТИЧЕСКИЕ РЕКОМЕНДАЦИИ  
 - Конкретные действия для улучшения показателей
 - Протоколы добавок и дозировки
 - Изменения образа жизни с измеримыми целями
