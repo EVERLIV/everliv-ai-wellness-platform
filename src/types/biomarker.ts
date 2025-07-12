@@ -2,12 +2,16 @@ export interface BiomarkerKnowledge {
   id: string;
   name: string;
   alternativeNames?: string[];
-  category: 'blood_general' | 'blood_biochemistry' | 'hormones' | 'immunology' | 'coagulation' | 'urine' | 'tumor_markers';
+  category: 'blood_general' | 'blood_biochemistry' | 'hormones' | 'vitamins' | 'immunology' | 'coagulation' | 'urine' | 'tumor_markers';
   normalRanges: {
     men?: string;
     women?: string;
     children?: string;
     general?: string;
+    women_follicular?: string;
+    women_luteal?: string;
+    percentage?: string;
+    absolute?: string;
   };
   unit: string;
   description: string;
@@ -71,6 +75,14 @@ export const BIOMARKER_CATEGORIES: BiomarkerCategory[] = [
     description: 'Гормоны щитовидной железы, половые, стрессовые гормоны',
     color: 'bg-purple-500',
     icon: 'brain',
+    count: 0
+  },
+  {
+    id: 'vitamins',
+    name: 'Витамины и микроэлементы',
+    description: 'Витамины D, B12, фолиевая кислота, минералы',
+    color: 'bg-teal-500',
+    icon: 'vitamin',
     count: 0
   },
   {
