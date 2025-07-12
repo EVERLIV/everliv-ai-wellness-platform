@@ -22,17 +22,28 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Starting generate-ai-risk-scores function');
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
     );
 
-    const authHeader = req.headers.get('Authorization')!;
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('No Authorization header found');
+      return new Response(JSON.stringify({ error: 'Authorization header required' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
       authHeader.replace('Bearer ', '')
     );
 
     if (authError || !user) {
+      console.error('Authentication error:', authError);
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -42,14 +53,16 @@ serve(async (req) => {
     console.log('Generating AI risk scores for user:', user.id);
 
     // Получаем данные профиля
-    const { data: profile } = await supabaseClient
+    const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
+
+    console.log('Profile data:', profile, 'Profile error:', profileError);
 
     // Получаем последние медицинские анализы
-    const { data: analyses } = await supabaseClient
+    const { data: analyses, error: analysesError } = await supabaseClient
       .from('medical_analyses')
       .select(`
         *,
@@ -59,15 +72,20 @@ serve(async (req) => {
       .order('created_at', { ascending: false })
       .limit(1);
 
+    console.log('Analyses data:', analyses, 'Analyses error:', analysesError);
+
     // Получаем метрики здоровья за последние 30 дней
-    const { data: healthMetrics } = await supabaseClient
+    const { data: healthMetrics, error: metricsError } = await supabaseClient
       .from('daily_health_metrics')
       .select('*')
       .eq('user_id', user.id)
-      .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+      .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
       .order('date', { ascending: false });
 
+    console.log('Health metrics data:', healthMetrics, 'Metrics error:', metricsError);
+
     const biomarkers = analyses?.[0]?.biomarkers || [];
+    console.log('Biomarkers found:', biomarkers.length);
     
     // Формируем данные для анализа
     const analysisData = {
@@ -76,9 +94,9 @@ serve(async (req) => {
         gender: profile?.gender,
         height: profile?.height,
         weight: profile?.weight,
-        medical_conditions: profile?.medical_conditions,
-        medications: profile?.medications,
-        allergies: profile?.allergies
+        medical_conditions: profile?.medical_conditions || [],
+        medications: profile?.medications || [],
+        allergies: profile?.allergies || []
       },
       biomarkers: biomarkers.map((b: any) => ({
         name: b.name,
@@ -87,13 +105,15 @@ serve(async (req) => {
         status: b.status
       })),
       lifestyle: {
-        avg_sleep: healthMetrics?.reduce((sum: number, m: any) => sum + (m.sleep_hours || 0), 0) / (healthMetrics?.length || 1),
-        avg_steps: healthMetrics?.reduce((sum: number, m: any) => sum + (m.steps || 0), 0) / (healthMetrics?.length || 1),
-        avg_exercise: healthMetrics?.reduce((sum: number, m: any) => sum + (m.exercise_minutes || 0), 0) / (healthMetrics?.length || 1),
-        avg_stress: healthMetrics?.reduce((sum: number, m: any) => sum + (m.stress_level || 0), 0) / (healthMetrics?.length || 1),
-        avg_nutrition: healthMetrics?.reduce((sum: number, m: any) => sum + (m.nutrition_quality || 0), 0) / (healthMetrics?.length || 1)
+        avg_sleep: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.sleep_hours || 0), 0) / healthMetrics.length : 0,
+        avg_steps: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.steps || 0), 0) / healthMetrics.length : 0,
+        avg_exercise: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.exercise_minutes || 0), 0) / healthMetrics.length : 0,
+        avg_stress: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.stress_level || 0), 0) / healthMetrics.length : 0,
+        avg_nutrition: healthMetrics?.length ? healthMetrics.reduce((sum: number, m: any) => sum + (m.nutrition_quality || 0), 0) / healthMetrics.length : 0
       }
     };
+
+    console.log('Analysis data prepared:', JSON.stringify(analysisData, null, 2));
 
     const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
     if (!anthropicKey) {

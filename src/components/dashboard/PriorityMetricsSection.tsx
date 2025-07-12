@@ -34,31 +34,53 @@ const PriorityMetricsSection = () => {
   const generateAIRiskScores = async () => {
     setIsLoadingRisks(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-ai-risk-scores', {
-        headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
-      });
-
-      if (error) {
-        console.error('Error generating AI risk scores:', error);
+      console.log('Starting AI risk scores generation...');
+      
+      const session = await supabase.auth.getSession();
+      if (!session.data.session) {
+        console.error('No authenticated session found');
         toast({
           title: "Ошибка",
-          description: "Не удалось сгенерировать ИИ-скоры рисков",
+          description: "Необходимо войти в систему",
           variant: "destructive",
         });
         return;
       }
 
-      console.log('AI risk scores generated:', data);
+      const { data, error } = await supabase.functions.invoke('generate-ai-risk-scores', {
+        headers: {
+          Authorization: `Bearer ${session.data.session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Function response:', { data, error });
+
+      if (error) {
+        console.error('Error generating AI risk scores:', error);
+        toast({
+          title: "Ошибка",
+          description: `Не удалось сгенерировать ИИ-скоры рисков: ${error.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('AI risk scores generated successfully:', data);
       if (data?.riskScores) {
         setRiskScores(data.riskScores);
+        toast({
+          title: "Успешно",
+          description: "ИИ-скоры рисков обновлены",
+        });
+      } else {
+        console.warn('No risk scores in response:', data);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error calling function:', error);
       toast({
         title: "Ошибка",
-        description: "Произошла ошибка при генерации ИИ-скоров",
+        description: `Произошла ошибка при генерации ИИ-скоров: ${error.message}`,
         variant: "destructive",
       });
     } finally {
@@ -168,33 +190,40 @@ const PriorityMetricsSection = () => {
               <p>Основаны на анализе биомаркеров, генетики, образа жизни и сравнении с клиническими исследованиями</p>
             </div>
             
-            <div className="space-y-3">
-              {aiRiskScores.map((risk, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <h5 className="text-sm font-medium text-gray-900">
-                        {risk.title}
-                      </h5>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-lg font-bold ${getRiskColor(risk.value)}`}>
-                          {risk.value}%
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          ({risk.period})
-                        </span>
+            {isLoadingRisks ? (
+              <div className="text-center py-6">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                <p className="text-xs text-gray-600">Анализируем ваши данные с помощью ИИ...</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {aiRiskScores.map((risk, index) => (
+                  <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <h5 className="text-sm font-medium text-gray-900">
+                          {risk.title}
+                        </h5>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-lg font-bold ${getRiskColor(risk.value)}`}>
+                            {risk.value}%
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            ({risk.period})
+                          </span>
+                        </div>
                       </div>
+                      <p className="text-xs text-gray-600 mb-1">
+                        {risk.description}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Анализ: {risk.factors}
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-600 mb-1">
-                      {risk.description}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Анализ: {risk.factors}
-                    </p>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             <div className="mt-4 p-3 bg-blue-50/50 rounded-lg">
               <h6 className="text-xs font-medium text-gray-700 mb-2">Градация рисков:</h6>
