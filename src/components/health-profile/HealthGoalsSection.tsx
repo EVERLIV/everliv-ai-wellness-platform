@@ -4,15 +4,31 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Target } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Target, Calendar as CalendarIcon } from "lucide-react";
 import { HealthProfileData } from "@/types/healthProfile";
 import AddCustomGoalModal from "./AddCustomGoalModal";
 import { useHealthGoalsManager } from "@/hooks/useHealthGoalsManager";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 interface HealthGoalsSectionProps {
   healthProfile: HealthProfileData;
   isEditMode: boolean;
   onUpdate: (updates: Partial<HealthProfileData>) => void;
+}
+
+interface NewGoal {
+  title: string;
+  description: string;
+  category: string;
+  priority: string;
+  endDate?: Date;
 }
 
 const HealthGoalsSection: React.FC<HealthGoalsSectionProps> = ({
@@ -21,6 +37,13 @@ const HealthGoalsSection: React.FC<HealthGoalsSectionProps> = ({
   onUpdate
 }) => {
   const [showCustomGoalModal, setShowCustomGoalModal] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newGoal, setNewGoal] = useState<NewGoal>({
+    title: '',
+    description: '',
+    category: 'fitness',
+    priority: 'medium'
+  });
   const { createCustomGoal } = useHealthGoalsManager();
 
   const handleGoalChange = (goal: string, checked: boolean) => {

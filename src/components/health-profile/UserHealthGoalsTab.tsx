@@ -103,139 +103,23 @@ const UserHealthGoalsTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Заголовок и кнопка создания */}
+      {/* Заголовок */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-foreground">Мои цели здоровья</h2>
-          <p className="text-muted-foreground">Создавайте и отслеживайте персональные цели</p>
+          <p className="text-muted-foreground">Ваши персональные цели, созданные при настройке профиля</p>
         </div>
-        <Button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Добавить цель
-        </Button>
       </div>
-
-      {/* Форма создания цели */}
-      {showCreateForm && (
-        <Card className="border-2 border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Новая цель здоровья
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Название цели *</label>
-                <Input
-                  placeholder="Например: Сбросить 5 кг за 3 месяца"
-                  value={newGoal.title}
-                  onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Категория</label>
-                <Select value={newGoal.category} onValueChange={(value) => setNewGoal({ ...newGoal, category: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fitness">Фитнес</SelectItem>
-                    <SelectItem value="nutrition">Питание</SelectItem>
-                    <SelectItem value="mental">Ментальное здоровье</SelectItem>
-                    <SelectItem value="medical">Медицинские</SelectItem>
-                    <SelectItem value="lifestyle">Образ жизни</SelectItem>
-                    <SelectItem value="other">Другое</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Описание</label>
-              <Textarea
-                placeholder="Подробное описание цели и план достижения..."
-                value={newGoal.description}
-                onChange={(e) => setNewGoal({ ...newGoal, description: e.target.value })}
-                rows={3}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Приоритет</label>
-                <Select value={newGoal.priority} onValueChange={(value) => setNewGoal({ ...newGoal, priority: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="high">Высокий</SelectItem>
-                    <SelectItem value="medium">Средний</SelectItem>
-                    <SelectItem value="low">Низкий</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Дата достижения</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !newGoal.endDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {newGoal.endDate ? (
-                        format(newGoal.endDate, "d MMMM yyyy", { locale: ru })
-                      ) : (
-                        <span>Выберите дату</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={newGoal.endDate}
-                      onSelect={(date) => setNewGoal({ ...newGoal, endDate: date })}
-                      disabled={(date) => date < new Date()}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-
-            <div className="flex gap-2 pt-4">
-              <Button onClick={handleCreateGoal} disabled={!newGoal.title.trim()}>
-                Создать цель
-              </Button>
-              <Button variant="outline" onClick={() => setShowCreateForm(false)}>
-                Отмена
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Список целей */}
       {goals.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Пока нет целей</h3>
-            <p className="text-muted-foreground mb-4">
-              Создайте свою первую цель здоровья для отслеживания прогресса
+            <h3 className="text-lg font-semibold mb-2">Пока нет созданных целей</h3>
+            <p className="text-muted-foreground">
+              Ваши цели создаются при заполнении профиля здоровья
             </p>
-            <Button onClick={() => setShowCreateForm(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Добавить первую цель
-            </Button>
           </CardContent>
         </Card>
       ) : (
