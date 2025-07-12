@@ -4,9 +4,11 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TrendingUp, TrendingDown, Heart, Brain, Activity, Bone, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
 import { useBiomarkers } from '@/hooks/useBiomarkers';
+import { useNavigate } from 'react-router-dom';
 
 const PriorityMetricsSection = () => {
   const { getTop5WorstBiomarkers, isLoading: biomarkersLoading } = useBiomarkers();
+  const navigate = useNavigate();
 
   // ИИ-скоры рисков
   const riskScores = [
@@ -48,34 +50,32 @@ const PriorityMetricsSection = () => {
   const worstBiomarkers = getTop5WorstBiomarkers();
 
   const getBiomarkerStatusIcon = (status: string | null) => {
-    switch (status) {
-      case 'critical':
-      case 'high':
-      case 'elevated':
-        return AlertTriangle;
-      case 'low':
-      case 'attention':
-      case 'borderline':
-        return AlertCircle;
-      default:
-        return CheckCircle;
+    if (!status) return CheckCircle;
+    const statusLower = status.toLowerCase();
+    
+    if (['critical', 'high', 'elevated', 'above_normal'].includes(statusLower)) {
+      return AlertTriangle;
     }
+    if (['low', 'below_normal', 'attention', 'borderline', 'abnormal'].includes(statusLower)) {
+      return AlertCircle;
+    }
+    return CheckCircle;
   };
 
   const getBiomarkerStatusColor = (status: string | null) => {
-    switch (status) {
-      case 'critical':
-        return 'text-red-600';
-      case 'high':
-      case 'elevated':
-        return 'text-orange-600';
-      case 'low':
-      case 'attention':
-      case 'borderline':
-        return 'text-yellow-600';
-      default:
-        return 'text-green-600';
+    if (!status) return 'text-green-600';
+    const statusLower = status.toLowerCase();
+    
+    if (statusLower === 'critical') {
+      return 'text-red-600';
     }
+    if (['high', 'elevated', 'above_normal'].includes(statusLower)) {
+      return 'text-orange-600';
+    }
+    if (['low', 'below_normal', 'attention', 'borderline', 'abnormal'].includes(statusLower)) {
+      return 'text-yellow-600';
+    }
+    return 'text-green-600';
   };
 
   const getStatusColor = (status: string) => {
@@ -169,7 +169,7 @@ const PriorityMetricsSection = () => {
               {worstBiomarkers.map((biomarker, index) => {
                 const StatusIcon = getBiomarkerStatusIcon(biomarker.status);
                 return (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg border border-gray-200/50 hover:bg-gray-50 transition-colors">
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg border border-gray-200/50 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => navigate('/my-biomarkers')}>
                     <div className="flex items-center gap-3">
                       <StatusIcon className={`h-4 w-4 ${getBiomarkerStatusColor(biomarker.status)}`} />
                       <div>
@@ -190,11 +190,14 @@ const PriorityMetricsSection = () => {
                       className={`${getBiomarkerStatusColor(biomarker.status)} bg-transparent border text-xs px-2 py-1`}
                     >
                       {biomarker.status === 'critical' ? 'Критично' :
-                       biomarker.status === 'high' ? 'Высокий' :
-                       biomarker.status === 'elevated' ? 'Повышен' :
-                       biomarker.status === 'low' ? 'Понижен' :
-                       biomarker.status === 'attention' ? 'Внимание' :
-                       biomarker.status === 'borderline' ? 'Граничный' : 
+                       biomarker.status?.toLowerCase() === 'high' ? 'Высокий' :
+                       biomarker.status?.toLowerCase() === 'elevated' ? 'Повышен' :
+                       biomarker.status?.toLowerCase() === 'above_normal' ? 'Выше нормы' :
+                       biomarker.status?.toLowerCase() === 'low' ? 'Понижен' :
+                       biomarker.status?.toLowerCase() === 'below_normal' ? 'Ниже нормы' :
+                       biomarker.status?.toLowerCase() === 'attention' ? 'Внимание' :
+                       biomarker.status?.toLowerCase() === 'borderline' ? 'Граничный' :
+                       biomarker.status?.toLowerCase() === 'abnormal' ? 'Аномальный' : 
                        biomarker.status}
                     </Badge>
                   </div>

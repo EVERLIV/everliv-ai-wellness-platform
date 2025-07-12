@@ -72,27 +72,48 @@ export const useBiomarkers = () => {
 
     // Группируем биомаркеры по имени, берем последние значения
     const latestBiomarkers = biomarkers.reduce((acc, biomarker) => {
-      if (!acc[biomarker.name] || new Date(biomarker.created_at) > new Date(acc[biomarker.name].created_at)) {
-        acc[biomarker.name] = biomarker;
+      const key = biomarker.name;
+      if (!acc[key] || new Date(biomarker.created_at) > new Date(acc[key].created_at)) {
+        acc[key] = biomarker;
       }
       return acc;
     }, {} as Record<string, Biomarker>);
 
+    // Список всех проблемных статусов
+    const problematicStatuses = [
+      'critical', 'high', 'elevated', 'low', 'below_normal', 
+      'above_normal', 'attention', 'borderline', 'abnormal'
+    ];
+
+    // Фильтруем биомаркеры с проблемными статусами
+    const problematicBiomarkers = Object.values(latestBiomarkers)
+      .filter(b => {
+        if (!b.status) return false;
+        const status = b.status.toLowerCase();
+        return problematicStatuses.includes(status);
+      });
+
+    console.log('All biomarkers:', biomarkers);
+    console.log('Latest biomarkers:', latestBiomarkers);
+    console.log('Problematic biomarkers:', problematicBiomarkers);
+
     // Сортируем по статусу: сначала критические, потом требующие внимания
-    return Object.values(latestBiomarkers)
-      .filter(b => b.status && b.status !== 'normal' && b.status !== 'optimal')
+    return problematicBiomarkers
       .sort((a, b) => {
         const statusPriority = {
           'critical': 0,
           'high': 1,
           'elevated': 2,
-          'low': 3,
-          'attention': 4,
-          'borderline': 5
+          'above_normal': 3,
+          'low': 4,
+          'below_normal': 5,
+          'attention': 6,
+          'borderline': 7,
+          'abnormal': 8
         } as Record<string, number>;
         
-        const aPriority = statusPriority[a.status || ''] ?? 999;
-        const bPriority = statusPriority[b.status || ''] ?? 999;
+        const aPriority = statusPriority[a.status?.toLowerCase() || ''] ?? 999;
+        const bPriority = statusPriority[b.status?.toLowerCase() || ''] ?? 999;
         
         return aPriority - bPriority;
       })
