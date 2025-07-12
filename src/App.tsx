@@ -53,6 +53,9 @@ const Welcome = lazy(() => import("./pages/Welcome"));
 
 // Protected pages
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
+const PricingPage = lazy(() => import("./pages/PricingPage"));
 const UserProfile = lazy(() => import("./pages/UserProfile"));
 const Settings = lazy(() => import("./pages/Settings"));
 const HealthProfile = lazy(() => import("./pages/HealthProfile"));
@@ -107,7 +110,12 @@ const App = () => (
                       {/* Protected routes */}
                       <Route path="/dashboard" element={
                         <ProtectedRoute>
-                          <Dashboard />
+                          <DashboardPage />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/notifications" element={
+                        <ProtectedRoute>
+                          <NotificationsPage />
                         </ProtectedRoute>
                       } />
                       <Route path="/profile" element={
@@ -202,7 +210,7 @@ const App = () => (
                       <Route path="/science" element={<Science />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/contact" element={<Contact />} />
-                      <Route path="/pricing" element={<Pricing />} />
+                      <Route path="/pricing" element={<PricingPage />} />
                       <Route path="/partnership" element={<Partnership />} />
                       <Route path="/faq" element={<FAQ />} />
                       <Route path="/support" element={<Support />} />

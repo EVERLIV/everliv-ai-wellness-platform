@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { AppFooter } from "./AppFooter";
@@ -13,7 +13,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, Settings, LogOut, Search, Bell, ArrowLeft, Crown } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { User, Settings, LogOut, Search, Bell, ArrowLeft, Crown, Check } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -25,6 +38,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -39,7 +54,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   };
 
   const handleBack = () => {
-    navigate(-1);
+    navigate("/dashboard");
   };
 
   const navigationItems = [
@@ -48,6 +63,26 @@ export function AppLayout({ children }: AppLayoutProps) {
     { label: "Поддержка", href: "/support" },
     { label: "Еще", href: "/more" },
   ];
+
+  // Поисковые подсказки
+  const searchSuggestions = [
+    { value: "health-profile", label: "Профиль здоровья", href: "/health-profile" },
+    { value: "analytics", label: "Аналитика", href: "/analytics" },
+    { value: "ai-doctor", label: "ИИ-Врач", href: "/ai-doctor" },
+    { value: "recommendations", label: "Рекомендации", href: "/recommendations" },
+    { value: "settings", label: "Настройки", href: "/settings" },
+    { value: "notifications", label: "Уведомления", href: "/notifications" },
+  ];
+
+  const filteredSuggestions = searchSuggestions.filter(suggestion =>
+    suggestion.label.toLowerCase().includes(searchValue.toLowerCase())
+  );
+
+  const handleSearchSelect = (href: string) => {
+    navigate(href);
+    setSearchOpen(false);
+    setSearchValue("");
+  };
 
   return (
     <div className="min-h-screen flex flex-col w-full bg-background">
@@ -64,7 +99,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/dashboard" className="flex items-center gap-2">
               <div className="text-lg font-semibold">EverliveAI</div>
             </Link>
           </div>
@@ -88,27 +123,61 @@ export function AppLayout({ children }: AppLayoutProps) {
 
           {/* Правая часть - поиск, статус подписки, уведомления, профиль */}
           <div className="flex items-center gap-3">
-            {/* Поиск */}
-            <div className="relative hidden lg:block">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Поиск..."
-                className="pl-9 w-64"
-              />
-            </div>
+            {/* Поиск с автоподбором */}
+            <Popover open={searchOpen} onOpenChange={setSearchOpen}>
+              <PopoverTrigger asChild>
+                <div className="relative hidden lg:block">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Поиск..."
+                    className="pl-9 w-64"
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    onFocus={() => setSearchOpen(true)}
+                  />
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-0" align="start">
+                <Command>
+                  <CommandInput 
+                    placeholder="Поиск..." 
+                    value={searchValue}
+                    onValueChange={setSearchValue}
+                  />
+                  <CommandList>
+                    <CommandEmpty>Ничего не найдено.</CommandEmpty>
+                    <CommandGroup>
+                      {filteredSuggestions.map((suggestion) => (
+                        <CommandItem
+                          key={suggestion.value}
+                          onSelect={() => handleSearchSelect(suggestion.href)}
+                        >
+                          <Check className="mr-2 h-4 w-4" />
+                          {suggestion.label}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             
             {/* Статус подписки */}
-            <Button variant="outline" size="sm" className="hidden sm:flex">
-              <Crown className="h-4 w-4 mr-2" />
-              Upgrade
-            </Button>
+            <Link to="/pricing">
+              <Button variant="outline" size="sm" className="hidden sm:flex">
+                <Crown className="h-4 w-4 mr-2" />
+                Upgrade
+              </Button>
+            </Link>
             
             {/* Уведомления */}
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="h-4 w-4" />
-              <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-            </Button>
+            <Link to="/notifications">
+              <Button variant="ghost" size="sm" className="relative">
+                <Bell className="h-4 w-4" />
+                <span className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+              </Button>
+            </Link>
             
             {/* Профиль пользователя */}
             {user && (
@@ -154,20 +223,20 @@ export function AppLayout({ children }: AppLayoutProps) {
         </div>
       </header>
 
-      {/* Основной контент с боковым меню */}
+      {/* Основной контент с боковым меню - исправлено расположение */}
       <div className="flex-1 flex">
         <SidebarProvider>
           <AppSidebar />
           
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-w-0">
             {/* Кнопка открытия меню */}
-            <div className="p-4 border-b">
+            <div className="p-4 border-b bg-background">
               <SidebarTrigger />
             </div>
             
-            {/* Основной контент */}
-            <main className="flex-1 overflow-auto">
-              <div className="container mx-auto p-4 max-w-none">
+            {/* Основной контент с правильными отступами */}
+            <main className="flex-1 overflow-auto bg-background">
+              <div className="container mx-auto p-4 max-w-none min-h-full">
                 {children}
               </div>
             </main>
