@@ -9,19 +9,25 @@ import NutritionSummarySection from './NutritionSummarySection';
 import DashboardChatsList from './DashboardChatsList';
 
 interface DashboardRightColumnProps {
-  healthScore: number;
+  healthScore?: number; // сделаем необязательным
   biologicalAge: number;
+  isLoadingAnalytics?: boolean; // добавляем флаг загрузки
 }
 
 const DashboardRightColumn: React.FC<DashboardRightColumnProps> = ({ 
   healthScore: fallbackHealthScore, 
-  biologicalAge: fallbackBiologicalAge 
+  biologicalAge: fallbackBiologicalAge,
+  isLoadingAnalytics = false
 }) => {
   const { healthProfile } = useHealthProfile();
-  const { analytics } = useCachedAnalytics();
+  const { analytics, isLoading: analyticsLoading } = useCachedAnalytics();
 
-  // Используем данные из аналитики если они есть, иначе fallback значения
-  const currentHealthScore = analytics?.healthScore || fallbackHealthScore || 75;
+  // Показываем загрузку если данные еще загружаются
+  const isDataLoading = isLoadingAnalytics || analyticsLoading;
+  
+  // Используем данные из аналитики ТОЛЬКО если они есть
+  // НЕ показываем fallback пока данные загружаются
+  const currentHealthScore = analytics?.healthScore ?? fallbackHealthScore;
   
   // Расчет биологического возраста на основе данных профиля здоровья
   const calculateBiologicalAge = () => {
@@ -67,20 +73,33 @@ const DashboardRightColumn: React.FC<DashboardRightColumnProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="text-center">
-            <div className={`text-4xl font-bold mb-2 ${getScoreColor(currentHealthScore)}`}>
-              {Math.round(currentHealthScore)}%
+          {isDataLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+              <p className="text-sm text-gray-600">Загружаем индекс здоровья...</p>
             </div>
-            <Progress 
-              value={currentHealthScore} 
-              className={`h-3 ${getScoreGradient(currentHealthScore)}`}
-            />
-            {analytics && (
-              <p className="text-xs text-gray-500 mt-2">
-                Данные из ИИ-аналитики
-              </p>
-            )}
-          </div>
+          ) : currentHealthScore !== undefined ? (
+            <div className="text-center">
+              <div className={`text-4xl font-bold mb-2 ${getScoreColor(currentHealthScore)}`}>
+                {Math.round(currentHealthScore)}%
+              </div>
+              <Progress 
+                value={currentHealthScore} 
+                className={`h-3 ${getScoreGradient(currentHealthScore)}`}
+              />
+              {analytics && (
+                <p className="text-xs text-gray-500 mt-2">
+                  Данные из ИИ-аналитики
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Heart className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-sm text-gray-600">Нет данных об индексе здоровья</p>
+              <p className="text-xs text-gray-500 mt-1">Заполните профиль для получения аналитики</p>
+            </div>
+          )}
           
           <div className="grid grid-cols-2 gap-4 pt-4 border-t">
             <div className="text-center">

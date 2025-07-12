@@ -54,14 +54,16 @@ const Dashboard = () => {
   // В dev режиме создаем фиктивного пользователя если его нет
   const userName = user?.user_metadata?.full_name || user?.user_metadata?.nickname || "Пользователь";
   
-  // Используем данные из аналитики если они есть, иначе fallback значения
-  const healthScore = analytics?.healthScore || 85;
-  const biologicalAge = 42; // Fallback значение, будет пересчитано в компоненте
+  // ВАЖНО: НЕ показываем fallback значения, ждем реальные данные
+  // Это предотвращает мерцание с неправильными значениями
+  const healthScore = analytics?.healthScore; // undefined если данных еще нет
+  const biologicalAge = analytics?.biologicalAge || 42; // Fallback только для биологического возраста
 
   console.log('🔧 Dashboard: Rendering with data:', {
     userName,
     healthScore: analytics?.healthScore,
-    hasAnalytics: !!analytics
+    hasAnalytics: !!analytics,
+    isAnalyticsLoading: isLoading // добавляем состояние загрузки аналитики
   });
 
   return (
@@ -74,8 +76,9 @@ const Dashboard = () => {
           }
           rightColumn={
             <DashboardRightColumn 
-              healthScore={healthScore} 
+              healthScore={healthScore} // передаем undefined если данных нет
               biologicalAge={biologicalAge} 
+              isLoadingAnalytics={!analytics && isLoading} // указываем что данные загружаются
             />
           }
         />

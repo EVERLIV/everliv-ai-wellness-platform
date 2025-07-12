@@ -9,10 +9,15 @@ export const useAnalyticsData = () => {
   const { user } = useAuth();
   const [analytics, setAnalytics] = useState<CachedAnalytics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasCachedData, setHasCachedData] = useState(false); // флаг наличия кэшированных данных
 
   useEffect(() => {
     if (user) {
       loadCachedAnalytics();
+    } else {
+      setAnalytics(null);
+      setIsLoading(false);
+      setHasCachedData(false);
     }
   }, [user]);
 
@@ -43,9 +48,15 @@ export const useAnalyticsData = () => {
         logAnalyticsDifferences('useAnalyticsData', consistentAnalytics, user.id);
         
         setAnalytics(consistentAnalytics);
+        setHasCachedData(true);
+        console.log('✅ Loaded cached analytics:', { healthScore: consistentAnalytics.healthScore });
+      } else {
+        setHasCachedData(false);
+        console.log('⚠️ No cached analytics found');
       }
     } catch (error) {
       console.error('Unexpected error loading analytics:', error);
+      setHasCachedData(false);
     } finally {
       setIsLoading(false);
     }
@@ -65,6 +76,7 @@ export const useAnalyticsData = () => {
   return {
     analytics,
     isLoading,
+    hasCachedData, // возвращаем флаг наличия кэшированных данных
     setAnalytics: setAnalyticsWithConsistency,
     refreshAnalytics: loadCachedAnalytics
   };
