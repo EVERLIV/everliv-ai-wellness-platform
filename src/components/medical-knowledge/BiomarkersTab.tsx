@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Filter, BookOpen, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
 import { BIOMARKER_KNOWLEDGE, searchBiomarkers, getBiomarkersByCategory } from '@/data/biomarkerKnowledge';
 import { BIOMARKER_CATEGORIES } from '@/types/biomarker';
@@ -75,123 +75,118 @@ const BiomarkersTab: React.FC<BiomarkersTabProps> = ({ searchQuery = '' }) => {
             className="pl-9"
           />
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant={selectedCategory === 'all' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedCategory('all')}
-          >
-            Все ({BIOMARKER_KNOWLEDGE.length})
-          </Button>
-        </div>
+        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Выберите категорию" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">
+              <div className="flex items-center justify-between w-full">
+                <span>Все биомаркеры</span>
+                <Badge variant="secondary" className="ml-2">
+                  {BIOMARKER_KNOWLEDGE.length}
+                </Badge>
+              </div>
+            </SelectItem>
+            {categoriesWithCounts.map((category) => (
+              <SelectItem key={category.id} value={category.id}>
+                <div className="flex items-center justify-between w-full">
+                  <span>{category.name}</span>
+                  <Badge variant="secondary" className="ml-2">
+                    {category.count}
+                  </Badge>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Категории */}
-      <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 h-auto">
-          <TabsTrigger value="all" className="text-xs">Все</TabsTrigger>
-          {categoriesWithCounts.map((category) => (
-            <TabsTrigger 
-              key={category.id} 
-              value={category.id}
-              className="text-xs flex flex-col gap-1 p-2 h-auto"
-            >
-              <span className="truncate">{category.name.split(' ')[0]}</span>
-              <Badge variant="secondary" className="text-xs">
-                {category.count}
-              </Badge>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        <TabsContent value={selectedCategory} className="mt-6">
-          {/* Сетка биомаркеров */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredBiomarkers.map((biomarker) => (
-              <Card 
-                key={biomarker.id} 
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => handleBiomarkerClick(biomarker)}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-sm font-medium">{biomarker.name}</CardTitle>
-                      {biomarker.alternativeNames && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {biomarker.alternativeNames.join(', ')}
-                        </p>
-                      )}
-                    </div>
-                    <Badge 
-                      variant="secondary" 
-                      className={`${getCategoryColor(biomarker.category)} text-white text-xs`}
-                    >
-                      {getCategoryName(biomarker.category).split(' ')[0]}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="pt-0">
-                  <div className="space-y-3">
-                    {/* Нормальные значения */}
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground mb-1">Норма:</p>
-                      <div className="space-y-1">
-                        {biomarker.normalRanges.general && (
-                          <p className="text-xs">{biomarker.normalRanges.general}</p>
-                        )}
-                        {biomarker.normalRanges.men && (
-                          <p className="text-xs">М: {biomarker.normalRanges.men}</p>
-                        )}
-                        {biomarker.normalRanges.women && (
-                          <p className="text-xs">Ж: {biomarker.normalRanges.women}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Описание */}
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {biomarker.description}
+      {/* Сетка биомаркеров */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredBiomarkers.map((biomarker) => (
+          <Card 
+            key={biomarker.id} 
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => handleBiomarkerClick(biomarker)}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardTitle className="text-sm font-medium">{biomarker.name}</CardTitle>
+                  {biomarker.alternativeNames && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {biomarker.alternativeNames.join(', ')}
                     </p>
-
-                    {/* Теги */}
-                    <div className="flex flex-wrap gap-1">
-                      {biomarker.tags.slice(0, 3).map((tag) => (
-                        <Badge key={tag} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                      {biomarker.tags.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{biomarker.tags.length - 3}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Кнопка подробнее */}
-                    <Button variant="ghost" size="sm" className="w-full text-xs h-7">
-                      <BookOpen className="h-3 w-3 mr-1" />
-                      Подробнее
-                    </Button>
+                  )}
+                </div>
+                <Badge 
+                  variant="secondary" 
+                  className={`${getCategoryColor(biomarker.category)} text-white text-xs`}
+                >
+                  {getCategoryName(biomarker.category).split(' ')[0]}
+                </Badge>
+              </div>
+            </CardHeader>
+            
+            <CardContent className="pt-0">
+              <div className="space-y-3">
+                {/* Нормальные значения */}
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Норма:</p>
+                  <div className="space-y-1">
+                    {biomarker.normalRanges.general && (
+                      <p className="text-xs">{biomarker.normalRanges.general}</p>
+                    )}
+                    {biomarker.normalRanges.men && (
+                      <p className="text-xs">М: {biomarker.normalRanges.men}</p>
+                    )}
+                    {biomarker.normalRanges.women && (
+                      <p className="text-xs">Ж: {biomarker.normalRanges.women}</p>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </div>
 
-          {/* Пустое состояние */}
-          {filteredBiomarkers.length === 0 && (
-            <div className="text-center py-12">
-              <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Биомаркеры не найдены</h3>
-              <p className="text-muted-foreground">
-                Попробуйте изменить критерии поиска или выбрать другую категорию
-              </p>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+                {/* Описание */}
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {biomarker.description}
+                </p>
+
+                {/* Теги */}
+                <div className="flex flex-wrap gap-1">
+                  {biomarker.tags.slice(0, 3).map((tag) => (
+                    <Badge key={tag} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                  {biomarker.tags.length > 3 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{biomarker.tags.length - 3}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Кнопка подробнее */}
+                <Button variant="ghost" size="sm" className="w-full text-xs h-7">
+                  <BookOpen className="h-3 w-3 mr-1" />
+                  Подробнее
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Пустое состояние */}
+      {filteredBiomarkers.length === 0 && (
+        <div className="text-center py-12">
+          <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium mb-2">Биомаркеры не найдены</h3>
+          <p className="text-muted-foreground">
+            Попробуйте изменить критерии поиска или выбрать другую категорию
+          </p>
+        </div>
+      )}
 
       {/* Диалог детального просмотра */}
       <BiomarkerDetailDialog
