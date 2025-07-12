@@ -30,6 +30,12 @@ const PriorityMetricsSection = () => {
     disease4: { name: 'Загрузка...', percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' }
   });
   const [isLoadingRisks, setIsLoadingRisks] = useState(false);
+  const [aiRecommendations, setAiRecommendations] = useState<{[key: string]: any[]}>({
+    prognostic: [],
+    actionable: [],
+    personalized: []
+  });
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
 
   const generateAIRiskScores = async () => {
     setIsLoadingRisks(true);
@@ -88,8 +94,78 @@ const PriorityMetricsSection = () => {
     }
   };
 
+  const generateAIRecommendations = async () => {
+    setIsLoadingRecommendations(true);
+    try {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session) {
+        console.error('No authenticated session found');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('generate-ai-recommendations', {
+        headers: {
+          Authorization: `Bearer ${session.data.session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (error) {
+        console.error('Error generating AI recommendations:', error);
+        toast({
+          title: "Ошибка",
+          description: "Не удалось сгенерировать ИИ-рекомендации",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data?.recommendations) {
+        setAiRecommendations(data.recommendations);
+        toast({
+          title: "Успешно",
+          description: "ИИ-рекомендации обновлены",
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Ошибка",
+        description: "Произошла ошибка при генерации ИИ-рекомендаций",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingRecommendations(false);
+    }
+  };
+
+  const loadAIRecommendations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('ai_recommendations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading recommendations:', error);
+        return;
+      }
+
+      const groupedRecommendations = {
+        prognostic: data?.filter(r => r.recommendation_type === 'prognostic') || [],
+        actionable: data?.filter(r => r.recommendation_type === 'actionable') || [],
+        personalized: data?.filter(r => r.recommendation_type === 'personalized') || []
+      };
+
+      setAiRecommendations(groupedRecommendations);
+    } catch (error) {
+      console.error('Error loading recommendations:', error);
+    }
+  };
+
   useEffect(() => {
     generateAIRiskScores();
+    loadAIRecommendations();
   }, []);
 
   // Фильтруем только значимые риски или показываем сообщение об отсутствии рисков
@@ -359,66 +435,84 @@ const PriorityMetricsSection = () => {
 
       {/* ИИ-инсайты и рекомендации */}
       <Card className="shadow-sm border-gray-200/80">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            💡 ИИ-инсайты и рекомендации
+        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+          <CardTitle className="text-lg font-semibold text-gray-900">
+            ИИ-инсайты и рекомендации
           </CardTitle>
+          <button
+            onClick={generateAIRecommendations}
+            disabled={isLoadingRecommendations}
+            className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          >
+            {isLoadingRecommendations ? 'Генерация...' : 'Обновить'}
+          </button>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Персонализированные инсайты */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-medium text-gray-700 mb-2">
-                🔥 Персонализированные инсайты
-              </h4>
-              <div className="space-y-2">
-                <div className="p-2.5 bg-blue-50/50 rounded border border-blue-200/30">
-                  <p className="text-xs text-blue-800">
-                    💡 "Ваш метаболический возраст улучшился на 2.3 года"
-                  </p>
-                </div>
-                <div className="p-2.5 bg-yellow-50/50 rounded border border-yellow-200/30">
-                  <p className="text-xs text-yellow-800">
-                    ⚠️ "Снижение DHEA-S требует внимания к надпочечникам"
-                  </p>
-                </div>
+          {isLoadingRecommendations ? (
+            <div className="text-center py-6">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+              <p className="text-xs text-gray-600">Генерируем персонализированные рекомендации...</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Прогнозная аналитика */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
+                  Прогнозная аналитика
+                </h4>
+                {aiRecommendations.prognostic.length > 0 ? (
+                  <div className="space-y-2">
+                    {aiRecommendations.prognostic.slice(0, 4).map((rec: any, index: number) => (
+                      <div key={index} className="p-3 bg-blue-50/50 rounded-lg border border-blue-200/30">
+                        <h5 className="text-xs font-medium text-blue-900 mb-1">{rec.title}</h5>
+                        <p className="text-xs text-blue-800">{rec.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500 italic">Нет прогнозных данных</p>
+                )}
+              </div>
+
+              {/* Actionable рекомендации */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
+                  Actionable рекомендации
+                </h4>
+                {aiRecommendations.actionable.length > 0 ? (
+                  <div className="space-y-2">
+                    {aiRecommendations.actionable.slice(0, 4).map((rec: any, index: number) => (
+                      <div key={index} className="p-3 bg-green-50/50 rounded-lg border border-green-200/30">
+                        <h5 className="text-xs font-medium text-green-900 mb-1">{rec.title}</h5>
+                        <p className="text-xs text-green-800">{rec.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500 italic">Нет активных рекомендаций</p>
+                )}
+              </div>
+
+              {/* Персонализированные рекомендации */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
+                  Персонализированные рекомендации
+                </h4>
+                {aiRecommendations.personalized.length > 0 ? (
+                  <div className="space-y-2">
+                    {aiRecommendations.personalized.slice(0, 4).map((rec: any, index: number) => (
+                      <div key={index} className="p-3 bg-purple-50/50 rounded-lg border border-purple-200/30">
+                        <h5 className="text-xs font-medium text-purple-900 mb-1">{rec.title}</h5>
+                        <p className="text-xs text-purple-800">{rec.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500 italic">Нет персональных рекомендаций</p>
+                )}
               </div>
             </div>
-
-            {/* Actionable рекомендации */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-medium text-gray-700 mb-2">
-                🎯 Actionable рекомендации
-              </h4>
-              <div className="space-y-2">
-                <div className="p-2.5 bg-green-50/50 rounded border border-green-200/30">
-                  <p className="text-xs text-green-800">
-                    🥗 "Увеличить омега-3 до 2000мг/день"
-                  </p>
-                </div>
-                <div className="p-2.5 bg-purple-50/50 rounded border border-purple-200/30">
-                  <p className="text-xs text-purple-800">
-                    💊 "Витамин D3 4000 МЕ + К2"
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Прогнозная аналитика */}
-          <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200/50">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">
-              📊 Прогнозная аналитика
-            </h4>
-            <div className="space-y-1">
-              <p className="text-xs text-blue-800">
-                📈 "При текущем тренде биовозраст снизится до 26.8 лет через 6 месяцев"
-              </p>
-              <p className="text-xs text-purple-800">
-                🎯 "Достижение цели по витамину D ожидается через 8 недель"
-              </p>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </div>
