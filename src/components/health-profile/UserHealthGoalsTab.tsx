@@ -299,22 +299,6 @@ const UserHealthGoalsTab: React.FC = () => {
                     </Button>
                   </div>
                 </div>
-
-                {/* Прогресс бар */}
-                {goal.progress_percentage !== undefined && (
-                  <div className="mt-4">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Прогресс</span>
-                      <span>{goal.progress_percentage}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all duration-300" 
-                        style={{ width: `${goal.progress_percentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
           ))}
