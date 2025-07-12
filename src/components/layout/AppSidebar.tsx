@@ -15,7 +15,12 @@ import {
   Calendar,
   Pill,
   Brain,
-  Stethoscope
+  Stethoscope,
+  Heart,
+  Utensils,
+  TestTube,
+  TrendingUp,
+  BookOpen
 } from "lucide-react";
 
 import {
@@ -34,14 +39,16 @@ const menuItems = [
   {
     groupLabel: "Инструменты",
     items: [
-      { title: "Профиль здоровья", url: "/health-profile", icon: User },
-      { title: "Метрики здоровья", url: "/health-metrics", icon: Activity },
-      { title: "Анализы", url: "/medical-analysis", icon: FileText },
-      { title: "ИИ-Врач", url: "/ai-doctor", icon: Brain },
-      { title: "Рекомендации", url: "/recommendations", icon: HeartHandshake },
-      { title: "Календарь здоровья", url: "/health-calendar", icon: Calendar },
-      { title: "Препараты", url: "/medications", icon: Pill },
+      { title: "ИИ Доктор", url: "/ai-doctor", icon: Brain },
+      { title: "Профиль здоровья", url: "/health-profile", icon: Heart },
       { title: "Аналитика", url: "/analytics", icon: BarChart3 },
+      { title: "Дневник питания", url: "/nutrition-diary", icon: Utensils },
+      { title: "Лабораторные анализы", url: "/lab-analyses", icon: TestTube },
+      { title: "Мои биомаркеры", url: "/my-biomarkers", icon: Activity },
+      { title: "Рекомендации", url: "/my-recommendations", icon: HeartHandshake },
+      { title: "Биологический возраст", url: "/biological-age", icon: TrendingUp },
+      { title: "База знаний", url: "/knowledge-base", icon: BookOpen },
+      { title: "Календарь здоровья", url: "/health-calendar", icon: Calendar },
     ]
   },
   {
