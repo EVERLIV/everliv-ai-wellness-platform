@@ -73,34 +73,54 @@ const BiomarkerDetailDialog: React.FC<BiomarkerDetailDialogProps> = ({
 
     setLoadingHistory(true);
     try {
-      // Получаем данные из таблицы biomarkers с фильтром по пользователю через medical_analyses
-      const { data: biomarkers } = await supabase
-        .from('biomarkers')
-        .select(`
-          value, 
-          created_at, 
-          analysis_id,
-          medical_analyses!inner(user_id)
-        `)
-        .eq('name', biomarker.name)
-        .eq('medical_analyses.user_id', user.id)
+      // Получаем данные из medical_analyses.results вместо таблицы biomarkers
+      const { data: analyses } = await supabase
+        .from('medical_analyses')
+        .select('id, results, created_at')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      console.log('🔍 Загруженные биомаркеры для графика:', {
+      console.log('🔍 Загруженные анализы для графика:', {
         biomarkerName: biomarker.name,
         userId: user.id,
-        count: biomarkers?.length || 0,
-        data: biomarkers?.map(b => ({ value: b.value, date: b.created_at })) || []
+        analysesCount: analyses?.length || 0
       });
 
-      if (biomarkers) {
-        const biomarkerHistory: BiomarkerHistory[] = biomarkers
-          .filter(b => b.value && !isNaN(parseFloat(b.value)))
-          .map(b => ({
-            value: b.value,
-            date: b.created_at,
-            analysisId: b.analysis_id
-          }));
+      if (analyses) {
+        const biomarkerHistory: BiomarkerHistory[] = [];
+        
+        // Извлекаем данные биомаркера из каждого анализа
+        analyses.forEach(analysis => {
+          if (analysis.results?.markers) {
+            const marker = analysis.results.markers.find((m: any) => m.name === biomarker.name);
+            if (marker && marker.value) {
+              // Извлекаем чистое значение без единиц для графика
+              let cleanValue = marker.value;
+              if (typeof cleanValue === 'string') {
+                const valueMatch = cleanValue.match(/^([0-9,.\s]+)/);
+                if (valueMatch) {
+                  cleanValue = valueMatch[1].trim();
+                }
+              }
+              
+              // Проверяем, что можем парсить значение
+              const numericValue = parseFloat(cleanValue.toString().replace(',', '.'));
+              if (!isNaN(numericValue)) {
+                biomarkerHistory.push({
+                  value: cleanValue.toString(),
+                  date: analysis.created_at,
+                  analysisId: analysis.id
+                });
+              }
+            }
+          }
+        });
+
+        console.log('🔍 Обработанная история биомаркера:', {
+          biomarkerName: biomarker.name,
+          historyCount: biomarkerHistory.length,
+          data: biomarkerHistory.map(h => ({ value: h.value, date: h.date }))
+        });
 
         setHistory(biomarkerHistory);
       }
