@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TrendingUp, TrendingDown, Heart, Brain, Activity, Bone, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
+import { useBiomarkers } from '@/hooks/useBiomarkers';
 
 const PriorityMetricsSection = () => {
+  const { getTop5WorstBiomarkers, isLoading: biomarkersLoading } = useBiomarkers();
 
   // ИИ-скоры рисков
   const riskScores = [
@@ -42,39 +44,39 @@ const PriorityMetricsSection = () => {
     }
   ];
 
-  // Критические биомаркеры
-  const biomarkers = [
-    {
-      name: 'Воспаление (hsCRP)',
-      value: '0.8 мг/л',
-      status: 'optimal',
-      icon: CheckCircle
-    },
-    {
-      name: 'Гликация (HbA1c)',
-      value: '5.2%',
-      status: 'optimal',
-      icon: CheckCircle
-    },
-    {
-      name: 'Гормоны (DHEA-S)',
-      value: '285 мкг/дл',
-      status: 'attention',
-      icon: AlertCircle
-    },
-    {
-      name: 'Витамин D',
-      value: '32 нг/мл',
-      status: 'attention',
-      icon: AlertCircle
-    },
-    {
-      name: 'Омега-3 индекс',
-      value: '6.2%',
-      status: 'optimal',
-      icon: CheckCircle
+  // Получаем топ-5 худших биомаркеров
+  const worstBiomarkers = getTop5WorstBiomarkers();
+
+  const getBiomarkerStatusIcon = (status: string | null) => {
+    switch (status) {
+      case 'critical':
+      case 'high':
+      case 'elevated':
+        return AlertTriangle;
+      case 'low':
+      case 'attention':
+      case 'borderline':
+        return AlertCircle;
+      default:
+        return CheckCircle;
     }
-  ];
+  };
+
+  const getBiomarkerStatusColor = (status: string | null) => {
+    switch (status) {
+      case 'critical':
+        return 'text-red-600';
+      case 'high':
+      case 'elevated':
+        return 'text-orange-600';
+      case 'low':
+      case 'attention':
+      case 'borderline':
+        return 'text-yellow-600';
+      default:
+        return 'text-green-600';
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -147,35 +149,59 @@ const PriorityMetricsSection = () => {
       <Card className="shadow-sm border-gray-200/80">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            🧬 Топ-5 критических биомаркеров
+            Топ-5 критических биомаркеров
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {biomarkers.map((biomarker, index) => {
-              const Icon = biomarker.icon;
-              return (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg border border-gray-200/50 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <Icon className={`h-4 w-4 ${getStatusColor(biomarker.status)}`} />
-                    <div>
-                      <h5 className="text-sm font-medium text-gray-800">
-                        {biomarker.name}
-                      </h5>
-                      <span className="text-xs text-gray-600">
-                        {biomarker.value}
-                      </span>
+          {biomarkersLoading ? (
+            <div className="text-center py-6">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+              <p className="text-xs text-gray-600">Загружаем биомаркеры...</p>
+            </div>
+          ) : worstBiomarkers.length === 0 ? (
+            <div className="text-center py-6">
+              <AlertTriangle className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+              <p className="text-sm text-gray-500 mb-2">Нет данных о биомаркерах</p>
+              <p className="text-xs text-gray-400">Загрузите результаты анализов для получения данных</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {worstBiomarkers.map((biomarker, index) => {
+                const StatusIcon = getBiomarkerStatusIcon(biomarker.status);
+                return (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg border border-gray-200/50 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <StatusIcon className={`h-4 w-4 ${getBiomarkerStatusColor(biomarker.status)}`} />
+                      <div>
+                        <h5 className="text-sm font-medium text-gray-800">
+                          {biomarker.name}
+                        </h5>
+                        <span className="text-xs text-gray-600">
+                          {biomarker.value || 'Нет данных'}
+                          {biomarker.reference_range && (
+                            <span className="text-gray-500 ml-1">
+                              (норма: {biomarker.reference_range})
+                            </span>
+                          )}
+                        </span>
+                      </div>
                     </div>
+                    <Badge 
+                      className={`${getBiomarkerStatusColor(biomarker.status)} bg-transparent border text-xs px-2 py-1`}
+                    >
+                      {biomarker.status === 'critical' ? 'Критично' :
+                       biomarker.status === 'high' ? 'Высокий' :
+                       biomarker.status === 'elevated' ? 'Повышен' :
+                       biomarker.status === 'low' ? 'Понижен' :
+                       biomarker.status === 'attention' ? 'Внимание' :
+                       biomarker.status === 'borderline' ? 'Граничный' : 
+                       biomarker.status}
+                    </Badge>
                   </div>
-                  <Badge 
-                    className={`${getStatusColor(biomarker.status)} text-xs px-2 py-1`}
-                  >
-                    {biomarker.status === 'optimal' ? '✅' : '⚠️'}
-                  </Badge>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
 
