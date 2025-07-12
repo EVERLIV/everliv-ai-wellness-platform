@@ -67,6 +67,17 @@ const DashboardPage = () => {
           </p>
         </div>
 
+        {/* Мои цели */}
+        <Card className="shadow-sm border-gray-200/80">
+          <CardContent className="p-4">
+            <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <Target className="h-5 w-5 text-blue-500" />
+              Мои цели
+            </h2>
+            <MyGoalsSection />
+          </CardContent>
+        </Card>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Левая колонка - Быстрые действия */}
           <div className="lg:col-span-2 space-y-6">
@@ -140,19 +151,6 @@ const DashboardPage = () => {
                     <div className="text-xs text-gray-500">за неделю</div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Мои цели */}
-            <Card className="shadow-sm border-gray-200/80">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-gray-900">
-                  <Target className="h-4 w-4 text-blue-500" />
-                  <span className="text-base font-semibold">Мои цели</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <MyGoalsSection />
               </CardContent>
             </Card>
 
