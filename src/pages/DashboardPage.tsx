@@ -1,189 +1,152 @@
 import React from 'react';
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { 
-  BarChart3, 
-  Users, 
-  Activity, 
-  TrendingUp, 
-  Calendar,
-  Target,
-  Heart,
-  Brain
-} from "lucide-react";
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Heart, Activity, TrendingUp, Calendar } from 'lucide-react';
+import { useHealthProfile } from '@/hooks/useHealthProfile';
+import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
+import DashboardQuickActionsGrid from '@/components/dashboard/DashboardQuickActionsGrid';
+import DashboardChatsList from '@/components/dashboard/DashboardChatsList';
+import NutritionSummarySection from '@/components/dashboard/NutritionSummarySection';
 
 const DashboardPage = () => {
-  const stats = [
-    {
-      title: "Общий балл здоровья",
-      value: "85",
-      unit: "/100",
-      change: "+5%",
-      icon: Heart,
-      color: "text-green-600"
-    },
-    {
-      title: "Активные цели",
-      value: "4",
-      unit: "цели",
-      change: "+2",
-      icon: Target,
-      color: "text-blue-600"
-    },
-    {
-      title: "Дней подряд",
-      value: "12",
-      unit: "дней",
-      change: "+12",
-      icon: Calendar,
-      color: "text-purple-600"
-    },
-    {
-      title: "ИИ-консультации",
-      value: "8",
-      unit: "в месяц",
-      change: "5 осталось",
-      icon: Brain,
-      color: "text-orange-600"
-    }
-  ];
+  const { user } = useAuth();
+  const { healthProfile } = useHealthProfile();
+  const { analytics, isLoading: analyticsLoading } = useCachedAnalytics();
 
-  const recentActivities = [
-    { action: "Добавлены метрики здоровья", time: "2 часа назад" },
-    { action: "Получена новая рекомендация", time: "4 часа назад" },
-    { action: "Обновлен профиль здоровья", time: "1 день назад" },
-    { action: "Достигнута цель по шагам", time: "2 дня назад" },
-  ];
+  const userName = user?.user_metadata?.full_name || user?.user_metadata?.nickname || "Пользователь";
+
+  // Используем данные из аналитики
+  const currentHealthScore = analytics?.healthScore;
+  
+  // Расчет биологического возраста на основе данных профиля здоровья
+  const calculateBiologicalAge = () => {
+    if (!healthProfile?.age) return 35;
+    
+    let bioAge = healthProfile.age;
+    
+    // Факторы старения
+    if (healthProfile.stressLevel && healthProfile.stressLevel > 7) bioAge += 3;
+    if (healthProfile.sleepHours && healthProfile.sleepHours < 6) bioAge += 2;
+    if (healthProfile.exerciseFrequency && healthProfile.exerciseFrequency < 1) bioAge += 5;
+    
+    // Факторы омоложения
+    if (healthProfile.exerciseFrequency && healthProfile.exerciseFrequency >= 4) bioAge -= 2;
+    if (healthProfile.sleepHours && healthProfile.sleepHours >= 7 && healthProfile.sleepHours <= 9) bioAge -= 1;
+    if (healthProfile.stressLevel && healthProfile.stressLevel <= 4) bioAge -= 2;
+    
+    return Math.max(18, Math.min(bioAge, healthProfile.age + 10));
+  };
+
+  const currentBiologicalAge = calculateBiologicalAge();
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const getScoreGradient = (score: number) => {
+    if (score >= 80) return '[&>div]:bg-green-500';
+    if (score >= 60) return '[&>div]:bg-yellow-500';
+    return '[&>div]:bg-red-500';
+  };
 
   return (
     <AppLayout>
       <div className="space-y-8">
         {/* Заголовок */}
         <div>
-          <h1 className="text-3xl font-bold mb-2">Панель управления</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            Добро пожаловать, {userName}!
+          </h1>
           <p className="text-muted-foreground">
-            Добро пожаловать! Вот обзор вашего здоровья и активности.
+            Управляйте своим здоровьем с помощью ИИ-платформы
           </p>
         </div>
 
-        {/* Статистика */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat) => (
-            <Card key={stat.title}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {stat.title}
-                    </p>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-bold">{stat.value}</span>
-                      <span className="text-sm text-muted-foreground">{stat.unit}</span>
-                    </div>
-                    <p className="text-xs text-green-600 mt-1">{stat.change}</p>
-                  </div>
-                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Основной контент */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Левая колонка */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Левая колонка - Быстрые действия */}
           <div className="lg:col-span-2 space-y-6">
-            {/* График активности */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Активность за неделю
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 bg-muted/30 rounded-lg flex items-center justify-center">
-                  <p className="text-muted-foreground">График активности будет здесь</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Быстрые действия */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Быстрые действия</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
-                    <Activity className="h-6 w-6" />
-                    <span className="text-xs">Метрики</span>
-                  </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
-                    <Brain className="h-6 w-6" />
-                    <span className="text-xs">ИИ-Врач</span>
-                  </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
-                    <Target className="h-6 w-6" />
-                    <span className="text-xs">Цели</span>
-                  </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
-                    <TrendingUp className="h-6 w-6" />
-                    <span className="text-xs">Отчеты</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <DashboardQuickActionsGrid />
           </div>
 
-          {/* Правая колонка */}
+          {/* Правая колонка - Данные здоровья */}
           <div className="space-y-6">
-            {/* Последняя активность */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Последняя активность
+            {/* Индекс здоровья */}
+            <Card className="shadow-sm border-gray-200/80">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-gray-900">
+                  <Heart className="h-5 w-5 text-red-500" />
+                  <span className="text-lg font-semibold">Индекс здоровья</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentActivities.map((activity, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                      <div>
-                        <p className="text-sm font-medium">{activity.action}</p>
-                        <p className="text-xs text-muted-foreground">{activity.time}</p>
-                      </div>
+              <CardContent className="space-y-4">
+                {analyticsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+                    <p className="text-sm text-gray-600">Загружаем индекс здоровья...</p>
+                  </div>
+                ) : currentHealthScore !== undefined ? (
+                  <div className="text-center">
+                    <div className={`text-4xl font-bold mb-2 ${getScoreColor(currentHealthScore)}`}>
+                      {Math.round(currentHealthScore)}%
                     </div>
-                  ))}
+                    <Progress 
+                      value={currentHealthScore} 
+                      className={`h-3 ${getScoreGradient(currentHealthScore)}`}
+                    />
+                    {analytics && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        Данные из ИИ-аналитики
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Heart className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-sm text-gray-600">Нет данных об индексе здоровья</p>
+                    <p className="text-xs text-gray-500 mt-1">Заполните профиль для получения аналитики</p>
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Activity className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm text-gray-600">Биовозраст</span>
+                    </div>
+                    <div className="text-2xl font-semibold text-gray-900">
+                      {currentBiologicalAge}
+                    </div>
+                    <div className="text-xs text-gray-500">лет</div>
+                    {!healthProfile && (
+                      <p className="text-xs text-orange-500 mt-1">
+                        Создайте профиль для точного расчета
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <TrendingUp className="h-4 w-4 text-green-500" />
+                      <span className="text-sm text-gray-600">Тренд</span>
+                    </div>
+                    <div className="text-2xl font-semibold text-green-600">
+                      +2.1
+                    </div>
+                    <div className="text-xs text-gray-500">за неделю</div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Рекомендации */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Рекомендации дня</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <h4 className="font-medium text-blue-900">Увеличьте активность</h4>
-                    <p className="text-sm text-blue-700 mt-1">
-                      Вы прошли только 6,500 шагов. Попробуйте дойти до 10,000!
-                    </p>
-                  </div>
-                  <div className="p-4 bg-green-50 rounded-lg">
-                    <h4 className="font-medium text-green-900">Отличный сон!</h4>
-                    <p className="text-sm text-green-700 mt-1">
-                      Вы спали 8 часов - это идеально для восстановления.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Питание сегодня */}
+            <NutritionSummarySection />
+
+            {/* Истории чатов с ИИ */}
+            <DashboardChatsList />
           </div>
         </div>
       </div>

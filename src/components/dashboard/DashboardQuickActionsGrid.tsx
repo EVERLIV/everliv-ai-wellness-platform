@@ -94,6 +94,14 @@ const DashboardQuickActionsGrid: React.FC = () => {
       path: '/knowledge-base',
       gradient: 'from-teal-500 to-teal-600',
       iconColor: 'text-teal-100'
+    },
+    {
+      icon: Calendar,
+      title: 'Календарь здоровья',
+      description: 'Планирование и напоминания',
+      path: '/health-calendar',
+      gradient: 'from-amber-500 to-amber-600',
+      iconColor: 'text-amber-100'
     }
   ];
 
