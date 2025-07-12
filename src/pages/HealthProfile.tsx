@@ -182,10 +182,14 @@ const HealthProfile: React.FC = () => {
   }
 
   return (
-    <EnhancedHealthProfileDisplay 
-      healthProfile={healthProfile}
-      onEdit={handleEdit}
-    />
+    <PageLayoutWithHeader
+      headerComponent={<HealthProfilePageHeader />}
+    >
+      <EnhancedHealthProfileDisplay 
+        healthProfile={healthProfile}
+        onEdit={handleEdit}
+      />
+    </PageLayoutWithHeader>
   );
 };
 
