@@ -109,60 +109,60 @@ const MyGoalsSection: React.FC = () => {
   const userGoals = goals || [];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Упрощенное создание целей */}
       <SimpleGoalCreator />
 
       {/* Мои цели из профиля здоровья */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-            <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-            Цели из профиля здоровья
-          </h3>
+      <div className="bg-gray-50/50 rounded-lg border border-gray-200/50 p-3">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="text-xs font-medium text-gray-800 flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
+            Цели из профиля
+          </h4>
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => navigate('/health-profile')} 
-            className="text-xs px-2 py-1 h-6"
+            className="text-xs px-1.5 py-0.5 h-5"
           >
-            Редактировать
+            Изменить
           </Button>
         </div>
         
         {healthGoals.length === 0 ? (
-          <div className="text-center py-4">
-            <Target className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-            <p className="text-sm text-gray-500 mb-3">Цели здоровья не заданы</p>
+          <div className="text-center py-3">
+            <Target className="h-6 w-6 mx-auto text-gray-400 mb-1" />
+            <p className="text-xs text-gray-500 mb-2">Цели не заданы</p>
             <Button 
               size="sm" 
               onClick={() => navigate('/health-profile')} 
-              className="text-xs px-3 py-1 h-7"
+              className="text-xs px-2 py-1 h-6"
             >
               <Plus className="h-3 w-3 mr-1" />
-              Добавить цели
+              Добавить
             </Button>
           </div>
         ) : (
-          <div className="space-y-2">
-            {healthGoals.slice(0, 4).map((goal, index) => (
-              <div key={index} className="flex items-center gap-2 p-2 bg-gray-50/50 rounded text-xs">
-                <div className="w-1.5 h-1.5 bg-purple-500 rounded-full flex-shrink-0"></div>
-                <span className="text-gray-900 font-medium">
+          <div className="space-y-1.5">
+            {healthGoals.slice(0, 2).map((goal, index) => (
+              <div key={index} className="flex items-center gap-1.5 p-1.5 bg-white/70 rounded text-xs">
+                <div className="w-1 h-1 bg-purple-500 rounded-full flex-shrink-0"></div>
+                <span className="text-gray-800 font-medium text-xs">
                   {translateGoal(goal)}
                 </span>
               </div>
             ))}
             
-            {healthGoals.length > 4 && (
+            {healthGoals.length > 2 && (
               <div className="pt-1">
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="w-full text-xs h-6" 
+                  className="w-full text-xs h-5" 
                   onClick={() => navigate('/health-profile')}
                 >
-                  Показать все ({healthGoals.length})
+                  Еще {healthGoals.length - 2}
                   <ArrowRight className="h-3 w-3 ml-1" />
                 </Button>
               </div>
@@ -173,49 +173,41 @@ const MyGoalsSection: React.FC = () => {
 
       {/* Созданные цели пользователем */}
       {userGoals.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              Мои созданные цели
-            </h3>
+        <div className="bg-gray-50/50 rounded-lg border border-gray-200/50 p-3">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-xs font-medium text-gray-800 flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+              Созданные цели
+            </h4>
           </div>
           
-          <div className="space-y-2">
-            {userGoals.slice(0, 3).map((goal) => (
-              <div key={goal.id} className="flex items-start justify-between p-3 bg-green-50/30 rounded-lg border border-green-200/50">
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 text-sm mb-1">
+          <div className="space-y-1.5">
+            {userGoals.slice(0, 2).map((goal) => (
+              <div key={goal.id} className="flex items-start justify-between p-2 bg-green-50/50 rounded border border-green-200/30">
+                <div className="flex-1 min-w-0">
+                  <h5 className="font-medium text-gray-800 text-xs mb-0.5 truncate">
                     {goal.title}
-                  </h4>
-                  {goal.description && (
-                    <p className="text-xs text-gray-600 mb-2">
-                      {goal.description.length > 80 ? 
-                        goal.description.substring(0, 80) + '...' : 
-                        goal.description
-                      }
-                    </p>
-                  )}
+                  </h5>
                   {goal.end_date && (
                     <div className="text-xs text-green-700">
-                      Цель до: {new Date(goal.end_date).toLocaleDateString('ru-RU')}
+                      До: {new Date(goal.end_date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}
                     </div>
                   )}
                 </div>
-                <div className="text-xs text-gray-500 ml-2">
+                <div className="text-xs text-gray-500 ml-2 flex-shrink-0">
                   {goal.progress_percentage || 0}%
                 </div>
               </div>
             ))}
             
-            {userGoals.length > 3 && (
+            {userGoals.length > 2 && (
               <div className="pt-1">
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="w-full text-xs h-6"
+                  className="w-full text-xs h-5"
                 >
-                  Показать все ({userGoals.length})
+                  Еще {userGoals.length - 2}
                   <ArrowRight className="h-3 w-3 ml-1" />
                 </Button>
               </div>
@@ -225,56 +217,63 @@ const MyGoalsSection: React.FC = () => {
       )}
 
       {/* Рекомендации для достижения целей */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200/80 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            Рекомендации для достижения целей
-          </h3>
+      <div className="bg-gray-50/50 rounded-lg border border-gray-200/50 p-3">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="text-xs font-medium text-gray-800 flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+            Рекомендации
+          </h4>
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => navigate('/analytics')} 
-            className="text-xs px-2 py-1 h-6"
+            className="text-xs px-1.5 py-0.5 h-5"
           >
             Все
           </Button>
         </div>
         
-        <div className="space-y-2">
-          {goalRecommendations.map((rec) => (
-            <div key={rec.id} className="border border-gray-100 rounded-lg p-3 hover:bg-gray-50/50 transition-colors">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-start gap-2 flex-1 min-w-0">
-                  <div className="w-6 h-6 bg-blue-50 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+        <div className="space-y-1.5">
+          {goalRecommendations.slice(0, 2).map((rec) => (
+            <div key={rec.id} className="border border-gray-200/50 rounded p-2 hover:bg-white/50 transition-colors">
+              <div className="flex items-start justify-between mb-1">
+                <div className="flex items-start gap-1.5 flex-1 min-w-0">
+                  <div className="w-4 h-4 bg-blue-50 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
                     {rec.category === 'Анализы' ? (
-                      <TestTube className="h-3 w-3 text-blue-600" />
+                      <TestTube className="h-2.5 w-2.5 text-blue-600" />
                     ) : (
-                      <Clock className="h-3 w-3 text-blue-600" />
+                      <Clock className="h-2.5 w-2.5 text-blue-600" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-gray-900 text-sm mb-0.5">
+                    <h5 className="font-medium text-gray-800 text-xs mb-0.5 leading-tight">
                       {rec.title}
-                    </h4>
-                    <p className="text-xs text-gray-600 mb-1">
-                      {rec.description}
+                    </h5>
+                    <p className="text-xs text-gray-600 leading-tight">
+                      {rec.description.length > 40 ? rec.description.substring(0, 40) + '...' : rec.description}
                     </p>
                   </div>
                 </div>
-                <Badge className={`${getPriorityColor(rec.priority)} border text-xs px-1.5 py-0.5 ml-2 flex-shrink-0`}>
+                <Badge className={`${getPriorityColor(rec.priority)} border text-xs px-1 py-0.5 ml-1.5 flex-shrink-0`}>
                   {getPriorityText(rec.priority)}
                 </Badge>
               </div>
-              
-              <div className="bg-blue-50/50 border border-blue-100 rounded p-2 ml-8">
-                <div className="flex items-start gap-1.5">
-                  <AlertTriangle className="h-3 w-3 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-blue-800 leading-relaxed">{rec.reason}</p>
-                </div>
-              </div>
             </div>
           ))}
+          
+          {goalRecommendations.length > 2 && (
+            <div className="pt-1">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full text-xs h-5"
+                onClick={() => navigate('/analytics')}
+              >
+                Еще {goalRecommendations.length - 2}
+                <ArrowRight className="h-3 w-3 ml-1" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

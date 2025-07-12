@@ -3,12 +3,13 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Heart, Activity, TrendingUp, Calendar } from 'lucide-react';
+import { Heart, Activity, TrendingUp, Calendar, Target } from 'lucide-react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import DashboardQuickActionsGrid from '@/components/dashboard/DashboardQuickActionsGrid';
 import DashboardChatsList from '@/components/dashboard/DashboardChatsList';
 import NutritionSummarySection from '@/components/dashboard/NutritionSummarySection';
+import MyGoalsSection from '@/components/dashboard/health-goals/MyGoalsSection';
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -139,6 +140,19 @@ const DashboardPage = () => {
                     <div className="text-xs text-gray-500">за неделю</div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Мои цели */}
+            <Card className="shadow-sm border-gray-200/80">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-gray-900">
+                  <Target className="h-4 w-4 text-blue-500" />
+                  <span className="text-base font-semibold">Мои цели</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <MyGoalsSection />
               </CardContent>
             </Card>
 
