@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   User, 
   Activity, 
@@ -29,6 +28,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import DynamicHealthMetrics from "./DynamicHealthMetrics";
+import ModernTabs from "@/components/ui/modern-tabs";
+import UserHealthGoalsTab from "./UserHealthGoalsTab";
 
 interface EnhancedHealthProfileDisplayProps {
   healthProfile: HealthProfileData;
@@ -96,78 +97,70 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
 
   const bmi = calculateBMI(healthProfile.weight, healthProfile.height);
 
-  return (
-    <div className="max-w-6xl mx-auto space-y-4 p-3 md:p-6">
-      {/* Мини Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="sm" className="p-1 h-7 w-7">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h1 className="text-lg font-medium text-gray-900">Профиль здоровья</h1>
-        </div>
-        <Button onClick={onEdit} variant="outline" size="sm" className="text-xs h-6 px-2">
-          <Edit className="h-3 w-3 mr-1" />
-          Редактировать
-        </Button>
-      </div>
-
-      <Tabs defaultValue="overview" className="w-full">
-        <div className="flex flex-col md:flex-row md:justify-center mb-4">
-          <TabsList className="flex flex-col md:flex-row w-full md:w-auto gap-1 md:gap-0 h-auto md:h-9 p-1">
-            <TabsTrigger value="overview" className="w-full md:w-auto text-xs px-3 py-2 justify-start md:justify-center">Обзор</TabsTrigger>
-            <TabsTrigger value="static" className="w-full md:w-auto text-xs px-3 py-2 justify-start md:justify-center">Статические</TabsTrigger>
-            <TabsTrigger value="dynamic" className="w-full md:w-auto text-xs px-3 py-2 justify-start md:justify-center">Динамические</TabsTrigger>
-            <TabsTrigger value="medical" className="w-full md:w-auto text-xs px-3 py-2 justify-start md:justify-center">Медицинские</TabsTrigger>
-          </TabsList>
-        </div>
-
-        {/* Обзор */}
-        <TabsContent value="overview" className="space-y-4 mt-4">
+  const tabs = [
+    {
+      id: 'goals',
+      label: 'Мои цели',
+      icon: Target,
+      content: <UserHealthGoalsTab />
+    },
+    {
+      id: 'overview',
+      label: 'Обзор',
+      icon: User,
+      content: (
+        <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2">
             {/* Основные показатели */}
-            <Card className="border border-gray-200">
+            <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base font-medium">Основная информация</CardTitle>
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Основная информация
+                </CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-3 pt-0">
-                <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-100">
-                  <div className="text-lg font-semibold text-blue-700">{healthProfile.age}</div>
-                  <div className="text-xs text-blue-600">лет</div>
+              <CardContent className="grid grid-cols-2 gap-4 pt-0">
+                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+                  <div className="text-2xl font-bold text-blue-700">{healthProfile.age}</div>
+                  <div className="text-sm text-blue-600">лет</div>
                 </div>
-                <div className="text-center p-3 bg-green-50 rounded-lg border border-green-100">
-                  <div className="text-lg font-semibold text-green-700">{healthProfile.height}</div>
-                  <div className="text-xs text-green-600">см</div>
+                <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
+                  <div className="text-2xl font-bold text-green-700">{healthProfile.height}</div>
+                  <div className="text-sm text-green-600">см</div>
                 </div>
-                <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-100">
-                  <div className="text-lg font-semibold text-purple-700">{healthProfile.weight}</div>
-                  <div className="text-xs text-purple-600">кг</div>
+                <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
+                  <div className="text-2xl font-bold text-purple-700">{healthProfile.weight}</div>
+                  <div className="text-sm text-purple-600">кг</div>
                 </div>
-                <div className="text-center p-3 bg-orange-50 rounded-lg border border-orange-100">
-                  <div className="text-lg font-semibold text-orange-700">{bmi.toFixed(1)}</div>
-                  <div className="text-xs text-orange-600">ИМТ</div>
+                <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border border-orange-200">
+                  <div className="text-2xl font-bold text-orange-700">{bmi.toFixed(1)}</div>
+                  <div className="text-sm text-orange-600">ИМТ</div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Цели здоровья */}
-            <Card className="border border-gray-200">
+            <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base font-medium">Цели здоровья</CardTitle>
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  Цели здоровья из профиля
+                </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
                 {healthProfile.healthGoals && healthProfile.healthGoals.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {translateHealthGoals(healthProfile.healthGoals).slice(0, 4).map((goal, index) => (
-                      <div key={index} className="p-2 bg-gray-50 rounded border text-sm">
+                      <div key={index} className="p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border text-sm font-medium">
                         {goal}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-4 text-gray-500">
-                    <Target className="h-6 w-6 mx-auto mb-2 text-gray-400" />
-                    <p className="text-sm">Цели здоровья не установлены</p>
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Target className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
+                    <p className="text-sm font-medium">Цели здоровья не установлены</p>
+                    <p className="text-xs mt-1">Отредактируйте профиль для добавления целей</p>
                   </div>
                 )}
               </CardContent>
@@ -175,105 +168,113 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
           </div>
 
           {/* Последние показатели */}
-          <Card className="border border-gray-200">
+          <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base font-medium">Последние показатели</CardTitle>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Последние показатели
+              </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               {dailyMetrics.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   {dailyMetrics[0].steps && (
-                    <div className="text-center p-3 bg-blue-50 rounded border border-blue-100">
-                      <div className="text-sm font-semibold text-blue-700">{dailyMetrics[0].steps}</div>
+                    <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+                      <div className="text-lg font-bold text-blue-700">{dailyMetrics[0].steps}</div>
                       <div className="text-xs text-blue-600">шагов</div>
                     </div>
                   )}
                   {dailyMetrics[0].weight && (
-                    <div className="text-center p-3 bg-purple-50 rounded border border-purple-100">
-                      <div className="text-sm font-semibold text-purple-700">{dailyMetrics[0].weight}</div>
+                    <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
+                      <div className="text-lg font-bold text-purple-700">{dailyMetrics[0].weight}</div>
                       <div className="text-xs text-purple-600">кг</div>
                     </div>
                   )}
                   {dailyMetrics[0].sleep_hours && (
-                    <div className="text-center p-3 bg-indigo-50 rounded border border-indigo-100">
-                      <div className="text-sm font-semibold text-indigo-700">{dailyMetrics[0].sleep_hours}</div>
+                    <div className="text-center p-4 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl border border-indigo-200">
+                      <div className="text-lg font-bold text-indigo-700">{dailyMetrics[0].sleep_hours}</div>
                       <div className="text-xs text-indigo-600">часов сна</div>
                     </div>
                   )}
                   {dailyMetrics[0].exercise_minutes && (
-                    <div className="text-center p-3 bg-green-50 rounded border border-green-100">
-                      <div className="text-sm font-semibold text-green-700">{dailyMetrics[0].exercise_minutes}</div>
+                    <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
+                      <div className="text-lg font-bold text-green-700">{dailyMetrics[0].exercise_minutes}</div>
                       <div className="text-xs text-green-600">мин тренировок</div>
                     </div>
                   )}
                   {dailyMetrics[0].water_intake && (
-                    <div className="text-center p-3 bg-cyan-50 rounded border border-cyan-100">
-                      <div className="text-sm font-semibold text-cyan-700">{dailyMetrics[0].water_intake}</div>
+                    <div className="text-center p-4 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl border border-cyan-200">
+                      <div className="text-lg font-bold text-cyan-700">{dailyMetrics[0].water_intake}</div>
                       <div className="text-xs text-cyan-600">л воды</div>
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="text-center py-6 text-gray-500">
-                  <Calendar className="h-6 w-6 mx-auto mb-2 text-gray-400" />
-                  <p className="text-sm">Начните отслеживать показатели</p>
+                <div className="text-center py-12 text-muted-foreground">
+                  <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
+                  <p className="text-sm font-medium">Начните отслеживать показатели</p>
                 </div>
               )}
             </CardContent>
           </Card>
-        </TabsContent>
-
-        {/* Статические данные */}
-        <TabsContent value="static" className="space-y-3 mt-3">
+        </div>
+      )
+    },
+    {
+      id: 'static',
+      label: 'Профиль',
+      icon: User,
+      content: (
+        <div className="space-y-6">
           {/* Personal Information */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <User className="h-4 w-4" />
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <User className="h-5 w-5" />
                 Личная информация
               </CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-0">
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Возраст</p>
-                <p className="text-xs font-medium">{healthProfile.age} лет</p>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-0">
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Возраст</p>
+                <p className="text-lg font-semibold">{healthProfile.age} лет</p>
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Пол</p>
-                <p className="text-xs font-medium">{translateValue('gender', healthProfile.gender)}</p>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Пол</p>
+                <p className="text-lg font-semibold">{translateValue('gender', healthProfile.gender)}</p>
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Рост</p>
-                <p className="text-xs font-medium">{healthProfile.height} см</p>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Рост</p>
+                <p className="text-lg font-semibold">{healthProfile.height} см</p>
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Базовый вес</p>
-                <p className="text-xs font-medium">{healthProfile.weight} кг</p>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Базовый вес</p>
+                <p className="text-lg font-semibold">{healthProfile.weight} кг</p>
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">ИМТ</p>
-                <p className="text-xs font-medium">{bmi.toFixed(1)} ({getBMICategory(bmi)})</p>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">ИМТ</p>
+                <p className="text-lg font-semibold">{bmi.toFixed(1)} ({getBMICategory(bmi)})</p>
               </div>
             </CardContent>
           </Card>
 
           {/* Medical History */}
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <FileText className="h-4 w-4" />
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <FileText className="h-5 w-5" />
                 Медицинская история
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 pt-0">
+            <CardContent className="space-y-4 pt-0">
               {healthProfile.chronicConditions && healthProfile.chronicConditions.length > 0 && (
                 <div>
-                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  <label className="text-sm font-medium text-foreground mb-2 block">
                     Хронические заболевания
                   </label>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-2">
                     {healthProfile.chronicConditions.map((condition, index) => (
-                      <Badge key={index} variant="outline" className="text-xs px-1 py-0">{condition}</Badge>
+                      <Badge key={index} variant="outline" className="text-sm px-3 py-1">{condition}</Badge>
                     ))}
                   </div>
                 </div>
@@ -281,12 +282,12 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
 
               {healthProfile.allergies && healthProfile.allergies.length > 0 && (
                 <div>
-                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  <label className="text-sm font-medium text-foreground mb-2 block">
                     Аллергии
                   </label>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-2">
                     {healthProfile.allergies.map((allergy, index) => (
-                      <Badge key={index} variant="destructive" className="text-xs px-1 py-0">{allergy}</Badge>
+                      <Badge key={index} variant="destructive" className="text-sm px-3 py-1">{allergy}</Badge>
                     ))}
                   </div>
                 </div>
@@ -294,44 +295,52 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
 
               {healthProfile.familyHistory && healthProfile.familyHistory.length > 0 && (
                 <div>
-                  <label className="text-xs font-medium text-gray-700 mb-1 block">
+                  <label className="text-sm font-medium text-foreground mb-2 block">
                     Семейный анамнез
                   </label>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-2">
                     {healthProfile.familyHistory.map((history, index) => (
-                      <Badge key={index} variant="outline" className="text-xs px-1 py-0">{history}</Badge>
+                      <Badge key={index} variant="outline" className="text-sm px-3 py-1">{history}</Badge>
                     ))}
                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
-        </TabsContent>
-
-        {/* Динамические показатели */}
-        <TabsContent value="dynamic" className="space-y-3 mt-3">
-          <DynamicHealthMetrics 
-            metrics={dailyMetrics}
-            isLoading={isLoadingMetrics}
-            onMetricsUpdate={fetchDailyMetrics}
-          />
-        </TabsContent>
-
-        {/* Медицинские данные */}
-        <TabsContent value="medical" className="space-y-3 mt-3">
+        </div>
+      )
+    },
+    {
+      id: 'dynamic',
+      label: 'Метрики',
+      icon: Activity,
+      content: (
+        <DynamicHealthMetrics 
+          metrics={dailyMetrics}
+          isLoading={isLoadingMetrics}
+          onMetricsUpdate={fetchDailyMetrics}
+        />
+      )
+    },
+    {
+      id: 'medical',
+      label: 'Медицинские',
+      icon: Stethoscope,
+      content: (
+        <div className="space-y-6">
           {/* Medications */}
           {healthProfile.medications && healthProfile.medications.length > 0 && (
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <Pill className="h-4 w-4" />
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <Pill className="h-5 w-5" />
                   Лекарства
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-2">
                   {translateMedications(healthProfile.medications).map((medication, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs px-1 py-0">{medication}</Badge>
+                    <Badge key={index} variant="secondary" className="text-sm px-3 py-1">{medication}</Badge>
                   ))}
                 </div>
               </CardContent>
@@ -340,20 +349,20 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
 
           {/* Lab Results */}
           {healthProfile.labResults && Object.keys(healthProfile.labResults).length > 0 && (
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <Stethoscope className="h-4 w-4" />
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <Stethoscope className="h-5 w-5" />
                   Результаты анализов
                 </CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-0">
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-0">
                 {Object.entries(healthProfile.labResults).map(([key, value]) => {
                   if (value !== undefined && value !== null && value !== '') {
                     return (
-                      <div key={key} className="space-y-1">
-                        <p className="text-xs text-muted-foreground">{translateLabResultKey(key)}</p>
-                        <p className="text-xs font-medium">{formatLabResultValue(key, value)}</p>
+                      <div key={key} className="space-y-2">
+                        <p className="text-sm text-muted-foreground">{translateLabResultKey(key)}</p>
+                        <p className="text-lg font-semibold">{formatLabResultValue(key, value)}</p>
                       </div>
                     );
                   }
@@ -365,24 +374,46 @@ const EnhancedHealthProfileDisplay: React.FC<EnhancedHealthProfileDisplayProps> 
 
           {/* Health Goals */}
           {healthProfile.healthGoals && healthProfile.healthGoals.length > 0 && (
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <Target className="h-4 w-4" />
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <Target className="h-5 w-5" />
                   Цели здоровья
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-2">
                   {translateHealthGoals(healthProfile.healthGoals).map((goal, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs px-1 py-0">{goal}</Badge>
+                    <Badge key={index} variant="secondary" className="text-sm px-3 py-1">{goal}</Badge>
                   ))}
                 </div>
               </CardContent>
             </Card>
           )}
-        </TabsContent>
-      </Tabs>
+        </div>
+      )
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-white">
+      {/* Заголовок */}
+      <div className="text-center mb-8 pt-6">
+        <div className="flex items-center justify-center gap-4 mb-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Профиль здоровья
+          </h1>
+          <Button onClick={onEdit} variant="outline" className="flex items-center gap-2">
+            <Edit className="h-4 w-4" />
+            Редактировать
+          </Button>
+        </div>
+        <p className="text-muted-foreground">Управляйте своим здоровьем с помощью персонализированного профиля</p>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4">
+        <ModernTabs tabs={tabs} defaultTab="goals" />
+      </div>
     </div>
   );
 };
