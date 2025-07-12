@@ -82,22 +82,8 @@ export const useBiomarkers = () => {
       name: b.name,
       value: b.value,
       status: b.status,
-      created_at: b.created_at
-    })));
-
-    // Группируем биомаркеры по имени, берем последние значения
-    const latestBiomarkers = biomarkers.reduce((acc, biomarker) => {
-      const key = biomarker.name;
-      if (!acc[key] || new Date(biomarker.created_at) > new Date(acc[key].created_at)) {
-        acc[key] = biomarker;
-      }
-      return acc;
-    }, {} as Record<string, Biomarker>);
-
-    console.log('Latest biomarkers by name:', Object.keys(latestBiomarkers).map(key => ({
-      name: key,
-      value: latestBiomarkers[key].value,
-      status: latestBiomarkers[key].status
+      created_at: b.created_at,
+      id: b.id
     })));
 
     // Список всех проблемных статусов (расширенный)
@@ -107,8 +93,8 @@ export const useBiomarkers = () => {
       'понижен', 'повышен', 'высокий', 'низкий', 'критический'
     ];
 
-    // Фильтруем биомаркеры с проблемными статусами
-    const problematicBiomarkers = Object.values(latestBiomarkers)
+    // НЕ группируем по имени, а берем все проблемные биомаркеры
+    const problematicBiomarkers = biomarkers
       .filter(b => {
         if (!b.status) {
           console.log(`Biomarker ${b.name} has no status`);
@@ -118,13 +104,23 @@ export const useBiomarkers = () => {
         const isProblematic = problematicStatuses.some(ps => status.includes(ps.toLowerCase()));
         console.log(`Biomarker ${b.name} status: "${b.status}" -> problematic: ${isProblematic}`);
         return isProblematic;
+      })
+      // Убираем дубликаты по комбинации имени и значения (для случая если один биомаркер дублируется)
+      .filter((biomarker, index, arr) => {
+        const isDuplicate = arr.findIndex(b => 
+          b.name === biomarker.name && 
+          b.value === biomarker.value && 
+          b.status === biomarker.status
+        ) === index;
+        return isDuplicate;
       });
 
     console.log('Problematic biomarkers found:', problematicBiomarkers.length);
     console.log('Problematic biomarkers:', problematicBiomarkers.map(b => ({
       name: b.name,
       status: b.status,
-      value: b.value
+      value: b.value,
+      id: b.id
     })));
 
     // Сортируем по статусу: сначала критические, потом требующие внимания
@@ -157,7 +153,8 @@ export const useBiomarkers = () => {
     console.log('Final sorted biomarkers:', sortedBiomarkers.map(b => ({
       name: b.name,
       status: b.status,
-      value: b.value
+      value: b.value,
+      id: b.id
     })));
 
     return sortedBiomarkers;
