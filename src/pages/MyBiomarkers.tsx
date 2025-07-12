@@ -113,10 +113,20 @@ const MyBiomarkers = () => {
             // Вычисляем статус на основе значения и нормы
             const calculatedStatus = calculateBiomarkerStatus(cleanValue, normalRange);
             
+            // ВАЖНО: Игнорируем marker.status из исходных данных, используем только вычисленный
+            // так как исходные данные могут содержать ошибки
+            console.log(`🔍 Статус биомаркера ${name}:`, {
+              originalStatus: marker.status,
+              calculatedStatus,
+              value: cleanValue,
+              normalRange,
+              shouldUseCalculated: true
+            });
+            
             biomarkerMap.set(name, {
               values: [],
               normalRange,
-              status: marker.status || calculatedStatus,
+              status: calculatedStatus, // Используем только вычисленный статус
               unit
             });
           }
@@ -138,8 +148,8 @@ const MyBiomarkers = () => {
             unit: biomarkerData.unit
           });
           
-          // Обновляем статус для последнего значения
-          const latestStatus = marker.status || calculateBiomarkerStatus(cleanValue, biomarkerData.normalRange);
+          // Обновляем статус для последнего значения - используем только вычисленный
+          const latestStatus = calculateBiomarkerStatus(cleanValue, biomarkerData.normalRange);
           biomarkerData.status = latestStatus;
         });
       }
