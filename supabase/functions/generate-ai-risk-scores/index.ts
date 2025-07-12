@@ -288,14 +288,51 @@ ${JSON.stringify(analysisData, null, 2)}
 
     console.log('Generated risk scores:', riskScores);
 
+    // Проверяем, есть ли значимые риски (больше 10%)
+    const significantRisks = Object.values(riskScores).filter((risk: any) => risk.percentage > 10);
+    
+    if (significantRisks.length === 0) {
+      // Если нет значимых рисков, возвращаем позитивное сообщение
+      return new Response(JSON.stringify({ 
+        riskScores: {
+          noRisks: {
+            name: "Рисков не выявлено",
+            percentage: 0,
+            level: "Отлично",
+            description: "Вы в отличной форме! Ваши показатели в норме",
+            factors: ["Хорошие биомаркеры", "Здоровый образ жизни"],
+            period: "текущий",
+            mechanism: "Продолжайте поддерживать здоровый образ жизни"
+          }
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     return new Response(JSON.stringify({ riskScores }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
     console.error('Error in generate-ai-risk-scores function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
+    
+    // Возвращаем структурированную ошибку
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      riskScores: {
+        error: {
+          name: "Ошибка анализа",
+          percentage: 0,
+          level: "Неизвестно",
+          description: "Не удалось проанализировать данные",
+          factors: ["Ошибка системы"],
+          period: "неопределен",
+          mechanism: "Попробуйте позже"
+        }
+      }
+    }), {
+      status: 200, // Возвращаем 200 даже при ошибке, чтобы не ломать UI
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

@@ -92,12 +92,39 @@ const PriorityMetricsSection = () => {
     generateAIRiskScores();
   }, []);
 
-  const aiRiskScores = [
-    { title: riskScores.disease1.name, value: riskScores.disease1.percentage, period: riskScores.disease1.period, level: riskScores.disease1.level, description: riskScores.disease1.description, factors: riskScores.disease1.factors.join(', '), mechanism: riskScores.disease1.mechanism },
-    { title: riskScores.disease2.name, value: riskScores.disease2.percentage, period: riskScores.disease2.period, level: riskScores.disease2.level, description: riskScores.disease2.description, factors: riskScores.disease2.factors.join(', '), mechanism: riskScores.disease2.mechanism },
-    { title: riskScores.disease3.name, value: riskScores.disease3.percentage, period: riskScores.disease3.period, level: riskScores.disease3.level, description: riskScores.disease3.description, factors: riskScores.disease3.factors.join(', '), mechanism: riskScores.disease3.mechanism },
-    { title: riskScores.disease4.name, value: riskScores.disease4.percentage, period: riskScores.disease4.period, level: riskScores.disease4.level, description: riskScores.disease4.description, factors: riskScores.disease4.factors.join(', '), mechanism: riskScores.disease4.mechanism }
-  ];
+  // Фильтруем только значимые риски или показываем сообщение об отсутствии рисков
+  const aiRiskScores = (() => {
+    const scores = Object.values(riskScores);
+    const validScores = scores.filter(score => score.name && score.name !== 'Загрузка...');
+    
+    if (validScores.length === 0) {
+      return [];
+    }
+    
+    // Если есть специальное сообщение об отсутствии рисков
+    if (riskScores.noRisks) {
+      return [{
+        title: riskScores.noRisks.name,
+        value: riskScores.noRisks.percentage,
+        period: riskScores.noRisks.period,
+        level: riskScores.noRisks.level,
+        description: riskScores.noRisks.description,
+        factors: riskScores.noRisks.factors.join(', '),
+        mechanism: riskScores.noRisks.mechanism
+      }];
+    }
+    
+    // Показываем найденные риски
+    return validScores.map(score => ({
+      title: score.name,
+      value: score.percentage,
+      period: score.period,
+      level: score.level,
+      description: score.description,
+      factors: score.factors.join(', '),
+      mechanism: score.mechanism
+    }));
+  })();
 
   const getRiskLevel = (value: number) => {
     if (value <= 5) return 'очень низкий';
@@ -195,29 +222,46 @@ const PriorityMetricsSection = () => {
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
                 <p className="text-xs text-gray-600">Анализируем ваши данные с помощью ИИ...</p>
               </div>
+            ) : aiRiskScores.length === 0 ? (
+              <div className="text-center py-8">
+                <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-3" />
+                <h3 className="text-lg font-semibold text-green-700 mb-2">Рисков не выявлено</h3>
+                <p className="text-sm text-green-600 mb-1">Вы в отличной форме!</p>
+                <p className="text-xs text-gray-600">Ваши показатели в норме, продолжайте здоровый образ жизни</p>
+              </div>
             ) : (
               <div className="space-y-3">
                 {aiRiskScores.map((risk, index) => (
-                  <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                  <div key={index} className={`flex items-center justify-between py-3 px-4 rounded-lg border-l-4 ${
+                    risk.value === 0 ? 'border-l-green-500 bg-green-50/50' : 'border-l-gray-200 bg-gray-50/30'
+                  }`}>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
-                        <h5 className="text-sm font-medium text-gray-900">
+                        <h5 className={`text-sm font-medium ${
+                          risk.value === 0 ? 'text-green-800' : 'text-gray-900'
+                        }`}>
                           {risk.title}
                         </h5>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-lg font-bold ${getRiskColor(risk.value)}`}>
-                            {risk.value}%
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            ({risk.period})
-                          </span>
-                        </div>
+                        {risk.value > 0 && (
+                          <div className="flex items-center gap-2">
+                            <span className={`text-lg font-bold ${getRiskColor(risk.value)}`}>
+                              {risk.value}%
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              ({risk.period})
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-xs text-gray-600 mb-1">
+                      <p className={`text-xs mb-1 ${
+                        risk.value === 0 ? 'text-green-700' : 'text-gray-600'
+                      }`}>
                         {risk.description}
                       </p>
-                      <p className="text-xs text-gray-500">
-                        Анализ: {risk.factors}
+                      <p className={`text-xs ${
+                        risk.value === 0 ? 'text-green-600' : 'text-gray-500'
+                      }`}>
+                        {risk.value === 0 ? risk.factors : `Анализ: ${risk.factors}`}
                       </p>
                     </div>
                   </div>
