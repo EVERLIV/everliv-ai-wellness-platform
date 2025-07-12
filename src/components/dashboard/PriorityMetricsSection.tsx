@@ -1,65 +1,79 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TrendingUp, TrendingDown, Heart, Brain, Activity, Bone, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
 import { useBiomarkers } from '@/hooks/useBiomarkers';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface RiskScore {
+  percentage: number;
+  level: string;
+  description: string;
+  factors: string[];
+  period: string;
+}
 
 const PriorityMetricsSection = () => {
   const { getTop5WorstBiomarkers, isLoading: biomarkersLoading } = useBiomarkers();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const [riskScores, setRiskScores] = useState<{[key: string]: RiskScore}>({
+    cardiovascular: { percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' },
+    diabetes: { percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' },
+    neurodegeneration: { percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' },
+    metabolic: { percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' }
+  });
+  const [isLoadingRisks, setIsLoadingRisks] = useState(false);
 
-  // ИИ-скоры рисков на основе анализа биомаркеров и данных пользователя
-  const calculateAIRiskScores = () => {
-    // В реальном приложении здесь будет сложный алгоритм анализа:
-    // 1. Анализ 100+ биомаркеров из крови
-    // 2. Генетические полиморфизмы
-    // 3. Динамика показателей во времени
-    // 4. Возраст, пол, этничность
-    // 5. Данные активности и сна
-    // 6. Паттерны питания
-    
-    // Пока используем базовые расчеты на основе доступных данных
-    const baseRisks = [
-      {
-        title: 'Сердечно-сосудистый риск',
-        value: 12,
-        period: '10 лет',
-        level: 'низкий',
-        description: 'Инфаркт, инсульт, ИБС',
-        factors: 'липиды, воспаление, гомоцистеин, давление'
-      },
-      {
-        title: 'Диабет 2 типа',
-        value: 15,
-        period: '5 лет',
-        level: 'низкий',
-        description: 'Развитие инсулинорезистентности',
-        factors: 'глюкоза, инсулин, HbA1c, воспаление'
-      },
-      {
-        title: 'Нейродегенерация',
-        value: 8,
-        period: '15 лет',
-        level: 'очень низкий',
-        description: 'Альцгеймер, деменция, когнитивное снижение',
-        factors: 'APOE, воспаление, гомоцистеин, B12'
-      },
-      {
-        title: 'Метаболический синдром',
-        value: 18,
-        period: 'текущий',
-        level: 'умеренный',
-        description: 'Комплекс нарушений обмена веществ',
-        factors: 'инсулин, кортизол, щитовидка, воспаление'
+  const generateAIRiskScores = async () => {
+    setIsLoadingRisks(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-ai-risk-scores', {
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        },
+      });
+
+      if (error) {
+        console.error('Error generating AI risk scores:', error);
+        toast({
+          title: "Ошибка",
+          description: "Не удалось сгенерировать ИИ-скоры рисков",
+          variant: "destructive",
+        });
+        return;
       }
-    ];
 
-    return baseRisks;
+      console.log('AI risk scores generated:', data);
+      if (data?.riskScores) {
+        setRiskScores(data.riskScores);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Ошибка",
+        description: "Произошла ошибка при генерации ИИ-скоров",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingRisks(false);
+    }
   };
 
-  const aiRiskScores = calculateAIRiskScores();
+  useEffect(() => {
+    generateAIRiskScores();
+  }, []);
+
+  const aiRiskScores = [
+    { title: 'Сердечно-сосудистый риск', value: riskScores.cardiovascular.percentage, period: riskScores.cardiovascular.period, level: riskScores.cardiovascular.level, description: riskScores.cardiovascular.description, factors: riskScores.cardiovascular.factors.join(', ') },
+    { title: 'Диабет 2 типа', value: riskScores.diabetes.percentage, period: riskScores.diabetes.period, level: riskScores.diabetes.level, description: riskScores.diabetes.description, factors: riskScores.diabetes.factors.join(', ') },
+    { title: 'Нейродегенерация', value: riskScores.neurodegeneration.percentage, period: riskScores.neurodegeneration.period, level: riskScores.neurodegeneration.level, description: riskScores.neurodegeneration.description, factors: riskScores.neurodegeneration.factors.join(', ') },
+    { title: 'Метаболический синдром', value: riskScores.metabolic.percentage, period: riskScores.metabolic.period, level: riskScores.metabolic.level, description: riskScores.metabolic.description, factors: riskScores.metabolic.factors.join(', ') }
+  ];
 
   const getRiskLevel = (value: number) => {
     if (value <= 5) return 'очень низкий';
