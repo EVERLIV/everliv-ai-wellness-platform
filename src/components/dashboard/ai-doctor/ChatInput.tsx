@@ -45,11 +45,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isProcessing}
-            className="w-full min-h-[40px] max-h-[120px] p-3 resize-none border border-input bg-background focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring text-sm placeholder:text-muted-foreground"
+            className="w-full min-h-[40px] max-h-[120px] p-3 resize-none border border-input bg-background text-sm placeholder:text-muted-foreground scrollbar-hide overflow-y-auto"
             style={{ 
               lineHeight: '1.4',
               wordWrap: 'break-word',
-              overflowWrap: 'break-word'
+              overflowWrap: 'break-word',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
             }}
             rows={1}
           />

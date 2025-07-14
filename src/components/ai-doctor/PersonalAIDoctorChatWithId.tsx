@@ -75,29 +75,6 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
 
   return (
     <div className="h-full flex flex-col border border-border bg-card">
-      {/* Chat Header */}
-      <div className="border-b border-border bg-muted/30 p-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-primary text-primary-foreground border border-primary flex items-center justify-center">
-            <Sparkles className="h-4 w-4" />
-          </div>
-          <div>
-            <h2 className="text-base font-semibold text-foreground">
-              Персональный ИИ-Доктор
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Персонализированные медицинские консультации
-            </p>
-          </div>
-          {onlineUsers.length > 1 && (
-            <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
-              <div className="w-2 h-2 bg-green-500 border border-green-600 animate-pulse"></div>
-              <span>{onlineUsers.length - 1} онлайн</span>
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Chat Messages Area */}
       <div className="flex-1 flex flex-col min-h-0">
         <ScrollArea className="flex-1">
@@ -108,9 +85,6 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                 <Sparkles className="h-6 w-6" />
               </div>
               <div className="space-y-2 max-w-md mx-auto">
-                <h3 className="text-lg font-semibold text-foreground">
-                  Добро пожаловать!
-                </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Я помню нашу историю общения и имею доступ к вашим медицинским анализам для точных рекомендаций
                 </p>
@@ -149,7 +123,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={onCreateNewChat}
-                  className="text-muted-foreground hover:text-foreground"
+                  className="text-muted-foreground"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Новый чат
