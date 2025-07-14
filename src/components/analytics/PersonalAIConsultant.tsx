@@ -25,6 +25,9 @@ interface PersonalAIConsultantProps {
 interface AIConsultationResponse {
   currentAnalysis: string;
   goalsAssessment: string;
+  biomarkerAnalysis: string;
+  biomarkerRecommendations: string[];
+  labTestRecommendations: string[];
   keyFindings: string[];
   nutritionRecommendations: string[];
   activityRecommendations: string[];
@@ -57,6 +60,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         riskLevel: analytics.riskLevel,
         biomarkers: analytics.biomarkerAnalysis,
         goals: healthProfile.healthGoals || [],
+        userGoals: [], // Будем загружать пользовательские цели
         age: healthProfile.age,
         gender: healthProfile.gender,
         weight: healthProfile.weight,
@@ -69,10 +73,26 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         lastUpdated: analytics.lastUpdated
       };
 
+      // Загружаем пользовательские цели
+      try {
+        const { data: userGoals } = await supabase
+          .from('user_health_goals')
+          .select('*')
+          .eq('user_id', healthProfile.user_id)
+          .eq('is_active', true);
+        
+        consultationData.userGoals = userGoals || [];
+      } catch (error) {
+        console.error('Error loading user goals:', error);
+      }
+
       // Создаем персонализированную консультацию на основе данных
       const mockConsultation: AIConsultationResponse = {
         currentAnalysis: generateCurrentAnalysis(consultationData),
         goalsAssessment: generateGoalsAssessment(consultationData),
+        biomarkerAnalysis: generateBiomarkerAnalysis(consultationData),
+        biomarkerRecommendations: generateBiomarkerRecommendations(consultationData),
+        labTestRecommendations: generateLabTestRecommendations(consultationData),
         keyFindings: generateKeyFindings(consultationData),
         nutritionRecommendations: generateNutritionRecommendations(consultationData),
         activityRecommendations: generateActivityRecommendations(consultationData),
@@ -101,21 +121,67 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
   };
 
   const generateGoalsAssessment = (data: any): string => {
-    if (!data.goals || data.goals.length === 0) {
+    const allGoals: string[] = [];
+    
+    // Добавляем стандартные цели
+    if (data.goals && data.goals.length > 0) {
+      allGoals.push(...data.goals);
+    }
+    
+    // Добавляем пользовательские цели
+    if (data.userGoals && data.userGoals.length > 0) {
+      const userGoalTitles = data.userGoals.map((goal: any) => goal.title || goal.goal_type);
+      allGoals.push(...userGoalTitles);
+    }
+    
+    if (allGoals.length === 0) {
       return 'Рекомендуется определить конкретные цели для более эффективного планирования.';
     }
     
-    const primaryGoal = data.goals[0];
     const goalTranslations: Record<string, string> = {
       'weight_loss': 'снижение веса',
       'muscle_gain': 'набор мышечной массы',
       'cardiovascular': 'улучшение сердечно-сосудистого здоровья',
       'energy_boost': 'повышение энергии',
-      'sleep_improvement': 'улучшение сна'
+      'sleep_improvement': 'улучшение сна',
+      'biological_age': 'биологический возраст',
+      'cognitive': 'когнитивное здоровье',
+      'musculoskeletal': 'опорно-двигательная система',
+      'metabolism': 'метаболизм',
+      'stress_reduction': 'снижение стресса',
+      'immunity_boost': 'укрепление иммунитета',
+      'longevity': 'увеличение продолжительности жизни',
+      'hormonal_balance': 'гормональный баланс',
+      'digestive_health': 'здоровье пищеварения',
+      'skin_health': 'здоровье кожи',
+      'metabolic_health': 'метаболическое здоровье',
+      'bone_health': 'здоровье костей',
+      'mental_health': 'психическое здоровье',
+      'detox': 'детоксикация организма',
+      'athletic_performance': 'спортивные результаты'
     };
     
-    const translatedGoal = goalTranslations[primaryGoal] || primaryGoal;
-    return `Ваша основная цель: ${translatedGoal}. Это реалистичная цель, которую можно достичь за 3-6 месяцев при правильном подходе.`;
+    // Обрабатываем все цели пользователя
+    const translatedGoals = allGoals.map((goal: string) => goalTranslations[goal] || goal);
+    
+    // Показываем количество пользовательских и стандартных целеей
+    const standardGoalsCount = data.goals ? data.goals.length : 0;
+    const userGoalsCount = data.userGoals ? data.userGoals.length : 0;
+    
+    let goalInfo = '';
+    if (userGoalsCount > 0 && standardGoalsCount > 0) {
+      goalInfo = ` (${standardGoalsCount} стандартных + ${userGoalsCount} персональных)`;
+    } else if (userGoalsCount > 0) {
+      goalInfo = ` (${userGoalsCount} персональных)`;
+    }
+    
+    if (translatedGoals.length === 1) {
+      return `Ваша цель: ${translatedGoals[0]}${goalInfo}. Это реалистичная цель, которую можно достичь за 3-6 месяцев при правильном подходе.`;
+    } else {
+      const primaryGoals = translatedGoals.slice(0, 3).join(', ');
+      const additionalCount = Math.max(0, translatedGoals.length - 3);
+      return `Ваши цели${goalInfo}: ${primaryGoals}${additionalCount > 0 ? ` и еще ${additionalCount}` : ''}. Комплексный подход к достижению этих целей повысит эффективность результата.`;
+    }
   };
 
   const generateKeyFindings = (data: any): string[] => {
@@ -205,6 +271,122 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
     ];
   };
 
+  // Генерация анализа биомаркеров
+  const generateBiomarkerAnalysis = (data: any): string => {
+    if (!data.biomarkers || !Array.isArray(data.biomarkers) || data.biomarkers.length === 0) {
+      return 'Биомаркеры не загружены. Рекомендуется сдать базовые лабораторные анализы для получения полной картины здоровья.';
+    }
+
+    const criticalBiomarkers = data.biomarkers.filter((b: any) => 
+      b.status === 'critical' || b.status === 'high' || b.status === 'low'
+    );
+    
+    const normalBiomarkers = data.biomarkers.filter((b: any) => b.status === 'normal');
+
+    if (criticalBiomarkers.length === 0) {
+      return `Анализ ${data.biomarkers.length} биомаркеров показывает хорошие результаты. Все основные показатели в пределах нормы.`;
+    }
+
+    return `Из ${data.biomarkers.length} проанализированных биомаркеров выявлено ${criticalBiomarkers.length} показателей, требующих внимания: ${criticalBiomarkers.map((b: any) => b.name).slice(0, 3).join(', ')}${criticalBiomarkers.length > 3 ? ' и др.' : ''}. ${normalBiomarkers.length} показателей в норме.`;
+  };
+
+  // Генерация рекомендаций по биомаркерам
+  const generateBiomarkerRecommendations = (data: any): string[] => {
+    if (!data.biomarkers || data.biomarkers.length === 0) {
+      return ['Загрузите результаты анализов для получения персональных рекомендаций'];
+    }
+
+    const recommendations: string[] = [];
+    
+    data.biomarkers.forEach((biomarker: any) => {
+      if (biomarker.status === 'high') {
+        switch (biomarker.name.toLowerCase()) {
+          case 'холестерин общий':
+          case 'лпнп':
+            recommendations.push(`${biomarker.name} повышен (${biomarker.value}): ограничьте насыщенные жиры, увеличьте омега-3, добавьте физические нагрузки`);
+            break;
+          case 'глюкоза':
+            recommendations.push(`${biomarker.name} повышена (${biomarker.value}): исключите быстрые углеводы, контролируйте порции, увеличьте активность`);
+            break;
+          case 'гемоглобин':
+            recommendations.push(`${biomarker.name} повышен (${biomarker.value}): увеличьте потребление воды, проконсультируйтесь с врачом`);
+            break;
+          default:
+            recommendations.push(`${biomarker.name} повышен (${biomarker.value}): требуется консультация специалиста`);
+        }
+      } else if (biomarker.status === 'low') {
+        switch (biomarker.name.toLowerCase()) {
+          case 'гемоглобин':
+            recommendations.push(`${biomarker.name} понижен (${biomarker.value}): увеличьте железосодержащие продукты, добавьте витамин C`);
+            break;
+          case 'витамин d':
+            recommendations.push(`${biomarker.name} понижен (${biomarker.value}): больше солнца, добавки витамина D3 2000-4000 МЕ`);
+            break;
+          case 'b12':
+            recommendations.push(`${biomarker.name} понижен (${biomarker.value}): добавьте мясо, рыбу, молочные продукты или B12 добавки`);
+            break;
+          default:
+            recommendations.push(`${biomarker.name} понижен (${biomarker.value}): требуется коррекция питания и возможны добавки`);
+        }
+      }
+    });
+
+    return recommendations.length > 0 ? recommendations : ['Все биомаркеры в пределах нормы - продолжайте поддерживать здоровый образ жизни'];
+  };
+
+  // Генерация рекомендаций по лабораторным тестам
+  const generateLabTestRecommendations = (data: any): string[] => {
+    const recommendations: string[] = [];
+    
+    // Базовые анализы
+    if (!data.biomarkers || data.biomarkers.length < 10) {
+      recommendations.push('Общий анализ крови (гемоглобин, эритроциты, лейкоциты, тромбоциты)');
+      recommendations.push('Биохимический анализ (глюкоза, холестерин, печеночные ферменты)');
+    }
+    
+    // На основе возраста
+    if (data.age > 40) {
+      recommendations.push('ПСА (для мужчин) / Гормональная панель (для женщин)');
+      recommendations.push('Кальций и фосфор (здоровье костей)');
+    }
+    
+    // Объединяем стандартные и пользовательские цели
+    const allGoals = [...(data.goals || [])];
+    if (data.userGoals) {
+      allGoals.push(...data.userGoals.map((g: any) => g.goal_type || g.title?.toLowerCase()));
+    }
+    
+    // На основе целей
+    if (allGoals.includes('cardiovascular') || allGoals.some(g => g?.includes('сердце') || g?.includes('давление'))) {
+      recommendations.push('Липидный профиль (ЛПВП, ЛПНП, триглицериды)');
+      recommendations.push('Гомоцистеин, C-реактивный белок');
+    }
+    
+    if (allGoals.includes('metabolism') || allGoals.includes('weight_loss') || 
+        allGoals.some(g => g?.includes('вес') || g?.includes('метаболизм'))) {
+      recommendations.push('Инсулин, HbA1c (гликированный гемоглобин)');
+      recommendations.push('Тиреотропный гормон (ТТГ), T3, T4');
+    }
+    
+    if (allGoals.includes('energy_boost') || data.stressLevel > 6 || 
+        allGoals.some(g => g?.includes('энергия') || g?.includes('усталость'))) {
+      recommendations.push('Кортизол, Витамин D, B12, железо');
+      recommendations.push('Ферритин, фолиевая кислота');
+    }
+    
+    if (allGoals.some(g => g?.includes('мышцы') || g?.includes('спорт'))) {
+      recommendations.push('Креатинкиназа, лактатдегидрогеназа');
+      recommendations.push('Тестостерон (общий и свободный)');
+    }
+    
+    // На основе симптомов
+    if (data.sleepHours < 7) {
+      recommendations.push('Мелатонин, магний в сыворотке');
+    }
+    
+    return recommendations.length > 0 ? recommendations : ['Регулярный общий анализ крови и биохимия (раз в 6 месяцев)'];
+  };
+
   const generateTrackingMetrics = (data: any): string[] => {
     return [
       'Вес (еженедельно по утрам)',
@@ -287,6 +469,55 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
                   <div key={index} className="flex items-start gap-2">
                     <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 flex-shrink-0" />
                     <p className="text-sm text-gray-700">{finding}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Анализ биомаркеров */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🧪</span>
+                <h3 className="font-semibold text-gray-900">Анализ биомаркеров</h3>
+              </div>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                {consultation.biomarkerAnalysis}
+              </p>
+            </div>
+
+            <Separator />
+
+            {/* Рекомендации по биомаркерам */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">💊</span>
+                <h3 className="font-semibold text-gray-900">Коррекция биомаркеров</h3>
+              </div>
+              <div className="space-y-2">
+                {consultation.biomarkerRecommendations.map((rec, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2 flex-shrink-0" />
+                    <p className="text-sm text-gray-700">{rec}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Рекомендации по лабораторным тестам */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🔬</span>
+                <h3 className="font-semibold text-gray-900">Рекомендуемые анализы</h3>
+              </div>
+              <div className="space-y-2">
+                {consultation.labTestRecommendations.map((rec, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
+                    <p className="text-sm text-gray-700">{rec}</p>
                   </div>
                 ))}
               </div>
