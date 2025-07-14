@@ -289,8 +289,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         </Button>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[600px] pr-4">
-          <div className="space-y-6">
+        <div className="space-y-4">
             {/* Анализ текущего состояния */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
@@ -425,7 +424,6 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
               </div>
             </div>
           </div>
-        </ScrollArea>
       </CardContent>
     </Card>
   );

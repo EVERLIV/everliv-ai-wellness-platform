@@ -11,7 +11,7 @@ import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useRecommendationsInvalidation } from '@/hooks/useRecommendationsInvalidation';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, AlertTriangle, User, TestTube, Calendar, Target } from 'lucide-react';
+import { RefreshCw, AlertTriangle, User, TestTube, Calendar, Target, Brain } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -169,117 +169,137 @@ const Analytics = () => {
   // Основная страница с рекомендациями
   return (
     <AppLayout>
-      <DashboardLayout
-        leftColumn={
-          <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col gap-4">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Добро пожаловать, Пользователь!</h1>
-                <p className="text-gray-600 mt-2">Управляйте своим здоровьем с помощью ИИ-платформы</p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 w-full">
-                <Link to="/my-recommendations">
-                  <Button variant="outline" size="sm" className="min-h-[44px] w-full sm:w-auto border-0">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    {isMobile ? 'Мои' : 'Мои рекомендации'}
-                  </Button>
-                </Link>
-                <Button
-                  onClick={handleGenerateAnalytics}
-                  disabled={isGenerating}
-                  variant="outline"
-                  size="sm"
-                  className="min-h-[44px] w-full sm:w-auto border-0"
-                >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
-                  Обновить
-                </Button>
-              </div>
+      <div className="container mx-auto px-4 py-4 max-w-6xl">
+        <div className="space-y-4">
+          {/* Header */}
+          <div className="flex flex-col gap-2">
+            <div>
+              <h1 className="text-lg font-bold text-gray-900">Персональная аналитика</h1>
+              <p className="text-sm text-gray-600">Ваш персональный анализ здоровья</p>
             </div>
+            <div className="flex flex-col sm:flex-row gap-2 w-full">
+              <Link to="/my-recommendations">
+                <Button variant="outline" size="sm" className="h-8 w-full sm:w-auto text-xs">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  {isMobile ? 'Мои' : 'Мои рекомендации'}
+                </Button>
+              </Link>
+              <Button
+                onClick={handleGenerateAnalytics}
+                disabled={isGenerating}
+                variant="outline"
+                size="sm"
+                className="h-8 w-full sm:w-auto text-xs"
+              >
+                <RefreshCw className={`h-3 w-3 mr-1 ${isGenerating ? 'animate-spin' : ''}`} />
+                Обновить
+              </Button>
+            </div>
+          </div>
 
-            {/* Health Goals Section */}
-            {healthProfile?.healthGoals && healthProfile.healthGoals.length > 0 && (
-              <AnalyticsDisplayCard title="Мои цели" icon={Target}>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-gray-900">Мои цели</h3>
-                    <Button variant="ghost" size="sm" className="text-blue-600">
-                      Все цели
-                    </Button>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Main Content - Left 2/3 */}
+            <div className="lg:col-span-2 space-y-4">
+              {/* Health Goals Section */}
+              {healthProfile?.healthGoals && healthProfile.healthGoals.length > 0 && (
+                <div className="bg-white p-3 border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Target className="h-4 w-4" />
+                    <h3 className="text-sm font-medium text-gray-900">Мои цели</h3>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {healthProfile.healthGoals.slice(0, 3).map((goal, index) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <div className="w-2 h-2 bg-purple-500 flex-shrink-0"></div>
-                        <span className="text-sm text-gray-700">
+                      <div key={index} className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-purple-500 flex-shrink-0"></div>
+                        <span className="text-xs text-gray-700">
                           {translateGoal(goal)}
                         </span>
                       </div>
                     ))}
-                    {healthProfile.healthGoals.length > 3 && (
-                      <Button variant="ghost" size="sm" className="text-gray-500 mt-2">
-                        +{healthProfile.healthGoals.length - 3} еще
-                      </Button>
-                    )}
                   </div>
                 </div>
-              </AnalyticsDisplayCard>
-            )}
+              )}
 
-            {/* Personal AI Consultant - Main Content */}
-            <PersonalAIConsultant 
-              analytics={analytics} 
-              healthProfile={healthProfile}
-            />
-
-            {/* Biomarkers Analysis */}
-            <AnalyticsBiomarkersCard analytics={analytics} />
-          </div>
-        }
-        rightColumn={
-          <div className="space-y-4">
-            {/* Health Index */}
-            <AnalyticsScoreCard
-              healthScore={analytics.healthScore}
-              riskLevel={analytics.riskLevel}
-              lastUpdated={analytics.lastUpdated}
-            />
-
-            {/* Health Profile Summary */}
-            {healthProfile && (
-              <AnalyticsDisplayCard title="Профиль здоровья" icon={User}>
-                <div className="grid grid-cols-1 gap-4">
-                  <AnalyticsValueDisplay
-                    label="Возраст"
-                    value={`${healthProfile.age} лет`}
-                  />
-                  <AnalyticsValueDisplay
-                    label="ИМТ"
-                    value={((healthProfile.weight / Math.pow(healthProfile.height / 100, 2)).toFixed(1))}
-                  />
-                  <AnalyticsValueDisplay
-                    label="Часы сна"
-                    value={`${healthProfile.sleepHours} часов`}
-                  />
-                  <AnalyticsValueDisplay
-                    label="Уровень стресса"
-                    value={`${healthProfile.stressLevel}/10`}
-                  />
-                  <AnalyticsValueDisplay
-                    label="Физическая активность" 
-                    value={`${healthProfile.exerciseFrequency} раз/неделю`}
-                  />
-                  <AnalyticsValueDisplay
-                    label="Потребление воды"
-                    value={`${healthProfile.waterIntake} стаканов`}
+              {/* Personal AI Consultant - Main Content */}
+              <div className="bg-white border">
+                <div className="p-3 border-b">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Brain className="h-4 w-4 text-blue-500" />
+                      <h3 className="text-sm font-medium">ИИ-Консультант по здоровью</h3>
+                    </div>
+                    <Button
+                      onClick={handleGenerateAnalytics}
+                      disabled={isGenerating}
+                      variant="outline"
+                      size="sm"
+                      className="h-6 text-xs"
+                    >
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      Обновить
+                    </Button>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <PersonalAIConsultant 
+                    analytics={analytics} 
+                    healthProfile={healthProfile}
                   />
                 </div>
-              </AnalyticsDisplayCard>
-            )}
+              </div>
+
+              {/* Biomarkers Analysis */}
+              <AnalyticsBiomarkersCard analytics={analytics} />
+            </div>
+
+            {/* Right Sidebar - 1/3 */}
+            <div className="space-y-4">
+              {/* Health Index */}
+              <AnalyticsScoreCard
+                healthScore={analytics.healthScore}
+                riskLevel={analytics.riskLevel}
+                lastUpdated={analytics.lastUpdated}
+              />
+
+              {/* Health Profile Summary */}
+              {healthProfile && (
+                <div className="bg-white p-3 border">
+                  <div className="flex items-center gap-2 mb-3">
+                    <User className="h-4 w-4" />
+                    <h3 className="text-sm font-medium">Профиль здоровья</h3>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-xs text-gray-600">Возраст</span>
+                      <span className="text-xs font-medium">{healthProfile.age} лет</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-gray-600">ИМТ</span>
+                      <span className="text-xs font-medium">{((healthProfile.weight / Math.pow(healthProfile.height / 100, 2)).toFixed(1))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-gray-600">Часы сна</span>
+                      <span className="text-xs font-medium">{healthProfile.sleepHours} часов</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-gray-600">Стресс</span>
+                      <span className="text-xs font-medium">{healthProfile.stressLevel}/10</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-gray-600">Активность</span>
+                      <span className="text-xs font-medium">{healthProfile.exerciseFrequency} раз/нед</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-gray-600">Вода</span>
+                      <span className="text-xs font-medium">{healthProfile.waterIntake} ст</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        }
-      />
+        </div>
+      </div>
     </AppLayout>
   );
 };
