@@ -339,67 +339,100 @@ ${JSON.stringify(analysisData, null, 2)}
 - Указывайте "рекомендуется обсудить с врачом" при высоких рисках
 - Фокус на профилактику и оптимизацию здоровья`;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${anthropicKey}`,
-        'Content-Type': 'application/json',
-        'x-api-key': anthropicKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 4000,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ]
-      })
-    });
+    // Retry mechanism with exponential backoff
+    let content;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        console.log(`Calling Anthropic API (attempt ${attempt})`);
+        
+        // Use faster model on retries
+        const model = attempt === 1 ? 'claude-3-5-sonnet-20241022' : 'claude-3-5-haiku-20241022';
+        
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${anthropicKey}`,
+            'Content-Type': 'application/json',
+            'x-api-key': anthropicKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model,
+            max_tokens: 4000,
+            messages: [
+              {
+                role: 'user',
+                content: prompt
+              }
+            ]
+          })
+        });
 
-    console.log('Anthropic API response status:', response.status);
+        console.log(`Anthropic API response status (attempt ${attempt}):`, response.status);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Anthropic API error details:', errorText);
-      
-      // Возвращаем fallback рекомендации при ошибке API
-      const fallbackRecommendations = {
-        prognostic: [
-          {
-            title: "Базовый мониторинг здоровья",
-            content: "Продолжайте регулярные обследования для отслеживания изменений показателей",
-            priority: "medium"
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Anthropic API error (attempt ${attempt}):`, response.status, errorText);
+          
+          // If overloaded (529) or rate limited (429), retry with exponential backoff
+          if ((response.status === 529 || response.status === 429) && attempt < 3) {
+            const waitTime = Math.pow(2, attempt) * 1000; // 2s, 4s
+            console.log(`Waiting ${waitTime}ms before retry...`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            continue;
           }
-        ],
-        actionable: [
-          {
-            title: "Поддержание активности",
-            content: "Регулярные физические упражнения 150 минут в неделю умеренной интенсивности",
-            priority: "high"
-          }
-        ],
-        personalized: [
-          {
-            title: "Персональная консультация",
-            content: "Рекомендуется обратиться к врачу для детального анализа показателей",
-            priority: "medium"
-          }
-        ]
-      };
-      
-      return new Response(JSON.stringify({ 
-        recommendations: fallbackRecommendations,
-        note: "Использованы базовые рекомендации из-за временной недоступности ИИ"
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+          
+          // Fallback recommendations for API errors
+          const fallbackRecommendations = {
+            prognostic: [
+              {
+                title: "Базовый мониторинг здоровья",
+                content: "Продолжайте регулярные обследования для отслеживания изменений показателей",
+                priority: "medium"
+              }
+            ],
+            actionable: [
+              {
+                title: "Поддержание активности",
+                content: "Регулярные физические упражнения 150 минут в неделю умеренной интенсивности",
+                priority: "high"
+              }
+            ],
+            personalized: [
+              {
+                title: "Персональная консультация",
+                content: "Рекомендуется обратиться к врачу для детального анализа показателей",
+                priority: "medium"
+              }
+            ]
+          };
+          
+          return new Response(JSON.stringify({ 
+            recommendations: fallbackRecommendations,
+            note: "Использованы базовые рекомендации из-за временной недоступности ИИ-сервиса"
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const anthropicData = await response.json();
+        content = anthropicData.content[0].text;
+        console.log(`AI response received successfully on attempt ${attempt}`);
+        break;
+        
+      } catch (error) {
+        console.error(`Attempt ${attempt} failed:`, error);
+        
+        if (attempt === 3) {
+          throw error;
+        }
+        
+        // Exponential backoff for retries
+        const waitTime = Math.pow(2, attempt) * 1000;
+        console.log(`Waiting ${waitTime}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
     }
-
-    const anthropicData = await response.json();
-    const content = anthropicData.content[0].text;
     
     console.log('Claude response:', content);
     

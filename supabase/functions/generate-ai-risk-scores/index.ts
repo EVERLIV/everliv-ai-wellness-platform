@@ -253,36 +253,70 @@ ${JSON.stringify(analysisData, null, 2)}
 - Если данных мало, укажи это и дай общие риски
 - Фокусируйся на ACTIONABLE находках`;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${anthropicKey}`,
-        'Content-Type': 'application/json',
-        'x-api-key': anthropicKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 3000,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
+    // Retry mechanism with exponential backoff
+    let content;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        console.log(`Calling Anthropic API (attempt ${attempt})`);
+        
+        // Use faster model on retries
+        const model = attempt === 1 ? 'claude-3-5-sonnet-20241022' : 'claude-3-5-haiku-20241022';
+        
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${anthropicKey}`,
+            'Content-Type': 'application/json',
+            'x-api-key': anthropicKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model,
+            max_tokens: 3000,
+            messages: [
+              {
+                role: 'user',
+                content: prompt
+              }
+            ]
+          })
+        });
+
+        console.log(`Anthropic API response status (attempt ${attempt}):`, response.status);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Anthropic API error (attempt ${attempt}):`, response.status, errorText);
+          
+          // If overloaded (529) or rate limited (429), retry with exponential backoff
+          if ((response.status === 529 || response.status === 429) && attempt < 3) {
+            const waitTime = Math.pow(2, attempt) * 1000; // 2s, 4s
+            console.log(`Waiting ${waitTime}ms before retry...`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+            continue;
           }
-        ]
-      })
-    });
+          
+          throw new Error(`Anthropic API error: ${response.status} - ${errorText}`);
+        }
 
-    console.log('Anthropic API response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Anthropic API error details:', errorText);
-      throw new Error(`Anthropic API error: ${response.status} - ${errorText}`);
+        const anthropicData = await response.json();
+        content = anthropicData.content[0].text;
+        console.log(`AI response received successfully on attempt ${attempt}`);
+        break;
+        
+      } catch (error) {
+        console.error(`Attempt ${attempt} failed:`, error);
+        
+        if (attempt === 3) {
+          throw error;
+        }
+        
+        // Exponential backoff for retries
+        const waitTime = Math.pow(2, attempt) * 1000;
+        console.log(`Waiting ${waitTime}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
     }
-
-    const anthropicData = await response.json();
-    const content = anthropicData.content[0].text;
     
     console.log('Claude response:', content);
     
