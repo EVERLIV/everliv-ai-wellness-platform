@@ -68,7 +68,7 @@ export class RealtimeAnalyticsService {
   private setupSubscriptions(userId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        // Подписываемся на изменения профиля здоровья с уникальным именем канала
+        // Подписываемся на изменения профиля здоровья
         const healthProfileChannel = supabase
           .channel(`analytics_health_profile_${userId}_${Date.now()}`)
           .on(
@@ -81,6 +81,19 @@ export class RealtimeAnalyticsService {
             },
             () => {
               console.log('Health profile changed, updating analytics...');
+              this.updateAnalyticsWithRetry(userId);
+            }
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'daily_health_metrics',
+              filter: `user_id=eq.${userId}`
+            },
+            () => {
+              console.log('Daily health metrics changed, updating analytics...');
               this.updateAnalyticsWithRetry(userId);
             }
           )
@@ -97,7 +110,7 @@ export class RealtimeAnalyticsService {
             }
           });
 
-        // Подписываемся на изменения анализов с уникальным именем канала
+        // Подписываемся на изменения анализов
         const analysesChannel = supabase
           .channel(`analytics_medical_analyses_${userId}_${Date.now()}`)
           .on(
@@ -111,6 +124,20 @@ export class RealtimeAnalyticsService {
             () => {
               console.log('Medical analysis changed, updating analytics...');
               this.updateAnalyticsWithRetry(userId);
+            }
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'user_analytics',
+              filter: `user_id=eq.${userId}`
+            },
+            () => {
+              console.log('User analytics changed...');
+              // Небольшая задержка чтобы избежать циклических обновлений
+              setTimeout(() => this.updateAnalyticsWithRetry(userId), 1000);
             }
           )
           .subscribe((status) => {

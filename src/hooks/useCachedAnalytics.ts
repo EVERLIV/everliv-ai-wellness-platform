@@ -1,177 +1,207 @@
-
-import { useState, useEffect, useCallback } from "react";
-import { useSmartAuth } from "@/hooks/useSmartAuth";
-import { generateAnalyticsData } from "@/utils/analyticsGenerator";
-import { useAnalyticsData } from "@/hooks/useAnalyticsData";
-import { fetchHealthProfileData, fetchAnalysesData, fetchChatsData, saveAnalyticsToDatabase } from "@/services/analytics/analyticsDataService";
-import { CachedAnalytics } from "@/types/analytics";
-import { isDevelopmentMode } from "@/utils/devMode";
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { CachedAnalytics } from '@/types/analytics';
+import { useSmartAuth } from './useSmartAuth';
+import { toast } from 'sonner';
 
 export const useCachedAnalytics = () => {
   const { user } = useSmartAuth();
-  const { analytics, isLoading: dataLoading, setAnalytics } = useAnalyticsData();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [hasHealthProfile, setHasHealthProfile] = useState(false);
-  const [hasAnalyses, setHasAnalyses] = useState(false);
+  const [analytics, setAnalytics] = useState<CachedAnalytics | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
-  console.log('🔍 useCachedAnalytics:', { 
-    user: user?.email, 
-    analytics: !!analytics, 
-    isGenerating, 
-    hasHealthProfile, 
-    hasAnalyses 
-  });
+  // Загрузка кэшированной аналитики
+  const loadCachedAnalytics = useCallback(async () => {
+    if (!user) return;
 
-  // Check if user has health profile and analyses
-  useEffect(() => {
-    const checkUserData = async () => {
-      if (!user) {
-        setHasHealthProfile(false);
-        setHasAnalyses(false);
+    try {
+      setIsLoading(true);
+      
+      const { data, error } = await supabase
+        .from('user_analytics')
+        .select('analytics_data, updated_at')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error loading cached analytics:', error);
         return;
       }
 
-      try {
-        // In dev mode, simulate having data
-        if (isDevelopmentMode() && user.id === 'dev-admin-12345') {
-          console.log('🔧 Dev mode: Simulating health profile and analyses');
-          setHasHealthProfile(true);
-          setHasAnalyses(true);
-          return;
-        }
-
-        // Check health profile
-        const profileData = await fetchHealthProfileData(user.id);
-        setHasHealthProfile(!!profileData);
-
-        // Check analyses
-        const analysesData = await fetchAnalysesData(user.id);
-        setHasAnalyses(analysesData.length > 0);
-
-      } catch (error) {
-        console.error('Error checking user data:', error);
-        setHasHealthProfile(false);
-        setHasAnalyses(false);
+      if (data) {
+        setAnalytics(data.analytics_data as CachedAnalytics);
+        setLastUpdated(data.updated_at);
       }
-    };
-
-    checkUserData();
+    } catch (error) {
+      console.error('Failed to load cached analytics:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, [user]);
 
+  // Генерация новой аналитики
   const generateAnalytics = useCallback(async () => {
-    if (!user) {
-      console.log('No user for analytics generation');
-      return null;
-    }
+    if (!user) return;
 
-    setIsGenerating(true);
-    
     try {
-      console.log('🔄 Generating analytics for user:', user.email);
-
-      // In dev mode, generate mock analytics
-      if (isDevelopmentMode() && user.id === 'dev-admin-12345') {
-        console.log('🔧 Dev mode: Generating mock analytics');
-        const mockAnalytics: CachedAnalytics = {
-          healthScore: 78,
-          riskLevel: 'низкий',
-          riskDescription: 'Ваши показатели находятся в оптимальном диапазоне',
-          recommendations: [
-            'Продолжайте поддерживать активный образ жизни',
-            'Регулярно контролируйте показатели здоровья',
-            'Сохраняйте сбалансированное питание'
-          ],
-          strengths: [
-            'Отличные показатели физической активности',
-            'Регулярный мониторинг здоровья',
-            'Проактивный подход к здоровью'
-          ],
-          concerns: [],
-          scoreExplanation: 'Высокая оценка благодаря активному образу жизни и регулярному мониторингу здоровья',
-          totalAnalyses: 5,
-          totalConsultations: 3,
-          lastAnalysisDate: new Date().toISOString(),
-          hasRecentActivity: true,
-          trendsAnalysis: {
-            improving: 4,
-            worsening: 0,
-            stable: 2
-          },
-          recentActivities: [
-            {
-              title: 'Анализ крови загружен',
-              time: '2 часа назад',
-              icon: 'TestTube',
-              iconColor: 'text-blue-600',
-              iconBg: 'bg-blue-100'
-            },
-            {
-              title: 'Консультация с ИИ-доктором',
-              time: '1 день назад',
-              icon: 'MessageCircle',
-              iconColor: 'text-green-600',
-              iconBg: 'bg-green-100'
-            },
-            {
-              title: 'Обновлен профиль здоровья',
-              time: '3 дня назад',
-              icon: 'User',
-              iconColor: 'text-purple-600',
-              iconBg: 'bg-purple-100'
-            }
-          ],
-          lastUpdated: new Date().toISOString()
-        };
-
-        setAnalytics(mockAnalytics);
-        console.log('🔧 Dev analytics generated:', mockAnalytics);
-        return mockAnalytics;
+      setIsLoading(true);
+      
+      // Вызываем edge function для генерации аналитики
+      const { data: riskData, error: riskError } = await supabase.functions.invoke('generate-ai-risk-scores');
+      
+      if (riskError) {
+        console.error('Error generating risk scores:', riskError);
+        toast.error('Ошибка генерации скоров рисков');
+        return;
       }
 
-      // Fetch real data
-      const [healthProfileData, analysesData, chatsData] = await Promise.all([
-        fetchHealthProfileData(user.id).catch(() => null),
-        fetchAnalysesData(user.id).catch(() => []),
-        fetchChatsData(user.id).catch(() => [])
-      ]);
-
-      const analytics = await generateAnalyticsData(
-        analysesData, 
-        chatsData, 
-        !!healthProfileData, 
-        healthProfileData
-      );
-
-      if (analytics) {
-        setAnalytics(analytics);
-        await saveAnalyticsToDatabase(user.id, analytics);
-        console.log('✅ Analytics generated and saved');
-        return analytics;
+      const { data: recommendationsData, error: recommendationsError } = await supabase.functions.invoke('generate-ai-recommendations');
+      
+      if (recommendationsError) {
+        console.error('Error generating recommendations:', recommendationsError);
+        toast.error('Ошибка генерации рекомендаций');
+        return;
       }
 
-      console.log('❌ No analytics generated');
-      return null;
+      // Формируем объект аналитики
+      const newAnalytics: CachedAnalytics = {
+        healthScore: calculateHealthScore(riskData.riskScores),
+        riskLevel: calculateOverallRiskLevel(riskData.riskScores),
+        concerns: extractConcerns(riskData.riskScores),
+        strengths: extractStrengths(riskData.riskScores),
+        biomarkers: [],
+        recommendations: recommendationsData.recommendations || [],
+        riskScores: riskData.riskScores || {},
+        lastUpdated: new Date().toISOString(),
+        totalAnalyses: 0,
+        totalConsultations: 0,
+        hasRecentActivity: true,
+        trendsAnalysis: { improving: 0, worsening: 0, stable: 0 },
+        recentActivities: []
+      };
 
+      // Сохраняем в кэш
+      const { error: saveError } = await supabase
+        .from('user_analytics')
+        .upsert({
+          user_id: user.id,
+          analytics_data: newAnalytics,
+          updated_at: new Date().toISOString()
+        });
+
+      if (saveError) {
+        console.error('Error saving analytics:', saveError);
+        toast.error('Ошибка сохранения аналитики');
+        return;
+      }
+
+      setAnalytics(newAnalytics);
+      setLastUpdated(new Date().toISOString());
+      toast.success('Аналитика успешно обновлена');
+      
     } catch (error) {
-      console.error('Error generating analytics:', error);
-      return null;
+      console.error('Failed to generate analytics:', error);
+      toast.error('Ошибка генерации аналитики');
     } finally {
-      setIsGenerating(false);
+      setIsLoading(false);
     }
-  }, [user, setAnalytics]);
+  }, [user]);
 
-  const generateRealTimeAnalytics = useCallback(async () => {
-    console.log('🔄 Generating real-time analytics');
-    return await generateAnalytics();
-  }, [generateAnalytics]);
+  // Проверка актуальности данных
+  const isDataStale = useCallback(() => {
+    if (!lastUpdated) return true;
+    
+    const lastUpdate = new Date(lastUpdated);
+    const now = new Date();
+    const hoursSinceUpdate = (now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60);
+    
+    return hoursSinceUpdate > 6; // Считаем данные устаревшими через 6 часов
+  }, [lastUpdated]);
+
+  // Загружаем кэшированные данные при монтировании
+  useEffect(() => {
+    loadCachedAnalytics();
+  }, [loadCachedAnalytics]);
+
+  // Подписка на real-time изменения
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`cached_analytics_${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_analytics',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Analytics updated in real-time:', payload);
+          if (payload.new) {
+            setAnalytics(payload.new.analytics_data as CachedAnalytics);
+            setLastUpdated(payload.new.updated_at);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   return {
     analytics,
-    isLoading: dataLoading,
-    isGenerating,
-    hasHealthProfile,
-    hasAnalyses,
+    isLoading: isLoading,
+    isGenerating: isLoading,
+    lastUpdated,
+    isDataStale: isDataStale(),
+    hasHealthProfile: true,
+    hasAnalyses: true,
+    loadCachedAnalytics,
     generateAnalytics,
-    generateRealTimeAnalytics
+    generateRealTimeAnalytics: generateAnalytics
   };
 };
+
+// Вспомогательные функции
+function calculateHealthScore(riskScores: any): number {
+  if (!riskScores || Object.keys(riskScores).length === 0) return 75;
+  
+  const scores = Object.values(riskScores).map((risk: any) => 100 - (risk.percentage || 0));
+  return Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length);
+}
+
+function calculateOverallRiskLevel(riskScores: any): string {
+  if (!riskScores || Object.keys(riskScores).length === 0) return 'Низкий';
+  
+  const maxRisk = Math.max(...Object.values(riskScores).map((risk: any) => risk.percentage || 0));
+  
+  if (maxRisk <= 15) return 'Очень низкий';
+  if (maxRisk <= 30) return 'Низкий';
+  if (maxRisk <= 50) return 'Умеренный';
+  if (maxRisk <= 75) return 'Высокий';
+  return 'Критический';
+}
+
+function extractConcerns(riskScores: any): string[] {
+  if (!riskScores) return [];
+  
+  return Object.values(riskScores)
+    .filter((risk: any) => risk.percentage > 30)
+    .map((risk: any) => risk.name);
+}
+
+function extractStrengths(riskScores: any): string[] {
+  if (!riskScores) return ['Регулярное отслеживание здоровья'];
+  
+  const lowRisks = Object.values(riskScores)
+    .filter((risk: any) => risk.percentage <= 15)
+    .map((risk: any) => `Низкий риск: ${risk.name}`);
+    
+  return lowRisks.length > 0 ? lowRisks : ['Активное участие в управлении здоровьем'];
+}
