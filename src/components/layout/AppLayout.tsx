@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { AppFooter } from "./AppFooter";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,21 +30,59 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
+  const { isPremiumActive, isLoading: subscriptionLoading } = useSubscription();
+  const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
+  // Функция поиска через API
+  const performSearch = async (query: string) => {
+    if (!query.trim() || query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('search', {
+        body: { searchQuery: query }
+      });
+
+      if (error) {
+        console.error('Search error:', error);
+        setSearchResults([]);
+      } else {
+        setSearchResults(data.results || []);
+      }
+    } catch (error) {
+      console.error('Search request failed:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  const getUserInitials = () => {
-    if (user?.email) {
-      return user.email.substring(0, 2).toUpperCase();
-    }
-    return "US";
+  // Debounced search effect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery) {
+        performSearch(searchQuery);
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  const handleSearchSelect = (href: string) => {
+    setOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+    navigate(href);
   };
 
   const handleBack = () => {
@@ -53,29 +92,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   const navigationItems = [
     { label: "Панель управления", href: "/dashboard" },
     { label: "Новости", href: "/news" },
-    { label: "Поддержка", href: "/support" },
+    { label: "Поддержка", href: "/contact" },
     { label: "Еще", href: "/more" },
   ];
-
-  // Поисковые подсказки
-  const searchSuggestions = [
-    { value: "health-profile", label: "Профиль здоровья", href: "/health-profile" },
-    { value: "analytics", label: "Аналитика", href: "/analytics" },
-    { value: "ai-doctor", label: "ИИ-Врач", href: "/ai-doctor" },
-    { value: "recommendations", label: "Рекомендации", href: "/recommendations" },
-    { value: "settings", label: "Настройки", href: "/settings" },
-    { value: "notifications", label: "Уведомления", href: "/notifications" },
-  ];
-
-  const filteredSuggestions = searchSuggestions.filter(suggestion =>
-    suggestion.label.toLowerCase().includes(searchValue.toLowerCase())
-  );
-
-  const handleSearchSelect = (href: string) => {
-    navigate(href);
-    setSearchOpen(false);
-    setSearchValue("");
-  };
 
   return (
     <div className="min-h-screen flex flex-col w-full bg-background">
@@ -117,52 +136,80 @@ export function AppLayout({ children }: AppLayoutProps) {
           {/* Правая часть - поиск, статус подписки, уведомления, профиль */}
           <div className="flex items-center gap-3">
             {/* Поиск с автоподбором */}
-            <Popover open={searchOpen} onOpenChange={setSearchOpen}>
+            <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <div className="relative hidden lg:block">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="search"
-                    placeholder="Поиск..."
+                    placeholder="Поиск по данным здоровья..."
                     className="pl-9 w-64"
-                    value={searchValue}
-                    onChange={(e) => setSearchValue(e.target.value)}
-                    onFocus={() => setSearchOpen(true)}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setOpen(true)}
                   />
                 </div>
               </PopoverTrigger>
-              <PopoverContent className="w-64 p-0" align="start">
+              <PopoverContent className="w-80 p-0" align="start">
                 <Command>
-                  <CommandInput 
-                    placeholder="Поиск..." 
-                    value={searchValue}
-                    onValueChange={setSearchValue}
+                  <CommandInput
+                    placeholder="Поиск по данным здоровья..."
+                    value={searchQuery}
+                    onValueChange={setSearchQuery}
                   />
                   <CommandList>
-                    <CommandEmpty>Ничего не найдено.</CommandEmpty>
-                    <CommandGroup>
-                      {filteredSuggestions.map((suggestion) => (
-                        <CommandItem
-                          key={suggestion.value}
-                          onSelect={() => handleSearchSelect(suggestion.href)}
-                        >
+                    {isSearching ? (
+                      <CommandEmpty>Поиск...</CommandEmpty>
+                    ) : searchResults.length > 0 ? (
+                      <CommandGroup>
+                        {searchResults.map((result: any, index) => (
+                          <CommandItem
+                            key={`${result.type}-${index}`}
+                            onSelect={() => handleSearchSelect(result.href)}
+                          >
+                            <div className="flex flex-col">
+                              <span className="font-medium">{result.title}</span>
+                              <span className="text-sm text-muted-foreground">{result.description}</span>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    ) : searchQuery.length >= 2 ? (
+                      <CommandEmpty>Ничего не найдено.</CommandEmpty>
+                    ) : (
+                      <CommandGroup>
+                        <CommandItem onSelect={() => handleSearchSelect('/dashboard')}>
                           <Check className="mr-2 h-4 w-4" />
-                          {suggestion.label}
+                          Панель управления
                         </CommandItem>
-                      ))}
-                    </CommandGroup>
+                        <CommandItem onSelect={() => handleSearchSelect('/lab-analyses')}>
+                          <Check className="mr-2 h-4 w-4" />
+                          Анализы крови
+                        </CommandItem>
+                        <CommandItem onSelect={() => handleSearchSelect('/ai-doctor')}>
+                          <Check className="mr-2 h-4 w-4" />
+                          ИИ-доктор
+                        </CommandItem>
+                        <CommandItem onSelect={() => handleSearchSelect('/recommendations')}>
+                          <Check className="mr-2 h-4 w-4" />
+                          Рекомендации
+                        </CommandItem>
+                      </CommandGroup>
+                    )}
                   </CommandList>
                 </Command>
               </PopoverContent>
             </Popover>
             
-            {/* Статус подписки */}
-            <Link to="/pricing">
-              <Button variant="outline" size="sm" className="hidden sm:flex">
-                <Crown className="h-4 w-4 mr-2" />
-                Upgrade
-              </Button>
-            </Link>
+            {/* Кнопка улучшения подписки только для не-премиум пользователей */}
+            {user && !isPremiumActive && !subscriptionLoading && (
+              <Link to="/subscription">
+                <Button variant="outline" size="sm" className="hidden sm:flex bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white border-0">
+                  <Crown className="h-4 w-4 mr-2" />
+                  Улучшить
+                </Button>
+              </Link>
+            )}
             
             {/* Уведомления */}
             <Link to="/notifications">
