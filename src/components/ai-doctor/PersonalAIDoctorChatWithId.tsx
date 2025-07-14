@@ -302,7 +302,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
 
       {/* Compact Input Panel */}
       <div className="border-t border-border bg-card p-1 xs:p-2 sm:p-6">
-        <div className="flex gap-1 xs:gap-1.5 sm:gap-3 items-end">
+        <div className="flex gap-1 xs:gap-1.5 sm:gap-3 items-center">
           <div className="flex-1 min-w-0">
             <textarea
               ref={textareaRef}
@@ -327,9 +327,9 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
             className="h-[32px] w-[32px] xs:h-[36px] xs:w-[36px] sm:h-[44px] sm:w-[44px] p-0 flex-shrink-0"
           >
             {isProcessing ? (
-              <Loader2 className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5 animate-spin" />
+              <Loader2 className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-4 sm:w-4 animate-spin" />
             ) : (
-              <Send className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5" />
+              <Send className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-4 sm:w-4" />
             )}
           </Button>
         </div>
