@@ -58,7 +58,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
       const consultationData = {
         healthScore: analytics.healthScore,
         riskLevel: analytics.riskLevel,
-        biomarkers: analytics.biomarkerAnalysis,
+        biomarkers: [], // Будем загружать реальные биомаркеры
         goals: healthProfile.healthGoals || [],
         userGoals: [], // Будем загружать пользовательские цели
         age: healthProfile.age,
@@ -72,6 +72,28 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         allergies: healthProfile.allergies || [],
         lastUpdated: analytics.lastUpdated
       };
+
+      // Загружаем реальные биомаркеры пользователя
+      try {
+        const { data: analyses } = await supabase
+          .from('medical_analyses')
+          .select('id')
+          .eq('user_id', healthProfile.user_id)
+          .order('created_at', { ascending: false });
+
+        if (analyses && analyses.length > 0) {
+          const analysisIds = analyses.map(a => a.id);
+          const { data: biomarkers } = await supabase
+            .from('biomarkers')
+            .select('*')
+            .in('analysis_id', analysisIds)
+            .order('created_at', { ascending: false });
+          
+          consultationData.biomarkers = biomarkers || [];
+        }
+      } catch (error) {
+        console.error('Error loading biomarkers:', error);
+      }
 
       // Загружаем пользовательские цели
       try {
