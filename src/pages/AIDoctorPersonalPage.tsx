@@ -133,12 +133,12 @@ const AIDoctorPersonalPage = () => {
               onClick={() => navigate("/ai-doctor")}
               className="text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              <span className="text-sm">Назад к выбору чатов</span>
+              <ArrowLeft className="h-4 w-4 sm:mr-2" />
+              <span className="text-sm hidden sm:inline">Назад к выбору чатов</span>
             </Button>
           </div>
           
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 hidden sm:flex">
             <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
               <Brain className="h-5 w-5 text-primary" />
             </div>
