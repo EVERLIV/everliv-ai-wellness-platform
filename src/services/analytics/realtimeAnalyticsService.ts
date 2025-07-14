@@ -70,7 +70,7 @@ export class RealtimeAnalyticsService {
       try {
         // Подписываемся на изменения профиля здоровья
         const healthProfileChannel = supabase
-          .channel(`analytics_health_profile_${userId}_${Date.now()}`)
+          .channel(`analytics_health_profile_${userId}`) // Убираем Date.now()
           .on(
             'postgres_changes',
             {
@@ -112,7 +112,7 @@ export class RealtimeAnalyticsService {
 
         // Подписываемся на изменения анализов
         const analysesChannel = supabase
-          .channel(`analytics_medical_analyses_${userId}_${Date.now()}`)
+          .channel(`analytics_medical_analyses_${userId}`) // Убираем Date.now()
           .on(
             'postgres_changes',
             {

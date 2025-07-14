@@ -184,7 +184,7 @@ export const useActivityFeed = () => {
     try {
       // Подписка на анализы
       const analysesChannel = supabase
-        .channel(`activity_analyses_${user.id}_${Date.now()}`)
+        .channel(`activity_analyses_${user.id}`) // Убираем Date.now()
         .on('postgres_changes', 
           { event: '*', schema: 'public', table: 'medical_analyses', filter: `user_id=eq.${user.id}` },
           () => fetchActivities()
@@ -193,7 +193,7 @@ export const useActivityFeed = () => {
 
       // Подписка на записи о питании  
       const foodChannel = supabase
-        .channel(`activity_food_${user.id}_${Date.now()}`)
+        .channel(`activity_food_${user.id}`) // Убираем Date.now()
         .on('postgres_changes',
           { event: '*', schema: 'public', table: 'food_entries', filter: `user_id=eq.${user.id}` },
           () => fetchActivities()
@@ -202,7 +202,7 @@ export const useActivityFeed = () => {
 
       // Подписка на чаты
       const chatsChannel = supabase
-        .channel(`activity_chats_${user.id}_${Date.now()}`)
+        .channel(`activity_chats_${user.id}`) // Убираем Date.now()
         .on('postgres_changes',
           { event: '*', schema: 'public', table: 'ai_doctor_chats', filter: `user_id=eq.${user.id}` },
           () => fetchActivities()
@@ -211,7 +211,7 @@ export const useActivityFeed = () => {
 
       // Подписка на профиль
       const profileChannel = supabase
-        .channel(`activity_profile_${user.id}_${Date.now()}`)
+        .channel(`activity_profile_${user.id}`) // Убираем Date.now()
         .on('postgres_changes',
           { event: '*', schema: 'public', table: 'health_profiles', filter: `user_id=eq.${user.id}` },
           () => fetchActivities()

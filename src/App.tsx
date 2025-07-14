@@ -78,6 +78,7 @@ import { SmartAuthProvider } from "./contexts/SmartAuthContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import { SecureDataProvider } from "./components/common/SecureDataProvider";
 import RealtimeNotifications from "./components/realtime/RealtimeNotifications";
+import RealtimeMonitor from "./components/admin/RealtimeMonitor";
 import DevModeIndicator from "./components/DevModeIndicator";
 
 const App = () => (

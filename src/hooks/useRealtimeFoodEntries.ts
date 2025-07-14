@@ -25,7 +25,7 @@ export const useRealtimeFoodEntries = (selectedDate: Date) => {
     if (!user) return;
 
     const channel = supabase
-      .channel(`food_entries_${user.id}_${dateString}`)
+      .channel(`food_entries_${user.id}`) // Убираем dateString из имени канала
       .on(
         'postgres_changes',
         {
@@ -64,7 +64,7 @@ export const useRealtimeFoodEntries = (selectedDate: Date) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, dateString]);
+  }, [user, dateString]); // Оставляем dateString в зависимостях для фильтрации
 
   return { realtimeEntries, setRealtimeEntries };
 };
