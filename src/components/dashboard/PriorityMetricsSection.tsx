@@ -55,6 +55,9 @@ const PriorityMetricsSection = () => {
 
       console.log('Calling generate-ai-risk-scores function...');
       const { data, error } = await supabase.functions.invoke('generate-ai-risk-scores', {
+        body: JSON.stringify({
+          userId: session.data.session.user.id
+        }),
         headers: {
           Authorization: `Bearer ${session.data.session.access_token}`,
           'Content-Type': 'application/json',

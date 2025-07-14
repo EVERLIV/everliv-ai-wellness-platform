@@ -375,11 +375,33 @@ BMI: ${healthProfile.bmi}
 
   } catch (error) {
     console.error('Error in generate-openai-health-insights:', error);
+    
+    // Возвращаем fallback инсайты вместо ошибки
+    const errorInsights = [
+      {
+        id: 'error-1',
+        category: 'practical',
+        title: 'Ошибка анализа',
+        description: 'Произошла временная ошибка при анализе данных. Попробуйте позже или обратитесь в поддержку.',
+        priority: 'medium',
+        confidence: 50,
+        scientificBasis: 'Техническая ошибка системы',
+        actionItems: ['Повторите попытку через несколько минут', 'Проверьте интернет-соединение'],
+        timeframe: 'Немедленно'
+      }
+    ];
+
     return new Response(JSON.stringify({ 
-      error: error.message,
-      success: false 
+      success: true,
+      insights: errorInsights,
+      profileData: {
+        age: null,
+        bmi: null,
+        lastAnalysis: null
+      },
+      error: error.message
     }), {
-      status: 500,
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
