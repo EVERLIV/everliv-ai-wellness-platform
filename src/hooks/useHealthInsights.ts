@@ -38,7 +38,10 @@ export const useHealthInsights = () => {
       console.log('📊 Starting health insights generation...');
 
       const { data, error } = await supabase.functions.invoke('generate-openai-health-insights', {
-        body: { userId: user.id }
+        body: JSON.stringify({ userId: user.id }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
       console.log('📥 Supabase function response:', { data, error });
