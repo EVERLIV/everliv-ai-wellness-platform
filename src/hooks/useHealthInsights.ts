@@ -35,10 +35,13 @@ export const useHealthInsights = () => {
     try {
       setIsGenerating(true);
       console.log('🤖 Generating health insights for user:', user.id);
+      console.log('📊 Starting health insights generation...');
 
       const { data, error } = await supabase.functions.invoke('generate-openai-health-insights', {
         body: { userId: user.id }
       });
+
+      console.log('📥 Supabase function response:', { data, error });
 
       if (error) {
         console.error('Supabase function error:', error);
@@ -104,8 +107,14 @@ export const useHealthInsights = () => {
   // Загрузка при монтировании компонента
   useEffect(() => {
     if (user && insights.length === 0) {
+      console.log('🚀 Mounting health insights hook for user:', user.id);
       setIsLoading(true);
       generateInsights().finally(() => setIsLoading(false));
+    } else {
+      console.log('⚠️ Health insights hook - conditions not met:', {
+        hasUser: !!user,
+        insightsLength: insights.length
+      });
     }
   }, [user]);
 

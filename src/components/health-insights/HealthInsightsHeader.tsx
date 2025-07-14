@@ -89,7 +89,10 @@ const HealthInsightsHeader: React.FC<HealthInsightsHeaderProps> = ({
 
         <div className="flex gap-2">
           <Button
-            onClick={onRefresh}
+            onClick={() => {
+              console.log('🔄 Manual refresh triggered');
+              onRefresh();
+            }}
             disabled={isGenerating}
             variant="outline"
             className="flex items-center gap-2"
@@ -99,7 +102,10 @@ const HealthInsightsHeader: React.FC<HealthInsightsHeaderProps> = ({
           </Button>
           
           <Button
-            onClick={onForceRefresh}
+            onClick={() => {
+              console.log('🚨 Force refresh triggered');
+              onForceRefresh();
+            }}
             disabled={isGenerating}
             variant="destructive"
             size="sm"

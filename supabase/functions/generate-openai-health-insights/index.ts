@@ -28,8 +28,12 @@ serve(async (req) => {
   }
 
   try {
+    console.log('=== Health Insights Generation Started ===');
+    
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    console.log('OPENAI_API_KEY available:', !!openAIApiKey);
     if (!openAIApiKey) {
+      console.error('OPENAI_API_KEY not found in environment');
       throw new Error('OPENAI_API_KEY not found');
     }
 
@@ -50,7 +54,7 @@ serve(async (req) => {
       .from('user_health_ai_profile')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error fetching health profile:', error);
@@ -58,7 +62,55 @@ serve(async (req) => {
     }
 
     if (!healthProfile) {
-      throw new Error('No health profile found for user');
+      console.log('⚠️ No health profile found, generating basic recommendations');
+      
+      // Возвращаем базовые рекомендации
+      const basicInsights: HealthInsight[] = [
+        {
+          id: 'basic-1',
+          category: 'practical',
+          title: 'Создание профиля здоровья',
+          description: 'Для получения персональных рекомендаций необходимо заполнить профиль здоровья и загрузить результаты медицинских анализов.',
+          priority: 'high',
+          confidence: 100,
+          scientificBasis: 'Персонализированная медицина требует комплексных данных о пациенте для точной оценки рисков и рекомендаций',
+          actionItems: [
+            'Заполните базовую информацию (возраст, пол, рост, вес)',
+            'Загрузите результаты последних анализов крови',
+            'Укажите хронические заболевания и принимаемые лекарства',
+            'Опишите образ жизни и физическую активность'
+          ],
+          timeframe: '15-30 минут'
+        },
+        {
+          id: 'basic-2',
+          category: 'personalized',
+          title: 'Регулярный мониторинг здоровья',
+          description: 'Создайте привычку регулярно отслеживать ключевые показатели здоровья для раннего выявления изменений.',
+          priority: 'medium',
+          confidence: 95,
+          scientificBasis: 'Проактивный мониторинг здоровья позволяет выявлять проблемы на ранней стадии, когда они наиболее эффективно поддаются лечению',
+          actionItems: [
+            'Ведите дневник питания и физической активности',
+            'Регулярно измеряйте артериальное давление',
+            'Отслеживайте качество сна',
+            'Проходите профилактические обследования'
+          ],
+          timeframe: 'Ежедневно'
+        }
+      ];
+
+      return new Response(JSON.stringify({ 
+        success: true, 
+        insights: basicInsights,
+        profileData: {
+          age: null,
+          bmi: null,
+          lastAnalysis: null
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     console.log('📊 Health profile data:', {
