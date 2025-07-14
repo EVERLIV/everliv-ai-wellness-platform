@@ -3,16 +3,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { AppFooter } from "./AppFooter";
 import { useAuth } from "@/contexts/AuthContext";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Command,
   CommandEmpty,
@@ -26,9 +18,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { User, Settings, LogOut, Search, Bell, ArrowLeft, Crown, Check } from "lucide-react";
+import { Search, Bell, ArrowLeft, Crown, Check } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import UserProfileDropdown from "@/components/header/UserProfileDropdown";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -179,46 +172,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               </Button>
             </Link>
             
-            {/* Профиль пользователя */}
-            {user && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="text-xs">
-                        {getUserInitials()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <div className="flex items-center justify-start gap-2 p-2">
-                    <div className="flex flex-col space-y-1 leading-none">
-                      <p className="text-sm font-medium">{user.email}</p>
-                      <p className="text-xs text-muted-foreground">Базовая подписка</p>
-                    </div>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/health-profile" className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Профиль
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/settings" className="flex items-center gap-2">
-                      <Settings className="h-4 w-4" />
-                      Настройки
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2">
-                    <LogOut className="h-4 w-4" />
-                    Выйти
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            {user && <UserProfileDropdown />}
           </div>
         </div>
       </header>
