@@ -267,8 +267,18 @@ serve(async (req) => {
       });
     }
 
+    console.log('=== Starting AI recommendations generation ===');
+    console.log('User data completeness score:', analysisData?.data_completeness?.completeness_score);
+    console.log('Available data sources:', {
+      hasProfile: !!analysisData?.user_profile,
+      hasBiomarkers: !!analysisData?.biomarkers?.latest_biomarkers?.length,
+      hasMetrics: !!analysisData?.lifestyle_metrics?.tracking_period_days
+    });
+
     const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
+    console.log('ANTHROPIC_API_KEY available:', !!anthropicKey);
     if (!anthropicKey) {
+      console.error('ANTHROPIC_API_KEY not found in environment');
       throw new Error('ANTHROPIC_API_KEY not found');
     }
 
@@ -414,6 +424,11 @@ ${JSON.stringify(analysisData, null, 2)}
         });
 
         console.log(`Anthropic API response status (attempt ${attempt}):`, response.status);
+        console.log('Response headers:', {
+          'content-type': response.headers.get('content-type'),
+          'x-ratelimit-remaining': response.headers.get('x-ratelimit-remaining'),
+          'x-ratelimit-limit': response.headers.get('x-ratelimit-limit')
+        });
 
         if (!response.ok) {
           const errorText = await response.text();
