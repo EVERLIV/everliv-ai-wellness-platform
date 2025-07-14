@@ -64,7 +64,6 @@ serve(async (req) => {
     if (!healthProfile) {
       console.log('⚠️ No health profile found, generating basic recommendations');
       
-      // Возвращаем базовые рекомендации
       const basicInsights: HealthInsight[] = [
         {
           id: 'basic-1',
@@ -97,6 +96,22 @@ serve(async (req) => {
             'Проходите профилактические обследования'
           ],
           timeframe: 'Ежедневно'
+        },
+        {
+          id: 'basic-3',
+          category: 'predictive',
+          title: 'Профилактика заболеваний',
+          description: 'Начните профилактические мероприятия для снижения рисков развития хронических заболеваний.',
+          priority: 'medium',
+          confidence: 90,
+          scientificBasis: 'Профилактика является наиболее эффективным подходом к поддержанию здоровья',
+          actionItems: [
+            'Поддерживайте здоровый вес',
+            'Занимайтесь физической активностью 150 минут в неделю',
+            'Сбалансированно питайтесь',
+            'Избегайте вредных привычек'
+          ],
+          timeframe: 'Постоянно'
         }
       ];
 
@@ -107,6 +122,77 @@ serve(async (req) => {
           age: null,
           bmi: null,
           lastAnalysis: null
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Проверяем, есть ли достаточно данных для анализа
+    const hasMinimalData = healthProfile.age || healthProfile.bmi || healthProfile.analyses_count > 0 || 
+                          (healthProfile.biomarkers && healthProfile.biomarkers.length > 0);
+
+    if (!hasMinimalData) {
+      console.log('⚠️ Insufficient data in health profile, generating starter recommendations');
+      
+      const starterInsights: HealthInsight[] = [
+        {
+          id: 'starter-1',
+          category: 'practical',
+          title: 'Первые шаги к здоровью',
+          description: 'Ваш профиль здоровья пуст. Начните с заполнения базовой информации для получения персонализированных рекомендаций.',
+          priority: 'high',
+          confidence: 100,
+          scientificBasis: 'Базовая информация о возрасте, весе и росте необходима для расчета ключевых показателей здоровья',
+          actionItems: [
+            'Перейдите в раздел "Профиль" и заполните основную информацию',
+            'Укажите ваш возраст, рост и текущий вес',
+            'Выберите ваши цели в области здоровья',
+            'Загрузите последние результаты анализов, если они есть'
+          ],
+          timeframe: '10-15 минут'
+        },
+        {
+          id: 'starter-2',
+          category: 'personalized',
+          title: 'Начало отслеживания метрик',
+          description: 'Начните вести ежедневный учет основных показателей здоровья для создания базовой картины.',
+          priority: 'medium',
+          confidence: 95,
+          scientificBasis: 'Регулярное отслеживание создает данные для анализа тенденций и выявления паттернов',
+          actionItems: [
+            'Записывайте ежедневную физическую активность',
+            'Отмечайте качество и продолжительность сна',
+            'Ведите дневник питания',
+            'Оценивайте уровень стресса и настроения'
+          ],
+          timeframe: '5 минут ежедневно'
+        },
+        {
+          id: 'starter-3',
+          category: 'predictive',
+          title: 'Планирование медицинского обследования',
+          description: 'Запланируйте комплексное обследование для получения полной картины состояния здоровья.',
+          priority: 'medium',
+          confidence: 90,
+          scientificBasis: 'Базовые медицинские анализы позволяют выявить скрытые проблемы и факторы риска',
+          actionItems: [
+            'Запишитесь на консультацию к терапевту',
+            'Сдайте общий и биохимический анализ крови',
+            'Проверьте артериальное давление и пульс',
+            'Пройдите базовое обследование по возрасту'
+          ],
+          timeframe: '1-2 недели'
+        }
+      ];
+
+      return new Response(JSON.stringify({ 
+        success: true, 
+        insights: starterInsights,
+        profileData: {
+          age: healthProfile.age,
+          bmi: healthProfile.bmi,
+          lastAnalysis: healthProfile.last_analysis_date
         }
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
