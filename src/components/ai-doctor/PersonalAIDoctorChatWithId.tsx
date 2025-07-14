@@ -74,21 +74,44 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col min-w-0">
-      {/* Chat Area */}
-      <div className="flex-1 flex flex-col min-h-0 min-w-0">
-        <ScrollArea className="flex-1 px-2 sm:px-4 pt-2 sm:pt-4 min-w-0">
+    <div className="h-full flex flex-col border border-border bg-card">
+      {/* Chat Header */}
+      <div className="border-b border-border bg-muted/30 p-4">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-primary text-primary-foreground border border-primary flex items-center justify-center">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <div>
+            <h2 className="text-base font-semibold text-foreground">
+              Персональный ИИ-Доктор
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Персонализированные медицинские консультации
+            </p>
+          </div>
+          {onlineUsers.length > 1 && (
+            <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="w-2 h-2 bg-green-500 border border-green-600 animate-pulse"></div>
+              <span>{onlineUsers.length - 1} онлайн</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Chat Messages Area */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <ScrollArea className="flex-1">
           {allMessages.length === 0 ? (
             // Welcome State
-            <div className="text-center py-6 sm:py-8 space-y-3 sm:space-y-4 px-2">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto">
-                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+            <div className="p-8 text-center">
+              <div className="w-12 h-12 bg-primary text-primary-foreground border border-primary flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="h-6 w-6" />
               </div>
-              <div className="space-y-2">
-                <h2 className="text-adaptive-lg sm:text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                  Персональный ИИ-Доктор
-                </h2>
-                <p className="text-gray-600 max-w-sm mx-auto leading-relaxed text-adaptive-xs sm:text-sm mobile-text-wrap">
+              <div className="space-y-2 max-w-md mx-auto">
+                <h3 className="text-lg font-semibold text-foreground">
+                  Добро пожаловать!
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   Я помню нашу историю общения и имею доступ к вашим медицинским анализам для точных рекомендаций
                 </p>
               </div>
@@ -102,50 +125,39 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           )}
           
           {showSuggestedQuestions && (
-            <div className="mt-4 sm:mt-6 mb-3 sm:mb-4">
-              <SuggestedQuestions 
-                questions={suggestedQuestions}
-                onSelectQuestion={handleSuggestedQuestion} 
-              />
-            </div>
+            <SuggestedQuestions 
+              questions={suggestedQuestions}
+              onSelectQuestion={handleSuggestedQuestion} 
+            />
           )}
         </ScrollArea>
         
         {/* Input Area */}
-        <div className="px-2 sm:px-4 pb-2 sm:pb-4 pt-2 bg-gradient-to-t from-white/80 to-transparent min-w-0">
-          {onlineUsers.length > 1 && (
-            <div className="text-adaptive-xs text-gray-500 flex items-center gap-1.5 mb-2">
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
-              <span className="mobile-text-wrap">{onlineUsers.length - 1} других пользователей онлайн</span>
+        <ChatInput
+          inputText={inputText}
+          setInputText={setInputText}
+          isProcessing={isProcessing}
+          onSubmit={handleSubmit}
+        />
+        
+        {/* Action Buttons */}
+        {(onCreateNewChat || onShowChatHistory) && (
+          <div className="border-t border-border bg-muted/30 p-2">
+            <div className="flex justify-center gap-2">
+              {onCreateNewChat && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onCreateNewChat}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Новый чат
+                </Button>
+              )}
             </div>
-          )}
-          
-          <div className="space-y-2 sm:space-y-3 min-w-0">
-            <ChatInput
-              inputText={inputText}
-              setInputText={setInputText}
-              isProcessing={isProcessing}
-              onSubmit={handleSubmit}
-            />
-            
-            {/* Action Buttons */}
-            {(onCreateNewChat || onShowChatHistory) && (
-              <div className="flex items-center justify-center gap-2 min-w-0">
-                {onCreateNewChat && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onCreateNewChat}
-                    className="text-gray-500 hover:text-gray-700 hover:bg-gray-100/80 rounded-lg px-2.5 sm:px-3 py-1.5 text-adaptive-xs sm:text-sm transition-all duration-200 min-w-0 flex-shrink-0"
-                  >
-                    <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1 flex-shrink-0" />
-                    <span className="mobile-text-wrap">Новый чат</span>
-                  </Button>
-                )}
-              </div>
-            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

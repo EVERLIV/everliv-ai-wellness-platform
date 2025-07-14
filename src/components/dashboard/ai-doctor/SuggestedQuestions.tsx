@@ -23,33 +23,33 @@ const SuggestedQuestions: React.FC<SuggestedQuestionsProps> = ({
   onSelectQuestion 
 }) => {
   return (
-    <div className="space-y-2 sm:space-y-3">
-      <div className="text-center px-2">
-        <h3 className="text-adaptive-base sm:text-lg font-semibold text-gray-900 mb-1">
+    <div className="p-4 border-b border-border">
+      <div className="text-center mb-4">
+        <h3 className="text-base font-semibold text-foreground mb-1">
           Популярные вопросы
         </h3>
-        <p className="text-adaptive-xs sm:text-sm text-gray-600">
+        <p className="text-sm text-muted-foreground">
           Выберите вопрос или задайте свой
         </p>
       </div>
       
-      <div className="grid grid-cols-1 gap-1.5 sm:gap-2 px-1 sm:px-0">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {questions.map((question, index) => {
           const IconComponent = iconMap[question.icon as keyof typeof iconMap] || Sparkles;
           
           return (
             <Button
               key={index}
-              variant="ghost"
+              variant="outline"
               onClick={() => onSelectQuestion(question.text)}
-              className="h-auto p-2 sm:p-3 text-left justify-start bg-white/60 hover:bg-white/80 border border-gray-100 hover:border-blue-200 rounded-lg sm:rounded-xl transition-all duration-200 transform hover:scale-[1.01] group w-full min-w-0"
+              className="h-auto p-3 text-left justify-start hover:bg-muted/50 w-full"
             >
-              <div className="flex items-start space-x-2 w-full min-w-0">
-                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-md sm:rounded-lg flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
-                  <IconComponent className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
+              <div className="flex items-start space-x-2 w-full">
+                <div className="w-5 h-5 bg-primary text-primary-foreground border border-primary flex items-center justify-center flex-shrink-0">
+                  <IconComponent className="h-3 w-3" />
                 </div>
-                <div className="flex-1 min-w-0 overflow-hidden">
-                  <p className="mobile-text-wrap chat-button-mobile text-adaptive-xs sm:text-sm font-medium text-gray-900 leading-snug text-left pr-1">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground leading-snug">
                     {question.text}
                   </p>
                 </div>
