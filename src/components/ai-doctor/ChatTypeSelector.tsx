@@ -1,9 +1,7 @@
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Crown, Sparkles, Clock, Database, Lock } from "lucide-react";
+import { MessageCircle, Crown, ChevronRight, Clock, Database, Sparkles, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 
@@ -28,138 +26,112 @@ const ChatTypeSelector: React.FC = () => {
     }
   };
 
+  const chatTypes = [
+    {
+      icon: MessageCircle,
+      title: 'Базовый ИИ-Доктор',
+      description: 'Общие медицинские консультации',
+      gradient: 'from-blue-500 to-blue-600',
+      iconColor: 'text-blue-100',
+      onClick: handleBasicChatClick,
+      available: true,
+      features: ['Общие медицинские консультации', 'Анализ симптомов', 'Ограничено 3 сообщения в день']
+    },
+    {
+      icon: Crown,
+      title: 'Премиум ИИ-Доктор',
+      description: 'Персонализированные консультации',
+      gradient: 'from-amber-500 to-amber-600',
+      iconColor: 'text-amber-100',
+      onClick: handlePremiumChatClick,
+      available: hasPremiumAccess,
+      features: ['Доступ к истории анализов', 'Сохранение истории переписки', 'Персонализированные рекомендации', 'Неограниченные сообщения']
+    }
+  ];
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+    <div className="space-y-4">
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
           Выберите тип консультации
-        </h2>
-        <p className="text-gray-600">
+        </h3>
+        <p className="text-sm text-gray-600">
           Доступны два варианта чата с ИИ-доктором в зависимости от вашей подписки
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Базовый чат */}
-        <Card className="relative overflow-hidden border-2 hover:border-blue-300 transition-colors">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between mb-2">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <MessageCircle className="h-5 w-5 text-blue-500" />
-                Базовый ИИ-Доктор
-              </CardTitle>
-              <Badge variant="outline" className="text-blue-600 border-blue-300">
-                Бесплатно
-              </Badge>
-            </div>
-          </CardHeader>
-          
-          <CardContent className="space-y-4">
-            <p className="text-gray-600 text-sm">
-              Получите общие медицинские рекомендации и информацию о здоровье
-            </p>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <MessageCircle className="h-4 w-4 text-green-500" />
-                <span>Общие медицинские консультации</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Sparkles className="h-4 w-4 text-green-500" />
-                <span>Анализ симптомов</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Clock className="h-4 w-4 text-orange-500" />
-                <span>Ограничено 3 сообщения в день</span>
-              </div>
-            </div>
-
-            <Button 
-              onClick={handleBasicChatClick}
-              className="w-full"
-              variant="default"
-            >
-              Начать базовую консультацию
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Премиум чат */}
-        <Card className={`relative overflow-hidden border-2 transition-colors ${
-          hasPremiumAccess 
-            ? "border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50" 
-            : "hover:border-amber-300"
-        }`}>
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between mb-2">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Crown className="h-5 w-5 text-amber-600" />
-                Премиум ИИ-Доктор
-              </CardTitle>
-              <Badge className="bg-amber-100 text-amber-800 border-amber-300">
-                <Crown className="h-3 w-3 mr-1" />
-                Премиум
-              </Badge>
-            </div>
-          </CardHeader>
-          
-          <CardContent className="space-y-4">
-            <p className="text-gray-600 text-sm">
-              Персонализированные консультации с доступом к вашим анализам и полной истории
-            </p>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <Database className="h-4 w-4 text-green-500" />
-                <span>Доступ к истории анализов</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <MessageCircle className="h-4 w-4 text-green-500" />
-                <span>Сохранение истории переписки</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Sparkles className="h-4 w-4 text-green-500" />
-                <span>Персонализированные рекомендации</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Crown className="h-4 w-4 text-amber-500" />
-                <span>Неограниченные сообщения</span>
-              </div>
-            </div>
-
-            <Button 
-              onClick={handlePremiumChatClick}
-              className={`w-full ${
-                hasPremiumAccess 
-                  ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600" 
-                  : ""
-              }`}
-              variant={hasPremiumAccess ? "default" : "outline"}
-            >
-              {hasPremiumAccess ? (
-                <div className="flex items-center gap-2">
-                  <Crown className="h-4 w-4" />
-                  Начать премиум консультацию
+      {/* Quick Actions Style */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        {chatTypes.map((chatType, index) => (
+          <Button
+            key={index}
+            variant="ghost"
+            className="h-auto p-0 group hover:scale-[1.01] transition-all duration-200"
+            onClick={chatType.onClick}
+          >
+            <div className={`
+              w-full bg-gradient-to-br ${chatType.gradient} rounded-lg p-4 text-left
+              shadow-md hover:shadow-lg transition-all duration-200
+              min-h-[80px] relative
+              ${!chatType.available ? 'opacity-70' : ''}
+            `}>
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <chatType.icon className={`h-5 w-5 ${chatType.iconColor} flex-shrink-0`} />
+                    <h4 className="font-medium text-white text-sm">
+                      {chatType.title}
+                    </h4>
+                    {!chatType.available && (
+                      <Lock className="h-3 w-3 text-white/80 ml-1" />
+                    )}
+                  </div>
+                  <p className="text-white/90 text-xs leading-tight mb-2">
+                    {chatType.description}
+                  </p>
+                  <div className="text-xs text-white/70">
+                    {chatType.available 
+                      ? `${chatType.features.length} функций доступно`
+                      : 'Требуется подписка'
+                    }
+                  </div>
                 </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Lock className="h-4 w-4" />
-                  Обновить до премиум
-                </div>
-              )}
-            </Button>
-          </CardContent>
-
-          {!hasPremiumAccess && (
-            <div className="absolute inset-0 bg-gray-100/20 rounded-lg"></div>
-          )}
-        </Card>
+                <ChevronRight className="h-4 w-4 text-white/60 group-hover:text-white transition-colors flex-shrink-0 ml-2" />
+              </div>
+            </div>
+          </Button>
+        ))}
       </div>
 
-      {/* Информационная секция */}
-      <div className="mt-8 bg-blue-50 rounded-lg p-6 border border-blue-200">
-        <h3 className="font-semibold text-blue-900 mb-2">Важная информация</h3>
-        <p className="text-blue-800 text-sm">
+      {/* Features Details */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+        {chatTypes.map((chatType, index) => (
+          <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <chatType.icon className="h-4 w-4 text-gray-600" />
+              <h4 className="font-medium text-gray-900 text-sm">{chatType.title}</h4>
+              {!chatType.available && (
+                <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
+                  Премиум
+                </span>
+              )}
+            </div>
+            <ul className="space-y-1">
+              {chatType.features.map((feature, fIndex) => (
+                <li key={fIndex} className="flex items-center gap-2 text-xs text-gray-600">
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {/* Information Notice */}
+      <div className="bg-blue-50 rounded-lg p-4 border border-blue-200 mt-6">
+        <h4 className="font-medium text-blue-900 mb-1 text-sm">Важная информация</h4>
+        <p className="text-blue-800 text-xs">
           Рекомендации ИИ-доктора носят информационный характер и не заменяют 
           консультацию с врачом. Для точной диагностики и лечения обязательно 
           проконсультируйтесь с квалифицированным медицинским специалистом.

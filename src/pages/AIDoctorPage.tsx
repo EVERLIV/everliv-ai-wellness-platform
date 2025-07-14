@@ -2,9 +2,7 @@
 import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import Header from "@/components/Header";
-import MinimalFooter from "@/components/MinimalFooter";
-import AIDoctorHeader from "@/components/ai-doctor/AIDoctorHeader";
+import AIDoctorLayout from "@/components/ai-doctor/AIDoctorLayout";
 import ChatTypeSelector from "@/components/ai-doctor/ChatTypeSelector";
 import FeatureAccess from "@/components/FeatureAccess";
 
@@ -18,11 +16,16 @@ const AIDoctorPage = () => {
   console.log('AIDoctorPage - User:', user?.email, 'Premium access:', hasPremiumAccess);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
-      
-      <div className="flex-grow pt-16">
-        <AIDoctorHeader />
+    <AIDoctorLayout>
+      <div className="max-w-4xl">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Добро пожаловать, Пользователь!
+          </h1>
+          <p className="text-gray-600 text-sm">
+            Управляйте своим здоровьем с помощью ИИ-платформы
+          </p>
+        </div>
         
         <FeatureAccess 
           featureName="AI Doctor Access"
@@ -32,9 +35,7 @@ const AIDoctorPage = () => {
           <ChatTypeSelector />
         </FeatureAccess>
       </div>
-      
-      <MinimalFooter />
-    </div>
+    </AIDoctorLayout>
   );
 };
 
