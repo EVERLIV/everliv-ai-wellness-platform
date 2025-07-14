@@ -5,13 +5,11 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { supabase } from "@/integrations/supabase/client";
 import PersonalAIDoctorChatWithId from "@/components/ai-doctor/PersonalAIDoctorChatWithId";
 import ChatHistory from "@/components/ai-doctor/ChatHistory";
-import Header from "@/components/Header";
-import MinimalFooter from "@/components/MinimalFooter";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MessageSquare, Lock, Sparkles, Plus } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ArrowLeft, MessageSquare, Lock, Sparkles, Plus, Brain } from "lucide-react";
 
 const AIDoctorPersonalPage = () => {
   const navigate = useNavigate();
@@ -85,7 +83,7 @@ const AIDoctorPersonalPage = () => {
     if (isMobile) {
       setShowChatHistory(true);
     } else {
-      navigate("/dashboard");
+      navigate("/ai-doctor");
     }
   };
 
@@ -96,122 +94,108 @@ const AIDoctorPersonalPage = () => {
 
   if (!hasPersonalAIDoctorAccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-        <Header />
-        
-        <div className="flex-grow pt-16 flex items-center justify-center p-4">
-          <div className="max-w-md mx-auto bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-gray-100">
-            <div className="text-center space-y-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto">
-                <Lock className="h-10 w-10 text-white" />
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh] p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="p-8 text-center space-y-6">
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto">
+                <Lock className="h-8 w-8 text-primary" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">Премиум функция</h3>
-                <p className="text-gray-600 text-base leading-relaxed">
+                <h3 className="text-xl font-semibold text-foreground mb-2">Премиум функция</h3>
+                <p className="text-muted-foreground">
                   Персональный ИИ-доктор доступен только по премиум подписке
                 </p>
               </div>
               <Button 
                 onClick={() => navigate("/pricing")} 
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 h-12 rounded-2xl font-medium transition-all duration-200 transform hover:scale-[1.02]"
+                className="w-full"
               >
-                <Sparkles className="h-5 w-5 mr-2" />
+                <Sparkles className="h-4 w-4 mr-2" />
                 Обновить подписку
               </Button>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
-        
-        <MinimalFooter />
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      <Header />
-      
-      <div className="flex-grow pt-16">
-        <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-6">
-          {/* Modern Header */}
-          <div className="py-3 sm:py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => navigate("/dashboard")}
-                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 transition-all duration-200 flex-shrink-0"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                  <span className="text-adaptive-xs sm:text-sm">Назад</span>
-                </Button>
-                
-                <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-                  </div>
-                  <div className="min-w-0">
-                    <h1 className="text-adaptive-lg sm:text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mobile-text-wrap">
-                      ИИ-Доктор
-                    </h1>
-                    <p className="text-gray-600 text-adaptive-xs sm:text-sm mobile-text-wrap">Персональные консультации</p>
-                  </div>
-                </div>
-              </div>
-
-              {!isMobile && (
-                <div className="flex items-center space-x-2 flex-shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCreateNewChat}
-                    className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg px-3 py-2 transition-all duration-200"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    <span className="text-sm">Новый чат</span>
-                  </Button>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleShowChatHistory}
-                    className="text-gray-600 hover:text-gray-900 hover:bg-gray-100/80 rounded-lg px-3 py-2 transition-all duration-200"
-                  >
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    <span className="text-sm">История</span>
-                  </Button>
-                </div>
-              )}
+    <AppLayout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate("/ai-doctor")}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              <span className="text-sm">Назад к выбору чатов</span>
+            </Button>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+              <Brain className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold text-foreground">
+                Персональный ИИ-Доктор
+              </h1>
+              <p className="text-sm text-muted-foreground">Персональные консультации</p>
             </div>
           </div>
 
-          {/* Chat Interface */}
-          <div className="pb-4 sm:pb-6">
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl sm:rounded-3xl border border-gray-100 overflow-hidden min-w-0" style={{ minHeight: isMobile ? '65vh' : '70vh' }}>
-              {showChatHistory ? (
-                <div className="p-3 sm:p-4 h-full">
-                  <ChatHistory 
-                    onSelectChat={handleSelectChat}
-                    onCreateNewChat={handleCreateNewChat}
-                    selectedChatId={selectedChatId}
-                  />
-                </div>
-              ) : (
-                <PersonalAIDoctorChatWithId 
-                  chatId={selectedChatId}
-                  onBack={handleBackToHistory}
-                  onCreateNewChat={handleCreateNewChat}
-                  onShowChatHistory={handleShowChatHistory}
-                />
-              )}
+          {!isMobile && (
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCreateNewChat}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                <span className="text-sm">Новый чат</span>
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShowChatHistory}
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                <span className="text-sm">История</span>
+              </Button>
             </div>
-          </div>
+          )}
         </div>
+
+        {/* Chat Interface */}
+        <Card className="min-h-[70vh]">
+          <CardContent className="p-0">
+            {showChatHistory ? (
+              <div className="p-4 h-full">
+                <ChatHistory 
+                  onSelectChat={handleSelectChat}
+                  onCreateNewChat={handleCreateNewChat}
+                  selectedChatId={selectedChatId}
+                />
+              </div>
+            ) : (
+              <PersonalAIDoctorChatWithId 
+                chatId={selectedChatId}
+                onBack={handleBackToHistory}
+                onCreateNewChat={handleCreateNewChat}
+                onShowChatHistory={handleShowChatHistory}
+              />
+            )}
+          </CardContent>
+        </Card>
       </div>
-      
-      <MinimalFooter />
-    </div>
+    </AppLayout>
   );
 };
 
