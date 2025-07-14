@@ -106,17 +106,23 @@ export const useHealthInsights = () => {
 
   // Загрузка при монтировании компонента
   useEffect(() => {
-    if (user && insights.length === 0) {
-      console.log('🚀 Mounting health insights hook for user:', user.id);
+    console.log('🔍 Health insights hook mounted - checking conditions:', {
+      hasUser: !!user,
+      userId: user?.id,
+      insightsLength: insights.length,
+      isLoading,
+      isGenerating
+    });
+
+    if (user && insights.length === 0 && !isLoading && !isGenerating) {
+      console.log('🚀 Starting health insights generation for user:', user.id);
       setIsLoading(true);
-      generateInsights().finally(() => setIsLoading(false));
-    } else {
-      console.log('⚠️ Health insights hook - conditions not met:', {
-        hasUser: !!user,
-        insightsLength: insights.length
+      generateInsights().finally(() => {
+        console.log('✅ Health insights generation completed');
+        setIsLoading(false);
       });
     }
-  }, [user]);
+  }, [user, insights.length, isLoading, isGenerating]);
 
   // Группировка инсайтов по категориям
   const getInsightsByCategory = (category: 'predictive' | 'practical' | 'personalized') => {
