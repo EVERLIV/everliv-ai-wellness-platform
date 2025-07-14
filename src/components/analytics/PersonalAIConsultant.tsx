@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Brain, 
   Target, 
@@ -224,45 +222,25 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
 
   if (isGenerating) {
     return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-blue-500" />
-            ИИ-Консультант по здоровью
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <div className="text-center">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-3" />
-              <p className="text-gray-600">Анализирую ваши данные...</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-3" />
+          <p className="text-gray-600">Анализирую ваши данные...</p>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-blue-500" />
-            ИИ-Консультант по здоровью
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <AlertTriangle className="h-8 w-8 text-red-500 mx-auto mb-3" />
-            <p className="text-red-600 mb-4">{error}</p>
-            <Button onClick={generateConsultation} variant="outline">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Попробовать снова
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center py-8">
+        <AlertTriangle className="h-8 w-8 text-red-500 mx-auto mb-3" />
+        <p className="text-red-600 mb-4">{error}</p>
+        <Button onClick={generateConsultation} variant="outline">
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Попробовать снова
+        </Button>
+      </div>
     );
   }
 
@@ -271,25 +249,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5 text-blue-500" />
-          ИИ-Консультант по здоровью
-        </CardTitle>
-        <Button
-          onClick={generateConsultation}
-          disabled={isGenerating}
-          variant="outline"
-          size="sm"
-          className="self-end"
-        >
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Обновить
-        </Button>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+    <div className="space-y-4">
             {/* Анализ текущего состояния */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
@@ -396,12 +356,12 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
               </div>
               <div className="space-y-2">
                 {consultation.actionPlan.map((step, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                    <Badge variant="outline" className="flex-shrink-0">
-                      {index + 1}
-                    </Badge>
-                    <p className="text-sm text-gray-700">{step}</p>
-                  </div>
+                   <div key={index} className="flex items-start gap-3 p-3 bg-gray-50">
+                     <Badge variant="outline" className="flex-shrink-0">
+                       {index + 1}
+                     </Badge>
+                     <p className="text-sm text-gray-700">{step}</p>
+                   </div>
                 ))}
               </div>
             </div>
@@ -416,16 +376,14 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
               </div>
               <div className="grid grid-cols-1 gap-2">
                 {consultation.trackingMetrics.map((metric, index) => (
-                  <div key={index} className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg">
-                    <TrendingUp className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                    <p className="text-sm text-gray-700">{metric}</p>
-                  </div>
+                   <div key={index} className="flex items-center gap-2 p-2 bg-blue-50">
+                     <TrendingUp className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                     <p className="text-sm text-gray-700">{metric}</p>
+                   </div>
                 ))}
               </div>
             </div>
-          </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 };
 
