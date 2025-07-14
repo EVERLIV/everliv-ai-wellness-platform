@@ -174,8 +174,8 @@ const AIDoctorPersonalPage = () => {
         </div>
 
         {/* Chat Interface */}
-        <Card className="min-h-[70vh]">
-          <CardContent className="p-0">
+        <div className="min-h-[70vh] border border-border bg-card">
+          <div className="h-full">
             {showChatHistory ? (
               <div className="p-4 h-full">
                 <ChatHistory 
@@ -192,8 +192,8 @@ const AIDoctorPersonalPage = () => {
                 onShowChatHistory={handleShowChatHistory}
               />
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </AppLayout>
   );
