@@ -19,11 +19,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea
+  // Enhanced Auto-resize textarea with 30% max height constraint
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+      // Get 30% of viewport height as max height
+      const maxHeight = Math.min(window.innerHeight * 0.3, 200);
+      const newHeight = Math.min(textareaRef.current.scrollHeight, maxHeight);
+      textareaRef.current.style.height = `${Math.max(newHeight, 44)}px`;
     }
   }, [inputText]);
 
@@ -35,40 +38,42 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <div className="border-t border-border bg-card p-4">
-      <form onSubmit={onSubmit} className="flex gap-2 items-end">
-        <div className="flex-1">
-          <textarea
-            ref={textareaRef}
-            placeholder="Задайте вопрос о здоровье..."
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isProcessing}
-            className="w-full min-h-[40px] max-h-[120px] p-3 resize-none border border-input bg-background text-sm placeholder:text-muted-foreground scrollbar-hide overflow-y-auto"
-            style={{ 
-              lineHeight: '1.4',
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
-            }}
-            rows={1}
-          />
-        </div>
-        <Button
-          type="submit"
-          size="sm"
-          disabled={!inputText.trim() || isProcessing}
-          className="h-[46px] px-4"
-        >
-          {isProcessing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Send className="h-4 w-4" />
-          )}
-        </Button>
-      </form>
+    <div className="border-t-2 border-border bg-card mt-8 pt-8 pb-6 px-6">
+      <div className="max-w-full">
+        <form onSubmit={onSubmit} className="flex gap-3 items-end">
+          <div className="flex-1 min-w-0">
+            <textarea
+              ref={textareaRef}
+              placeholder="Задайте вопрос о здоровье..."
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isProcessing}
+              className="w-full min-h-[44px] p-4 resize-none border border-input bg-background text-sm placeholder:text-muted-foreground overflow-hidden"
+              style={{ 
+                lineHeight: '1.5',
+                wordWrap: 'break-word',
+                overflowWrap: 'break-word',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none'
+              }}
+              rows={1}
+            />
+          </div>
+          <Button
+            type="submit"
+            size="sm"
+            disabled={!inputText.trim() || isProcessing}
+            className="h-[52px] px-5 flex-shrink-0"
+          >
+            {isProcessing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 };
