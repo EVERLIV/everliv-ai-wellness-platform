@@ -15,28 +15,40 @@ interface CachedRecommendationsHook {
   lastUpdated: Date | null;
 }
 
-// Функция для создания хэша источников данных (Unicode-safe)
-const createSourceHash = (data: any): string => {
+// Версия алгоритма рекомендаций - увеличивайте при изменении логики
+const RECOMMENDATIONS_VERSION = 'v1.5.0';
+
+// Функция для создания хэша источников данных с версионностью (Unicode-safe)
+const createSourceHash = (data: any, type: RecommendationType): string => {
   try {
     if (!data || typeof data !== 'object') {
-      return 'empty-data';
+      return `empty-data-${RECOMMENDATIONS_VERSION}`;
     }
     
-    const hashData = JSON.stringify(data);
+    // Добавляем версию и тип в хэш для автоматической инвалидации при обновлениях
+    const hashInput = {
+      version: RECOMMENDATIONS_VERSION,
+      type: type,
+      timestamp: new Date().toISOString().split('T')[0], // Дата для ежедневной ротации
+      data: data
+    };
+    
+    const hashData = JSON.stringify(hashInput);
     // Используем encodeURIComponent для обработки Unicode символов
     const safeString = encodeURIComponent(hashData);
     return btoa(safeString).slice(0, 32);
   } catch (error) {
     console.warn('Error creating source hash, using fallback:', error);
-    // Fallback: простой хэш на основе длины и случайного числа
-    return `fallback-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    // Fallback: простой хэш на основе версии и времени
+    return `fallback-${RECOMMENDATIONS_VERSION}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 };
 
 export const useCachedRecommendations = (
   type: RecommendationType,
   sourceData: any,
-  generatorFunction: () => Promise<any[]>
+  generatorFunction: () => Promise<any[]>,
+  forceRegenerate: boolean = false
 ): CachedRecommendationsHook => {
   const { user } = useAuth();
   const [recommendations, setRecommendations] = useState<any[]>([]);
@@ -63,17 +75,32 @@ export const useCachedRecommendations = (
         return;
       }
 
-      if (data) {
+      if (data && !forceRegenerate) {
         try {
-          const currentHash = createSourceHash(sourceData);
+          const currentHash = createSourceHash(sourceData, type);
+          const cacheAge = Date.now() - new Date(data.updated_at).getTime();
+          const maxCacheAge = 24 * 60 * 60 * 1000; // 24 часа
           
-          // Проверяем, актуальны ли кэшированные данные
-          if (data.source_hash === currentHash) {
+          console.log(`📊 Cache analysis for ${type}:`, {
+            currentHash: currentHash.slice(0, 8),
+            cachedHash: data.source_hash?.slice(0, 8),
+            cacheAge: Math.round(cacheAge / (60 * 1000)), // в минутах
+            maxCacheAgeHours: maxCacheAge / (60 * 60 * 1000),
+            hashMatch: data.source_hash === currentHash,
+            isExpired: cacheAge > maxCacheAge
+          });
+          
+          // Проверяем, актуальны ли кэшированные данные (хэш + возраст)
+          if (data.source_hash === currentHash && cacheAge < maxCacheAge) {
             setRecommendations(data.recommendations_data);
             setLastUpdated(new Date(data.updated_at));
-            console.log(`✅ Loaded cached ${type} recommendations:`, data.recommendations_data);
+            console.log(`✅ Loaded cached ${type} recommendations (${Math.round(cacheAge / (60 * 1000))}m old):`, {
+              count: data.recommendations_data?.length || 0,
+              hash: currentHash.slice(0, 8)
+            });
           } else {
-            console.log(`🔄 Source data changed for ${type}, generating new recommendations`);
+            const reason = data.source_hash !== currentHash ? 'hash mismatch' : 'cache expired';
+            console.log(`🔄 Cache invalid for ${type} (${reason}), generating new recommendations`);
             await generateNewRecommendations();
           }
         } catch (error) {
@@ -81,7 +108,8 @@ export const useCachedRecommendations = (
           await generateNewRecommendations();
         }
       } else {
-        console.log(`📝 No cached recommendations found for ${type}, generating new ones`);
+        const reason = forceRegenerate ? 'force regenerate' : 'no cache found';
+        console.log(`📝 ${reason} for ${type}, generating new recommendations`);
         await generateNewRecommendations();
       }
     } catch (error) {
@@ -114,8 +142,14 @@ export const useCachedRecommendations = (
         return;
       }
 
-      const newHash = createSourceHash(sourceData);
+      const newHash = createSourceHash(sourceData, type);
       const now = new Date();
+      
+      console.log(`💾 Saving ${type} recommendations to cache:`, {
+        count: newRecommendations.length,
+        hash: newHash.slice(0, 8),
+        timestamp: now.toISOString()
+      });
 
       // Сохраняем в кэш
       const { error } = await supabase
@@ -162,25 +196,63 @@ export const useCachedRecommendations = (
     }
   };
 
-  // Принудительная регенерация
+  // Принудительная регенерация с удалением старого кэша
   const regenerateRecommendations = async () => {
+    console.log(`🔄 Force regenerating ${type} recommendations`);
+    
+    // Удаляем старый кэш перед генерацией новых
+    if (user) {
+      try {
+        await supabase
+          .from('cached_recommendations')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('recommendations_type', type);
+        console.log(`🗑️ Cleared old ${type} cache`);
+      } catch (error) {
+        console.warn('Error clearing old cache:', error);
+      }
+    }
+    
     await generateNewRecommendations();
+  };
+
+  // Очистка устаревших кэшей при запуске
+  const cleanupOldCache = async () => {
+    if (!user) return;
+    
+    try {
+      // Удаляем кэши старше 7 дней
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      await supabase
+        .from('cached_recommendations')
+        .delete()
+        .eq('user_id', user.id)
+        .lt('updated_at', weekAgo);
+    } catch (error) {
+      console.warn('Error cleaning up old cache:', error);
+    }
   };
 
   // Эффект для загрузки рекомендаций при изменении пользователя, типа или данных
   useEffect(() => {
     if (user && sourceData && Object.keys(sourceData).length > 0) {
-      console.log(`🔄 Loading ${type} recommendations for user`, { sourceData });
+      console.log(`🔄 Loading ${type} recommendations for user`, { 
+        sourceDataKeys: Object.keys(sourceData),
+        version: RECOMMENDATIONS_VERSION 
+      });
+      cleanupOldCache(); // Очищаем старые кэши
       loadCachedRecommendations();
     } else {
       console.log(`⚠️ Missing data for ${type} recommendations:`, { 
         hasUser: !!user, 
         hasSourceData: !!sourceData,
-        sourceDataKeys: sourceData ? Object.keys(sourceData) : []
+        sourceDataKeys: sourceData ? Object.keys(sourceData) : [],
+        version: RECOMMENDATIONS_VERSION
       });
       setIsLoading(false);
     }
-  }, [user, type, JSON.stringify(sourceData)]); // Добавляем sourceData в зависимости
+  }, [user, type, JSON.stringify(sourceData), forceRegenerate]); // Добавляем forceRegenerate в зависимости
 
   return {
     recommendations,

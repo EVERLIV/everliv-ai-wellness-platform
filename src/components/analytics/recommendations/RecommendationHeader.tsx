@@ -79,15 +79,32 @@ const RecommendationHeader: React.FC<RecommendationHeaderProps> = ({
           </p>
         )}
       </div>
-      <Button
-        onClick={onRefresh}
-        disabled={isGenerating}
-        variant="outline"
-        className="flex items-center gap-2"
-      >
-        <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
-        {isGenerating ? 'Генерируем...' : 'Обновить'}
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          onClick={onRefresh}
+          disabled={isGenerating}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className={`h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
+          {isGenerating ? 'Генерируем...' : 'Обновить'}
+        </Button>
+        
+        <Button
+          onClick={() => {
+            // Принудительная регенерация с очисткой кэша
+            localStorage.removeItem('analytics-recommendations-cache');
+            onRefresh();
+          }}
+          disabled={isGenerating}
+          variant="destructive"
+          size="sm"
+          className="flex items-center gap-1"
+        >
+          <RefreshCw className={`h-3 w-3 ${isGenerating ? 'animate-spin' : ''}`} />
+          Сброс
+        </Button>
+      </div>
     </div>
   );
 };

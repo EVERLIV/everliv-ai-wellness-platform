@@ -268,12 +268,17 @@ serve(async (req) => {
     }
 
     console.log('=== Starting AI recommendations generation ===');
+    console.log('Request body keys:', Object.keys(req_body));
     console.log('User data completeness score:', analysisData?.data_completeness?.completeness_score);
     console.log('Available data sources:', {
       hasProfile: !!analysisData?.user_profile,
       hasBiomarkers: !!analysisData?.biomarkers?.latest_biomarkers?.length,
       hasMetrics: !!analysisData?.lifestyle_metrics?.tracking_period_days
     });
+    
+    // Добавляем отметку времени и версию в промпт для уникальности
+    const currentTime = new Date().toISOString();
+    const promptVersion = 'v1.5.0';
 
     const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
     console.log('ANTHROPIC_API_KEY available:', !!anthropicKey);
