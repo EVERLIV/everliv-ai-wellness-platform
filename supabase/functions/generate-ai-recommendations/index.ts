@@ -704,7 +704,9 @@ ${JSON.stringify(analysisData, null, 2)}
 
       if (saveError) {
         console.error('Error saving recommendations:', saveError);
-        throw new Error('Failed to save recommendations');
+        console.log('Proceeding without saving to database, returning recommendations anyway');
+      } else {
+        console.log('Successfully saved recommendations to database');
       }
     }
 
