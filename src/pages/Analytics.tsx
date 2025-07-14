@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Header from '@/components/Header';
 import MinimalFooter from '@/components/MinimalFooter';
+import Sidebar from '@/components/Sidebar';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import AnalyticsScoreCard from '@/components/analytics/AnalyticsScoreCard';
 import AnalyticsBiomarkersCard from '@/components/analytics/AnalyticsBiomarkersCard';
@@ -17,6 +18,7 @@ import { Link } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Analytics = () => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { 
     analytics, 
     isLoading, 
@@ -66,15 +68,18 @@ const Analytics = () => {
 
   if (isLoading) {
     return (
-      <div className={`min-h-screen flex flex-col bg-gray-50 ${isMobile ? 'mobile-optimized' : ''}`}>
-        <Header />
-        <div className="pt-16 flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
-            <p className="text-gray-500">Загрузка аналитики...</p>
+      <div className="min-h-screen flex bg-gray-50">
+        <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+        <div className="flex-1 flex flex-col">
+          <Header />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+              <p className="text-gray-500">Загрузка аналитики...</p>
+            </div>
           </div>
+          <MinimalFooter />
         </div>
-        <MinimalFooter />
       </div>
     );
   }
@@ -82,10 +87,11 @@ const Analytics = () => {
   // Если нет профиля здоровья или анализов
   if (!hasHealthProfile || !hasAnalyses) {
     return (
-      <div className={`min-h-screen flex flex-col bg-gray-50 ${isMobile ? 'mobile-optimized' : ''}`}>
-        <Header />
-        <div className="pt-16 flex-1">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+      <div className="min-h-screen flex bg-gray-50">
+        <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+        <div className="flex-1 flex flex-col">
+          <Header />
+          <div className="flex-1 p-8">
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 <div>
@@ -134,8 +140,8 @@ const Analytics = () => {
               </AnalyticsDisplayCard>
             </div>
           </div>
+          <MinimalFooter />
         </div>
-        <MinimalFooter />
       </div>
     );
   }
@@ -143,10 +149,11 @@ const Analytics = () => {
   // Если нет аналитики, но есть данные
   if (!analytics) {
     return (
-      <div className={`min-h-screen flex flex-col bg-gray-50 ${isMobile ? 'mobile-optimized' : ''}`}>
-        <Header />
-        <div className="pt-16 flex-1">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-7xl">
+      <div className="min-h-screen flex bg-gray-50">
+        <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+        <div className="flex-1 flex flex-col">
+          <Header />
+          <div className="flex-1 p-8">
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 <div>
@@ -179,122 +186,131 @@ const Analytics = () => {
               </AnalyticsDisplayCard>
             </div>
           </div>
+          <MinimalFooter />
         </div>
-        <MinimalFooter />
       </div>
     );
   }
 
   // Основная страница с рекомендациями
   return (
-    <div className={`min-h-screen flex flex-col bg-gray-50 ${isMobile ? 'mobile-optimized' : ''}`}>
-      <Header />
-      <div className="pt-16 flex-1">
-        <DashboardLayout
-          leftColumn={
-            <div className="space-y-6">
-              {/* Header */}
-              <div className="flex flex-col gap-4">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Персональная аналитика</h1>
-                  <p className="text-gray-600 mt-2">Ваш персональный анализ здоровья от ИИ-консультанта</p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3 w-full">
-                  <Link to="/my-recommendations">
-                    <Button variant="outline" size="sm" className="min-h-[44px] w-full sm:w-auto">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {isMobile ? 'Мои' : 'Мои рекомендации'}
+    <div className="min-h-screen flex bg-gray-50">
+      <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+      <div className="flex-1 flex flex-col">
+        <Header />
+        <div className="flex-1 p-8">
+          <DashboardLayout
+            leftColumn={
+              <div className="space-y-6">
+                {/* Header */}
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Добро пожаловать, Пользователь!</h1>
+                    <p className="text-gray-600 mt-2">Управляйте своим здоровьем с помощью ИИ-платформы</p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3 w-full">
+                    <Link to="/my-recommendations">
+                      <Button variant="outline" size="sm" className="min-h-[44px] w-full sm:w-auto">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        {isMobile ? 'Мои' : 'Мои рекомендации'}
+                      </Button>
+                    </Link>
+                    <Button
+                      onClick={handleGenerateAnalytics}
+                      disabled={isGenerating}
+                      variant="outline"
+                      size="sm"
+                      className="min-h-[44px] w-full sm:w-auto"
+                    >
+                      <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
+                      Обновить
                     </Button>
-                  </Link>
-                  <Button
-                    onClick={handleGenerateAnalytics}
-                    disabled={isGenerating}
-                    variant="outline"
-                    size="sm"
-                    className="min-h-[44px] w-full sm:w-auto"
-                  >
-                    <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
-                    Обновить
-                  </Button>
+                  </div>
                 </div>
-              </div>
 
-              {/* Personal AI Consultant - Main Content */}
-              <PersonalAIConsultant 
-                analytics={analytics} 
-                healthProfile={healthProfile}
-              />
-
-              {/* Health Goals Section */}
-              {healthProfile?.healthGoals && healthProfile.healthGoals.length > 0 && (
-                <AnalyticsDisplayCard title="Ваши цели здоровья" icon={Target}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {healthProfile.healthGoals.map((goal, index) => (
-                      <div key={index} className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-2 h-2 bg-purple-500 rounded-full flex-shrink-0"></div>
-                          <span className="text-xs font-medium text-purple-800 uppercase tracking-wide">
-                            Цель
-                          </span>
-                        </div>
-                        <div className="text-sm font-semibold text-gray-900">
-                          {translateGoal(goal)}
-                        </div>
+                {/* Health Goals Section */}
+                {healthProfile?.healthGoals && healthProfile.healthGoals.length > 0 && (
+                  <AnalyticsDisplayCard title="Мои цели" icon={Target}>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-medium text-gray-900">Мои цели</h3>
+                        <Button variant="ghost" size="sm" className="text-blue-600">
+                          Все цели
+                        </Button>
                       </div>
-                    ))}
-                  </div>
-                </AnalyticsDisplayCard>
-              )}
+                      <div className="space-y-2">
+                        {healthProfile.healthGoals.map((goal, index) => (
+                          <div key={index} className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-purple-500 rounded-full flex-shrink-0"></div>
+                            <span className="text-sm text-gray-700">
+                              {translateGoal(goal)}
+                            </span>
+                          </div>
+                        ))}
+                        <Button variant="ghost" size="sm" className="text-gray-500 mt-2">
+                          +6 еще
+                        </Button>
+                      </div>
+                    </div>
+                  </AnalyticsDisplayCard>
+                )}
 
-              {/* Biomarkers Analysis */}
-              <AnalyticsBiomarkersCard analytics={analytics} />
-            </div>
-          }
-          rightColumn={
-            <div className="space-y-4">
-              {/* Health Score */}
-              <AnalyticsScoreCard
-                healthScore={analytics.healthScore}
-                riskLevel={analytics.riskLevel}
-                lastUpdated={analytics.lastUpdated}
-              />
+                {/* Personal AI Consultant - Main Content */}
+                <PersonalAIConsultant 
+                  analytics={analytics} 
+                  healthProfile={healthProfile}
+                />
 
-              {/* Health Profile Summary */}
-              {healthProfile && (
-                <AnalyticsDisplayCard title="Профиль здоровья" icon={User}>
-                  <div className="grid grid-cols-1 gap-4">
-                    <AnalyticsValueDisplay
-                      label="Возраст"
-                      value={`${healthProfile.age} лет`}
-                    />
-                    <AnalyticsValueDisplay
-                      label="ИМТ"
-                      value={((healthProfile.weight / Math.pow(healthProfile.height / 100, 2)).toFixed(1))}
-                    />
-                    <AnalyticsValueDisplay
-                      label="Часы сна"
-                      value={`${healthProfile.sleepHours} часов`}
-                    />
-                    <AnalyticsValueDisplay
-                      label="Уровень стресса"
-                      value={`${healthProfile.stressLevel}/10`}
-                    />
-                    <AnalyticsValueDisplay
-                      label="Физическая активность" 
-                      value={`${healthProfile.exerciseFrequency} раз/неделю`}
-                    />
-                    <AnalyticsValueDisplay
-                      label="Потребление воды"
-                      value={`${healthProfile.waterIntake} стаканов`}
-                    />
-                  </div>
-                </AnalyticsDisplayCard>
-              )}
-            </div>
-          }
-        />
+                {/* Biomarkers Analysis */}
+                <AnalyticsBiomarkersCard analytics={analytics} />
+              </div>
+            }
+            rightColumn={
+              <div className="space-y-4">
+                {/* Health Index */}
+                <AnalyticsScoreCard
+                  healthScore={analytics.healthScore}
+                  riskLevel={analytics.riskLevel}
+                  lastUpdated={analytics.lastUpdated}
+                />
+
+                {/* Health Profile Summary */}
+                {healthProfile && (
+                  <AnalyticsDisplayCard title="Профиль здоровья" icon={User}>
+                    <div className="grid grid-cols-1 gap-4">
+                      <AnalyticsValueDisplay
+                        label="Возраст"
+                        value={`${healthProfile.age} лет`}
+                      />
+                      <AnalyticsValueDisplay
+                        label="ИМТ"
+                        value={((healthProfile.weight / Math.pow(healthProfile.height / 100, 2)).toFixed(1))}
+                      />
+                      <AnalyticsValueDisplay
+                        label="Часы сна"
+                        value={`${healthProfile.sleepHours} часов`}
+                      />
+                      <AnalyticsValueDisplay
+                        label="Уровень стресса"
+                        value={`${healthProfile.stressLevel}/10`}
+                      />
+                      <AnalyticsValueDisplay
+                        label="Физическая активность" 
+                        value={`${healthProfile.exerciseFrequency} раз/неделю`}
+                      />
+                      <AnalyticsValueDisplay
+                        label="Потребление воды"
+                        value={`${healthProfile.waterIntake} стаканов`}
+                      />
+                    </div>
+                  </AnalyticsDisplayCard>
+                )}
+              </div>
+            }
+          />
+        </div>
+        <MinimalFooter />
       </div>
-      <MinimalFooter />
     </div>
   );
 };
