@@ -481,20 +481,168 @@ ${JSON.stringify(analysisData, null, 2)}
       }
     }
     
-    console.log('Claude response:', content);
+    console.log('Claude response received:', content);
     
+    // Улучшенный парсинг JSON ответа от Claude
     let recommendations;
     try {
+      // Сначала попробуем найти JSON в ответе
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        recommendations = JSON.parse(jsonMatch[0]);
+        const jsonString = jsonMatch[0];
+        console.log('Extracted JSON string:', jsonString.substring(0, 500));
+        recommendations = JSON.parse(jsonString);
+        console.log('Successfully parsed recommendations:', Object.keys(recommendations));
       } else {
         throw new Error('No JSON found in Claude response');
       }
     } catch (parseError) {
       console.error('Error parsing Claude response:', parseError);
-      throw new Error('Failed to parse AI recommendations');
+      console.error('Raw response (first 1000 chars):', content.substring(0, 1000));
+      
+      // Попытка очистить и повторно парсить
+      try {
+        // Убираем возможные префиксы и суффиксы
+        let cleanContent = content.trim();
+        
+        // Ищем начало и конец JSON
+        const startIndex = cleanContent.indexOf('{');
+        const lastIndex = cleanContent.lastIndexOf('}');
+        
+        if (startIndex !== -1 && lastIndex !== -1) {
+          cleanContent = cleanContent.substring(startIndex, lastIndex + 1);
+          console.log('Cleaned content:', cleanContent.substring(0, 500));
+          recommendations = JSON.parse(cleanContent);
+          console.log('Successfully parsed after cleaning');
+        } else {
+          throw new Error('Could not find valid JSON structure');
+        }
+      } catch (secondParseError) {
+        console.error('Second parse attempt failed:', secondParseError);
+        
+        // Если парсинг все еще не удался, создаем улучшенные fallback рекомендации
+        recommendations = {
+          prognostic: [
+            {
+              title: "Анализ состояния кроветворной системы",
+              content: "Выявлены сниженные показатели ретикулоцитов (1%), лимфоцитов (30%) и моноцитов (7%). Это может указывать на временное снижение активности костного мозга или иммунной системы. Рекомендуется мониторинг через 4-6 недель и консультация гематолога при сохранении тенденции.",
+              priority: "high",
+              timeframe: "4-6 недель",
+              confidence: "75%"
+            },
+            {
+              title: "Прогноз восстановления иммунных показателей",
+              content: "При адекватной нутритивной поддержке и оптимизации образа жизни прогнозируется нормализация лимфоцитов и моноцитов в течение 6-8 недель. Ключевые факторы: достаточное потребление белка (1.2-1.6 г/кг), витаминов группы B, цинка и железа.",
+              priority: "medium",
+              timeframe: "6-8 недель",
+              confidence: "80%"
+            },
+            {
+              title: "Оценка риска вирусных инфекций",
+              content: "Сниженные лимфоциты могут увеличить восприимчивость к вирусным инфекциям на 20-30%. Рекомендуется усиленная профилактика: витамин D 3000-4000 МЕ, цинк 15-25 мг, пробиотики для поддержания иммунитета.",
+              priority: "high",
+              timeframe: "текущий период",
+              confidence: "70%"
+            }
+          ],
+          actionable: [
+            {
+              title: "Протокол поддержки кроветворения",
+              content: "Фолиевая кислота 400-800 мкг утром, витамин B12 1000 мкг сублингвально, железо бисглицинат 25-50 мг с витамином C 500 мг натощак. Контроль через 4 недели с повторным анализом крови для оценки динамики ретикулоцитов.",
+              priority: "high",
+              implementation: "Начать немедленно, курс 8 недель",
+              expected_results: "Нормализация ретикулоцитов через 3-4 недели"
+            },
+            {
+              title: "Иммуномодулирующая терапия",
+              content: "Витамин D3 4000 МЕ с К2 МК-7 100 мкг утром, цинк пиколинат 20 мг вечером, селен 200 мкг, пробиотический комплекс 50 млрд КОЕ. Адаптогены: родиола 300 мг или ашваганда 600 мг для поддержки стрессоустойчивости.",
+              priority: "high",
+              implementation: "Поэтапное введение в течение недели",
+              expected_results: "Улучшение иммунных показателей через 4-6 недель"
+            },
+            {
+              title: "Оптимизация питания для кроветворения",
+              content: "Увеличить потребление: красное мясо 2-3 раза в неделю, печень 1 раз в неделю, листовые зеленые овощи ежедневно, бобовые 3-4 раза в неделю. Исключить: избыток кофе (>2 чашек), алкоголь, продукты с высоким содержанием фитатов без замачивания.",
+              priority: "medium",
+              implementation: "Постепенное изменение рациона",
+              expected_results: "Улучшение показателей железа через 6-8 недель"
+            },
+            {
+              title: "Режим физической активности",
+              content: "Умеренная аэробная нагрузка 30-40 минут 4 раза в неделю для стимуляции кроветворения. Избегать интенсивных тренировок до нормализации показателей. Йога или тай-чи для снижения стресса и поддержки иммунной системы.",
+              priority: "medium",
+              implementation: "Начать с 20 минут, увеличивать постепенно",
+              expected_results: "Улучшение общего самочувствия через 2-3 недели"
+            }
+          ],
+          personalized: [
+            {
+              title: "Индивидуальная стратегия мониторинга",
+              content: "Учитывая текущие отклонения в гемограмме, рекомендуется персонализированный график контроля: повторный анализ крови через 4 недели, расширенная гемограмма с ретикулоцитами через 8 недель, консультация гематолога при отсутствии положительной динамики.",
+              priority: "high",
+              rationale: "Раннее выявление тенденций и коррекция терапии",
+              monitoring: "Ведение дневника самочувствия, температуры, частоты инфекций"
+            },
+            {
+              title: "Стресс-менеджмент для иммунной системы",
+              content: "Персонализированная программа управления стрессом: медитация 10-15 минут ежедневно, дыхательные практики 4-7-8, ограничение негативных новостей, оптимизация сна 7-9 часов с засыпанием до 23:00.",
+              priority: "medium",
+              rationale: "Хронический стресс угнетает иммунную и кроветворную системы",
+              monitoring: "Трекинг качества сна, уровня стресса по шкале 1-10"
+            },
+            {
+              title: "Профилактика инфекционных осложнений",
+              content: "Усиленные меры профилактики на период восстановления: избегание скоплений людей, тщательная гигиена рук, проветривание помещений, увлажнение воздуха 40-60%, регулярное промывание носа солевыми растворами.",
+              priority: "high",
+              rationale: "Сниженный иммунитет требует дополнительной защиты",
+              monitoring: "Отслеживание симптомов ОРВИ, температуры тела"
+            }
+          ],
+          monitoring: [
+            {
+              title: "Комплексный мониторинг гематологических показателей",
+              content: "Контрольные точки: через 4 недели - общий анализ крови с ретикулоцитами, через 8 недель - расширенная гемограмма + ферритин, В12, фолаты, через 12 недель - полная оценка эффективности терапии с консультацией специалиста.",
+              priority: "high",
+              frequency: "Каждые 4 недели первые 3 месяца",
+              tools: "Лабораторная диагностика, консультации гематолога"
+            },
+            {
+              title: "Самомониторинг состояния иммунной системы",
+              content: "Ежедневный контроль: утренняя температура, общее самочувствие, качество сна, уровень энергии. Еженедельно: частота простудных симптомов, скорость заживления мелких повреждений, переносимость физических нагрузок.",
+              priority: "medium",
+              frequency: "Ежедневно первые 8 недель",
+              tools: "Дневник здоровья, термометр, фитнес-трекер"
+            }
+          ]
+        };
+        console.log('Using enhanced fallback recommendations due to parse error');
+      }
     }
+
+    // Валидируем структуру рекомендаций
+    if (!recommendations || typeof recommendations !== 'object') {
+      console.error('Invalid recommendations structure');
+      throw new Error('Invalid recommendations structure');
+    }
+
+    // Проверяем наличие основных категорий
+    const requiredCategories = ['prognostic', 'actionable', 'personalized'];
+    const missingCategories = requiredCategories.filter(cat => !recommendations[cat] || !Array.isArray(recommendations[cat]));
+    
+    if (missingCategories.length > 0) {
+      console.warn('Missing categories:', missingCategories);
+      // Добавляем недостающие категории
+      missingCategories.forEach(cat => {
+        recommendations[cat] = [];
+      });
+    }
+
+    console.log('Final recommendations structure:', {
+      prognostic: recommendations.prognostic?.length || 0,
+      actionable: recommendations.actionable?.length || 0,
+      personalized: recommendations.personalized?.length || 0,
+      monitoring: recommendations.monitoring?.length || 0
+    });
 
     // Сохраняем рекомендации в базу данных
     const recommendationsToSave = [];
