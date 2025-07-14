@@ -219,6 +219,12 @@ const Analytics = () => {
                 </div>
               </div>
 
+              {/* Personal AI Consultant - Main Content */}
+              <PersonalAIConsultant 
+                analytics={analytics} 
+                healthProfile={healthProfile}
+              />
+
               {/* Health Goals Section */}
               {healthProfile?.healthGoals && healthProfile.healthGoals.length > 0 && (
                 <AnalyticsDisplayCard title="Ваши цели здоровья" icon={Target}>
@@ -240,23 +246,17 @@ const Analytics = () => {
                 </AnalyticsDisplayCard>
               )}
 
-              {/* Health Score */}
-              <AnalyticsScoreCard
-                healthScore={analytics.healthScore}
-                riskLevel={analytics.riskLevel}
-                lastUpdated={analytics.lastUpdated}
-              />
-
               {/* Biomarkers Analysis */}
               <AnalyticsBiomarkersCard analytics={analytics} />
             </div>
           }
           rightColumn={
-            <div className="space-y-6">
-              {/* Personal AI Consultant */}
-              <PersonalAIConsultant 
-                analytics={analytics} 
-                healthProfile={healthProfile}
+            <div className="space-y-4">
+              {/* Health Score */}
+              <AnalyticsScoreCard
+                healthScore={analytics.healthScore}
+                riskLevel={analytics.riskLevel}
+                lastUpdated={analytics.lastUpdated}
               />
 
               {/* Health Profile Summary */}
