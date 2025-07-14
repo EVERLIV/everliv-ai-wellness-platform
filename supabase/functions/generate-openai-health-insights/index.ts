@@ -41,11 +41,17 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { userId } = await req.json();
+    const requestBody = await req.json();
+    console.log('📥 Request body:', requestBody);
+    
+    const { userId } = requestBody;
 
     if (!userId) {
+      console.error('❌ User ID is missing from request');
       throw new Error('User ID is required');
     }
+
+    console.log('👤 Processing request for user:', userId);
 
     console.log('🔍 Fetching AI health profile for user:', userId);
 
