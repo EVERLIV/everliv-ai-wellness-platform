@@ -87,6 +87,8 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
     setIsLoading(true);
     
     try {
+      console.log('Loading chat data for chatId:', chatId);
+      
       // Загружаем сообщения чата
       const { data: messagesData, error: messagesError } = await supabase
         .from('ai_doctor_messages')
@@ -95,6 +97,8 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
         .order('created_at', { ascending: true });
 
       if (messagesError) throw messagesError;
+      
+      console.log('Loaded', messagesData?.length || 0, 'messages from database');
 
       // Преобразуем сообщения в нужный формат
       const chatMessages: Message[] = messagesData.map(msg => ({
@@ -145,7 +149,9 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
     if (!chatId) return;
     
     try {
-      await supabase
+      console.log('Saving message to database:', message.role, message.content.substring(0, 50) + '...');
+      
+      const { error } = await supabase
         .from('ai_doctor_messages')
         .insert([{
           chat_id: chatId,
@@ -153,14 +159,18 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
           content: message.content
         }]);
 
+      if (error) throw error;
+
       // Обновляем время последнего изменения чата
       await supabase
         .from('ai_doctor_chats')
         .update({ updated_at: new Date().toISOString() })
         .eq('id', chatId);
         
+      console.log('Message saved successfully');
     } catch (error) {
       console.error('Ошибка сохранения сообщения:', error);
+      throw error; // Пробрасываем ошибку для обработки
     }
   };
 
