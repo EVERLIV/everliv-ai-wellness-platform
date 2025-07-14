@@ -20,13 +20,19 @@ export default {
 				xl: '2.5rem',
 				'2xl': '3rem',
 			},
-			screens: {
-				'sm': '640px',
-				'md': '768px',
-				'lg': '1024px',
-				'xl': '1280px',
-				'2xl': '1400px'
-			}
+		screens: {
+			'xs': '375px',      // Small phones
+			'sm': '640px',      // Regular phones/tablets
+			'md': '768px',      // Tablets
+			'lg': '1024px',     // Small desktop
+			'xl': '1280px',     // Desktop
+			'2xl': '1400px',    // Large desktop
+			// Mobile specific breakpoints
+			'mobile-sm': '320px',  // Very small phones
+			'mobile-md': '375px',  // iPhone 8, SE
+			'mobile-lg': '414px',  // iPhone Plus
+			'mobile-xl': '480px',  // Large phones
+		}
 		},
 		extend: {
 			colors: {

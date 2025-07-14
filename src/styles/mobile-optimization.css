@@ -1,5 +1,116 @@
 
 @layer components {
+  /* Chat Mobile Optimization */
+  .chat-mobile-optimized {
+    @apply h-full flex flex-col;
+    /* Safe area support for iPhone X+ */
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .chat-header-mobile {
+    @apply flex items-center justify-between p-3 sm:p-4 border-b border-border bg-muted/30;
+    @apply overflow-x-auto scrollbar-hide;
+    min-height: 60px;
+  }
+  
+  .chat-messages-mobile {
+    @apply flex-1 overflow-y-auto px-3 sm:px-6 py-4;
+    @apply pb-20 sm:pb-6;
+    scroll-behavior: smooth;
+    /* Prevent content jumping */
+    overscroll-behavior: contain;
+  }
+  
+  .chat-message-mobile {
+    @apply flex items-start space-x-3 mb-4;
+    max-width: 85%;
+  }
+  
+  .chat-avatar-mobile {
+    @apply w-8 h-8 sm:w-9 sm:h-9 border flex items-center justify-center flex-shrink-0;
+  }
+  
+  .chat-input-fixed {
+    @apply fixed bottom-0 left-0 right-0 sm:relative sm:bottom-auto;
+    @apply border-t-2 border-border bg-card p-3 sm:p-6 z-50;
+    /* Safe area support */
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  
+  .chat-input-mobile {
+    @apply w-full min-h-[44px] p-3 resize-none border border-input bg-background;
+    @apply text-sm placeholder:text-muted-foreground overflow-hidden;
+    @apply focus:border-ring focus:outline-none;
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-height: 30vh;
+    font-size: 14px;
+  }
+  
+  /* Touch-friendly elements */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] touch-manipulation;
+  }
+  
+  .touch-button {
+    @apply min-h-[44px] min-w-[44px] touch-manipulation;
+    @apply transition-all duration-200;
+  }
+  
+  /* Safe area utilities */
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-pt {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-pl {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-area-pr {
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Scrollbar hiding */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Text size optimization for mobile */
+  .text-mobile-sm {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  
+  .text-mobile-base {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .text-mobile-lg {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  
+  /* Responsive text hiding */
+  .text-hide-mobile {
+    @apply hidden xs:inline;
+  }
+  
+  .text-hide-small {
+    @apply hidden mobile-lg:inline;
+  }
+
   /* Мобильная оптимизация для аналитики */
   .analytics-container {
     @apply w-full max-w-none sm:max-w-3xl lg:max-w-4xl xl:max-w-6xl mx-auto;
