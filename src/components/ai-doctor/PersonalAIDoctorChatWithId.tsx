@@ -138,45 +138,8 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onBack}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="h-5 w-5 mr-2" />
-              <span className="text-sm">Назад к выбору чатов</span>
-            </Button>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {onCreateNewChat && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onCreateNewChat}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                <span className="text-sm">Новый чат</span>
-              </Button>
-            )}
-            
-            {onShowChatHistory && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onShowChatHistory}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <MessageSquare className="h-4 w-4 mr-2" />
-                <span className="text-sm">История</span>
-              </Button>
-            )}
-          </div>
-        </div>
+        // Убираем header для desktop - кнопки есть на странице
+        null
       )}
 
       {/* Messages Area - Maximized on Mobile */}
@@ -334,20 +297,8 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           </Button>
         </div>
         
-        {/* Ultra Compact Footer - Only on Desktop */}
-        {!isMobile && onCreateNewChat && (
-          <div className="flex justify-center mt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onCreateNewChat}
-              className="text-muted-foreground hover:text-foreground hover:border-primary"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Новый чат
-            </Button>
-          </div>
-        )}
+        {/* Ultra Compact Footer - Убираем для desktop, кнопки есть на странице */}
+        {!isMobile ? null : null}
       </div>
     </div>
   );
