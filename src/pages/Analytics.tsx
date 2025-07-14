@@ -6,7 +6,7 @@ import AnalyticsScoreCard from '@/components/analytics/AnalyticsScoreCard';
 import AnalyticsBiomarkersCard from '@/components/analytics/AnalyticsBiomarkersCard';
 import AnalyticsDisplayCard from '@/components/analytics/AnalyticsDisplayCard';
 import AnalyticsValueDisplay from '@/components/analytics/AnalyticsValueDisplay';
-import EnhancedAnalyticsRecommendations from '@/components/analytics/EnhancedAnalyticsRecommendations';
+import AnalyticsRecommendationsCard from '@/components/analytics/AnalyticsRecommendationsCard';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useRecommendationsInvalidation } from '@/hooks/useRecommendationsInvalidation';
@@ -268,11 +268,8 @@ const Analytics = () => {
           {/* Biomarkers Analysis */}
           <AnalyticsBiomarkersCard analytics={analytics} />
 
-          {/* Enhanced Personal Recommendations */}
-          <EnhancedAnalyticsRecommendations 
-            analytics={analytics} 
-            healthProfile={healthProfile}
-          />
+          {/* Personal Recommendations */}
+          <AnalyticsRecommendationsCard analytics={analytics} />
 
           {/* Health Profile Summary */}
           {healthProfile && (
