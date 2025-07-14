@@ -81,7 +81,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
     } else {
       updatePresence({ status: 'online' });
     }
-  }, [inputText, updatePresence]);
+  }, [inputText]); // Убираем updatePresence из зависимостей
 
   if (isLoading && !chatId) {
     return (
