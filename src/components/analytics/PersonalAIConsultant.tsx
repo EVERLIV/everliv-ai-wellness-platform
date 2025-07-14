@@ -12,10 +12,14 @@ import {
   ClipboardList,
   TrendingUp,
   RefreshCw,
-  Loader2
+  Loader2,
+  TestTube,
+  Activity,
+  Heart
 } from 'lucide-react';
 import { CachedAnalytics } from '@/types/analytics';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface PersonalAIConsultantProps {
   analytics: CachedAnalytics;
@@ -40,12 +44,13 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
   analytics,
   healthProfile
 }) => {
+  const { user } = useAuth();
   const [consultation, setConsultation] = useState<AIConsultationResponse | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const generateConsultation = async () => {
-    if (!analytics || !healthProfile) {
+    if (!analytics || !healthProfile || !user) {
       setError('Недостаточно данных для консультации');
       return;
     }
@@ -75,11 +80,14 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
 
       // Загружаем реальные биомаркеры пользователя
       try {
+        console.log('🔍 Loading biomarkers for user:', user.id);
         const { data: analyses } = await supabase
           .from('medical_analyses')
           .select('id')
-          .eq('user_id', healthProfile.user_id)
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
+
+        console.log('📊 Found analyses:', analyses?.length || 0);
 
         if (analyses && analyses.length > 0) {
           const analysisIds = analyses.map(a => a.id);
@@ -89,6 +97,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
             .in('analysis_id', analysisIds)
             .order('created_at', { ascending: false });
           
+          console.log('🧪 Found biomarkers:', biomarkers?.length || 0);
           consultationData.biomarkers = biomarkers || [];
         }
       } catch (error) {
@@ -97,12 +106,14 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
 
       // Загружаем пользовательские цели
       try {
+        console.log('🎯 Loading user goals for user:', user.id);
         const { data: userGoals } = await supabase
           .from('user_health_goals')
           .select('*')
-          .eq('user_id', healthProfile.user_id)
+          .eq('user_id', user.id)
           .eq('is_active', true);
         
+        console.log('📝 Found user goals:', userGoals?.length || 0);
         consultationData.userGoals = userGoals || [];
       } catch (error) {
         console.error('Error loading user goals:', error);
