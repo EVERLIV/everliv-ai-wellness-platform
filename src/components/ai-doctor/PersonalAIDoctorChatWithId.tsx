@@ -111,7 +111,6 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
             className="text-muted-foreground hover:text-foreground p-1.5 xs:p-2 h-8 xs:h-9 sm:h-11 min-w-[32px] xs:min-w-[36px] sm:min-w-[44px] flex-shrink-0"
           >
             <ArrowLeft className="h-4 w-4 xs:h-4 xs:w-4 sm:h-5 sm:w-5" />
-            <span className="ml-1 xs:ml-2 hidden sm:inline text-xs xs:text-sm">Назад к выбору чатов</span>
           </Button>
         </div>
         
@@ -124,7 +123,6 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               className="text-muted-foreground hover:text-foreground h-8 xs:h-9 sm:h-11 min-w-[32px] xs:min-w-[36px] sm:min-w-[44px] px-1.5 xs:px-2 sm:px-3"
             >
               <Plus className="h-3 w-3 xs:h-4 xs:w-4 sm:h-4 sm:w-4" />
-              <span className="ml-1 xs:ml-2 hidden sm:inline text-xs xs:text-sm">Новый чат</span>
             </Button>
           )}
           
@@ -136,14 +134,13 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               className="text-muted-foreground hover:text-foreground h-8 xs:h-9 sm:h-11 min-w-[32px] xs:min-w-[36px] sm:min-w-[44px] px-1.5 xs:px-2 sm:px-3"
             >
               <MessageSquare className="h-3 w-3 xs:h-4 xs:w-4 sm:h-4 sm:w-4" />
-              <span className="ml-1 xs:ml-2 hidden sm:inline text-xs xs:text-sm">История</span>
             </Button>
           )}
         </div>
       </div>
 
       {/* Messages Area - Mobile Optimized */}
-      <div className="flex-1 overflow-y-auto px-2 xs:px-3 sm:px-6 py-2 xs:py-3 sm:py-4 pb-20 sm:pb-6" style={{ scrollBehavior: 'smooth' }}>
+      <div className="flex-1 overflow-y-auto px-2 xs:px-3 sm:px-6 py-2 xs:py-3 sm:py-4" style={{ scrollBehavior: 'smooth' }}>
         {allMessages.length === 0 ? (
           <div className="flex items-start space-x-2 xs:space-x-3 mb-3 xs:mb-4 sm:mb-5">
             <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-9 sm:h-9 bg-primary text-primary-foreground border border-primary flex items-center justify-center flex-shrink-0">
@@ -227,7 +224,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
 
       {/* Popular Questions - Mobile Optimized */}
       {showSuggestedQuestions && (
-        <div className="border-t border-border bg-muted/30 p-2 xs:p-3 sm:p-5 pb-20 sm:pb-5">
+        <div className="border-t border-border bg-muted/30 p-2 xs:p-3 sm:p-5">
           <div className="text-center mb-2 xs:mb-3 sm:mb-4">
             <h3 className="text-xs xs:text-sm sm:text-base font-semibold text-foreground mb-0.5 xs:mb-1">
               Популярные вопросы
@@ -263,8 +260,8 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
         </div>
       )}
 
-      {/* Fixed Bottom Input Panel - Mobile First */}
-      <div className="fixed bottom-0 left-0 right-0 sm:relative sm:bottom-auto border-t-2 border-border bg-card p-2 xs:p-3 sm:p-6 z-50 safe-area-pb">
+      {/* Input Panel - Integrated */}
+      <div className="border-t-2 border-border bg-card p-2 xs:p-3 sm:p-6">
         <div className="flex gap-1.5 xs:gap-2 sm:gap-3 items-end max-w-full">
           <div className="flex-1 min-w-0">
             <textarea
