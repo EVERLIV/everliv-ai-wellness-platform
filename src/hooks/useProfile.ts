@@ -70,7 +70,14 @@ export const useProfile = () => {
         return;
       }
 
-      console.log('Профиль загружен:', data);
+      console.log('🔧 useProfile: Профиль загружен:', data);
+      console.log('🔧 useProfile: Profile data details:', {
+        id: data?.id,
+        nickname: data?.nickname,
+        first_name: data?.first_name,
+        hasNickname: !!data?.nickname,
+        hasFirstName: !!data?.first_name
+      });
       setProfileData(data as ProfileData);
     } catch (error) {
       console.error("Unexpected error fetching profile:", error);

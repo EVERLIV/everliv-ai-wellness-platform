@@ -19,6 +19,14 @@ const SimpleWelcomeCard: React.FC<SimpleWelcomeCardProps> = ({ userName }) => {
 
   // Получаем никнейм из профиля как приоритетный вариант
   const displayName = profileData?.nickname || profileData?.first_name || userName || "Пользователь";
+  
+  console.log('🔧 SimpleWelcomeCard: Display name logic:', {
+    profileNickname: profileData?.nickname,
+    profileFirstName: profileData?.first_name,
+    passedUserName: userName,
+    finalDisplayName: displayName,
+    hasProfileData: !!profileData
+  });
 
   return (
     <Card className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 border-0 shadow-xl">

@@ -56,6 +56,15 @@ const Dashboard = () => {
   // Получаем имя пользователя с приоритетом: никнейм из профиля -> имя из профиля -> имя из метаданных
   const userName = profileData?.nickname || profileData?.first_name || user?.user_metadata?.full_name || user?.user_metadata?.nickname || "Пользователь";
   
+  console.log('🔧 Dashboard: User name data:', {
+    profileNickname: profileData?.nickname,
+    profileFirstName: profileData?.first_name,
+    userMetadataFullName: user?.user_metadata?.full_name,
+    userMetadataNickname: user?.user_metadata?.nickname,
+    finalUserName: userName,
+    hasProfileData: !!profileData
+  });
+  
   // ВАЖНО: НЕ показываем fallback значения, ждем реальные данные
   // Это предотвращает мерцание с неправильными значениями
   const healthScore = analytics?.healthScore; // undefined если данных еще нет
