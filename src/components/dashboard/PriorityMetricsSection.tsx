@@ -150,6 +150,9 @@ const PriorityMetricsSection = () => {
           title: "Успешно",
           description: "ИИ-инсайты обновлены",
         });
+        
+        // Перезагружаем рекомендации из базы данных
+        await loadAIRecommendations();
       } else {
         console.warn('No insights in response:', data);
         toast({
@@ -183,8 +186,8 @@ const PriorityMetricsSection = () => {
       }
 
       const groupedRecommendations = {
-        prognostic: data?.filter(r => r.recommendation_type === 'prognostic') || [],
-        actionable: data?.filter(r => r.recommendation_type === 'actionable') || [],
+        prognostic: data?.filter(r => r.recommendation_type === 'predictive') || [],
+        actionable: data?.filter(r => r.recommendation_type === 'practical') || [],
         personalized: data?.filter(r => r.recommendation_type === 'personalized') || []
       };
 
@@ -493,21 +496,23 @@ const PriorityMetricsSection = () => {
                 </h4>
                 {aiRecommendations.prognostic.length > 0 ? (
                   <div className="space-y-2">
-                    {aiRecommendations.prognostic.slice(0, 4).map((insight: any, index: number) => (
+                    {aiRecommendations.prognostic.slice(0, 4).map((rec: any, index: number) => (
                       <div key={index} className="p-3 bg-blue-50/50 rounded-lg border border-blue-200/30">
                         <div className="flex items-center justify-between mb-2">
-                          <h5 className="text-xs font-medium text-blue-900">{insight.title}</h5>
+                          <h5 className="text-xs font-medium text-blue-900">{rec.title}</h5>
                           <span className="text-xs text-blue-700 bg-blue-100 px-2 py-1 rounded">
-                            {insight.confidence}% уверенность
+                            {rec.source_data?.confidence || 85}% уверенность
                           </span>
                         </div>
-                        <p className="text-xs text-blue-800 mb-2">{insight.description}</p>
-                        <p className="text-xs text-blue-600 italic">{insight.scientificBasis}</p>
-                        {insight.actionItems && insight.actionItems.length > 0 && (
+                        <p className="text-xs text-blue-800 mb-2">{rec.content}</p>
+                        {rec.source_data?.scientificBasis && (
+                          <p className="text-xs text-blue-600 italic">{rec.source_data.scientificBasis}</p>
+                        )}
+                        {rec.source_data?.actionItems && rec.source_data.actionItems.length > 0 && (
                           <div className="mt-2">
                             <p className="text-xs font-medium text-blue-900 mb-1">Действия:</p>
                             <ul className="text-xs text-blue-800 list-disc list-inside space-y-1">
-                              {insight.actionItems.slice(0, 2).map((action: string, i: number) => (
+                              {rec.source_data.actionItems.slice(0, 2).map((action: string, i: number) => (
                                 <li key={i}>{action}</li>
                               ))}
                             </ul>
@@ -528,20 +533,20 @@ const PriorityMetricsSection = () => {
                 </h4>
                 {aiRecommendations.actionable.length > 0 ? (
                   <div className="space-y-2">
-                    {aiRecommendations.actionable.slice(0, 4).map((insight: any, index: number) => (
+                    {aiRecommendations.actionable.slice(0, 4).map((rec: any, index: number) => (
                       <div key={index} className="p-3 bg-green-50/50 rounded-lg border border-green-200/30">
                         <div className="flex items-center justify-between mb-2">
-                          <h5 className="text-xs font-medium text-green-900">{insight.title}</h5>
+                          <h5 className="text-xs font-medium text-green-900">{rec.title}</h5>
                           <span className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded">
-                            {insight.timeframe}
+                            {rec.source_data?.timeframe || 'Постоянно'}
                           </span>
                         </div>
-                        <p className="text-xs text-green-800 mb-2">{insight.description}</p>
-                        {insight.actionItems && insight.actionItems.length > 0 && (
+                        <p className="text-xs text-green-800 mb-2">{rec.content}</p>
+                        {rec.source_data?.actionItems && rec.source_data.actionItems.length > 0 && (
                           <div className="mt-2">
                             <p className="text-xs font-medium text-green-900 mb-1">Конкретные действия:</p>
                             <ul className="text-xs text-green-800 list-disc list-inside space-y-1">
-                              {insight.actionItems.slice(0, 3).map((action: string, i: number) => (
+                              {rec.source_data.actionItems.slice(0, 3).map((action: string, i: number) => (
                                 <li key={i}>{action}</li>
                               ))}
                             </ul>
@@ -562,25 +567,25 @@ const PriorityMetricsSection = () => {
                 </h4>
                 {aiRecommendations.personalized.length > 0 ? (
                   <div className="space-y-2">
-                    {aiRecommendations.personalized.slice(0, 4).map((insight: any, index: number) => (
+                    {aiRecommendations.personalized.slice(0, 4).map((rec: any, index: number) => (
                       <div key={index} className="p-3 bg-purple-50/50 rounded-lg border border-purple-200/30">
                         <div className="flex items-center justify-between mb-2">
-                          <h5 className="text-xs font-medium text-purple-900">{insight.title}</h5>
+                          <h5 className="text-xs font-medium text-purple-900">{rec.title}</h5>
                           <span className={`text-xs px-2 py-1 rounded ${
-                            insight.priority === 'high' ? 'text-red-700 bg-red-100' :
-                            insight.priority === 'medium' ? 'text-yellow-700 bg-yellow-100' :
+                            rec.priority === 'high' ? 'text-red-700 bg-red-100' :
+                            rec.priority === 'medium' ? 'text-yellow-700 bg-yellow-100' :
                             'text-gray-700 bg-gray-100'
                           }`}>
-                            {insight.priority === 'high' ? 'Высокий' :
-                             insight.priority === 'medium' ? 'Средний' : 'Низкий'} приоритет
+                            {rec.priority === 'high' ? 'Высокий' :
+                             rec.priority === 'medium' ? 'Средний' : 'Низкий'} приоритет
                           </span>
                         </div>
-                        <p className="text-xs text-purple-800 mb-2">{insight.description}</p>
-                        {insight.actionItems && insight.actionItems.length > 0 && (
+                        <p className="text-xs text-purple-800 mb-2">{rec.content}</p>
+                        {rec.source_data?.actionItems && rec.source_data.actionItems.length > 0 && (
                           <div className="mt-2">
                             <p className="text-xs font-medium text-purple-900 mb-1">Рекомендации:</p>
                             <ul className="text-xs text-purple-800 list-disc list-inside space-y-1">
-                              {insight.actionItems.slice(0, 3).map((action: string, i: number) => (
+                              {rec.source_data.actionItems.slice(0, 3).map((action: string, i: number) => (
                                 <li key={i}>{action}</li>
                               ))}
                             </ul>

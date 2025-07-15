@@ -127,6 +127,35 @@ serve(async (req) => {
         }
       ];
 
+      // Сохраняем базовые рекомендации в базу данных
+      console.log('💾 Saving basic insights to ai_recommendations table...');
+      
+      for (const insight of basicInsights) {
+        try {
+          const { error: insertError } = await supabase
+            .from('ai_recommendations')
+            .insert({
+              user_id: userId,
+              title: insight.title,
+              content: insight.description,
+              recommendation_type: insight.category,
+              priority: insight.priority,
+              source_data: {
+                confidence: insight.confidence,
+                scientificBasis: insight.scientificBasis,
+                actionItems: insight.actionItems,
+                timeframe: insight.timeframe
+              }
+            });
+
+          if (insertError) {
+            console.error('Error saving basic insight:', insertError);
+          }
+        } catch (saveError) {
+          console.error('Error saving basic insight to DB:', saveError);
+        }
+      }
+
       return new Response(JSON.stringify({ 
         success: true, 
         insights: basicInsights,
@@ -197,6 +226,35 @@ serve(async (req) => {
           timeframe: '1-2 недели'
         }
       ];
+
+      // Сохраняем starter рекомендации в базу данных
+      console.log('💾 Saving starter insights to ai_recommendations table...');
+      
+      for (const insight of starterInsights) {
+        try {
+          const { error: insertError } = await supabase
+            .from('ai_recommendations')
+            .insert({
+              user_id: userId,
+              title: insight.title,
+              content: insight.description,
+              recommendation_type: insight.category,
+              priority: insight.priority,
+              source_data: {
+                confidence: insight.confidence,
+                scientificBasis: insight.scientificBasis,
+                actionItems: insight.actionItems,
+                timeframe: insight.timeframe
+              }
+            });
+
+          if (insertError) {
+            console.error('Error saving starter insight:', insertError);
+          }
+        } catch (saveError) {
+          console.error('Error saving starter insight to DB:', saveError);
+        }
+      }
 
       return new Response(JSON.stringify({ 
         success: true, 
@@ -366,6 +424,39 @@ BMI: ${healthProfile.bmi}
       practical: validInsights.filter(i => i.category === 'practical').length,
       personalized: validInsights.filter(i => i.category === 'personalized').length
     });
+
+    // Сохраняем рекомендации в базу данных
+    console.log('💾 Saving insights to ai_recommendations table...');
+    
+    for (const insight of validInsights) {
+      try {
+        const { error: insertError } = await supabase
+          .from('ai_recommendations')
+          .insert({
+            user_id: userId,
+            title: insight.title,
+            content: insight.description,
+            recommendation_type: insight.category,
+            priority: insight.priority,
+            source_data: {
+              confidence: insight.confidence,
+              scientificBasis: insight.scientificBasis,
+              actionItems: insight.actionItems,
+              timeframe: insight.timeframe,
+              riskFactors: insight.riskFactors,
+              benefits: insight.benefits
+            }
+          });
+
+        if (insertError) {
+          console.error('Error saving insight:', insertError);
+        }
+      } catch (saveError) {
+        console.error('Error saving insight to DB:', saveError);
+      }
+    }
+
+    console.log('💾 Insights saved to database');
 
     return new Response(JSON.stringify({ 
       success: true, 
