@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import Header from '@/components/Header';
+import { AppLayout } from '@/components/layout/AppLayout';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -36,9 +36,8 @@ const HelpCenter = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow pt-24 bg-gray-50">
+    <AppLayout>
+      <div className="bg-gray-50 -mx-2 -mt-6 mb-8">
         <div className="container mx-auto px-4 py-12">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Центр помощи</h1>
@@ -299,9 +298,8 @@ const HelpCenter = () => {
             </Card>
           </div>
         </div>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </AppLayout>
   );
 };
 
