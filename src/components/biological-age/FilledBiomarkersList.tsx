@@ -78,6 +78,7 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
       }
 
       const aiRecommendation = data.recommendation;
+      console.log('Received AI recommendation:', aiRecommendation);
       setRecommendations(prev => ({ ...prev, [biomarker.id]: aiRecommendation }));
       return aiRecommendation;
 
