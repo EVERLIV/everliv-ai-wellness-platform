@@ -88,25 +88,25 @@ const NutritionCharts: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-2 py-1 pt-0">
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+            <div className="h-48 w-full overflow-hidden">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <BarChart data={chartData} margin={{ top: 10, right: 5, left: 5, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fontSize: 11 }} 
+                    tick={{ fontSize: 10 }} 
                     axisLine={true}
                     tickLine={true}
-                    height={50}
-                    interval={0}
+                    height={45}
+                    interval={dateRange === 'month' ? 2 : 0}
                     angle={-45}
                     textAnchor="end"
                   />
                   <YAxis 
-                    tick={{ fontSize: 11 }} 
+                    tick={{ fontSize: 10 }} 
                     axisLine={true}
                     tickLine={true}
-                    width={50}
+                    width={40}
                   />
                   <Tooltip 
                     contentStyle={{
@@ -138,25 +138,25 @@ const NutritionCharts: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-2 py-1 pt-0">
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+            <div className="h-48 w-full overflow-hidden">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <BarChart data={chartData} margin={{ top: 10, right: 5, left: 5, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fontSize: 11 }} 
+                    tick={{ fontSize: 10 }} 
                     axisLine={true}
                     tickLine={true}
-                    height={50}
-                    interval={0}
+                    height={45}
+                    interval={dateRange === 'month' ? 2 : 0}
                     angle={-45}
                     textAnchor="end"
                   />
                   <YAxis 
-                    tick={{ fontSize: 11 }} 
+                    tick={{ fontSize: 10 }} 
                     axisLine={true}
                     tickLine={true}
-                    width={50}
+                    width={40}
                   />
                   <Tooltip 
                     contentStyle={{
