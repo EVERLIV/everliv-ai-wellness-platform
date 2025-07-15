@@ -182,26 +182,14 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
       {/* Действия */}
       <div className="border border-gray-200 bg-white">
         <div className="p-3">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <Button onClick={exportToPDF} variant="outline" size="sm">
+          <div className="grid grid-cols-2 gap-2">
+            <Button onClick={exportToPDF} variant="outline" className="h-8 text-xs px-2">
               <Download className="h-3 w-3 mr-1" />
               PDF
             </Button>
-            <Button onClick={shareResults} variant="outline" size="sm">
-              <Share2 className="h-3 w-3 mr-1" />
-              Поделиться
-            </Button>
-            <Button onClick={scheduleNextAnalysis} variant="outline" size="sm">
+            <Button onClick={scheduleNextAnalysis} variant="outline" className="h-8 text-xs px-2">
               <Trophy className="h-3 w-3 mr-1" />
               Напоминание
-            </Button>
-            <Button 
-              onClick={() => window.location.reload()} 
-              variant="outline"
-              size="sm"
-            >
-              <Repeat className="h-3 w-3 mr-1" />
-              Новый анализ
             </Button>
           </div>
         </div>
