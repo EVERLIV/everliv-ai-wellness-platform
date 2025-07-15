@@ -90,7 +90,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
             <div className="flex-1">
               <div className="flex items-center gap-1 mb-0.5">
                 <Label className="text-xs font-medium">{biomarker.name}</Label>
-                <Badge className={`text-xs border ${getImpactColor()}`} variant="outline">
+                <Badge className={`text-[6px] border ${getImpactColor()} px-1 py-0.5`} variant="outline">
                   <div className="flex items-center gap-0.5">
                     {getImpactIcon()}
                     {impact.description}
@@ -99,7 +99,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
               </div>
               <p className="text-xs text-gray-600 line-clamp-1">{biomarker.description}</p>
             </div>
-            <Badge className={`${getStatusColor()} text-xs`} variant="secondary">
+            <Badge className={`${getStatusColor()} text-[6px] px-1 py-0.5`} variant="secondary">
               {biomarker.status === 'filled' ? 'Заполнено' : 'Пусто'}
             </Badge>
           </div>
