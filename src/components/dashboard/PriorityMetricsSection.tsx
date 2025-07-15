@@ -474,7 +474,10 @@ const PriorityMetricsSection = () => {
             ИИ-инсайты и рекомендации
           </CardTitle>
           <button
-            onClick={generateAIRecommendations}
+            onClick={() => {
+              console.log('Manual recommendation generation clicked');
+              generateAIRecommendations();
+            }}
             disabled={isLoadingRecommendations}
             className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
           >
