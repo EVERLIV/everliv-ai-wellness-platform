@@ -575,18 +575,50 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         }
       };
 
-      return goalData[goalType] || {
-        keyBiomarkers: ['Основные маркеры здоровья'],
-        recommendations: [
-          'Сбалансированное питание с микронутриентами',
-          'Регулярная физическая активность 150+ минут в неделю',
-          'Качественный сон 7-9 часов ежедневно',
-          'Управление стрессом и восстановление'
-        ],
-        scientificRationale: 'Комплексный подход к здоровью дает лучшие результаты в долгосрочной перспективе',
-        timeframe: '8-12 недель для заметных улучшений',
-        successMetrics: ['Улучшение общего самочувствия', 'Повышение качества жизни']
-      };
+      // Создаем разные варианты fallback рекомендаций
+      const fallbackVariants = [
+        {
+          keyBiomarkers: ['Витамин D', 'B12', 'Магний'],
+          recommendations: [
+            'Сбалансированное питание с акцентом на цельные продукты',
+            'Регулярная физическая активность 150+ минут в неделю',
+            'Качественный сон 7-9 часов ежедневно',
+            'Ежедневные прогулки на свежем воздухе 30 минут'
+          ],
+          scientificRationale: 'Базовые принципы здорового образа жизни положительно влияют на все системы организма',
+          timeframe: '6-10 недель для первых результатов',
+          successMetrics: ['Повышение общей энергии', 'Улучшение настроения']
+        },
+        {
+          keyBiomarkers: ['Гемоглобин', 'Ферритин', 'Общий белок'],
+          recommendations: [
+            'Увеличение потребления белковых продуктов до 1.2-1.6г/кг веса',
+            'Включение в рацион железосодержащих продуктов',
+            'Умеренные кардио-тренировки 3-4 раза в неделю',
+            'Контроль водного баланса 30-35 мл/кг веса'
+          ],
+          scientificRationale: 'Оптимизация базовых показателей крови улучшает транспорт кислорода и общую выносливость',
+          timeframe: '4-8 недель для нормализации показателей',
+          successMetrics: ['Улучшение выносливости', 'Нормализация анализов крови']
+        },
+        {
+          keyBiomarkers: ['Кортизол', 'Магний', 'Витамин B6'],
+          recommendations: [
+            'Техники управления стрессом: медитация, йога',
+            'Режим дня с постоянным временем сна и пробуждения',
+            'Ограничение кофеина после 14:00',
+            'Социальная активность и хобби для релаксации'
+          ],
+          scientificRationale: 'Управление стресс-факторами напрямую влияет на гормональный баланс и общее самочувствие',
+          timeframe: '3-6 недель для стабилизации состояния',
+          successMetrics: ['Снижение уровня стресса', 'Улучшение качества сна']
+        }
+      ];
+
+      // Выбираем случайный вариант для разнообразия
+      const randomVariant = fallbackVariants[Math.floor(Math.random() * fallbackVariants.length)];
+      
+      return goalData[goalType] || randomVariant;
     };
     
     // Обрабатываем стандартные цели из профиля здоровья
@@ -871,7 +903,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* Дисклеймеры */}
-      <div className="bg-red-50 border border-red-200 rounded-lg p-2 sm:p-4 space-y-2 sm:space-y-3">
+      <div className="bg-red-50 border border-red-200 p-2 sm:p-4 space-y-2 sm:space-y-3">
         <h3 className="text-sm sm:text-base font-semibold text-red-900 flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
           Медицинские дисклеймеры
@@ -884,7 +916,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
       </div>
 
       {/* Общий анализ состояния */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3 sm:p-6">
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 space-y-2 sm:space-y-0">
           <h3 className="text-lg sm:text-xl font-semibold flex items-center gap-2">
             <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
@@ -910,7 +942,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         </h3>
         <div className="grid gap-2 sm:gap-3">
           {consultation.keyFindings.map((finding, index) => (
-            <div key={index} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <div key={index} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-4 bg-amber-50 border border-amber-200">
               <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <p className="text-xs sm:text-sm text-gray-800">{finding}</p>
             </div>
@@ -926,7 +958,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         </h3>
         <div className="grid gap-3 sm:gap-4">
           {Object.entries(consultation.goalProgress).map(([goalName, analysis]) => (
-            <div key={goalName} className="p-2 sm:p-4 border rounded-lg bg-white">
+            <div key={goalName} className="p-2 sm:p-4 border bg-white">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-3 space-y-2 sm:space-y-0">
                 <h4 className="text-sm sm:text-base font-medium text-gray-900">{goalName}</h4>
                 <div className="flex gap-2">
@@ -950,10 +982,10 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
                 </ul>
               </div>
               
-              <div className="text-xs text-gray-500 mt-2">
+              <div className="text-xs sm:text-xs text-gray-500 mt-2">
                 <div className="flex flex-col sm:flex-row sm:gap-4 space-y-1 sm:space-y-0">
-                  <span>Сроки: {analysis.timeframe}</span>
-                  <span>Ключевые маркеры: {analysis.keyBiomarkers.slice(0, 3).join(', ')}</span>
+                  <span className="text-xs">Сроки: {analysis.timeframe}</span>
+                  <span className="text-xs">Ключевые маркеры: {analysis.keyBiomarkers.slice(0, 3).join(', ')}</span>
                 </div>
               </div>
             </div>
@@ -970,7 +1002,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
           </h3>
           <div className="grid gap-4 sm:gap-6">
             {Object.entries(consultation.biomarkerInsights).map(([biomarkerName, insight]) => (
-              <div key={biomarkerName} className="border rounded-lg p-3 sm:p-6 bg-white">
+              <div key={biomarkerName} className="border p-3 sm:p-6 bg-white">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 space-y-2 sm:space-y-0">
                   <h4 className="text-base sm:text-lg font-medium text-gray-900">{biomarkerName}</h4>
                   <Badge variant={insight.status === 'optimal' ? 'default' : 
@@ -1030,7 +1062,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
                         </ul>
                       </div>
 
-                      <div className="bg-green-50 p-3 rounded-lg">
+                      <div className="bg-green-50 p-3">
                         <h5 className="text-sm font-medium text-green-900 mb-2">Протокол коррекции:</h5>
                         <div className="grid md:grid-cols-3 gap-3">
                           <div>
@@ -1086,7 +1118,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         </h3>
         <div className="grid gap-3 sm:gap-4">
           {consultation.synergisticProtocols.map((protocol, index) => (
-            <div key={index} className="p-3 sm:p-4 border rounded-lg bg-purple-50">
+            <div key={index} className="p-3 sm:p-4 border bg-purple-50">
               <h4 className="text-sm sm:text-base font-medium text-purple-900 mb-2">{protocol.name}</h4>
               <p className="text-xs sm:text-sm text-purple-800 mb-2 sm:mb-3">{protocol.description}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -1129,11 +1161,11 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         </h3>
         
         <div className="grid gap-3 sm:gap-4">
-          <div className="p-3 sm:p-4 border border-red-200 rounded-lg bg-red-50">
+          <div className="p-3 sm:p-4 border border-red-200 bg-red-50">
             <h4 className="text-sm sm:text-base font-medium text-red-900 mb-2 sm:mb-3">КРИТИЧЕСКИЕ (немедленно):</h4>
             <div className="space-y-2">
               {consultation.labTestRecommendations.critical.map((test, index) => (
-                <div key={index} className="p-2 sm:p-3 bg-white rounded border border-red-200">
+                <div key={index} className="p-2 sm:p-3 bg-white border border-red-200">
                   <p className="text-sm font-medium text-red-900">{test.test}</p>
                   <p className="text-xs sm:text-sm text-red-700">{test.reason}</p>
                   <p className="text-xs text-red-600 font-medium">{test.urgency}</p>
@@ -1142,11 +1174,11 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
             </div>
           </div>
 
-          <div className="p-3 sm:p-4 border border-orange-200 rounded-lg bg-orange-50">
+          <div className="p-3 sm:p-4 border border-orange-200 bg-orange-50">
             <h4 className="text-sm sm:text-base font-medium text-orange-900 mb-2 sm:mb-3">РЕКОМЕНДУЕМЫЕ:</h4>
             <div className="space-y-2">
               {consultation.labTestRecommendations.recommended.map((test, index) => (
-                <div key={index} className="p-2 sm:p-3 bg-white rounded border border-orange-200">
+                <div key={index} className="p-2 sm:p-3 bg-white border border-orange-200">
                   <p className="text-sm font-medium text-orange-900">{test.test}</p>
                   <p className="text-xs sm:text-sm text-orange-700">{test.reason}</p>
                   <Badge variant="outline" className="text-xs">{test.priority}</Badge>
@@ -1155,11 +1187,11 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
             </div>
           </div>
 
-          <div className="p-3 sm:p-4 border border-blue-200 rounded-lg bg-blue-50">
+          <div className="p-3 sm:p-4 border border-blue-200 bg-blue-50">
             <h4 className="text-sm sm:text-base font-medium text-blue-900 mb-2 sm:mb-3">ДОПОЛНИТЕЛЬНЫЕ:</h4>
             <div className="space-y-2">
               {consultation.labTestRecommendations.optional.map((test, index) => (
-                <div key={index} className="p-2 sm:p-3 bg-white rounded border border-blue-200">
+                <div key={index} className="p-2 sm:p-3 bg-white border border-blue-200">
                   <p className="text-sm font-medium text-blue-900">{test.test}</p>
                   <p className="text-xs sm:text-sm text-blue-700">{test.reason}</p>
                   <p className="text-xs text-blue-600">{test.timeframe}</p>
@@ -1178,7 +1210,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {Object.entries(consultation.riskAssessment).map(([category, assessment]) => (
-            <div key={category} className="p-3 sm:p-4 border rounded-lg bg-white">
+            <div key={category} className="p-3 sm:p-4 border bg-white">
               <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2 capitalize">
                 {category === 'cardiovascular' ? 'Сердечно-сосудистые' :
                  category === 'metabolic' ? 'Метаболические' :
@@ -1208,7 +1240,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         </h3>
         <div className="grid gap-2">
           {consultation.personalizedRecommendations.map((rec, index) => (
-            <div key={index} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-green-50 rounded-lg">
+            <div key={index} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-green-50">
               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-1.5 sm:mt-2 flex-shrink-0" />
               <p className="text-xs sm:text-sm text-green-800">{rec}</p>
             </div>
@@ -1223,7 +1255,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
           Метрики для отслеживания прогресса
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-          <div className="p-3 bg-blue-50 rounded-lg">
+          <div className="p-3 bg-blue-50">
             <h4 className="text-sm font-medium text-blue-900 mb-2">Ежедневно:</h4>
             <ul className="text-xs text-blue-800 space-y-1">
               {consultation.trackingMetrics.daily.map((metric, idx) => (
@@ -1231,7 +1263,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
               ))}
             </ul>
           </div>
-          <div className="p-3 bg-green-50 rounded-lg">
+          <div className="p-3 bg-green-50">
             <h4 className="text-sm font-medium text-green-900 mb-2">Еженедельно:</h4>
             <ul className="text-xs text-green-800 space-y-1">
               {consultation.trackingMetrics.weekly.map((metric, idx) => (
@@ -1239,7 +1271,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
               ))}
             </ul>
           </div>
-          <div className="p-3 bg-purple-50 rounded-lg">
+          <div className="p-3 bg-purple-50">
             <h4 className="text-sm font-medium text-purple-900 mb-2">Ежемесячно:</h4>
             <ul className="text-xs text-purple-800 space-y-1">
               {consultation.trackingMetrics.monthly.map((metric, idx) => (
