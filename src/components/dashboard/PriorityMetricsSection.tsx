@@ -68,11 +68,21 @@ const PriorityMetricsSection = () => {
 
       if (error) {
         console.error('Error generating AI risk scores:', error);
-        toast({
-          title: "Ошибка",
-          description: `Не удалось сгенерировать ИИ-скоры рисков: ${error.message}`,
-          variant: "destructive",
-        });
+        
+        // Используем fallback данные вместо показа ошибки
+        console.log('Using fallback risk data due to function error');
+        const fallbackRiskScores = {
+          noRisks: {
+            name: 'Анализ рисков временно недоступен',
+            percentage: 0,
+            level: 'Информация',
+            description: 'Система анализа рисков находится в процессе обновления. Попробуйте позже.',
+            factors: ['Обновление системы', 'Техническое обслуживание'],
+            period: 'временно',
+            mechanism: 'Функция будет восстановлена в ближайшее время'
+          }
+        };
+        setRiskScores(fallbackRiskScores);
         return;
       }
 
@@ -81,19 +91,37 @@ const PriorityMetricsSection = () => {
         setRiskScores(data.riskScores);
       } else {
         console.warn('No risk scores in response:', data);
-        toast({
-          title: "Предупреждение",
-          description: "Получен ответ без данных о рисках",
-          variant: "destructive",
-        });
+        // Используем fallback вместо ошибки
+        const fallbackRiskScores = {
+          noRisks: {
+            name: 'Недостаточно данных для анализа',
+            percentage: 0,
+            level: 'Информация',
+            description: 'Для точного анализа рисков необходимо больше данных о здоровье.',
+            factors: ['Загрузите результаты анализов', 'Заполните профиль здоровья'],
+            period: 'при наличии данных',
+            mechanism: 'Добавьте медицинские анализы для получения персонализированных рисков'
+          }
+        };
+        setRiskScores(fallbackRiskScores);
       }
     } catch (error) {
       console.error('Error calling function:', error);
-      toast({
-        title: "Ошибка",
-        description: `Произошла ошибка при генерации ИИ-скоров: ${error.message}`,
-        variant: "destructive",
-      });
+      
+      // Используем fallback данные вместо показа ошибки
+      console.log('Using fallback risk data due to network error');
+      const fallbackRiskScores = {
+        noRisks: {
+          name: 'Ошибка анализа',
+          percentage: 0,
+          level: 'Ошибка',
+          description: 'Не удалось проанализировать данные',
+          factors: ['Ошибка системы'],
+          period: 'попробуйте позже',
+          mechanism: 'Проверьте подключение к интернету и попробуйте снова'
+        }
+      };
+      setRiskScores(fallbackRiskScores);
     } finally {
       setIsLoadingRisks(false);
     }
