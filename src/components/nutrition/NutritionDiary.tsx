@@ -81,10 +81,10 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
         </div>
         <Popover open={showCalendar} onOpenChange={setShowCalendar}>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Calendar className="h-4 w-4" />
-              <span className="hidden sm:inline">Выбрать дату</span>
-              <span className="sm:hidden">Дата</span>
+            <Button variant="outline" size="sm" className="gap-1 px-2 py-1 h-auto text-xs rounded-none border-gray-300">
+              <Calendar className="h-3 w-3" />
+              <span className="hidden sm:inline">Дата</span>
+              <span className="sm:hidden">📅</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="end">
@@ -256,9 +256,20 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
                 <div className="text-gray-600">Жиры: {goals?.daily_fat || 0}г</div>
               </div>
             </div>
-            <div className="mt-2">
-              <NutritionGoals />
-            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Персонализированные рекомендации */}
+      <div className="mt-4">
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-1 px-2 py-1">
+            <CardTitle className="text-sm font-medium">
+              Персонализированные рекомендации
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-2 py-1 pt-0">
+            <PersonalizedRecommendations />
           </CardContent>
         </Card>
       </div>

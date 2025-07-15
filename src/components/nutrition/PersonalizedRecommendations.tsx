@@ -133,7 +133,7 @@ const PersonalizedRecommendations: React.FC = () => {
           </p>
           <Button 
             onClick={() => window.location.href = '/subscription'} 
-            className="mobile-button bg-amber-600 hover:bg-amber-700 w-full sm:w-auto"
+            className="bg-amber-600 hover:bg-amber-700 w-full sm:w-auto text-xs py-1 px-2 rounded-none"
           >
             Оформить Премиум
           </Button>
@@ -158,7 +158,7 @@ const PersonalizedRecommendations: React.FC = () => {
           <Button 
             onClick={() => window.location.href = '/health-profile'} 
             variant="outline"
-            className="mobile-button border-blue-300 text-blue-700 hover:bg-blue-100 w-full sm:w-auto"
+            className="border-blue-300 text-blue-700 hover:bg-blue-100 w-full sm:w-auto text-xs py-1 px-2 rounded-none"
           >
             Заполнить профиль здоровья
           </Button>
@@ -183,7 +183,7 @@ const PersonalizedRecommendations: React.FC = () => {
           <Button 
             onClick={() => window.location.href = '/nutrition-diary?tab=goals'} 
             variant="outline"
-            className="mobile-button border-purple-300 text-purple-700 hover:bg-purple-100 w-full sm:w-auto"
+            className="border-purple-300 text-purple-700 hover:bg-purple-100 w-full sm:w-auto text-xs py-1 px-2 rounded-none"
           >
             Настроить цели
           </Button>
@@ -211,16 +211,16 @@ const PersonalizedRecommendations: React.FC = () => {
               <Button 
                 onClick={handleGenerateRecommendations}
                 disabled={isLoading || !canGenerateRecommendations}
-                className="mobile-button bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
+                className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto text-xs py-1 px-2 rounded-none"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                     Генерируем рекомендации...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="mr-2 h-4 w-4" />
+                    <Sparkles className="mr-1 h-3 w-3" />
                     Получить рекомендации
                   </>
                 )}
@@ -291,16 +291,16 @@ const PersonalizedRecommendations: React.FC = () => {
                     onClick={handleGenerateRecipes}
                     disabled={isGenerating}
                     variant="outline"
-                    className="mobile-button-sm"
+                    className="text-xs py-1 px-2 rounded-none"
                   >
                     {isGenerating ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                         Генерируем...
                       </>
                     ) : (
                       <>
-                        <Sparkles className="mr-2 h-4 w-4" />
+                        <Sparkles className="mr-1 h-3 w-3" />
                         Создать рецепты
                       </>
                     )}
@@ -340,12 +340,12 @@ const PersonalizedRecommendations: React.FC = () => {
                             onClick={() => handleSaveRecipe(recipe)}
                             disabled={isSaving}
                             size="sm"
-                            className="bg-orange-600 hover:bg-orange-700 text-white"
+                            className="bg-orange-600 hover:bg-orange-700 text-white text-xs py-1 px-2 rounded-none"
                           >
                             {isSaving ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <Loader2 className="h-3 w-3 animate-spin" />
                             ) : (
-                              <Save className="h-4 w-4" />
+                              <Save className="h-3 w-3" />
                             )}
                           </Button>
                         </div>
@@ -478,9 +478,9 @@ const PersonalizedRecommendations: React.FC = () => {
               onClick={handleGenerateRecommendations}
               disabled={isLoading}
               variant="outline"
-              className="mobile-button"
+              className="text-xs py-1 px-2 rounded-none"
             >
-              <Sparkles className="mr-2 h-4 w-4" />
+              <Sparkles className="mr-1 h-3 w-3" />
               Обновить рекомендации
             </Button>
           </div>

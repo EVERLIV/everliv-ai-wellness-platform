@@ -139,9 +139,9 @@ const MealEntry: React.FC<MealEntryProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Plus className="h-4 w-4" />
-          Добавить
+        <Button variant="outline" size="sm" className="gap-1 px-2 py-1 h-auto text-xs rounded-none border-gray-300">
+          <Plus className="h-3 w-3" />
+          +
         </Button>
       </DialogTrigger>
       <DialogContent className="w-[95vw] max-w-lg max-h-[90vh] mx-auto overflow-hidden">
@@ -155,25 +155,25 @@ const MealEntry: React.FC<MealEntryProps> = ({
             <Button
               variant={entryMode === 'manual' ? 'default' : 'outline'}
               onClick={() => setEntryMode('manual')}
-              className="w-full h-auto py-3 text-sm"
+              className="w-full h-auto py-2 text-xs rounded-none"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-3 w-3 mr-1" />
               Вручную
             </Button>
             <Button
               variant={entryMode === 'camera' ? 'default' : 'outline'}
               onClick={handleCameraMode}
-              className="w-full h-auto py-3 text-sm"
+              className="w-full h-auto py-2 text-xs rounded-none"
             >
-              <Camera className="h-4 w-4 mr-2" />
+              <Camera className="h-3 w-3 mr-1" />
               Камера
             </Button>
             <Button
               variant={entryMode === 'upload' ? 'default' : 'outline'}
               onClick={() => setEntryMode('upload')}
-              className="w-full h-auto py-3 text-sm"
+              className="w-full h-auto py-2 text-xs rounded-none"
             >
-              <Upload className="h-4 w-4 mr-2" />
+              <Upload className="h-3 w-3 mr-1" />
               Загрузить
             </Button>
           </div>
@@ -288,17 +288,17 @@ const MealEntry: React.FC<MealEntryProps> = ({
 
         {/* Кнопки действий */}
         <div className="flex flex-col gap-2 pt-4 border-t">
-          <Button variant="outline" onClick={handleClose} className="w-full text-sm" disabled={isSaving}>
+          <Button variant="outline" onClick={handleClose} className="w-full text-xs py-2 rounded-none" disabled={isSaving}>
             Отмена
           </Button>
           <Button 
             onClick={handleSave} 
-            className="w-full text-sm" 
+            className="w-full text-xs py-2 rounded-none" 
             disabled={isSaving || !foodData.food_name.trim()}
           >
             {isSaving ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                 Добавление...
               </>
             ) : (
