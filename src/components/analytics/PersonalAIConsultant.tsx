@@ -869,77 +869,92 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* Дисклеймеры */}
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
-        <h3 className="font-semibold text-red-900 flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5" />
+      <div className="bg-red-50 border border-red-200 rounded-lg p-2 sm:p-4 space-y-2 sm:space-y-3">
+        <h3 className="text-sm sm:text-base font-semibold text-red-900 flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
           Медицинские дисклеймеры
         </h3>
-        <div className="space-y-2">
+        <div className="space-y-1 sm:space-y-2">
           {consultation.disclaimers.map((disclaimer, index) => (
-            <p key={index} className="text-sm text-red-800">{disclaimer}</p>
+            <p key={index} className="text-xs sm:text-sm text-red-800">{disclaimer}</p>
           ))}
         </div>
       </div>
 
       {/* Общий анализ состояния */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold flex items-center gap-2">
-            <Brain className="h-6 w-6 text-blue-600" />
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 space-y-2 sm:space-y-0">
+          <h3 className="text-lg sm:text-xl font-semibold flex items-center gap-2">
+            <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
             Общий анализ здоровья
           </h3>
-          <div className="flex gap-3">
-            <Badge variant="outline" className="bg-white">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Badge variant="outline" className="bg-white text-xs sm:text-sm">
               Здоровье: {consultation.overallHealthScore}/100
             </Badge>
-            <Badge variant="outline" className="bg-white">
+            <Badge variant="outline" className="bg-white text-xs sm:text-sm">
               Биол. возраст: {consultation.biologicalAge} лет
             </Badge>
           </div>
         </div>
-        <p className="text-gray-700 leading-relaxed">{consultation.overallAssessment}</p>
+        <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">{consultation.overallAssessment}</p>
       </div>
 
       {/* Ключевые находки */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <TestTube className="h-5 w-5 text-amber-600" />
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
+          <TestTube className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
           Ключевые находки и рекомендации
         </h3>
-        <div className="grid gap-3">
+        <div className="grid gap-2 sm:gap-3">
           {consultation.keyFindings.map((finding, index) => (
-            <div key={index} className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-              <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-gray-800">{finding}</p>
+            <div key={index} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs sm:text-sm text-gray-800">{finding}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Анализ целей */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Target className="h-5 w-5 text-green-600" />
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
+          <Target className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
           Прогресс достижения целей
         </h3>
-        <div className="grid gap-4">
+        <div className="grid gap-3 sm:gap-4">
           {Object.entries(consultation.goalProgress).map(([goalName, analysis]) => (
-            <div key={goalName} className="p-4 border rounded-lg bg-white">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium text-gray-900">{goalName}</h4>
+            <div key={goalName} className="p-2 sm:p-4 border rounded-lg bg-white">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-3 space-y-2 sm:space-y-0">
+                <h4 className="text-sm sm:text-base font-medium text-gray-900">{goalName}</h4>
                 <div className="flex gap-2">
                   <Badge variant={analysis.status === 'на_пути' ? 'default' : 
-                               analysis.status === 'требует_внимания' ? 'secondary' : 'destructive'}>
+                               analysis.status === 'требует_внимания' ? 'secondary' : 'destructive'}
+                        className="text-xs">
                     {analysis.status}
                   </Badge>
-                  <Badge variant="outline">{Math.round(analysis.progress)}%</Badge>
+                  <Badge variant="outline" className="text-xs">{Math.round(analysis.progress)}%</Badge>
                 </div>
               </div>
-              <p className="text-sm text-gray-600 mb-2">{analysis.scientificRationale}</p>
-              <div className="text-xs text-gray-500">
-                Временные рамки: {analysis.timeframe} | Ключевые биомаркеры: {analysis.keyBiomarkers.join(', ')}
+              <p className="text-xs sm:text-sm text-gray-600 mb-2">{analysis.scientificRationale}</p>
+              
+              {/* Рекомендации для достижения цели */}
+              <div className="mt-2 sm:mt-3">
+                <h5 className="text-xs sm:text-sm font-medium text-gray-900 mb-1 sm:mb-2">Рекомендации:</h5>
+                <ul className="text-xs text-gray-700 space-y-1">
+                  {analysis.recommendations.slice(0, 3).map((rec, idx) => (
+                    <li key={idx}>• {rec}</li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="text-xs text-gray-500 mt-2">
+                <div className="flex flex-col sm:flex-row sm:gap-4 space-y-1 sm:space-y-0">
+                  <span>Сроки: {analysis.timeframe}</span>
+                  <span>Ключевые маркеры: {analysis.keyBiomarkers.slice(0, 3).join(', ')}</span>
+                </div>
               </div>
             </div>
           ))}
@@ -948,34 +963,35 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
 
       {/* Детальный анализ биомаркеров */}
       {Object.keys(consultation.biomarkerInsights).length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Activity className="h-5 w-5 text-red-600" />
+        <div className="space-y-3 sm:space-y-4">
+          <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
+            <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
             Детальный анализ биомаркеров
           </h3>
-          <div className="grid gap-6">
+          <div className="grid gap-4 sm:gap-6">
             {Object.entries(consultation.biomarkerInsights).map(([biomarkerName, insight]) => (
-              <div key={biomarkerName} className="border rounded-lg p-6 bg-white">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-lg font-medium text-gray-900">{biomarkerName}</h4>
+              <div key={biomarkerName} className="border rounded-lg p-3 sm:p-6 bg-white">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 space-y-2 sm:space-y-0">
+                  <h4 className="text-base sm:text-lg font-medium text-gray-900">{biomarkerName}</h4>
                   <Badge variant={insight.status === 'optimal' ? 'default' : 
                                insight.status === 'suboptimal' ? 'secondary' :
-                               insight.status === 'attention' ? 'secondary' : 'destructive'}>
+                               insight.status === 'attention' ? 'secondary' : 'destructive'}
+                        className="text-xs">
                     {insight.status === 'optimal' ? 'Оптимально' : 
                      insight.status === 'suboptimal' ? 'Субоптимально' :
                      insight.status === 'attention' ? 'Требует внимания' : 'Критично'}
                   </Badge>
                 </div>
                 
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
                   <div>
-                    <p className="text-sm text-gray-600">Текущее значение: <span className="font-medium">{insight.value}</span></p>
-                    <p className="text-sm text-gray-600">Норма: {insight.normalRange}</p>
-                    <p className="text-sm text-gray-600">Оптимум: {insight.optimalRange}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Текущее: <span className="font-medium">{insight.value}</span></p>
+                    <p className="text-xs sm:text-sm text-gray-600">Норма: {insight.normalRange}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Оптимум: {insight.optimalRange}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Отклонение: <span className="font-medium">{insight.deviation}%</span></p>
-                    <p className="text-sm text-gray-600">График контроля: {insight.monitoringSchedule}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">Отклонение: <span className="font-medium">{insight.deviation}%</span></p>
+                    <p className="text-xs sm:text-sm text-gray-600">Контроль: {insight.monitoringSchedule}</p>
                   </div>
                 </div>
 
@@ -1063,19 +1079,19 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
       )}
 
       {/* Синергетические протоколы */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Heart className="h-5 w-5 text-purple-600" />
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
+          <Heart className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
           Синергетические протоколы коррекции
         </h3>
-        <div className="grid gap-4">
+        <div className="grid gap-3 sm:gap-4">
           {consultation.synergisticProtocols.map((protocol, index) => (
-            <div key={index} className="p-4 border rounded-lg bg-purple-50">
-              <h4 className="font-medium text-purple-900 mb-2">{protocol.name}</h4>
-              <p className="text-sm text-purple-800 mb-3">{protocol.description}</p>
-              <div className="grid md:grid-cols-2 gap-4">
+            <div key={index} className="p-3 sm:p-4 border rounded-lg bg-purple-50">
+              <h4 className="text-sm sm:text-base font-medium text-purple-900 mb-2">{protocol.name}</h4>
+              <p className="text-xs sm:text-sm text-purple-800 mb-2 sm:mb-3">{protocol.description}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <h5 className="font-medium text-purple-900 mb-2">Целевые биомаркеры:</h5>
+                  <h5 className="text-xs sm:text-sm font-medium text-purple-900 mb-1 sm:mb-2">Целевые биомаркеры:</h5>
                   <div className="flex flex-wrap gap-1">
                     {protocol.targetBiomarkers.map((biomarker, idx) => (
                       <Badge key={idx} variant="outline" className="text-xs">{biomarker}</Badge>
@@ -1083,69 +1099,69 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
                   </div>
                 </div>
                 <div>
-                  <h5 className="font-medium text-purple-900 mb-2">Ожидаемые результаты:</h5>
-                  <ul className="text-sm text-purple-800 space-y-1">
+                  <h5 className="text-xs sm:text-sm font-medium text-purple-900 mb-1 sm:mb-2">Ожидаемые результаты:</h5>
+                  <ul className="text-xs sm:text-sm text-purple-800 space-y-1">
                     {protocol.expectedOutcomes.map((outcome, idx) => (
                       <li key={idx}>• {outcome}</li>
                     ))}
                   </ul>
                 </div>
               </div>
-              <div className="mt-3">
-                <h5 className="font-medium text-purple-900 mb-2">Протокол действий:</h5>
-                <ul className="text-sm text-purple-800 space-y-1">
+              <div className="mt-2 sm:mt-3">
+                <h5 className="text-xs sm:text-sm font-medium text-purple-900 mb-1 sm:mb-2">Протокол действий:</h5>
+                <ul className="text-xs sm:text-sm text-purple-800 space-y-1">
                   {protocol.protocol.map((step, idx) => (
                     <li key={idx}>• {step}</li>
                   ))}
                 </ul>
               </div>
-              <p className="text-sm text-purple-800 mt-3 font-medium">⏱️ Временные рамки: {protocol.timeline}</p>
+              <p className="text-xs sm:text-sm text-purple-800 mt-2 sm:mt-3 font-medium">Временные рамки: {protocol.timeline}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Рекомендации по лабораторным тестам */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <ClipboardList className="h-5 w-5 text-orange-600" />
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
+          <ClipboardList className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
           Рекомендуемые лабораторные анализы
         </h3>
         
-        <div className="grid gap-4">
-          <div className="p-4 border border-red-200 rounded-lg bg-red-50">
-            <h4 className="font-medium text-red-900 mb-3">🚨 КРИТИЧЕСКИЕ (немедленно):</h4>
+        <div className="grid gap-3 sm:gap-4">
+          <div className="p-3 sm:p-4 border border-red-200 rounded-lg bg-red-50">
+            <h4 className="text-sm sm:text-base font-medium text-red-900 mb-2 sm:mb-3">КРИТИЧЕСКИЕ (немедленно):</h4>
             <div className="space-y-2">
               {consultation.labTestRecommendations.critical.map((test, index) => (
-                <div key={index} className="p-3 bg-white rounded border border-red-200">
-                  <p className="font-medium text-red-900">{test.test}</p>
-                  <p className="text-sm text-red-700">{test.reason}</p>
+                <div key={index} className="p-2 sm:p-3 bg-white rounded border border-red-200">
+                  <p className="text-sm font-medium text-red-900">{test.test}</p>
+                  <p className="text-xs sm:text-sm text-red-700">{test.reason}</p>
                   <p className="text-xs text-red-600 font-medium">{test.urgency}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="p-4 border border-orange-200 rounded-lg bg-orange-50">
-            <h4 className="font-medium text-orange-900 mb-3">⚡ РЕКОМЕНДУЕМЫЕ:</h4>
+          <div className="p-3 sm:p-4 border border-orange-200 rounded-lg bg-orange-50">
+            <h4 className="text-sm sm:text-base font-medium text-orange-900 mb-2 sm:mb-3">РЕКОМЕНДУЕМЫЕ:</h4>
             <div className="space-y-2">
               {consultation.labTestRecommendations.recommended.map((test, index) => (
-                <div key={index} className="p-3 bg-white rounded border border-orange-200">
-                  <p className="font-medium text-orange-900">{test.test}</p>
-                  <p className="text-sm text-orange-700">{test.reason}</p>
+                <div key={index} className="p-2 sm:p-3 bg-white rounded border border-orange-200">
+                  <p className="text-sm font-medium text-orange-900">{test.test}</p>
+                  <p className="text-xs sm:text-sm text-orange-700">{test.reason}</p>
                   <Badge variant="outline" className="text-xs">{test.priority}</Badge>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
-            <h4 className="font-medium text-blue-900 mb-3">📅 ДОПОЛНИТЕЛЬНЫЕ:</h4>
+          <div className="p-3 sm:p-4 border border-blue-200 rounded-lg bg-blue-50">
+            <h4 className="text-sm sm:text-base font-medium text-blue-900 mb-2 sm:mb-3">ДОПОЛНИТЕЛЬНЫЕ:</h4>
             <div className="space-y-2">
               {consultation.labTestRecommendations.optional.map((test, index) => (
-                <div key={index} className="p-3 bg-white rounded border border-blue-200">
-                  <p className="font-medium text-blue-900">{test.test}</p>
-                  <p className="text-sm text-blue-700">{test.reason}</p>
+                <div key={index} className="p-2 sm:p-3 bg-white rounded border border-blue-200">
+                  <p className="text-sm font-medium text-blue-900">{test.test}</p>
+                  <p className="text-xs sm:text-sm text-blue-700">{test.reason}</p>
                   <p className="text-xs text-blue-600">{test.timeframe}</p>
                 </div>
               ))}
@@ -1155,26 +1171,26 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
       </div>
 
       {/* Оценка рисков */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-red-600" />
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
           Оценка рисков для здоровья
         </h3>
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {Object.entries(consultation.riskAssessment).map(([category, assessment]) => (
-            <div key={category} className="p-4 border rounded-lg bg-white">
-              <h4 className="font-medium text-gray-900 mb-2 capitalize">
+            <div key={category} className="p-3 sm:p-4 border rounded-lg bg-white">
+              <h4 className="text-sm sm:text-base font-medium text-gray-900 mb-2 capitalize">
                 {category === 'cardiovascular' ? 'Сердечно-сосудистые' :
                  category === 'metabolic' ? 'Метаболические' :
                  category === 'inflammatory' ? 'Воспалительные' :
                  category === 'hormonal' ? 'Гормональные' : category} риски
               </h4>
               <Badge variant={assessment.risk === 'Низкий' ? 'default' : 
-                           assessment.risk === 'Умеренный' ? 'secondary' : 'destructive'} 
-                     className="mb-3">
+                             assessment.risk === 'Умеренный' ? 'secondary' : 'destructive'} 
+                     className="mb-2 sm:mb-3 text-xs">
                 {assessment.risk} риск
               </Badge>
-              <ul className="text-sm text-gray-700 space-y-1">
+              <ul className="text-xs sm:text-sm text-gray-700 space-y-1">
                 {assessment.factors.map((factor, idx) => (
                   <li key={idx}>• {factor}</li>
                 ))}
@@ -1185,28 +1201,28 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
       </div>
 
       {/* Персонализированные рекомендации */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Apple className="h-5 w-5 text-green-600" />
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
+          <Apple className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
           Персонализированные рекомендации
         </h3>
         <div className="grid gap-2">
           {consultation.personalizedRecommendations.map((rec, index) => (
-            <div key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-              <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-              <p className="text-sm text-green-800">{rec}</p>
+            <div key={index} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-green-50 rounded-lg">
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mt-1.5 sm:mt-2 flex-shrink-0" />
+              <p className="text-xs sm:text-sm text-green-800">{rec}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Метрики отслеживания */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-blue-600" />
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="text-base sm:text-lg font-semibold flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
           Метрики для отслеживания прогресса
         </h3>
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <div className="p-3 bg-blue-50 rounded-lg">
             <h4 className="text-sm font-medium text-blue-900 mb-2">Ежедневно:</h4>
             <ul className="text-xs text-blue-800 space-y-1">
