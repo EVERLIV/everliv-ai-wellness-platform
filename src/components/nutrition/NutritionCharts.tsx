@@ -175,8 +175,8 @@ const NutritionCharts: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-2 py-1 pt-0">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <div className="h-40">
+            <div className="grid grid-cols-1 gap-3">
+              <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -196,17 +196,15 @@ const NutritionCharts: React.FC = () => {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="space-y-1">
+              <div className="grid grid-cols-3 gap-2 mt-3">
                 {macroData.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-1 bg-gray-50 border border-gray-200/50">
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: item.color }}
-                      />
-                      <span className="text-xs font-medium">{item.name}</span>
-                    </div>
-                    <span className="text-xs font-semibold">{item.value}г</span>
+                  <div key={index} className="flex flex-col items-center p-2 bg-gray-50 border border-gray-200/50">
+                    <div 
+                      className="w-4 h-4 rounded-full mb-1" 
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-xs font-medium text-center">{item.name}</span>
+                    <span className="text-sm font-semibold">{item.value}г</span>
                   </div>
                 ))}
               </div>
@@ -224,39 +222,39 @@ const NutritionCharts: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="px-2 py-1 pt-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                <div className="text-center p-2 bg-gradient-to-br from-purple-50 to-purple-100 border border-gray-200/50">
-                  <div className="text-lg font-bold text-purple-600 mb-1">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 border border-gray-200/50">
+                  <div className="text-2xl font-bold text-purple-600 mb-1">
                     {goalAchievement.calories}%
                   </div>
-                  <div className="text-xs text-purple-700">Калории</div>
+                  <div className="text-sm text-purple-700">Калории</div>
                   <div className="text-xs text-gray-500 mt-1">
                     {todayTotals.calories} / {goals.daily_calories}
                   </div>
                 </div>
-                <div className="text-center p-2 bg-gradient-to-br from-blue-50 to-blue-100 border border-gray-200/50">
-                  <div className="text-lg font-bold text-blue-600 mb-1">
+                <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 border border-gray-200/50">
+                  <div className="text-2xl font-bold text-blue-600 mb-1">
                     {goalAchievement.protein}%
                   </div>
-                  <div className="text-xs text-blue-700">Белки</div>
+                  <div className="text-sm text-blue-700">Белки</div>
                   <div className="text-xs text-gray-500 mt-1">
                     {Math.round(todayTotals.protein)}г / {goals.daily_protein}г
                   </div>
                 </div>
-                <div className="text-center p-2 bg-gradient-to-br from-green-50 to-green-100 border border-gray-200/50">
-                  <div className="text-lg font-bold text-green-600 mb-1">
+                <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 border border-gray-200/50">
+                  <div className="text-2xl font-bold text-green-600 mb-1">
                     {goalAchievement.carbs}%
                   </div>
-                  <div className="text-xs text-green-700">Углеводы</div>
+                  <div className="text-sm text-green-700">Углеводы</div>
                   <div className="text-xs text-gray-500 mt-1">
                     {Math.round(todayTotals.carbs)}г / {goals.daily_carbs}г
                   </div>
                 </div>
-                <div className="text-center p-2 bg-gradient-to-br from-orange-50 to-orange-100 border border-gray-200/50">
-                  <div className="text-lg font-bold text-orange-600 mb-1">
+                <div className="text-center p-3 bg-gradient-to-br from-orange-50 to-orange-100 border border-gray-200/50">
+                  <div className="text-2xl font-bold text-orange-600 mb-1">
                     {goalAchievement.fat}%
                   </div>
-                  <div className="text-xs text-orange-700">Жиры</div>
+                  <div className="text-sm text-orange-700">Жиры</div>
                   <div className="text-xs text-gray-500 mt-1">
                     {Math.round(todayTotals.fat)}г / {goals.daily_fat}г
                   </div>

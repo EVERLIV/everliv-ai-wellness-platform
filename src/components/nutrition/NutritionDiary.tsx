@@ -97,6 +97,7 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
                 }
                 setShowCalendar(false);
               }}
+              disabled={(date) => date > new Date()}
               initialFocus
             />
           </PopoverContent>
