@@ -75,138 +75,137 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Основной результат */}
-      <Card className="border-2 border-blue-200">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Ваш биологический возраст</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-center gap-2">
-                <Calendar className="h-5 w-5 text-gray-600" />
-                <span className="text-sm text-gray-600">Хронологический</span>
+      <div className="border-2 border-blue-200 bg-white">
+        <div className="p-3 text-center">
+          <h3 className="text-lg font-medium mb-3">Ваш биологический возраст</h3>
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="space-y-1">
+              <div className="flex items-center justify-center gap-1">
+                <Calendar className="h-4 w-4 text-gray-600" />
+                <span className="text-xs text-gray-600">Хронологический</span>
               </div>
-              <div className="text-3xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-gray-900">
                 {results.chronological_age} лет
               </div>
             </div>
             
-            <div className="space-y-2">
-              <div className="flex items-center justify-center gap-2">
-                <Heart className="h-5 w-5 text-blue-600" />
-                <span className="text-sm text-gray-600">Биологический</span>
+            <div className="space-y-1">
+              <div className="flex items-center justify-center gap-1">
+                <Heart className="h-4 w-4 text-blue-600" />
+                <span className="text-xs text-gray-600">Биологический</span>
               </div>
-              <div className="text-3xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-blue-600">
                 {results.biological_age} лет
               </div>
             </div>
           </div>
 
-          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg ${getAgeDifferenceColor()}`}>
+          <div className={`inline-flex items-center gap-1 px-3 py-1 border ${getAgeDifferenceColor()}`}>
             {getAgeDifferenceIcon()}
-            <span className="font-semibold">
+            <span className="text-sm font-medium">
               {getAgeDifferenceText()}
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 pt-4">
+          <div className="grid grid-cols-2 gap-3 pt-3 mt-3 border-t">
             <div className="text-center">
-              <div className="text-sm text-gray-600 mb-1">Точность расчета</div>
-              <div className="text-lg font-semibold">{results.accuracy_percentage}%</div>
+              <div className="text-xs text-gray-600 mb-1">Точность расчета</div>
+              <div className="text-sm font-medium">{results.accuracy_percentage}%</div>
               <Progress value={results.accuracy_percentage} className="h-1 mt-1" />
             </div>
             
             <div className="text-center">
-              <div className="text-sm text-gray-600 mb-1">Уровень достоверности</div>
-              <div className="text-lg font-semibold">{results.confidence_level}%</div>
+              <div className="text-xs text-gray-600 mb-1">Уровень достоверности</div>
+              <div className="text-sm font-medium">{results.confidence_level}%</div>
               <Progress value={results.confidence_level} className="h-1 mt-1" />
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Анализ */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
+      <div className="border border-gray-200 bg-white">
+        <div className="p-3 border-b border-gray-200">
+          <h4 className="text-sm font-medium flex items-center gap-1">
+            <FileText className="h-4 w-4" />
             Детальный анализ
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </h4>
+        </div>
+        <div className="p-3">
           <div className="prose prose-sm max-w-none">
-            <p className="whitespace-pre-wrap">{results.analysis}</p>
+            <p className="whitespace-pre-wrap text-xs">{results.analysis}</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Рекомендации */}
       {results.recommendations.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
+        <div className="border border-gray-200 bg-white">
+          <div className="p-3 border-b border-gray-200">
+            <h4 className="text-sm font-medium flex items-center gap-1">
+              <Target className="h-4 w-4" />
               Рекомендации по улучшению
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
+            </h4>
+          </div>
+          <div className="p-3">
+            <div className="space-y-2">
               {results.recommendations.map((recommendation, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-                  <div className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                <div key={index} className="flex items-start gap-2 p-2 bg-blue-50 border border-blue-200">
+                  <div className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white border flex items-center justify-center text-xs font-bold">
                     {index + 1}
                   </div>
-                  <p className="text-sm">{recommendation}</p>
+                  <p className="text-xs">{recommendation}</p>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Дополнительная информация */}
-      <Card className="bg-amber-50">
-        <CardContent className="pt-6">
-          <div className="space-y-3">
-            <h4 className="font-semibold text-amber-900">Важные замечания:</h4>
-            <ul className="text-sm text-amber-800 space-y-1 list-disc list-inside">
+      <div className="bg-amber-50 border border-amber-200">
+        <div className="p-3">
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-amber-900">Важные замечания:</h4>
+            <ul className="text-xs text-amber-800 space-y-1 list-disc list-inside">
               <li>Результат не является медицинским диагнозом</li>
               <li>Консультируйтесь с врачом перед принятием решений о здоровье</li>
               <li>Рекомендуется обновлять данные каждые 6-12 месяцев</li>
               <li>Точность увеличивается с количеством предоставленных анализов</li>
             </ul>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Действия */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <Button onClick={exportToPDF} variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Экспорт в PDF
+      <div className="border border-gray-200 bg-white">
+        <div className="p-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <Button onClick={exportToPDF} variant="outline" size="sm">
+              <Download className="h-3 w-3 mr-1" />
+              PDF
             </Button>
-            <Button onClick={shareResults} variant="outline">
-              <Share2 className="h-4 w-4 mr-2" />
+            <Button onClick={shareResults} variant="outline" size="sm">
+              <Share2 className="h-3 w-3 mr-1" />
               Поделиться
             </Button>
-            <Button onClick={scheduleNextAnalysis} variant="outline">
-              <Trophy className="h-4 w-4 mr-2" />
+            <Button onClick={scheduleNextAnalysis} variant="outline" size="sm">
+              <Trophy className="h-3 w-3 mr-1" />
               Напоминание
             </Button>
             <Button 
               onClick={() => window.location.reload()} 
               variant="outline"
+              size="sm"
             >
-              <Repeat className="h-4 w-4 mr-2" />
+              <Repeat className="h-3 w-3 mr-1" />
               Новый анализ
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

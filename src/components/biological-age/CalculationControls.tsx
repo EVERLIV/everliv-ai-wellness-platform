@@ -20,35 +20,35 @@ const CalculationControls: React.FC<CalculationControlsProps> = ({
   totalBiomarkers
 }) => {
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex flex-col items-center space-y-4">
+    <div className="border border-gray-200 bg-white">
+      <div className="p-3">
+        <div className="flex flex-col items-center space-y-3">
           <Button
             onClick={onCalculate}
             disabled={isCalculating || currentAccuracy.current_tests < ACCURACY_LEVELS.basic.min}
-            size="lg"
+            size="sm"
             className="w-full max-w-md"
           >
             {isCalculating ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
                 Рассчитываем...
               </>
             ) : (
               <>
-                <TrendingUp className="h-4 w-4 mr-2" />
+                <TrendingUp className="h-3 w-3 mr-2" />
                 Рассчитать биологический возраст
               </>
             )}
           </Button>
-          <p className="text-sm text-gray-600 text-center">
+          <p className="text-xs text-gray-600 text-center">
             Заполнено анализов: {currentAccuracy.current_tests} из {totalBiomarkers}
             <br />
             Точность расчета: {currentAccuracy.percentage}%
           </p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
