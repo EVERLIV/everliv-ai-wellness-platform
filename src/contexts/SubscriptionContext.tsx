@@ -48,9 +48,15 @@ const isValidUUID = (str: string): boolean => {
   return uuidRegex.test(str);
 };
 
-// Централизованная функция для проверки является ли пользователь премиум
-const isPremiumUser = (email: string): boolean => {
-  return email === 'hoaandrey@gmail.com' || email === 'kamilgraf@hotmail.com';
+// Проверяем статус подписки из базы данных
+const checkPremiumFromDatabase = (subscription: Subscription | null): boolean => {
+  if (!subscription) return false;
+  
+  const isActive = subscription.status === 'active';
+  const isPremium = subscription.plan_type === 'premium';
+  const notExpired = new Date(subscription.expires_at) > new Date();
+  
+  return isActive && isPremium && notExpired;
 };
 
 export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
@@ -67,66 +73,27 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const checkIsPremiumActive = () => {
     console.log('🔍 Checking premium status for user:', user?.email);
     
-    // Специальная проверка для премиум пользователя
-    if (user?.email && isPremiumUser(user.email)) {
-      console.log('🎯 Premium user detected:', user.email, 'Always premium active');
-      return true;
-    }
-    
     // В dev-режиме с невалидным UUID всегда считаем премиум активным
     if (user?.id && !isValidUUID(user.id)) {
       console.log('🔧 Dev mode detected, treating as premium subscription');
       return true;
     }
     
-    if (!subscription) {
-      console.log('❌ No subscription data available');
-      return false;
-    }
-    
-    const isActive = subscription.status === 'active';
-    const isPremium = subscription.plan_type === 'premium';
-    const notExpired = new Date(subscription.expires_at) > new Date();
-    
-    console.log('🔍 Standard premium check:', {
-      subscription: subscription.id,
-      isActive,
-      isPremium,
-      notExpired,
-      expiresAt: subscription.expires_at,
-      now: new Date().toISOString(),
-      result: isActive && isPremium && notExpired,
-      userEmail: user?.email
-    });
-    
-    return isActive && isPremium && notExpired;
+    // Проверяем подписку из базы данных
+    return checkPremiumFromDatabase(subscription);
   };
 
   const isPremiumActive = checkIsPremiumActive();
 
   // Функция определения текущего плана для ограничений
   const getCurrentPlanType = (): 'basic' | 'premium' => {
-    // Специальная обработка для премиум пользователя
-    if (user?.email && isPremiumUser(user.email)) {
-      return 'premium';
-    }
-    
     // В dev-режиме с невалидным UUID всегда премиум
     if (user?.id && !isValidUUID(user.id)) {
       return 'premium';
     }
     
     // Проверяем активную подписку из Supabase
-    if (subscription && subscription.status === 'active') {
-      const now = new Date();
-      const expiresAt = new Date(subscription.expires_at);
-      
-      if (expiresAt > now && subscription.plan_type === 'premium') {
-        return 'premium';
-      }
-    }
-    
-    return 'basic';
+    return checkPremiumFromDatabase(subscription) ? 'premium' : 'basic';
   };
 
   // Функция определения текущего плана для отображения - ИСПРАВЛЕНА
@@ -139,10 +106,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     const planType = getCurrentPlanType();
     
     if (planType === 'premium') {
-      if (user?.email && isPremiumUser(user.email)) {
-        console.log('🎯 Special premium user, showing Premium');
-        return { plan: 'Премиум', hasActive: true };
-      } else if (user?.id && !isValidUUID(user.id)) {
+      if (user?.id && !isValidUUID(user.id)) {
         return { plan: 'Премиум (Dev)', hasActive: true };
       } else {
         return { plan: 'Премиум', hasActive: true };
@@ -214,27 +178,6 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       console.log('🔄 Loading subscription data for user:', user.id, user.email);
       setIsLoading(true);
       
-      // Для премиум пользователя создаём виртуальную подписку
-      if (user.email && isPremiumUser(user.email)) {
-        console.log('🎯 Setting up premium subscription for known user');
-        const premiumSubscription: Subscription = {
-          id: 'premium-hoaandrey',
-          user_id: user.id,
-          plan_type: 'premium',
-          status: 'active',
-          started_at: new Date().toISOString(),
-          expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // год вперед
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setSubscription(premiumSubscription);
-        setFeatureTrials([]);
-        setIsTrialActive(false);
-        setTrialExpiresAt(null);
-        setIsLoading(false);
-        return;
-      }
-      
       // Для пользователей с валидным UUID пытаемся загрузить данные из базы
       if (isValidUUID(user.id)) {
         try {
@@ -245,9 +188,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
           setFeatureTrials(data.featureTrials);
           
           // Check trial status only if there is no active subscription
-          const hasValidSubscription = data.subscription && 
-            data.subscription.status === 'active' && 
-            new Date(data.subscription.expires_at) > new Date();
+          const hasValidSubscription = checkPremiumFromDatabase(data.subscription);
             
           if (!hasValidSubscription) {
             console.log('🔍 No valid subscription, checking trial status for:', user.email);
@@ -342,7 +283,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     if (!user?.id || !isValidUUID(user.id)) return;
 
     // Не увеличиваем счетчик для премиум пользователей
-    if (isPremiumUser(user.email || '')) {
+    if (checkPremiumFromDatabase(subscription)) {
       console.log('🎯 Skipping usage increment for premium user:', user.email);
       return;
     }
