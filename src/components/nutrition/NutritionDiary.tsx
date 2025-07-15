@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Plus, TrendingUp, Target } from "lucide-react";
+import { Calendar, Plus, TrendingUp, Target, CalendarDays } from "lucide-react";
 import { useFoodEntries } from "@/hooks/useFoodEntries";
+import { useNutritionGoals } from "@/hooks/useNutritionGoals";
 import MealEntry from "./MealEntry";
 import DailyProgress from "./DailyProgress";
 import NutritionCharts from "./NutritionCharts";
@@ -34,6 +35,7 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
   const [activeTab, setActiveTab] = useState<'diary' | 'analytics' | 'goals'>(initialTab);
   
   const { entries, isLoading, getSummaryByMealType, getDailyTotals } = useFoodEntries(selectedDate);
+  const { goals } = useNutritionGoals();
 
   useEffect(() => {
     if (triggerCalendar) {
@@ -66,197 +68,200 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
   }
 
   return (
-    <div className="mobile-container mobile-section-spacing">
-      {/* Tab Navigation */}
-      <div className="mb-6">
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-6 sm:space-x-8 overflow-x-auto">
-            {[
-              { key: 'diary', label: 'Дневник', icon: Calendar },
-              { key: 'analytics', label: 'Аналитика', icon: TrendingUp },
-              { key: 'goals', label: 'Цели', icon: Target }
-            ].map(({ key, label, icon: Icon }) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key as typeof activeTab)}
-                className={`mobile-touch-target py-3 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors whitespace-nowrap ${
-                  activeTab === key
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </button>
-            ))}
-          </nav>
+    <div className="space-y-4">
+      {/* Date Selector */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Дневник питания
+          </h2>
+          <p className="text-sm text-gray-600">
+            {format(selectedDate, 'EEEE, d MMMM yyyy', { locale: ru })}
+          </p>
         </div>
+        <Popover open={showCalendar} onOpenChange={setShowCalendar}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Calendar className="h-4 w-4" />
+              <span className="hidden sm:inline">Выбрать дату</span>
+              <span className="sm:hidden">Дата</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="end">
+            <CalendarComponent
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => {
+                if (date) {
+                  setSelectedDate(date);
+                }
+                setShowCalendar(false);
+              }}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
       </div>
 
-      {/* Tab Content */}
-      {activeTab === 'diary' && (
-        <div className="mobile-content-spacing">
-          {/* Date Selector */}
-          <div className="mb-6">
-            <div className="mobile-flex-header">
-              <div>
-                <h2 className="mobile-heading-primary text-gray-900">
-                  Дневник питания
-                </h2>
-                <p className="mobile-text-small text-gray-600 mt-1">
-                  {format(selectedDate, 'EEEE, d MMMM yyyy', { locale: ru })}
-                </p>
-              </div>
-              <Popover open={showCalendar} onOpenChange={setShowCalendar}>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="mobile-button-sm gap-2">
-                    <Calendar className="h-4 w-4" />
-                    <span className="hidden sm:inline">Выбрать дату</span>
-                    <span className="sm:hidden">Дата</span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <CalendarComponent
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => {
-                      if (date) {
-                        setSelectedDate(date);
-                      }
-                      setShowCalendar(false);
-                    }}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-
-          {/* Daily Progress */}
-          <div className="mb-6">
-            <DailyProgress selectedDate={selectedDate} />
-          </div>
-
-          {/* Meals */}
-          <div className="space-y-4">
-            {mealTypes.map(({ key, label, icon }) => (
-              <Card key={key} className="shadow-none border-gray-200/80 rounded-none">
-                <CardHeader className="pb-2 px-3 py-2">
-                  <div className="mobile-flex-header">
-                    <CardTitle className="flex items-center gap-3">
-                      <span className="text-xl">{icon}</span>
-                      <div>
-                        <span className="mobile-heading-secondary text-gray-900">{label}</span>
-                        <div className="mobile-text-small text-gray-500 font-normal mt-1">
-                          {summaryByMeal[key].calories} ккал • 
-                          {summaryByMeal[key].protein.toFixed(1)}г Б • 
-                          {summaryByMeal[key].carbs.toFixed(1)}г У • 
-                          {summaryByMeal[key].fat.toFixed(1)}г Ж
-                        </div>
-                      </div>
-                    </CardTitle>
-                    <MealEntry
-                      mealType={key}
-                      selectedDate={selectedDate}
-                      trigger={triggerQuickAdd && key === 'breakfast'}
-                      onHandled={onQuickAddHandled}
-                    />
-                  </div>
-                </CardHeader>
-                <CardContent className="px-3 py-2 pt-0">
-                  <div className="space-y-3">
-                    {entries
-                      .filter(entry => entry.meal_type === key)
-                      .map((entry) => (
-                        <div 
-                          key={entry.id} 
-                          className="flex items-center justify-between p-2 bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200/50"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-gray-900 truncate">{entry.food_name}</h4>
-                            <p className="mobile-text-small text-gray-600 mt-1">
-                              {entry.portion_size && `${entry.portion_size} • `}
-                              {entry.calories} ккал
-                            </p>
-                          </div>
-                          <div className="text-right mobile-text-small text-gray-500 ml-4">
-                            <div>{entry.protein}г Б</div>
-                            <div>{entry.carbs}г У</div>
-                            <div>{entry.fat}г Ж</div>
-                          </div>
-                        </div>
-                      ))}
-                    {entries.filter(entry => entry.meal_type === key).length === 0 && (
-                      <div className="text-center py-6 text-gray-500">
-                        <p className="mobile-text-body">Записи отсутствуют</p>
-                        <p className="mobile-text-small mt-1">Добавьте первый прием пищи</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Daily Summary */}
-          <Card className="shadow-none border-gray-200/80 rounded-none mt-6">
-            <CardHeader className="pb-2 px-3 py-2">
-              <CardTitle className="mobile-heading-secondary">Итоги дня</CardTitle>
+      {/* Compact Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        {/* Daily Progress - занимает всю ширину на мобильных, 1/3 на больших экранах */}
+        <div className="lg:col-span-1">
+          <Card className="shadow-none border-gray-200/80 rounded-none h-fit">
+            <CardHeader className="pb-1 px-2 py-1">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <CalendarDays className="h-4 w-4 text-blue-600" />
+                Прогресс дня
+              </CardTitle>
             </CardHeader>
-            <CardContent className="px-3 py-2 pt-0">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="text-center p-2 bg-gray-50 border border-gray-200/50">
-                  <div className="text-xl sm:text-2xl font-bold text-primary">{dailyTotals.calories}</div>
-                  <div className="mobile-text-small text-gray-600 mt-1">Калории</div>
+            <CardContent className="px-2 py-1 pt-0">
+              <div className="space-y-2">
+                <div className="text-center p-1 bg-gray-50 border border-gray-200/50">
+                  <div className="text-lg font-bold text-primary">{dailyTotals.calories}</div>
+                  <div className="text-xs text-gray-600">Калории</div>
                 </div>
-                <div className="text-center p-2 bg-gray-50 border border-gray-200/50">
-                  <div className="text-xl sm:text-2xl font-bold text-blue-600">{dailyTotals.protein.toFixed(1)}г</div>
-                  <div className="mobile-text-small text-gray-600 mt-1">Белки</div>
-                </div>
-                <div className="text-center p-2 bg-gray-50 border border-gray-200/50">
-                  <div className="text-xl sm:text-2xl font-bold text-green-600">{dailyTotals.carbs.toFixed(1)}г</div>
-                  <div className="mobile-text-small text-gray-600 mt-1">Углеводы</div>
-                </div>
-                <div className="text-center p-2 bg-gray-50 border border-gray-200/50">
-                  <div className="text-xl sm:text-2xl font-bold text-orange-600">{dailyTotals.fat.toFixed(1)}г</div>
-                  <div className="mobile-text-small text-gray-600 mt-1">Жиры</div>
+                <div className="grid grid-cols-3 gap-1 text-xs">
+                  <div className="text-center">
+                    <div className="font-semibold text-blue-600">{dailyTotals.protein.toFixed(0)}г</div>
+                    <div className="text-gray-500">Б</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-semibold text-green-600">{dailyTotals.carbs.toFixed(0)}г</div>
+                    <div className="text-gray-500">У</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="font-semibold text-orange-600">{dailyTotals.fat.toFixed(0)}г</div>
+                    <div className="text-gray-500">Ж</div>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
-      )}
 
-      {activeTab === 'analytics' && (
-        <div className="mobile-content-spacing">
-          <div className="mb-6">
-            <h2 className="mobile-heading-primary text-gray-900 mb-2">
-              Аналитика питания
-            </h2>
-            <p className="mobile-text-body text-gray-600">
-              Отслеживайте тренды и прогресс в питании
-            </p>
-          </div>
-          <div className="space-y-6">
-            <NutritionCharts />
-            <PersonalizedRecommendations />
-          </div>
+        {/* Meals - 2 columns on desktop */}
+        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {mealTypes.map(({ key, label, icon }) => (
+            <Card key={key} className="shadow-none border-gray-200/80 rounded-none h-fit">
+              <CardHeader className="pb-1 px-2 py-1">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-1">
+                    <span className="text-sm">{icon}</span>
+                    <div>
+                      <span className="text-sm font-medium text-gray-900">{label}</span>
+                      <div className="text-xs text-gray-500">
+                        {summaryByMeal[key].calories} ккал
+                      </div>
+                    </div>
+                  </CardTitle>
+                  <MealEntry
+                    mealType={key}
+                    selectedDate={selectedDate}
+                    trigger={triggerQuickAdd && key === 'breakfast'}
+                    onHandled={onQuickAddHandled}
+                  />
+                </div>
+              </CardHeader>
+              <CardContent className="px-2 py-1 pt-0">
+                <div className="space-y-1">
+                  {entries
+                    .filter(entry => entry.meal_type === key)
+                    .slice(0, 2) // Показываем только первые 2 элемента для компактности
+                    .map((entry) => (
+                      <div 
+                        key={entry.id} 
+                        className="flex items-center justify-between p-1 bg-gray-50 border border-gray-200/50 text-xs"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-gray-900 truncate">{entry.food_name}</div>
+                        </div>
+                        <div className="text-gray-500 ml-2">
+                          {entry.calories} ккал
+                        </div>
+                      </div>
+                    ))}
+                  {entries.filter(entry => entry.meal_type === key).length === 0 && (
+                    <div className="text-center py-2 text-gray-400 text-xs">
+                      Нет записей
+                    </div>
+                  )}
+                  {entries.filter(entry => entry.meal_type === key).length > 2 && (
+                    <div className="text-xs text-gray-500 text-center">
+                      +{entries.filter(entry => entry.meal_type === key).length - 2} еще
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      )}
+      </div>
 
-      {activeTab === 'goals' && (
-        <div className="mobile-content-spacing">
-          <div className="mb-6">
-            <h2 className="mobile-heading-primary text-gray-900 mb-2">
+      {/* Analytics and Goals in compact layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-4">
+        {/* Quick Analytics */}
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-1 px-2 py-1">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              Аналитика
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-2 py-1 pt-0">
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="text-center p-1 bg-purple-50 border border-gray-200/50">
+                <div className="font-bold text-purple-600">
+                  {goals ? Math.min(100, Math.round((dailyTotals.calories / goals.daily_calories) * 100)) : 0}%
+                </div>
+                <div className="text-purple-700">Цель калорий</div>
+              </div>
+              <div className="text-center p-1 bg-blue-50 border border-gray-200/50">
+                <div className="font-bold text-blue-600">
+                  {goals ? Math.min(100, Math.round((dailyTotals.protein / goals.daily_protein) * 100)) : 0}%
+                </div>
+                <div className="text-blue-700">Цель белка</div>
+              </div>
+              <div className="text-center p-1 bg-green-50 border border-gray-200/50">
+                <div className="font-bold text-green-600">
+                  {goals ? Math.min(100, Math.round((dailyTotals.carbs / goals.daily_carbs) * 100)) : 0}%
+                </div>
+                <div className="text-green-700">Цель углеводов</div>
+              </div>
+              <div className="text-center p-1 bg-orange-50 border border-gray-200/50">
+                <div className="font-bold text-orange-600">
+                  {goals ? Math.min(100, Math.round((dailyTotals.fat / goals.daily_fat) * 100)) : 0}%
+                </div>
+                <div className="text-orange-700">Цель жиров</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Goals */}
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-1 px-2 py-1">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Target className="h-4 w-4 text-green-500" />
               Цели питания
-            </h2>
-            <p className="mobile-text-body text-gray-600">
-              Настройте персональные цели и отслеживайте прогресс
-            </p>
-          </div>
-          <NutritionGoals />
-        </div>
-      )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-2 py-1 pt-0">
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="space-y-1">
+                <div className="text-gray-600">Калории: {goals?.daily_calories || 0}</div>
+                <div className="text-gray-600">Белки: {goals?.daily_protein || 0}г</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-gray-600">Углеводы: {goals?.daily_carbs || 0}г</div>
+                <div className="text-gray-600">Жиры: {goals?.daily_fat || 0}г</div>
+              </div>
+            </div>
+            <div className="mt-2">
+              <NutritionGoals />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
