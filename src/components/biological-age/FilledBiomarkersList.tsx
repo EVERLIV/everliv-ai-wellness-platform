@@ -62,8 +62,8 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
   return (
     <div className="border border-gray-200 bg-white p-2">
       <div className="flex items-center justify-between mb-2">
-        <h4 className="text-xs font-medium text-gray-900">Введенные показатели</h4>
-        <Badge variant="secondary" size="sm" className="text-[8px] md:text-[10px] px-1.5 py-0.5">
+        <h4 className="text-[8px] md:text-[10px] font-medium text-gray-900">Введенные показатели</h4>
+        <Badge variant="secondary" size="sm" className="text-[6px] md:text-[8px] px-1 py-0.5">
           {biomarkers.length} показателей
         </Badge>
       </div>
@@ -79,16 +79,16 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 {/* Заголовок с названием и статусом */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
-                    <span className="text-[10px] md:text-xs font-medium text-gray-900">{biomarker.name}</span>
+                    <span className="text-[8px] md:text-[10px] font-medium text-gray-900">{biomarker.name}</span>
                     {getImpactIcon(getBiomarkerImpact(biomarker.name).impact)}
                   </div>
-                  <span className={`text-[10px] md:text-xs font-medium ${valueStatus.color}`}>
+                  <span className={`text-[8px] md:text-[10px] font-medium ${valueStatus.color}`}>
                     {valueStatus.status}
                   </span>
                 </div>
                 
                 {/* Значение и норма */}
-                <div className="grid grid-cols-2 gap-2 text-[10px] md:text-xs">
+                <div className="grid grid-cols-2 gap-2 text-[8px] md:text-[10px]">
                   <div>
                     <span className="text-gray-600">Ваш показатель:</span>
                     <div className="font-medium text-gray-900">
@@ -109,12 +109,12 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 </div>
                 
                 {/* Описание функции */}
-                <div className="text-[10px] md:text-xs text-gray-600">
+                <div className="text-[8px] md:text-[10px] text-gray-600">
                   <span className="font-medium">Функция:</span> {description}
                 </div>
                 
                 {/* Влияние на биологический возраст */}
-                <div className="text-[10px] md:text-xs text-blue-600 bg-blue-50 p-1 rounded">
+                <div className="text-[8px] md:text-[10px] text-blue-600 bg-blue-50 p-1 rounded">
                   <span className="font-medium">Влияние на возраст:</span> {ageEffect}
                 </div>
               </div>
@@ -124,7 +124,7 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
       </div>
       
       {biomarkers.length === 0 && (
-        <div className="text-center py-4 text-xs text-gray-500">
+        <div className="text-center py-4 text-[8px] md:text-[10px] text-gray-500">
           Введите показатели для получения детального анализа
         </div>
       )}
