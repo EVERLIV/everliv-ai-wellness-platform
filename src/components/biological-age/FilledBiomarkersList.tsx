@@ -35,28 +35,40 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
     return { color: 'text-red-600', status: 'Выше нормы' };
   };
 
-  const getImpactDescription = (biomarker: Biomarker) => {
-    const impact = getBiomarkerImpact(biomarker.name);
+  const getRecommendationForBiomarker = (biomarker: Biomarker) => {
+    const valueStatus = getValueStatus(biomarker.value!, biomarker.normal_range);
     
-    // Создаем описание влияния на возраст на основе типа воздействия
-    let ageEffect = 'Влияет на процессы старения организма';
-    
-    switch (impact.impact) {
-      case 'high':
-        ageEffect = 'Сильно влияет на биологический возраст - важный маркер старения';
-        break;
-      case 'medium':
-        ageEffect = 'Умеренно влияет на биологический возраст';
-        break;
-      case 'low':
-        ageEffect = 'Слабо влияет на общий биологический возраст';
-        break;
+    if (valueStatus.status === 'В норме' || valueStatus.status === 'Оптимально') {
+      return null; // Не показываем рекомендации если всё в норме
     }
     
-    return {
-      description: impact.description,
-      ageEffect
-    };
+    // Генерируем рекомендации в зависимости от типа отклонения и биомаркера
+    const biomarkerName = biomarker.name.toLowerCase();
+    
+    if (valueStatus.status === 'Выше нормы') {
+      if (biomarkerName.includes('холестерин')) {
+        return 'Рекомендуется снизить потребление жиров, увеличить физическую активность';
+      }
+      if (biomarkerName.includes('глюкоза')) {
+        return 'Контролируйте потребление углеводов, консультируйтесь с эндокринологом';
+      }
+      if (biomarkerName.includes('давление')) {
+        return 'Ограничьте соль, увеличьте физическую активность, обратитесь к кардиологу';
+      }
+      return 'Обратитесь к врачу для коррекции показателя';
+    }
+    
+    if (valueStatus.status === 'Ниже нормы') {
+      if (biomarkerName.includes('гемоглобин')) {
+        return 'Увеличьте потребление железосодержащих продуктов, проверьте уровень B12';
+      }
+      if (biomarkerName.includes('витамин')) {
+        return 'Рассмотрите приём витаминных добавок, улучшите рацион';
+      }
+      return 'Обратитесь к врачу для выяснения причин снижения';
+    }
+    
+    return 'Требуется коррекция показателя, консультируйтесь с врачом';
   };
 
   return (
@@ -71,7 +83,8 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
       <div className="space-y-1 md:space-y-2 max-h-80 overflow-y-auto">
         {biomarkers.map((biomarker) => {
           const valueStatus = getValueStatus(biomarker.value!, biomarker.normal_range);
-          const { description, ageEffect } = getImpactDescription(biomarker);
+          const impact = getBiomarkerImpact(biomarker.name);
+          const recommendation = getRecommendationForBiomarker(biomarker);
           
           return (
             <div key={biomarker.id} className="border border-gray-100 p-1 md:p-2 bg-gray-50">
@@ -110,13 +123,15 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 
                 {/* Описание функции */}
                 <div className="text-[7px] md:text-xs text-gray-600">
-                  <span className="font-medium text-[10px]">Функция:</span> {description}
+                  <span className="font-medium text-[10px]">Функция:</span> {impact.description}
                 </div>
                 
-                {/* Влияние на биологический возраст */}
-                <div className="text-[7px] md:text-xs text-blue-600 bg-blue-50 p-0.5 md:p-1 rounded">
-                  <span className="font-medium text-[10px]">Влияние на возраст:</span> {ageEffect}
-                </div>
+                {/* Рекомендации при отклонениях */}
+                {recommendation && (
+                  <div className="text-[7px] md:text-xs text-orange-600 bg-orange-50 p-0.5 md:p-1 rounded">
+                    <span className="font-medium text-[10px]">Рекомендации по улучшению:</span> {recommendation}
+                  </div>
+                )}
               </div>
             </div>
           );
