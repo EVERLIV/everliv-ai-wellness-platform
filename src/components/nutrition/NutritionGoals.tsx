@@ -44,72 +44,71 @@ const NutritionGoals: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 md:space-y-6 px-2 md:px-0">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-        <h2 className="text-lg md:text-xl font-semibold">Цели питания</h2>
+    <div className="space-y-3">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
         <Button onClick={calculateMacros} variant="outline" className="w-full md:w-auto text-xs py-1 px-2 h-auto rounded-none">
           <Calculator className="h-3 w-3 mr-1" />
           Рассчитать БЖУ
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <Card className="shadow-none border-gray-200/80 rounded-none">
-          <CardHeader className="pb-2 px-3 py-2">
-            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-              <Target className="h-4 w-4 md:h-5 md:w-5 text-green-500" />
+          <CardHeader className="pb-1 px-2 py-1">
+            <CardTitle className="flex items-center gap-1 text-sm">
+              <Target className="h-3 w-3 text-green-500" />
               Дневные цели
             </CardTitle>
           </CardHeader>
-          <CardContent className="px-3 py-2 pt-0 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="calories" className="text-sm font-medium">Калории (ккал)</Label>
+          <CardContent className="px-2 py-1 pt-0 space-y-2">
+            <div className="space-y-1">
+              <Label htmlFor="calories" className="text-xs">Калории (ккал)</Label>
               <Input
                 id="calories"
                 type="number"
                 value={formData.daily_calories}
                 onChange={(e) => setFormData({ ...formData, daily_calories: Number(e.target.value) })}
-                className="text-sm"
+                className="text-xs h-7 rounded-none"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="protein" className="text-sm font-medium">Белки (г)</Label>
+            <div className="space-y-1">
+              <Label htmlFor="protein" className="text-xs">Белки (г)</Label>
               <Input
                 id="protein"
                 type="number"
                 value={formData.daily_protein}
                 onChange={(e) => setFormData({ ...formData, daily_protein: Number(e.target.value) })}
-                className="text-sm"
+                className="text-xs h-7 rounded-none"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="carbs" className="text-sm font-medium">Углеводы (г)</Label>
+            <div className="space-y-1">
+              <Label htmlFor="carbs" className="text-xs">Углеводы (г)</Label>
               <Input
                 id="carbs"
                 type="number"
                 value={formData.daily_carbs}
                 onChange={(e) => setFormData({ ...formData, daily_carbs: Number(e.target.value) })}
-                className="text-sm"
+                className="text-xs h-7 rounded-none"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="fat" className="text-sm font-medium">Жиры (г)</Label>
+            <div className="space-y-1">
+              <Label htmlFor="fat" className="text-xs">Жиры (г)</Label>
               <Input
                 id="fat"
                 type="number"
                 value={formData.daily_fat}
                 onChange={(e) => setFormData({ ...formData, daily_fat: Number(e.target.value) })}
-                className="text-sm"
+                className="text-xs h-7 rounded-none"
               />
             </div>
 
             <Button 
               onClick={handleSave} 
               disabled={isLoading}
-              className="w-full mt-4 text-xs py-1 px-2 h-auto rounded-none"
+              className="w-full mt-2 text-xs py-1 px-2 h-auto rounded-none"
             >
               <Save className="h-3 w-3 mr-1" />
               Сохранить цели
@@ -118,40 +117,36 @@ const NutritionGoals: React.FC = () => {
         </Card>
 
         <Card className="shadow-none border-gray-200/80 rounded-none">
-          <CardHeader className="pb-2 px-3 py-2">
-            <CardTitle className="text-base md:text-lg">Рекомендации</CardTitle>
+          <CardHeader className="pb-1 px-2 py-1">
+            <CardTitle className="text-sm">Рекомендации</CardTitle>
           </CardHeader>
-          <CardContent className="px-3 py-2 pt-0">
-            <div className="space-y-3 md:space-y-4 text-xs md:text-sm">
-              <div className="p-2 bg-blue-50 border border-gray-200/50">
-                <h4 className="font-medium text-blue-800 mb-1">Калории</h4>
-                <p className="text-blue-700">
-                  Базовая потребность зависит от возраста, пола, веса и активности. 
-                  Среднее значение: 1800-2500 ккал/день.
+          <CardContent className="px-2 py-1 pt-0">
+            <div className="space-y-2 text-xs">
+              <div className="p-1 bg-blue-50 border border-gray-200/50">
+                <h4 className="font-medium text-blue-800 mb-1 text-xs">Калории</h4>
+                <p className="text-blue-700 text-xs">
+                  Базовая потребность: 1800-2500 ккал/день.
                 </p>
               </div>
 
-              <div className="p-2 bg-green-50 border border-gray-200/50">
-                <h4 className="font-medium text-green-800 mb-1">Белки</h4>
-                <p className="text-green-700">
-                  1.2-2.0 г на кг веса тела. Для спортсменов до 2.5 г/кг.
-                  Источники: мясо, рыба, яйца, бобовые.
+              <div className="p-1 bg-green-50 border border-gray-200/50">
+                <h4 className="font-medium text-green-800 mb-1 text-xs">Белки</h4>
+                <p className="text-green-700 text-xs">
+                  1.2-2.0 г на кг веса тела.
                 </p>
               </div>
 
-              <div className="p-2 bg-orange-50 border border-gray-200/50">
-                <h4 className="font-medium text-orange-800 mb-1">Углеводы</h4>
-                <p className="text-orange-700">
-                  45-65% от общей калорийности. Предпочтение сложным углеводам:
-                  крупы, овощи, фрукты.
+              <div className="p-1 bg-orange-50 border border-gray-200/50">
+                <h4 className="font-medium text-orange-800 mb-1 text-xs">Углеводы</h4>
+                <p className="text-orange-700 text-xs">
+                  45-65% от общей калорийности.
                 </p>
               </div>
 
-              <div className="p-2 bg-purple-50 border border-gray-200/50">
-                <h4 className="font-medium text-purple-800 mb-1">Жиры</h4>
-                <p className="text-purple-700">
-                  20-35% от общей калорийности. Акцент на полезные жиры:
-                  орехи, авокадо, рыба, оливковое масло.
+              <div className="p-1 bg-purple-50 border border-gray-200/50">
+                <h4 className="font-medium text-purple-800 mb-1 text-xs">Жиры</h4>
+                <p className="text-purple-700 text-xs">
+                  20-35% от общей калорийности.
                 </p>
               </div>
             </div>
