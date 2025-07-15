@@ -11,10 +11,12 @@ import { useCachedAnalytics } from "@/hooks/useCachedAnalytics";
 import { useRecommendationsInvalidation } from "@/hooks/useRecommendationsInvalidation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { isDevelopmentMode } from "@/utils/devMode";
+import { useProfile } from "@/hooks/useProfile";
 
 const Dashboard = () => {
   const { user, isLoading } = useSmartAuth();
   const { analytics } = useCachedAnalytics();
+  const { profileData } = useProfile();
   const [isLoaded, setIsLoaded] = useState(false);
   const isMobile = useIsMobile();
   const isDevMode = isDevelopmentMode();
@@ -51,8 +53,8 @@ const Dashboard = () => {
     );
   }
 
-  // В dev режиме создаем фиктивного пользователя если его нет
-  const userName = user?.user_metadata?.full_name || user?.user_metadata?.nickname || "Пользователь";
+  // Получаем имя пользователя с приоритетом: никнейм из профиля -> имя из профиля -> имя из метаданных
+  const userName = profileData?.nickname || profileData?.first_name || user?.user_metadata?.full_name || user?.user_metadata?.nickname || "Пользователь";
   
   // ВАЖНО: НЕ показываем fallback значения, ждем реальные данные
   // Это предотвращает мерцание с неправильными значениями
