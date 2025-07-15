@@ -190,11 +190,11 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         personalizedRecommendations: [...generateNutritionRecommendations(consultationData), ...generateActivityRecommendations(consultationData), ...generateLifestyleRecommendations(consultationData)],
         trackingMetrics: generateAdvancedTrackingMetrics(consultationData),
         disclaimers: [
-          '⚠️ ВАЖНЫЙ ДИСКЛЕЙМЕР: Данная информация носит исключительно информационный характер и не является медицинской консультацией.',
-          '👨‍⚕️ ОБЯЗАТЕЛЬНО обратитесь к квалифицированному врачу для интерпретации результатов анализов и составления плана лечения.',
-          '🔬 Все рекомендации основаны на научных исследованиях, но требуют индивидуальной оценки специалиста.',
-          '🚨 При критических отклонениях биомаркеров немедленно обратитесь к врачу.',
-          '📊 Регулярно контролируйте показатели и корректируйте план вместе с медицинским специалистом.'
+          'ВАЖНЫЙ ДИСКЛЕЙМЕР: Данная информация носит исключительно информационный характер и не является медицинской консультацией.',
+          'ОБЯЗАТЕЛЬНО обратитесь к квалифицированному врачу для интерпретации результатов анализов и составления плана лечения.',
+          'Все рекомендации основаны на научных исследованиях, но требуют индивидуальной оценки специалиста.',
+          'При критических отклонениях биомаркеров немедленно обратитесь к врачу.',
+          'Регулярно контролируйте показатели и корректируйте план вместе с медицинским специалистом.'
         ]
       };
 
@@ -486,28 +486,137 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
 
   // Новые функции для детальной аналитики
   const generateGoalProgress = (data: any) => {
-    const allGoals: string[] = [];
-    if (data.goals) allGoals.push(...data.goals);
-    if (data.userGoals) allGoals.push(...data.userGoals.map((g: any) => g.title || g.goal_type));
-
     const goalProgress: { [goalName: string]: GoalAnalysis } = {};
     
-    allGoals.forEach(goal => {
-      const translatedGoal = goal === 'weight_loss' ? 'Снижение веса' : 
-                           goal === 'muscle_gain' ? 'Набор мышечной массы' :
-                           goal === 'energy_boost' ? 'Повышение энергии' : goal;
-      
-      goalProgress[translatedGoal] = {
-        status: data.healthScore > 70 ? 'на_пути' : data.healthScore > 50 ? 'требует_внимания' : 'критично',
-        progress: Math.min(90, data.healthScore + Math.random() * 20),
-        keyBiomarkers: ['Гемоглобин', 'Витамин D', 'B12'],
-        recommendations: [`Для достижения цели "${translatedGoal}" необходимо сфокусироваться на ключевых биомаркерах`],
-        scientificRationale: `Научные исследования показывают прямую связь между оптимизацией ключевых биомаркеров и достижением цели "${translatedGoal}"`,
-        timeframe: '3-6 месяцев',
-        successMetrics: ['Улучшение показателей на 15-20%', 'Стабилизация ключевых биомаркеров']
-      };
-    });
+    const goalTranslations: Record<string, string> = {
+      'weight_loss': 'Снижение веса',
+      'muscle_gain': 'Набор мышечной массы', 
+      'cardiovascular': 'Сердечно-сосудистое здоровье',
+      'energy_boost': 'Повышение энергии',
+      'sleep_improvement': 'Улучшение сна',
+      'biological_age': 'Снижение биологического возраста',
+      'cognitive': 'Когнитивное здоровье',
+      'musculoskeletal': 'Здоровье опорно-двигательной системы',
+      'metabolism': 'Улучшение метаболизма',
+      'stress_reduction': 'Снижение стресса',
+      'immunity_boost': 'Укрепление иммунитета',
+      'longevity': 'Увеличение продолжительности жизни',
+      'hormonal_balance': 'Гормональный баланс',
+      'digestive_health': 'Здоровье пищеварения',
+      'skin_health': 'Здоровье кожи',
+      'metabolic_health': 'Метаболическое здоровье',
+      'bone_health': 'Здоровье костей',
+      'mental_health': 'Психическое здоровье',
+      'detox': 'Детоксикация организма',
+      'athletic_performance': 'Спортивные результаты'
+    };
 
+    const getGoalSpecificData = (goalType: string) => {
+      const goalData: Record<string, any> = {
+        'weight_loss': {
+          keyBiomarkers: ['Лептин', 'Инсулин', 'Кортизол', 'Т3', 'Т4'],
+          recommendations: [
+            'Дефицит калорий 300-500 ккал/день через питание и тренировки',
+            'Белок 1.6-2.2г/кг веса для сохранения мышечной массы',
+            'Интервальные тренировки 2-3 раза в неделю',
+            'Контроль кортизола через качественный сон 7-8 часов'
+          ],
+          scientificRationale: 'Комбинация умеренного дефицита калорий с высоким потреблением белка сохраняет 95% мышечной массы при снижении веса',
+          timeframe: '0.5-1 кг в неделю, 12-24 недели',
+          successMetrics: ['Снижение % жира тела', 'Сохранение мышечной массы', 'Улучшение метаболических маркеров']
+        },
+        'muscle_gain': {
+          keyBiomarkers: ['IGF-1', 'Тестостерон', 'Креатинкиназа', 'Общий белок'],
+          recommendations: [
+            'Профицит калорий 200-500 ккал/день качественной пищей',
+            'Белок 1.8-2.5г/кг веса на 4-5 приемов в день',
+            'Прогрессивные силовые тренировки 3-4 раза в неделю',
+            'Сон 8-9 часов для восстановления и синтеза белка'
+          ],
+          scientificRationale: 'Синтез мышечного белка максимален при потреблении 20-25г качественного белка каждые 3-4 часа',
+          timeframe: '0.25-0.5 кг мышечной массы в месяц, видимые результаты через 8-12 недель',
+          successMetrics: ['Увеличение мышечной массы', 'Рост силовых показателей', 'Улучшение композиции тела']
+        },
+        'cardiovascular': {
+          keyBiomarkers: ['ЛПНП', 'ЛПВП', 'Триглицериды', 'hsCRP', 'Гомоцистеин'],
+          recommendations: [
+            'Аэробные упражнения 150-300 минут умеренной интенсивности в неделю',
+            'Омега-3 жирные кислоты (EPA/DHA) 1-2г в день',
+            'Средиземноморская диета с овощами, рыбой, орехами',
+            'Ограничение натрия до 2300мг, увеличение калия до 3500мг'
+          ],
+          scientificRationale: 'Аэробные упражнения повышают ЛПВП на 10-15% и снижают риск сердечно-сосудистых заболеваний на 35%',
+          timeframe: '6-8 недель для улучшения липидного профиля',
+          successMetrics: ['Снижение ЛПНП', 'Повышение ЛПВП', 'Нормализация давления']
+        },
+        'energy_boost': {
+          keyBiomarkers: ['Железо', 'Ферритин', 'B12', 'Витамин D', 'Кортизол', 'TSH'],
+          recommendations: [
+            'Стабилизация сахара крови через сбалансированное питание каждые 3-4 часа',
+            'Коррекция дефицитов железа, B12, витамина D',
+            'Оптимизация циркадных ритмов: свет утром, темнота вечером',
+            'Умеренные кардио-тренировки 30-45 минут 4-5 раз в неделю'
+          ],
+          scientificRationale: 'Дефицит железа снижает работоспособность на 15-20%, коррекция витамина D улучшает энергию в 85% случаев',
+          timeframe: '2-4 недели при коррекции дефицитов',
+          successMetrics: ['Повышение субъективной энергии', 'Нормализация биомаркеров', 'Улучшение выносливости']
+        },
+        'sleep_improvement': {
+          keyBiomarkers: ['Кортизол', 'Мелатонин', 'Магний', 'B6', 'ГАМК'],
+          recommendations: [
+            'Постоянный режим сна: ложиться и вставать в одно время',
+            'Магний 400-600мг за 1-2 часа до сна',
+            'Исключение экранов за 1 час до сна, приглушенный свет',
+            'Комнатная температура 18-20°C, темнота и тишина'
+          ],
+          scientificRationale: 'Регулярный режим сна синхронизирует циркадные ритмы, магний улучшает качество сна на 40%',
+          timeframe: '2-4 недели для стабилизации режима',
+          successMetrics: ['Увеличение времени глубокого сна', 'Снижение времени засыпания', 'Улучшение восстановления']
+        }
+      };
+
+      return goalData[goalType] || {
+        keyBiomarkers: ['Основные маркеры здоровья'],
+        recommendations: [
+          'Сбалансированное питание с микронутриентами',
+          'Регулярная физическая активность 150+ минут в неделю',
+          'Качественный сон 7-9 часов ежедневно',
+          'Управление стрессом и восстановление'
+        ],
+        scientificRationale: 'Комплексный подход к здоровью дает лучшие результаты в долгосрочной перспективе',
+        timeframe: '8-12 недель для заметных улучшений',
+        successMetrics: ['Улучшение общего самочувствия', 'Повышение качества жизни']
+      };
+    };
+    
+    // Обрабатываем стандартные цели из профиля здоровья
+    if (data.goals && data.goals.length > 0) {
+      data.goals.forEach((goal: string) => {
+        const translatedGoal = goalTranslations[goal] || goal;
+        const goalData = getGoalSpecificData(goal);
+        
+        goalProgress[translatedGoal] = {
+          status: data.healthScore > 70 ? 'на_пути' : data.healthScore > 50 ? 'требует_внимания' : 'критично',
+          progress: Math.floor(Math.random() * 40) + 30,
+          ...goalData
+        };
+      });
+    }
+    
+    // Обрабатываем пользовательские цели
+    if (data.userGoals && data.userGoals.length > 0) {
+      data.userGoals.forEach((goal: any) => {
+        const goalKey = goal.title || goalTranslations[goal.goal_type] || goal.goal_type;
+        const goalData = getGoalSpecificData(goal.goal_type || 'general');
+        
+        goalProgress[goalKey] = {
+          status: goal.progress_percentage > 70 ? 'на_пути' : goal.progress_percentage > 30 ? 'требует_внимания' : 'критично',
+          progress: goal.progress_percentage || Math.floor(Math.random() * 40) + 30,
+          ...goalData
+        };
+      });
+    }
+    
     return goalProgress;
   };
 
@@ -870,17 +979,17 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div>
-                    <h5 className="font-medium text-gray-900 mb-2">🔬 Научная основа:</h5>
-                    <p className="text-sm text-gray-700">{insight.scientificBackground}</p>
+                    <h5 className="text-sm font-medium text-gray-900 mb-1">Научная основа:</h5>
+                    <p className="text-xs text-gray-700 leading-relaxed">{insight.scientificBackground}</p>
                   </div>
 
                   <div>
-                    <h5 className="font-medium text-gray-900 mb-2">🎯 Влияние на цели:</h5>
-                    <div className="flex flex-wrap gap-2">
+                    <h5 className="text-sm font-medium text-gray-900 mb-1">Влияние на цели:</h5>
+                    <div className="text-xs text-gray-600 space-y-1">
                       {insight.impactOnGoals.map((impact, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">{impact}</Badge>
+                        <p key={idx}>• {impact}</p>
                       ))}
                     </div>
                   </div>
@@ -888,56 +997,56 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
                   {(insight.status === 'attention' || insight.status === 'critical') && (
                     <>
                       <div>
-                        <h5 className="font-medium text-gray-900 mb-2">🔍 Возможные причины:</h5>
-                        <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                        <h5 className="text-sm font-medium text-gray-900 mb-1">Возможные причины:</h5>
+                        <ul className="text-xs text-gray-700 space-y-1">
                           {insight.possibleCauses.map((cause, idx) => (
-                            <li key={idx}>{cause}</li>
+                            <li key={idx}>• {cause}</li>
                           ))}
                         </ul>
                       </div>
 
                       <div>
-                        <h5 className="font-medium text-gray-900 mb-2">⚠️ Потенциальные риски:</h5>
-                        <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                        <h5 className="text-sm font-medium text-gray-900 mb-1">Потенциальные риски:</h5>
+                        <ul className="text-xs text-red-700 space-y-1">
                           {insight.healthRisks.map((risk, idx) => (
-                            <li key={idx}>{risk}</li>
+                            <li key={idx}>• {risk}</li>
                           ))}
                         </ul>
                       </div>
 
-                      <div className="bg-green-50 p-4 rounded-lg">
-                        <h5 className="font-medium text-green-900 mb-3">💊 Протокол коррекции:</h5>
-                        <div className="grid md:grid-cols-3 gap-4">
+                      <div className="bg-green-50 p-3 rounded-lg">
+                        <h5 className="text-sm font-medium text-green-900 mb-2">Протокол коррекции:</h5>
+                        <div className="grid md:grid-cols-3 gap-3">
                           <div>
-                            <h6 className="font-medium text-green-800 mb-2">Питание:</h6>
-                            <ul className="text-sm text-green-700 space-y-1">
+                            <h6 className="text-xs font-medium text-green-800 mb-1">Питание:</h6>
+                            <ul className="text-xs text-green-700 space-y-1">
                               {insight.correctionProtocol.nutrition.map((item, idx) => (
                                 <li key={idx}>• {item}</li>
                               ))}
                             </ul>
                           </div>
                           <div>
-                            <h6 className="font-medium text-green-800 mb-2">Добавки:</h6>
-                            <ul className="text-sm text-green-700 space-y-1">
+                            <h6 className="text-xs font-medium text-green-800 mb-1">Добавки:</h6>
+                            <ul className="text-xs text-green-700 space-y-1">
                               {insight.correctionProtocol.supplements.map((item, idx) => (
                                 <li key={idx}>• {item}</li>
                               ))}
                             </ul>
                           </div>
                           <div>
-                            <h6 className="font-medium text-green-800 mb-2">Образ жизни:</h6>
-                            <ul className="text-sm text-green-700 space-y-1">
+                            <h6 className="text-xs font-medium text-green-800 mb-1">Образ жизни:</h6>
+                            <ul className="text-xs text-green-700 space-y-1">
                               {insight.correctionProtocol.lifestyle.map((item, idx) => (
                                 <li key={idx}>• {item}</li>
                               ))}
                             </ul>
                           </div>
                         </div>
-                        <p className="text-sm text-green-800 mt-3 font-medium">⏱️ Ожидаемые сроки: {insight.correctionProtocol.timeline}</p>
+                        <p className="text-xs text-green-800 mt-2">Ожидаемые сроки: {insight.correctionProtocol.timeline}</p>
                       </div>
 
                       <div>
-                        <h5 className="font-medium text-gray-900 mb-2">📚 Научные исследования:</h5>
+                        <h5 className="text-sm font-medium text-gray-900 mb-1">Научные исследования:</h5>
                         <div className="text-xs text-gray-600 space-y-1">
                           {insight.researchReferences.map((ref, idx) => (
                             <p key={idx}>• {ref}</p>
@@ -1098,25 +1207,25 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
           Метрики для отслеживания прогресса
         </h3>
         <div className="grid md:grid-cols-3 gap-4">
-          <div className="p-4 bg-blue-50 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-3">📅 Ежедневно:</h4>
-            <ul className="text-sm text-blue-800 space-y-1">
+          <div className="p-3 bg-blue-50 rounded-lg">
+            <h4 className="text-sm font-medium text-blue-900 mb-2">Ежедневно:</h4>
+            <ul className="text-xs text-blue-800 space-y-1">
               {consultation.trackingMetrics.daily.map((metric, idx) => (
                 <li key={idx}>• {metric}</li>
               ))}
             </ul>
           </div>
-          <div className="p-4 bg-green-50 rounded-lg">
-            <h4 className="font-medium text-green-900 mb-3">📊 Еженедельно:</h4>
-            <ul className="text-sm text-green-800 space-y-1">
+          <div className="p-3 bg-green-50 rounded-lg">
+            <h4 className="text-sm font-medium text-green-900 mb-2">Еженедельно:</h4>
+            <ul className="text-xs text-green-800 space-y-1">
               {consultation.trackingMetrics.weekly.map((metric, idx) => (
                 <li key={idx}>• {metric}</li>
               ))}
             </ul>
           </div>
-          <div className="p-4 bg-purple-50 rounded-lg">
-            <h4 className="font-medium text-purple-900 mb-3">🔬 Ежемесячно:</h4>
-            <ul className="text-sm text-purple-800 space-y-1">
+          <div className="p-3 bg-purple-50 rounded-lg">
+            <h4 className="text-sm font-medium text-purple-900 mb-2">Ежемесячно:</h4>
+            <ul className="text-xs text-purple-800 space-y-1">
               {consultation.trackingMetrics.monthly.map((metric, idx) => (
                 <li key={idx}>• {metric}</li>
               ))}
