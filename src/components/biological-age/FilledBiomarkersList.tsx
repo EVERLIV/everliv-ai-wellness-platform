@@ -62,8 +62,8 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
   return (
     <div className="border border-gray-200 bg-white p-2">
       <div className="flex items-center justify-between mb-2">
-        <h4 className="text-[10px] md:text-xs font-medium text-gray-900">Введенные показатели</h4>
-        <Badge variant="secondary" size="sm" className="text-[9px] md:text-xs">
+        <h4 className="text-xs font-medium text-gray-900">Введенные показатели</h4>
+        <Badge variant="secondary" size="sm" className="text-[8px] md:text-[10px] px-1.5 py-0.5">
           {biomarkers.length} показателей
         </Badge>
       </div>
