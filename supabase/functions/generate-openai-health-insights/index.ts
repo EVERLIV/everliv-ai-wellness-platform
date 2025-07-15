@@ -169,9 +169,14 @@ serve(async (req) => {
       });
     }
 
-    // Проверяем, есть ли достаточно данных для анализа
+    // Проверяем, есть ли хоть какие-то данные для анализа
     const hasMinimalData = healthProfile.age || healthProfile.bmi || healthProfile.analyses_count > 0 || 
-                          (healthProfile.biomarkers && healthProfile.biomarkers.length > 0);
+                          (healthProfile.biomarkers && healthProfile.biomarkers.length > 0) ||
+                          healthProfile.height || healthProfile.weight || 
+                          healthProfile.health_metrics_count_30d > 0 ||
+                          (healthProfile.profile_goals && healthProfile.profile_goals.length > 0) ||
+                          (healthProfile.user_goals && healthProfile.user_goals.length > 0) ||
+                          healthProfile.first_name || healthProfile.gender;
 
     if (!hasMinimalData) {
       console.log('⚠️ Insufficient data in health profile, generating starter recommendations');
@@ -307,42 +312,57 @@ serve(async (req) => {
 }
 `;
 
+    // Формируем промпт на основе имеющихся данных
+    const availableData = [];
+    
+    if (healthProfile.age) availableData.push(`Возраст: ${healthProfile.age} лет`);
+    if (healthProfile.gender) availableData.push(`Пол: ${healthProfile.gender}`);
+    if (healthProfile.bmi) availableData.push(`BMI: ${healthProfile.bmi}`);
+    if (healthProfile.height) availableData.push(`Рост: ${healthProfile.height} см`);
+    if (healthProfile.weight || healthProfile.avg_weight_30d) {
+      availableData.push(`Вес: ${healthProfile.weight || healthProfile.avg_weight_30d} кг`);
+    }
+    
+    const lifestyleData = [];
+    if (healthProfile.avg_sleep_30d) lifestyleData.push(`Сон: ${healthProfile.avg_sleep_30d} ч/сутки`);
+    if (healthProfile.avg_steps_30d) lifestyleData.push(`Шаги: ${healthProfile.avg_steps_30d}`);
+    if (healthProfile.avg_exercise_30d) lifestyleData.push(`Упражнения: ${healthProfile.avg_exercise_30d} мин/день`);
+    if (healthProfile.avg_stress_30d) lifestyleData.push(`Стресс: ${healthProfile.avg_stress_30d}/10`);
+    if (healthProfile.avg_mood_30d) lifestyleData.push(`Настроение: ${healthProfile.avg_mood_30d}/10`);
+    if (healthProfile.avg_water_30d) lifestyleData.push(`Вода: ${healthProfile.avg_water_30d} л/день`);
+    
+    const nutritionData = [];
+    if (healthProfile.avg_calories_30d) nutritionData.push(`Калории: ${healthProfile.avg_calories_30d} ккал/день`);
+    if (healthProfile.avg_protein_30d) nutritionData.push(`Белки: ${healthProfile.avg_protein_30d}г`);
+    if (healthProfile.avg_carbs_30d) nutritionData.push(`Углеводы: ${healthProfile.avg_carbs_30d}г`);
+    if (healthProfile.avg_fat_30d) nutritionData.push(`Жиры: ${healthProfile.avg_fat_30d}г`);
+
     const userPrompt = `
-Проанализируй медицинские данные пользователя и создай инсайты по трем категориям:
+Проанализируй медицинские данные пользователя и создай инсайты по трем категориям.
+
+ВАЖНО: Даже при ограниченных данных создавай полезные персонализированные рекомендации.
 
 ДАННЫЕ ПОЛЬЗОВАТЕЛЯ:
-Возраст: ${healthProfile.age} лет
-Пол: ${healthProfile.gender}
-BMI: ${healthProfile.bmi}
-Рост: ${healthProfile.height} см
-Вес: ${healthProfile.avg_weight_30d} кг
+${availableData.length > 0 ? availableData.join('\n') : 'Базовые данные не указаны - рекомендовать заполнение'}
 
-БИОМАРКЕРЫ: ${JSON.stringify(healthProfile.biomarkers)}
+БИОМАРКЕРЫ: ${healthProfile.biomarkers && healthProfile.biomarkers.length > 0 ? JSON.stringify(healthProfile.biomarkers) : 'Не загружены - рекомендовать сдать анализы'}
 
 ОБРАЗ ЖИЗНИ (30 дней):
-- Сон: ${healthProfile.avg_sleep_30d} ч/сутки
-- Шаги: ${healthProfile.avg_steps_30d}
-- Упражнения: ${healthProfile.avg_exercise_30d} мин/день
-- Стресс: ${healthProfile.avg_stress_30d}/10
-- Настроение: ${healthProfile.avg_mood_30d}/10
-- Вода: ${healthProfile.avg_water_30d} л/день
+${lifestyleData.length > 0 ? lifestyleData.join('\n') : 'Данные не отслеживаются - рекомендовать начать мониторинг'}
 
 ПИТАНИЕ:
-- Калории: ${healthProfile.avg_calories_30d} ккал/день
-- Белки: ${healthProfile.avg_protein_30d}г
-- Углеводы: ${healthProfile.avg_carbs_30d}г
-- Жиры: ${healthProfile.avg_fat_30d}г
+${nutritionData.length > 0 ? nutritionData.join('\n') : 'Питание не отслеживается - рекомендовать ведение дневника'}
 
 МЕДИЦИНСКАЯ ИСТОРИЯ:
-- Количество анализов: ${healthProfile.analyses_count}
-- Последний анализ: ${healthProfile.last_analysis_date}
-- Хронические заболевания: ${healthProfile.medical_conditions?.join(', ') || 'Нет'}
-- Аллергии: ${healthProfile.allergies?.join(', ') || 'Нет'}
-- Лекарства: ${healthProfile.medications?.join(', ') || 'Нет'}
+- Количество анализов: ${healthProfile.analyses_count || 0}
+- Последний анализ: ${healthProfile.last_analysis_date || 'Не указан'}
+- Хронические заболевания: ${healthProfile.medical_conditions?.join(', ') || 'Не указаны'}
+- Аллергии: ${healthProfile.allergies?.join(', ') || 'Не указаны'}  
+- Лекарства: ${healthProfile.medications?.join(', ') || 'Не принимает'}
 
-ЦЕЛИ: ${healthProfile.profile_goals?.join(', ') || 'Не указаны'}
+ЦЕЛИ: ${healthProfile.profile_goals?.join(', ') || healthProfile.user_goals?.map(g => g.title).join(', ') || 'Не поставлены - помочь определить'}
 
-Создай 6-9 инсайтов (по 2-3 в каждой категории), учитывая все данные.
+Создай 4-6 персонализированных инсайтов, используя имеющиеся данные и учитывая пробелы как возможности для улучшения.
 `;
 
     console.log('🤖 Sending request to OpenAI...');
