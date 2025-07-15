@@ -2,6 +2,7 @@
 import React from 'react';
 import { Biomarker } from '@/types/biologicalAge';
 import { HealthProfileData } from '@/types/healthProfile';
+import { getBiomarkerImpact } from '@/services/ai/biomarker-impact-analysis';
 import BiomarkerCard from './BiomarkerCard';
 import CategoryAnalysisUpload from './CategoryAnalysisUpload';
 
@@ -55,6 +56,19 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
     });
   };
 
+  const getImpactDot = (impact: string) => {
+    switch (impact) {
+      case 'high': return <div className="w-2 h-2 rounded-full bg-red-500 md:hidden" />;
+      case 'medium': return <div className="w-2 h-2 rounded-full bg-yellow-500 md:hidden" />;
+      case 'low': return <div className="w-2 h-2 rounded-full bg-green-500 md:hidden" />;
+      default: return <div className="w-2 h-2 rounded-full bg-gray-400 md:hidden" />;
+    }
+  };
+
+  const getCategoryFilledCount = (categoryBiomarkers: Biomarker[]) => {
+    return categoryBiomarkers.filter(b => b.value !== undefined && b.value !== null).length;
+  };
+
   return (
     <div className="space-y-2">
       {Object.entries(categorizedBiomarkers).map(([category, categoryBiomarkers]) => (
@@ -70,6 +84,24 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
                 onAnalysisComplete={(data) => handleAnalysisComplete(category, data)}
               />
             </div>
+            
+            {/* Расшифровка влияния - только на мобильных */}
+            {getCategoryFilledCount(categoryBiomarkers) > 0 && (
+              <div className="md:hidden mt-2 text-[8px] text-gray-600 space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span>Высокое влияние на биологический возраст</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                  <span>Среднее влияние на биологический возраст</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span>Низкое влияние на биологический возраст</span>
+                </div>
+              </div>
+            )}
           </div>
           <div className="p-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">

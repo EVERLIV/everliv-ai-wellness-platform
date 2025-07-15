@@ -64,12 +64,21 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
     }
   };
 
+  const getImpactDot = () => {
+    switch (impact.impact) {
+      case 'high': return <div className="w-2 h-2 rounded-full bg-red-500 md:hidden" />;
+      case 'medium': return <div className="w-2 h-2 rounded-full bg-yellow-500 md:hidden" />;
+      case 'low': return <div className="w-2 h-2 rounded-full bg-green-500 md:hidden" />;
+      default: return <div className="w-2 h-2 rounded-full bg-gray-400 md:hidden" />;
+    }
+  };
+
   const getImpactIcon = () => {
     switch (impact.impact) {
-      case 'high': return <TrendingUp className="h-3 w-3" />;
-      case 'medium': return <TrendingDown className="h-3 w-3" />;
-      case 'low': return <Minus className="h-3 w-3" />;
-      default: return <Minus className="h-3 w-3" />;
+      case 'high': return <TrendingUp className="h-3 w-3 hidden md:block" />;
+      case 'medium': return <TrendingDown className="h-3 w-3 hidden md:block" />;
+      case 'low': return <Minus className="h-3 w-3 hidden md:block" />;
+      default: return <Minus className="h-3 w-3 hidden md:block" />;
     }
   };
 
@@ -90,12 +99,13 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
             <div className="flex-1">
               <div className="flex items-center gap-1 mb-0.5">
                 <Label className="text-xs font-medium">{biomarker.name}</Label>
-                <Badge className={`text-[6px] border ${getImpactColor()} px-1 py-0.5`} variant="outline">
+                <Badge className={`text-[6px] border ${getImpactColor()} px-1 py-0.5 md:flex hidden`} variant="outline">
                   <div className="flex items-center gap-0.5">
                     {getImpactIcon()}
                     {impact.description}
                   </div>
                 </Badge>
+                {getImpactDot()}
               </div>
               <p className="text-xs text-gray-600 line-clamp-1">{biomarker.description}</p>
             </div>

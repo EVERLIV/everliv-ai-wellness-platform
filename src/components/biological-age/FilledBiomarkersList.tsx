@@ -9,21 +9,12 @@ interface FilledBiomarkersListProps {
 }
 
 const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers }) => {
-  const getImpactDot = (impact: string) => {
-    switch (impact) {
-      case 'high': return <div className="w-2 h-2 rounded-full bg-red-500 md:hidden" />;
-      case 'medium': return <div className="w-2 h-2 rounded-full bg-yellow-500 md:hidden" />;
-      case 'low': return <div className="w-2 h-2 rounded-full bg-green-500 md:hidden" />;
-      default: return <div className="w-2 h-2 rounded-full bg-gray-400 md:hidden" />;
-    }
-  };
-
   const getImpactIcon = (impact: string) => {
     switch (impact) {
-      case 'high': return <TrendingUp className="h-3 w-3 text-red-500 hidden md:block" />;
-      case 'medium': return <TrendingDown className="h-3 w-3 text-yellow-500 hidden md:block" />;
-      case 'low': return <Minus className="h-3 w-3 text-green-500 hidden md:block" />;
-      default: return <Info className="h-3 w-3 text-gray-400 hidden md:block" />;
+      case 'high': return <TrendingUp className="h-3 w-3 text-red-500" />;
+      case 'medium': return <TrendingDown className="h-3 w-3 text-yellow-500" />;
+      case 'low': return <Minus className="h-3 w-3 text-green-500" />;
+      default: return <Info className="h-3 w-3 text-gray-400" />;
     }
   };
 
@@ -77,22 +68,6 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
         </Badge>
       </div>
       
-      {/* Расшифровка влияния - только на мобильных */}
-      <div className="md:hidden mb-2 text-[8px] text-gray-600 space-y-1">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-red-500"></div>
-          <span>Высокое влияние на биологический возраст</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-          <span>Среднее влияние на биологический возраст</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-green-500"></div>
-          <span>Низкое влияние на биологический возраст</span>
-        </div>
-      </div>
-
       <div className="space-y-2 max-h-80 overflow-y-auto">
         {biomarkers.map((biomarker) => {
           const valueStatus = getValueStatus(biomarker.value!, biomarker.normal_range);
@@ -105,7 +80,6 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
                     <span className="text-[8px] md:text-xs font-medium text-gray-900">{biomarker.name}</span>
-                    {getImpactDot(getBiomarkerImpact(biomarker.name).impact)}
                     {getImpactIcon(getBiomarkerImpact(biomarker.name).impact)}
                   </div>
                   <span className={`text-[8px] md:text-xs font-medium ${valueStatus.color}`}>
