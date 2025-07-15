@@ -40,7 +40,7 @@ export const getMedicalAnalysesHistory = async (userId: string) => {
       .from('medical_analyses')
       .select('*')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .order('test_date', { ascending: false });
 
     if (error) {
       console.error('Error fetching medical analyses history:', error);

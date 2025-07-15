@@ -241,8 +241,7 @@ ${text}
         user_id: userId,
         analysis_type: parsedResponse.analysisType,
         results: parsedResponse,
-        test_date: parsedResponse.testDate,
-        created_at: new Date().toISOString()
+        test_date: parsedResponse.testDate || new Date().toISOString().split('T')[0]
       };
 
       const { data: savedAnalysis, error: saveError } = await supabase

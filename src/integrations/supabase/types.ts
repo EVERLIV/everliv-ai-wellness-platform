@@ -497,6 +497,7 @@ export type Database = {
           input_method: string | null
           results: Json
           summary: string | null
+          test_date: string | null
           updated_at: string
           user_id: string
         }
@@ -507,6 +508,7 @@ export type Database = {
           input_method?: string | null
           results: Json
           summary?: string | null
+          test_date?: string | null
           updated_at?: string
           user_id: string
         }
@@ -517,6 +519,7 @@ export type Database = {
           input_method?: string | null
           results?: Json
           summary?: string | null
+          test_date?: string | null
           updated_at?: string
           user_id?: string
         }

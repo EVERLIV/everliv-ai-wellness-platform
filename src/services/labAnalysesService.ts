@@ -12,12 +12,13 @@ export const labAnalysesService = {
         id, 
         analysis_type, 
         created_at, 
+        test_date,
         summary, 
         input_method,
         results
       `)
       .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .order('test_date', { ascending: false });
 
     if (analysesError) {
       console.error('❌ labAnalysesService: Error fetching analyses:', analysesError);
@@ -59,6 +60,7 @@ export const labAnalysesService = {
       console.log(`📋 labAnalysesService: Analysis ${item.id}:`, {
         type: item.analysis_type,
         created: item.created_at,
+        testDate: item.test_date,
         biomarkersFromTable: markersCount,
         biomarkersFromResults: parsedResults?.markers?.length || 0,
         finalCount: finalMarkersCount
@@ -67,7 +69,7 @@ export const labAnalysesService = {
       return {
         id: item.id,
         analysis_type: item.analysis_type,
-        created_at: item.created_at,
+        created_at: item.test_date || item.created_at, // Используем дату анализа, а не создания записи
         summary: item.summary || '',
         markers_count: finalMarkersCount,
         input_method: (item.input_method as 'text' | 'photo') || 'text',
