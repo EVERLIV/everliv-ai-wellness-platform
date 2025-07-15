@@ -294,12 +294,7 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
       {/* Персонализированные рекомендации */}
       <div className="mt-4">
         <Card className="shadow-none border-gray-200/80 rounded-none">
-          <CardHeader className="pb-1 px-2 py-1">
-            <CardTitle className="text-sm font-medium">
-              Персонализированные рекомендации
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-2 py-1 pt-0">
+          <CardContent className="px-2 py-1 pt-2">
             <PersonalizedRecommendations />
           </CardContent>
         </Card>
