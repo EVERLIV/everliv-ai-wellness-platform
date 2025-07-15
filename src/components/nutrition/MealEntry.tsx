@@ -143,43 +143,64 @@ const MealEntry: React.FC<MealEntryProps> = ({
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Предотвращаем перезагрузку страницы
+    event.preventDefault();
+    event.stopPropagation();
+    
     const file = event.target.files?.[0];
-    if (file) {
-      try {
-        console.log('📷 Starting image analysis for file:', file.name);
-        const analysis = await analyzeImage(file);
+    if (!file) {
+      console.log('📷 No file selected');
+      return;
+    }
+    
+    try {
+      console.log('📷 Starting image analysis for file:', file.name, 'size:', file.size);
+      
+      // Блокируем возможность навигации во время обработки
+      const preventNavigation = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+        e.returnValue = 'Идет обработка изображения. Вы уверены, что хотите покинуть страницу?';
+        return 'Идет обработка изображения. Вы уверены, что хотите покинуть страницу?';
+      };
+      
+      window.addEventListener('beforeunload', preventNavigation);
+      
+      const analysis = await analyzeImage(file);
+      
+      // Убираем блокировку навигации
+      window.removeEventListener('beforeunload', preventNavigation);
+      
+      if (analysis) {
+        console.log('📷 Analysis completed:', analysis);
         
-        if (analysis) {
-          console.log('📷 Analysis completed:', analysis);
-          
-          // Создаем URL для изображения
-          const imageUrl = URL.createObjectURL(file);
-          
-          setFoodData({
-            food_name: analysis.food_name,
-            calories: analysis.calories,
-            protein: analysis.protein,
-            carbs: analysis.carbs,
-            fat: analysis.fat,
-            portion_size: analysis.portion_size
-          });
-          
-          // Остаемся в том же режиме, не переключаемся
-          console.log('📷 Food data updated, staying in current mode');
-          
-          // Автоматически сохраняем запись после успешного анализа
-          if (analysis.food_name) {
-            console.log('📷 Auto-saving analyzed food entry');
-            await handleSaveWithImageUrl(imageUrl);
-          }
-        } else {
-          console.log('📷 Analysis failed - no results');
-          toast.error('Не удалось проанализировать изображение');
+        // Создаем URL для изображения
+        const imageUrl = URL.createObjectURL(file);
+        
+        setFoodData({
+          food_name: analysis.food_name,
+          calories: analysis.calories,
+          protein: analysis.protein,
+          carbs: analysis.carbs,
+          fat: analysis.fat,
+          portion_size: analysis.portion_size
+        });
+        
+        console.log('📷 Food data updated, auto-saving...');
+        
+        // Автоматически сохраняем запись после успешного анализа
+        if (analysis.food_name) {
+          await handleSaveWithImageUrl(imageUrl);
         }
-      } catch (error) {
-        console.error('📷 Error during image analysis:', error);
-        toast.error('Ошибка при анализе изображения');
+      } else {
+        console.log('📷 Analysis failed - no results');
+        toast.error('Не удалось проанализировать изображение');
       }
+    } catch (error) {
+      console.error('📷 Error during image analysis:', error);
+      toast.error('Ошибка при анализе изображения');
+      
+      // Убираем блокировку навигации в случае ошибки
+      window.removeEventListener('beforeunload', () => {});
     }
     
     // Сбрасываем значение input для возможности повторной загрузки того же файла
