@@ -90,13 +90,13 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 {/* Значение и норма */}
                 <div className="grid grid-cols-2 gap-1 md:gap-2 text-[7px] md:text-xs">
                   <div>
-                    <span className="text-gray-600">Ваш показатель:</span>
+                    <span className="text-gray-600 text-[10px]">Ваш показатель:</span>
                     <div className="font-medium text-gray-900 text-[8px] md:text-sm">
                       {biomarker.value} {biomarker.unit}
                     </div>
                   </div>
                   <div>
-                    <span className="text-gray-600">Норма:</span>
+                    <span className="text-gray-600 text-[10px]">Норма:</span>
                     <div className="font-medium text-gray-900 text-[8px] md:text-sm">
                       {biomarker.normal_range?.min} - {biomarker.normal_range?.max} {biomarker.unit}
                       {biomarker.normal_range?.optimal && (
@@ -110,12 +110,12 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 
                 {/* Описание функции */}
                 <div className="text-[7px] md:text-xs text-gray-600">
-                  <span className="font-medium">Функция:</span> {description}
+                  <span className="font-medium text-[10px]">Функция:</span> {description}
                 </div>
                 
                 {/* Влияние на биологический возраст */}
                 <div className="text-[7px] md:text-xs text-blue-600 bg-blue-50 p-0.5 md:p-1 rounded">
-                  <span className="font-medium">Влияние на возраст:</span> {ageEffect}
+                  <span className="font-medium text-[10px]">Влияние на возраст:</span> {ageEffect}
                 </div>
               </div>
             </div>
