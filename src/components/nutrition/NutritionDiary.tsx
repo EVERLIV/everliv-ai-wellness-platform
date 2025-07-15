@@ -77,10 +77,10 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
       {/* Date Selector */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-sm sm:text-lg lg:text-xl font-semibold text-gray-900">
             Дневник питания
           </h2>
-          <p className="text-sm text-gray-600">
+          <p className="text-xs sm:text-sm lg:text-base text-gray-600">
             {format(selectedDate, 'EEEE, d MMMM yyyy', { locale: ru })}
           </p>
         </div>
@@ -115,18 +115,18 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
         <div className="lg:col-span-1">
           <Card className="shadow-none border-gray-200/80 rounded-none h-fit">
             <CardHeader className="pb-1 px-2 py-1">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <CalendarDays className="h-4 w-4 text-blue-600" />
+              <CardTitle className="text-xs sm:text-sm lg:text-base font-medium flex items-center gap-2">
+                <CalendarDays className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
                 Прогресс дня
               </CardTitle>
             </CardHeader>
             <CardContent className="px-2 py-1 pt-0">
               <div className="space-y-2">
                 <div className="text-center p-1 bg-gray-50 border border-gray-200/50">
-                  <div className="text-lg font-bold text-primary">{dailyTotals.calories}</div>
-                  <div className="text-xs text-gray-600">Калории</div>
+                  <div className="text-sm sm:text-lg lg:text-xl font-bold text-primary">{dailyTotals.calories}</div>
+                  <div className="text-xs sm:text-xs lg:text-sm text-gray-600">Калории</div>
                 </div>
-                <div className="grid grid-cols-3 gap-1 text-xs">
+                <div className="grid grid-cols-3 gap-1 text-xs sm:text-xs lg:text-sm">
                   <div className="text-center">
                     <div className="font-semibold text-blue-600">{dailyTotals.protein.toFixed(0)}г</div>
                     <div className="text-gray-500">Б</div>
@@ -154,8 +154,8 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
                   <CardTitle className="flex items-center gap-1">
                     <span className="text-sm">{icon}</span>
                     <div>
-                      <span className="text-sm font-medium text-gray-900">{label}</span>
-                      <div className="text-xs text-gray-500">
+                      <span className="text-xs sm:text-sm lg:text-base font-medium text-gray-900">{label}</span>
+                      <div className="text-xs sm:text-xs lg:text-sm text-gray-500">
                         {summaryByMeal[key].calories} ккал
                       </div>
                     </div>
@@ -176,7 +176,7 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
                     .map((entry) => (
                       <div 
                         key={entry.id} 
-                        className="flex items-center justify-between p-1 bg-gray-50 border border-gray-200/50 text-xs"
+                        className="flex items-center justify-between p-1 bg-gray-50 border border-gray-200/50 text-xs sm:text-xs lg:text-sm"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-gray-900 truncate">{entry.food_name}</div>
@@ -187,12 +187,12 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
                       </div>
                     ))}
                   {entries.filter(entry => entry.meal_type === key).length === 0 && (
-                    <div className="text-center py-2 text-gray-400 text-xs">
+                    <div className="text-center py-2 text-gray-400 text-xs sm:text-xs lg:text-sm">
                       Нет записей
                     </div>
                   )}
                   {entries.filter(entry => entry.meal_type === key).length > 2 && (
-                    <div className="text-xs text-gray-500 text-center">
+                    <div className="text-xs sm:text-xs lg:text-sm text-gray-500 text-center">
                       +{entries.filter(entry => entry.meal_type === key).length - 2} еще
                     </div>
                   )}
@@ -208,13 +208,13 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
         {/* Quick Analytics */}
         <Card className="shadow-none border-gray-200/80 rounded-none">
           <CardHeader className="pb-1 px-2 py-1">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
+            <CardTitle className="text-xs sm:text-sm lg:text-base font-medium flex items-center gap-2">
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
               Аналитика
             </CardTitle>
           </CardHeader>
           <CardContent className="px-2 py-1 pt-0">
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-2 gap-2 text-xs sm:text-xs lg:text-sm">
               <div className="text-center p-1 bg-purple-50 border border-gray-200/50">
                 <div className="font-bold text-purple-600">
                   {goals ? Math.min(100, Math.round((dailyTotals.calories / goals.daily_calories) * 100)) : 0}%
@@ -246,13 +246,13 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
         {/* Quick Goals */}
         <Card className="shadow-none border-gray-200/80 rounded-none">
           <CardHeader className="pb-1 px-2 py-1">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Target className="h-4 w-4 text-green-500" />
+            <CardTitle className="text-xs sm:text-sm lg:text-base font-medium flex items-center gap-2">
+              <Target className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
               Цели питания
             </CardTitle>
           </CardHeader>
           <CardContent className="px-2 py-1 pt-0">
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-2 gap-2 text-xs sm:text-xs lg:text-sm">
               <div className="space-y-1">
                 <div className="text-gray-600">Калории: {goals?.daily_calories || 0}</div>
                 <div className="text-gray-600">Белки: {goals?.daily_protein || 0}г</div>

@@ -65,14 +65,14 @@ const NutritionCharts: React.FC = () => {
         <Button
           variant={dateRange === 'week' ? 'default' : 'outline'}
           onClick={() => setDateRange('week')}
-          className="text-xs py-1 px-2 h-auto rounded-none"
+          className="text-xs sm:text-xs lg:text-sm py-1 px-2 h-auto rounded-none"
         >
           Неделя
         </Button>
         <Button
           variant={dateRange === 'month' ? 'default' : 'outline'}
           onClick={() => setDateRange('month')}
-          className="text-xs py-1 px-2 h-auto rounded-none"
+          className="text-xs sm:text-xs lg:text-sm py-1 px-2 h-auto rounded-none"
         >
           Месяц
         </Button>
@@ -82,8 +82,8 @@ const NutritionCharts: React.FC = () => {
         {/* График калорий */}
         <Card className="shadow-none border-gray-200/80 rounded-none">
           <CardHeader className="pb-1 px-2 py-1">
-            <CardTitle className="text-sm flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-primary" />
+            <CardTitle className="text-xs sm:text-sm lg:text-base flex items-center gap-1">
+              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
               Потребление калорий
             </CardTitle>
           </CardHeader>
@@ -132,8 +132,8 @@ const NutritionCharts: React.FC = () => {
         {/* График макронутриентов */}
         <Card className="shadow-none border-gray-200/80 rounded-none">
           <CardHeader className="pb-1 px-2 py-1">
-            <CardTitle className="text-sm flex items-center gap-1">
-              <Activity className="h-3 w-3 text-green-600" />
+            <CardTitle className="text-xs sm:text-sm lg:text-base flex items-center gap-1">
+              <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
               Макронутриенты
             </CardTitle>
           </CardHeader>
