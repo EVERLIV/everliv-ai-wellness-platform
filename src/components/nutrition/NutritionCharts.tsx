@@ -90,18 +90,23 @@ const NutritionCharts: React.FC = () => {
           <CardContent className="px-2 py-1 pt-0">
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 5 }}>
+                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fontSize: 10 }} 
-                    axisLine={false}
-                    tickLine={false}
+                    tick={{ fontSize: 11 }} 
+                    axisLine={true}
+                    tickLine={true}
+                    height={50}
+                    interval={0}
+                    angle={-45}
+                    textAnchor="end"
                   />
                   <YAxis 
-                    tick={{ fontSize: 10 }} 
-                    axisLine={false}
-                    tickLine={false}
+                    tick={{ fontSize: 11 }} 
+                    axisLine={true}
+                    tickLine={true}
+                    width={50}
                   />
                   <Tooltip 
                     contentStyle={{
@@ -135,18 +140,23 @@ const NutritionCharts: React.FC = () => {
           <CardContent className="px-2 py-1 pt-0">
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 5 }}>
+                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fontSize: 10 }} 
-                    axisLine={false}
-                    tickLine={false}
+                    tick={{ fontSize: 11 }} 
+                    axisLine={true}
+                    tickLine={true}
+                    height={50}
+                    interval={0}
+                    angle={-45}
+                    textAnchor="end"
                   />
                   <YAxis 
-                    tick={{ fontSize: 10 }} 
-                    axisLine={false}
-                    tickLine={false}
+                    tick={{ fontSize: 11 }} 
+                    axisLine={true}
+                    tickLine={true}
+                    width={50}
                   />
                   <Tooltip 
                     contentStyle={{
@@ -176,7 +186,7 @@ const NutritionCharts: React.FC = () => {
           </CardHeader>
           <CardContent className="px-2 py-1 pt-0">
             <div className="grid grid-cols-1 gap-3">
-              <div className="h-64">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -196,15 +206,15 @@ const NutritionCharts: React.FC = () => {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="grid grid-cols-3 gap-2 mt-3">
+              <div className="grid grid-cols-3 gap-3 mt-4">
                 {macroData.map((item, index) => (
-                  <div key={index} className="flex flex-col items-center p-2 bg-gray-50 border border-gray-200/50">
+                  <div key={index} className="flex flex-col items-center p-4 bg-gray-50 border border-gray-200/50">
                     <div 
-                      className="w-4 h-4 rounded-full mb-1" 
+                      className="w-6 h-6 rounded-full mb-2" 
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-xs font-medium text-center">{item.name}</span>
-                    <span className="text-sm font-semibold">{item.value}г</span>
+                    <span className="text-sm font-medium text-center">{item.name}</span>
+                    <span className="text-lg font-semibold mt-1">{item.value}г</span>
                   </div>
                 ))}
               </div>
@@ -222,40 +232,40 @@ const NutritionCharts: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="px-2 py-1 pt-0">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 border border-gray-200/50">
-                  <div className="text-2xl font-bold text-purple-600 mb-1">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 border border-gray-200/50">
+                  <div className="text-3xl font-bold text-purple-600 mb-2">
                     {goalAchievement.calories}%
                   </div>
-                  <div className="text-sm text-purple-700">Калории</div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-base text-purple-700 font-medium">Калории</div>
+                  <div className="text-sm text-gray-500 mt-2">
                     {todayTotals.calories} / {goals.daily_calories}
                   </div>
                 </div>
-                <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 border border-gray-200/50">
-                  <div className="text-2xl font-bold text-blue-600 mb-1">
+                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 border border-gray-200/50">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">
                     {goalAchievement.protein}%
                   </div>
-                  <div className="text-sm text-blue-700">Белки</div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-base text-blue-700 font-medium">Белки</div>
+                  <div className="text-sm text-gray-500 mt-2">
                     {Math.round(todayTotals.protein)}г / {goals.daily_protein}г
                   </div>
                 </div>
-                <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 border border-gray-200/50">
-                  <div className="text-2xl font-bold text-green-600 mb-1">
+                <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 border border-gray-200/50">
+                  <div className="text-3xl font-bold text-green-600 mb-2">
                     {goalAchievement.carbs}%
                   </div>
-                  <div className="text-sm text-green-700">Углеводы</div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-base text-green-700 font-medium">Углеводы</div>
+                  <div className="text-sm text-gray-500 mt-2">
                     {Math.round(todayTotals.carbs)}г / {goals.daily_carbs}г
                   </div>
                 </div>
-                <div className="text-center p-3 bg-gradient-to-br from-orange-50 to-orange-100 border border-gray-200/50">
-                  <div className="text-2xl font-bold text-orange-600 mb-1">
+                <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 border border-gray-200/50">
+                  <div className="text-3xl font-bold text-orange-600 mb-2">
                     {goalAchievement.fat}%
                   </div>
-                  <div className="text-sm text-orange-700">Жиры</div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-base text-orange-700 font-medium">Жиры</div>
+                  <div className="text-sm text-gray-500 mt-2">
                     {Math.round(todayTotals.fat)}г / {goals.daily_fat}г
                   </div>
                 </div>
