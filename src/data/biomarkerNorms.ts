@@ -424,13 +424,13 @@ export const BIOMARKER_NORMS: BiomarkerNorms = {
   // ============ ГОРМОНЫ ГИПОФИЗА ============
   'Пролактин': {
     male: {
-      'all': '2.5-17.0 нг/мл'
+      'all': '86-324 мЕд/л'
     },
     female: {
-      'follicular': '3.8-23.2 нг/мл',
-      'luteal': '5.8-40.0 нг/мл',
-      'postmenopausal': '1.8-20.3 нг/мл',
-      'all': '3.8-23.2 нг/мл'
+      'follicular': '102-496 мЕд/л',
+      'luteal': '109-557 мЕд/л',
+      'postmenopausal': '38-430 мЕд/л',
+      'all': '102-496 мЕд/л'
     }
   },
   'СТГ': {

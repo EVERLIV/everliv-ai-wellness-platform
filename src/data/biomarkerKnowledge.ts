@@ -1271,12 +1271,12 @@ export const BIOMARKER_KNOWLEDGE: BiomarkerKnowledge[] = [
     alternativeNames: ['PRL'],
     category: 'hormones',
     normalRanges: {
-      men: '2.5-17.0 нг/мл',
-      women: '3.8-23.2 нг/мл',
-      women_follicular: '3.8-23.2 нг/мл',
-      women_luteal: '5.8-40.0 нг/мл'
+      men: '86-324 мЕд/л',
+      women: '102-496 мЕд/л',
+      women_follicular: '102-496 мЕд/л',
+      women_luteal: '109-557 мЕд/л'
     },
-    unit: 'нг/мл',
+    unit: 'мЕд/л',
     description: 'Гормон гипофиза, регулирующий лактацию',
     function: 'Стимуляция лактации, регуляция репродуктивной функции',
     whatItMeasures: 'Концентрацию пролактина в крови',
