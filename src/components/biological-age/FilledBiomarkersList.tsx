@@ -79,16 +79,16 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 {/* Заголовок с названием и статусом */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-gray-900">{biomarker.name}</span>
+                    <span className="text-[10px] md:text-xs font-medium text-gray-900">{biomarker.name}</span>
                     {getImpactIcon(getBiomarkerImpact(biomarker.name).impact)}
                   </div>
-                  <span className={`text-xs font-medium ${valueStatus.color}`}>
+                  <span className={`text-[10px] md:text-xs font-medium ${valueStatus.color}`}>
                     {valueStatus.status}
                   </span>
                 </div>
                 
                 {/* Значение и норма */}
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-2 gap-2 text-[10px] md:text-xs">
                   <div>
                     <span className="text-gray-600">Ваш показатель:</span>
                     <div className="font-medium text-gray-900">
@@ -109,7 +109,7 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 </div>
                 
                 {/* Описание функции */}
-                <div className="text-xs text-gray-600">
+                <div className="text-[10px] md:text-xs text-gray-600">
                   <span className="font-medium">Функция:</span> {description}
                 </div>
                 
