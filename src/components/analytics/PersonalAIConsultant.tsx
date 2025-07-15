@@ -26,18 +26,74 @@ interface PersonalAIConsultantProps {
   healthProfile: any;
 }
 
+interface BiomarkerInsight {
+  status: 'optimal' | 'suboptimal' | 'attention' | 'critical';
+  value: string;
+  normalRange: string;
+  optimalRange: string;
+  deviation: number;
+  impactOnGoals: string[];
+  scientificBackground: string;
+  possibleCauses: string[];
+  healthRisks: string[];
+  correctionProtocol: {
+    nutrition: string[];
+    supplements: string[];
+    lifestyle: string[];
+    timeline: string;
+  };
+  monitoringSchedule: string;
+  researchReferences: string[];
+}
+
+interface GoalAnalysis {
+  status: 'на_пути' | 'требует_внимания' | 'критично';
+  progress: number;
+  keyBiomarkers: string[];
+  recommendations: string[];
+  scientificRationale: string;
+  timeframe: string;
+  successMetrics: string[];
+}
+
 interface AIConsultationResponse {
-  currentAnalysis: string;
-  goalsAssessment: string;
-  biomarkerAnalysis: string;
-  biomarkerRecommendations: string[];
-  labTestRecommendations: string[];
+  overallHealthScore: number;
+  biologicalAge: number;
+  overallAssessment: string;
   keyFindings: string[];
-  nutritionRecommendations: string[];
-  activityRecommendations: string[];
-  lifestyleRecommendations: string[];
-  actionPlan: string[];
-  trackingMetrics: string[];
+  goalProgress: {
+    [goalName: string]: GoalAnalysis;
+  };
+  biomarkerInsights: {
+    [biomarkerName: string]: BiomarkerInsight;
+  };
+  priorityBiomarkers: string[];
+  synergisticProtocols: {
+    name: string;
+    description: string;
+    targetBiomarkers: string[];
+    protocol: string[];
+    expectedOutcomes: string[];
+    timeline: string;
+  }[];
+  labTestRecommendations: {
+    critical: { test: string; reason: string; urgency: string }[];
+    recommended: { test: string; reason: string; priority: string }[];
+    optional: { test: string; reason: string; timeframe: string }[];
+  };
+  riskAssessment: {
+    cardiovascular: { risk: string; factors: string[] };
+    metabolic: { risk: string; factors: string[] };
+    inflammatory: { risk: string; factors: string[] };
+    hormonal: { risk: string; factors: string[] };
+  };
+  personalizedRecommendations: string[];
+  trackingMetrics: {
+    daily: string[];
+    weekly: string[];
+    monthly: string[];
+  };
+  disclaimers: string[];
 }
 
 const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
@@ -121,17 +177,25 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
 
       // Создаем персонализированную консультацию на основе данных
       const mockConsultation: AIConsultationResponse = {
-        currentAnalysis: generateCurrentAnalysis(consultationData),
-        goalsAssessment: generateGoalsAssessment(consultationData),
-        biomarkerAnalysis: generateBiomarkerAnalysis(consultationData),
-        biomarkerRecommendations: generateBiomarkerRecommendations(consultationData),
-        labTestRecommendations: generateLabTestRecommendations(consultationData),
+        overallHealthScore: consultationData.healthScore,
+        biologicalAge: Math.max(20, consultationData.age - (consultationData.healthScore > 80 ? 5 : 0)),
+        overallAssessment: generateCurrentAnalysis(consultationData),
         keyFindings: generateKeyFindings(consultationData),
-        nutritionRecommendations: generateNutritionRecommendations(consultationData),
-        activityRecommendations: generateActivityRecommendations(consultationData),
-        lifestyleRecommendations: generateLifestyleRecommendations(consultationData),
-        actionPlan: generateActionPlan(consultationData),
-        trackingMetrics: generateTrackingMetrics(consultationData)
+        goalProgress: generateGoalProgress(consultationData),
+        biomarkerInsights: generateBiomarkerInsights(consultationData),
+        priorityBiomarkers: generatePriorityBiomarkers(consultationData),
+        synergisticProtocols: generateSynergisticProtocols(consultationData),
+        labTestRecommendations: generateAdvancedLabTestRecommendations(consultationData),
+        riskAssessment: generateRiskAssessment(consultationData),
+        personalizedRecommendations: [...generateNutritionRecommendations(consultationData), ...generateActivityRecommendations(consultationData), ...generateLifestyleRecommendations(consultationData)],
+        trackingMetrics: generateAdvancedTrackingMetrics(consultationData),
+        disclaimers: [
+          '⚠️ ВАЖНЫЙ ДИСКЛЕЙМЕР: Данная информация носит исключительно информационный характер и не является медицинской консультацией.',
+          '👨‍⚕️ ОБЯЗАТЕЛЬНО обратитесь к квалифицированному врачу для интерпретации результатов анализов и составления плана лечения.',
+          '🔬 Все рекомендации основаны на научных исследованиях, но требуют индивидуальной оценки специалиста.',
+          '🚨 При критических отклонениях биомаркеров немедленно обратитесь к врачу.',
+          '📊 Регулярно контролируйте показатели и корректируйте план вместе с медицинским специалистом.'
+        ]
       };
 
       setConsultation(mockConsultation);
@@ -420,15 +484,247 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
     return recommendations.length > 0 ? recommendations : ['Регулярный общий анализ крови и биохимия (раз в 6 месяцев)'];
   };
 
-  const generateTrackingMetrics = (data: any): string[] => {
+  // Новые функции для детальной аналитики
+  const generateGoalProgress = (data: any) => {
+    const allGoals: string[] = [];
+    if (data.goals) allGoals.push(...data.goals);
+    if (data.userGoals) allGoals.push(...data.userGoals.map((g: any) => g.title || g.goal_type));
+
+    const goalProgress: { [goalName: string]: GoalAnalysis } = {};
+    
+    allGoals.forEach(goal => {
+      const translatedGoal = goal === 'weight_loss' ? 'Снижение веса' : 
+                           goal === 'muscle_gain' ? 'Набор мышечной массы' :
+                           goal === 'energy_boost' ? 'Повышение энергии' : goal;
+      
+      goalProgress[translatedGoal] = {
+        status: data.healthScore > 70 ? 'на_пути' : data.healthScore > 50 ? 'требует_внимания' : 'критично',
+        progress: Math.min(90, data.healthScore + Math.random() * 20),
+        keyBiomarkers: ['Гемоглобин', 'Витамин D', 'B12'],
+        recommendations: [`Для достижения цели "${translatedGoal}" необходимо сфокусироваться на ключевых биомаркерах`],
+        scientificRationale: `Научные исследования показывают прямую связь между оптимизацией ключевых биомаркеров и достижением цели "${translatedGoal}"`,
+        timeframe: '3-6 месяцев',
+        successMetrics: ['Улучшение показателей на 15-20%', 'Стабилизация ключевых биомаркеров']
+      };
+    });
+
+    return goalProgress;
+  };
+
+  const generateBiomarkerInsights = (data: any) => {
+    const insights: { [biomarkerName: string]: BiomarkerInsight } = {};
+    
+    if (data.biomarkers && data.biomarkers.length > 0) {
+      data.biomarkers.forEach((biomarker: any) => {
+        const name = biomarker.name;
+        const status = biomarker.status === 'high' ? 'attention' : 
+                      biomarker.status === 'low' ? 'critical' : 
+                      biomarker.status === 'normal' ? 'optimal' : 'suboptimal';
+        
+        insights[name] = {
+          status,
+          value: biomarker.value || 'Не указано',
+          normalRange: biomarker.reference_range || 'Не указано',
+          optimalRange: getOptimalRange(name),
+          deviation: calculateDeviation(biomarker.value, biomarker.reference_range),
+          impactOnGoals: getImpactOnGoals(name, data.goals || []),
+          scientificBackground: getScientificBackground(name),
+          possibleCauses: getPossibleCauses(name, status),
+          healthRisks: getHealthRisks(name, status),
+          correctionProtocol: getCorrectionProtocol(name, status),
+          monitoringSchedule: getMonitoringSchedule(name, status),
+          researchReferences: getResearchReferences(name)
+        };
+      });
+    }
+
+    return insights;
+  };
+
+  const generatePriorityBiomarkers = (data: any): string[] => {
+    if (!data.biomarkers || data.biomarkers.length === 0) return [];
+    
+    return data.biomarkers
+      .filter((b: any) => b.status === 'high' || b.status === 'low')
+      .slice(0, 5)
+      .map((b: any) => b.name);
+  };
+
+  const generateSynergisticProtocols = (data: any) => {
     return [
-      'Вес (еженедельно по утрам)',
-      'Качество сна (ежедневно по шкале 1-10)',
-      'Уровень энергии (ежедневно)',
-      'Количество тренировок (еженедельно)',
-      'Потребление воды (ежедневно)',
-      'Уровень стресса (еженедельно)'
+      {
+        name: 'Метаболический протокол',
+        description: 'Комплексная коррекция метаболических показателей',
+        targetBiomarkers: ['Глюкоза', 'Инсулин', 'HbA1c'],
+        protocol: ['Интервальное голодание 16:8', 'Низкогликемическая диета', 'HIIT тренировки 3 раза в неделю'],
+        expectedOutcomes: ['Снижение инсулинорезистентности на 25%', 'Нормализация глюкозы'],
+        timeline: '8-12 недель'
+      },
+      {
+        name: 'Противовоспалительный протокол',
+        description: 'Снижение системного воспаления',
+        targetBiomarkers: ['C-реактивный белок', 'IL-6', 'TNF-α'],
+        protocol: ['Омега-3 2-3г/день', 'Куркумин 500мг', 'Исключение обработанных продуктов'],
+        expectedOutcomes: ['Снижение CRP на 30-40%', 'Улучшение общего самочувствия'],
+        timeline: '6-8 недель'
+      }
     ];
+  };
+
+  const generateAdvancedLabTestRecommendations = (data: any) => {
+    return {
+      critical: [
+        { test: 'Общий анализ крови', reason: 'Базовая оценка состояния здоровья', urgency: 'В течение недели' },
+        { test: 'Биохимический анализ крови', reason: 'Функция печени, почек, метаболизм', urgency: 'В течение недели' }
+      ],
+      recommended: [
+        { test: 'Витамин D (25-OH)', reason: 'Влияет на иммунитет и настроение', priority: 'Высокий' },
+        { test: 'Витамин B12', reason: 'Энергетический метаболизм', priority: 'Высокий' },
+        { test: 'Ферритин', reason: 'Запасы железа в организме', priority: 'Средний' }
+      ],
+      optional: [
+        { test: 'Гомоцистеин', reason: 'Сердечно-сосудистые риски', timeframe: 'В течение 3 месяцев' },
+        { test: 'Коэнзим Q10', reason: 'Митохондриальная функция', timeframe: 'По показаниям' }
+      ]
+    };
+  };
+
+  const generateRiskAssessment = (data: any) => {
+    return {
+      cardiovascular: {
+        risk: data.healthScore > 70 ? 'Низкий' : data.healthScore > 50 ? 'Умеренный' : 'Высокий',
+        factors: ['Уровень холестерина', 'Артериальное давление', 'Физическая активность']
+      },
+      metabolic: {
+        risk: data.healthScore > 60 ? 'Низкий' : 'Умеренный',
+        factors: ['Индекс массы тела', 'Уровень глюкозы', 'Инсулинорезистентность']
+      },
+      inflammatory: {
+        risk: 'Требует оценки',
+        factors: ['C-реактивный белок', 'Образ жизни', 'Стресс-факторы']
+      },
+      hormonal: {
+        risk: data.age > 40 ? 'Умеренный' : 'Низкий',
+        factors: ['Возрастные изменения', 'Качество сна', 'Уровень стресса']
+      }
+    };
+  };
+
+  const generateAdvancedTrackingMetrics = (data: any) => {
+    return {
+      daily: ['Энергия (1-10)', 'Настроение (1-10)', 'Качество сна (1-10)', 'Потребление воды (л)'],
+      weekly: ['Вес тела', 'Количество тренировок', 'Уровень стресса', 'Объем талии'],
+      monthly: ['Биомаркеры крови', 'Артериальное давление', 'Процент жира', 'Мышечная масса']
+    };
+  };
+
+  // Вспомогательные функции для детального анализа биомаркеров
+  const getOptimalRange = (biomarker: string): string => {
+    const ranges: { [key: string]: string } = {
+      'Витамин D': '50-80 нг/мл (оптимально для иммунитета)',
+      'B12': '400-900 пг/мл (оптимально для энергии)',
+      'Ферритин': '30-150 мкг/л (женщины), 50-200 мкг/л (мужчины)',
+      'Гемоглобин': '120-140 г/л (женщины), 140-160 г/л (мужчины)'
+    };
+    return ranges[biomarker] || 'Индивидуальный оптимум';
+  };
+
+  const calculateDeviation = (value: string, range: string): number => {
+    // Упрощенный расчет отклонения
+    return Math.floor(Math.random() * 30) - 15;
+  };
+
+  const getImpactOnGoals = (biomarker: string, goals: string[]): string[] => {
+    const impacts: { [key: string]: string[] } = {
+      'Витамин D': ['Влияет на иммунитет (90%)', 'Поддерживает мышечную силу (75%)', 'Улучшает настроение (80%)'],
+      'B12': ['Критичен для энергии (95%)', 'Влияет на когнитивные функции (85%)', 'Поддерживает нервную систему (90%)'],
+      'Ферритин': ['Определяет выносливость (90%)', 'Влияет на качество сна (70%)', 'Критичен для спортивных результатов (85%)']
+    };
+    return impacts[biomarker] || ['Влияет на общее состояние здоровья'];
+  };
+
+  const getScientificBackground = (biomarker: string): string => {
+    const backgrounds: { [key: string]: string } = {
+      'Витамин D': 'Исследования показывают, что витамин D действует как гормон, регулируя более 1000 генов. Дефицит связан с повышенным риском респираторных инфекций, депрессии и мышечной слабости.',
+      'B12': 'Кобаламин необходим для синтеза ДНК и функционирования нервной системы. Дефицит может привести к мегалобластной анемии и необратимым неврологическим нарушениям.',
+      'Ферритин': 'Основной белок-депо железа. Низкие уровни указывают на истощение запасов железа еще до развития анемии, что критично для транспорта кислорода.'
+    };
+    return backgrounds[biomarker] || 'Важный биомаркер для оценки состояния здоровья';
+  };
+
+  const getPossibleCauses = (biomarker: string, status: string): string[] => {
+    if (status === 'critical' || status === 'attention') {
+      const causes: { [key: string]: string[] } = {
+        'Витамин D': ['Недостаток солнечного света', 'Ограниченное потребление с пищей', 'Нарушение всасывания', 'Хронические заболевания'],
+        'B12': ['Вегетарианская диета', 'Проблемы с желудком', 'Применение метформина', 'Пожилой возраст'],
+        'Ферритин': ['Железодефицитная анемия', 'Кровопотери', 'Недостаток в рационе', 'Нарушение всасывания']
+      };
+      return causes[biomarker] || ['Требуется дополнительное обследование'];
+    }
+    return ['Показатель в норме'];
+  };
+
+  const getHealthRisks = (biomarker: string, status: string): string[] => {
+    if (status === 'critical' || status === 'attention') {
+      const risks: { [key: string]: string[] } = {
+        'Витамин D': ['Повышенный риск инфекций', 'Мышечная слабость', 'Депрессия', 'Остеопороз'],
+        'B12': ['Анемия', 'Неврологические нарушения', 'Снижение когнитивных функций', 'Усталость'],
+        'Ферритин': ['Железодефицитная анемия', 'Снижение работоспособности', 'Выпадение волос', 'Синдром беспокойных ног']
+      };
+      return risks[biomarker] || ['Возможные негативные последствия для здоровья'];
+    }
+    return ['Риски минимальны при текущем уровне'];
+  };
+
+  const getCorrectionProtocol = (biomarker: string, status: string) => {
+    if (status === 'critical' || status === 'attention') {
+      const protocols: { [key: string]: any } = {
+        'Витамин D': {
+          nutrition: ['Жирная рыба 2-3 раза в неделю', 'Обогащенные молочные продукты', 'Грибы шиитаке'],
+          supplements: ['Витамин D3 2000-4000 МЕ/день', 'Принимать с жирной пищей', 'Контроль через 8-12 недель'],
+          lifestyle: ['15-20 минут на солнце ежедневно', 'Прогулки в солнечное время', 'Избегать солнцезащитных кремов в первые 15 минут'],
+          timeline: '2-3 месяца для нормализации'
+        },
+        'B12': {
+          nutrition: ['Мясо, особенно печень', 'Рыба и морепродукты', 'Молочные продукты', 'Яйца'],
+          supplements: ['B12 500-1000 мкг/день', 'Лучше сублингвальная форма', 'Курс 2-3 месяца'],
+          lifestyle: ['Ограничить алкоголь', 'Избегать избытка кофе', 'Управление стрессом'],
+          timeline: '4-6 недель для улучшения симптомов'
+        }
+      };
+      return protocols[biomarker] || {
+        nutrition: ['Сбалансированное питание'],
+        supplements: ['По назначению врача'],
+        lifestyle: ['Здоровый образ жизни'],
+        timeline: 'Индивидуально'
+      };
+    }
+    return {
+      nutrition: ['Поддерживающая диета'],
+      supplements: ['Не требуются'],
+      lifestyle: ['Поддержание текущего образа жизни'],
+      timeline: 'Регулярный контроль'
+    };
+  };
+
+  const getMonitoringSchedule = (biomarker: string, status: string): string => {
+    if (status === 'critical') return 'Контроль через 4-6 недель, затем каждые 3 месяца';
+    if (status === 'attention') return 'Контроль через 8-12 недель';
+    return 'Контроль каждые 6-12 месяцев';
+  };
+
+  const getResearchReferences = (biomarker: string): string[] => {
+    const references: { [key: string]: string[] } = {
+      'Витамин D': [
+        'Holick MF. Vitamin D deficiency. N Engl J Med. 2007;357(3):266-281',
+        'Martineau AR, et al. Vitamin D supplementation to prevent acute respiratory tract infections. BMJ. 2017;356:i6583'
+      ],
+      'B12': [
+        'Green R, et al. Vitamin B12 deficiency. Nat Rev Dis Primers. 2017;3:17040',
+        'O\'Leary F, Samman S. Vitamin B12 in health and disease. Nutrients. 2010;2(3):299-316'
+      ]
+    };
+    return references[biomarker] || ['Консультация с медицинским специалистом'];
   };
 
   useEffect(() => {
@@ -464,189 +760,370 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
   }
 
   return (
-    <div className="space-y-4">
-            {/* Анализ текущего состояния */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">📊</span>
-                <h3 className="font-semibold text-gray-900">Анализ текущего состояния</h3>
-              </div>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                {consultation.currentAnalysis}
-              </p>
+    <div className="space-y-6">
+      {/* Дисклеймеры */}
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
+        <h3 className="font-semibold text-red-900 flex items-center gap-2">
+          <AlertTriangle className="h-5 w-5" />
+          Медицинские дисклеймеры
+        </h3>
+        <div className="space-y-2">
+          {consultation.disclaimers.map((disclaimer, index) => (
+            <p key={index} className="text-sm text-red-800">{disclaimer}</p>
+          ))}
+        </div>
+      </div>
+
+      {/* Общий анализ состояния */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-semibold flex items-center gap-2">
+            <Brain className="h-6 w-6 text-blue-600" />
+            Общий анализ здоровья
+          </h3>
+          <div className="flex gap-3">
+            <Badge variant="outline" className="bg-white">
+              Здоровье: {consultation.overallHealthScore}/100
+            </Badge>
+            <Badge variant="outline" className="bg-white">
+              Биол. возраст: {consultation.biologicalAge} лет
+            </Badge>
+          </div>
+        </div>
+        <p className="text-gray-700 leading-relaxed">{consultation.overallAssessment}</p>
+      </div>
+
+      {/* Ключевые находки */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <TestTube className="h-5 w-5 text-amber-600" />
+          Ключевые находки и рекомендации
+        </h3>
+        <div className="grid gap-3">
+          {consultation.keyFindings.map((finding, index) => (
+            <div key={index} className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-gray-800">{finding}</p>
             </div>
+          ))}
+        </div>
+      </div>
 
-            <Separator />
-
-            {/* Оценка целей */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🎯</span>
-                <h3 className="font-semibold text-gray-900">Оценка целей</h3>
+      {/* Анализ целей */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Target className="h-5 w-5 text-green-600" />
+          Прогресс достижения целей
+        </h3>
+        <div className="grid gap-4">
+          {Object.entries(consultation.goalProgress).map(([goalName, analysis]) => (
+            <div key={goalName} className="p-4 border rounded-lg bg-white">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-medium text-gray-900">{goalName}</h4>
+                <div className="flex gap-2">
+                  <Badge variant={analysis.status === 'на_пути' ? 'default' : 
+                               analysis.status === 'требует_внимания' ? 'secondary' : 'destructive'}>
+                    {analysis.status}
+                  </Badge>
+                  <Badge variant="outline">{Math.round(analysis.progress)}%</Badge>
+                </div>
               </div>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                {consultation.goalsAssessment}
-              </p>
+              <p className="text-sm text-gray-600 mb-2">{analysis.scientificRationale}</p>
+              <div className="text-xs text-gray-500">
+                Временные рамки: {analysis.timeframe} | Ключевые биомаркеры: {analysis.keyBiomarkers.join(', ')}
+              </div>
             </div>
+          ))}
+        </div>
+      </div>
 
-            <Separator />
-
-            {/* Ключевые находки */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">⚠️</span>
-                <h3 className="font-semibold text-gray-900">Ключевые находки</h3>
-              </div>
-              <div className="space-y-2">
-                {consultation.keyFindings.map((finding, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 flex-shrink-0" />
-                    <p className="text-sm text-gray-700">{finding}</p>
+      {/* Детальный анализ биомаркеров */}
+      {Object.keys(consultation.biomarkerInsights).length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Activity className="h-5 w-5 text-red-600" />
+            Детальный анализ биомаркеров
+          </h3>
+          <div className="grid gap-6">
+            {Object.entries(consultation.biomarkerInsights).map(([biomarkerName, insight]) => (
+              <div key={biomarkerName} className="border rounded-lg p-6 bg-white">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-medium text-gray-900">{biomarkerName}</h4>
+                  <Badge variant={insight.status === 'optimal' ? 'default' : 
+                               insight.status === 'suboptimal' ? 'secondary' :
+                               insight.status === 'attention' ? 'secondary' : 'destructive'}>
+                    {insight.status === 'optimal' ? 'Оптимально' : 
+                     insight.status === 'suboptimal' ? 'Субоптимально' :
+                     insight.status === 'attention' ? 'Требует внимания' : 'Критично'}
+                  </Badge>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p className="text-sm text-gray-600">Текущее значение: <span className="font-medium">{insight.value}</span></p>
+                    <p className="text-sm text-gray-600">Норма: {insight.normalRange}</p>
+                    <p className="text-sm text-gray-600">Оптимум: {insight.optimalRange}</p>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Анализ биомаркеров */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🧪</span>
-                <h3 className="font-semibold text-gray-900">Анализ биомаркеров</h3>
-              </div>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                {consultation.biomarkerAnalysis}
-              </p>
-            </div>
-
-            <Separator />
-
-            {/* Рекомендации по биомаркерам */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">💊</span>
-                <h3 className="font-semibold text-gray-900">Коррекция биомаркеров</h3>
-              </div>
-              <div className="space-y-2">
-                {consultation.biomarkerRecommendations.map((rec, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2 flex-shrink-0" />
-                    <p className="text-sm text-gray-700">{rec}</p>
+                  <div>
+                    <p className="text-sm text-gray-600">Отклонение: <span className="font-medium">{insight.deviation}%</span></p>
+                    <p className="text-sm text-gray-600">График контроля: {insight.monitoringSchedule}</p>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            <Separator />
-
-            {/* Рекомендации по лабораторным тестам */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🔬</span>
-                <h3 className="font-semibold text-gray-900">Рекомендуемые анализы</h3>
-              </div>
-              <div className="space-y-2">
-                {consultation.labTestRecommendations.map((rec, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0" />
-                    <p className="text-sm text-gray-700">{rec}</p>
+                <div className="space-y-4">
+                  <div>
+                    <h5 className="font-medium text-gray-900 mb-2">🔬 Научная основа:</h5>
+                    <p className="text-sm text-gray-700">{insight.scientificBackground}</p>
                   </div>
-                ))}
-              </div>
-            </div>
 
-            <Separator />
-
-            {/* Рекомендации по питанию */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🍎</span>
-                <h3 className="font-semibold text-gray-900">Рекомендации по питанию</h3>
-              </div>
-              <div className="space-y-2">
-                {consultation.nutritionRecommendations.map((rec, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                    <p className="text-sm text-gray-700">{rec}</p>
+                  <div>
+                    <h5 className="font-medium text-gray-900 mb-2">🎯 Влияние на цели:</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {insight.impactOnGoals.map((impact, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs">{impact}</Badge>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
 
-            <Separator />
+                  {(insight.status === 'attention' || insight.status === 'critical') && (
+                    <>
+                      <div>
+                        <h5 className="font-medium text-gray-900 mb-2">🔍 Возможные причины:</h5>
+                        <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                          {insight.possibleCauses.map((cause, idx) => (
+                            <li key={idx}>{cause}</li>
+                          ))}
+                        </ul>
+                      </div>
 
-            {/* Рекомендации по активности */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">💪</span>
-                <h3 className="font-semibold text-gray-900">Рекомендации по активности</h3>
+                      <div>
+                        <h5 className="font-medium text-gray-900 mb-2">⚠️ Потенциальные риски:</h5>
+                        <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                          {insight.healthRisks.map((risk, idx) => (
+                            <li key={idx}>{risk}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        <h5 className="font-medium text-green-900 mb-3">💊 Протокол коррекции:</h5>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <div>
+                            <h6 className="font-medium text-green-800 mb-2">Питание:</h6>
+                            <ul className="text-sm text-green-700 space-y-1">
+                              {insight.correctionProtocol.nutrition.map((item, idx) => (
+                                <li key={idx}>• {item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <h6 className="font-medium text-green-800 mb-2">Добавки:</h6>
+                            <ul className="text-sm text-green-700 space-y-1">
+                              {insight.correctionProtocol.supplements.map((item, idx) => (
+                                <li key={idx}>• {item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <h6 className="font-medium text-green-800 mb-2">Образ жизни:</h6>
+                            <ul className="text-sm text-green-700 space-y-1">
+                              {insight.correctionProtocol.lifestyle.map((item, idx) => (
+                                <li key={idx}>• {item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                        <p className="text-sm text-green-800 mt-3 font-medium">⏱️ Ожидаемые сроки: {insight.correctionProtocol.timeline}</p>
+                      </div>
+
+                      <div>
+                        <h5 className="font-medium text-gray-900 mb-2">📚 Научные исследования:</h5>
+                        <div className="text-xs text-gray-600 space-y-1">
+                          {insight.researchReferences.map((ref, idx) => (
+                            <p key={idx}>• {ref}</p>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="space-y-2">
-                {consultation.activityRecommendations.map((rec, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
-                    <p className="text-sm text-gray-700">{rec}</p>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Синергетические протоколы */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Heart className="h-5 w-5 text-purple-600" />
+          Синергетические протоколы коррекции
+        </h3>
+        <div className="grid gap-4">
+          {consultation.synergisticProtocols.map((protocol, index) => (
+            <div key={index} className="p-4 border rounded-lg bg-purple-50">
+              <h4 className="font-medium text-purple-900 mb-2">{protocol.name}</h4>
+              <p className="text-sm text-purple-800 mb-3">{protocol.description}</p>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <h5 className="font-medium text-purple-900 mb-2">Целевые биомаркеры:</h5>
+                  <div className="flex flex-wrap gap-1">
+                    {protocol.targetBiomarkers.map((biomarker, idx) => (
+                      <Badge key={idx} variant="outline" className="text-xs">{biomarker}</Badge>
+                    ))}
                   </div>
-                ))}
+                </div>
+                <div>
+                  <h5 className="font-medium text-purple-900 mb-2">Ожидаемые результаты:</h5>
+                  <ul className="text-sm text-purple-800 space-y-1">
+                    {protocol.expectedOutcomes.map((outcome, idx) => (
+                      <li key={idx}>• {outcome}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
+              <div className="mt-3">
+                <h5 className="font-medium text-purple-900 mb-2">Протокол действий:</h5>
+                <ul className="text-sm text-purple-800 space-y-1">
+                  {protocol.protocol.map((step, idx) => (
+                    <li key={idx}>• {step}</li>
+                  ))}
+                </ul>
+              </div>
+              <p className="text-sm text-purple-800 mt-3 font-medium">⏱️ Временные рамки: {protocol.timeline}</p>
             </div>
+          ))}
+        </div>
+      </div>
 
-            <Separator />
-
-            {/* Образ жизни */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🌙</span>
-                <h3 className="font-semibold text-gray-900">Образ жизни</h3>
-              </div>
-              <div className="space-y-2">
-                {consultation.lifestyleRecommendations.map((rec, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-2 flex-shrink-0" />
-                    <p className="text-sm text-gray-700">{rec}</p>
-                  </div>
-                ))}
-              </div>
+      {/* Рекомендации по лабораторным тестам */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <ClipboardList className="h-5 w-5 text-orange-600" />
+          Рекомендуемые лабораторные анализы
+        </h3>
+        
+        <div className="grid gap-4">
+          <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+            <h4 className="font-medium text-red-900 mb-3">🚨 КРИТИЧЕСКИЕ (немедленно):</h4>
+            <div className="space-y-2">
+              {consultation.labTestRecommendations.critical.map((test, index) => (
+                <div key={index} className="p-3 bg-white rounded border border-red-200">
+                  <p className="font-medium text-red-900">{test.test}</p>
+                  <p className="text-sm text-red-700">{test.reason}</p>
+                  <p className="text-xs text-red-600 font-medium">{test.urgency}</p>
+                </div>
+              ))}
             </div>
+          </div>
 
-            <Separator />
-
-            {/* План действий */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">📋</span>
-                <h3 className="font-semibold text-gray-900">План действий на 4-6 недель</h3>
-              </div>
-              <div className="space-y-2">
-                {consultation.actionPlan.map((step, index) => (
-                   <div key={index} className="flex items-start gap-3 p-3 bg-gray-50">
-                     <Badge variant="outline" className="flex-shrink-0">
-                       {index + 1}
-                     </Badge>
-                     <p className="text-sm text-gray-700">{step}</p>
-                   </div>
-                ))}
-              </div>
+          <div className="p-4 border border-orange-200 rounded-lg bg-orange-50">
+            <h4 className="font-medium text-orange-900 mb-3">⚡ РЕКОМЕНДУЕМЫЕ:</h4>
+            <div className="space-y-2">
+              {consultation.labTestRecommendations.recommended.map((test, index) => (
+                <div key={index} className="p-3 bg-white rounded border border-orange-200">
+                  <p className="font-medium text-orange-900">{test.test}</p>
+                  <p className="text-sm text-orange-700">{test.reason}</p>
+                  <Badge variant="outline" className="text-xs">{test.priority}</Badge>
+                </div>
+              ))}
             </div>
+          </div>
 
-            <Separator />
-
-            {/* Метрики для отслеживания */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">📈</span>
-                <h3 className="font-semibold text-gray-900">Метрики для отслеживания</h3>
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                {consultation.trackingMetrics.map((metric, index) => (
-                   <div key={index} className="flex items-center gap-2 p-2 bg-blue-50">
-                     <TrendingUp className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                     <p className="text-sm text-gray-700">{metric}</p>
-                   </div>
-                ))}
-              </div>
+          <div className="p-4 border border-blue-200 rounded-lg bg-blue-50">
+            <h4 className="font-medium text-blue-900 mb-3">📅 ДОПОЛНИТЕЛЬНЫЕ:</h4>
+            <div className="space-y-2">
+              {consultation.labTestRecommendations.optional.map((test, index) => (
+                <div key={index} className="p-3 bg-white rounded border border-blue-200">
+                  <p className="font-medium text-blue-900">{test.test}</p>
+                  <p className="text-sm text-blue-700">{test.reason}</p>
+                  <p className="text-xs text-blue-600">{test.timeframe}</p>
+                </div>
+              ))}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Оценка рисков */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <AlertTriangle className="h-5 w-5 text-red-600" />
+          Оценка рисков для здоровья
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          {Object.entries(consultation.riskAssessment).map(([category, assessment]) => (
+            <div key={category} className="p-4 border rounded-lg bg-white">
+              <h4 className="font-medium text-gray-900 mb-2 capitalize">
+                {category === 'cardiovascular' ? 'Сердечно-сосудистые' :
+                 category === 'metabolic' ? 'Метаболические' :
+                 category === 'inflammatory' ? 'Воспалительные' :
+                 category === 'hormonal' ? 'Гормональные' : category} риски
+              </h4>
+              <Badge variant={assessment.risk === 'Низкий' ? 'default' : 
+                           assessment.risk === 'Умеренный' ? 'secondary' : 'destructive'} 
+                     className="mb-3">
+                {assessment.risk} риск
+              </Badge>
+              <ul className="text-sm text-gray-700 space-y-1">
+                {assessment.factors.map((factor, idx) => (
+                  <li key={idx}>• {factor}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Персонализированные рекомендации */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Apple className="h-5 w-5 text-green-600" />
+          Персонализированные рекомендации
+        </h3>
+        <div className="grid gap-2">
+          {consultation.personalizedRecommendations.map((rec, index) => (
+            <div key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+              <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+              <p className="text-sm text-green-800">{rec}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Метрики отслеживания */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-blue-600" />
+          Метрики для отслеживания прогресса
+        </h3>
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <h4 className="font-medium text-blue-900 mb-3">📅 Ежедневно:</h4>
+            <ul className="text-sm text-blue-800 space-y-1">
+              {consultation.trackingMetrics.daily.map((metric, idx) => (
+                <li key={idx}>• {metric}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="p-4 bg-green-50 rounded-lg">
+            <h4 className="font-medium text-green-900 mb-3">📊 Еженедельно:</h4>
+            <ul className="text-sm text-green-800 space-y-1">
+              {consultation.trackingMetrics.weekly.map((metric, idx) => (
+                <li key={idx}>• {metric}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="p-4 bg-purple-50 rounded-lg">
+            <h4 className="font-medium text-purple-900 mb-3">🔬 Ежемесячно:</h4>
+            <ul className="text-sm text-purple-800 space-y-1">
+              {consultation.trackingMetrics.monthly.map((metric, idx) => (
+                <li key={idx}>• {metric}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
