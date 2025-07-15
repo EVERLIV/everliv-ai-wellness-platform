@@ -57,23 +57,23 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {Object.entries(categorizedBiomarkers).map(([category, categoryBiomarkers]) => (
-        <Card key={category}>
-          <CardHeader>
+        <div key={category} className="border border-gray-200 bg-white">
+          <div className="p-3 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">
+              <h3 className="text-sm font-medium">
                 {getCategoryTitle(category)}
-              </CardTitle>
+              </h3>
               <CategoryAnalysisUpload
                 category={category}
                 categoryTitle={getCategoryTitle(category)}
                 onAnalysisComplete={(data) => handleAnalysisComplete(category, data)}
               />
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          </div>
+          <div className="p-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {categoryBiomarkers.map(biomarker => (
                 <BiomarkerCard
                   key={biomarker.id}
@@ -84,8 +84,8 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
                 />
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ))}
     </div>
   );
