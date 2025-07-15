@@ -24,18 +24,18 @@ const BiologicalAgePage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
-      <SidebarProvider>
+    <SidebarProvider>
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Header />
         <div className="flex min-h-screen w-full pt-16">
           <AppSidebar />
-          <main className="flex-1">
-            <div className="container mx-auto px-4 py-6">
-              <div className="mb-4">
-                <h1 className="text-xl font-medium mb-1 text-gray-900">
+          <main className="flex-1 p-4">
+            <div className="max-w-full">
+              <div className="mb-3">
+                <h1 className="text-lg font-medium mb-1 text-gray-900">
                   Определение биологического возраста
                 </h1>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs text-gray-600">
                   Узнайте свой биологический возраст на основе комплексной оценки биомаркеров и показателей здоровья
                 </p>
               </div>
@@ -44,9 +44,9 @@ const BiologicalAgePage = () => {
             </div>
           </main>
         </div>
-      </SidebarProvider>
-      <MinimalFooter />
-    </div>
+        <MinimalFooter />
+      </div>
+    </SidebarProvider>
   );
 };
 

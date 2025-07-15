@@ -89,14 +89,14 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
   };
 
   return (
-    <Card className={`border-l-4 ${getImportanceColor()}`}>
-      <CardContent className="pt-4">
-        <div className="space-y-3">
+    <div className={`border border-gray-200 bg-white border-l-2 ${getImportanceColor()}`}>
+      <div className="p-2">
+        <div className="space-y-2">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <Label className="text-sm font-medium">{biomarker.name}</Label>
-                <Badge className={`text-xs border ${getImpactColor()}`}>
+              <div className="flex items-center gap-1 mb-1">
+                <Label className="text-xs font-medium">{biomarker.name}</Label>
+                <Badge className={`text-xs border ${getImpactColor()}`} variant="outline">
                   <div className="flex items-center gap-1">
                     {getImpactIcon()}
                     {impact.description}
@@ -105,36 +105,36 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
               </div>
               <p className="text-xs text-gray-600">{biomarker.description}</p>
             </div>
-            <Badge className={getStatusColor()}>
+            <Badge className={getStatusColor()} variant="secondary">
               {biomarker.status === 'filled' ? 'Заполнено' : 'Не заполнено'}
             </Badge>
           </div>
 
           <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-            <CollapsibleTrigger className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700">
-              {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            <CollapsibleTrigger className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700">
+              {isOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
               {isOpen ? 'Свернуть' : 'Ввести значение'}
             </CollapsibleTrigger>
             
             <CollapsibleContent className="space-y-2 mt-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <Input
                   type="number"
                   step="0.01"
                   value={inputValue}
                   onChange={(e) => handleInputChange(e.target.value)}
                   placeholder="Введите значение"
-                  className="flex-1"
+                  className="flex-1 text-xs h-7"
                 />
-                <span className="text-sm text-gray-500 min-w-fit">{biomarker.unit}</span>
+                <span className="text-xs text-gray-500 min-w-fit">{biomarker.unit}</span>
               </div>
               
               <div className="text-xs space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">Норма для вас:</span>
+                <div className="flex items-center gap-1">
+                  <span className="font-medium">Норма:</span>
                   <span>{adjustedRange.min} - {adjustedRange.max} {biomarker.unit}</span>
                   {adjustedRange.optimal && (
-                    <span className="text-emerald-600">(оптимально: {adjustedRange.optimal})</span>
+                    <span className="text-emerald-600">(опт: {adjustedRange.optimal})</span>
                   )}
                 </div>
                 
@@ -151,8 +151,8 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
             </CollapsibleContent>
           </Collapsible>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
