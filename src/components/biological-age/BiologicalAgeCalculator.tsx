@@ -42,88 +42,109 @@ const BiologicalAgeCalculator = () => {
   const filledBiomarkers = biomarkers.filter(b => b.status === 'filled');
 
   return (
-    <div className="space-y-3">
-      {/* View Mode Toggle */}
-      <div className="border border-gray-200 bg-white">
-        <div className="p-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-medium text-gray-900">Режим анализа</h3>
-              <p className="text-xs text-gray-600">
-                Выберите удобный способ ввода данных
-              </p>
-            </div>
-            
-            <div className="flex gap-1">
-              <Button
-                variant={viewMode === 'wizard' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('wizard')}
-                className="flex items-center gap-1 text-xs"
-              >
-                <Zap className="h-3 w-3" />
-                Пошаговый
-                <Badge variant="secondary" className="ml-1 text-xs">Новый</Badge>
-              </Button>
-              <Button
-                variant={viewMode === 'classic' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('classic')}
-                className="flex items-center gap-1 text-xs"
-              >
-                <LayoutGrid className="h-3 w-3" />
-                Классический
-              </Button>
-            </div>
+    <div className="space-y-2">
+      {/* View Mode Toggle - встроенный в заголовок */}
+      <div className="border border-gray-200 bg-white p-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-xs font-medium text-gray-900">Режим анализа</h3>
+            <p className="text-xs text-gray-600">Выберите способ ввода данных</p>
+          </div>
+          
+          <div className="flex gap-1">
+            <Button
+              variant={viewMode === 'wizard' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('wizard')}
+              className="flex items-center gap-1 text-xs h-7 px-2"
+            >
+              <Zap className="h-3 w-3" />
+              Пошаговый
+              <Badge variant="secondary" className="ml-1 text-xs h-4 px-1">Новый</Badge>
+            </Button>
+            <Button
+              variant={viewMode === 'classic' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('classic')}
+              className="flex items-center gap-1 text-xs h-7 px-2"
+            >
+              <LayoutGrid className="h-3 w-3" />
+              Классический
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Radar Chart for current data */}
+      {/* Компактное размещение диаграммы и данных */}
       {filledBiomarkers.length > 0 && (
-        <BiologicalAgeRadarChart biomarkers={biomarkers} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+          <BiologicalAgeRadarChart biomarkers={biomarkers} />
+          
+          {/* Компактная панель статистики */}
+          <div className="border border-gray-200 bg-white p-2">
+            <h4 className="text-xs font-medium text-gray-900 mb-1">Статистика</h4>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span className="text-gray-600">Заполнено:</span>
+                <span className="font-medium ml-1">{filledBiomarkers.length}/29</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Точность:</span>
+                <span className="font-medium ml-1">{currentAccuracy.percentage}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {viewMode === 'wizard' ? (
-        <BiologicalAgeWizard
-          biomarkers={biomarkers}
-          onValueChange={handleBiomarkerValueChange}
-          healthProfile={healthProfile}
-          onCalculate={calculateBiologicalAge}
-          isCalculating={isCalculating}
-          results={results}
-          currentAccuracy={currentAccuracy}
-        />
-      ) : (
-        <>
-          <UserProfileDisplay healthProfile={healthProfile} />
-          
-          <AccuracyIndicator accuracy={currentAccuracy} />
-
-          {connectionError && (
-            <ConnectionErrorAlert 
-              error={connectionError} 
-              onRetry={retryCalculation} 
-            />
-          )}
-
-          <BiomarkerCategories
+        <div className="space-y-2">
+          <BiologicalAgeWizard
             biomarkers={biomarkers}
             onValueChange={handleBiomarkerValueChange}
             healthProfile={healthProfile}
-          />
-
-          <CalculationControls
             onCalculate={calculateBiologicalAge}
             isCalculating={isCalculating}
+            results={results}
             currentAccuracy={currentAccuracy}
-            totalBiomarkers={biomarkers.length}
           />
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+            {/* Основной контент */}
+            <div className="lg:col-span-2">
+              <BiomarkerCategories
+                biomarkers={biomarkers}
+                onValueChange={handleBiomarkerValueChange}
+                healthProfile={healthProfile}
+              />
+            </div>
+            
+            {/* Боковая панель */}
+            <div className="space-y-2">
+              <AccuracyIndicator accuracy={currentAccuracy} />
 
-          {results && (
-            <BiologicalAgeResults results={results} />
-          )}
-        </>
+              {connectionError && (
+                <ConnectionErrorAlert 
+                  error={connectionError} 
+                  onRetry={retryCalculation} 
+                />
+              )}
+
+              <CalculationControls
+                onCalculate={calculateBiologicalAge}
+                isCalculating={isCalculating}
+                currentAccuracy={currentAccuracy}
+                totalBiomarkers={biomarkers.length}
+              />
+
+              {results && (
+                <BiologicalAgeResults results={results} />
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

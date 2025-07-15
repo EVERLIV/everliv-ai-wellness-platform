@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Biomarker } from '@/types/biologicalAge';
 
@@ -109,9 +108,9 @@ const BiologicalAgeRadarChart: React.FC<BiologicalAgeRadarChartProps> = ({
     totalCount: biomarkers.filter(b => b.category === category.id).length
   }));
 
-  // SVG radar chart
-  const center = 120;
-  const maxRadius = 100;
+  // Компактный SVG radar chart
+  const center = 80;
+  const maxRadius = 70;
   const angleStep = (2 * Math.PI) / categories.length;
 
   const getPoint = (index: number, score: number) => {
@@ -131,8 +130,8 @@ const BiologicalAgeRadarChart: React.FC<BiologicalAgeRadarChartProps> = ({
 
   const getLabelPoint = (index: number) => {
     const angle = index * angleStep - Math.PI / 2;
-    const x = center + (maxRadius + 20) * Math.cos(angle);
-    const y = center + (maxRadius + 20) * Math.sin(angle);
+    const x = center + (maxRadius + 15) * Math.cos(angle);
+    const y = center + (maxRadius + 15) * Math.sin(angle);
     return { x, y };
   };
 
@@ -161,137 +160,117 @@ const BiologicalAgeRadarChart: React.FC<BiologicalAgeRadarChartProps> = ({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">{title}</CardTitle>
-          <Badge className={getScoreBadgeColor(overallScore)}>
-            Общий балл: {overallScore}/100
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Radar Chart */}
-          <div className="flex justify-center">
-            <svg width="240" height="240" className="overflow-visible">
-              {/* Grid circles */}
-              {[20, 40, 60, 80, 100].map(radius => (
-                <circle
-                  key={radius}
-                  cx={center}
-                  cy={center}
-                  r={(radius / 100) * maxRadius}
-                  fill="none"
+    <div className="border border-gray-200 bg-white p-2">
+      <div className="flex items-center justify-between mb-2">
+        <h4 className="text-xs font-medium text-gray-900">{title}</h4>
+        <Badge className={`text-xs ${getScoreBadgeColor(overallScore)}`}>
+          {overallScore}/100
+        </Badge>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* Компактная радарная диаграмма */}
+        <div className="flex justify-center">
+          <svg width="160" height="160" className="overflow-visible">
+            {/* Grid circles */}
+            {[20, 40, 60, 80, 100].map(radius => (
+              <circle
+                key={radius}
+                cx={center}
+                cy={center}
+                r={(radius / 100) * maxRadius}
+                fill="none"
+                stroke="#e5e7eb"
+                strokeWidth="0.5"
+              />
+            ))}
+            
+            {/* Axis lines */}
+            {categories.map((_, index) => {
+              const point = getAxisPoint(index);
+              return (
+                <line
+                  key={index}
+                  x1={center}
+                  y1={center}
+                  x2={point.x}
+                  y2={point.y}
                   stroke="#e5e7eb"
+                  strokeWidth="0.5"
+                />
+              );
+            })}
+
+            {/* Data polygon */}
+            <path
+              d={pathData}
+              fill="rgba(59, 130, 246, 0.2)"
+              stroke="#3b82f6"
+              strokeWidth="1.5"
+            />
+
+            {/* Data points */}
+            {categoryData.map((category, index) => {
+              const point = getPoint(index, category.score);
+              return (
+                <circle
+                  key={index}
+                  cx={point.x}
+                  cy={point.y}
+                  r="3"
+                  fill={category.color}
+                  stroke="white"
                   strokeWidth="1"
                 />
-              ))}
-              
-              {/* Axis lines */}
-              {categories.map((_, index) => {
-                const point = getAxisPoint(index);
-                return (
-                  <line
-                    key={index}
-                    x1={center}
-                    y1={center}
-                    x2={point.x}
-                    y2={point.y}
-                    stroke="#e5e7eb"
-                    strokeWidth="1"
-                  />
-                );
-              })}
+              );
+            })}
 
-              {/* Data polygon */}
-              <path
-                d={pathData}
-                fill="rgba(59, 130, 246, 0.2)"
-                stroke="#3b82f6"
-                strokeWidth="2"
-              />
+            {/* Компактные лейблы */}
+            {categoryData.map((category, index) => {
+              const point = getLabelPoint(index);
+              return (
+                <text
+                  key={index}
+                  x={point.x}
+                  y={point.y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="text-xs fill-gray-700"
+                >
+                  {category.shortName}
+                </text>
+              );
+            })}
+          </svg>
+        </div>
 
-              {/* Data points */}
-              {categoryData.map((category, index) => {
-                const point = getPoint(index, category.score);
-                return (
-                  <circle
-                    key={index}
-                    cx={point.x}
-                    cy={point.y}
-                    r="4"
-                    fill={category.color}
-                    stroke="white"
-                    strokeWidth="2"
-                  />
-                );
-              })}
-
-              {/* Labels */}
-              {categoryData.map((category, index) => {
-                const point = getLabelPoint(index);
-                return (
-                  <text
-                    key={index}
-                    x={point.x}
-                    y={point.y}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    className="text-xs font-medium fill-gray-700"
-                  >
-                    {category.shortName}
-                  </text>
-                );
-              })}
-            </svg>
-          </div>
-
-          {/* Category Details */}
-          <div className="space-y-3">
-            {categoryData.map((category) => (
-              <div key={category.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: category.color }}
-                  />
-                  <div>
-                    <p className="text-sm font-medium">{category.name}</p>
-                    <p className="text-xs text-gray-600">
-                      {category.filledCount}/{category.totalCount} показателей
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className={`text-sm font-bold ${getScoreColor(category.score)}`}>
-                    {category.score}
+        {/* Компактный список категорий */}
+        <div className="space-y-1">
+          {categoryData.map((category) => (
+            <div key={category.id} className="flex items-center justify-between py-1 px-2 bg-gray-50">
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: category.color }}
+                />
+                <div>
+                  <p className="text-xs font-medium">{category.name}</p>
+                  <p className="text-xs text-gray-600">
+                    {category.filledCount}/{category.totalCount} показателей
                   </p>
-                  <p className="text-xs text-gray-600">баллов</p>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Summary */}
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-          <div className="text-center">
-            <p className="text-sm text-blue-800 mb-2">
-              Заполнено {biomarkers.filter(b => b.status === 'filled').length} из {biomarkers.length} биомаркеров
-            </p>
-            <div className="w-full bg-blue-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ 
-                  width: `${(biomarkers.filter(b => b.status === 'filled').length / biomarkers.length) * 100}%` 
-                }}
-              />
+              <div className="text-right">
+                <p className={`text-xs font-bold ${getScoreColor(category.score)}`}>
+                  {category.score}
+                </p>
+                <p className="text-xs text-gray-600">баллов</p>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
