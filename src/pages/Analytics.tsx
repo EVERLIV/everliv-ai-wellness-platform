@@ -169,7 +169,7 @@ const Analytics = () => {
   // Основная страница с рекомендациями
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-4 max-w-6xl">
+      <div className="container mx-auto px-[15px] sm:px-4 py-4 max-w-6xl">
         <div className="space-y-4">
           {/* Header */}
           <div className="flex flex-col gap-2">
