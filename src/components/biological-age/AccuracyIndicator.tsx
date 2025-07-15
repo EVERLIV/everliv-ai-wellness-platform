@@ -85,10 +85,10 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
 
       {/* Уровни точности */}
       <div className="grid grid-cols-3 gap-2 text-xs">
-        <div className={`p-2 rounded text-center ${
+        <div className={`p-2 border text-center ${
           accuracy.current_tests >= ACCURACY_LEVELS.basic.min 
-            ? 'bg-green-100 text-green-700' 
-            : 'bg-gray-100 text-gray-600'
+            ? 'bg-green-50 text-green-700 border-green-200' 
+            : 'bg-gray-50 text-gray-600 border-gray-200'
         }`}>
           <div className="flex items-center justify-center mb-1">
             {accuracy.current_tests >= ACCURACY_LEVELS.basic.min ? (
@@ -101,10 +101,10 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
           <div>{ACCURACY_LEVELS.basic.percentage}%</div>
         </div>
         
-        <div className={`p-2 rounded text-center ${
+        <div className={`p-2 border text-center ${
           accuracy.current_tests >= ACCURACY_LEVELS.extended.min 
-            ? 'bg-green-100 text-green-700' 
-            : 'bg-gray-100 text-gray-600'
+            ? 'bg-green-50 text-green-700 border-green-200' 
+            : 'bg-gray-50 text-gray-600 border-gray-200'
         }`}>
           <div className="flex items-center justify-center mb-1">
             {accuracy.current_tests >= ACCURACY_LEVELS.extended.min ? (
@@ -117,10 +117,10 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
           <div>{ACCURACY_LEVELS.extended.percentage}%</div>
         </div>
         
-        <div className={`p-2 rounded text-center ${
+        <div className={`p-2 border text-center ${
           accuracy.current_tests >= ACCURACY_LEVELS.comprehensive.min 
-            ? 'bg-green-100 text-green-700' 
-            : 'bg-gray-100 text-gray-600'
+            ? 'bg-green-50 text-green-700 border-green-200' 
+            : 'bg-gray-50 text-gray-600 border-gray-200'
         }`}>
           <div className="flex items-center justify-center mb-1">
             {accuracy.current_tests >= ACCURACY_LEVELS.comprehensive.min ? (
@@ -136,8 +136,8 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
 
       {/* Следующая цель */}
       {nextMilestone && (
-        <Card className="bg-blue-50">
-          <CardContent className="p-3">
+        <div className="bg-blue-50 border border-blue-200">
+          <div className="p-3">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="h-4 w-4 text-blue-600" />
               <span className="text-sm font-medium text-blue-900">
@@ -148,8 +148,8 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
               Добавьте еще <strong>{nextMilestone.needed}</strong> анализ(ов) 
               для достижения {nextMilestone.description}
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
     </div>
   );

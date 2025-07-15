@@ -43,13 +43,13 @@ const BiologicalAgeCalculator = () => {
   const filledBiomarkers = biomarkers.filter(b => b.status === 'filled');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* View Mode Toggle */}
-      <Card>
-        <CardContent className="pt-6">
+      <div className="border border-gray-200 bg-white">
+        <div className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-gray-900">Режим анализа</h3>
+              <h3 className="text-base font-medium text-gray-900">Режим анализа</h3>
               <p className="text-sm text-gray-600">
                 Выберите удобный способ ввода данных
               </p>
@@ -77,8 +77,8 @@ const BiologicalAgeCalculator = () => {
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Radar Chart for current data */}
       {filledBiomarkers.length > 0 && (

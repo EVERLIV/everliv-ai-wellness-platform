@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User } from 'lucide-react';
 import { HealthProfileData } from '@/types/healthProfile';
 
@@ -10,14 +9,14 @@ interface UserProfileDisplayProps {
 
 const UserProfileDisplay: React.FC<UserProfileDisplayProps> = ({ healthProfile }) => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <User className="h-5 w-5" />
+    <div className="border border-gray-200 bg-white">
+      <div className="p-4 border-b border-gray-200">
+        <h3 className="text-base font-medium text-gray-900 flex items-center gap-2">
+          <User className="h-4 w-4" />
           Данные из профиля здоровья
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </h3>
+      </div>
+      <div className="p-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <span className="font-medium">Возраст:</span> {healthProfile.age} лет
@@ -54,8 +53,8 @@ const UserProfileDisplay: React.FC<UserProfileDisplayProps> = ({ healthProfile }
             <span className="font-medium">Упражнения:</span> {healthProfile.exerciseFrequency} раз/неделю
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

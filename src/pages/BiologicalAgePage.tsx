@@ -1,10 +1,12 @@
 
 import React from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from '@/components/layout/AppSidebar';
+import Header from '@/components/Header';
+import MinimalFooter from '@/components/MinimalFooter';
 import BiologicalAgeCalculator from '@/components/biological-age/BiologicalAgeCalculator';
 
 const BiologicalAgePage = () => {
@@ -22,23 +24,28 @@ const BiologicalAgePage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <div className="flex-grow pt-16 bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-6xl mx-auto">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold mb-2">Определение биологического возраста</h1>
-              <p className="text-lg text-gray-700">
-                Узнайте свой биологический возраст на основе комплексной оценки биомаркеров и показателей здоровья
-              </p>
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full pt-16">
+          <AppSidebar />
+          <main className="flex-1">
+            <div className="container mx-auto px-4 py-6">
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold mb-2 text-gray-900">
+                  Определение биологического возраста
+                </h1>
+                <p className="text-base text-gray-600">
+                  Узнайте свой биологический возраст на основе комплексной оценки биомаркеров и показателей здоровья
+                </p>
+              </div>
+              
+              <BiologicalAgeCalculator />
             </div>
-            
-            <BiologicalAgeCalculator />
-          </div>
+          </main>
         </div>
-      </div>
-      <Footer />
+      </SidebarProvider>
+      <MinimalFooter />
     </div>
   );
 };
