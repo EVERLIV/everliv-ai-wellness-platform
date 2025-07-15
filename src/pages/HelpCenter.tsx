@@ -6,8 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
+import {
   Search,
   HelpCircle, 
   CreditCard, 
@@ -38,197 +37,184 @@ const HelpCenter = () => {
   return (
     <AppLayout>
       <div className="bg-gray-50 -mx-2 -mt-6 mb-8">
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">Центр помощи</h1>
-            <p className="text-xl text-gray-600">Мы здесь, чтобы помочь вам с любыми вопросами</p>
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto text-center mb-8">
+            <h1 className="text-2xl font-bold mb-2">Центр помощи</h1>
+            <p className="text-base text-gray-600">Часто задаваемые вопросы</p>
             
-            <div className="mt-8 relative">
+            <div className="mt-6 relative">
               <Input 
                 type="text" 
                 placeholder="Поиск ответов..." 
-                className="w-full pl-12 pr-4 py-3 text-lg rounded-lg"
+                className="w-full pl-10 pr-4 py-2 text-sm rounded-none"
               />
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             </div>
           </div>
           
-          <Tabs defaultValue="common" className="w-full max-w-4xl mx-auto">
-            <TabsList className="grid grid-cols-3 mb-8">
-              <TabsTrigger value="common">Частые вопросы</TabsTrigger>
-              <TabsTrigger value="technical">Технические проблемы</TabsTrigger>
-              <TabsTrigger value="account">Аккаунт и оплата</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="common">
-              <div className="grid gap-6">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <HelpCircle className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">Как начать использовать платформу EVERLIV?</h3>
-                        <p className="text-gray-700">
-                          Чтобы начать использовать платформу EVERLIV, зарегистрируйтесь на нашем сайте, заполните базовый профиль здоровья и выберите подходящий тариф. После этого вы получите доступ к персонализированным рекомендациям и инструментам для улучшения здоровья.
-                        </p>
-                      </div>
+          <div className="w-full max-w-4xl mx-auto">
+            <div className="grid gap-3">
+              {/* Общие вопросы */}
+              <Card className="rounded-none border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <HelpCircle className="h-5 w-5 text-primary" />
                     </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <HelpCircle className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">Каковы преимущества премиум-подписки?</h3>
-                        <p className="text-gray-700">
-                          Премиум-подписка открывает доступ к расширенной аналитике здоровья, персонализированным протоколам оздоровления, консультациям со специалистами и регулярным отчетам о прогрессе. Вы также получаете приоритетную поддержку и эксклюзивный доступ к образовательным материалам.
-                        </p>
-                      </div>
+                    <div>
+                      <h3 className="text-sm font-semibold mb-1">Как начать использовать платформу EVERLIV?</h3>
+                      <p className="text-xs text-gray-700">
+                        Зарегистрируйтесь на сайте, заполните базовый профиль здоровья и выберите подходящий тариф. После этого вы получите доступ к персонализированным рекомендациям.
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <HelpCircle className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">Как интерпретировать результаты анализов?</h3>
-                        <p className="text-gray-700">
-                          После загрузки результатов анализов на платформу, наш ИИ автоматически интерпретирует их и представляет в понятном формате. Вы получите подробное объяснение каждого параметра, его влияние на ваше здоровье и рекомендации по улучшению показателей.
-                        </p>
-                      </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="rounded-none border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <HelpCircle className="h-5 w-5 text-primary" />
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="technical">
-              <div className="grid gap-6">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <AlertTriangle className="h-6 w-6 text-amber-500" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">Не загружаются результаты анализов</h3>
-                        <p className="text-gray-700">
-                          Если у вас возникли проблемы с загрузкой результатов анализов, убедитесь, что файл в одном из поддерживаемых форматов (PDF, JPG, PNG) и размер не превышает 10 МБ. Также проверьте стабильность вашего интернет-соединения. Если проблема сохраняется, свяжитесь с нашей технической поддержкой.
-                        </p>
-                      </div>
+                    <div>
+                      <h3 className="text-sm font-semibold mb-1">Каковы преимущества премиум-подписки?</h3>
+                      <p className="text-xs text-gray-700">
+                        Премиум-подписка открывает доступ к расширенной аналитике здоровья, персонализированным протоколам оздоровления, консультациям со специалистами и приоритетной поддержке.
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <Settings className="h-6 w-6 text-gray-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">Приложение работает медленно или зависает</h3>
-                        <p className="text-gray-700">
-                          Для оптимальной работы платформы рекомендуем использовать последние версии браузеров Chrome, Firefox, Safari или Edge. Очистите кэш браузера и перезагрузите страницу. Если проблема сохраняется, попробуйте открыть платформу в режиме инкогнито или с другого устройства.
-                        </p>
-                      </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="rounded-none border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <HelpCircle className="h-5 w-5 text-primary" />
                     </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <User className="h-6 w-6 text-blue-500" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">Не приходят уведомления</h3>
-                        <p className="text-gray-700">
-                          Проверьте настройки уведомлений в вашем профиле и убедитесь, что вы не отключили их. Также проверьте папку "Спам" в вашей электронной почте. Если уведомления все равно не приходят, обновите свой email в настройках профиля или свяжитесь с нашей службой поддержки.
-                        </p>
-                      </div>
+                    <div>
+                      <h3 className="text-sm font-semibold mb-1">Как интерпретировать результаты анализов?</h3>
+                      <p className="text-xs text-gray-700">
+                        После загрузки результатов анализов наш ИИ автоматически интерпретирует их и представляет в понятном формате с подробными объяснениями и рекомендациями.
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="account">
-              <div className="grid gap-6">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <Lock className="h-6 w-6 text-red-500" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">Забыли пароль?</h3>
-                        <p className="text-gray-700">
-                          Если вы забыли пароль, воспользуйтесь функцией "Забыли пароль" на странице входа. Введите адрес электронной почты, связанный с вашей учетной записью, и мы отправим вам инструкции по сбросу пароля.
-                        </p>
-                      </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Технические проблемы */}
+              <Card className="rounded-none border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <AlertTriangle className="h-5 w-5 text-amber-500" />
                     </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <CreditCard className="h-6 w-6 text-green-500" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">Проблемы с оплатой подписки</h3>
-                        <p className="text-gray-700">
-                          Если у вас возникли проблемы с оплатой подписки, убедитесь, что данные вашей карты актуальны и на счету достаточно средств. Проверьте, не заблокирован ли ваш банк онлайн-платежи. Если проблема сохраняется, свяжитесь с нашей службой поддержки, предоставив номер транзакции или скриншот ошибки.
-                        </p>
-                      </div>
+                    <div>
+                      <h3 className="text-sm font-semibold mb-1">Не загружаются результаты анализов</h3>
+                      <p className="text-xs text-gray-700">
+                        Убедитесь, что файл в поддерживаемом формате (PDF, JPG, PNG) и размер не превышает 10 МБ. Проверьте интернет-соединение. При проблемах свяжитесь с поддержкой.
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <User className="h-6 w-6 text-blue-500" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold mb-2">Как изменить данные профиля?</h3>
-                        <p className="text-gray-700">
-                          Для изменения данных профиля войдите в свою учетную запись, перейдите в раздел "Настройки" или "Профиль" и внесите необходимые изменения. Не забудьте сохранить изменения, нажав соответствующую кнопку. Обратите внимание, что некоторые данные, связанные с результатами анализов и медицинской информацией, могут требовать дополнительной верификации.
-                        </p>
-                      </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="rounded-none border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <Settings className="h-5 w-5 text-gray-600" />
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
+                    <div>
+                      <h3 className="text-sm font-semibold mb-1">Приложение работает медленно или зависает</h3>
+                      <p className="text-xs text-gray-700">
+                        Используйте последние версии браузеров Chrome, Firefox, Safari или Edge. Очистите кэш браузера и перезагрузите страницу.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="rounded-none border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <User className="h-5 w-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold mb-1">Не приходят уведомления</h3>
+                      <p className="text-xs text-gray-700">
+                        Проверьте настройки уведомлений в профиле и папку "Спам" в почте. Обновите email в настройках или свяжитесь с поддержкой.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Аккаунт и оплата */}
+              <Card className="rounded-none border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <Lock className="h-5 w-5 text-red-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold mb-1">Забыли пароль?</h3>
+                      <p className="text-xs text-gray-700">
+                        Воспользуйтесь функцией "Забыли пароль" на странице входа. Введите email и мы отправим инструкции по сбросу пароля.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="rounded-none border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <CreditCard className="h-5 w-5 text-green-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold mb-1">Проблемы с оплатой подписки</h3>
+                      <p className="text-xs text-gray-700">
+                        Убедитесь, что данные карты актуальны и на счету достаточно средств. Проверьте, не заблокированы ли онлайн-платежи банком.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="rounded-none border-gray-200">
+                <CardContent className="p-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0">
+                      <User className="h-5 w-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold mb-1">Как изменить данные профиля?</h3>
+                      <p className="text-xs text-gray-700">
+                        Войдите в учетную запись, перейдите в "Настройки" или "Профиль" и внесите изменения. Не забудьте сохранить изменения.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
           
-          <div className="max-w-4xl mx-auto mt-16">
-            <Card>
-              <CardContent className="pt-6">
-                <h2 className="text-2xl font-bold mb-6">Свяжитесь с нами</h2>
-                <p className="text-gray-700 mb-6">
-                  Не нашли ответ на свой вопрос? Отправьте нам сообщение, и мы свяжемся с вами в ближайшее время.
+          <div className="max-w-4xl mx-auto mt-12">
+            <Card className="rounded-none border-gray-200">
+              <CardContent className="p-4">
+                <h2 className="text-lg font-bold mb-4">Свяжитесь с нами</h2>
+                <p className="text-sm text-gray-700 mb-4">
+                  Не нашли ответ на свой вопрос? Отправьте нам сообщение.
                 </p>
                 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="name" className="block mb-2 text-sm font-medium">
+                      <label htmlFor="name" className="block mb-1 text-xs font-medium">
                         Ваше имя
                       </label>
                       <Input
@@ -236,11 +222,12 @@ const HelpCenter = () => {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Введите ваше имя"
+                        className="h-8 text-xs rounded-none"
                         required
                       />
                     </div>
                     <div>
-                      <label htmlFor="email" className="block mb-2 text-sm font-medium">
+                      <label htmlFor="email" className="block mb-1 text-xs font-medium">
                         Email
                       </label>
                       <Input
@@ -249,20 +236,21 @@ const HelpCenter = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Введите ваш email"
+                        className="h-8 text-xs rounded-none"
                         required
                       />
                     </div>
                   </div>
                   
                   <div>
-                    <label htmlFor="subject" className="block mb-2 text-sm font-medium">
+                    <label htmlFor="subject" className="block mb-1 text-xs font-medium">
                       Тема обращения
                     </label>
                     <select
                       id="subject"
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full border border-gray-300 rounded-none px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                       required
                     >
                       <option value="">Выберите тему</option>
@@ -275,7 +263,7 @@ const HelpCenter = () => {
                   </div>
                   
                   <div>
-                    <label htmlFor="message" className="block mb-2 text-sm font-medium">
+                    <label htmlFor="message" className="block mb-1 text-xs font-medium">
                       Ваше сообщение
                     </label>
                     <Textarea
@@ -283,13 +271,13 @@ const HelpCenter = () => {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Опишите вашу проблему или вопрос подробно..."
-                      className="min-h-[150px]"
+                      className="min-h-[100px] text-xs rounded-none"
                       required
                     />
                   </div>
                   
                   <div>
-                    <Button type="submit" className="w-full">
+                    <Button type="submit" className="w-full h-8 text-xs rounded-none">
                       Отправить сообщение
                     </Button>
                   </div>
