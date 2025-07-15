@@ -54,14 +54,14 @@ const NutritionGoals: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        <Card>
-          <CardHeader>
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-2 px-3 py-2">
             <CardTitle className="flex items-center gap-2 text-base md:text-lg">
               <Target className="h-4 w-4 md:h-5 md:w-5 text-green-500" />
               Дневные цели
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="px-3 py-2 pt-0 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="calories" className="text-sm font-medium">Калории (ккал)</Label>
               <Input
@@ -117,13 +117,13 @@ const NutritionGoals: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-2 px-3 py-2">
             <CardTitle className="text-base md:text-lg">Рекомендации</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 py-2 pt-0">
             <div className="space-y-3 md:space-y-4 text-xs md:text-sm">
-              <div className="p-3 bg-blue-50 rounded-lg">
+              <div className="p-2 bg-blue-50 border border-gray-200/50">
                 <h4 className="font-medium text-blue-800 mb-1">Калории</h4>
                 <p className="text-blue-700">
                   Базовая потребность зависит от возраста, пола, веса и активности. 
@@ -131,7 +131,7 @@ const NutritionGoals: React.FC = () => {
                 </p>
               </div>
 
-              <div className="p-3 bg-green-50 rounded-lg">
+              <div className="p-2 bg-green-50 border border-gray-200/50">
                 <h4 className="font-medium text-green-800 mb-1">Белки</h4>
                 <p className="text-green-700">
                   1.2-2.0 г на кг веса тела. Для спортсменов до 2.5 г/кг.
@@ -139,7 +139,7 @@ const NutritionGoals: React.FC = () => {
                 </p>
               </div>
 
-              <div className="p-3 bg-orange-50 rounded-lg">
+              <div className="p-2 bg-orange-50 border border-gray-200/50">
                 <h4 className="font-medium text-orange-800 mb-1">Углеводы</h4>
                 <p className="text-orange-700">
                   45-65% от общей калорийности. Предпочтение сложным углеводам:
@@ -147,7 +147,7 @@ const NutritionGoals: React.FC = () => {
                 </p>
               </div>
 
-              <div className="p-3 bg-purple-50 rounded-lg">
+              <div className="p-2 bg-purple-50 border border-gray-200/50">
                 <h4 className="font-medium text-purple-800 mb-1">Жиры</h4>
                 <p className="text-purple-700">
                   20-35% от общей калорийности. Акцент на полезные жиры:

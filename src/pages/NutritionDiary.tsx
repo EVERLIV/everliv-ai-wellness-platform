@@ -1,9 +1,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import PageLayoutWithHeader from "@/components/PageLayoutWithHeader";
+import { AppLayout } from "@/components/layout/AppLayout";
 import NutritionDiary from "@/components/nutrition/NutritionDiary";
-import NutritionDiaryHeader from "@/components/nutrition/NutritionDiaryHeader";
 
 const NutritionDiaryPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -27,22 +26,28 @@ const NutritionDiaryPage: React.FC = () => {
   };
 
   return (
-    <PageLayoutWithHeader
-      headerComponent={
-        <NutritionDiaryHeader 
-          onQuickAdd={handleQuickAdd}
-          onCalendarClick={handleCalendarClick}
+    <AppLayout>
+      <div className="space-y-6">
+        {/* Заголовок */}
+        <div>
+          <h1 className="text-3xl font-bold mb-2">
+            Дневник питания
+          </h1>
+          <p className="text-muted-foreground">
+            Отслеживайте питание и получайте персональные рекомендации
+          </p>
+        </div>
+
+        {/* Основной контент */}
+        <NutritionDiary 
+          initialTab={initialTab}
+          triggerQuickAdd={showQuickAdd}
+          onQuickAddHandled={() => setShowQuickAdd(false)}
+          triggerCalendar={showCalendar}
+          onCalendarHandled={() => setShowCalendar(false)}
         />
-      }
-    >
-      <NutritionDiary 
-        initialTab={initialTab}
-        triggerQuickAdd={showQuickAdd}
-        onQuickAddHandled={() => setShowQuickAdd(false)}
-        triggerCalendar={showCalendar}
-        onCalendarHandled={() => setShowCalendar(false)}
-      />
-    </PageLayoutWithHeader>
+      </div>
+    </AppLayout>
   );
 };
 

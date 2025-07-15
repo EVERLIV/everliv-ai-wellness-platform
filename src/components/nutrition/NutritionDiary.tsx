@@ -140,8 +140,8 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
           {/* Meals */}
           <div className="space-y-4">
             {mealTypes.map(({ key, label, icon }) => (
-              <Card key={key} className="mobile-card">
-                <CardHeader className="mobile-card-header">
+              <Card key={key} className="shadow-none border-gray-200/80 rounded-none">
+                <CardHeader className="pb-2 px-3 py-2">
                   <div className="mobile-flex-header">
                     <CardTitle className="flex items-center gap-3">
                       <span className="text-xl">{icon}</span>
@@ -163,14 +163,14 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
                     />
                   </div>
                 </CardHeader>
-                <CardContent className="mobile-card-content">
+                <CardContent className="px-3 py-2 pt-0">
                   <div className="space-y-3">
                     {entries
                       .filter(entry => entry.meal_type === key)
                       .map((entry) => (
                         <div 
                           key={entry.id} 
-                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                          className="flex items-center justify-between p-2 bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200/50"
                         >
                           <div className="flex-1 min-w-0">
                             <h4 className="font-medium text-gray-900 truncate">{entry.food_name}</h4>
@@ -199,25 +199,25 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
           </div>
 
           {/* Daily Summary */}
-          <Card className="mobile-card mt-6">
-            <CardHeader className="mobile-card-header">
+          <Card className="shadow-none border-gray-200/80 rounded-none mt-6">
+            <CardHeader className="pb-2 px-3 py-2">
               <CardTitle className="mobile-heading-secondary">Итоги дня</CardTitle>
             </CardHeader>
-            <CardContent className="mobile-card-content">
+            <CardContent className="px-3 py-2 pt-0">
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                <div className="text-center p-2 bg-gray-50 border border-gray-200/50">
                   <div className="text-xl sm:text-2xl font-bold text-primary">{dailyTotals.calories}</div>
                   <div className="mobile-text-small text-gray-600 mt-1">Калории</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                <div className="text-center p-2 bg-gray-50 border border-gray-200/50">
                   <div className="text-xl sm:text-2xl font-bold text-blue-600">{dailyTotals.protein.toFixed(1)}г</div>
                   <div className="mobile-text-small text-gray-600 mt-1">Белки</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                <div className="text-center p-2 bg-gray-50 border border-gray-200/50">
                   <div className="text-xl sm:text-2xl font-bold text-green-600">{dailyTotals.carbs.toFixed(1)}г</div>
                   <div className="mobile-text-small text-gray-600 mt-1">Углеводы</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
+                <div className="text-center p-2 bg-gray-50 border border-gray-200/50">
                   <div className="text-xl sm:text-2xl font-bold text-orange-600">{dailyTotals.fat.toFixed(1)}г</div>
                   <div className="mobile-text-small text-gray-600 mt-1">Жиры</div>
                 </div>

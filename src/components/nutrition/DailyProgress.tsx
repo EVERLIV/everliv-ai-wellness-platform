@@ -24,10 +24,10 @@ const DailyProgress: React.FC<DailyProgressProps> = ({ selectedDate }) => {
   };
 
   return (
-    <Card className="mobile-card">
-      <CardHeader className="mobile-card-header">
+    <Card className="shadow-none border-gray-200/80 rounded-none">
+      <CardHeader className="pb-2 px-3 py-2">
         <CardTitle className="mobile-heading-secondary flex items-center gap-3">
-          <div className="p-2 bg-blue-100 rounded-lg">
+          <div className="p-1 bg-blue-100">
             <CalendarDays className="h-5 w-5 text-blue-600" />
           </div>
           <div>
@@ -40,7 +40,7 @@ const DailyProgress: React.FC<DailyProgressProps> = ({ selectedDate }) => {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="mobile-card-content">
+      <CardContent className="px-3 py-2 pt-0">
         <div className="space-y-4 mb-6">
           {/* Калории */}
           <div className="space-y-2">
@@ -122,7 +122,7 @@ const DailyProgress: React.FC<DailyProgressProps> = ({ selectedDate }) => {
         <div className="border-t pt-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-green-100 rounded">
+              <div className="p-1 bg-green-100">
                 <Target className="h-4 w-4 text-green-600" />
               </div>
               <span className="text-sm text-gray-600">
@@ -130,7 +130,7 @@ const DailyProgress: React.FC<DailyProgressProps> = ({ selectedDate }) => {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-blue-100 rounded">
+              <div className="p-1 bg-blue-100">
                 <TrendingUp className="h-4 w-4 text-blue-600" />
               </div>
               <span className="text-sm text-gray-600">

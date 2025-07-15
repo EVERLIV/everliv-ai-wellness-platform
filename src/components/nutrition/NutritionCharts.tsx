@@ -94,14 +94,14 @@ const NutritionCharts: React.FC = () => {
 
       <div className="space-y-6">
         {/* График калорий */}
-        <Card className="mobile-card">
-          <CardHeader className="mobile-card-header">
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-2 px-3 py-2">
             <CardTitle className="mobile-heading-secondary flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
               Потребление калорий
             </CardTitle>
           </CardHeader>
-          <CardContent className="mobile-card-content">
+          <CardContent className="px-3 py-2 pt-0">
             <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -125,14 +125,14 @@ const NutritionCharts: React.FC = () => {
         </Card>
 
         {/* График макронутриентов */}
-        <Card className="mobile-card">
-          <CardHeader className="mobile-card-header">
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-2 px-3 py-2">
             <CardTitle className="mobile-heading-secondary flex items-center gap-2">
               <Activity className="h-5 w-5 text-green-600" />
               Макронутриенты
             </CardTitle>
           </CardHeader>
-          <CardContent className="mobile-card-content">
+          <CardContent className="px-3 py-2 pt-0">
             <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -151,14 +151,14 @@ const NutritionCharts: React.FC = () => {
         </Card>
 
         {/* Круговая диаграмма макронутриентов за сегодня */}
-        <Card className="mobile-card">
-          <CardHeader className="mobile-card-header">
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-2 px-3 py-2">
             <CardTitle className="mobile-heading-secondary flex items-center gap-2">
               <Target className="h-5 w-5 text-purple-600" />
               Баланс макронутриентов сегодня
             </CardTitle>
           </CardHeader>
-          <CardContent className="mobile-card-content">
+          <CardContent className="px-3 py-2 pt-0">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
@@ -182,7 +182,7 @@ const NutritionCharts: React.FC = () => {
               </div>
               <div className="space-y-3">
                 {macroData.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 border border-gray-200/50">
                     <div className="flex items-center gap-3">
                       <div 
                         className="w-4 h-4 rounded-full" 
@@ -200,16 +200,16 @@ const NutritionCharts: React.FC = () => {
 
         {/* Статистика достижения целей */}
         {goals && (
-          <Card className="mobile-card">
-            <CardHeader className="mobile-card-header">
+          <Card className="shadow-none border-gray-200/80 rounded-none">
+            <CardHeader className="pb-2 px-3 py-2">
               <CardTitle className="mobile-heading-secondary flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-indigo-600" />
                 Достижение целей сегодня
               </CardTitle>
             </CardHeader>
-            <CardContent className="mobile-card-content">
+            <CardContent className="px-3 py-2 pt-0">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
+                <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 border border-gray-200/50">
                   <div className="text-2xl font-bold text-purple-600 mb-1">
                     {goalAchievement.calories}%
                   </div>
@@ -218,7 +218,7 @@ const NutritionCharts: React.FC = () => {
                     {todayTotals.calories} / {goals.daily_calories}
                   </div>
                 </div>
-                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
+                <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 border border-gray-200/50">
                   <div className="text-2xl font-bold text-blue-600 mb-1">
                     {goalAchievement.protein}%
                   </div>
@@ -227,7 +227,7 @@ const NutritionCharts: React.FC = () => {
                     {Math.round(todayTotals.protein)}г / {goals.daily_protein}г
                   </div>
                 </div>
-                <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
+                <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 border border-gray-200/50">
                   <div className="text-2xl font-bold text-green-600 mb-1">
                     {goalAchievement.carbs}%
                   </div>
@@ -236,7 +236,7 @@ const NutritionCharts: React.FC = () => {
                     {Math.round(todayTotals.carbs)}г / {goals.daily_carbs}г
                   </div>
                 </div>
-                <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg">
+                <div className="text-center p-3 bg-gradient-to-br from-orange-50 to-orange-100 border border-gray-200/50">
                   <div className="text-2xl font-bold text-orange-600 mb-1">
                     {goalAchievement.fat}%
                   </div>
