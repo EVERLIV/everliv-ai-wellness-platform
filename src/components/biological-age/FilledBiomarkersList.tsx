@@ -60,47 +60,47 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
   };
 
   return (
-    <div className="border border-gray-200 bg-white p-2">
-      <div className="flex items-center justify-between mb-2">
-        <h4 className="text-[8px] md:text-xs font-medium text-gray-900">Введенные показатели</h4>
+    <div className="border border-gray-200 bg-white p-1 md:p-2">
+      <div className="flex items-center justify-between mb-1 md:mb-2">
+        <h4 className="text-[7px] md:text-xs font-medium text-gray-900">Введенные показатели</h4>
         <Badge variant="secondary" size="sm" className="text-[6px] md:text-xs px-1 py-0.5">
           {biomarkers.length} показателей
         </Badge>
       </div>
       
-      <div className="space-y-2 max-h-80 overflow-y-auto">
+      <div className="space-y-1 md:space-y-2 max-h-80 overflow-y-auto">
         {biomarkers.map((biomarker) => {
           const valueStatus = getValueStatus(biomarker.value!, biomarker.normal_range);
           const { description, ageEffect } = getImpactDescription(biomarker);
           
           return (
-            <div key={biomarker.id} className="border border-gray-100 p-2 bg-gray-50">
-              <div className="space-y-1">
+            <div key={biomarker.id} className="border border-gray-100 p-1 md:p-2 bg-gray-50">
+              <div className="space-y-0.5 md:space-y-1">
                 {/* Заголовок с названием и статусом */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <span className="text-[8px] md:text-xs font-medium text-gray-900">{biomarker.name}</span>
+                  <div className="flex items-center gap-0.5 md:gap-1">
+                    <span className="text-[7px] md:text-xs font-medium text-gray-900">{biomarker.name}</span>
                     {getImpactIcon(getBiomarkerImpact(biomarker.name).impact)}
                   </div>
-                  <span className={`text-[8px] md:text-xs font-medium ${valueStatus.color}`}>
+                  <span className={`text-[7px] md:text-xs font-medium ${valueStatus.color}`}>
                     {valueStatus.status}
                   </span>
                 </div>
                 
                 {/* Значение и норма */}
-                <div className="grid grid-cols-2 gap-2 text-[8px] md:text-xs">
+                <div className="grid grid-cols-2 gap-1 md:gap-2 text-[7px] md:text-xs">
                   <div>
                     <span className="text-gray-600">Ваш показатель:</span>
-                    <div className="font-medium text-gray-900">
+                    <div className="font-medium text-gray-900 text-[8px] md:text-sm">
                       {biomarker.value} {biomarker.unit}
                     </div>
                   </div>
                   <div>
                     <span className="text-gray-600">Норма:</span>
-                    <div className="font-medium text-gray-900">
+                    <div className="font-medium text-gray-900 text-[8px] md:text-sm">
                       {biomarker.normal_range?.min} - {biomarker.normal_range?.max} {biomarker.unit}
                       {biomarker.normal_range?.optimal && (
-                        <div className="text-green-600">
+                        <div className="text-green-600 text-[7px] md:text-xs">
                           (опт: {biomarker.normal_range.optimal})
                         </div>
                       )}
@@ -109,12 +109,12 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 </div>
                 
                 {/* Описание функции */}
-                <div className="text-[8px] md:text-xs text-gray-600">
+                <div className="text-[7px] md:text-xs text-gray-600">
                   <span className="font-medium">Функция:</span> {description}
                 </div>
                 
                 {/* Влияние на биологический возраст */}
-                <div className="text-[8px] md:text-xs text-blue-600 bg-blue-50 p-1 rounded">
+                <div className="text-[7px] md:text-xs text-blue-600 bg-blue-50 p-0.5 md:p-1 rounded">
                   <span className="font-medium">Влияние на возраст:</span> {ageEffect}
                 </div>
               </div>
@@ -124,7 +124,7 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
       </div>
       
       {biomarkers.length === 0 && (
-        <div className="text-center py-4 text-[8px] md:text-xs text-gray-500">
+        <div className="text-center py-2 md:py-4 text-[7px] md:text-xs text-gray-500">
           Введите показатели для получения детального анализа
         </div>
       )}
