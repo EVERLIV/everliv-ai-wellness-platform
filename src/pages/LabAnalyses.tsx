@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Header from "@/components/Header";
+import { AppLayout } from "@/components/layout/AppLayout";
 import MinimalFooter from "@/components/MinimalFooter";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -103,19 +103,18 @@ const LabAnalyses = () => {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
-      
-      <div className="flex-grow pt-16">
-        <LabAnalysesHeader 
+    <AppLayout>
+      <div className="bg-gray-50 -mx-2 -mt-6 mb-4">
+        <LabAnalysesHeader
           onAddNewAnalysis={() => {
             console.log('➕ LabAnalyses: Adding new analysis');
             setShowNewAnalysis(true);
           }}
           currentMonthAnalysesCount={statistics.currentMonthAnalyses}
         />
-        
-        <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
+      </div>
+      
+      <div className="px-4 py-6 md:py-8 max-w-7xl mx-auto w-full">
           <LabAnalysesStats statistics={statistics} />
           <AnalysisHistory
             analysisHistory={analysisHistory}
@@ -130,12 +129,9 @@ const LabAnalyses = () => {
               refreshHistory();
             }}
           />
-          <MedicalDataDisclaimer />
-        </div>
+        <MedicalDataDisclaimer />
       </div>
-
-      <MinimalFooter />
-    </div>
+    </AppLayout>
   );
 };
 
