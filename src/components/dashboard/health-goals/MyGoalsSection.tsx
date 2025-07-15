@@ -54,53 +54,53 @@ const MyGoalsSection: React.FC = () => {
   const userGoals = goals || [];
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-900">Мои цели</h3>
+        <h3 className="text-xs font-medium text-gray-900">Мои цели</h3>
         <Button 
           size="sm" 
           variant="ghost"
           onClick={() => navigate('/health-profile')} 
-          className="text-xs h-7 px-2"
+          className="text-[10px] h-5 px-1.5"
         >
-          Все цели
+          Все
         </Button>
       </div>
       
       {healthGoals.length === 0 && userGoals.length === 0 ? (
-        <div className="text-center py-3 bg-gray-50/50 rounded-lg border border-gray-200/50">
-          <Target className="h-4 w-4 mx-auto text-gray-400 mb-1" />
-          <p className="text-xs text-gray-500 mb-2">Цели не заданы</p>
+        <div className="text-center py-2 bg-gray-50/50 rounded border border-gray-200/50">
+          <Target className="h-3 w-3 mx-auto text-gray-400 mb-1" />
+          <p className="text-[10px] text-gray-500 mb-1">Цели не заданы</p>
           <Button 
             size="sm" 
             onClick={() => navigate('/health-profile')} 
-            className="text-xs px-3 py-1 h-6"
+            className="text-[10px] px-2 py-0.5 h-4"
           >
             Добавить
           </Button>
         </div>
       ) : (
-        <div className="space-y-1.5">
-          {/* Показываем все цели вместе, максимум 3 */}
-          {[...healthGoals.slice(0, 2), ...userGoals.slice(0, 1)].map((goal, index) => (
+        <div className="space-y-1">
+          {/* Показываем максимум 2 цели */}
+          {[...healthGoals.slice(0, 1), ...userGoals.slice(0, 1)].map((goal, index) => (
             <div key={typeof goal === 'string' ? `health-${index}` : `user-${goal.id}`} 
-                 className="flex items-center gap-2 p-2 bg-gray-50/50 rounded border border-gray-200/30">
+                 className="flex items-center gap-1.5 p-1.5 bg-gray-50/50 rounded border border-gray-200/30">
               <div className={`w-1 h-1 rounded-full flex-shrink-0 ${typeof goal === 'string' ? 'bg-purple-500' : 'bg-green-500'}`}></div>
-              <span className="text-xs text-gray-700 truncate">
+              <span className="text-[10px] text-gray-700 truncate">
                 {typeof goal === 'string' ? translateGoal(goal) : goal.title}
               </span>
             </div>
           ))}
           
-          {(healthGoals.length + userGoals.length) > 3 && (
+          {(healthGoals.length + userGoals.length) > 2 && (
             <div className="text-center">
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => navigate('/health-profile')} 
-                className="text-xs h-6 px-2"
+                className="text-[10px] h-4 px-1.5"
               >
-                +{(healthGoals.length + userGoals.length) - 3} еще
+                +{(healthGoals.length + userGoals.length) - 2}
               </Button>
             </div>
           )}

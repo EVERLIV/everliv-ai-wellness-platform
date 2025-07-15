@@ -70,9 +70,9 @@ const DashboardPage = () => {
 
         {/* Мои цели */}
         <Card className="shadow-sm border-gray-200/80">
-          <CardContent className="p-4">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-              <Target className="h-5 w-5 text-blue-500" />
+          <CardContent className="p-2 sm:p-3">
+            <h2 className="text-sm sm:text-base font-medium text-gray-900 mb-2 flex items-center gap-1.5">
+              <Target className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
               Мои цели
             </h2>
             <MyGoalsSection />

@@ -314,7 +314,7 @@ const PriorityMetricsSection = () => {
       <Card className="shadow-sm border-gray-200/80">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            ИИ-скоры рисков
+            Показатели здоровья
           </CardTitle>
         </CardHeader>
         <CardContent>
