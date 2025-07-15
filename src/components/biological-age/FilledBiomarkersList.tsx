@@ -60,49 +60,47 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
   };
 
   return (
-    <div className="border-2 border-gray-200 bg-white rounded-xl shadow-sm p-4 md:p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="text-lg md:text-xl font-semibold text-gray-900 leading-tight">Введенные показатели</h4>
-        <Badge variant="secondary" className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold min-h-[44px] bg-blue-500 text-white shadow-md">
+    <div className="border border-gray-200 bg-white p-2">
+      <div className="flex items-center justify-between mb-2">
+        <h4 className="text-[8px] md:text-xs font-medium text-gray-900">Введенные показатели</h4>
+        <Badge variant="secondary" size="sm" className="text-[6px] md:text-xs px-1 py-0.5">
           {biomarkers.length} показателей
         </Badge>
       </div>
       
-      <div className="space-y-4 max-h-80 overflow-y-auto">
+      <div className="space-y-2 max-h-80 overflow-y-auto">
         {biomarkers.map((biomarker) => {
           const valueStatus = getValueStatus(biomarker.value!, biomarker.normal_range);
           const { description, ageEffect } = getImpactDescription(biomarker);
           
           return (
-            <div key={biomarker.id} className="border-2 border-gray-100 rounded-xl p-4 bg-gradient-to-r from-gray-50 to-white shadow-sm hover:shadow-md transition-shadow duration-200">
-              <div className="space-y-4">
+            <div key={biomarker.id} className="border border-gray-100 p-2 bg-gray-50">
+              <div className="space-y-1">
                 {/* Заголовок с названием и статусом */}
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg md:text-xl font-semibold text-gray-900 leading-tight">{biomarker.name}</span>
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
-                      {getImpactIcon(getBiomarkerImpact(biomarker.name).impact)}
-                    </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[8px] md:text-xs font-medium text-gray-900">{biomarker.name}</span>
+                    {getImpactIcon(getBiomarkerImpact(biomarker.name).impact)}
                   </div>
-                  <Badge className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold min-h-[44px] shadow-md ${valueStatus.color.includes('green') ? 'bg-green-500' : 'bg-red-500'} text-white`}>
+                  <span className={`text-[8px] md:text-xs font-medium ${valueStatus.color}`}>
                     {valueStatus.status}
-                  </Badge>
+                  </span>
                 </div>
                 
                 {/* Значение и норма */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white rounded-lg border-l-4 border-blue-500">
-                  <div className="space-y-2">
-                    <span className="text-sm font-medium text-gray-600">Ваш показатель:</span>
-                    <div className="text-xl font-mono font-bold text-blue-600">
+                <div className="grid grid-cols-2 gap-2 text-[8px] md:text-xs">
+                  <div>
+                    <span className="text-gray-600">Ваш показатель:</span>
+                    <div className="font-medium text-gray-900">
                       {biomarker.value} {biomarker.unit}
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <span className="text-sm font-medium text-gray-600">Норма:</span>
-                    <div className="text-lg font-mono font-semibold text-gray-900">
+                  <div>
+                    <span className="text-gray-600">Норма:</span>
+                    <div className="font-medium text-gray-900">
                       {biomarker.normal_range?.min} - {biomarker.normal_range?.max} {biomarker.unit}
                       {biomarker.normal_range?.optimal && (
-                        <div className="text-base text-green-600 font-semibold bg-green-50 px-2 py-1 rounded-md mt-1 inline-block">
+                        <div className="text-green-600">
                           (опт: {biomarker.normal_range.optimal})
                         </div>
                       )}
@@ -111,15 +109,13 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 </div>
                 
                 {/* Описание функции */}
-                <div className="text-base p-3 bg-gray-50 rounded-lg border-l-4 border-gray-400">
-                  <span className="font-semibold text-gray-900">Функция:</span> 
-                  <span className="text-gray-700 ml-2">{description}</span>
+                <div className="text-[8px] md:text-xs text-gray-600">
+                  <span className="font-medium">Функция:</span> {description}
                 </div>
                 
                 {/* Влияние на биологический возраст */}
-                <div className="text-base p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border-l-4 border-blue-500 shadow-sm">
-                  <span className="font-semibold text-blue-900">Влияние на возраст:</span> 
-                  <span className="text-blue-800 ml-2">{ageEffect}</span>
+                <div className="text-[8px] md:text-xs text-blue-600 bg-blue-50 p-1 rounded">
+                  <span className="font-medium">Влияние на возраст:</span> {ageEffect}
                 </div>
               </div>
             </div>
@@ -128,8 +124,8 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
       </div>
       
       {biomarkers.length === 0 && (
-        <div className="text-center py-8 text-base text-gray-500 bg-gray-50 rounded-lg">
-          <p className="font-medium">Введите показатели для получения детального анализа</p>
+        <div className="text-center py-4 text-[8px] md:text-xs text-gray-500">
+          Введите показатели для получения детального анализа
         </div>
       )}
     </div>

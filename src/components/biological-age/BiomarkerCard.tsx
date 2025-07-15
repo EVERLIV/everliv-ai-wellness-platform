@@ -83,60 +83,57 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
   };
 
   return (
-    <div className={`border-2 border-gray-200 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border-l-4 ${getImportanceColor()}`}>
-      <div className="p-4 md:p-6">
-        <div className="space-y-4">
+    <div className={`border border-gray-200 bg-white border-l-2 ${getImportanceColor()}`}>
+      <div className="p-1.5">
+        <div className="space-y-1">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <Label className="text-lg md:text-xl font-semibold text-gray-900 leading-tight">{biomarker.name}</Label>
-                <Badge className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold min-h-[44px] bg-red-500 text-white shadow-md transition-all duration-200 hover:bg-red-600" variant="outline">
-                  <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 mb-0.5">
+                <Label className="text-xs font-medium">{biomarker.name}</Label>
+                <Badge className={`text-[6px] border ${getImpactColor()} px-1 py-0.5`} variant="outline">
+                  <div className="flex items-center gap-0.5">
                     {getImpactIcon()}
-                    <span className="text-sm font-semibold">{impact.description}</span>
+                    {impact.description}
                   </div>
                 </Badge>
               </div>
-              <p className="text-sm md:text-base text-gray-600 leading-relaxed">{biomarker.description}</p>
+              <p className="text-xs text-gray-600 line-clamp-1">{biomarker.description}</p>
             </div>
-            <Badge className="inline-flex items-center px-3 py-2 rounded-lg text-sm font-semibold min-h-[44px] bg-green-500 text-white shadow-md transition-all duration-200" variant="secondary">
+            <Badge className={`${getStatusColor()} text-[6px] px-1 py-0.5`} variant="secondary">
               {biomarker.status === 'filled' ? 'Заполнено' : 'Пусто'}
             </Badge>
           </div>
 
           <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-            <CollapsibleTrigger className="flex items-center gap-2 text-base md:text-lg font-medium text-blue-600 hover:text-blue-700 transition-colors min-h-[44px] touch-manipulation">
-              {isOpen ? <ChevronDown className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
-              <span className="text-base font-medium">{isOpen ? 'Свернуть' : 'Ввести'}</span>
+            <CollapsibleTrigger className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700">
+              {isOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              {isOpen ? 'Свернуть' : 'Ввести'}
             </CollapsibleTrigger>
             
-            <CollapsibleContent className="space-y-4 mt-4">
-              <div className="flex items-center gap-3">
+            <CollapsibleContent className="space-y-1 mt-1">
+              <div className="flex items-center gap-1">
                 <Input
                   type="number"
                   step="0.01"
                   value={inputValue}
                   onChange={(e) => handleInputChange(e.target.value)}
                   placeholder="Значение"
-                  className="flex-1 text-base h-12 px-4 rounded-lg border-2 focus:border-blue-500"
+                  className="flex-1 text-xs h-6"
                 />
-                <span className="text-base text-gray-500 font-medium min-w-fit">{biomarker.unit}</span>
+                <span className="text-xs text-gray-500 min-w-fit">{biomarker.unit}</span>
               </div>
               
-              <div className="text-base space-y-3 p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-gray-900">Норма:</span>
-                  <span className="text-lg font-mono font-semibold text-blue-600">{adjustedRange.min} - {adjustedRange.max} {biomarker.unit}</span>
+              <div className="text-xs space-y-0.5">
+                <div className="flex items-center gap-1">
+                  <span className="font-medium">Норма:</span>
+                  <span>{adjustedRange.min} - {adjustedRange.max} {biomarker.unit}</span>
                   {adjustedRange.optimal && (
-                    <span className="text-base text-green-600 font-semibold bg-green-50 px-2 py-1 rounded-md">
-                      (опт: {adjustedRange.optimal})
-                    </span>
+                    <span className="text-emerald-600">(опт: {adjustedRange.optimal})</span>
                   )}
                 </div>
                 
                 {valueStatus && (
-                  <div className={`text-base font-semibold p-3 rounded-lg ${valueStatus.color} bg-opacity-10 border-l-4`} 
-                       style={{borderLeftColor: valueStatus.color.includes('green') ? '#22C55E' : '#EF4444'}}>
+                  <div className={`text-xs font-medium ${valueStatus.color}`}>
                     {valueStatus.description}
                   </div>
                 )}
