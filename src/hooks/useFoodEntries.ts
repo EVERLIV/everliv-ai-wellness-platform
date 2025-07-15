@@ -47,8 +47,11 @@ export const useFoodEntries = (selectedDate: Date) => {
 
   const addEntry = async (entry: Omit<LocalFoodEntry, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     try {
+      console.log('Adding entry:', entry);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
+
+      console.log('User authenticated:', user.id);
 
       const { data, error } = await supabase
         .from('food_entries')
@@ -67,14 +70,26 @@ export const useFoodEntries = (selectedDate: Date) => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Entry saved to database:', data);
 
       const typedEntry: LocalFoodEntry = {
         ...data,
         meal_type: data.meal_type as MealType
       };
 
-      setEntries(prev => [...prev, typedEntry]);
+      console.log('Adding to local state:', typedEntry);
+      setEntries(prev => {
+        console.log('Previous entries:', prev);
+        const newEntries = [...prev, typedEntry];
+        console.log('New entries:', newEntries);
+        return newEntries;
+      });
+      
       toast.success('Прием пищи добавлен!');
       return typedEntry;
     } catch (error) {

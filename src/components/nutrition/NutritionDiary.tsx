@@ -37,6 +37,11 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
   const { entries, isLoading, getSummaryByMealType, getDailyTotals } = useFoodEntries(selectedDate);
   const { goals } = useNutritionGoals();
 
+  // Логи для отладки
+  console.log('NutritionDiary - entries:', entries);
+  console.log('NutritionDiary - selectedDate:', selectedDate);
+  console.log('NutritionDiary - isLoading:', isLoading);
+
   useEffect(() => {
     if (triggerCalendar) {
       setShowCalendar(true);
