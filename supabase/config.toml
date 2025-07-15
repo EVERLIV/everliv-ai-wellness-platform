@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-ai-risk-scores]
 verify_jwt = false
+
+[functions.generate-biomarker-recommendations]
+verify_jwt = false

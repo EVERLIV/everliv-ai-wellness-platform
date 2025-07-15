@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Minus, Info } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Info, Loader2 } from 'lucide-react';
 import { Biomarker } from '@/types/biologicalAge';
 import { getBiomarkerImpact } from '@/services/ai/biomarker-impact-analysis';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FilledBiomarkersListProps {
   biomarkers: Biomarker[];
 }
 
 const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers }) => {
+  const [recommendations, setRecommendations] = useState<Record<string, string>>({});
+  const [loadingRecommendations, setLoadingRecommendations] = useState<Record<string, boolean>>({});
+
   const getImpactIcon = (impact: string) => {
     switch (impact) {
       case 'high': return <TrendingUp className="h-3 w-3 text-red-500" />;
@@ -35,62 +39,67 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
     return { color: 'text-red-600', status: 'Выше нормы' };
   };
 
-  const getRecommendationForBiomarker = (biomarker: Biomarker) => {
-    const valueStatus = getValueStatus(biomarker.value!, biomarker.normal_range);
+  const generateAIRecommendation = async (biomarker: Biomarker) => {
+    if (!biomarker.value || !biomarker.normal_range) return null;
     
+    const valueStatus = getValueStatus(biomarker.value, biomarker.normal_range);
     if (valueStatus.status === 'В норме' || valueStatus.status === 'Оптимально') {
-      return null; // Не показываем рекомендации если всё в норме
+      return null;
     }
-    
-    // Генерируем детальные рекомендации в зависимости от типа отклонения и биомаркера
-    const biomarkerName = biomarker.name.toLowerCase();
-    
-    if (valueStatus.status === 'Выше нормы') {
-      if (biomarkerName.includes('холестерин') || biomarkerName.includes('лпнп')) {
-        return 'Добавки: Омега-3 (2-3г/день), Красный дрожжевой рис, Коэнзим Q10. Упражнения: Кардио 150мин/неделя, силовые 2-3 раза. Питание: Исключить трансжиры, добавить овсянку, орехи, авокадо';
-      }
-      if (biomarkerName.includes('глюкоза') || biomarkerName.includes('сахар')) {
-        return 'Добавки: Хром пиколинат (200мкг), Берберин (500мг 3р/день), Альфа-липоевая кислота. Практики: Интервальное голодание 16:8, холодные ванны. Питание: Низкоуглеводная диета, корица';
-      }
-      if (biomarkerName.includes('давление') || biomarkerName.includes('систолическое')) {
-        return 'Добавки: Магний (400мг), Коэнзим Q10 (100мг), Калий. Упражнения: Аэробные нагрузки, йога, дыхательные практики. Питание: DASH-диета, ограничение соли до 2г/день';
-      }
-      if (biomarkerName.includes('триглицериды')) {
-        return 'Добавки: Омега-3 EPA/DHA (2-4г), Ниацин. Упражнения: HIIT тренировки 3р/неделя. Питание: Исключить простые углеводы, алкоголь, добавить жирную рыбу 2-3р/неделя';
-      }
-      if (biomarkerName.includes('мочевая кислота')) {
-        return 'Добавки: Вишневый экстракт (500мг), Витамин C (500мг). Питание: Исключить пурины (субпродукты, анчоусы), ограничить алкоголь, увеличить воду до 3л/день';
-      }
-      if (biomarkerName.includes('креатинин')) {
-        return 'Практики: Ограничить белок до 0.8г/кг веса, увеличить воду. Добавки: Избегать креатин. Упражнения: Умеренные нагрузки, избегать перетренированности';
-      }
-      return 'Обратитесь к врачу для коррекции показателя. Общие рекомендации: сбалансированное питание, регулярные упражнения, управление стрессом';
+
+    // Проверяем, есть ли уже рекомендация в кэше
+    if (recommendations[biomarker.id]) {
+      return recommendations[biomarker.id];
     }
-    
-    if (valueStatus.status === 'Ниже нормы') {
-      if (biomarkerName.includes('гемоглобин') || biomarkerName.includes('железо')) {
-        return 'Добавки: Железо бисглицинат (25мг), Витамин C (500мг для усвоения), B12, Фолиевая кислота. Питание: Красное мясо, печень, шпинат, гранат, гречка';
-      }
-      if (biomarkerName.includes('витамин d') || biomarkerName.includes('25-oh')) {
-        return 'Добавки: Витамин D3 (2000-4000 МЕ), Магний для усвоения, K2. Практики: Солнечные ванны 15-20мин/день, фототерапия зимой';
-      }
-      if (biomarkerName.includes('b12') || biomarkerName.includes('кобаламин')) {
-        return 'Добавки: Метилкобаламин (1000мкг сублингвально), комплекс B-витаминов. Питание: Мясо, рыба, яйца, пищевые дрожжи для веганов';
-      }
-      if (biomarkerName.includes('тестостерон') && biomarker.value! < 12) {
-        return 'Добавки: Цинк (15мг), Витамин D3, Ашваганда (600мг), DHEA. Упражнения: Силовые тренировки, спринты. Практики: Полноценный сон 7-9ч, управление стрессом';
-      }
-      if (biomarkerName.includes('лпвп') || biomarkerName.includes('хороший холестерин')) {
-        return 'Добавки: Ниацин (500мг), Омега-3. Упражнения: Кардио высокой интенсивности, силовые. Питание: Оливковое масло, орехи, жирная рыба, умеренное красное вино';
-      }
-      if (biomarkerName.includes('альбумин') || biomarkerName.includes('белок')) {
-        return 'Питание: Увеличить белок до 1.2-1.6г/кг веса, полноценные аминокислоты. Добавки: Сывороточный протеин, BCAA. Упражнения: Силовые тренировки для мышечной массы';
-      }
-      return 'Обратитесь к врачу для выяснения причин снижения. Общие рекомендации: нутритивная поддержка, витаминно-минеральные комплексы';
+
+    // Если уже загружаем, не делаем повторный запрос
+    if (loadingRecommendations[biomarker.id]) {
+      return null;
     }
-    
-    return 'Требуется коррекция показателя. Рекомендации: комплексное обследование, персональная программа питания и тренировок, нутрицевтическая поддержка';
+
+    setLoadingRecommendations(prev => ({ ...prev, [biomarker.id]: true }));
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-biomarker-recommendations', {
+        body: {
+          name: biomarker.name,
+          value: biomarker.value,
+          unit: biomarker.unit,
+          normalRange: biomarker.normal_range,
+          status: valueStatus.status,
+          userAge: 35, // Можно передавать из профиля пользователя
+          userGender: 'мужской' // Можно передавать из профиля пользователя
+        }
+      });
+
+      if (error) {
+        console.error('Error generating recommendation:', error);
+        return 'Обратитесь к врачу для персонализированных рекомендаций';
+      }
+
+      const aiRecommendation = data.recommendation;
+      setRecommendations(prev => ({ ...prev, [biomarker.id]: aiRecommendation }));
+      return aiRecommendation;
+
+    } catch (error) {
+      console.error('Error generating AI recommendation:', error);
+      return 'Обратитесь к врачу для персонализированных рекомендаций';
+    } finally {
+      setLoadingRecommendations(prev => ({ ...prev, [biomarker.id]: false }));
+    }
   };
+
+  useEffect(() => {
+    // Генерируем рекомендации для биомаркеров с отклонениями
+    biomarkers.forEach(biomarker => {
+      if (biomarker.value && biomarker.normal_range) {
+        const valueStatus = getValueStatus(biomarker.value, biomarker.normal_range);
+        if (valueStatus.status !== 'В норме' && valueStatus.status !== 'Оптимально') {
+          generateAIRecommendation(biomarker);
+        }
+      }
+    });
+  }, [biomarkers]);
 
   return (
     <div className="border border-gray-200 bg-white p-1 md:p-2">
@@ -105,7 +114,8 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
         {biomarkers.map((biomarker) => {
           const valueStatus = getValueStatus(biomarker.value!, biomarker.normal_range);
           const impact = getBiomarkerImpact(biomarker.name);
-          const recommendation = getRecommendationForBiomarker(biomarker);
+          const aiRecommendation = recommendations[biomarker.id];
+          const isLoadingRecommendation = loadingRecommendations[biomarker.id];
           
           return (
             <div key={biomarker.id} className="border border-gray-100 p-1 md:p-2 bg-gray-50">
@@ -147,10 +157,22 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                   <span className="font-medium text-[10px]">Функция:</span> {impact.description}
                 </div>
                 
-                {/* Рекомендации при отклонениях */}
-                {recommendation && (
+                {/* ИИ рекомендации при отклонениях */}
+                {(valueStatus.status !== 'В норме' && valueStatus.status !== 'Оптимально') && (
                   <div className="text-[7px] md:text-xs text-orange-600 bg-orange-50 p-0.5 md:p-1 rounded">
-                    <span className="font-medium text-[10px]">Рекомендации по улучшению:</span> {recommendation}
+                    <div className="flex items-start gap-1">
+                      <span className="font-medium text-[10px]">Рекомендации ИИ:</span>
+                      {isLoadingRecommendation ? (
+                        <div className="flex items-center gap-1">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          <span className="text-[7px]">Генерирую...</span>
+                        </div>
+                      ) : (
+                        <span className="text-[7px] md:text-xs leading-tight">
+                          {aiRecommendation || 'Загрузка рекомендаций...'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
