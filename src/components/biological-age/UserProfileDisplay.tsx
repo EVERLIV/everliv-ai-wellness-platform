@@ -10,14 +10,14 @@ interface UserProfileDisplayProps {
 const UserProfileDisplay: React.FC<UserProfileDisplayProps> = ({ healthProfile }) => {
   return (
     <div className="border border-gray-200 bg-white">
-      <div className="p-4 border-b border-gray-200">
-        <h3 className="text-base font-medium text-gray-900 flex items-center gap-2">
-          <User className="h-4 w-4" />
+      <div className="p-3 border-b border-gray-200">
+        <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+          <User className="h-3 w-3" />
           Данные из профиля здоровья
         </h3>
       </div>
-      <div className="p-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+      <div className="p-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
           <div>
             <span className="font-medium">Возраст:</span> {healthProfile.age} лет
           </div>

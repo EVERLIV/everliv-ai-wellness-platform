@@ -43,36 +43,36 @@ const BiologicalAgeCalculator = () => {
   const filledBiomarkers = biomarkers.filter(b => b.status === 'filled');
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* View Mode Toggle */}
       <div className="border border-gray-200 bg-white">
-        <div className="p-4">
+        <div className="p-3">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-medium text-gray-900">Режим анализа</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-sm font-medium text-gray-900">Режим анализа</h3>
+              <p className="text-xs text-gray-600">
                 Выберите удобный способ ввода данных
               </p>
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               <Button
                 variant={viewMode === 'wizard' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setViewMode('wizard')}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1 text-xs"
               >
-                <Zap className="h-4 w-4" />
+                <Zap className="h-3 w-3" />
                 Пошаговый
-                <Badge variant="secondary" className="ml-1">Новый</Badge>
+                <Badge variant="secondary" className="ml-1 text-xs">Новый</Badge>
               </Button>
               <Button
                 variant={viewMode === 'classic' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setViewMode('classic')}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1 text-xs"
               >
-                <LayoutGrid className="h-4 w-4" />
+                <LayoutGrid className="h-3 w-3" />
                 Классический
               </Button>
             </div>
