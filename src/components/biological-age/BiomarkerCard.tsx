@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +29,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
   useEffect(() => {
     if (biomarker.value !== undefined) {
       setInputValue(biomarker.value.toString());
-      setIsOpen(true); // Автоматически открываем если есть значение
+      setIsOpen(true);
     }
   }, [biomarker.value]);
 
@@ -42,18 +41,13 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
     }
   };
 
-  // Получаем влияние биомаркера на биологический возраст
   const impact = getBiomarkerImpact(biomarker.name);
-
-  // Рассчитываем нормы с учетом возраста и пола
   const adjustedRange = calculateNormalRange(
     biomarker.id,
     healthProfile.age,
     healthProfile.gender,
     biomarker.normal_range
   );
-
-  // Получаем статус значения
   const valueStatus = biomarker.value ? getValueStatus(biomarker.value, adjustedRange) : null;
 
   const getStatusColor = () => {

@@ -22,9 +22,9 @@ const BiologicalAgePage = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="mb-3">
-          <h1 className="text-xl font-medium mb-1 text-gray-900">
+          <h1 className="text-lg font-medium mb-1 text-gray-900">
             Определение биологического возраста
           </h1>
           <p className="text-sm text-gray-600">

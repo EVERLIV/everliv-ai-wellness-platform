@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useBiologicalAgeCalculator } from '@/hooks/useBiologicalAgeCalculator';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LayoutGrid, Zap } from 'lucide-react';
 import BiologicalAgeWizard from './BiologicalAgeWizard';
