@@ -50,7 +50,7 @@ const isValidUUID = (str: string): boolean => {
 
 // Централизованная функция для проверки является ли пользователь премиум
 const isPremiumUser = (email: string): boolean => {
-  return email === 'hoaandrey@gmail.com';
+  return email === 'hoaandrey@gmail.com' || email === 'kamilgraf@hotmail.com';
 };
 
 export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
@@ -341,8 +341,8 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const incrementFeatureUsage = async (featureType: string): Promise<void> => {
     if (!user?.id || !isValidUUID(user.id)) return;
 
-    // Не увеличиваем счетчик для премиум пользователя hoaandrey@gmail.com
-    if (user.email === 'hoaandrey@gmail.com') {
+    // Не увеличиваем счетчик для премиум пользователей
+    if (isPremiumUser(user.email || '')) {
       console.log('🎯 Skipping usage increment for premium user:', user.email);
       return;
     }
