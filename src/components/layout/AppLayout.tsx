@@ -112,7 +112,14 @@ export function AppLayout({ children }: AppLayoutProps) {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="text-lg font-semibold">EverliveAI</div>
+              <img 
+                src="/lovable-uploads/65be8657-ee9a-4d23-b42c-b891c6a777ce.png" 
+                alt="EVERLIV Logo" 
+                className="h-8 w-8 object-contain"
+              />
+              <div className="text-lg font-semibold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">
+                EVERLIV
+              </div>
             </Link>
           </div>
           
