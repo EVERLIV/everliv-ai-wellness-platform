@@ -82,10 +82,10 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className={collapsed ? "w-14" : "w-64"}
+      className="w-64 border-r border-gray-200 bg-white"
       collapsible="icon"
     >
-      <SidebarContent className="bg-background pt-14">
+      <SidebarContent className="bg-white pt-14">
         {menuItems.map((group, groupIndex) => (
           <SidebarGroup key={groupIndex}>
             <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3 py-2">

@@ -225,8 +225,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       </header>
 
       {/* Основной контент с боковым меню с отступом от навбара */}
-      <div className="flex flex-1 pt-14">
-        <SidebarProvider>
+      <div className="flex flex-1 pt-14 w-full">
+        <SidebarProvider defaultOpen={true}>
           <AppSidebar />
           
           <div className="flex flex-1 flex-col min-w-0">
