@@ -378,7 +378,7 @@ const PriorityMetricsSection = () => {
 
             <div className="mt-4 p-3 bg-blue-50/50 rounded-lg">
               <h6 className="text-xs font-medium text-gray-700 mb-2">Градация рисков:</h6>
-              <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="grid grid-cols-2 gap-2 text-[10px] sm:text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span>0-5%: Очень низкий</span>
