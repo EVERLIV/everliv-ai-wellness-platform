@@ -3,10 +3,8 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { AppLayout } from "@/components/layout/AppLayout";
 import BiologicalAgeCalculator from '@/components/biological-age/BiologicalAgeCalculator';
-import BiologicalAgeHeader from '@/components/biological-age/BiologicalAgeHeader';
-import MinimalFooter from '@/components/MinimalFooter';
-import PageLayoutWithHeader from '@/components/PageLayoutWithHeader';
 
 const BiologicalAge = () => {
   const { user } = useAuth();
@@ -22,18 +20,21 @@ const BiologicalAge = () => {
     return null;
   }
 
-  const handleAddAnalysis = (category: string) => {
-    console.log('Add analysis for category:', category);
-  };
-
   return (
-    <PageLayoutWithHeader
-      headerComponent={
-        <BiologicalAgeHeader onAddAnalysis={handleAddAnalysis} />
-      }
-    >
-      <BiologicalAgeCalculator />
-    </PageLayoutWithHeader>
+    <AppLayout>
+      <div className="space-y-3">
+        <div className="mb-3">
+          <h1 className="text-lg font-medium mb-1 text-gray-900">
+            Определение биологического возраста
+          </h1>
+          <p className="text-sm text-gray-600">
+            Узнайте свой биологический возраст на основе комплексной оценки биомаркеров и показателей здоровья
+          </p>
+        </div>
+        
+        <BiologicalAgeCalculator />
+      </div>
+    </AppLayout>
   );
 };
 
