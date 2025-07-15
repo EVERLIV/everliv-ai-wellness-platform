@@ -56,6 +56,16 @@ const checkPremiumFromDatabase = (subscription: Subscription | null): boolean =>
   const isPremium = subscription.plan_type === 'premium';
   const notExpired = new Date(subscription.expires_at) > new Date();
   
+  console.log('🔍 Database premium check:', {
+    subscription: subscription.id,
+    isActive,
+    isPremium,
+    notExpired,
+    expiresAt: subscription.expires_at,
+    now: new Date().toISOString(),
+    result: isActive && isPremium && notExpired
+  });
+  
   return isActive && isPremium && notExpired;
 };
 
