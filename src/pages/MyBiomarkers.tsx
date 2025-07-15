@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Header from "@/components/Header";
+import { AppLayout } from "@/components/layout/AppLayout";
 import MinimalFooter from "@/components/MinimalFooter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -292,21 +292,18 @@ const MyBiomarkers = () => {
 
   if (loadingHistory) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="pt-16 flex items-center justify-center h-96">
+      <AppLayout>
+        <div className="flex items-center justify-center h-96">
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
+    <AppLayout>
       {/* Компактный заголовок */}
-      <div className="pt-16 bg-card border-b">
+      <div className="bg-card border-b -mx-2 -mt-6 mb-4">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -332,7 +329,7 @@ const MyBiomarkers = () => {
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="space-y-4">
         {biomarkers.length === 0 ? (
           <div className="text-center py-8">
             <TestTube className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
@@ -471,9 +468,7 @@ const MyBiomarkers = () => {
         biomarker={selectedBiomarker}
         onBiomarkerUpdate={handleBiomarkerUpdate}
       />
-      
-      <MinimalFooter />
-    </div>
+    </AppLayout>
   );
 };
 
