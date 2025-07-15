@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Biomarker } from '@/types/biologicalAge';
 import { HealthProfileData } from '@/types/healthProfile';
 import BiomarkerCard from './BiomarkerCard';

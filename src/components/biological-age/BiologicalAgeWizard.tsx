@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -208,31 +207,29 @@ const BiologicalAgeWizard: React.FC<BiologicalAgeWizardProps> = ({
       </div>
 
       {filledBiomarkers.length > 0 && (
-        <Card className="bg-green-50 border-green-200">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              <div>
-                <p className="font-medium text-green-900">
-                  У вас уже есть {filledBiomarkers.length} заполненных показателей
-                </p>
-                <p className="text-sm text-green-700">
-                  Вы можете сразу получить результат или дополнить данные для большей точности
-                </p>
-              </div>
+        <div className="border border-green-200 bg-green-50 p-4">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            <div>
+              <p className="font-medium text-green-900">
+                У вас уже есть {filledBiomarkers.length} заполненных показателей
+              </p>
+              <p className="text-sm text-green-700">
+                Вы можете сразу получить результат или дополнить данные для большей точности
+              </p>
             </div>
-            {canProceedToResults() && (
-              <Button 
-                onClick={handleCalculateAndAdvance}
-                className="mt-4 w-full"
-                disabled={isCalculating}
-              >
-                Получить результат сейчас
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+          </div>
+          {canProceedToResults() && (
+            <Button 
+              onClick={handleCalculateAndAdvance}
+              className="mt-4 w-full"
+              disabled={isCalculating}
+            >
+              Получить результат сейчас
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );
@@ -319,93 +316,89 @@ const BiologicalAgeWizard: React.FC<BiologicalAgeWizardProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-3">
       {/* Progress Header */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            {/* Step indicators */}
-            <div className="flex items-center justify-between">
-              {WIZARD_STEPS.map((step, index) => (
-                <div 
-                  key={step.id}
-                  className={`flex items-center ${index < WIZARD_STEPS.length - 1 ? 'flex-1' : ''}`}
-                >
-                  <div className="flex flex-col items-center gap-2">
-                    <div className={`
-                      w-10 h-10 rounded-full flex items-center justify-center transition-colors
-                      ${currentStep === index 
-                        ? 'bg-blue-600 text-white' 
-                        : getStepStatus(step.id) === 'completed'
-                        ? 'bg-green-600 text-white'
-                        : 'bg-gray-200 text-gray-600'
-                      }
-                    `}>
-                      {getStepStatus(step.id) === 'completed' ? (
-                        <CheckCircle className="h-5 w-5" />
-                      ) : (
-                        <step.icon className="h-5 w-5" />
-                      )}
-                    </div>
-                    <div className="text-center">
-                      <p className="text-xs font-medium">{step.title}</p>
-                      {step.biomarkerCount && (
-                        <Badge variant="secondary" className="text-xs">
-                          {Math.min(filledBiomarkers.length, step.biomarkerCount)}/{step.biomarkerCount}
-                        </Badge>
-                      )}
-                    </div>
+      <div className="border border-gray-200 bg-white p-3">
+        <div className="space-y-4">
+          {/* Step indicators */}
+          <div className="flex items-center justify-between">
+            {WIZARD_STEPS.map((step, index) => (
+              <div 
+                key={step.id}
+                className={`flex items-center ${index < WIZARD_STEPS.length - 1 ? 'flex-1' : ''}`}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <div className={`
+                    w-10 h-10 rounded-full flex items-center justify-center transition-colors
+                    ${currentStep === index 
+                      ? 'bg-blue-600 text-white' 
+                      : getStepStatus(step.id) === 'completed'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-gray-200 text-gray-600'
+                    }
+                  `}>
+                    {getStepStatus(step.id) === 'completed' ? (
+                      <CheckCircle className="h-5 w-5" />
+                    ) : (
+                      <step.icon className="h-5 w-5" />
+                    )}
                   </div>
-                  {index < WIZARD_STEPS.length - 1 && (
-                    <div className="flex-1 h-px bg-gray-200 mx-4" />
-                  )}
+                  <div className="text-center">
+                    <p className="text-xs font-medium">{step.title}</p>
+                    {step.biomarkerCount && (
+                      <Badge variant="secondary" className="text-xs">
+                        {Math.min(filledBiomarkers.length, step.biomarkerCount)}/{step.biomarkerCount}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Overall progress */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Общий прогресс</span>
-                <span>{filledBiomarkers.length}/24 биомаркеров</span>
+                {index < WIZARD_STEPS.length - 1 && (
+                  <div className="flex-1 h-px bg-gray-200 mx-4" />
+                )}
               </div>
-              <Progress value={progress} className="h-2" />
-              <p className="text-xs text-gray-600 text-center">
-                Точность: {currentAccuracy.percentage}% • {currentAccuracy.description}
-              </p>
-            </div>
+            ))}
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Overall progress */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Общий прогресс</span>
+              <span>{filledBiomarkers.length}/24 биомаркеров</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+            <p className="text-xs text-gray-600 text-center">
+              Точность: {currentAccuracy.percentage}% • {currentAccuracy.description}
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Step Content */}
-      <Card>
-        <CardContent className="pt-6">
-          {currentStep === 0 && renderStartStep()}
-          {currentStep > 0 && currentStep < WIZARD_STEPS.length - 1 && renderBiomarkerStep()}
-          {currentStep === WIZARD_STEPS.length - 1 && results && (
-            <BiologicalAgeResults results={results} />
-          )}
-          {currentStep === WIZARD_STEPS.length - 1 && !results && (
-            <div className="text-center py-8">
-              <Trophy className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Готово к расчету
-              </h3>
-              <p className="text-gray-600 mb-6">
-                У вас достаточно данных для определения биологического возраста
-              </p>
-              <Button 
-                onClick={onCalculate}
-                disabled={isCalculating}
-                size="lg"
-              >
-                {isCalculating ? 'Анализируем...' : 'Рассчитать биологический возраст'}
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div className="border border-gray-200 bg-white p-3">
+        {currentStep === 0 && renderStartStep()}
+        {currentStep > 0 && currentStep < WIZARD_STEPS.length - 1 && renderBiomarkerStep()}
+        {currentStep === WIZARD_STEPS.length - 1 && results && (
+          <BiologicalAgeResults results={results} />
+        )}
+        {currentStep === WIZARD_STEPS.length - 1 && !results && (
+          <div className="text-center py-8">
+            <Trophy className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Готово к расчету
+            </h3>
+            <p className="text-gray-600 mb-6">
+              У вас достаточно данных для определения биологического возраста
+            </p>
+            <Button 
+              onClick={onCalculate}
+              disabled={isCalculating}
+              size="lg"
+            >
+              {isCalculating ? 'Анализируем...' : 'Рассчитать биологический возраст'}
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
