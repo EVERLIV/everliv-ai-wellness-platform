@@ -47,8 +47,8 @@ const NutritionGoals: React.FC = () => {
     <div className="space-y-4 md:space-y-6 px-2 md:px-0">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <h2 className="text-lg md:text-xl font-semibold">Цели питания</h2>
-        <Button onClick={calculateMacros} variant="outline" size="sm" className="w-full md:w-auto">
-          <Calculator className="h-4 w-4 mr-2" />
+        <Button onClick={calculateMacros} variant="outline" className="w-full md:w-auto text-xs py-1 px-2 h-auto rounded-none">
+          <Calculator className="h-3 w-3 mr-1" />
           Рассчитать БЖУ
         </Button>
       </div>
@@ -109,9 +109,9 @@ const NutritionGoals: React.FC = () => {
             <Button 
               onClick={handleSave} 
               disabled={isLoading}
-              className="w-full mt-4"
+              className="w-full mt-4 text-xs py-1 px-2 h-auto rounded-none"
             >
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="h-3 w-3 mr-1" />
               Сохранить цели
             </Button>
           </CardContent>

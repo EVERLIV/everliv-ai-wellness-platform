@@ -260,6 +260,36 @@ const NutritionDiary: React.FC<NutritionDiaryProps> = ({
         </Card>
       </div>
 
+      {/* Цели питания */}
+      <div className="mt-4">
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-1 px-2 py-1">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Target className="h-4 w-4 text-green-500" />
+              Управление целями питания
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-2 py-1 pt-0">
+            <NutritionGoals />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Графики и аналитика */}
+      <div className="mt-4">
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-1 px-2 py-1">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-blue-500" />
+              Аналитика и графики БЖУ
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-2 py-1 pt-0">
+            <NutritionCharts />
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Персонализированные рекомендации */}
       <div className="mt-4">
         <Card className="shadow-none border-gray-200/80 rounded-none">

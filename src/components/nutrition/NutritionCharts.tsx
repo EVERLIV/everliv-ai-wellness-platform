@@ -74,17 +74,15 @@ const NutritionCharts: React.FC = () => {
           <div className="flex gap-2">
             <Button
               variant={dateRange === 'week' ? 'default' : 'outline'}
-              size="sm"
               onClick={() => setDateRange('week')}
-              className="mobile-button-sm"
+              className="text-xs py-1 px-2 h-auto rounded-none"
             >
               Неделя
             </Button>
             <Button
               variant={dateRange === 'month' ? 'default' : 'outline'}
-              size="sm"
               onClick={() => setDateRange('month')}
-              className="mobile-button-sm"
+              className="text-xs py-1 px-2 h-auto rounded-none"
             >
               Месяц
             </Button>
