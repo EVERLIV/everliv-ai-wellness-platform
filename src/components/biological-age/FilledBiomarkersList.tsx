@@ -62,8 +62,8 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
   return (
     <div className="border border-gray-200 bg-white p-2">
       <div className="flex items-center justify-between mb-2">
-        <h4 className="text-xs font-medium text-gray-900">Введенные показатели</h4>
-        <Badge variant="secondary" className="text-xs">
+        <h4 className="text-[10px] md:text-xs font-medium text-gray-900">Введенные показатели</h4>
+        <Badge variant="secondary" size="sm" className="text-[9px] md:text-xs">
           {biomarkers.length} показателей
         </Badge>
       </div>
@@ -114,7 +114,7 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 </div>
                 
                 {/* Влияние на биологический возраст */}
-                <div className="text-xs text-blue-600 bg-blue-50 p-1 rounded">
+                <div className="text-[10px] md:text-xs text-blue-600 bg-blue-50 p-1 rounded">
                   <span className="font-medium">Влияние на возраст:</span> {ageEffect}
                 </div>
               </div>
