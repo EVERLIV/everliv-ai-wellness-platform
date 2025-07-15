@@ -91,6 +91,37 @@ const MealEntry: React.FC<MealEntryProps> = ({
     }
   };
 
+  const handleSaveWithImageUrl = async (imageUrl?: string) => {
+    if (!foodData.food_name.trim()) {
+      console.log('📷 Cannot save - no food name');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      console.log('📷 Saving food entry with image URL:', imageUrl);
+      await addEntry({
+        meal_type: mealType,
+        food_name: foodData.food_name,
+        calories: foodData.calories,
+        protein: foodData.protein,
+        carbs: foodData.carbs,
+        fat: foodData.fat,
+        portion_size: foodData.portion_size,
+        image_url: imageUrl || null,
+        entry_date: selectedDate.toISOString().split('T')[0]
+      });
+      
+      console.log('📷 Food entry saved successfully');
+      handleClose();
+    } catch (error) {
+      console.error('📷 Error saving food entry:', error);
+      toast.error('Ошибка при сохранении записи');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const requestCameraPermission = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -114,19 +145,45 @@ const MealEntry: React.FC<MealEntryProps> = ({
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const analysis = await analyzeImage(file);
-      if (analysis) {
-        setFoodData({
-          food_name: analysis.food_name,
-          calories: analysis.calories,
-          protein: analysis.protein,
-          carbs: analysis.carbs,
-          fat: analysis.fat,
-          portion_size: analysis.portion_size
-        });
-        setEntryMode('manual'); // Переключаемся на ручной режим для редактирования
+      try {
+        console.log('📷 Starting image analysis for file:', file.name);
+        const analysis = await analyzeImage(file);
+        
+        if (analysis) {
+          console.log('📷 Analysis completed:', analysis);
+          
+          // Создаем URL для изображения
+          const imageUrl = URL.createObjectURL(file);
+          
+          setFoodData({
+            food_name: analysis.food_name,
+            calories: analysis.calories,
+            protein: analysis.protein,
+            carbs: analysis.carbs,
+            fat: analysis.fat,
+            portion_size: analysis.portion_size
+          });
+          
+          // Остаемся в том же режиме, не переключаемся
+          console.log('📷 Food data updated, staying in current mode');
+          
+          // Автоматически сохраняем запись после успешного анализа
+          if (analysis.food_name) {
+            console.log('📷 Auto-saving analyzed food entry');
+            await handleSaveWithImageUrl(imageUrl);
+          }
+        } else {
+          console.log('📷 Analysis failed - no results');
+          toast.error('Не удалось проанализировать изображение');
+        }
+      } catch (error) {
+        console.error('📷 Error during image analysis:', error);
+        toast.error('Ошибка при анализе изображения');
       }
     }
+    
+    // Сбрасываем значение input для возможности повторной загрузки того же файла
+    event.target.value = '';
   };
 
   const handleCameraMode = async () => {
@@ -264,22 +321,35 @@ const MealEntry: React.FC<MealEntryProps> = ({
               <Label htmlFor="image-upload" className="cursor-pointer">
                 <div className="space-y-2">
                   {isAnalyzing ? (
-                    <Loader2 className="h-10 w-10 mx-auto text-blue-500 animate-spin" />
+                    <>
+                      <Loader2 className="h-10 w-10 mx-auto text-blue-500 animate-spin" />
+                      <p className="text-blue-600 text-sm font-medium">
+                        Анализируем изображение...
+                      </p>
+                      <p className="text-xs text-blue-400">
+                        Пожалуйста, не закрывайте окно
+                      </p>
+                    </>
                   ) : entryMode === 'camera' ? (
-                    <Camera className="h-10 w-10 mx-auto text-gray-400" />
+                    <>
+                      <Camera className="h-10 w-10 mx-auto text-gray-400" />
+                      <p className="text-gray-600 text-sm">
+                        Сфотографировать блюдо
+                      </p>
+                    </>
                   ) : (
-                    <Upload className="h-10 w-10 mx-auto text-gray-400" />
+                    <>
+                      <Upload className="h-10 w-10 mx-auto text-gray-400" />
+                      <p className="text-gray-600 text-sm">
+                        Загрузить фото блюда
+                      </p>
+                    </>
                   )}
-                  <p className="text-gray-600 text-sm">
-                    {isAnalyzing 
-                      ? 'Анализируем изображение...'
-                      : entryMode === 'camera' 
-                        ? 'Сфотографировать блюдо' 
-                        : 'Загрузить фото блюда'}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    ИИ автоматически определит состав БЖУ
-                  </p>
+                  {!isAnalyzing && (
+                    <p className="text-xs text-gray-500">
+                      ИИ автоматически определит состав БЖУ
+                    </p>
+                  )}
                 </div>
               </Label>
             </div>
@@ -288,23 +358,31 @@ const MealEntry: React.FC<MealEntryProps> = ({
 
         {/* Кнопки действий */}
         <div className="flex flex-col gap-2 pt-4 border-t">
-          <Button variant="outline" onClick={handleClose} className="w-full text-xs py-2 rounded-none" disabled={isSaving}>
+          <Button 
+            variant="outline" 
+            onClick={handleClose} 
+            className="w-full text-xs py-2 rounded-none" 
+            disabled={isSaving || isAnalyzing}
+          >
             Отмена
           </Button>
-          <Button 
-            onClick={handleSave} 
-            className="w-full text-xs py-2 rounded-none" 
-            disabled={isSaving || !foodData.food_name.trim()}
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                Добавление...
-              </>
-            ) : (
-              'Добавить'
-            )}
-          </Button>
+          {/* Показываем кнопку "Добавить" только если не анализируем изображение */}
+          {!isAnalyzing && (
+            <Button 
+              onClick={handleSave} 
+              className="w-full text-xs py-2 rounded-none" 
+              disabled={isSaving || !foodData.food_name.trim()}
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                  Добавление...
+                </>
+              ) : (
+                'Добавить'
+              )}
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

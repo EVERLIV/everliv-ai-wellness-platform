@@ -19,40 +19,47 @@ export const useFoodImageAnalysis = () => {
   const analyzeImage = async (imageFile: File): Promise<AnalysisResult | null> => {
     setIsAnalyzing(true);
     try {
-      // Загружаем изображение в Storage (если есть)
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
+      console.log('📷 useFoodImageAnalysis: Starting analysis for file:', imageFile.name, 'size:', imageFile.size);
       
-      // Создаем FormData для отправки изображения
-      const formData = new FormData();
-      formData.append('file', imageFile);
+      // Проверяем размер файла (максимум 10MB)
+      if (imageFile.size > 10 * 1024 * 1024) {
+        throw new Error('Размер файла слишком большой (максимум 10MB)');
+      }
 
       // Преобразуем в base64 для отправки в OpenAI
       const base64 = await fileToBase64(imageFile);
       const imageUrl = `data:${imageFile.type};base64,${base64}`;
 
-      console.log('Sending image for analysis...');
+      console.log('📷 useFoodImageAnalysis: Sending to edge function for analysis...');
 
       const { data, error } = await supabase.functions.invoke('analyze-food-image', {
         body: { imageUrl }
       });
 
       if (error) {
-        console.error('Supabase function error:', error);
-        throw error;
+        console.error('📷 useFoodImageAnalysis: Supabase function error:', error);
+        throw new Error(`Ошибка Edge функции: ${error.message}`);
+      }
+
+      if (!data) {
+        throw new Error('Нет данных от сервера');
       }
 
       if (!data.success) {
-        throw new Error(data.error || 'Failed to analyze image');
+        throw new Error(data.error || 'Не удалось проанализировать изображение');
       }
 
-      console.log('Analysis result:', data.analysis);
+      console.log('📷 useFoodImageAnalysis: Analysis result:', data.analysis);
       toast.success('Изображение успешно проанализировано!');
       
       return data.analysis;
     } catch (error) {
-      console.error('Error analyzing image:', error);
-      toast.error('Ошибка при анализе изображения');
+      console.error('📷 useFoodImageAnalysis: Error analyzing image:', error);
+      
+      // Показываем более понятное сообщение об ошибке
+      const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
+      toast.error(`Ошибка при анализе изображения: ${errorMessage}`);
+      
       return null;
     } finally {
       setIsAnalyzing(false);
