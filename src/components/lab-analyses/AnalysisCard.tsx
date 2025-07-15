@@ -148,8 +148,8 @@ const AnalysisCard: React.FC<AnalysisCardProps> = ({
 
   return (
     <>
-      <Card className="group hover:shadow-lg transition-all duration-200 border border-gray-200 hover:border-gray-300">
-        <CardContent className="p-4 md:p-6">
+      <Card className="group hover:shadow-md transition-all duration-200 border border-gray-200/80 hover:border-gray-300 rounded-none">
+        <CardContent className="p-3">
           <AnalysisCardHeader
             analysis={analysis}
             riskLevel={riskLevel}

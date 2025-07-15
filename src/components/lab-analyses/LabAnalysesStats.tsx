@@ -64,31 +64,31 @@ const LabAnalysesStats: React.FC<LabAnalysesStatsProps> = ({ statistics }) => {
   });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Всего анализов</CardTitle>
-          <FileText className="h-4 w-4 text-muted-foreground" />
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+      <Card className="rounded-none border-gray-200/80">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 py-2">
+          <CardTitle className="text-xs font-medium">Всего анализов</CardTitle>
+          <FileText className="h-3 w-3 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{statistics.totalAnalyses}</div>
+        <CardContent className="px-3 py-1 pt-0">
+          <div className="text-lg font-bold">{statistics.totalAnalyses}</div>
           <p className="text-xs text-muted-foreground">
             За все время
           </p>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Этот месяц</CardTitle>
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+      <Card className="rounded-none border-gray-200/80">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 py-2">
+          <CardTitle className="text-xs font-medium">Этот месяц</CardTitle>
+          <Calendar className="h-3 w-3 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="px-3 py-1 pt-0">
+          <div className="text-lg font-bold">
             {statistics.currentMonthAnalyses}/{limit}
           </div>
           <div className="flex items-center gap-2">
-            <div className={`h-2 w-full bg-gray-200 rounded-full overflow-hidden`}>
+            <div className={`h-1.5 w-full bg-gray-200 rounded-none overflow-hidden`}>
               <div 
                 className={`h-full transition-all duration-300 ${
                   usagePercentage >= 100 
@@ -107,13 +107,13 @@ const LabAnalysesStats: React.FC<LabAnalysesStatsProps> = ({ statistics }) => {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">План подписки</CardTitle>
-          <Crown className="h-4 w-4 text-muted-foreground" />
+      <Card className="rounded-none border-gray-200/80">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 py-2">
+          <CardTitle className="text-xs font-medium">План подписки</CardTitle>
+          <Crown className="h-3 w-3 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="px-3 py-1 pt-0">
+          <div className="text-lg font-bold">
             {displayPlan}
           </div>
           <p className="text-xs text-muted-foreground">
@@ -122,13 +122,13 @@ const LabAnalysesStats: React.FC<LabAnalysesStatsProps> = ({ statistics }) => {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Последний анализ</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+      <Card className="rounded-none border-gray-200/80">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 py-2">
+          <CardTitle className="text-xs font-medium">Последний анализ</CardTitle>
+          <TrendingUp className="h-3 w-3 text-muted-foreground" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
+        <CardContent className="px-3 py-1 pt-0">
+          <div className="text-lg font-bold">
             {statistics.mostRecentAnalysis 
               ? new Date(statistics.mostRecentAnalysis).toLocaleDateString('ru-RU')
               : "—"

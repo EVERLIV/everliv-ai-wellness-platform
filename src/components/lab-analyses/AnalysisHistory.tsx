@@ -86,30 +86,30 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   if (loadingHistory) {
     console.log('⏳ AnalysisHistory: Showing loading state');
     return (
-      <div className="space-y-4 md:space-y-6">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg md:text-xl font-semibold text-gray-900">История анализов</h2>
-          <div className="animate-pulse h-4 bg-gray-200 rounded w-24"></div>
+          <h2 className="text-base font-semibold text-gray-900">История анализов</h2>
+          <div className="animate-pulse h-3 bg-gray-200 rounded w-20"></div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-4 md:p-6">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-6 md:w-8 md:h-8 bg-gray-200 rounded-full"></div>
+            <Card key={i} className="animate-pulse rounded-none border-gray-200/80">
+              <CardContent className="p-3">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-gray-200 rounded-none"></div>
                     <div className="flex-1">
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-3/4 mb-1"></div>
+                      <div className="h-2 bg-gray-200 rounded w-1/2"></div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="h-12 bg-gray-200 rounded"></div>
-                    <div className="h-12 bg-gray-200 rounded"></div>
-                    <div className="h-12 bg-gray-200 rounded"></div>
+                  <div className="grid grid-cols-3 gap-1">
+                    <div className="h-8 bg-gray-200 rounded-none"></div>
+                    <div className="h-8 bg-gray-200 rounded-none"></div>
+                    <div className="h-8 bg-gray-200 rounded-none"></div>
                   </div>
-                  <div className="h-8 bg-gray-200 rounded"></div>
+                  <div className="h-6 bg-gray-200 rounded-none"></div>
                 </div>
               </CardContent>
             </Card>
@@ -127,15 +127,15 @@ const AnalysisHistory: React.FC<AnalysisHistoryProps> = ({
   console.log('✅ AnalysisHistory: Rendering analyses grid with', analysisHistory.length, 'items');
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg md:text-xl font-semibold text-gray-900">История анализов</h2>
-        <span className="text-xs md:text-sm text-gray-500 bg-gray-100 px-2 md:px-3 py-1 rounded-full">
+        <h2 className="text-base font-semibold text-gray-900">История анализов</h2>
+        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-none">
           {analysisHistory.length} {analysisHistory.length === 1 ? 'анализ' : 'анализов'}
         </span>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {analysisHistory.map((analysis, index) => {
           console.log(`🔍 AnalysisHistory: Rendering analysis ${index + 1}:`, {
             id: analysis.id,
