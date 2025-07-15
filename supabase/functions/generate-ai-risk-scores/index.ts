@@ -234,7 +234,7 @@ serve(async (req) => {
         console.log(`Calling Anthropic API (attempt ${attempt})`);
         
         // Use faster model on retries
-        const model = attempt === 1 ? 'claude-3-5-sonnet-20241022' : 'claude-3-5-haiku-20241022';
+        const model = attempt === 1 ? 'claude-sonnet-4-20250514' : 'claude-3-5-haiku-20241022';
         
         const response = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
