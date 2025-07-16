@@ -11,6 +11,9 @@ import { HealthProfileData } from '@/types/healthProfile';
 import { getBiomarkerImpact } from '@/services/ai/biomarker-impact-analysis';
 import { calculateNormalRange, getValueStatus } from '@/utils/normalRangeCalculator';
 import BiomarkerHistoryModal from './BiomarkerHistoryModal';
+import { useBiomarkerHistory } from '@/hooks/useBiomarkerHistory';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 interface BiomarkerCardProps {
   biomarker: Biomarker;
@@ -28,6 +31,11 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
   const [inputValue, setInputValue] = useState<string>('');
   const [isOpen, setIsOpen] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const { getBiomarkerHistory } = useBiomarkerHistory();
+  
+  // Получаем историю для данного биомаркера
+  const biomarkerHistory = getBiomarkerHistory(biomarker.id);
+  const lastEntry = biomarkerHistory.length > 0 ? biomarkerHistory[0] : null;
 
   useEffect(() => {
     if (biomarker.value !== undefined) {
@@ -147,6 +155,13 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
               </div>
             </CollapsibleContent>
           </Collapsible>
+          
+          {/* Информация о последнем анализе - показывается когда карточка свернута */}
+          {!isOpen && lastEntry && (
+            <div className="text-[10px] text-gray-500 mt-1">
+              Последний анализ: {format(new Date(lastEntry.created_at), 'dd.MM.yyyy', { locale: ru })} - {lastEntry.value} {lastEntry.unit}
+            </div>
+          )}
         </div>
       </div>
 
