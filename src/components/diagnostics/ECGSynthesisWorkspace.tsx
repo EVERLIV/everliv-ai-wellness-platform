@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, Heart, FileImage, Stethoscope, Lightbulb, Camera, ChevronRight, Download, BookOpen, TrendingUp } from 'lucide-react';
+import { Upload, Heart, FileImage, Stethoscope, Lightbulb, Camera, ChevronRight, Download, BookOpen, TrendingUp, Activity } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -23,9 +23,11 @@ const ECGSynthesisWorkspace: React.FC = () => {
   const [prognosis, setPrognosis] = useState<any>(null);
   const [educationalContent, setEducationalContent] = useState<any>(null);
   const [exportData, setExportData] = useState<any>(null);
+  const [ecgAnalysis, setEcgAnalysis] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAnalyzingEcg, setIsAnalyzingEcg] = useState(false);
   const [isCameraMode, setIsCameraMode] = useState(false);
-  const [activeTab, setActiveTab] = useState<'recommendations' | 'prognosis' | 'education' | 'export'>('recommendations');
+  const [activeTab, setActiveTab] = useState<'recommendations' | 'prognosis' | 'education' | 'export' | 'ecg-analysis'>('recommendations');
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -143,6 +145,50 @@ const ECGSynthesisWorkspace: React.FC = () => {
     }
   };
 
+  const analyzeEcgWithAI = async () => {
+    if (!ecgFile) {
+      toast.error('Пожалуйста, загрузите файл ЭКГ');
+      return;
+    }
+
+    if (!diagnosis.trim()) {
+      toast.error('Пожалуйста, введите диагноз для сравнения');
+      return;
+    }
+
+    setIsAnalyzingEcg(true);
+    try {
+      // Конвертируем файл в base64
+      const base64Image = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(ecgFile);
+      });
+
+      const { data, error } = await supabase.functions.invoke('analyze-ecg-with-openai', {
+        body: {
+          ecgImage: base64Image,
+          diagnosis: diagnosis.trim()
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success && data.analysis) {
+        setEcgAnalysis(data.analysis);
+        setActiveTab('ecg-analysis');
+        toast.success('Анализ ЭКГ завершен успешно');
+      } else {
+        toast.error('Не удалось проанализировать ЭКГ');
+      }
+    } catch (error) {
+      console.error('Error analyzing ECG:', error);
+      toast.error('Ошибка при анализе ЭКГ');
+    } finally {
+      setIsAnalyzingEcg(false);
+    }
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'text-red-600 bg-red-50 border-red-200';
@@ -247,13 +293,22 @@ const ECGSynthesisWorkspace: React.FC = () => {
                   rows={4}
                   className="border-gray-300 text-sm w-full resize-none"
                 />
-                <Button 
-                  onClick={generateRecommendations}
-                  disabled={isLoading || !diagnosis.trim()}
-                  className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-10 text-sm font-medium"
-                >
-                  {isLoading ? 'Генерация...' : 'Получить рекомендации'}
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-2 mt-4">
+                  <Button 
+                    onClick={generateRecommendations}
+                    disabled={isLoading || !diagnosis.trim()}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white border-0 h-10 text-sm font-medium"
+                  >
+                    {isLoading ? 'Генерация...' : 'Получить рекомендации'}
+                  </Button>
+                  <Button 
+                    onClick={analyzeEcgWithAI}
+                    disabled={isAnalyzingEcg || !ecgFile || !diagnosis.trim()}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white border-0 h-10 text-sm font-medium"
+                  >
+                    {isAnalyzingEcg ? 'Анализ ЭКГ...' : 'Анализ ЭКГ с ИИ'}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -262,7 +317,7 @@ const ECGSynthesisWorkspace: React.FC = () => {
           <div className="lg:sticky lg:top-4 lg:self-start">
             <div className="border border-gray-300 bg-white">
               {/* Вкладки навигации */}
-              {(recommendations.length > 0 || prognosis || educationalContent || exportData) && (
+              {(recommendations.length > 0 || prognosis || educationalContent || exportData || ecgAnalysis) && (
                 <div className="border-b border-gray-200">
                   <div className="flex flex-wrap">
                     <button
@@ -276,6 +331,19 @@ const ECGSynthesisWorkspace: React.FC = () => {
                       <Lightbulb className="h-4 w-4" />
                       Рекомендации
                     </button>
+                    {ecgAnalysis && (
+                      <button
+                        onClick={() => setActiveTab('ecg-analysis')}
+                        className={`px-4 py-2 text-xs md:text-sm font-medium border-b-2 flex items-center gap-1 ${
+                          activeTab === 'ecg-analysis' 
+                            ? 'border-blue-600 text-blue-600' 
+                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        <Activity className="h-4 w-4" />
+                        Анализ ЭКГ
+                      </button>
+                    )}
                     {prognosis && (
                       <button
                         onClick={() => setActiveTab('prognosis')}
@@ -367,6 +435,83 @@ const ECGSynthesisWorkspace: React.FC = () => {
                       </div>
                     )}
                   </>
+                )}
+
+                {/* Вкладка Анализ ЭКГ */}
+                {activeTab === 'ecg-analysis' && ecgAnalysis && (
+                  <div className="space-y-6">
+                    {/* Основной анализ ЭКГ */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">Анализ ЭКГ</h4>
+                      <div className="border border-gray-200 p-4 bg-gray-50">
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                          {ecgAnalysis.ecgAnalysis}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Выявленные патологии */}
+                    {ecgAnalysis.detectedAbnormalities && ecgAnalysis.detectedAbnormalities.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">Выявленные патологии</h4>
+                        <div className="space-y-2">
+                          {ecgAnalysis.detectedAbnormalities.map((abnormality: string, index: number) => (
+                            <div key={index} className="border border-red-200 p-3 bg-red-50">
+                              <p className="text-sm text-red-700">{abnormality}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Сравнение с диагнозом */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">Сравнение с диагнозом врача</h4>
+                      <div className="border border-gray-200 p-4">
+                        <p className="text-sm text-gray-700 mb-3">{ecgAnalysis.diagnosisComparison}</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-900">Уровень согласованности:</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-24 h-2 bg-gray-200 rounded-full">
+                              <div 
+                                className={`h-2 rounded-full ${
+                                  ecgAnalysis.agreementLevel >= 80 ? 'bg-green-500' :
+                                  ecgAnalysis.agreementLevel >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}
+                                style={{ width: `${ecgAnalysis.agreementLevel}%` }}
+                              />
+                            </div>
+                            <span className="text-sm font-medium">{ecgAnalysis.agreementLevel}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Дополнительные рекомендации */}
+                    {ecgAnalysis.additionalRecommendations && ecgAnalysis.additionalRecommendations.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">Дополнительные рекомендации</h4>
+                        <div className="space-y-2">
+                          {ecgAnalysis.additionalRecommendations.map((recommendation: string, index: number) => (
+                            <div key={index} className="border border-blue-200 p-3 bg-blue-50">
+                              <p className="text-sm text-blue-700">{recommendation}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Уровень уверенности */}
+                    <div className="mt-4 p-3 bg-gray-50 border border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-900">Уровень уверенности ИИ:</span>
+                        <span className="text-sm font-medium text-gray-700">{ecgAnalysis.confidence}%</span>
+                      </div>
+                      <div className="mt-2 text-xs text-gray-600">
+                        Анализ основан на изображении ЭКГ и может требовать дополнительной медицинской оценки
+                      </div>
+                    </div>
+                  </div>
                 )}
 
                 {/* Вкладка Прогноз */}
