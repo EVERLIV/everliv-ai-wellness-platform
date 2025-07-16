@@ -17,16 +17,28 @@ interface Recommendation {
 }
 
 const ECGSynthesisWorkspace: React.FC = () => {
-  const [ecgImage, setEcgImage] = useState<File | null>(null);
+  const [ecgFile, setEcgFile] = useState<File | null>(null);
   const [diagnosis, setDiagnosis] = useState('');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setEcgImage(file);
-      toast.success('ЭКГ изображение загружено');
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        toast.error('Файл слишком большой. Максимальный размер: 10MB');
+        return;
+      }
+      
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Неподдерживаемый формат файла. Разрешены: JPG, PNG, PDF');
+        return;
+      }
+      
+      setEcgFile(file);
+      toast.success(`Файл загружен: ${file.name}`);
     }
   };
 
@@ -38,54 +50,56 @@ const ECGSynthesisWorkspace: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-diagnostic-synthesis', {
+      const { data, error } = await supabase.functions.invoke('process-ecg-file', {
         body: {
           diagnosis: diagnosis.trim(),
-          hasEcgImage: !!ecgImage
+          hasEcgFile: !!ecgFile,
+          fileType: ecgFile?.type
         }
       });
 
       if (error) throw error;
 
-      const mockRecommendations: Recommendation[] = [
-        {
-          id: '1',
-          title: 'Контроль артериального давления',
-          description: 'Рекомендуется ежедневный мониторинг АД утром и вечером. Целевые значения: менее 130/80 мм рт.ст.',
-          category: 'Мониторинг',
-          priority: 'high'
-        },
-        {
-          id: '2',
-          title: 'Коррекция питания',
-          description: 'Ограничение соли до 5г/сутки, увеличение потребления калия (фрукты, овощи), омега-3 жирных кислот.',
-          category: 'Питание',
-          priority: 'high'
-        },
-        {
-          id: '3',
-          title: 'Физическая активность',
-          description: 'Аэробные нагрузки умеренной интенсивности 150 минут в неделю. Начинать с 10-15 минут ходьбы.',
-          category: 'Физическая активность',
-          priority: 'medium'
-        },
-        {
-          id: '4',
-          title: 'Контроль биомаркеров',
-          description: 'Анализ липидного профиля, HbA1c, креатинина через 3 месяца. Мониторинг электролитов при приеме диуретиков.',
-          category: 'Лабораторные показатели',
-          priority: 'medium'
-        },
-        {
-          id: '5',
-          title: 'Управление стрессом',
-          description: 'Практика релаксации, медитации или дыхательных упражнений 10-15 минут ежедневно.',
-          category: 'Психологическое здоровье',
-          priority: 'low'
-        }
-      ];
-
-      setRecommendations(mockRecommendations);
+      if (data?.recommendations) {
+        // Используем рекомендации от API
+        const apiRecommendations: Recommendation[] = data.recommendations.map((rec: any, index: number) => ({
+          id: (index + 1).toString(),
+          title: rec.title,
+          description: rec.description,
+          category: rec.category,
+          priority: rec.priority
+        }));
+        
+        setRecommendations(apiRecommendations);
+      } else {
+        // Fallback к mock данным
+        const mockRecommendations: Recommendation[] = [
+          {
+            id: '1',
+            title: 'Контроль артериального давления',
+            description: 'Рекомендуется ежедневный мониторинг АД утром и вечером. Целевые значения: менее 130/80 мм рт.ст.',
+            category: 'Мониторинг',
+            priority: 'high'
+          },
+          {
+            id: '2',
+            title: 'Коррекция питания',
+            description: 'Ограничение соли до 5г/сутки, увеличение потребления калия (фрукты, овощи), омега-3 жирных кислот.',
+            category: 'Питание',
+            priority: 'high'
+          },
+          {
+            id: '3',
+            title: 'Физическая активность',
+            description: 'Аэробные нагрузки умеренной интенсивности 150 минут в неделю. Начинать с 10-15 минут ходьбы.',
+            category: 'Физическая активность',
+            priority: 'medium'
+          }
+        ];
+        
+        setRecommendations(mockRecommendations);
+      }
+      
       toast.success('Рекомендации сгенерированы на основе вашего профиля здоровья');
     } catch (error) {
       console.error('Error generating recommendations:', error);
@@ -144,21 +158,25 @@ const ECGSynthesisWorkspace: React.FC = () => {
                     <Input
                       id="ecg-upload"
                       type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
+                      accept="image/*,.pdf"
+                      onChange={handleFileUpload}
                       className="hidden"
                     />
                     <button className="bg-gray-200 border border-gray-300 px-4 py-2 text-sm hover:bg-gray-300">
                       Обзор
                     </button>
                   </Label>
-                  <div className="text-xs text-gray-500 mt-2">PNG, JPG до 10MB</div>
+                  <div className="text-xs text-gray-500 mt-2">PNG, JPG, PDF до 10MB</div>
                 </div>
-                {ecgImage && (
+                {ecgFile && (
                   <div className="mt-3 p-2 bg-green-50 border border-green-200">
                     <div className="flex items-center gap-2">
-                      <FileImage className="h-4 w-4 text-green-600" />
-                      <span className="text-sm text-green-700">{ecgImage.name}</span>
+                      {ecgFile.type === 'application/pdf' ? (
+                        <div className="h-4 w-4 text-green-600 text-xs font-bold">PDF</div>
+                      ) : (
+                        <FileImage className="h-4 w-4 text-green-600" />
+                      )}
+                      <span className="text-sm text-green-700">{ecgFile.name}</span>
                     </div>
                   </div>
                 )}
