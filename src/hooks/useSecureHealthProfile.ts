@@ -36,6 +36,11 @@ export const useSecureHealthProfile = () => {
         return;
       }
 
+      console.log('🔧 useSecureHealthProfile: Health profile fetched:', {
+        hasData: !!data,
+        userId: data?.user_id,
+        profileDataExists: !!data?.profile_data
+      });
       setHealthProfile(data);
     } catch (error) {
       handleError(error as Error, 'fetching health profile');

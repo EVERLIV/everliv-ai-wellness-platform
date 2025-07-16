@@ -25,7 +25,8 @@ const SimpleWelcomeCard: React.FC<SimpleWelcomeCardProps> = ({ userName }) => {
     profileFirstName: profileData?.first_name,
     passedUserName: userName,
     finalDisplayName: displayName,
-    hasProfileData: !!profileData
+    hasProfileData: !!profileData,
+    fullProfileData: profileData
   });
 
   return (

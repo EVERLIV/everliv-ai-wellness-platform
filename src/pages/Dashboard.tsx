@@ -62,7 +62,9 @@ const Dashboard = () => {
     userMetadataFullName: user?.user_metadata?.full_name,
     userMetadataNickname: user?.user_metadata?.nickname,
     finalUserName: userName,
-    hasProfileData: !!profileData
+    hasProfileData: !!profileData,
+    fullProfileData: profileData,
+    userEmail: user?.email
   });
   
   // ВАЖНО: НЕ показываем fallback значения, ждем реальные данные
