@@ -53,21 +53,20 @@ const Dashboard = () => {
     );
   }
 
-  // Получаем имя пользователя с приоритетом: никнейм из профиля -> имя из профиля -> имя из метаданных
-  const userName = profileData?.nickname || profileData?.first_name || user?.user_metadata?.full_name || user?.user_metadata?.nickname || "Пользователь";
+  // Получаем имя пользователя с ПРАВИЛЬНЫМ приоритетом: никнейм из профиля -> имя из профиля -> имя из метаданных
+  const userName = profileData?.nickname || profileData?.first_name || user?.user_metadata?.first_name || user?.user_metadata?.full_name || "Пользователь";
   
-  console.log('🔧 Dashboard: User name data ПОДРОБНО:', {
+  console.log('🔧 Dashboard: User name data ИСПРАВЛЕННАЯ ЛОГИКА:', {
     profileNickname: profileData?.nickname,
     profileFirstName: profileData?.first_name,
+    userMetadataFirstName: user?.user_metadata?.first_name,
     userMetadataFullName: user?.user_metadata?.full_name,
-    userMetadataNickname: user?.user_metadata?.nickname,
-    userMetadata: user?.user_metadata,
     finalUserName: userName,
     hasProfileData: !!profileData,
-    fullProfileData: profileData,
+    profileDataNickname: profileData?.nickname,
     userEmail: user?.email,
     isLoadingProfile: isLoading,
-    userObject: user
+    ПРИОРИТЕТ: 'profileData.nickname ПЕРВЫЙ!'
   });
   
   console.log('🚨 ВАЖНО: Финальное имя для передачи в SimpleWelcomeCard:', userName);
