@@ -3,12 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { ChevronDown, ChevronRight, TrendingUp, TrendingDown, Minus, History } from 'lucide-react';
 import { Biomarker } from '@/types/biologicalAge';
 import { HealthProfileData } from '@/types/healthProfile';
 import { getBiomarkerImpact } from '@/services/ai/biomarker-impact-analysis';
 import { calculateNormalRange, getValueStatus } from '@/utils/normalRangeCalculator';
+import BiomarkerHistoryModal from './BiomarkerHistoryModal';
 
 interface BiomarkerCardProps {
   biomarker: Biomarker;
@@ -25,6 +27,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [isOpen, setIsOpen] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   useEffect(() => {
     if (biomarker.value !== undefined) {
@@ -116,6 +119,15 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
                   className="flex-1 text-xs h-6"
                 />
                 <span className="text-xs text-gray-500 min-w-fit">{biomarker.unit}</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowHistoryModal(true)}
+                  className="h-6 w-6 p-0"
+                  title="История изменений"
+                >
+                  <History className="h-3 w-3" />
+                </Button>
               </div>
               
               <div className="text-xs space-y-0.5">
@@ -137,6 +149,14 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
           </Collapsible>
         </div>
       </div>
+
+      <BiomarkerHistoryModal
+        isOpen={showHistoryModal}
+        onClose={() => setShowHistoryModal(false)}
+        biomarkerId={biomarker.id}
+        biomarkerName={biomarker.name}
+        unit={biomarker.unit}
+      />
     </div>
   );
 };

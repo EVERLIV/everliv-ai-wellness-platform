@@ -11,6 +11,7 @@ import ConnectionErrorAlert from './ConnectionErrorAlert';
 import LoadingSpinner from './LoadingSpinner';
 import NoHealthProfileAlert from './NoHealthProfileAlert';
 import FilledBiomarkersList from './FilledBiomarkersList';
+import BiologicalAgeHistoryCard from './BiologicalAgeHistoryCard';
 
 const BiologicalAgeCalculator = () => {
   const { healthProfile, isLoading } = useHealthProfile();
@@ -79,6 +80,9 @@ const BiologicalAgeCalculator = () => {
             {results && (
               <BiologicalAgeResults results={results} />
             )}
+
+            {/* История биологического возраста */}
+            <BiologicalAgeHistoryCard />
           </div>
         </div>
       </div>

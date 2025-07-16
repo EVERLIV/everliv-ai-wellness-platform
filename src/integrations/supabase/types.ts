@@ -106,6 +106,107 @@ export type Database = {
         }
         Relationships: []
       }
+      biological_age_snapshots: {
+        Row: {
+          accuracy_level: string
+          accuracy_percentage: number
+          age_difference: number
+          analysis: string | null
+          biological_age: number
+          biomarkers_count: number
+          chronological_age: number
+          confidence_level: number
+          created_at: string
+          id: string
+          missing_analyses: string[] | null
+          recommendations: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accuracy_level?: string
+          accuracy_percentage: number
+          age_difference: number
+          analysis?: string | null
+          biological_age: number
+          biomarkers_count?: number
+          chronological_age: number
+          confidence_level: number
+          created_at?: string
+          id?: string
+          missing_analyses?: string[] | null
+          recommendations?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accuracy_level?: string
+          accuracy_percentage?: number
+          age_difference?: number
+          analysis?: string | null
+          biological_age?: number
+          biomarkers_count?: number
+          chronological_age?: number
+          confidence_level?: number
+          created_at?: string
+          id?: string
+          missing_analyses?: string[] | null
+          recommendations?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      biomarker_history: {
+        Row: {
+          biomarker_category: string
+          biomarker_id: string
+          biomarker_name: string
+          created_at: string
+          id: string
+          normal_range: Json | null
+          snapshot_id: string | null
+          source: string
+          unit: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          biomarker_category: string
+          biomarker_id: string
+          biomarker_name: string
+          created_at?: string
+          id?: string
+          normal_range?: Json | null
+          snapshot_id?: string | null
+          source?: string
+          unit: string
+          user_id: string
+          value: number
+        }
+        Update: {
+          biomarker_category?: string
+          biomarker_id?: string
+          biomarker_name?: string
+          created_at?: string
+          id?: string
+          normal_range?: Json | null
+          snapshot_id?: string | null
+          source?: string
+          unit?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_biomarker_history_snapshot"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "biological_age_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       biomarkers: {
         Row: {
           analysis_id: string

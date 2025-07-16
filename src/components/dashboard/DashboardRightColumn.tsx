@@ -7,6 +7,7 @@ import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import NutritionSummarySection from './NutritionSummarySection';
 import DashboardChatsList from './DashboardChatsList';
+import BiologicalAgeHistoryCard from '../biological-age/BiologicalAgeHistoryCard';
 
 interface DashboardRightColumnProps {
   healthScore?: number; // сделаем необязательным
@@ -131,6 +132,9 @@ const DashboardRightColumn: React.FC<DashboardRightColumnProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* История биологического возраста */}
+      <BiologicalAgeHistoryCard />
 
       {/* Питание сегодня */}
       <NutritionSummarySection />

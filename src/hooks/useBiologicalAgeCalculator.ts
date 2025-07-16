@@ -7,9 +7,13 @@ import { HealthProfileData } from '@/types/healthProfile';
 import { analyzeBiologicalAgeWithOpenAI } from '@/services/ai/biological-age-analysis';
 import { supabase } from '@/integrations/supabase/client';
 import { useSmartAuth } from '@/hooks/useSmartAuth';
+import { useBiologicalAgeHistory } from '@/hooks/useBiologicalAgeHistory';
+import { useBiomarkerHistory } from '@/hooks/useBiomarkerHistory';
 
 export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | null) => {
   const { user } = useSmartAuth();
+  const { saveSnapshot } = useBiologicalAgeHistory();
+  const { saveBiomarkerData } = useBiomarkerHistory();
   const [biomarkers, setBiomarkers] = useState<Biomarker[]>(BIOMARKERS);
   const [isCalculating, setIsCalculating] = useState(false);
   const [results, setResults] = useState<BiologicalAgeResult | null>(null);
@@ -256,6 +260,19 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
       };
 
       setResults(results);
+      
+      // Сохраняем результат в историю
+      try {
+        const snapshot = await saveSnapshot(results, filledBiomarkers.length);
+        if (snapshot) {
+          // Сохраняем данные биомаркеров с привязкой к снимку
+          await saveBiomarkerData(filledBiomarkers, snapshot.id, 'biological_age_calculation');
+        }
+      } catch (saveError) {
+        console.error('Error saving biological age data:', saveError);
+        // Не показываем ошибку пользователю, так как основной расчет прошел успешно
+      }
+      
       toast.success('Биологический возраст рассчитан успешно!');
     } catch (error) {
       console.error('Error calculating biological age:', error);
