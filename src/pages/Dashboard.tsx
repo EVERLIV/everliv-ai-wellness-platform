@@ -38,6 +38,13 @@ const Dashboard = () => {
   }, []);
 
   // В dev режиме не показываем загрузку так долго
+  console.log('🔧 Dashboard: Loading check:', {
+    isLoaded,
+    isLoading,
+    isDevMode,
+    shouldShowLoading: !isLoaded || (isLoading && !isDevMode)
+  });
+
   if (!isLoaded || (isLoading && !isDevMode)) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-white">
