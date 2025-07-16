@@ -119,8 +119,8 @@ const BiologicalAgeHistoryCard = () => {
         <div className="space-y-2">
           <h4 className="text-sm font-medium text-gray-700">Предыдущие расчеты</h4>
           <div className="space-y-3 max-h-96 overflow-y-auto">
-            {snapshots.length > 1 ? (
-              snapshots.slice(1, 6).map((snapshot) => (
+            {snapshots.length > 0 ? (
+              snapshots.map((snapshot) => (
                 <div 
                   key={snapshot.id}
                   className="p-3 bg-gray-50/50 rounded-md space-y-2"
