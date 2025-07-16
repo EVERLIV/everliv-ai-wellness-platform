@@ -155,14 +155,14 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 
                 {/* Описание функции */}
                 <div className="bio-text-caption text-muted-foreground">
-                  <span className="font-medium">Функция:</span> {impact.description}
+                  <span className="bio-text-caption font-medium">Функция:</span> {impact.description}
                 </div>
                 
                 {/* ИИ рекомендации при отклонениях */}
                 {(valueStatus.status !== 'В норме' && valueStatus.status !== 'Оптимально') && (
                   <div className="bio-text-caption text-orange-600 bg-orange-50 p-1 rounded">
                     <div className="flex items-start gap-1">
-                      <span className="font-medium">Рекомендации ИИ:</span>
+                      <span className="bio-text-caption font-medium">Рекомендации ИИ:</span>
                       {isLoadingRecommendation ? (
                         <div className="flex items-center gap-1">
                           <Loader2 className="h-3 w-3 animate-spin" />
