@@ -171,6 +171,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
         biomarkerId={biomarker.id}
         biomarkerName={biomarker.name}
         unit={biomarker.unit}
+        normalRange={biomarker.normal_range}
       />
     </div>
   );

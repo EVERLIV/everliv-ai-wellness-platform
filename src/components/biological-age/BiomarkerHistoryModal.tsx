@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Calendar, BarChart3 } from 'lucide-react';
@@ -11,6 +12,7 @@ import { useBiomarkerHistory } from '@/hooks/useBiomarkerHistory';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { getValueStatus } from '@/utils/normalRangeCalculator';
 
 interface BiomarkerHistoryModalProps {
   isOpen: boolean;
@@ -18,6 +20,7 @@ interface BiomarkerHistoryModalProps {
   biomarkerId: string;
   biomarkerName: string;
   unit: string;
+  normalRange?: { min: number; max: number; optimal?: number };
 }
 
 const BiomarkerHistoryModal: React.FC<BiomarkerHistoryModalProps> = ({
@@ -25,7 +28,8 @@ const BiomarkerHistoryModal: React.FC<BiomarkerHistoryModalProps> = ({
   onClose,
   biomarkerId,
   biomarkerName,
-  unit
+  unit,
+  normalRange
 }) => {
   const { getBiomarkerHistory } = useBiomarkerHistory();
   const history = getBiomarkerHistory(biomarkerId);
@@ -54,6 +58,25 @@ const BiomarkerHistoryModal: React.FC<BiomarkerHistoryModalProps> = ({
     };
   };
 
+  // Функция для получения статуса значения
+  const getValueStatusBadge = (value: number) => {
+    if (!normalRange) return { text: 'Данные', color: 'text-muted-foreground' };
+    
+    const status = getValueStatus(value, normalRange);
+    switch (status.status) {
+      case 'optimal':
+        return { text: 'Норма', color: 'text-green-600' };
+      case 'normal':
+        return { text: 'Норма', color: 'text-green-600' };
+      case 'high':
+        return { text: 'Повышен', color: 'text-red-600' };
+      case 'low':
+        return { text: 'Понижен', color: 'text-blue-600' };
+      default:
+        return { text: 'Данные', color: 'text-muted-foreground' };
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-sm sm:max-w-md">
@@ -62,6 +85,9 @@ const BiomarkerHistoryModal: React.FC<BiomarkerHistoryModalProps> = ({
             <Calendar className="h-4 w-4 text-primary" />
             {biomarkerName}
           </DialogTitle>
+          <DialogDescription className="bio-text-caption text-muted-foreground">
+            История изменений показателя
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3">
@@ -148,6 +174,7 @@ const BiomarkerHistoryModal: React.FC<BiomarkerHistoryModalProps> = ({
                   {history.slice(0, 5).map((entry, index) => {
                     const previous = history[index + 1];
                     const trend = previous ? getTrend(entry.value, previous.value) : null;
+                    const valueStatus = getValueStatusBadge(entry.value);
 
                     return (
                       <div 
@@ -170,8 +197,8 @@ const BiomarkerHistoryModal: React.FC<BiomarkerHistoryModalProps> = ({
                             </div>
                           )}
                         </div>
-                        <Badge variant="outline" className="bio-text-caption px-1 py-0">
-                          {entry.source === 'biological_age_calculation' ? 'Расчет' : 'Ввод'}
+                        <Badge variant="outline" className={`bio-text-caption px-1 py-0 ${valueStatus.color}`}>
+                          {valueStatus.text}
                         </Badge>
                       </div>
                     );
