@@ -197,7 +197,7 @@ const BiomarkerHistoryModal: React.FC<BiomarkerHistoryModalProps> = ({
                             </div>
                           )}
                         </div>
-                        <Badge variant="outline" className={`bio-text-caption px-1 py-0 ${valueStatus.color}`}>
+                        <Badge variant="outline" className={`text-[10px] px-1 py-0 ${valueStatus.color}`}>
                           {valueStatus.text}
                         </Badge>
                       </div>

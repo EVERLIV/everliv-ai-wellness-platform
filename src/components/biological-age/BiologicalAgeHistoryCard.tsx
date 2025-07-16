@@ -106,10 +106,10 @@ const BiologicalAgeHistoryCard = () => {
             )}
           </div>
           <div className="mt-2 flex gap-2">
-            <Badge variant="secondary" className="text-xs">
-              {latest.biomarkers_count} анализов
+            <Badge variant="secondary" className="text-[10px] px-1 py-0">
+              {latest.biomarkers_count} показателей
             </Badge>
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-[10px] px-1 py-0">
               {latest.accuracy_percentage}% точность
             </Badge>
           </div>
@@ -125,7 +125,7 @@ const BiologicalAgeHistoryCard = () => {
                   <Badge 
                     key={index}
                     variant="secondary" 
-                    className="bio-text-caption px-2 py-1"
+                    className="text-[10px] px-1 py-0"
                   >
                     {biomarker.biomarker_name}: {biomarker.value} {biomarker.unit}
                   </Badge>
