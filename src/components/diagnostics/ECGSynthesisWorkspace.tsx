@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, Heart, FileImage, Stethoscope, Lightbulb } from 'lucide-react';
+import { Upload, Heart, FileImage, Stethoscope, Lightbulb, Camera } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -21,6 +21,7 @@ const ECGSynthesisWorkspace: React.FC = () => {
   const [diagnosis, setDiagnosis] = useState('');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCameraMode, setIsCameraMode] = useState(false);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -40,6 +41,47 @@ const ECGSynthesisWorkspace: React.FC = () => {
       setEcgFile(file);
       toast.success(`Файл загружен: ${file.name}`);
     }
+  };
+
+  const handleCameraCapture = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
+      });
+      
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.play();
+      
+      video.addEventListener('loadedmetadata', () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(video, 0, 0);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const file = new File([blob], `ecg-photo-${Date.now()}.jpg`, { 
+              type: 'image/jpeg' 
+            });
+            setEcgFile(file);
+            toast.success('Фото сделано');
+          }
+          stream.getTracks().forEach(track => track.stop());
+          setIsCameraMode(false);
+        }, 'image/jpeg', 0.8);
+      });
+    } catch (error) {
+      console.error('Camera error:', error);
+      toast.error('Ошибка доступа к камере');
+      setIsCameraMode(false);
+    }
+  };
+
+  const triggerFileInput = () => {
+    document.getElementById('ecg-upload')?.click();
   };
 
   const generateRecommendations = async () => {
@@ -153,19 +195,30 @@ const ECGSynthesisWorkspace: React.FC = () => {
                   <div className="mb-3">
                     <Upload className="h-6 w-6 md:h-8 md:w-8 mx-auto text-gray-400" />
                   </div>
-                  <Label htmlFor="ecg-upload" className="cursor-pointer">
-                    <div className="text-sm text-gray-700 mb-3">Выберите файл ЭКГ</div>
-                    <Input
-                      id="ecg-upload"
-                      type="file"
-                      accept="image/*,.pdf"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                    <button className="bg-gray-200 border border-gray-300 px-4 py-2 text-sm hover:bg-gray-300 w-full md:w-auto">
+                  <div className="text-sm text-gray-700 mb-3">Выберите файл ЭКГ или сделайте фото</div>
+                  <Input
+                    id="ecg-upload"
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                    <button 
+                      onClick={triggerFileInput}
+                      className="bg-gray-200 border border-gray-300 px-4 py-2 text-sm hover:bg-gray-300 flex items-center justify-center gap-2"
+                    >
+                      <Upload className="h-4 w-4" />
                       Обзор файлов
                     </button>
-                  </Label>
+                    <button 
+                      onClick={handleCameraCapture}
+                      className="bg-blue-200 border border-blue-300 px-4 py-2 text-sm hover:bg-blue-300 flex items-center justify-center gap-2"
+                    >
+                      <Camera className="h-4 w-4" />
+                      Сделать фото
+                    </button>
+                  </div>
                   <div className="text-xs text-gray-500 mt-3">PNG, JPG, PDF до 10MB</div>
                 </div>
                 {ecgFile && (
