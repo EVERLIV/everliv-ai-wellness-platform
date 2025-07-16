@@ -36,37 +36,38 @@ export const useProfile = () => {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        if (error.code === 'PGRST116') {
-          // Профиль не найден, создаем новый
-          console.log('Профиль не найден, создаем новый');
-          const { data: newProfile, error: createError } = await supabase
-            .from('profiles')
-            .insert({
-              id: user.id,
-              nickname: user.user_metadata?.nickname || user.user_metadata?.full_name || '',
-              first_name: user.user_metadata?.full_name || ''
-            })
-            .select()
-            .single();
+        console.error("Error fetching profile:", error);
+        toast({
+          title: "Ошибка",
+          description: "Не удалось загрузить данные профиля",
+          variant: "destructive"
+        });
+        return;
+      }
 
-          if (createError) {
-            console.error("Error creating profile:", createError);
-            return;
-          }
+      if (!data) {
+        // Профиль не найден, создаем новый
+        console.log('Профиль не найден, создаем новый');
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            nickname: user.user_metadata?.nickname || user.user_metadata?.full_name || '',
+            first_name: user.user_metadata?.full_name || ''
+          })
+          .select()
+          .single();
 
-          console.log('Профиль создан:', newProfile);
-          setProfileData(newProfile as ProfileData);
-        } else {
-          console.error("Error fetching profile:", error);
-          toast({
-            title: "Ошибка",
-            description: "Не удалось загрузить данные профиля",
-            variant: "destructive"
-          });
+        if (createError) {
+          console.error("Error creating profile:", createError);
+          return;
         }
+
+        console.log('Профиль создан:', newProfile);
+        setProfileData(newProfile as ProfileData);
         return;
       }
 
