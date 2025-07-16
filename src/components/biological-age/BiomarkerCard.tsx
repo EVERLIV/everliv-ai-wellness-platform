@@ -125,7 +125,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
               </div>
               <p className="bio-text-caption text-muted-foreground line-clamp-1">{biomarker.description}</p>
             </div>
-            <Badge className={`${getStatusColor()} text-[10px] px-1 py-0`} variant="secondary">
+            <Badge className={`${getStatusColor()} text-[8px] px-0.5 py-0 h-4 text-center leading-none`} variant="secondary">
               {biomarker.status === 'filled' ? 'Заполнено' : 'Пусто'}
             </Badge>
           </div>
