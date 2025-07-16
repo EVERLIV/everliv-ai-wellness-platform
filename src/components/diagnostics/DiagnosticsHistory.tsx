@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
 import { 
   History, 
   Search, 
@@ -10,10 +11,115 @@ import {
   Calendar,
   FileText,
   Activity,
-  Info
+  Info,
+  Heart,
+  Brain,
+  Trash2,
+  Eye,
+  Download,
+  MoreHorizontal
 } from 'lucide-react';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
+import { useDiagnostics } from '@/hooks/useDiagnostics';
+import type { DiagnosticSession } from '@/types/diagnostics';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { Link } from 'react-router-dom';
 
 const DiagnosticsHistory: React.FC = () => {
+  const { sessions, fetchSessions, deleteSession, isLoading } = useDiagnostics();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredSessions, setFilteredSessions] = useState<DiagnosticSession[]>([]);
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
+
+  useEffect(() => {
+    if (!searchTerm) {
+      setFilteredSessions(sessions);
+    } else {
+      setFilteredSessions(
+        sessions.filter(session => 
+          session.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          session.description?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+    }
+  }, [sessions, searchTerm]);
+
+  const getSessionTypeIcon = (type: string) => {
+    switch (type) {
+      case 'ecg':
+        return <Heart className="h-4 w-4" />;
+      case 'ultrasound':
+        return <Activity className="h-4 w-4" />;
+      case 'xray':
+        return <FileText className="h-4 w-4" />;
+      default:
+        return <FileText className="h-4 w-4" />;
+    }
+  };
+
+  const getSessionTypeName = (type: string) => {
+    switch (type) {
+      case 'ecg':
+        return 'ЭКГ';
+      case 'ultrasound':
+        return 'УЗИ';
+      case 'xray':
+        return 'Рентген';
+      case 'blood_test':
+        return 'Анализ крови';
+      case 'mixed':
+        return 'Смешанный';
+      default:
+        return 'Другой';
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <Badge variant="default">Завершен</Badge>;
+      case 'in_progress':
+        return <Badge variant="secondary">В процессе</Badge>;
+      case 'draft':
+        return <Badge variant="outline">Черновик</Badge>;
+      case 'archived':
+        return <Badge variant="destructive">Архив</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const handleDeleteSession = async (sessionId: string, sessionTitle: string) => {
+    if (confirm(`Вы уверены, что хотите удалить сессию "${sessionTitle}"?`)) {
+      try {
+        await deleteSession(sessionId);
+      } catch (error) {
+        console.error('Failed to delete session:', error);
+      }
+    }
+  };
+
+  const statsData = {
+    total: sessions.length,
+    thisMonth: sessions.filter(session => {
+      const sessionDate = new Date(session.created_at);
+      const currentDate = new Date();
+      return sessionDate.getMonth() === currentDate.getMonth() && 
+             sessionDate.getFullYear() === currentDate.getFullYear();
+    }).length,
+    completed: sessions.filter(session => session.status === 'completed').length
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -27,30 +133,72 @@ const DiagnosticsHistory: React.FC = () => {
             Просматривайте и управляйте вашими диагностическими сессиями
           </p>
         </div>
+        <Button asChild>
+          <Link to="/diagnostics/upload">
+            <FileText className="h-4 w-4 mr-2" />
+            Создать сессию
+          </Link>
+        </Button>
       </div>
 
-      {/* Info Alert */}
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
-          Модуль истории диагностики находится в разработке. Здесь будет отображаться вся история ваших медицинских исследований.
-        </AlertDescription>
-      </Alert>
+      {/* Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-center">Всего сессий</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center">
+              <div className="text-3xl font-bold">{statsData.total}</div>
+              <Badge variant="outline" className="mt-2">За все время</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-center">За этот месяц</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center">
+              <div className="text-3xl font-bold">{statsData.thisMonth}</div>
+              <Badge variant="outline" className="mt-2">Новых сессий</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-center">Завершено</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center">
+              <div className="text-3xl font-bold">{statsData.completed}</div>
+              <Badge variant="outline" className="mt-2">Сессий</Badge>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>Фильтры и поиск</CardTitle>
+          <CardTitle>Поиск и фильтры</CardTitle>
           <CardDescription>
             Найдите нужные диагностические сессии
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button variant="outline" disabled className="flex-1">
-              <Search className="h-4 w-4 mr-2" />
-              Поиск по названию
-            </Button>
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Поиск по названию или описанию..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
             <Button variant="outline" disabled>
               <Calendar className="h-4 w-4 mr-2" />
               По дате
@@ -63,72 +211,119 @@ const DiagnosticsHistory: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* History List Placeholder */}
+      {/* Sessions List */}
       <Card>
         <CardHeader>
           <CardTitle>Ваши диагностические сессии</CardTitle>
           <CardDescription>
-            Список всех проведенных диагностических исследований
+            {filteredSessions.length > 0 
+              ? `Найдено ${filteredSessions.length} сессий${searchTerm ? ` по запросу "${searchTerm}"` : ''}` 
+              : 'Список всех проведенных диагностических исследований'
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-12">
-            <Activity className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">Пока нет диагностических сессий</h3>
-            <p className="text-muted-foreground mb-6">
-              Начните с загрузки медицинских файлов или создания новой сессии
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button disabled>
-                <FileText className="h-4 w-4 mr-2" />
-                Создать сессию
-              </Button>
-              <Button variant="outline" disabled>
-                Загрузить файлы
-              </Button>
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Загрузка сессий...</p>
             </div>
-          </div>
+          ) : filteredSessions.length === 0 ? (
+            <div className="text-center py-12">
+              <Activity className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">
+                {searchTerm ? 'Ничего не найдено' : 'Пока нет диагностических сессий'}
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                {searchTerm 
+                  ? 'Попробуйте изменить поисковый запрос'
+                  : 'Начните с загрузки медицинских файлов или создания новой сессии'
+                }
+              </p>
+              {!searchTerm && (
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button asChild>
+                    <Link to="/diagnostics/upload">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Создать сессию
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link to="/diagnostics/ecg">
+                      Анализ ЭКГ
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredSessions.map((session) => (
+                <div
+                  key={session.id}
+                  className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="flex items-center gap-2">
+                          {getSessionTypeIcon(session.session_type)}
+                          <h3 className="font-semibold text-lg">{session.title}</h3>
+                        </div>
+                        <Badge variant="outline">
+                          {getSessionTypeName(session.session_type)}
+                        </Badge>
+                        {getStatusBadge(session.status)}
+                      </div>
+                      
+                      {session.description && (
+                        <p className="text-muted-foreground mb-3">{session.description}</p>
+                      )}
+                      
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span>
+                          Создано: {format(new Date(session.created_at), 'dd MMMM yyyy, HH:mm', { locale: ru })}
+                        </span>
+                        <span>
+                          Обновлено: {format(new Date(session.updated_at), 'dd MMMM yyyy, HH:mm', { locale: ru })}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link to={`/diagnostics/session/${session.id}`}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            Просмотреть
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem disabled>
+                          <Download className="h-4 w-4 mr-2" />
+                          Скачать отчет
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => handleDeleteSession(session.id, session.title)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Удалить
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
-
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center">Всего сессий</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-3xl font-bold">0</div>
-              <Badge variant="outline" className="mt-2">За все время</Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center">За этот месяц</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-3xl font-bold">0</div>
-              <Badge variant="outline" className="mt-2">Новых сессий</Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center">ИИ анализы</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="text-3xl font-bold">0</div>
-              <Badge variant="outline" className="mt-2">Завершено</Badge>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Coming Soon Features */}
       <Card>

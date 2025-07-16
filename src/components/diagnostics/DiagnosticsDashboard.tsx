@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,8 +16,35 @@ import {
   Heart
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useDiagnostics } from '@/hooks/useDiagnostics';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 const DiagnosticsDashboard: React.FC = () => {
+  const { sessions, fetchSessions, isLoading } = useDiagnostics();
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
+
+  // Calculate real statistics
+  const stats = {
+    totalSessions: sessions.length,
+    ecgRecords: sessions.filter(s => s.session_type === 'ecg').length,
+    completedAnalyses: sessions.filter(s => s.status === 'completed').length,
+    thisMonthSessions: sessions.filter(session => {
+      const sessionDate = new Date(session.created_at);
+      const currentDate = new Date();
+      return sessionDate.getMonth() === currentDate.getMonth() && 
+             sessionDate.getFullYear() === currentDate.getFullYear();
+    }).length
+  };
+
+  // Get recent sessions for quick access
+  const recentSessions = sessions
+    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+    .slice(0, 3);
+
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
@@ -73,9 +100,12 @@ const DiagnosticsDashboard: React.FC = () => {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{stats.totalSessions}</div>
             <p className="text-xs text-muted-foreground">
-              Начните с первой диагностики
+              {stats.thisMonthSessions > 0 
+                ? `+${stats.thisMonthSessions} в этом месяце` 
+                : 'Начните с первой диагностики'
+              }
             </p>
           </CardContent>
         </Card>
@@ -86,7 +116,7 @@ const DiagnosticsDashboard: React.FC = () => {
             <Heart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{stats.ecgRecords}</div>
             <p className="text-xs text-muted-foreground">
               Загружено файлов ЭКГ
             </p>
@@ -95,11 +125,11 @@ const DiagnosticsDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">ИИ анализы</CardTitle>
+            <CardTitle className="text-sm font-medium">Завершено</CardTitle>
             <Brain className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{stats.completedAnalyses}</div>
             <p className="text-xs text-muted-foreground">
               Завершенных анализов
             </p>
@@ -108,17 +138,71 @@ const DiagnosticsDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Рекомендации</CardTitle>
+            <CardTitle className="text-sm font-medium">За месяц</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{stats.thisMonthSessions}</div>
             <p className="text-xs text-muted-foreground">
-              Персонализированных советов
+              Новых сессий
             </p>
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent Sessions */}
+      {recentSessions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Недавние сессии</CardTitle>
+                <CardDescription>
+                  Ваши последние диагностические исследования
+                </CardDescription>
+              </div>
+              <Button variant="outline" asChild>
+                <Link to="/diagnostics/history">
+                  Показать все
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {recentSessions.map((session) => (
+                <div key={session.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    {session.session_type === 'ecg' ? (
+                      <Heart className="h-4 w-4 text-red-500" />
+                    ) : (
+                      <FileText className="h-4 w-4 text-blue-500" />
+                    )}
+                    <div>
+                      <h4 className="font-medium">{session.title}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {format(new Date(session.updated_at), 'dd MMMM, HH:mm', { locale: ru })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={session.status === 'completed' ? 'default' : 'outline'}>
+                      {session.status === 'completed' ? 'Завершен' : 
+                       session.status === 'in_progress' ? 'В процессе' : 'Черновик'}
+                    </Badge>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to={`/diagnostics/session/${session.id}`}>
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Features Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

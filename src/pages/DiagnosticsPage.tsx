@@ -5,6 +5,7 @@ import DiagnosticsDashboard from '@/components/diagnostics/DiagnosticsDashboard'
 import ECGAnalysisPage from '@/components/diagnostics/ECGAnalysisPage';
 import FileUploadPage from '@/components/diagnostics/FileUploadPage';
 import DiagnosticsHistory from '@/components/diagnostics/DiagnosticsHistory';
+import SessionDetailsPage from '@/components/diagnostics/SessionDetailsPage';
 
 const DiagnosticsPage: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ const DiagnosticsPage: React.FC = () => {
         <Route path="ecg" element={<ECGAnalysisPage />} />
         <Route path="upload" element={<FileUploadPage />} />
         <Route path="history" element={<DiagnosticsHistory />} />
+        <Route path="session/:sessionId" element={<SessionDetailsPage />} />
       </Routes>
     </DiagnosticsLayout>
   );
