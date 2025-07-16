@@ -28,15 +28,6 @@ const SimpleWelcomeCard: React.FC<SimpleWelcomeCardProps> = ({ userName }) => {
     hasProfileData: !!profileData,
     profileDataObject: profileData
   });
-  
-  console.log('🔧 SimpleWelcomeCard: Display name logic:', {
-    profileNickname: profileData?.nickname,
-    profileFirstName: profileData?.first_name,
-    passedUserName: userName,
-    finalDisplayName: displayName,
-    hasProfileData: !!profileData,
-    fullProfileData: profileData
-  });
 
   return (
     <Card className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 border-0 shadow-xl">
