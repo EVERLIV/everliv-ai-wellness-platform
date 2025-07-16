@@ -495,15 +495,22 @@ const ECGSynthesisWorkspace: React.FC = () => {
                     </div>
 
                     {/* Дополнительные рекомендации */}
-                    {ecgAnalysis.additionalRecommendations && ecgAnalysis.additionalRecommendations.length > 0 && (
+                    {ecgAnalysis.additionalRecommendations && (
                       <div>
                         <h4 className="text-sm font-medium text-gray-900 mb-3">Дополнительные рекомендации</h4>
                         <div className="space-y-2">
-                          {ecgAnalysis.additionalRecommendations.map((recommendation: string, index: number) => (
-                            <div key={index} className="border border-blue-200 p-3 bg-blue-50">
-                              <p className="text-sm text-blue-700">{recommendation}</p>
-                            </div>
-                          ))}
+                          {Array.isArray(ecgAnalysis.additionalRecommendations) 
+                            ? ecgAnalysis.additionalRecommendations.map((recommendation: string, index: number) => (
+                                <div key={index} className="border border-blue-200 p-3 bg-blue-50">
+                                  <p className="text-sm text-blue-700">{recommendation}</p>
+                                </div>
+                              ))
+                            : typeof ecgAnalysis.additionalRecommendations === 'string' && (
+                                <div className="border border-blue-200 p-3 bg-blue-50">
+                                  <p className="text-sm text-blue-700">{ecgAnalysis.additionalRecommendations}</p>
+                                </div>
+                              )
+                          }
                         </div>
                       </div>
                     )}
