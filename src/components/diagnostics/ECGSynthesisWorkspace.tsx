@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, Heart, FileImage, Stethoscope, Lightbulb, Camera } from 'lucide-react';
+import { Upload, Heart, FileImage, Stethoscope, Lightbulb, Camera, ChevronRight, Download, BookOpen, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -20,8 +20,12 @@ const ECGSynthesisWorkspace: React.FC = () => {
   const [ecgFile, setEcgFile] = useState<File | null>(null);
   const [diagnosis, setDiagnosis] = useState('');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [prognosis, setPrognosis] = useState<any>(null);
+  const [educationalContent, setEducationalContent] = useState<any>(null);
+  const [exportData, setExportData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isCameraMode, setIsCameraMode] = useState(false);
+  const [activeTab, setActiveTab] = useState<'recommendations' | 'prognosis' | 'education' | 'export'>('recommendations');
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -102,6 +106,8 @@ const ECGSynthesisWorkspace: React.FC = () => {
 
       if (error) throw error;
 
+      console.log('Ответ от функции:', data);
+
       if (data?.recommendations) {
         // Используем рекомендации от API
         const apiRecommendations: Recommendation[] = data.recommendations.map((rec: any, index: number) => ({
@@ -113,36 +119,22 @@ const ECGSynthesisWorkspace: React.FC = () => {
         }));
         
         setRecommendations(apiRecommendations);
-      } else {
-        // Fallback к mock данным
-        const mockRecommendations: Recommendation[] = [
-          {
-            id: '1',
-            title: 'Контроль артериального давления',
-            description: 'Рекомендуется ежедневный мониторинг АД утром и вечером. Целевые значения: менее 130/80 мм рт.ст.',
-            category: 'Мониторинг',
-            priority: 'high'
-          },
-          {
-            id: '2',
-            title: 'Коррекция питания',
-            description: 'Ограничение соли до 5г/сутки, увеличение потребления калия (фрукты, овощи), омега-3 жирных кислот.',
-            category: 'Питание',
-            priority: 'high'
-          },
-          {
-            id: '3',
-            title: 'Физическая активность',
-            description: 'Аэробные нагрузки умеренной интенсивности 150 минут в неделю. Начинать с 10-15 минут ходьбы.',
-            category: 'Физическая активность',
-            priority: 'medium'
-          }
-        ];
         
-        setRecommendations(mockRecommendations);
+        // Устанавливаем дополнительные данные если они есть
+        if (data.prognosis) {
+          setPrognosis(data.prognosis);
+        }
+        if (data.educationalContent) {
+          setEducationalContent(data.educationalContent);
+        }
+        if (data.exportData) {
+          setExportData(data.exportData);
+        }
+        
+        toast.success('Анализ завершен успешно');
+      } else {
+        toast.error('Не удалось получить рекомендации');
       }
-      
-      toast.success('Рекомендации сгенерированы на основе вашего профиля здоровья');
     } catch (error) {
       console.error('Error generating recommendations:', error);
       toast.error('Ошибка при генерации рекомендаций');
@@ -266,53 +258,309 @@ const ECGSynthesisWorkspace: React.FC = () => {
             </div>
           </div>
 
-          {/* Рекомендации */}
+          {/* Результаты анализа */}
           <div className="lg:sticky lg:top-4 lg:self-start">
             <div className="border border-gray-300 bg-white">
-              <div className="border-b border-gray-200 p-3 md:p-4">
-                <h3 className="text-sm md:text-base font-medium text-gray-900">Рекомендации</h3>
-              </div>
-              <div className="p-4 md:p-6">
-                {recommendations.length === 0 ? (
-                  <div className="text-center py-8 md:py-12 text-gray-500">
-                    <Lightbulb className="h-8 w-8 md:h-10 md:w-10 mx-auto mb-3 text-gray-400" />
-                    <div className="text-sm">Введите диагноз для получения рекомендаций</div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {recommendations.map((rec) => (
-                      <div
-                        key={rec.id}
-                        className="border border-gray-200 bg-white p-3 md:p-4"
+              {/* Вкладки навигации */}
+              {(recommendations.length > 0 || prognosis || educationalContent || exportData) && (
+                <div className="border-b border-gray-200">
+                  <div className="flex flex-wrap">
+                    <button
+                      onClick={() => setActiveTab('recommendations')}
+                      className={`px-4 py-2 text-xs md:text-sm font-medium border-b-2 flex items-center gap-1 ${
+                        activeTab === 'recommendations' 
+                          ? 'border-blue-600 text-blue-600' 
+                          : 'border-transparent text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      <Lightbulb className="h-4 w-4" />
+                      Рекомендации
+                    </button>
+                    {prognosis && (
+                      <button
+                        onClick={() => setActiveTab('prognosis')}
+                        className={`px-4 py-2 text-xs md:text-sm font-medium border-b-2 flex items-center gap-1 ${
+                          activeTab === 'prognosis' 
+                            ? 'border-blue-600 text-blue-600' 
+                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                        }`}
                       >
-                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
-                          <h4 className="text-sm md:text-base font-medium text-gray-900 flex-1">
-                            {rec.title}
-                          </h4>
-                          <span className={`text-xs px-2 py-1 border self-start ${
-                            rec.priority === 'high' ? 'text-red-700 bg-red-50 border-red-200' :
-                            rec.priority === 'medium' ? 'text-orange-700 bg-orange-50 border-orange-200' :
-                            'text-green-700 bg-green-50 border-green-200'
-                          }`}>
-                            {getPriorityText(rec.priority)}
-                          </span>
-                        </div>
-                        <p className="text-xs md:text-sm text-gray-600 mb-3 leading-relaxed">
-                          {rec.description}
-                        </p>
-                        <div className="text-xs text-gray-500">
-                          Категория: {rec.category}
+                        <TrendingUp className="h-4 w-4" />
+                        Прогноз
+                      </button>
+                    )}
+                    {educationalContent && (
+                      <button
+                        onClick={() => setActiveTab('education')}
+                        className={`px-4 py-2 text-xs md:text-sm font-medium border-b-2 flex items-center gap-1 ${
+                          activeTab === 'education' 
+                            ? 'border-blue-600 text-blue-600' 
+                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        <BookOpen className="h-4 w-4" />
+                        Обучение
+                      </button>
+                    )}
+                    {exportData && (
+                      <button
+                        onClick={() => setActiveTab('export')}
+                        className={`px-4 py-2 text-xs md:text-sm font-medium border-b-2 flex items-center gap-1 ${
+                          activeTab === 'export' 
+                            ? 'border-blue-600 text-blue-600' 
+                            : 'border-transparent text-gray-500 hover:text-gray-700'
+                        }`}
+                      >
+                        <Download className="h-4 w-4" />
+                        Экспорт
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="p-4 md:p-6">
+                {/* Вкладка Рекомендации */}
+                {activeTab === 'recommendations' && (
+                  <>
+                    {recommendations.length === 0 ? (
+                      <div className="text-center py-8 md:py-12 text-gray-500">
+                        <Lightbulb className="h-8 w-8 md:h-10 md:w-10 mx-auto mb-3 text-gray-400" />
+                        <div className="text-sm">Введите диагноз для получения рекомендаций</div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {recommendations.map((rec) => (
+                          <div
+                            key={rec.id}
+                            className="border border-gray-200 bg-white p-3 md:p-4"
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                              <h4 className="text-sm md:text-base font-medium text-gray-900 flex-1">
+                                {rec.title}
+                              </h4>
+                              <span className={`text-xs px-2 py-1 border self-start ${
+                                rec.priority === 'high' ? 'text-red-700 bg-red-50 border-red-200' :
+                                rec.priority === 'medium' ? 'text-orange-700 bg-orange-50 border-orange-200' :
+                                'text-green-700 bg-green-50 border-green-200'
+                              }`}>
+                                {getPriorityText(rec.priority)}
+                              </span>
+                            </div>
+                            <p className="text-xs md:text-sm text-gray-600 mb-3 leading-relaxed">
+                              {rec.description}
+                            </p>
+                            <div className="text-xs text-gray-500">
+                              Категория: {rec.category}
+                            </div>
+                          </div>
+                        ))}
+                        
+                        <div className="mt-6 p-3 md:p-4 bg-blue-50 border border-blue-200">
+                          <div className="text-xs md:text-sm text-blue-800 font-medium mb-1">
+                            Основано на профиле пациента
+                          </div>
+                          <div className="text-xs text-blue-700">
+                            Учитывает биомаркеры, историю болезни и текущие показатели
+                          </div>
                         </div>
                       </div>
-                    ))}
+                    )}
+                  </>
+                )}
+
+                {/* Вкладка Прогноз */}
+                {activeTab === 'prognosis' && prognosis && (
+                  <div className="space-y-6">
+                    {/* Сценарии развития */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">Вероятные сценарии</h4>
+                      <div className="space-y-3">
+                        {prognosis.scenarios?.map((scenario: any, index: number) => (
+                          <div key={index} className="border border-gray-200 p-3">
+                            <div className="flex justify-between items-start mb-2">
+                              <span className="font-medium text-sm">{scenario.scenario}</span>
+                              <span className="text-xs bg-gray-100 px-2 py-1">{scenario.probability}</span>
+                            </div>
+                            <p className="text-xs text-gray-600 mb-2">{scenario.description}</p>
+                            <p className="text-xs text-gray-500">Условия: {scenario.conditions}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Факторы влияния */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">Факторы влияния</h4>
+                      <div className="space-y-2">
+                        {prognosis.influencingFactors?.map((factor: any, index: number) => (
+                          <div key={index} className="flex justify-between items-center p-2 bg-gray-50">
+                            <span className="text-xs font-medium">{factor.factor}</span>
+                            <span className={`text-xs px-2 py-1 ${
+                              factor.impact === 'Высокий' || factor.impact === 'Негативный' ? 'bg-red-100 text-red-700' :
+                              factor.impact === 'Средний' ? 'bg-orange-100 text-orange-700' :
+                              'bg-green-100 text-green-700'
+                            }`}>
+                              {factor.impact}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Временные рамки */}
+                    {prognosis.timeframes && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">Временные рамки</h4>
+                        <div className="space-y-2">
+                          {Object.entries(prognosis.timeframes).map(([period, description]: any) => (
+                            <div key={period} className="p-2 border border-gray-200">
+                              <p className="text-xs text-gray-600">{description}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Превентивные меры */}
+                    {prognosis.preventiveMeasures?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">Превентивные меры</h4>
+                        <ul className="space-y-1">
+                          {prognosis.preventiveMeasures.map((measure: string, index: number) => (
+                            <li key={index} className="text-xs text-gray-600 flex items-start gap-2">
+                              <ChevronRight className="h-3 w-3 mt-0.5 text-gray-400 flex-shrink-0" />
+                              {measure}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Вкладка Обучение */}
+                {activeTab === 'education' && educationalContent && (
+                  <div className="space-y-6">
+                    {/* Почему ИИ рекомендует */}
+                    {educationalContent.whyAiRecommends?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">Почему ИИ предлагает именно это?</h4>
+                        <div className="space-y-3">
+                          {educationalContent.whyAiRecommends.map((item: any, index: number) => (
+                            <div key={index} className="border border-gray-200 p-3">
+                              <div className="font-medium text-xs mb-2">{item.recommendation}</div>
+                              <p className="text-xs text-gray-600 mb-2">{item.reasoning}</p>
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1">{item.evidenceLevel}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Клинические исследования */}
+                    {educationalContent.clinicalStudies?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">Клинические исследования</h4>
+                        <div className="space-y-3">
+                          {educationalContent.clinicalStudies.map((study: any, index: number) => (
+                            <div key={index} className="border border-gray-200 p-3">
+                              <div className="flex justify-between items-start mb-2">
+                                <span className="font-medium text-xs">{study.title}</span>
+                                <span className="text-xs text-gray-500">{study.year}</span>
+                              </div>
+                              <p className="text-xs text-gray-600 mb-2">{study.summary}</p>
+                              {study.link && (
+                                <a href={study.link} target="_blank" rel="noopener noreferrer" 
+                                   className="text-xs text-blue-600 hover:underline">
+                                  Читать исследование →
+                                </a>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Похожие случаи */}
+                    {educationalContent.similarCases?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">Похожие случаи</h4>
+                        <div className="space-y-3">
+                          {educationalContent.similarCases.map((case_: any, index: number) => (
+                            <div key={index} className="border border-gray-200 p-3">
+                              <div className="font-medium text-xs mb-2">{case_.case}</div>
+                              <p className="text-xs text-gray-600 mb-2">Подход: {case_.approach}</p>
+                              <p className="text-xs text-gray-600 mb-2">Результат: {case_.result}</p>
+                              <div className="text-xs text-gray-500">
+                                Ключевые факторы: {case_.keyFactors?.join(', ')}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Образовательные материалы */}
+                    {educationalContent.educationalMaterials?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-900 mb-3">Материалы для изучения</h4>
+                        <div className="space-y-2">
+                          {educationalContent.educationalMaterials.map((material: any, index: number) => (
+                            <div key={index} className="flex justify-between items-center p-2 bg-gray-50">
+                              <div>
+                                <span className="text-xs font-medium">{material.title}</span>
+                                {material.duration && <span className="text-xs text-gray-500 ml-2">({material.duration})</span>}
+                                <p className="text-xs text-gray-600">{material.description}</p>
+                              </div>
+                              <span className="text-xs bg-gray-200 px-2 py-1">{material.type}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Вкладка Экспорт */}
+                {activeTab === 'export' && exportData && (
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">Заключение для экспорта</h4>
+                      <div className="border border-gray-200 p-3 bg-gray-50">
+                        <pre className="text-xs text-gray-700 whitespace-pre-wrap font-mono leading-relaxed">
+                          {exportData.reportSummary}
+                        </pre>
+                      </div>
+                    </div>
                     
-                    <div className="mt-6 p-3 md:p-4 bg-blue-50 border border-blue-200">
-                      <div className="text-xs md:text-sm text-blue-800 font-medium mb-1">
-                        Основано на профиле пациента
-                      </div>
-                      <div className="text-xs text-blue-700">
-                        Учитывает биомаркеры, историю болезни и текущие показатели
-                      </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => {
+                          navigator.clipboard.writeText(exportData.reportSummary);
+                          toast.success('Заключение скопировано в буфер обмена');
+                        }}
+                        className="text-xs bg-gray-600 hover:bg-gray-700 text-white"
+                      >
+                        Копировать текст
+                      </Button>
+                      
+                      <Button
+                        onClick={() => {
+                          const blob = new Blob([exportData.reportSummary], { type: 'text/plain' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `ecg-analysis-${new Date().toISOString().split('T')[0]}.txt`;
+                          a.click();
+                          URL.revokeObjectURL(url);
+                          toast.success('Файл загружен');
+                        }}
+                        className="text-xs bg-blue-600 hover:bg-blue-700 text-white"
+                      >
+                        <Download className="h-3 w-3 mr-1" />
+                        Скачать
+                      </Button>
                     </div>
                   </div>
                 )}
