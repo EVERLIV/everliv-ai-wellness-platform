@@ -1,17 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useDiagnostics } from '@/hooks/useDiagnostics';
+import { useAuth } from '@/contexts/AuthContext';
+import ECGAnalysisResults from './ECGAnalysisResults';
 import { 
   Heart, 
   Upload, 
   Info, 
   FileText,
-  Activity
+  Activity,
+  RefreshCw
 } from 'lucide-react';
 
 const ECGAnalysisPage: React.FC = () => {
+  const { user } = useAuth();
+  const { sessions, fetchSessions, fetchSessionDetails, isLoading } = useDiagnostics();
+  const [selectedSession, setSelectedSession] = useState<any>(null);
+  const [analyses, setAnalyses] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      fetchSessions();
+    }
+  }, [user, fetchSessions]);
+
+  const handleSessionSelect = async (sessionId: string) => {
+    const sessionDetails = await fetchSessionDetails(sessionId);
+    if (sessionDetails) {
+      setSelectedSession(sessionDetails);
+      setAnalyses(sessionDetails.ai_analyses || []);
+    }
+  };
+
+  const ecgSessions = sessions.filter(session => 
+    session.session_type === 'ecg' || 
+    session.session_type === 'mixed'
+  );
+
+  const ecgAnalyses = analyses.filter(analysis => analysis.analysis_type === 'ecg');
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -31,37 +61,103 @@ const ECGAnalysisPage: React.FC = () => {
       </div>
 
       {/* Info Alert */}
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
-          Модуль ЭКГ анализа находится в разработке. Скоро здесь появится возможность загрузки и анализа электрокардиограмм.
-        </AlertDescription>
-      </Alert>
+      {!user && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            Для анализа ЭКГ необходимо войти в систему.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {user && ecgSessions.length === 0 && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            У вас пока нет загруженных ЭКГ. Перейдите на страницу загрузки файлов, чтобы добавить ЭКГ для анализа.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* ECG Sessions List */}
+      {user && ecgSessions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Ваши ЭКГ записи</CardTitle>
+            <CardDescription>
+              Выберите сессию для просмотра результатов анализа
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {ecgSessions.map((session) => (
+                <div 
+                  key={session.id}
+                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                    selectedSession?.id === session.id 
+                      ? 'border-primary bg-primary/5' 
+                      : 'hover:bg-accent'
+                  }`}
+                  onClick={() => handleSessionSelect(session.id)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium">{session.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Создано: {new Date(session.created_at).toLocaleDateString('ru-RU')}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="outline" className="capitalize">
+                        {session.status}
+                      </Badge>
+                      {selectedSession?.id === session.id && isLoading && (
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Analysis Results */}
+      {ecgAnalyses.length > 0 && (
+        <div className="space-y-6">
+          {ecgAnalyses.map((analysis) => (
+            <ECGAnalysisResults key={analysis.id} analysis={analysis} />
+          ))}
+        </div>
+      )}
 
       {/* Upload Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Загрузка ЭКГ</CardTitle>
-          <CardDescription>
-            Поддерживаемые форматы: PDF, JPG, PNG. Максимальный размер файла: 50 МБ
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8">
-            <div className="text-center">
+      {user && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Загрузка ЭКГ</CardTitle>
+            <CardDescription>
+              Поддерживаемые форматы: PDF, JPG, PNG. Максимальный размер файла: 50 МБ
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-6">
               <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Перетащите файлы сюда</h3>
+              <h3 className="text-lg font-medium mb-2">Загрузите ЭКГ для анализа</h3>
               <p className="text-muted-foreground mb-4">
-                или нажмите для выбора файлов
+                Перейдите на страницу загрузки файлов, чтобы добавить новые ЭКГ записи
               </p>
-              <Button disabled>
-                <Upload className="h-4 w-4 mr-2" />
-                Выбрать файлы (скоро)
+              <Button asChild>
+                <a href="/diagnostics/upload">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Загрузить файлы
+                </a>
               </Button>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Features Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

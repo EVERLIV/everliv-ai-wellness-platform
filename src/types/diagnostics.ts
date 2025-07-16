@@ -3,7 +3,7 @@ export interface DiagnosticSession {
   user_id: string;
   title: string;
   description?: string;
-  session_type: 'ecg' | 'ultrasound' | 'xray' | 'blood_test' | 'other';
+  session_type: 'ecg' | 'ultrasound' | 'xray' | 'blood_test' | 'mixed' | 'other';
   status: 'draft' | 'in_progress' | 'completed' | 'archived';
   created_at: string;
   updated_at: string;
@@ -46,13 +46,40 @@ export interface AIDiagnosticAnalysis {
   id: string;
   session_id: string;
   user_id: string;
-  analysis_type: 'ecg' | 'image' | 'text' | 'combined';
+  analysis_type: 'ecg' | 'image' | 'text' | 'combined' | 'synthesis';
   input_data?: any;
   ai_findings?: {
+    // ECG Analysis specific fields
+    rhythm_analysis?: {
+      rhythm_type?: string;
+      heart_rate?: number;
+      regularity?: string;
+    };
+    intervals?: {
+      pr_interval?: string;
+      qrs_duration?: string;
+      qt_interval?: string;
+      qtc_interval?: string;
+    };
+    morphology?: {
+      p_waves?: string;
+      qrs_complex?: string;
+      t_waves?: string;
+    };
+    pathological_findings?: string[];
+    clinical_interpretation?: string;
+    risk_assessment?: {
+      level?: string;
+      factors?: string[];
+    };
+    // General fields
     primary_findings?: string[];
     abnormalities?: string[];
     risk_factors?: string[];
     recommendations?: string[];
+    confidence_score?: number;
+    parsing_error?: boolean;
+    raw_analysis?: string;
   };
   confidence_score?: number;
   analysis_status: 'pending' | 'processing' | 'completed' | 'failed';
