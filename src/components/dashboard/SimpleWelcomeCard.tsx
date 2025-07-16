@@ -8,8 +8,6 @@ interface SimpleWelcomeCardProps {
 }
 
 const SimpleWelcomeCard: React.FC<SimpleWelcomeCardProps> = ({ userName }) => {
-  const { profileData } = useProfile();
-  
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Доброе утро';
@@ -17,17 +15,8 @@ const SimpleWelcomeCard: React.FC<SimpleWelcomeCardProps> = ({ userName }) => {
     return 'Добрый вечер';
   };
 
-  // Получаем никнейм из профиля как приоритетный вариант
-  const displayName = profileData?.nickname || profileData?.first_name || userName || "Пользователь";
-  
-  console.log('🔧 SimpleWelcomeCard: Display name logic DETAILED:', {
-    profileNickname: profileData?.nickname,
-    profileFirstName: profileData?.first_name,
-    passedUserName: userName,
-    finalDisplayName: displayName,
-    hasProfileData: !!profileData,
-    profileDataObject: profileData
-  });
+  // Используем имя пользователя, переданное из Dashboard (уже с правильной приоритетностью)
+  const displayName = userName;
 
   return (
     <Card className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 border-0 shadow-xl">
