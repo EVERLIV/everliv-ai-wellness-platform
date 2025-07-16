@@ -37,7 +37,8 @@ const BiomarkerStepCard: React.FC<BiomarkerStepCardProps> = ({
   const [showTooltip, setShowTooltip] = useState(false);
   const { getBiomarkerHistory } = useBiomarkerHistory();
   
-  const lastEntry = getBiomarkerHistory(biomarker.id)[0];
+  const biomarkerHistory = getBiomarkerHistory(biomarker.id);
+  const lastEntry = biomarkerHistory.length > 0 ? biomarkerHistory[0] : null;
 
   const handleInputChange = (value: string) => {
     setInputValue(value);

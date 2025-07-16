@@ -44,24 +44,37 @@ export const useBiologicalAgeHistory = () => {
     setError(null);
 
     try {
-      const { data: snapshotData, error } = await supabase
+      // Сначала получаем снимки биологического возраста
+      const { data: snapshotData, error: snapshotError } = await supabase
         .from('biological_age_snapshots')
-        .select(`
-          *,
-          biomarker_history (
-            biomarker_name,
-            value,
-            unit,
-            biomarker_category
-          )
-        `)
+        .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (error) throw error;
+      if (snapshotError) throw snapshotError;
 
-      setSnapshots(snapshotData || []);
+      // Для каждого снимка получаем связанные биомаркеры
+      const snapshotsWithBiomarkers = await Promise.all(
+        (snapshotData || []).map(async (snapshot) => {
+          const { data: biomarkerData, error: biomarkerError } = await supabase
+            .from('biomarker_history')
+            .select('biomarker_name, value, unit, biomarker_category')
+            .eq('snapshot_id', snapshot.id)
+            .order('biomarker_name');
+
+          if (biomarkerError) {
+            console.error('Error fetching biomarker history:', biomarkerError);
+          }
+
+          return {
+            ...snapshot,
+            biomarker_history: biomarkerData || []
+          };
+        })
+      );
+
+      setSnapshots(snapshotsWithBiomarkers);
     } catch (err) {
       console.error('Error fetching biological age snapshots:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');

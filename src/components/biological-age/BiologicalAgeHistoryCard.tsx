@@ -143,7 +143,7 @@ const BiologicalAgeHistoryCard = () => {
                   <div className="space-y-1">
                     <div className="text-xs text-gray-600 font-medium">Показатели:</div>
                     <div className="flex flex-wrap gap-1">
-                      {snapshot.biomarker_history.map((biomarker, index) => (
+                      {snapshot.biomarker_history.slice(0, 4).map((biomarker, index) => (
                         <Badge 
                           key={index}
                           variant="secondary" 
@@ -152,6 +152,14 @@ const BiologicalAgeHistoryCard = () => {
                           {biomarker.biomarker_name}: {biomarker.value} {biomarker.unit}
                         </Badge>
                       ))}
+                      {snapshot.biomarker_history.length > 4 && (
+                        <Badge 
+                          variant="outline" 
+                          className="text-xs px-2 py-1"
+                        >
+                          +{snapshot.biomarker_history.length - 4} еще
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 )}
