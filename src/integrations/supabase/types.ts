@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_diagnostic_analyses: {
+        Row: {
+          ai_findings: Json | null
+          analysis_status: string
+          analysis_type: string
+          confidence_score: number | null
+          created_at: string
+          id: string
+          input_data: Json | null
+          session_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_findings?: Json | null
+          analysis_status?: string
+          analysis_type: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          input_data?: Json | null
+          session_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_findings?: Json | null
+          analysis_status?: string
+          analysis_type?: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          input_data?: Json | null
+          session_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_doctor_chats: {
         Row: {
           created_at: string
@@ -377,6 +416,171 @@ export type Database = {
         }
         Relationships: []
       }
+      diagnostic_files: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          session_id: string
+          updated_at: string
+          upload_status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          session_id: string
+          updated_at?: string
+          upload_status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          session_id?: string
+          updated_at?: string
+          upload_status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      diagnostic_recommendations: {
+        Row: {
+          ai_generated: boolean
+          category: string
+          created_at: string
+          description: string
+          doctor_approved: boolean | null
+          id: string
+          implementation_status: string
+          priority: string
+          recommendation_type: string
+          session_id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_generated?: boolean
+          category: string
+          created_at?: string
+          description: string
+          doctor_approved?: boolean | null
+          id?: string
+          implementation_status?: string
+          priority?: string
+          recommendation_type: string
+          session_id: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_generated?: boolean
+          category?: string
+          created_at?: string
+          description?: string
+          doctor_approved?: boolean | null
+          id?: string
+          implementation_status?: string
+          priority?: string
+          recommendation_type?: string
+          session_id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      diagnostic_sessions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          session_type: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          session_type?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          session_type?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      doctor_diagnoses: {
+        Row: {
+          complications: string[] | null
+          created_at: string
+          doctor_comments: string | null
+          icd_code: string | null
+          icd_description: string | null
+          id: string
+          primary_diagnosis: string
+          secondary_diagnoses: string[] | null
+          session_id: string
+          severity_level: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          complications?: string[] | null
+          created_at?: string
+          doctor_comments?: string | null
+          icd_code?: string | null
+          icd_description?: string | null
+          id?: string
+          primary_diagnosis: string
+          secondary_diagnoses?: string[] | null
+          session_id: string
+          severity_level?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          complications?: string[] | null
+          created_at?: string
+          doctor_comments?: string | null
+          icd_code?: string | null
+          icd_description?: string | null
+          id?: string
+          primary_diagnosis?: string
+          secondary_diagnoses?: string[] | null
+          session_id?: string
+          severity_level?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       doctor_specializations: {
         Row: {
           avg_consultation_duration: number | null
@@ -419,6 +623,51 @@ export type Database = {
           specialists_count?: number | null
           treatment_methods?: string[] | null
           typical_consultations?: string[] | null
+        }
+        Relationships: []
+      }
+      ecg_records: {
+        Row: {
+          analysis_status: string
+          created_at: string
+          file_type: string | null
+          file_url: string | null
+          heart_rate: number | null
+          id: string
+          intervals: Json | null
+          raw_data: Json | null
+          rhythm_type: string | null
+          session_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_status?: string
+          created_at?: string
+          file_type?: string | null
+          file_url?: string | null
+          heart_rate?: number | null
+          id?: string
+          intervals?: Json | null
+          raw_data?: Json | null
+          rhythm_type?: string | null
+          session_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_status?: string
+          created_at?: string
+          file_type?: string | null
+          file_url?: string | null
+          heart_rate?: number | null
+          id?: string
+          intervals?: Json | null
+          raw_data?: Json | null
+          rhythm_type?: string | null
+          session_id?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

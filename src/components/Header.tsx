@@ -27,11 +27,14 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-2">
             {user ? (
               <>
-                <div className="hidden md:flex items-center space-x-2">
-                  <Link to="/dashboard">
-                    <Button variant="outline" size="sm">Панель Управления</Button>
-                  </Link>
-                </div>
+                 <div className="hidden md:flex items-center space-x-2">
+                   <Link to="/dashboard">
+                     <Button variant="outline" size="sm">Панель Управления</Button>
+                   </Link>
+                   <Link to="/diagnostics">
+                     <Button variant="outline" size="sm">Диагностика</Button>
+                   </Link>
+                 </div>
                 <UserProfileDropdown />
               </>
             ) : (

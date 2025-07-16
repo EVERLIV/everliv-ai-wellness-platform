@@ -42,6 +42,7 @@ const ServicesPage = lazy(() => import("./pages/ServicesPage"));
 const Community = lazy(() => import("./pages/Community"));
 const Webinars = lazy(() => import("./pages/Webinars"));
 const BiologicalAgePage = lazy(() => import("./pages/BiologicalAge"));
+const DiagnosticsPage = lazy(() => import("./pages/DiagnosticsPage"));
 
 // Auth pages
 const Login = lazy(() => import("./pages/Login"));
@@ -229,6 +230,11 @@ const App = () => (
                       <Route path="/community" element={<Community />} />
                       <Route path="/webinars" element={<Webinars />} />
                       <Route path="/biological-age" element={<BiologicalAgePage />} />
+                      <Route path="/diagnostics/*" element={
+                        <ProtectedRoute>
+                          <DiagnosticsPage />
+                        </ProtectedRoute>
+                      } />
 
                       {/* Route modules - lazy loaded */}
                       <Route path="/services/*" element={<ServiceRoutes />} />
