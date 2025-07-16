@@ -91,10 +91,30 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
       case 'low': return 'bg-green-100 text-green-800 border-green-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
+   };
+
+  // Функция для получения фонового цвета карточки на основе статуса значения
+  const getCardBackgroundColor = () => {
+    if (biomarker.status !== 'filled' || !biomarker.value) {
+      return 'bg-white'; // Белый фон для незаполненных
+    }
+
+    const valueStatus = getValueStatus(biomarker.value, adjustedRange);
+    switch (valueStatus.status) {
+      case 'optimal':
+      case 'normal':
+        return 'bg-green-50/50'; // Очень слабый зеленый для нормы
+      case 'high':
+        return 'bg-red-50/50'; // Очень слабый красный для повышенных
+      case 'low':
+        return 'bg-blue-50/50'; // Очень слабый синий для пониженных
+      default:
+        return 'bg-white';
+    }
   };
 
   return (
-    <div className={`border border-gray-200 bg-white border-l-2 ${getImportanceColor()}`}>
+    <div className={`border border-gray-200 ${getCardBackgroundColor()}`}>{/* Убираем border-l-2 и добавляем фоновый цвет */}
       <div className="p-1.5">
         <div className="space-y-1">
           <div className="flex items-start justify-between">

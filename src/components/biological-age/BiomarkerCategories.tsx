@@ -59,7 +59,7 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
   return (
     <div className="space-y-2">
       {Object.entries(categorizedBiomarkers).map(([category, categoryBiomarkers]) => (
-        <div key={category} className={`border border-gray-200 bg-white border-l-4 ${getCategoryColor(category)}`}>
+        <div key={category} className="border border-gray-200 bg-white">{/* Убираем border-l-4 и цветовой индикатор */}
           <div className="p-2 border-b border-gray-200">
             <h3 className="bio-text-small font-medium">
               {getCategoryTitle(category)}
@@ -84,19 +84,44 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
       {/* Единая расшифровка цветовых индикаторов */}
       {getTotalFilledCount() > 0 && (
         <div className="mt-4 p-3 bg-gray-50 border border-gray-200">
-          <h4 className="bio-text-small font-medium mb-2">Обозначения влияния на биологический возраст:</h4>
-          <div className="bio-text-caption space-y-1">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-red-500"></div>
-              <span>Высокое влияние на биологический возраст</span>
+          <h4 className="bio-text-small font-medium mb-2">Обозначения:</h4>
+          <div className="bio-text-caption space-y-2">
+            {/* Влияние на биологический возраст */}
+            <div>
+              <div className="bio-text-caption font-medium mb-1">Влияние на биологический возраст:</div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span>Высокое влияние</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                  <span>Среднее влияние</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <span>Низкое влияние</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-              <span>Среднее влияние на биологический возраст</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              <span>Низкое влияние на биологический возраст</span>
+            
+            {/* Статус показателей */}
+            <div>
+              <div className="bio-text-caption font-medium mb-1">Фон карточки - статус показателя:</div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-3 bg-green-50 border border-green-200 rounded"></div>
+                  <span>В норме</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-3 bg-red-50 border border-red-200 rounded"></div>
+                  <span>Выше нормы</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-3 bg-blue-50 border border-blue-200 rounded"></div>
+                  <span>Ниже нормы</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
