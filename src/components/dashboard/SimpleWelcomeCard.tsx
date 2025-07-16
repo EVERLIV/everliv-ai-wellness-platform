@@ -15,6 +15,8 @@ const SimpleWelcomeCard: React.FC<SimpleWelcomeCardProps> = ({ userName }) => {
     return 'Добрый вечер';
   };
 
+  console.log('🔧 SimpleWelcomeCard: Received userName:', userName);
+
   // Используем имя пользователя, переданное из Dashboard (уже с правильной приоритетностью)
   const displayName = userName;
 
