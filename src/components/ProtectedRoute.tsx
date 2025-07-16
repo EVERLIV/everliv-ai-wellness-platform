@@ -8,23 +8,27 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, isLoading } = useSmartAuth();
+  const { user, session, isLoading } = useSmartAuth();
   const isDevMode = isDevelopmentMode();
 
-  console.log('🔒 ProtectedRoute check:', {
+  console.log('🔒 ProtectedRoute ДЕТАЛЬНАЯ ПРОВЕРКА:', {
     user: !!user,
     userEmail: user?.email,
     userId: user?.id,
-    userNickname: user?.user_metadata?.nickname,
+    userMetadata: user?.user_metadata,
+    session: !!session,
+    sessionValid: session?.expires_at ? new Date(session.expires_at * 1000) > new Date() : false,
     isLoading,
     isDevMode,
     hostname: window.location.hostname,
-    pathname: window.location.pathname
+    pathname: window.location.pathname,
+    authStateComplete: !isLoading,
+    shouldRedirect: !user && !isLoading
   });
 
   // Показываем загрузку только если данные еще загружаются
   if (isLoading) {
-    console.log('🔒 Auth is loading...');
+    console.log('🔒 Auth is loading, показываем спиннер...');
     return (
       <div className="h-screen flex justify-center items-center">
         <div className="flex flex-col items-center space-y-4">
@@ -37,12 +41,17 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   // Если нет пользователя, перенаправляем на страницу входа
   if (!user) {
-    console.log('🔒 No user found, redirecting to login from:', window.location.pathname);
+    console.log('🔒 КРИТИЧЕСКАЯ ОШИБКА: No user found, redirecting to login from:', window.location.pathname);
+    console.log('🔒 Детали отсутствующего пользователя:', {
+      userObject: user,
+      sessionObject: session,
+      isLoadingState: isLoading
+    });
     return <Navigate to="/login" replace />;
   }
 
   // Если пользователь есть, отображаем защищенный контент
-  console.log('🔒 User authenticated, rendering children for:', user.email);
+  console.log('🔒 УСПЕХ: User authenticated, rendering children for:', user.email);
   return <>{children}</>;
 };
 
