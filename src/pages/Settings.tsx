@@ -60,9 +60,6 @@ const Settings: React.FC = () => {
 
     if (success) {
       toast.success("Никнейм успешно сохранен");
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
     } else {
       toast.error("Ошибка при сохранении никнейма");
     }

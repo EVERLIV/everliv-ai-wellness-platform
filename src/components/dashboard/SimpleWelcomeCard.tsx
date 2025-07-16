@@ -20,6 +20,15 @@ const SimpleWelcomeCard: React.FC<SimpleWelcomeCardProps> = ({ userName }) => {
   // Получаем никнейм из профиля как приоритетный вариант
   const displayName = profileData?.nickname || profileData?.first_name || userName || "Пользователь";
   
+  console.log('🔧 SimpleWelcomeCard: Display name logic DETAILED:', {
+    profileNickname: profileData?.nickname,
+    profileFirstName: profileData?.first_name,
+    passedUserName: userName,
+    finalDisplayName: displayName,
+    hasProfileData: !!profileData,
+    profileDataObject: profileData
+  });
+  
   console.log('🔧 SimpleWelcomeCard: Display name logic:', {
     profileNickname: profileData?.nickname,
     profileFirstName: profileData?.first_name,
