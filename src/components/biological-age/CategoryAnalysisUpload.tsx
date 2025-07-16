@@ -123,9 +123,9 @@ const CategoryAnalysisUpload: React.FC<CategoryAnalysisUploadProps> = ({
       </Button>
 
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Добавить анализ: {categoryTitle}</DialogTitle>
+        <DialogContent className="sm:max-w-lg max-w-sm mx-4">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="bio-text-small">Добавить анализ: {categoryTitle}</DialogTitle>
           </DialogHeader>
           
           {!showPreview ? (

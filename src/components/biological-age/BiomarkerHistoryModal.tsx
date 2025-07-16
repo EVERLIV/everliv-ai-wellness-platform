@@ -6,10 +6,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Calendar } from 'lucide-react';
+import { TrendingUp, TrendingDown, Calendar, BarChart3 } from 'lucide-react';
 import { useBiomarkerHistory } from '@/hooks/useBiomarkerHistory';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 
 interface BiomarkerHistoryModalProps {
   isOpen: boolean;
@@ -28,6 +29,15 @@ const BiomarkerHistoryModal: React.FC<BiomarkerHistoryModalProps> = ({
 }) => {
   const { getBiomarkerHistory } = useBiomarkerHistory();
   const history = getBiomarkerHistory(biomarkerId);
+  const [showChart, setShowChart] = React.useState(false);
+
+  // Подготовка данных для графика
+  const chartData = history.map((entry, index) => ({
+    index: history.length - index,
+    value: entry.value,
+    date: format(new Date(entry.created_at), 'dd.MM', { locale: ru }),
+    fullDate: format(new Date(entry.created_at), 'dd MMM yyyy', { locale: ru })
+  })).reverse();
 
   const getTrend = (current: number, previous: number) => {
     const diff = current - previous;
@@ -46,67 +56,158 @@ const BiomarkerHistoryModal: React.FC<BiomarkerHistoryModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-blue-500" />
-            История: {biomarkerName}
+      <DialogContent className="max-w-sm sm:max-w-md mx-4">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="bio-text-small flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-primary" />
+            {biomarkerName}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {history.length === 0 ? (
-            <div className="text-center py-8">
-              <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-sm text-gray-600">Нет истории данных</p>
-              <p className="text-xs text-gray-500 mt-1">
-                Начните вводить значения для отслеживания изменений
+            <div className="text-center py-6">
+              <Calendar className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+              <p className="bio-text-small text-muted-foreground">Нет данных</p>
+              <p className="bio-text-caption text-muted-foreground mt-1">
+                Начните вводить значения для отслеживания
               </p>
             </div>
           ) : (
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {history.map((entry, index) => {
-                const previous = history[index + 1];
-                const trend = previous ? getTrend(entry.value, previous.value) : null;
-
-                return (
-                  <div 
-                    key={entry.id}
-                    className="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <div className="text-lg font-semibold text-gray-900">
-                          {entry.value} {unit}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {format(new Date(entry.created_at), 'dd MMM yyyy, HH:mm', { locale: ru })}
-                        </div>
-                      </div>
-                      {trend && (
-                        <div className={`flex items-center gap-1 ${trend.color}`}>
-                          {trend.icon}
-                          <span className="text-sm font-medium">{trend.text}</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <Badge variant="outline" className="text-xs">
-                        {entry.source === 'biological_age_calculation' ? 'Расчет' : 'Ввод'}
-                      </Badge>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {history.length > 0 && (
-            <div className="pt-3 border-t">
-              <div className="text-xs text-gray-500 text-center">
-                Всего записей: {history.length}
+            <>
+              {/* Переключатель вида */}
+              <div className="flex gap-1 p-1 bg-muted rounded-md">
+                <button
+                  onClick={() => setShowChart(false)}
+                  className={`flex-1 bio-text-caption px-2 py-1 rounded transition-colors ${
+                    !showChart 
+                      ? 'bg-background text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Список
+                </button>
+                <button
+                  onClick={() => setShowChart(true)}
+                  className={`flex-1 bio-text-caption px-2 py-1 rounded transition-colors flex items-center justify-center gap-1 ${
+                    showChart 
+                      ? 'bg-background text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <BarChart3 className="h-3 w-3" />
+                  График
+                </button>
               </div>
-            </div>
+
+              {showChart ? (
+                /* График */
+                <div className="h-32 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+                      <XAxis 
+                        dataKey="date" 
+                        tick={{ fontSize: 10 }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis 
+                        tick={{ fontSize: 10 }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          fontSize: '12px', 
+                          padding: '8px',
+                          border: 'none',
+                          borderRadius: '8px',
+                          backgroundColor: 'hsl(var(--popover))',
+                          color: 'hsl(var(--popover-foreground))'
+                        }}
+                        formatter={(value: any) => [`${value} ${unit}`, 'Значение']}
+                        labelFormatter={(label) => {
+                          const dataPoint = chartData.find(d => d.date === label);
+                          return dataPoint?.fullDate || label;
+                        }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="value" 
+                        stroke="hsl(var(--primary))" 
+                        strokeWidth={2}
+                        dot={{ fill: 'hsl(var(--primary))', strokeWidth: 0, r: 3 }}
+                        activeDot={{ r: 4 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                /* Список записей */
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {history.slice(0, 5).map((entry, index) => {
+                    const previous = history[index + 1];
+                    const trend = previous ? getTrend(entry.value, previous.value) : null;
+
+                    return (
+                      <div 
+                        key={entry.id}
+                        className="flex items-center justify-between p-2 bg-muted/30 rounded-md"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <div className="bio-text-small font-medium">
+                              {entry.value} {unit}
+                            </div>
+                            <div className="bio-text-caption text-muted-foreground">
+                              {format(new Date(entry.created_at), 'dd MMM', { locale: ru })}
+                            </div>
+                          </div>
+                          {trend && (
+                            <div className={`flex items-center gap-1 ${trend.color}`}>
+                              {trend.icon}
+                              <span className="bio-text-caption font-medium">{trend.text}</span>
+                            </div>
+                          )}
+                        </div>
+                        <Badge variant="outline" className="bio-text-caption px-1 py-0">
+                          {entry.source === 'biological_age_calculation' ? 'Расчет' : 'Ввод'}
+                        </Badge>
+                      </div>
+                    );
+                  })}
+                  {history.length > 5 && (
+                    <div className="text-center py-1">
+                      <span className="bio-text-caption text-muted-foreground">
+                        и еще {history.length - 5} записей
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Статистика */}
+              <div className="pt-2 border-t border-border">
+                <div className="grid grid-cols-3 gap-2 bio-text-caption text-center">
+                  <div>
+                    <div className="font-medium text-foreground">{history.length}</div>
+                    <div className="text-muted-foreground">записей</div>
+                  </div>
+                  <div>
+                    <div className="font-medium text-foreground">
+                      {Math.max(...history.map(h => h.value))} {unit}
+                    </div>
+                    <div className="text-muted-foreground">макс</div>
+                  </div>
+                  <div>
+                    <div className="font-medium text-foreground">
+                      {Math.min(...history.map(h => h.value))} {unit}
+                    </div>
+                    <div className="text-muted-foreground">мин</div>
+                  </div>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </DialogContent>

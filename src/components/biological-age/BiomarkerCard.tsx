@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, TrendingUp, TrendingDown, Minus, History } from 'lucide-react';
+import { ChevronDown, ChevronRight, TrendingUp, TrendingDown, Minus, History, Calendar } from 'lucide-react';
 import { Biomarker } from '@/types/biologicalAge';
 import { HealthProfileData } from '@/types/healthProfile';
 import { getBiomarkerImpact } from '@/services/ai/biomarker-impact-analysis';
@@ -131,10 +131,10 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
                   size="sm"
                   variant="ghost"
                   onClick={() => setShowHistoryModal(true)}
-                  className="h-6 w-6 p-0"
-                  title="История изменений"
+                  className="h-6 w-6 p-0 hover:bg-primary/10"
+                  title="История показателей"
                 >
-                  <History className="h-3 w-3" />
+                  <Calendar className="h-3 w-3 text-primary" />
                 </Button>
               </div>
               
