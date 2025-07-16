@@ -8,20 +8,22 @@ import DiagnosticsHistory from '@/components/diagnostics/DiagnosticsHistory';
 import SessionDetailsPage from '@/components/diagnostics/SessionDetailsPage';
 import SmartRecommendations from '@/components/diagnostics/SmartRecommendations';
 import MedicalStandards from '@/components/diagnostics/MedicalStandards';
+import DiagnosticsSynthesisWorkspace from '@/components/diagnostics/DiagnosticsSynthesisWorkspace';
 
 const DiagnosticsPage: React.FC = () => {
   return (
-    <DiagnosticsLayout>
-      <Routes>
-        <Route index element={<DiagnosticsDashboard />} />
-        <Route path="ecg" element={<ECGAnalysisPage />} />
-        <Route path="upload" element={<FileUploadPage />} />
-        <Route path="history" element={<DiagnosticsHistory />} />
-        <Route path="session/:sessionId" element={<SessionDetailsPage />} />
-        <Route path="recommendations" element={<SmartRecommendations />} />
-        <Route path="standards" element={<MedicalStandards />} />
-      </Routes>
-    </DiagnosticsLayout>
+      <DiagnosticsLayout>
+        <Routes>
+          <Route index element={<DiagnosticsDashboard />} />
+          <Route path="ecg" element={<ECGAnalysisPage />} />
+          <Route path="upload" element={<FileUploadPage />} />
+          <Route path="history" element={<DiagnosticsHistory />} />
+          <Route path="session/:sessionId" element={<SessionDetailsPage />} />
+          <Route path="synthesis/:sessionId" element={<DiagnosticsSynthesisWorkspace />} />
+          <Route path="recommendations" element={<SmartRecommendations />} />
+          <Route path="standards" element={<MedicalStandards />} />
+        </Routes>
+      </DiagnosticsLayout>
   );
 };
 

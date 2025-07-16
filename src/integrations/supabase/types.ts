@@ -416,6 +416,65 @@ export type Database = {
         }
         Relationships: []
       }
+      diagnosis_recommendations: {
+        Row: {
+          category: string
+          contraindications: string[] | null
+          created_at: string
+          doctor_notes: string | null
+          evidence_level: string | null
+          id: string
+          is_approved: boolean | null
+          monitoring_schedule: string | null
+          personalization_factors: Json | null
+          priority: string
+          recommendation_text: string
+          synthesis_id: string
+          target_values: Json | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          contraindications?: string[] | null
+          created_at?: string
+          doctor_notes?: string | null
+          evidence_level?: string | null
+          id?: string
+          is_approved?: boolean | null
+          monitoring_schedule?: string | null
+          personalization_factors?: Json | null
+          priority?: string
+          recommendation_text: string
+          synthesis_id: string
+          target_values?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          contraindications?: string[] | null
+          created_at?: string
+          doctor_notes?: string | null
+          evidence_level?: string | null
+          id?: string
+          is_approved?: boolean | null
+          monitoring_schedule?: string | null
+          personalization_factors?: Json | null
+          priority?: string
+          recommendation_text?: string
+          synthesis_id?: string
+          target_values?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnosis_recommendations_synthesis_id_fkey"
+            columns: ["synthesis_id"]
+            isOneToOne: false
+            referencedRelation: "diagnostic_synthesis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       diagnostic_files: {
         Row: {
           created_at: string
@@ -533,6 +592,63 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      diagnostic_synthesis: {
+        Row: {
+          agreements: Json | null
+          ai_analysis: Json
+          confidence_score: number
+          created_at: string
+          discrepancies: Json | null
+          doctor_diagnosis: string
+          doctor_feedback: Json | null
+          follow_up_actions: Json | null
+          id: string
+          is_validated: boolean | null
+          recommendations: Json | null
+          session_id: string
+          synthesis_type: string
+          updated_at: string
+          user_id: string
+          validation_notes: string | null
+        }
+        Insert: {
+          agreements?: Json | null
+          ai_analysis?: Json
+          confidence_score?: number
+          created_at?: string
+          discrepancies?: Json | null
+          doctor_diagnosis: string
+          doctor_feedback?: Json | null
+          follow_up_actions?: Json | null
+          id?: string
+          is_validated?: boolean | null
+          recommendations?: Json | null
+          session_id: string
+          synthesis_type: string
+          updated_at?: string
+          user_id: string
+          validation_notes?: string | null
+        }
+        Update: {
+          agreements?: Json | null
+          ai_analysis?: Json
+          confidence_score?: number
+          created_at?: string
+          discrepancies?: Json | null
+          doctor_diagnosis?: string
+          doctor_feedback?: Json | null
+          follow_up_actions?: Json | null
+          id?: string
+          is_validated?: boolean | null
+          recommendations?: Json | null
+          session_id?: string
+          synthesis_type?: string
+          updated_at?: string
+          user_id?: string
+          validation_notes?: string | null
         }
         Relationships: []
       }
