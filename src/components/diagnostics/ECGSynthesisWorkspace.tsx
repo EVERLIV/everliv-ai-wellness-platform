@@ -451,15 +451,22 @@ const ECGSynthesisWorkspace: React.FC = () => {
                     </div>
 
                     {/* Выявленные патологии */}
-                    {ecgAnalysis.detectedAbnormalities && ecgAnalysis.detectedAbnormalities.length > 0 && (
+                    {ecgAnalysis.detectedAbnormalities && (
                       <div>
                         <h4 className="text-sm font-medium text-gray-900 mb-3">Выявленные патологии</h4>
                         <div className="space-y-2">
-                          {ecgAnalysis.detectedAbnormalities.map((abnormality: string, index: number) => (
-                            <div key={index} className="border border-red-200 p-3 bg-red-50">
-                              <p className="text-sm text-red-700">{abnormality}</p>
-                            </div>
-                          ))}
+                          {Array.isArray(ecgAnalysis.detectedAbnormalities) 
+                            ? ecgAnalysis.detectedAbnormalities.map((abnormality: string, index: number) => (
+                                <div key={index} className="border border-red-200 p-3 bg-red-50">
+                                  <p className="text-sm text-red-700">{abnormality}</p>
+                                </div>
+                              ))
+                            : typeof ecgAnalysis.detectedAbnormalities === 'string' && (
+                                <div className="border border-red-200 p-3 bg-red-50">
+                                  <p className="text-sm text-red-700">{ecgAnalysis.detectedAbnormalities}</p>
+                                </div>
+                              )
+                          }
                         </div>
                       </div>
                     )}
