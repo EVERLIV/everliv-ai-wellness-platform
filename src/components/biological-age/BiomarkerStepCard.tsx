@@ -16,6 +16,9 @@ import {
 import { Biomarker } from '@/types/biologicalAge';
 import { HealthProfileData } from '@/types/healthProfile';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useBiomarkerHistory } from '@/hooks/useBiomarkerHistory';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 interface BiomarkerStepCardProps {
   biomarker: Biomarker;
@@ -32,6 +35,9 @@ const BiomarkerStepCard: React.FC<BiomarkerStepCardProps> = ({
     biomarker.value?.toString() || ''
   );
   const [showTooltip, setShowTooltip] = useState(false);
+  const { getBiomarkerHistory } = useBiomarkerHistory();
+  
+  const lastEntry = getBiomarkerHistory(biomarker.id)[0];
 
   const handleInputChange = (value: string) => {
     setInputValue(value);
@@ -131,6 +137,11 @@ const BiomarkerStepCard: React.FC<BiomarkerStepCardProps> = ({
                 {getImportanceBadge()}
               </div>
               <p className="text-xs text-gray-600">{biomarker.description}</p>
+              {lastEntry && (
+                <div className="text-xs text-gray-500 mt-1">
+                  Последний анализ: {format(new Date(lastEntry.created_at), 'dd.MM.yyyy', { locale: ru })} - {lastEntry.value} {lastEntry.unit}
+                </div>
+              )}
             </div>
             
             <TooltipProvider>

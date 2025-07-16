@@ -3,6 +3,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { BiologicalAgeResult } from '@/types/biologicalAge';
 
+interface BiomarkerHistoryEntry {
+  biomarker_name: string;
+  value: number;
+  unit: string;
+  biomarker_category: string;
+}
+
 interface BiologicalAgeSnapshot {
   id: string;
   biological_age: number;
@@ -15,6 +22,7 @@ interface BiologicalAgeSnapshot {
   missing_analyses: string[] | null;
   biomarkers_count: number;
   created_at: string;
+  biomarker_history?: BiomarkerHistoryEntry[];
 }
 
 export const useBiologicalAgeHistory = () => {
@@ -36,16 +44,24 @@ export const useBiologicalAgeHistory = () => {
     setError(null);
 
     try {
-      const { data, error } = await supabase
+      const { data: snapshotData, error } = await supabase
         .from('biological_age_snapshots')
-        .select('*')
+        .select(`
+          *,
+          biomarker_history (
+            biomarker_name,
+            value,
+            unit,
+            biomarker_category
+          )
+        `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(10);
 
       if (error) throw error;
 
-      setSnapshots(data || []);
+      setSnapshots(snapshotData || []);
     } catch (err) {
       console.error('Error fetching biological age snapshots:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');

@@ -118,23 +118,43 @@ const BiologicalAgeHistoryCard = () => {
         {/* История */}
         <div className="space-y-2">
           <h4 className="text-sm font-medium text-gray-700">Предыдущие расчеты</h4>
-          <div className="space-y-2 max-h-48 overflow-y-auto">
+          <div className="space-y-3 max-h-96 overflow-y-auto">
             {snapshots.slice(1, 6).map((snapshot) => (
               <div 
                 key={snapshot.id}
-                className="flex items-center justify-between p-2 bg-gray-50/50 rounded-md"
+                className="p-3 bg-gray-50/50 rounded-md space-y-2"
               >
-                <div className="flex items-center gap-3">
-                  <div className="text-sm font-medium text-gray-900">
-                    {Math.round(snapshot.biological_age)} лет
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="text-sm font-medium text-gray-900">
+                      {Math.round(snapshot.biological_age)} лет
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {snapshot.biomarkers_count}
+                    </Badge>
                   </div>
-                  <Badge variant="outline" className="text-xs">
-                    {snapshot.biomarkers_count}
-                  </Badge>
+                  <div className="text-xs text-gray-500">
+                    {format(new Date(snapshot.created_at), 'dd.MM.yyyy', { locale: ru })}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500">
-                  {format(new Date(snapshot.created_at), 'dd.MM.yyyy', { locale: ru })}
-                </div>
+                
+                {/* Показатели */}
+                {snapshot.biomarker_history && snapshot.biomarker_history.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="text-xs text-gray-600 font-medium">Показатели:</div>
+                    <div className="flex flex-wrap gap-1">
+                      {snapshot.biomarker_history.map((biomarker, index) => (
+                        <Badge 
+                          key={index}
+                          variant="secondary" 
+                          className="text-xs px-2 py-1"
+                        >
+                          {biomarker.biomarker_name}: {biomarker.value} {biomarker.unit}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
