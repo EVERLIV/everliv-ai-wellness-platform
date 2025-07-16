@@ -84,8 +84,8 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
       {/* Единая расшифровка цветовых индикаторов */}
       {getTotalFilledCount() > 0 && (
         <div className="mt-4 p-3 bg-gray-50 border border-gray-200">
-          <h4 className="text-xs font-medium text-gray-900 mb-2">Обозначения влияния на биологический возраст:</h4>
-          <div className="text-[8px] text-gray-600 space-y-1">
+          <h4 className="bio-text-small font-medium mb-2">Обозначения влияния на биологический возраст:</h4>
+          <div className="bio-text-caption space-y-1">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-red-500"></div>
               <span>Высокое влияние на биологический возраст</span>

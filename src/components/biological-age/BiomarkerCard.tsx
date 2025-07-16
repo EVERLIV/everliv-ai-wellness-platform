@@ -105,7 +105,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
               </div>
               <p className="text-xs text-gray-600 line-clamp-1">{biomarker.description}</p>
             </div>
-            <Badge className={`${getStatusColor()} text-[6px] px-1 py-0.5`} variant="secondary">
+            <Badge className={`${getStatusColor()} bio-text-caption px-1 py-0.5`} variant="secondary">
               {biomarker.status === 'filled' ? 'Заполнено' : 'Пусто'}
             </Badge>
           </div>
@@ -158,7 +158,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
           
           {/* Информация о последнем анализе - показывается когда карточка свернута */}
           {!isOpen && lastEntry && (
-            <div className="text-[10px] text-gray-500 mt-1">
+            <div className="bio-text-caption text-muted-foreground mt-1">
               Последний анализ: {format(new Date(lastEntry.created_at), 'dd.MM.yyyy', { locale: ru })} - {lastEntry.value} {lastEntry.unit}
             </div>
           )}

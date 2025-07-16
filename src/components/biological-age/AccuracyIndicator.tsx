@@ -69,7 +69,7 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-1">
             <Target className="h-3 w-3 text-blue-600" />
-            <h3 className="text-sm font-medium">Уровень точности</h3>
+            <h3 className="bio-text-small font-medium">Уровень точности</h3>
           </div>
           <Badge className={getLevelColor(accuracy.level)} variant="secondary">
             {accuracy.description} ({accuracy.percentage}%)
@@ -77,7 +77,7 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
         </div>
 
         <div className="space-y-2">
-          <div className="flex justify-between text-xs">
+          <div className="flex justify-between bio-text-caption">
             <span>Заполнено анализов: {accuracy.current_tests}</span>
             <span>Точность: {accuracy.percentage}%</span>
           </div>
@@ -85,7 +85,7 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
         </div>
 
         {/* Уровни точности */}
-        <div className="grid grid-cols-3 gap-1 text-xs mt-3">
+        <div className="grid grid-cols-3 gap-1 bio-text-caption mt-3">
           <div className={`p-2 border text-center ${
             accuracy.current_tests >= ACCURACY_LEVELS.basic.min 
               ? 'bg-green-50 text-green-700 border-green-200' 
@@ -95,11 +95,11 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
               {accuracy.current_tests >= ACCURACY_LEVELS.basic.min ? (
                 <CheckCircle className="h-2 w-2" />
               ) : (
-                <span className="text-xs">{ACCURACY_LEVELS.basic.min}</span>
+                <span className="bio-text-caption">{ACCURACY_LEVELS.basic.min}</span>
               )}
             </div>
-            <div className="text-xs">Базовый</div>
-            <div className="text-xs">{ACCURACY_LEVELS.basic.percentage}%</div>
+            <div className="bio-text-caption">Базовый</div>
+            <div className="bio-text-caption">{ACCURACY_LEVELS.basic.percentage}%</div>
           </div>
           
           <div className={`p-2 border text-center ${
@@ -111,11 +111,11 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
               {accuracy.current_tests >= ACCURACY_LEVELS.extended.min ? (
                 <CheckCircle className="h-2 w-2" />
               ) : (
-                <span className="text-xs">{ACCURACY_LEVELS.extended.min}</span>
+                <span className="bio-text-caption">{ACCURACY_LEVELS.extended.min}</span>
               )}
             </div>
-            <div className="text-xs">Расширенный</div>
-            <div className="text-xs">{ACCURACY_LEVELS.extended.percentage}%</div>
+            <div className="bio-text-caption">Расширенный</div>
+            <div className="bio-text-caption">{ACCURACY_LEVELS.extended.percentage}%</div>
           </div>
           
           <div className={`p-2 border text-center ${
@@ -127,11 +127,11 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
               {accuracy.current_tests >= ACCURACY_LEVELS.comprehensive.min ? (
                 <CheckCircle className="h-2 w-2" />
               ) : (
-                <span className="text-xs">{ACCURACY_LEVELS.comprehensive.min}</span>
+                <span className="bio-text-caption">{ACCURACY_LEVELS.comprehensive.min}</span>
               )}
             </div>
-            <div className="text-xs">Полный</div>
-            <div className="text-xs">{ACCURACY_LEVELS.comprehensive.percentage}%</div>
+            <div className="bio-text-caption">Полный</div>
+            <div className="bio-text-caption">{ACCURACY_LEVELS.comprehensive.percentage}%</div>
           </div>
         </div>
 
@@ -141,11 +141,11 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
             <div className="p-2">
               <div className="flex items-center gap-1 mb-1">
                 <TrendingUp className="h-3 w-3 text-blue-600" />
-                <span className="text-xs font-medium text-blue-900">
+                <span className="bio-text-caption font-medium text-blue-900">
                   Следующая цель
                 </span>
               </div>
-              <p className="text-xs text-blue-800">
+              <p className="bio-text-caption text-blue-800">
                 Добавьте еще <strong>{nextMilestone.needed}</strong> анализ(ов) 
                 для достижения {nextMilestone.description}
               </p>

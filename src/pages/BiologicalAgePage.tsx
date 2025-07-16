@@ -24,10 +24,10 @@ const BiologicalAgePage = () => {
     <AppLayout>
       <div className="space-y-3">
         <div className="mb-3">
-          <h1 className="text-lg font-medium mb-1 text-gray-900">
+          <h1 className="bio-heading-primary mb-1">
             Определение биологического возраста
           </h1>
-          <p className="text-sm text-gray-600">
+          <p className="bio-text-body">
             Узнайте свой биологический возраст на основе комплексной оценки биомаркеров и показателей здоровья
           </p>
         </div>
