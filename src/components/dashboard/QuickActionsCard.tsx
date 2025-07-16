@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Activity, Calendar, User, FileText, Apple, BookOpen, Star } from "lucide-react";
+import { Activity, Calendar, User, FileText, Apple, BookOpen, Star, Stethoscope } from "lucide-react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -38,6 +38,12 @@ const QuickActionsCard = () => {
             <Button variant="outline" className="w-full justify-start">
               <FileText className="h-4 w-4 mr-2" />
               Анализ крови
+            </Button>
+          </Link>
+          <Link to="/diagnostics">
+            <Button variant="outline" className="w-full justify-start">
+              <Stethoscope className="h-4 w-4 mr-2" />
+              Диагностика
             </Button>
           </Link>
           <Link to="/analytics">
