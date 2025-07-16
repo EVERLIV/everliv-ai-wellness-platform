@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Heart, Activity, TrendingUp, Calendar, Target } from 'lucide-react';
@@ -14,10 +15,21 @@ import PriorityMetricsSection from '@/components/dashboard/PriorityMetricsSectio
 
 const DashboardPage = () => {
   const { user } = useAuth();
+  const { profileData } = useProfile();
   const { healthProfile } = useHealthProfile();
   const { analytics, isLoading: analyticsLoading } = useCachedAnalytics();
 
-  const userName = user?.user_metadata?.full_name || user?.user_metadata?.nickname || "Пользователь";
+  // ИСПРАВЛЕННАЯ логика: приоритет никнейму из профиля
+  const userName = profileData?.nickname || profileData?.first_name || user?.user_metadata?.first_name || user?.user_metadata?.full_name || "Пользователь";
+
+  console.log('🔧 DashboardPage: ПРАВИЛЬНАЯ логика имени:', {
+    profileNickname: profileData?.nickname,
+    profileFirstName: profileData?.first_name,
+    userMetadataFirstName: user?.user_metadata?.first_name,
+    userMetadataFullName: user?.user_metadata?.full_name,
+    finalUserName: userName,
+    hasProfileData: !!profileData
+  });
 
   // Используем данные из аналитики
   const currentHealthScore = analytics?.healthScore;
