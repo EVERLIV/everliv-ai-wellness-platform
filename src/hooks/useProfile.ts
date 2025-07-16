@@ -26,11 +26,15 @@ export const useProfile = () => {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const fetchProfile = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('🔧 useProfile: No user available');
+      return;
+    }
 
     try {
       setIsLoading(true);
-      console.log('Загружаем профиль для пользователя:', user.id);
+      console.log('🔧 useProfile: Загружаем профиль для пользователя:', user.id);
+      console.log('🔧 useProfile: User metadata:', user.user_metadata);
       
       const { data, error } = await supabase
         .from('profiles')
