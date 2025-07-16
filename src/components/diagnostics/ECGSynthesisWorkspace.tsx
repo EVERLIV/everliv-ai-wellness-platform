@@ -129,9 +129,9 @@ const ECGSynthesisWorkspace: React.FC = () => {
 
   return (
     <div className="bg-white min-h-screen">
-      {/* Простой заголовок */}
-      <div className="border-b border-gray-200 p-4 mb-6">
-        <h1 className="text-xl font-medium text-gray-900 mb-1">
+      {/* Заголовок */}
+      <div className="border-b border-gray-200 p-4 md:p-6 mb-4 md:mb-6">
+        <h1 className="text-lg md:text-xl font-medium text-gray-900 mb-1">
           ИИ Синтез диагностики
         </h1>
         <p className="text-sm text-gray-600">
@@ -139,22 +139,22 @@ const ECGSynthesisWorkspace: React.FC = () => {
         </p>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="grid grid-cols-2 gap-6">
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Ввод данных */}
           <div className="space-y-4">
             {/* Загрузка ЭКГ */}
             <div className="border border-gray-300 bg-white">
-              <div className="border-b border-gray-200 p-3">
-                <h3 className="text-sm font-medium text-gray-900">Загрузка ЭКГ</h3>
+              <div className="border-b border-gray-200 p-3 md:p-4">
+                <h3 className="text-sm md:text-base font-medium text-gray-900">Загрузка ЭКГ</h3>
               </div>
-              <div className="p-4">
-                <div className="border border-gray-300 p-6 text-center bg-gray-50">
+              <div className="p-4 md:p-6">
+                <div className="border border-gray-300 p-4 md:p-6 text-center bg-gray-50">
                   <div className="mb-3">
-                    <Upload className="h-8 w-8 mx-auto text-gray-400" />
+                    <Upload className="h-6 w-6 md:h-8 md:w-8 mx-auto text-gray-400" />
                   </div>
                   <Label htmlFor="ecg-upload" className="cursor-pointer">
-                    <div className="text-sm text-gray-700 mb-2">Выберите файл ЭКГ</div>
+                    <div className="text-sm text-gray-700 mb-3">Выберите файл ЭКГ</div>
                     <Input
                       id="ecg-upload"
                       type="file"
@@ -162,21 +162,23 @@ const ECGSynthesisWorkspace: React.FC = () => {
                       onChange={handleFileUpload}
                       className="hidden"
                     />
-                    <button className="bg-gray-200 border border-gray-300 px-4 py-2 text-sm hover:bg-gray-300">
-                      Обзор
+                    <button className="bg-gray-200 border border-gray-300 px-4 py-2 text-sm hover:bg-gray-300 w-full md:w-auto">
+                      Обзор файлов
                     </button>
                   </Label>
-                  <div className="text-xs text-gray-500 mt-2">PNG, JPG, PDF до 10MB</div>
+                  <div className="text-xs text-gray-500 mt-3">PNG, JPG, PDF до 10MB</div>
                 </div>
                 {ecgFile && (
-                  <div className="mt-3 p-2 bg-green-50 border border-green-200">
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200">
                     <div className="flex items-center gap-2">
                       {ecgFile.type === 'application/pdf' ? (
-                        <div className="h-4 w-4 text-green-600 text-xs font-bold">PDF</div>
+                        <div className="h-4 w-4 text-green-600 text-xs font-bold flex items-center justify-center bg-green-100 border border-green-300">
+                          PDF
+                        </div>
                       ) : (
-                        <FileImage className="h-4 w-4 text-green-600" />
+                        <FileImage className="h-4 w-4 text-green-600 flex-shrink-0" />
                       )}
-                      <span className="text-sm text-green-700">{ecgFile.name}</span>
+                      <span className="text-sm text-green-700 truncate">{ecgFile.name}</span>
                     </div>
                   </div>
                 )}
@@ -185,23 +187,25 @@ const ECGSynthesisWorkspace: React.FC = () => {
 
             {/* Диагноз */}
             <div className="border border-gray-300 bg-white">
-              <div className="border-b border-gray-200 p-3">
-                <h3 className="text-sm font-medium text-gray-900">Диагноз врача</h3>
+              <div className="border-b border-gray-200 p-3 md:p-4">
+                <h3 className="text-sm md:text-base font-medium text-gray-900">Диагноз врача</h3>
               </div>
-              <div className="p-4">
-                <Label htmlFor="diagnosis" className="text-sm text-gray-700">Введите диагноз</Label>
+              <div className="p-4 md:p-6">
+                <Label htmlFor="diagnosis" className="text-sm text-gray-700 block mb-2">
+                  Введите диагноз
+                </Label>
                 <Textarea
                   id="diagnosis"
                   placeholder="Например: Гипертоническая болезнь I степени"
                   value={diagnosis}
                   onChange={(e) => setDiagnosis(e.target.value)}
                   rows={4}
-                  className="mt-1 border-gray-300 text-sm"
+                  className="border-gray-300 text-sm w-full resize-none"
                 />
                 <Button 
                   onClick={generateRecommendations}
                   disabled={isLoading || !diagnosis.trim()}
-                  className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-8 text-sm"
+                  className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-10 text-sm font-medium"
                 >
                   {isLoading ? 'Генерация...' : 'Получить рекомендации'}
                 </Button>
@@ -210,27 +214,29 @@ const ECGSynthesisWorkspace: React.FC = () => {
           </div>
 
           {/* Рекомендации */}
-          <div>
+          <div className="lg:sticky lg:top-4 lg:self-start">
             <div className="border border-gray-300 bg-white">
-              <div className="border-b border-gray-200 p-3">
-                <h3 className="text-sm font-medium text-gray-900">Рекомендации</h3>
+              <div className="border-b border-gray-200 p-3 md:p-4">
+                <h3 className="text-sm md:text-base font-medium text-gray-900">Рекомендации</h3>
               </div>
-              <div className="p-4">
+              <div className="p-4 md:p-6">
                 {recommendations.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <Lightbulb className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                  <div className="text-center py-8 md:py-12 text-gray-500">
+                    <Lightbulb className="h-8 w-8 md:h-10 md:w-10 mx-auto mb-3 text-gray-400" />
                     <div className="text-sm">Введите диагноз для получения рекомендаций</div>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {recommendations.map((rec) => (
                       <div
                         key={rec.id}
-                        className="border border-gray-200 bg-white p-3"
+                        className="border border-gray-200 bg-white p-3 md:p-4"
                       >
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="text-sm font-medium text-gray-900">{rec.title}</h4>
-                          <span className={`text-xs px-2 py-1 border ${
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                          <h4 className="text-sm md:text-base font-medium text-gray-900 flex-1">
+                            {rec.title}
+                          </h4>
+                          <span className={`text-xs px-2 py-1 border self-start ${
                             rec.priority === 'high' ? 'text-red-700 bg-red-50 border-red-200' :
                             rec.priority === 'medium' ? 'text-orange-700 bg-orange-50 border-orange-200' :
                             'text-green-700 bg-green-50 border-green-200'
@@ -238,15 +244,17 @@ const ECGSynthesisWorkspace: React.FC = () => {
                             {getPriorityText(rec.priority)}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-600 mb-2 leading-relaxed">{rec.description}</p>
+                        <p className="text-xs md:text-sm text-gray-600 mb-3 leading-relaxed">
+                          {rec.description}
+                        </p>
                         <div className="text-xs text-gray-500">
                           Категория: {rec.category}
                         </div>
                       </div>
                     ))}
                     
-                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200">
-                      <div className="text-xs text-blue-800 font-medium mb-1">
+                    <div className="mt-6 p-3 md:p-4 bg-blue-50 border border-blue-200">
+                      <div className="text-xs md:text-sm text-blue-800 font-medium mb-1">
                         Основано на профиле пациента
                       </div>
                       <div className="text-xs text-blue-700">
