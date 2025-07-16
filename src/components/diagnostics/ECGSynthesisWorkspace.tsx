@@ -114,34 +114,40 @@ const ECGSynthesisWorkspace: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-6xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-primary mb-2 flex items-center gap-2">
-          <Stethoscope className="h-8 w-8" />
-          ИИ Синтез диагностики
+    <div className="space-y-8">
+      {/* Заголовок страницы */}
+      <div className="text-center">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-4">
+          🔬 ИИ Синтез диагностики
         </h1>
-        <p className="text-muted-foreground">
-          Загрузите ЭКГ и введите диагноз для получения персонализированных рекомендаций
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          Загрузите ЭКГ и введите диагноз для получения персонализированных рекомендаций на основе вашего профиля здоровья
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 max-w-7xl mx-auto">
         {/* Ввод данных */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileImage className="h-5 w-5" />
+        <div className="space-y-8">
+          <Card className="border-2 border-primary/20 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl font-bold text-primary flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <FileImage className="h-6 w-6" />
+                </div>
                 Загрузка ЭКГ
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-                  <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <div className="space-y-2">
+              <div className="space-y-6">
+                <div className="border-2 border-dashed border-primary/30 rounded-xl p-8 text-center bg-gradient-to-br from-primary/5 to-purple-500/5 hover:from-primary/10 hover:to-purple-500/10 transition-colors duration-300">
+                  <div className="p-4 bg-primary/10 rounded-full w-fit mx-auto mb-6">
+                    <Upload className="h-12 w-12 text-primary" />
+                  </div>
+                  <div className="space-y-4">
                     <Label htmlFor="ecg-upload" className="cursor-pointer">
-                      <span className="text-sm font-medium">Выберите файл ЭКГ</span>
+                      <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-auto">
+                        Выберите файл ЭКГ
+                      </Button>
                       <Input
                         id="ecg-upload"
                         type="file"
@@ -150,47 +156,62 @@ const ECGSynthesisWorkspace: React.FC = () => {
                         className="hidden"
                       />
                     </Label>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       PNG, JPG до 10MB
                     </p>
                   </div>
                 </div>
                 {ecgImage && (
-                  <div className="flex items-center gap-2 p-2 bg-green-50 rounded border border-green-200">
-                    <FileImage className="h-4 w-4 text-green-600" />
-                    <span className="text-sm text-green-700">{ecgImage.name}</span>
+                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <FileImage className="h-5 w-5 text-green-600" />
+                    </div>
+                    <span className="text-sm font-medium text-green-700">{ecgImage.name}</span>
                   </div>
                 )}
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5" />
+          <Card className="border-2 border-purple-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl font-bold text-purple-600 flex items-center gap-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Heart className="h-6 w-6" />
+                </div>
                 Диагноз врача
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <Label htmlFor="diagnosis">Введите поставленный диагноз</Label>
+                  <Label htmlFor="diagnosis" className="text-lg font-medium">Введите поставленный диагноз</Label>
                   <Textarea
                     id="diagnosis"
                     placeholder="Например: Гипертоническая болезнь I степени, очень высокий сердечно-сосудистый риск"
                     value={diagnosis}
                     onChange={(e) => setDiagnosis(e.target.value)}
-                    rows={4}
-                    className="mt-1"
+                    rows={5}
+                    className="mt-3 text-base min-h-[120px] border-2 focus:border-purple-300"
                   />
                 </div>
                 <Button 
                   onClick={generateRecommendations}
                   disabled={isLoading || !diagnosis.trim()}
-                  className="w-full"
+                  size="lg"
+                  className="w-full text-lg py-6 h-auto bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300 font-semibold"
                 >
-                  {isLoading ? 'Генерация рекомендаций...' : 'Получить рекомендации'}
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Генерация рекомендаций...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Lightbulb className="h-5 w-5" />
+                      Получить рекомендации
+                    </div>
+                  )}
                 </Button>
               </div>
             </CardContent>
@@ -199,46 +220,60 @@ const ECGSynthesisWorkspace: React.FC = () => {
 
         {/* Рекомендации */}
         <div>
-          <Card className="h-fit">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lightbulb className="h-5 w-5" />
+          <Card className="border-2 border-orange-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-2xl font-bold text-orange-600 flex items-center gap-3">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <Lightbulb className="h-6 w-6" />
+                </div>
                 Персонализированные рекомендации
               </CardTitle>
             </CardHeader>
             <CardContent>
               {recommendations.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Lightbulb className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Введите диагноз и нажмите "Получить рекомендации"</p>
+                <div className="text-center py-12 text-muted-foreground">
+                  <div className="p-6 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl mb-6 w-fit mx-auto">
+                    <Lightbulb className="h-16 w-16 mx-auto text-orange-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Готов к анализу</h3>
+                  <p className="text-lg">Введите диагноз и получите персональные рекомендации</p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {recommendations.map((rec) => (
+                <div className="space-y-6">
+                  {recommendations.map((rec, index) => (
                     <div
                       key={rec.id}
-                      className={`p-4 rounded-lg border ${getPriorityColor(rec.priority)}`}
+                      className={`p-6 rounded-xl border-2 ${getPriorityColor(rec.priority)} transform hover:scale-[1.02] transition-all duration-300 shadow-sm hover:shadow-md animate-fade-in`}
+                      style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-semibold text-sm">{rec.title}</h4>
-                        <span className="text-xs px-2 py-1 rounded-full bg-white/80">
+                      <div className="flex items-start justify-between mb-4">
+                        <h4 className="font-bold text-lg">{rec.title}</h4>
+                        <span className="text-sm px-3 py-1 rounded-full bg-white/90 font-medium border">
                           {getPriorityText(rec.priority)}
                         </span>
                       </div>
-                      <p className="text-sm mb-2">{rec.description}</p>
-                      <div className="text-xs opacity-75">
-                        Категория: {rec.category}
+                      <p className="text-base mb-4 leading-relaxed">{rec.description}</p>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-current opacity-60"></div>
+                        <span className="text-sm font-medium opacity-75">
+                          {rec.category}
+                        </span>
                       </div>
                     </div>
                   ))}
                   
-                  <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <div className="text-xs text-blue-600 font-medium mb-1">
-                      📋 Основано на вашем профиле
+                  <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <div className="text-xl">📊</div>
+                      </div>
+                      <h4 className="text-lg font-bold text-blue-800">
+                        Основано на вашем профиле здоровья
+                      </h4>
                     </div>
-                    <div className="text-xs text-blue-700">
-                      Рекомендации учитывают ваши биомаркеры, историю здоровья и текущие показатели
-                    </div>
+                    <p className="text-base text-blue-700 leading-relaxed">
+                      Рекомендации персонализированы с учетом ваших биомаркеров, истории здоровья, текущих показателей и индивидуальных особенностей
+                    </p>
                   </div>
                 </div>
               )}
