@@ -56,7 +56,7 @@ const BiomarkerHistoryModal: React.FC<BiomarkerHistoryModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-sm sm:max-w-md mx-4">
+      <DialogContent className="max-w-sm sm:max-w-md">
         <DialogHeader className="pb-2">
           <DialogTitle className="bio-text-small flex items-center gap-2">
             <Calendar className="h-4 w-4 text-primary" />
@@ -188,22 +188,22 @@ const BiomarkerHistoryModal: React.FC<BiomarkerHistoryModalProps> = ({
 
               {/* Статистика */}
               <div className="pt-2 border-t border-border">
-                <div className="grid grid-cols-3 gap-2 bio-text-caption text-center">
+                <div className="grid grid-cols-3 gap-2 text-center">
                   <div>
-                    <div className="font-medium text-foreground">{history.length}</div>
-                    <div className="text-muted-foreground">записей</div>
+                    <div className="bio-text-small font-medium text-foreground">{history.length}</div>
+                    <div className="bio-text-small text-muted-foreground">записей</div>
                   </div>
                   <div>
-                    <div className="font-medium text-foreground">
+                    <div className="bio-text-small font-medium text-foreground">
                       {Math.max(...history.map(h => h.value))} {unit}
                     </div>
-                    <div className="text-muted-foreground">макс</div>
+                    <div className="bio-text-small text-muted-foreground">макс</div>
                   </div>
                   <div>
-                    <div className="font-medium text-foreground">
+                    <div className="bio-text-small font-medium text-foreground">
                       {Math.min(...history.map(h => h.value))} {unit}
                     </div>
-                    <div className="text-muted-foreground">мин</div>
+                    <div className="bio-text-small text-muted-foreground">мин</div>
                   </div>
                 </div>
               </div>
