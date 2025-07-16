@@ -27,12 +27,13 @@ export const useBiomarkers = () => {
     try {
       setIsLoading(true);
       
-      // Получаем анализы пользователя
+      // Получаем только ПОСЛЕДНИЙ анализ пользователя (если нужны только актуальные данные)
       const { data: analyses, error: analysesError } = await supabase
         .from('medical_analyses')
         .select('id')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(1); // Берем только последний анализ
 
       if (analysesError) throw analysesError;
 
@@ -44,7 +45,7 @@ export const useBiomarkers = () => {
 
       const analysisIds = analyses.map(a => a.id);
 
-      // Получаем биомаркеры для этих анализов
+      // Получаем биомаркеры для последнего анализа
       const { data: biomarkersData, error: biomarkersError } = await supabase
         .from('biomarkers')
         .select('*')
@@ -53,8 +54,15 @@ export const useBiomarkers = () => {
 
       if (biomarkersError) throw biomarkersError;
 
-      console.log('Raw biomarkers from DB:', biomarkersData);
-      setBiomarkers(biomarkersData || []);
+      // Убираем дубликаты по имени биомаркера (берем последний)
+      const uniqueBiomarkers = biomarkersData?.filter((biomarker, index, arr) => {
+        const lastIndex = arr.findLastIndex(b => b.name === biomarker.name);
+        return index === lastIndex;
+      }) || [];
+
+      console.log('Raw biomarkers from DB:', biomarkersData?.length);
+      console.log('Unique biomarkers after deduplication:', uniqueBiomarkers.length);
+      setBiomarkers(uniqueBiomarkers);
     } catch (err) {
       console.error('Error fetching biomarkers:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
