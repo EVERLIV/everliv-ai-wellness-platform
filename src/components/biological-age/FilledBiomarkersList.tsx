@@ -124,10 +124,10 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 {/* Заголовок с названием и статусом */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-0.5 md:gap-1">
-                    <span className="text-[7px] md:text-xs font-medium text-gray-900">{biomarker.name}</span>
+                    <span className="bio-text-caption font-medium">{biomarker.name}</span>
                     {getImpactIcon(getBiomarkerImpact(biomarker.name).impact)}
                   </div>
-                  <span className={`text-[7px] md:text-xs font-medium ${valueStatus.color}`}>
+                  <span className={`bio-text-caption font-medium ${valueStatus.color}`}>
                     {valueStatus.status}
                   </span>
                 </div>
@@ -135,14 +135,14 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                 {/* Значение и норма */}
                 <div className="grid grid-cols-2 gap-1 md:gap-2 bio-text-caption">
                   <div>
-                    <span className="text-muted-foreground">Ваш показатель:</span>
-                    <div className="font-medium text-foreground bio-text-small">
+                    <span className="bio-text-caption text-muted-foreground">Ваш показатель:</span>
+                    <div className="bio-text-caption font-medium text-foreground">
                       {biomarker.value} {biomarker.unit}
                     </div>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Норма:</span>
-                    <div className="font-medium text-foreground bio-text-small">
+                    <span className="bio-text-caption text-muted-foreground">Норма:</span>
+                    <div className="bio-text-caption font-medium text-foreground">
                       {biomarker.normal_range?.min} - {biomarker.normal_range?.max} {biomarker.unit}
                       {biomarker.normal_range?.optimal && (
                         <div className="text-green-600 bio-text-caption">
@@ -169,7 +169,7 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                           <span>Генерирую...</span>
                         </div>
                       ) : (
-                        <span className="text-[7px] md:text-xs leading-tight">
+                        <span className="bio-text-caption leading-tight">
                           {aiRecommendation || 'Загрузка рекомендаций...'}
                         </span>
                       )}
@@ -183,7 +183,7 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
       </div>
       
       {biomarkers.length === 0 && (
-        <div className="text-center py-2 md:py-4 text-[7px] md:text-xs text-gray-500">
+        <div className="text-center py-2 md:py-4 bio-text-caption text-muted-foreground">
           Введите показатели для получения детального анализа
         </div>
       )}

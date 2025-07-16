@@ -100,10 +100,10 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-1 mb-0.5">
-                <Label className="bio-text-small font-medium">{biomarker.name}</Label>
+                <Label className="bio-text-caption font-medium">{biomarker.name}</Label>
                 {getImpactDot()}
               </div>
-              <p className="text-xs text-gray-600 line-clamp-1">{biomarker.description}</p>
+              <p className="bio-text-caption text-muted-foreground line-clamp-1">{biomarker.description}</p>
             </div>
             <Badge className={`${getStatusColor()} bio-text-caption px-1 py-0.5`} variant="secondary">
               {biomarker.status === 'filled' ? 'Заполнено' : 'Пусто'}
@@ -140,8 +140,8 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
               
               <div className="bio-text-caption space-y-0.5">
                 <div className="flex items-center gap-1">
-                  <span className="font-medium">Норма:</span>
-                  <span>{adjustedRange.min} - {adjustedRange.max} {biomarker.unit}</span>
+                  <span className="bio-text-caption font-medium">Норма:</span>
+                  <span className="bio-text-caption">{adjustedRange.min} - {adjustedRange.max} {biomarker.unit}</span>
                   {adjustedRange.optimal && (
                     <span className="text-emerald-600">(опт: {adjustedRange.optimal})</span>
                   )}
