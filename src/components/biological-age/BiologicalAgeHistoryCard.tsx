@@ -115,75 +115,23 @@ const BiologicalAgeHistoryCard = () => {
           </div>
         </div>
 
-        {/* История */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-gray-700">Предыдущие расчеты</h4>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {snapshots.length > 0 ? (
-              snapshots.map((snapshot) => (
-                <div 
-                  key={snapshot.id}
-                  className="p-3 bg-gray-50/50 rounded-md space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="text-sm font-medium text-gray-900">
-                        {Math.round(snapshot.biological_age)} лет
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        {snapshot.biomarkers_count}
-                      </Badge>
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {format(new Date(snapshot.created_at), 'dd.MM.yyyy', { locale: ru })}
-                    </div>
-                  </div>
-                  
-                  {/* Показатели */}
-                  {snapshot.biomarker_history && snapshot.biomarker_history.length > 0 && (
-                    <div className="space-y-1">
-                      <div className="text-xs text-gray-600 font-medium">Показатели:</div>
-                      <div className="flex flex-wrap gap-1">
-                        {snapshot.biomarker_history.slice(0, 4).map((biomarker, index) => (
-                          <Badge 
-                            key={index}
-                            variant="secondary" 
-                            className="text-xs px-2 py-1"
-                          >
-                            {biomarker.biomarker_name}: {biomarker.value} {biomarker.unit}
-                          </Badge>
-                        ))}
-                        {snapshot.biomarker_history.length > 4 && (
-                          <Badge 
-                            variant="outline" 
-                            className="text-xs px-2 py-1"
-                          >
-                            +{snapshot.biomarker_history.length - 4} еще
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-sm text-gray-500">
-                  Пока нет предыдущих расчетов
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Сделайте несколько расчетов для просмотра истории
-                </p>
+        {/* Показатели последнего расчета */}
+        {latest.biomarker_history && latest.biomarker_history.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-gray-700">Показатели:</h4>
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {latest.biomarker_history.map((biomarker, index) => (
+                  <Badge 
+                    key={index}
+                    variant="secondary" 
+                    className="text-xs px-2 py-1"
+                  >
+                    {biomarker.biomarker_name}: {biomarker.value} {biomarker.unit}
+                  </Badge>
+                ))}
               </div>
-            )}
-          </div>
-        </div>
-
-        {snapshots.length > 6 && (
-          <div className="text-center">
-            <button className="text-sm text-blue-600 hover:text-blue-700">
-              Показать все ({snapshots.length})
-            </button>
+            </div>
           </div>
         )}
       </CardContent>
