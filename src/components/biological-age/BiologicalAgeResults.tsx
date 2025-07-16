@@ -79,24 +79,24 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
       {/* Основной результат */}
       <div className="border-2 border-blue-200 bg-white">
         <div className="p-3 text-center">
-          <h3 className="text-lg font-medium mb-3">Ваш биологический возраст</h3>
+          <h3 className="bio-heading-tertiary mb-3">Ваш биологический возраст</h3>
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div className="space-y-1">
               <div className="flex items-center justify-center gap-1">
-                <Calendar className="h-4 w-4 text-gray-600" />
-                <span className="text-xs text-gray-600">Хронологический</span>
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span className="bio-text-small text-muted-foreground">Хронологический</span>
               </div>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="bio-heading-secondary text-foreground">
                 {results.chronological_age} лет
               </div>
             </div>
             
             <div className="space-y-1">
               <div className="flex items-center justify-center gap-1">
-                <Heart className="h-4 w-4 text-blue-600" />
-                <span className="text-xs text-gray-600">Биологический</span>
+                <Heart className="h-4 w-4 text-primary" />
+                <span className="bio-text-small text-muted-foreground">Биологический</span>
               </div>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="bio-heading-secondary text-primary">
                 {results.biological_age} лет
               </div>
             </div>
@@ -104,21 +104,21 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
 
           <div className={`inline-flex items-center gap-1 px-3 py-1 border ${getAgeDifferenceColor()}`}>
             {getAgeDifferenceIcon()}
-            <span className="text-sm font-medium">
+            <span className="bio-text-body font-medium">
               {getAgeDifferenceText()}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-3 mt-3 border-t">
             <div className="text-center">
-              <div className="text-xs text-gray-600 mb-1">Точность расчета</div>
-              <div className="text-sm font-medium">{results.accuracy_percentage}%</div>
+              <div className="bio-text-caption text-muted-foreground mb-1">Точность расчета</div>
+              <div className="bio-text-body font-medium">{results.accuracy_percentage}%</div>
               <Progress value={results.accuracy_percentage} className="h-1 mt-1" />
             </div>
             
             <div className="text-center">
-              <div className="text-xs text-gray-600 mb-1">Уровень достоверности</div>
-              <div className="text-sm font-medium">{results.confidence_level}%</div>
+              <div className="bio-text-caption text-muted-foreground mb-1">Уровень достоверности</div>
+              <div className="bio-text-body font-medium">{results.confidence_level}%</div>
               <Progress value={results.confidence_level} className="h-1 mt-1" />
             </div>
           </div>
@@ -128,14 +128,14 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
       {/* Анализ */}
       <div className="border border-gray-200 bg-white">
         <div className="p-3 border-b border-gray-200">
-          <h4 className="text-sm font-medium flex items-center gap-1">
+          <h4 className="bio-text-body font-medium flex items-center gap-1">
             <FileText className="h-4 w-4" />
             Детальный анализ
           </h4>
         </div>
         <div className="p-3">
           <div className="prose prose-sm max-w-none">
-            <p className="whitespace-pre-wrap text-xs">{results.analysis}</p>
+            <p className="whitespace-pre-wrap bio-text-small">{results.analysis}</p>
           </div>
         </div>
       </div>
@@ -144,7 +144,7 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
       {results.recommendations.length > 0 && (
         <div className="border border-gray-200 bg-white">
           <div className="p-3 border-b border-gray-200">
-            <h4 className="text-sm font-medium flex items-center gap-1">
+            <h4 className="bio-text-body font-medium flex items-center gap-1">
               <Target className="h-4 w-4" />
               Рекомендации по улучшению
             </h4>
@@ -153,10 +153,10 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
             <div className="space-y-2">
               {results.recommendations.map((recommendation, index) => (
                 <div key={index} className="flex items-start gap-2 p-2 bg-blue-50 border border-blue-200">
-                  <div className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white border flex items-center justify-center text-xs font-bold">
+                  <div className="flex-shrink-0 w-5 h-5 bg-primary text-primary-foreground border flex items-center justify-center bio-text-caption font-medium">
                     {index + 1}
                   </div>
-                  <p className="text-xs">{recommendation}</p>
+                  <p className="bio-text-small">{recommendation}</p>
                 </div>
               ))}
             </div>
@@ -168,8 +168,8 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
       <div className="bg-amber-50 border border-amber-200">
         <div className="p-3">
           <div className="space-y-2">
-            <h4 className="text-sm font-medium text-amber-900">Важные замечания:</h4>
-            <ul className="text-xs text-amber-800 space-y-1 list-disc list-inside">
+            <h4 className="bio-text-body font-medium text-amber-900">Важные замечания:</h4>
+            <ul className="bio-text-small text-amber-800 space-y-1 list-disc list-inside">
               <li>Результат не является медицинским диагнозом</li>
               <li>Консультируйтесь с врачом перед принятием решений о здоровье</li>
               <li>Рекомендуется обновлять данные каждые 6-12 месяцев</li>
@@ -183,11 +183,11 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
       <div className="border border-gray-200 bg-white">
         <div className="p-3">
           <div className="grid grid-cols-2 gap-2">
-            <Button onClick={exportToPDF} variant="outline" className="h-8 text-xs px-2">
+            <Button onClick={exportToPDF} variant="outline" className="h-8 bio-text-caption px-2">
               <Download className="h-3 w-3 mr-1" />
               PDF
             </Button>
-            <Button onClick={scheduleNextAnalysis} variant="outline" className="h-8 text-xs px-2">
+            <Button onClick={scheduleNextAnalysis} variant="outline" className="h-8 bio-text-caption px-2">
               <Trophy className="h-3 w-3 mr-1" />
               Напоминание
             </Button>

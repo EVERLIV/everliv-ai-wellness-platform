@@ -164,7 +164,7 @@ const BiologicalAgeRadarChart: React.FC<BiologicalAgeRadarChartProps> = ({
       <div className="space-y-4">
         {/* Header with overall health status */}
         <div className="text-center">
-          <h3 className="text-lg font-semibold mb-2">{title}</h3>
+          <h3 className="bio-heading-tertiary mb-2">{title}</h3>
           <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-full ${overallHealth().bgColor}`}>
             <div className={`w-3 h-3 rounded-full ${overallHealth().color.replace('text-', 'bg-')}`} />
             <span className={`font-medium ${overallHealth().color}`}>
@@ -234,10 +234,10 @@ const BiologicalAgeRadarChart: React.FC<BiologicalAgeRadarChartProps> = ({
         {/* Summary recommendations */}
         {overallCompleteness < 50 && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-            <p className="text-sm font-medium text-yellow-800 mb-1">
+            <p className="bio-text-body font-medium text-yellow-800 mb-1">
               Недостаточно данных для полной оценки
             </p>
-            <p className="text-xs text-yellow-700">
+            <p className="bio-text-small text-yellow-700">
               Добавьте больше анализов для получения детального профиля здоровья и персонализированных рекомендаций
             </p>
           </div>

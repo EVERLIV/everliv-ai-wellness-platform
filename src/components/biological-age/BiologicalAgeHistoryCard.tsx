@@ -15,7 +15,7 @@ const BiologicalAgeHistoryCard = () => {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-gray-900">
             <Clock className="h-5 w-5 text-blue-500" />
-            <span className="text-lg font-semibold">История биовозраста</span>
+          <span className="bio-heading-tertiary">История биовозраста</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -35,14 +35,14 @@ const BiologicalAgeHistoryCard = () => {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-gray-900">
             <Clock className="h-5 w-5 text-blue-500" />
-            <span className="text-lg font-semibold">История биовозраста</span>
+        <span className="bio-heading-tertiary">История биовозраста</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-6">
             <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm text-gray-600">Пока нет данных</p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="bio-text-body text-muted-foreground">Пока нет данных</p>
+            <p className="bio-text-small text-muted-foreground mt-1">
               Рассчитайте биологический возраст для начала отслеживания
             </p>
           </div>
@@ -72,15 +72,15 @@ const BiologicalAgeHistoryCard = () => {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-gray-900">
           <Clock className="h-5 w-5 text-blue-500" />
-          <span className="text-lg font-semibold">История биовозраста</span>
+          <span className="bio-heading-tertiary">История биовозраста</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Текущий результат */}
         <div className="bg-blue-50/50 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">Последний расчет</span>
-            <span className="text-xs text-gray-500">
+            <span className="bio-text-body text-muted-foreground">Последний расчет</span>
+            <span className="bio-text-small text-muted-foreground">
               {formatDistanceToNow(new Date(latest.created_at), { 
                 addSuffix: true,
                 locale: ru 
@@ -99,7 +99,7 @@ const BiologicalAgeHistoryCard = () => {
             {previous && (
               <div className="flex items-center gap-1">
                 {getTrendIcon(trend)}
-                <span className={`text-sm font-medium ${getTrendColor(trend)}`}>
+                <span className={`bio-text-body font-medium ${getTrendColor(trend)}`}>
                   {trend > 0 ? '+' : ''}{Math.round(trend * 10) / 10}
                 </span>
               </div>
@@ -118,14 +118,14 @@ const BiologicalAgeHistoryCard = () => {
         {/* Показатели последнего расчета */}
         {latest.biomarker_history && latest.biomarker_history.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-sm font-medium text-gray-700">Показатели:</h4>
+            <h4 className="bio-text-body font-medium text-muted-foreground">Показатели:</h4>
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2">
                 {latest.biomarker_history.map((biomarker, index) => (
                   <Badge 
                     key={index}
                     variant="secondary" 
-                    className="text-xs px-2 py-1"
+                    className="bio-text-caption px-2 py-1"
                   >
                     {biomarker.biomarker_name}: {biomarker.value} {biomarker.unit}
                   </Badge>

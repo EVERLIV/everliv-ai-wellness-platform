@@ -100,7 +100,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-1 mb-0.5">
-                <Label className="text-xs font-medium">{biomarker.name}</Label>
+                <Label className="bio-text-small font-medium">{biomarker.name}</Label>
                 {getImpactDot()}
               </div>
               <p className="text-xs text-gray-600 line-clamp-1">{biomarker.description}</p>
@@ -138,7 +138,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
                 </Button>
               </div>
               
-              <div className="text-xs space-y-0.5">
+              <div className="bio-text-caption space-y-0.5">
                 <div className="flex items-center gap-1">
                   <span className="font-medium">Норма:</span>
                   <span>{adjustedRange.min} - {adjustedRange.max} {biomarker.unit}</span>
@@ -148,7 +148,7 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
                 </div>
                 
                 {valueStatus && (
-                  <div className={`text-xs font-medium ${valueStatus.color}`}>
+                  <div className={`bio-text-caption font-medium ${valueStatus.color}`}>
                     {valueStatus.description}
                   </div>
                 )}

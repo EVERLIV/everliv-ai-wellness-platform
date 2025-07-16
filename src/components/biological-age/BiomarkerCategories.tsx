@@ -61,7 +61,7 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
       {Object.entries(categorizedBiomarkers).map(([category, categoryBiomarkers]) => (
         <div key={category} className={`border border-gray-200 bg-white border-l-4 ${getCategoryColor(category)}`}>
           <div className="p-2 border-b border-gray-200">
-            <h3 className="text-xs font-medium">
+            <h3 className="bio-text-small font-medium">
               {getCategoryTitle(category)}
             </h3>
           </div>
