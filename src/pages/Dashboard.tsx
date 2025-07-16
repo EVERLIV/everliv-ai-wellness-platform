@@ -56,16 +56,21 @@ const Dashboard = () => {
   // Получаем имя пользователя с приоритетом: никнейм из профиля -> имя из профиля -> имя из метаданных
   const userName = profileData?.nickname || profileData?.first_name || user?.user_metadata?.full_name || user?.user_metadata?.nickname || "Пользователь";
   
-  console.log('🔧 Dashboard: User name data:', {
+  console.log('🔧 Dashboard: User name data ПОДРОБНО:', {
     profileNickname: profileData?.nickname,
     profileFirstName: profileData?.first_name,
     userMetadataFullName: user?.user_metadata?.full_name,
     userMetadataNickname: user?.user_metadata?.nickname,
+    userMetadata: user?.user_metadata,
     finalUserName: userName,
     hasProfileData: !!profileData,
     fullProfileData: profileData,
-    userEmail: user?.email
+    userEmail: user?.email,
+    isLoadingProfile: isLoading,
+    userObject: user
   });
+  
+  console.log('🚨 ВАЖНО: Финальное имя для передачи в SimpleWelcomeCard:', userName);
   
   // ВАЖНО: НЕ показываем fallback значения, ждем реальные данные
   // Это предотвращает мерцание с неправильными значениями
