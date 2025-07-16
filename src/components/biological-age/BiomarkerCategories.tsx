@@ -4,7 +4,6 @@ import { Biomarker } from '@/types/biologicalAge';
 import { HealthProfileData } from '@/types/healthProfile';
 import { getBiomarkerImpact } from '@/services/ai/biomarker-impact-analysis';
 import BiomarkerCard from './BiomarkerCard';
-import CategoryAnalysisUpload from './CategoryAnalysisUpload';
 
 interface BiomarkerCategoriesProps {
   biomarkers: Biomarker[];
@@ -31,6 +30,20 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
     return titles[category as keyof typeof titles] || category;
   };
 
+  const getCategoryColor = (category: string) => {
+    const colors = {
+      'cardiovascular': 'border-l-red-500',
+      'metabolic': 'border-l-blue-500',
+      'hormonal': 'border-l-purple-500',
+      'inflammatory': 'border-l-orange-500',
+      'oxidative_stress': 'border-l-yellow-500',
+      'kidney_function': 'border-l-green-500',
+      'liver_function': 'border-l-teal-500',
+      'telomeres_epigenetics': 'border-l-pink-500'
+    };
+    return colors[category as keyof typeof colors] || 'border-l-gray-400';
+  };
+
   const categorizedBiomarkers = biomarkers.reduce((acc, biomarker) => {
     if (!acc[biomarker.category]) {
       acc[biomarker.category] = [];
@@ -39,27 +52,6 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
     return acc;
   }, {} as Record<string, Biomarker[]>);
 
-  const handleAnalysisComplete = (category: string, biomarkerData: any[]) => {
-    // Обработка результатов ИИ анализа
-    biomarkerData.forEach(marker => {
-      const biomarker = biomarkers.find(b => 
-        b.name.toLowerCase().includes(marker.name.toLowerCase()) ||
-        marker.name.toLowerCase().includes(b.name.toLowerCase())
-      );
-      
-      if (biomarker && marker.value) {
-        const numericValue = parseFloat(marker.value.toString().replace(/[^\d.,]/g, '').replace(',', '.'));
-        if (!isNaN(numericValue)) {
-          onValueChange(biomarker.id, numericValue);
-        }
-      }
-    });
-  };
-
-  const getCategoryFilledCount = (categoryBiomarkers: Biomarker[]) => {
-    return categoryBiomarkers.filter(b => b.value !== undefined && b.value !== null).length;
-  };
-
   const getTotalFilledCount = () => {
     return biomarkers.filter(b => b.value !== undefined && b.value !== null).length;
   };
@@ -67,18 +59,11 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
   return (
     <div className="space-y-2">
       {Object.entries(categorizedBiomarkers).map(([category, categoryBiomarkers]) => (
-        <div key={category} className="border border-gray-200 bg-white">
+        <div key={category} className={`border border-gray-200 bg-white border-l-4 ${getCategoryColor(category)}`}>
           <div className="p-2 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-medium">
-                {getCategoryTitle(category)}
-              </h3>
-              <CategoryAnalysisUpload
-                category={category}
-                categoryTitle={getCategoryTitle(category)}
-                onAnalysisComplete={(data) => handleAnalysisComplete(category, data)}
-              />
-            </div>
+            <h3 className="text-xs font-medium">
+              {getCategoryTitle(category)}
+            </h3>
           </div>
           <div className="p-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
