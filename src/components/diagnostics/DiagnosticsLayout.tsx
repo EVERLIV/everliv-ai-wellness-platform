@@ -9,7 +9,10 @@ import {
   History, 
   FileText, 
   Stethoscope,
-  Plus
+  Plus,
+  Brain,
+  Shield,
+  Heart
 } from 'lucide-react';
 
 interface DiagnosticsLayoutProps {
@@ -22,15 +25,15 @@ const DiagnosticsLayout: React.FC<DiagnosticsLayoutProps> = ({ children }) => {
   const navigationItems = [
     {
       path: '/diagnostics',
-      label: 'Обзор',
+      label: 'Дашборд',
       icon: Activity,
       exact: true
     },
     {
       path: '/diagnostics/ecg',
       label: 'ЭКГ Анализ',
-      icon: Stethoscope,
-      badge: 'Новое'
+      icon: Heart,
+      badge: 'ИИ'
     },
     {
       path: '/diagnostics/upload',
@@ -41,6 +44,17 @@ const DiagnosticsLayout: React.FC<DiagnosticsLayoutProps> = ({ children }) => {
       path: '/diagnostics/history',
       label: 'История',
       icon: History
+    },
+    {
+      path: '/diagnostics/recommendations',
+      label: 'Умные рекомендации',
+      icon: Brain,
+      badge: 'Новое'
+    },
+    {
+      path: '/diagnostics/standards',
+      label: 'Медицинские стандарты',
+      icon: Shield
     }
   ];
 

@@ -22,6 +22,7 @@ import { ru } from 'date-fns/locale';
 import { useDiagnostics } from '@/hooks/useDiagnostics';
 import type { DiagnosticSessionWithDetails } from '@/types/diagnostics';
 import ECGAnalysisResults from './ECGAnalysisResults';
+import SmartRecommendations from './SmartRecommendations';
 
 const SessionDetailsPage: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -273,13 +274,16 @@ const SessionDetailsPage: React.FC = () => {
             </Card>
           )}
 
+          {/* Smart Recommendations */}
+          <SmartRecommendations sessionId={session.id} />
+
           {/* Recommendations */}
           {session.recommendations && session.recommendations.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Рекомендации</CardTitle>
+                <CardTitle>Базовые рекомендации</CardTitle>
                 <CardDescription>
-                  Персонализированные рекомендации на основе анализа
+                  Стандартные рекомендации на основе анализа
                 </CardDescription>
               </CardHeader>
               <CardContent>

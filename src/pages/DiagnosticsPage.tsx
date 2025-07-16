@@ -6,6 +6,8 @@ import ECGAnalysisPage from '@/components/diagnostics/ECGAnalysisPage';
 import FileUploadPage from '@/components/diagnostics/FileUploadPage';
 import DiagnosticsHistory from '@/components/diagnostics/DiagnosticsHistory';
 import SessionDetailsPage from '@/components/diagnostics/SessionDetailsPage';
+import SmartRecommendations from '@/components/diagnostics/SmartRecommendations';
+import MedicalStandards from '@/components/diagnostics/MedicalStandards';
 
 const DiagnosticsPage: React.FC = () => {
   return (
@@ -16,6 +18,8 @@ const DiagnosticsPage: React.FC = () => {
         <Route path="upload" element={<FileUploadPage />} />
         <Route path="history" element={<DiagnosticsHistory />} />
         <Route path="session/:sessionId" element={<SessionDetailsPage />} />
+        <Route path="recommendations" element={<SmartRecommendations />} />
+        <Route path="standards" element={<MedicalStandards />} />
       </Routes>
     </DiagnosticsLayout>
   );
