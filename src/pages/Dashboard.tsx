@@ -37,22 +37,15 @@ const Dashboard = () => {
     setIsLoaded(true);
   }, []);
 
-  // В dev режиме не показываем загрузку так долго
-  console.log('🔧 Dashboard: Loading check:', {
-    isLoaded,
-    isLoading,
-    isDevMode,
-    shouldShowLoading: !isLoaded || (isLoading && !isDevMode)
-  });
-
-  if (!isLoaded || (isLoading && !isDevMode)) {
+  // Упрощаем логику загрузки - показываем Dashboard даже если данные еще загружаются
+  if (!isLoaded) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-white">
         <div className="flex-grow flex items-center justify-center">
           <div className="flex flex-col items-center space-y-4">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary shadow-lg"></div>
             <p className="text-gray-500 font-medium text-adaptive-base mobile-text-wrap text-center">
-              {isDevMode ? 'Инициализация dev режима...' : 'Загрузка панели управления...'}
+              Инициализация приложения...
             </p>
           </div>
         </div>
