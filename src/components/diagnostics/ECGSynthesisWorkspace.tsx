@@ -114,171 +114,132 @@ const ECGSynthesisWorkspace: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Заголовок страницы */}
-      <div className="text-center">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-4">
-          🔬 ИИ Синтез диагностики
+    <div className="bg-white min-h-screen">
+      {/* Простой заголовок */}
+      <div className="border-b border-gray-200 p-4 mb-6">
+        <h1 className="text-xl font-medium text-gray-900 mb-1">
+          ИИ Синтез диагностики
         </h1>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-          Загрузите ЭКГ и введите диагноз для получения персонализированных рекомендаций на основе вашего профиля здоровья
+        <p className="text-sm text-gray-600">
+          Загрузите ЭКГ и введите диагноз для получения рекомендаций
         </p>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 max-w-7xl mx-auto">
-        {/* Ввод данных */}
-        <div className="space-y-8">
-          <Card className="border-2 border-primary/20 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="pb-6">
-              <CardTitle className="text-2xl font-bold text-primary flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <FileImage className="h-6 w-6" />
-                </div>
-                Загрузка ЭКГ
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="border-2 border-dashed border-primary/30 rounded-xl p-8 text-center bg-gradient-to-br from-primary/5 to-purple-500/5 hover:from-primary/10 hover:to-purple-500/10 transition-colors duration-300">
-                  <div className="p-4 bg-primary/10 rounded-full w-fit mx-auto mb-6">
-                    <Upload className="h-12 w-12 text-primary" />
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="grid grid-cols-2 gap-6">
+          {/* Ввод данных */}
+          <div className="space-y-4">
+            {/* Загрузка ЭКГ */}
+            <div className="border border-gray-300 bg-white">
+              <div className="border-b border-gray-200 p-3">
+                <h3 className="text-sm font-medium text-gray-900">Загрузка ЭКГ</h3>
+              </div>
+              <div className="p-4">
+                <div className="border border-gray-300 p-6 text-center bg-gray-50">
+                  <div className="mb-3">
+                    <Upload className="h-8 w-8 mx-auto text-gray-400" />
                   </div>
-                  <div className="space-y-4">
-                    <Label htmlFor="ecg-upload" className="cursor-pointer">
-                      <Button variant="outline" size="lg" className="text-lg px-8 py-4 h-auto">
-                        Выберите файл ЭКГ
-                      </Button>
-                      <Input
-                        id="ecg-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      PNG, JPG до 10MB
-                    </p>
-                  </div>
+                  <Label htmlFor="ecg-upload" className="cursor-pointer">
+                    <div className="text-sm text-gray-700 mb-2">Выберите файл ЭКГ</div>
+                    <Input
+                      id="ecg-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <button className="bg-gray-200 border border-gray-300 px-4 py-2 text-sm hover:bg-gray-300">
+                      Обзор
+                    </button>
+                  </Label>
+                  <div className="text-xs text-gray-500 mt-2">PNG, JPG до 10MB</div>
                 </div>
                 {ecgImage && (
-                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <FileImage className="h-5 w-5 text-green-600" />
+                  <div className="mt-3 p-2 bg-green-50 border border-green-200">
+                    <div className="flex items-center gap-2">
+                      <FileImage className="h-4 w-4 text-green-600" />
+                      <span className="text-sm text-green-700">{ecgImage.name}</span>
                     </div>
-                    <span className="text-sm font-medium text-green-700">{ecgImage.name}</span>
                   </div>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          <Card className="border-2 border-purple-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="pb-6">
-              <CardTitle className="text-2xl font-bold text-purple-600 flex items-center gap-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Heart className="h-6 w-6" />
-                </div>
-                Диагноз врача
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <Label htmlFor="diagnosis" className="text-lg font-medium">Введите поставленный диагноз</Label>
-                  <Textarea
-                    id="diagnosis"
-                    placeholder="Например: Гипертоническая болезнь I степени, очень высокий сердечно-сосудистый риск"
-                    value={diagnosis}
-                    onChange={(e) => setDiagnosis(e.target.value)}
-                    rows={5}
-                    className="mt-3 text-base min-h-[120px] border-2 focus:border-purple-300"
-                  />
-                </div>
+            {/* Диагноз */}
+            <div className="border border-gray-300 bg-white">
+              <div className="border-b border-gray-200 p-3">
+                <h3 className="text-sm font-medium text-gray-900">Диагноз врача</h3>
+              </div>
+              <div className="p-4">
+                <Label htmlFor="diagnosis" className="text-sm text-gray-700">Введите диагноз</Label>
+                <Textarea
+                  id="diagnosis"
+                  placeholder="Например: Гипертоническая болезнь I степени"
+                  value={diagnosis}
+                  onChange={(e) => setDiagnosis(e.target.value)}
+                  rows={4}
+                  className="mt-1 border-gray-300 text-sm"
+                />
                 <Button 
                   onClick={generateRecommendations}
                   disabled={isLoading || !diagnosis.trim()}
-                  size="lg"
-                  className="w-full text-lg py-6 h-auto bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300 font-semibold"
+                  className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white border-0 h-8 text-sm"
                 >
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      Генерация рекомендаций...
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <Lightbulb className="h-5 w-5" />
-                      Получить рекомендации
-                    </div>
-                  )}
+                  {isLoading ? 'Генерация...' : 'Получить рекомендации'}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </div>
 
-        {/* Рекомендации */}
-        <div>
-          <Card className="border-2 border-orange-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="pb-6">
-              <CardTitle className="text-2xl font-bold text-orange-600 flex items-center gap-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <Lightbulb className="h-6 w-6" />
-                </div>
-                Персонализированные рекомендации
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {recommendations.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <div className="p-6 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl mb-6 w-fit mx-auto">
-                    <Lightbulb className="h-16 w-16 mx-auto text-orange-400" />
+          {/* Рекомендации */}
+          <div>
+            <div className="border border-gray-300 bg-white">
+              <div className="border-b border-gray-200 p-3">
+                <h3 className="text-sm font-medium text-gray-900">Рекомендации</h3>
+              </div>
+              <div className="p-4">
+                {recommendations.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <Lightbulb className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                    <div className="text-sm">Введите диагноз для получения рекомендаций</div>
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Готов к анализу</h3>
-                  <p className="text-lg">Введите диагноз и получите персональные рекомендации</p>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {recommendations.map((rec, index) => (
-                    <div
-                      key={rec.id}
-                      className={`p-6 rounded-xl border-2 ${getPriorityColor(rec.priority)} transform hover:scale-[1.02] transition-all duration-300 shadow-sm hover:shadow-md animate-fade-in`}
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <h4 className="font-bold text-lg">{rec.title}</h4>
-                        <span className="text-sm px-3 py-1 rounded-full bg-white/90 font-medium border">
-                          {getPriorityText(rec.priority)}
-                        </span>
+                ) : (
+                  <div className="space-y-3">
+                    {recommendations.map((rec) => (
+                      <div
+                        key={rec.id}
+                        className="border border-gray-200 bg-white p-3"
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="text-sm font-medium text-gray-900">{rec.title}</h4>
+                          <span className={`text-xs px-2 py-1 border ${
+                            rec.priority === 'high' ? 'text-red-700 bg-red-50 border-red-200' :
+                            rec.priority === 'medium' ? 'text-orange-700 bg-orange-50 border-orange-200' :
+                            'text-green-700 bg-green-50 border-green-200'
+                          }`}>
+                            {getPriorityText(rec.priority)}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 mb-2 leading-relaxed">{rec.description}</p>
+                        <div className="text-xs text-gray-500">
+                          Категория: {rec.category}
+                        </div>
                       </div>
-                      <p className="text-base mb-4 leading-relaxed">{rec.description}</p>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-current opacity-60"></div>
-                        <span className="text-sm font-medium opacity-75">
-                          {rec.category}
-                        </span>
+                    ))}
+                    
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200">
+                      <div className="text-xs text-blue-800 font-medium mb-1">
+                        Основано на профиле пациента
+                      </div>
+                      <div className="text-xs text-blue-700">
+                        Учитывает биомаркеры, историю болезни и текущие показатели
                       </div>
                     </div>
-                  ))}
-                  
-                  <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-200">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <div className="text-xl">📊</div>
-                      </div>
-                      <h4 className="text-lg font-bold text-blue-800">
-                        Основано на вашем профиле здоровья
-                      </h4>
-                    </div>
-                    <p className="text-base text-blue-700 leading-relaxed">
-                      Рекомендации персонализированы с учетом ваших биомаркеров, истории здоровья, текущих показателей и индивидуальных особенностей
-                    </p>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
