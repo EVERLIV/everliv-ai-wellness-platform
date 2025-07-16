@@ -138,11 +138,6 @@ const BiomarkerStepCard: React.FC<BiomarkerStepCardProps> = ({
                 {getImportanceBadge()}
               </div>
               <p className="text-xs text-gray-600">{biomarker.description}</p>
-              {lastEntry && (
-                <div className="text-xs text-gray-500 mt-1">
-                  Последний анализ: {format(new Date(lastEntry.created_at), 'dd.MM.yyyy', { locale: ru })} - {lastEntry.value} {lastEntry.unit}
-                </div>
-              )}
             </div>
             
             <TooltipProvider>
@@ -166,57 +161,64 @@ const BiomarkerStepCard: React.FC<BiomarkerStepCardProps> = ({
               </Tooltip>
             </TooltipProvider>
           </div>
-
-          {/* Input */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                placeholder={`Введите значение (${biomarker.unit})`}
-                value={inputValue}
-                onChange={(e) => handleInputChange(e.target.value)}
-                className="text-sm"
-                step="any"
-              />
-              {biomarker.status === 'filled' && (
-                <div className="flex items-center gap-1">
-                  {getStatusIcon()}
-                </div>
-              )}
+          
+          {/* Информация о последнем анализе */}
+          {lastEntry && (
+            <div className="text-xs text-gray-500 mt-1">
+              Последний анализ: {format(new Date(lastEntry.created_at), 'dd.MM.yyyy', { locale: ru })} - {lastEntry.value} {lastEntry.unit}
             </div>
+          )}
+        </div>
 
-            {/* Normal range display */}
-            {biomarker.normal_range && (
-              <div className="text-xs text-gray-600">
-                <span>Норма: {biomarker.normal_range.min}-{biomarker.normal_range.max}</span>
-                {biomarker.normal_range.optimal && (
-                  <span className="ml-2 text-green-600">
-                    Оптимум: {biomarker.normal_range.optimal}
-                  </span>
-                )}
-                <span className="ml-1">{biomarker.unit}</span>
+        {/* Input */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              placeholder={`Введите значение (${biomarker.unit})`}
+              value={inputValue}
+              onChange={(e) => handleInputChange(e.target.value)}
+              className="text-sm"
+              step="any"
+            />
+            {biomarker.status === 'filled' && (
+              <div className="flex items-center gap-1">
+                {getStatusIcon()}
               </div>
             )}
           </div>
 
-          {/* Actions */}
-          {biomarker.status === 'filled' && (
-            <div className="flex justify-between items-center">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={clearValue}
-                className="text-xs h-auto p-1"
-              >
-                Очистить
-              </Button>
-              
-              <div className="text-xs text-gray-600">
-                Значение: {biomarker.value} {biomarker.unit}
-              </div>
+          {/* Normal range display */}
+          {biomarker.normal_range && (
+            <div className="text-xs text-gray-600">
+              <span>Норма: {biomarker.normal_range.min}-{biomarker.normal_range.max}</span>
+              {biomarker.normal_range.optimal && (
+                <span className="ml-2 text-green-600">
+                  Оптимум: {biomarker.normal_range.optimal}
+                </span>
+              )}
+              <span className="ml-1">{biomarker.unit}</span>
             </div>
           )}
         </div>
+
+        {/* Actions */}
+        {biomarker.status === 'filled' && (
+          <div className="flex justify-between items-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={clearValue}
+              className="text-xs h-auto p-1"
+            >
+              Очистить
+            </Button>
+            
+            <div className="text-xs text-gray-600">
+              Значение: {biomarker.value} {biomarker.unit}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

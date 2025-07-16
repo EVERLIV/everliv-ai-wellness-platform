@@ -67,9 +67,15 @@ export const useBiologicalAgeHistory = () => {
             console.error('Error fetching biomarker history:', biomarkerError);
           }
 
+          // Убираем дубликаты биомаркеров по имени, оставляем только уникальные
+          const uniqueBiomarkers = biomarkerData ? 
+            biomarkerData.filter((biomarker, index, self) => 
+              index === self.findIndex(b => b.biomarker_name === biomarker.biomarker_name)
+            ) : [];
+
           return {
             ...snapshot,
-            biomarker_history: biomarkerData || []
+            biomarker_history: uniqueBiomarkers
           };
         })
       );
