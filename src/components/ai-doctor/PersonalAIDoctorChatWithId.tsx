@@ -146,19 +146,21 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       {/* Messages Area */}
       <div className={`flex-1 overflow-y-auto ${isMobile ? 'px-1 py-1' : 'px-2.5 py-1 xs:py-2 sm:py-4'}`} style={{ scrollBehavior: 'smooth' }}>
         {allMessages.length === 0 ? (
-          <div className={`flex items-start ${isMobile ? 'space-x-1 mb-2' : 'space-x-2 xs:space-x-3 sm:space-x-4 mb-4 xs:mb-5 sm:mb-6'}`}>
-            <div className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10'} bg-primary text-primary-foreground ${isMobile ? 'border-0' : 'border border-primary'} flex items-center justify-center rounded-full flex-shrink-0`}>
-              <Sparkles className={`${isMobile ? 'h-3 w-3' : 'h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5'}`} />
-            </div>
-            <div className={`flex-1 ${isMobile ? 'max-w-[95%]' : 'max-w-[90%]'}`}>
-              <div className={`flex items-center ${isMobile ? 'space-x-1 mb-1' : 'space-x-2 mb-1 xs:mb-1.5 sm:mb-3'}`}>
-                <span className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} font-semibold text-foreground`}>ИИ Доктор</span>
-                <span className={`${isMobile ? 'text-xs' : 'text-xs xs:text-sm sm:text-base'} text-muted-foreground`}>
-                  {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                </span>
+          <div className={isMobile ? 'mt-4' : 'mt-8'}>
+            <div className={`flex items-start ${isMobile ? 'space-x-1 mb-2' : 'space-x-2 xs:space-x-3 sm:space-x-4 mb-4 xs:mb-5 sm:mb-6'}`}>
+              <div className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10'} bg-primary text-primary-foreground ${isMobile ? 'border-0' : 'border border-primary'} flex items-center justify-center rounded-full flex-shrink-0`}>
+                <Sparkles className={`${isMobile ? 'h-3 w-3' : 'h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5'}`} />
               </div>
-              <div className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} leading-relaxed text-foreground`} style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
-                Я помню нашу историю общения и имею доступ к вашим медицинским анализам для точных рекомендаций
+              <div className={`flex-1 ${isMobile ? 'max-w-[95%]' : 'max-w-[90%]'}`}>
+                <div className={`flex items-center ${isMobile ? 'space-x-1 mb-1' : 'space-x-2 mb-1 xs:mb-1.5 sm:mb-3'}`}>
+                  <span className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} font-semibold text-foreground`}>ИИ Доктор</span>
+                  <span className={`${isMobile ? 'text-xs' : 'text-xs xs:text-sm sm:text-base'} text-muted-foreground`}>
+                    {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+                <div className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} leading-relaxed text-foreground`} style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
+                  Здравствуйте! Я персональный ИИ-доктор EVERLIV. Я помню нашу историю общения и имею доступ к вашим медицинским анализам для более точных рекомендаций. Как дела с вашим здоровьем?
+                </div>
               </div>
             </div>
           </div>
