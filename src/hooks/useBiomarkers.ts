@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLabAnalysesData } from '@/hooks/useLabAnalysesData';
 import { supabase } from '@/integrations/supabase/client';
 import { calculateBiomarkerStatus } from '@/utils/biomarkerStatus';
 import { getBiomarkerNorm } from '@/data/biomarkerNorms';
@@ -29,12 +28,12 @@ interface BiomarkerData {
 
 export const useBiomarkers = () => {
   const { user } = useAuth();
-  const { analysisHistory, loadingHistory } = useLabAnalysesData();
+  const [analysisHistory, setAnalysisHistory] = useState<any[]>([]);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Загружаем профиль пользователя для определения норм
+  // Загружаем профиль пользователя
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (!user) return;
@@ -55,12 +54,44 @@ export const useBiomarkers = () => {
     fetchUserProfile();
   }, [user]);
 
-  // Синхронизируем состояние загрузки с useLabAnalysesData
+  // Загружаем данные анализов
   useEffect(() => {
-    setIsLoading(loadingHistory);
-  }, [loadingHistory]);
+    const fetchAnalysisHistory = async () => {
+      if (!user?.id) {
+        setAnalysisHistory([]);
+        setIsLoading(false);
+        return;
+      }
 
-  // Функция для обработки данных биомаркеров - та же логика, что и в MyBiomarkers
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const { data: analyses, error: analysesError } = await supabase
+          .from('medical_analyses')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (analysesError) {
+          throw analysesError;
+        }
+
+        console.log('Загружено анализов:', analyses?.length || 0);
+        setAnalysisHistory(analyses || []);
+      } catch (err) {
+        console.error('Ошибка загрузки анализов:', err);
+        setError(err instanceof Error ? err.message : 'Ошибка загрузки данных');
+        setAnalysisHistory([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnalysisHistory();
+  }, [user?.id]);
+
+  // Функция для обработки данных биомаркеров
   const processBiomarkerData = (): BiomarkerData[] => {
     if (!analysisHistory || !Array.isArray(analysisHistory)) return [];
 
@@ -77,15 +108,12 @@ export const useBiomarkers = () => {
         analysis.results.markers.forEach((marker: any) => {
           const name = marker.name;
           if (!biomarkerMap.has(name)) {
-            // Используем данные из results (более полные)
             const normalRange = marker.referenceRange || marker.reference_range || marker.normal_range || marker.normalRange || 
                                getBiomarkerNorm(name, userProfile?.gender, userProfile?.date_of_birth) || 'Не определена';
             
-            // Извлекаем единицу измерения из value или используем отдельное поле unit
             let unit = marker.unit || '';
             let cleanValue = marker.value || '';
             
-            // Если единица в самом значении, извлекаем её
             if (typeof cleanValue === 'string' && /[a-zA-Zа-яА-Я%/°^]/.test(cleanValue)) {
               const valueMatch = cleanValue.match(/^([0-9,.\s]+)(.*)$/);
               if (valueMatch) {
@@ -94,7 +122,6 @@ export const useBiomarkers = () => {
               }
             }
             
-            // Вычисляем статус на основе значения и нормы
             const calculatedStatus = calculateBiomarkerStatus(cleanValue, normalRange);
             
             biomarkerMap.set(name, {
@@ -107,7 +134,6 @@ export const useBiomarkers = () => {
           
           const biomarkerData = biomarkerMap.get(name)!;
           
-          // Извлекаем чистое значение без единиц для расчетов
           let cleanValue = marker.value || '';
           if (typeof cleanValue === 'string') {
             const valueMatch = cleanValue.match(/^([0-9,.\s]+)/);
@@ -122,71 +148,15 @@ export const useBiomarkers = () => {
             unit: biomarkerData.unit
           });
           
-          // Обновляем статус для последнего значения
           const latestStatus = calculateBiomarkerStatus(cleanValue, biomarkerData.normalRange);
           biomarkerData.status = latestStatus;
         });
       }
     });
 
-    // Функция для расчета процентного отклонения от нормы
-    const calculateDeviationPercentage = (value: string, normalRange: string, status: string): number | undefined => {
-      if (status === 'normal' || !normalRange || normalRange === 'Не определена') return undefined;
-      
-      // Нормализуем значение - заменяем запятую на точку
-      const currentValue = parseFloat(value.replace(',', '.'));
-      if (isNaN(currentValue)) return undefined;
-
-      // Парсим норму (например, "120-150 г/л" или ">1.0 ммоль/л")
-      let minNormal = 0;
-      let maxNormal = 0;
-
-      // Обработка различных форматов норм
-      if (normalRange.includes('-')) {
-        const parts = normalRange.split('-');
-        const min = parseFloat(parts[0].trim().replace(',', '.'));
-        const max = parseFloat(parts[1].trim().replace(',', '.'));
-        if (!isNaN(min) && !isNaN(max)) {
-          minNormal = min;
-          maxNormal = max;
-        }
-      } else if (normalRange.startsWith('>')) {
-        const min = parseFloat(normalRange.substring(1).replace(',', '.'));
-        if (!isNaN(min)) {
-          minNormal = min;
-          maxNormal = Infinity;
-        }
-      } else if (normalRange.startsWith('<')) {
-        const max = parseFloat(normalRange.substring(1).replace(',', '.'));
-        if (!isNaN(max)) {
-          minNormal = 0;
-          maxNormal = max;
-        }
-      } else {
-        // Попытка извлечь число из строки
-        const match = normalRange.match(/(\d+(?:[,.]\d+)?)/);
-        if (match) {
-          const value = parseFloat(match[1].replace(',', '.'));
-          if (!isNaN(value)) {
-            minNormal = maxNormal = value;
-          }
-        }
-      }
-
-      let deviation = 0;
-      if (status === 'high' && maxNormal !== Infinity && maxNormal > 0) {
-        deviation = ((currentValue - maxNormal) / maxNormal) * 100;
-      } else if (status === 'low' && minNormal > 0) {
-        deviation = ((minNormal - currentValue) / minNormal) * 100;
-      }
-
-      return Math.abs(deviation);
-    };
-
     const calculateTrend = (values: Array<{ value: string; date: string }>): 'up' | 'down' | 'stable' => {
       if (values.length < 2) return 'stable';
       
-      // Нормализуем значения - заменяем запятые на точки для парсинга
       const first = parseFloat(values[0].value.replace(',', '.'));
       const last = parseFloat(values[values.length - 1].value.replace(',', '.'));
       
@@ -198,26 +168,17 @@ export const useBiomarkers = () => {
       return change > 0 ? 'up' : 'down';
     };
 
-    // Преобразуем в массив с вычислением трендов
     return Array.from(biomarkerMap.entries()).map(([name, data]) => {
       const sortedValues = data.values.sort((a, b) => 
         new Date(a.date).getTime() - new Date(b.date).getTime()
       );
 
       const latestValue = sortedValues[sortedValues.length - 1];
-      const trend = sortedValues.length > 1 ? 
-        calculateTrend(sortedValues) : 'stable';
+      const trend = sortedValues.length > 1 ? calculateTrend(sortedValues) : 'stable';
 
-      // Для отображения используем оригинальное значение с единицами
       const displayValue = latestValue.unit ? 
         `${latestValue.value} ${latestValue.unit}` : 
         latestValue.value;
-
-      const deviationPercentage = calculateDeviationPercentage(
-        latestValue.value.replace(',', '.'), // Нормализуем для расчетов
-        data.normalRange, 
-        data.status
-      );
 
       return {
         name,
@@ -227,7 +188,6 @@ export const useBiomarkers = () => {
         lastUpdated: latestValue.date,
         analysisCount: sortedValues.length,
         trend,
-        deviationPercentage,
         unit: data.unit
       };
     }).sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
@@ -235,7 +195,7 @@ export const useBiomarkers = () => {
 
   // Функция для получения топ-5 критических биомаркеров
   const getTop5WorstBiomarkers = (): Biomarker[] => {
-    console.log('=== DEBUG: getTop5WorstBiomarkers (обновленная версия) ===');
+    console.log('=== DEBUG: getTop5WorstBiomarkers ===');
     
     const biomarkers = processBiomarkerData();
     console.log('Всего биомаркеров обработано:', biomarkers.length);
@@ -249,33 +209,14 @@ export const useBiomarkers = () => {
     const problematicBiomarkers = biomarkers.filter(b => b.status === 'high' || b.status === 'low');
     
     console.log('Биомаркеры с отклонениями:', problematicBiomarkers.length);
-    console.log('Детали биомаркеров:', problematicBiomarkers.map(b => ({
-      name: b.name,
-      status: b.status,
-      value: b.latestValue,
-      deviationPercentage: b.deviationPercentage
-    })));
 
-    // Сортируем по степени отклонения (сначала с наибольшим процентом отклонения)
+    // Сортируем по степени отклонения
     const sortedBiomarkers = problematicBiomarkers.sort((a, b) => {
-      // Сначала по критичности статуса
       const statusPriority = { 'high': 1, 'low': 2 };
-      const statusDiff = statusPriority[a.status] - statusPriority[b.status];
-      
-      if (statusDiff !== 0) return statusDiff;
-      
-      // Затем по проценту отклонения
-      const aDeviation = a.deviationPercentage || 0;
-      const bDeviation = b.deviationPercentage || 0;
-      return bDeviation - aDeviation;
+      return statusPriority[a.status] - statusPriority[b.status];
     }).slice(0, 5);
 
-    console.log('Топ-5 критических биомаркеров:', sortedBiomarkers.map(b => ({
-      name: b.name,
-      status: b.status,
-      value: b.latestValue,
-      deviationPercentage: b.deviationPercentage
-    })));
+    console.log('Топ-5 критических биомаркеров:', sortedBiomarkers.length);
 
     // Конвертируем в формат Biomarker для совместимости
     return sortedBiomarkers.map(b => ({
@@ -294,8 +235,28 @@ export const useBiomarkers = () => {
     isLoading,
     error,
     refetch: () => {
-      // Данные обновляются автоматически через useLabAnalysesData
       setError(null);
+      // Принудительно перезагружаем данные
+      if (user?.id) {
+        setIsLoading(true);
+        // Триггерим повторную загрузку через изменение зависимости
+        const fetchData = async () => {
+          try {
+            const { data: analyses } = await supabase
+              .from('medical_analyses')
+              .select('*')
+              .eq('user_id', user.id)
+              .order('created_at', { ascending: false });
+            
+            setAnalysisHistory(analyses || []);
+          } catch (err) {
+            setError(err instanceof Error ? err.message : 'Ошибка загрузки данных');
+          } finally {
+            setIsLoading(false);
+          }
+        };
+        fetchData();
+      }
     },
     getTop5WorstBiomarkers
   };
