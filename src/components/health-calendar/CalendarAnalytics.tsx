@@ -128,84 +128,84 @@ const CalendarAnalytics = ({ calendarData, currentDate, aiInsights }: CalendarAn
   const goalProgress = getGoalProgress();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Weekly Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Calendar className="h-5 w-5 mr-2" />
+      <Card className="shadow-none border-gray-200/80 rounded-none">
+        <CardHeader className="pb-1 px-2 py-1">
+          <CardTitle className="text-xs font-medium flex items-center gap-1">
+            <Calendar className="h-3 w-3" />
             Недельная сводка
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-2 py-1 pt-0">
           {weeklyAverages ? (
-            <div className={`grid gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'}`}>
-              <div className="text-center">
-                <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-blue-600`}>
+            <div className={`grid gap-1 ${isMobile ? 'grid-cols-2' : 'grid-cols-4'}`}>
+              <div className="text-center p-1 bg-gray-50 border border-gray-200/50">
+                <div className="text-sm font-bold text-blue-600">
                   {weeklyAverages.steps.toLocaleString()}
                 </div>
-                <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
-                  {isMobile ? 'Шаги' : 'Шаги/день'}
+                <div className="text-[9px] text-muted-foreground">
+                  Шаги
                 </div>
               </div>
-              <div className="text-center">
-                <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-purple-600`}>
+              <div className="text-center p-1 bg-gray-50 border border-gray-200/50">
+                <div className="text-sm font-bold text-purple-600">
                   {weeklyAverages.sleep_hours}ч
                 </div>
-                <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
-                  {isMobile ? 'Сон' : 'Сон/день'}
+                <div className="text-[9px] text-muted-foreground">
+                  Сон
                 </div>
               </div>
-              <div className="text-center">
-                <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-green-600`}>
+              <div className="text-center p-1 bg-gray-50 border border-gray-200/50">
+                <div className="text-sm font-bold text-green-600">
                   {weeklyAverages.exercise_minutes}мин
                 </div>
-                <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
-                  {isMobile ? 'Спорт' : 'Активность/день'}
+                <div className="text-[9px] text-muted-foreground">
+                  Спорт
                 </div>
               </div>
-              <div className="text-center">
-                <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-pink-600`}>
+              <div className="text-center p-1 bg-gray-50 border border-gray-200/50">
+                <div className="text-sm font-bold text-pink-600">
                   {weeklyAverages.mood_level}/10
                 </div>
-                <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
+                <div className="text-[9px] text-muted-foreground">
                   Настроение
                 </div>
               </div>
             </div>
           ) : (
-            <p className="text-muted-foreground">Недостаточно данных для анализа</p>
+            <p className="text-[10px] text-muted-foreground">Недостаточно данных</p>
           )}
         </CardContent>
       </Card>
 
       {/* Goal Progress */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Target className="h-5 w-5 mr-2" />
+      <Card className="shadow-none border-gray-200/80 rounded-none">
+        <CardHeader className="pb-1 px-2 py-1">
+          <CardTitle className="text-xs font-medium flex items-center gap-1">
+            <Target className="h-3 w-3" />
             Прогресс целей
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent className="px-2 py-1 pt-0">
+          <div className="space-y-1">
             {goalProgress.map((goal, index) => (
-              <div key={index} className="space-y-2">
+              <div key={index} className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{goal.name}</span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-muted-foreground">
+                  <span className="text-[10px] font-medium">{goal.name}</span>
+                  <div className="flex items-center space-x-1">
+                    <span className="text-[9px] text-muted-foreground">
                       {goal.current}{goal.unit} / {goal.target}{goal.unit}
                     </span>
                     <Badge 
                       variant={goal.progress >= 100 ? "default" : "outline"}
-                      className={goal.progress >= 100 ? "bg-green-500" : ""}
+                      className={`text-[8px] px-1 py-0 h-auto rounded-none ${goal.progress >= 100 ? "bg-green-500" : ""}`}
                     >
                       {goal.progress}%
                     </Badge>
                   </div>
                 </div>
-                <Progress value={Math.min(goal.progress, 100)} className="h-2" />
+                <Progress value={Math.min(goal.progress, 100)} className="h-1" />
               </div>
             ))}
           </div>
@@ -213,27 +213,27 @@ const CalendarAnalytics = ({ calendarData, currentDate, aiInsights }: CalendarAn
       </Card>
 
       {/* Monthly Trends */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <BarChart3 className="h-5 w-5 mr-2" />
+      <Card className="shadow-none border-gray-200/80 rounded-none">
+        <CardHeader className="pb-1 px-2 py-1">
+          <CardTitle className="text-xs font-medium flex items-center gap-1">
+            <BarChart3 className="h-3 w-3" />
             Месячные тренды
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
+        <CardContent className="px-2 py-1 pt-0">
+          <div className="space-y-1">
             {monthlyTrends.map((week, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <span className="text-sm font-medium">Неделя {week.week}</span>
-                <div className="flex items-center space-x-2">
-                  <Progress value={week.avgScore} className="w-20 h-2" />
-                  <span className="text-sm text-muted-foreground">{week.avgScore}/100</span>
+              <div key={index} className="flex items-center justify-between p-1 bg-gray-50 border border-gray-200/50">
+                <span className="text-[10px] font-medium">Неделя {week.week}</span>
+                <div className="flex items-center space-x-1">
+                  <Progress value={week.avgScore} className="w-12 h-1" />
+                  <span className="text-[9px] text-muted-foreground">{week.avgScore}/100</span>
                   {index > 0 && (
                     <div className="flex items-center">
                       {week.avgScore > monthlyTrends[index - 1].avgScore ? (
-                        <TrendingUp className="h-4 w-4 text-green-500" />
+                        <TrendingUp className="h-2.5 w-2.5 text-green-500" />
                       ) : (
-                        <TrendingDown className="h-4 w-4 text-red-500" />
+                        <TrendingDown className="h-2.5 w-2.5 text-red-500" />
                       )}
                     </div>
                   )}
@@ -246,28 +246,28 @@ const CalendarAnalytics = ({ calendarData, currentDate, aiInsights }: CalendarAn
 
       {/* AI Insights */}
       {aiInsights && aiInsights.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Brain className="h-5 w-5 mr-2" />
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-1 px-2 py-1">
+            <CardTitle className="text-xs font-medium flex items-center gap-1">
+              <Brain className="h-3 w-3" />
               ИИ Анализ паттернов
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
+          <CardContent className="px-2 py-1 pt-0">
+            <div className="space-y-1">
               {aiInsights.map((insight, index) => (
-                <div key={index} className="flex items-start space-x-3">
-                  <Badge variant="outline" className="mt-1">
+                <div key={index} className="flex items-start space-x-1 p-1 bg-gray-50 border border-gray-200/50">
+                  <Badge variant="outline" className="mt-0.5 text-[8px] px-1 py-0 h-auto rounded-none">
                     {insight.type}
                   </Badge>
                   <div className="flex-1">
-                    <p className="text-sm">{insight.message}</p>
+                    <p className="text-[9px]">{insight.message}</p>
                     {insight.confidence && (
-                      <div className="mt-1 flex items-center space-x-2">
-                        <span className="text-xs text-muted-foreground">
-                          Уверенность: {insight.confidence}%
+                      <div className="mt-0.5 flex items-center space-x-1">
+                        <span className="text-[8px] text-muted-foreground">
+                          {insight.confidence}%
                         </span>
-                        <Progress value={insight.confidence} className="w-16 h-1" />
+                        <Progress value={insight.confidence} className="w-8 h-0.5" />
                       </div>
                     )}
                   </div>

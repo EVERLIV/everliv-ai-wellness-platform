@@ -129,85 +129,87 @@ const HealthCalendar = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'}`}>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Средний показатель</CardTitle>
+        <div className={`grid gap-1 ${isMobile ? 'grid-cols-3' : 'grid-cols-3'}`}>
+          <Card className="shadow-none border-gray-200/80 rounded-none">
+            <CardHeader className="pb-1 px-2 py-1">
+              <CardTitle className="text-xs font-medium">Средний показатель</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{getHealthScore()}</div>
-              <p className="text-xs text-muted-foreground">из 100 за месяц</p>
+            <CardContent className="px-2 py-1 pt-0">
+              <div className="text-sm font-bold">{getHealthScore()}</div>
+              <p className="text-[9px] text-muted-foreground">из 100</p>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Критические дни</CardTitle>
+          <Card className="shadow-none border-gray-200/80 rounded-none">
+            <CardHeader className="pb-1 px-2 py-1">
+              <CardTitle className="text-xs font-medium">Критические</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-destructive">{getCriticalDays()}</div>
-              <p className="text-xs text-muted-foreground">требуют внимания</p>
+            <CardContent className="px-2 py-1 pt-0">
+              <div className="text-sm font-bold text-destructive">{getCriticalDays()}</div>
+              <p className="text-[9px] text-muted-foreground">дни</p>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">ИИ Инсайты</CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={generateInsights}
-                disabled={isGeneratingInsights}
-                className="h-8 w-8 p-0"
-              >
-                <Brain className={`h-4 w-4 ${isGeneratingInsights ? 'animate-spin' : ''}`} />
-              </Button>
+          <Card className="shadow-none border-gray-200/80 rounded-none">
+            <CardHeader className="pb-1 px-2 py-1">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xs font-medium">ИИ Инсайты</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  onClick={generateInsights}
+                  disabled={isGeneratingInsights}
+                  className="h-5 w-5 p-0 rounded-none"
+                >
+                  <Brain className={`h-3 w-3 ${isGeneratingInsights ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{aiInsights?.length || 0}</div>
-              <p className="text-xs text-muted-foreground">новых рекомендаций</p>
+            <CardContent className="px-2 py-1 pt-0">
+              <div className="text-sm font-bold">{aiInsights?.length || 0}</div>
+              <p className="text-[9px] text-muted-foreground">новых</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Calendar Navigation */}
-        <Card>
-          <CardHeader>
-            <div className={`flex ${isMobile ? 'flex-col space-y-3' : 'items-center justify-between'}`}>
-              <CardTitle className={`${isMobile ? 'text-center text-base' : 'text-lg'} capitalize`}>
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-1 px-2 py-1">
+            <div className={`flex ${isMobile ? 'flex-col space-y-1' : 'items-center justify-between'}`}>
+              <CardTitle className={`${isMobile ? 'text-center text-xs' : 'text-sm'} capitalize font-medium`}>
                 {formatMonth(currentDate)}
               </CardTitle>
-              <div className={`flex items-center ${isMobile ? 'justify-center' : ''} space-x-2`}>
+              <div className={`flex items-center ${isMobile ? 'justify-center' : ''} space-x-1`}>
                 <Button
                   variant="outline"
-                  size={isMobile ? "sm" : "sm"}
+                  size="xs"
                   onClick={() => navigateMonth('prev')}
-                  className={isMobile ? 'h-9 px-3' : ''}
+                  className={`${isMobile ? 'h-6 px-1' : 'h-6 px-2'} rounded-none border-gray-300`}
                 >
-                  <ChevronLeft className="h-4 w-4" />
-                  {!isMobile && <span className="ml-1">Назад</span>}
+                  <ChevronLeft className="h-3 w-3" />
+                  {!isMobile && <span className="ml-1 text-xs">Назад</span>}
                 </Button>
                 <Button
                   variant="outline"
-                  size={isMobile ? "sm" : "sm"}
+                  size="xs"
                   onClick={() => setCurrentDate(new Date())}
-                  className={isMobile ? 'h-9 px-3' : ''}
+                  className={`${isMobile ? 'h-6 px-1' : 'h-6 px-2'} rounded-none border-gray-300 text-xs`}
                 >
                   Сегодня
                 </Button>
                 <Button
                   variant="outline"
-                  size={isMobile ? "sm" : "sm"}
+                  size="xs"
                   onClick={() => navigateMonth('next')}
-                  className={isMobile ? 'h-9 px-3' : ''}
+                  className={`${isMobile ? 'h-6 px-1' : 'h-6 px-2'} rounded-none border-gray-300`}
                 >
-                  <ChevronRight className="h-4 w-4" />
-                  {!isMobile && <span className="ml-1">Вперед</span>}
+                  <ChevronRight className="h-3 w-3" />
+                  {!isMobile && <span className="ml-1 text-xs">Вперед</span>}
                 </Button>
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-2 py-1 pt-0">
             {viewMode === 'calendar' && (
               <HealthCalendarView
                 currentDate={currentDate}
@@ -234,23 +236,23 @@ const HealthCalendar = () => {
 
         {/* AI Insights */}
         {aiInsights && aiInsights.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Brain className="h-5 w-5 mr-2" />
+          <Card className="shadow-none border-gray-200/80 rounded-none">
+            <CardHeader className="pb-1 px-2 py-1">
+              <CardTitle className="text-xs font-medium flex items-center gap-1">
+                <Brain className="h-3 w-3" />
                 ИИ Рекомендации
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
+            <CardContent className="px-2 py-1 pt-0">
+              <div className="space-y-1">
                 {aiInsights.map((insight, index) => (
-                  <div key={index} className="flex items-start space-x-3">
-                    <Badge variant="outline" className="mt-1">
+                  <div key={index} className="flex items-start space-x-1 p-1 bg-gray-50 border border-gray-200/50">
+                    <Badge variant="outline" className="mt-0.5 text-[8px] px-1 py-0 h-auto rounded-none">
                       {insight.priority}
                     </Badge>
                     <div className="flex-1">
-                      <p className="text-sm font-medium">{insight.title}</p>
-                      <p className="text-xs text-muted-foreground">{insight.description}</p>
+                      <p className="text-[10px] font-medium">{insight.title}</p>
+                      <p className="text-[9px] text-muted-foreground">{insight.description}</p>
                     </div>
                   </div>
                 ))}

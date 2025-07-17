@@ -122,74 +122,64 @@ const CalendarReminders = ({ currentDate }: CalendarRemindersProps) => {
   const upcomingReminders = getUpcomingReminders();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Upcoming Reminders */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Bell className="h-5 w-5 mr-2" />
+      <Card className="shadow-none border-gray-200/80 rounded-none">
+        <CardHeader className="pb-1 px-2 py-1">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xs font-medium flex items-center gap-1">
+              <Bell className="h-3 w-3" />
               Ближайшие напоминания
-            </div>
+            </CardTitle>
             <Button 
               variant="outline" 
-              size="sm"
+              size="xs"
               onClick={() => setShowAddForm(true)}
+              className="h-5 px-1 text-[9px] rounded-none border-gray-300"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Добавить
+              <Plus className="h-2.5 w-2.5" />
             </Button>
-          </CardTitle>
+          </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
+        <CardContent className="px-2 py-1 pt-0">
+          <div className="space-y-1">
             {upcomingReminders.length > 0 ? (
               upcomingReminders.map((reminder) => {
                 const typeInfo = getReminderTypeInfo(reminder.type);
                 const Icon = typeInfo.icon;
                 
                 return (
-                  <div key={reminder.id} className={`flex items-center space-x-3 ${isMobile ? 'p-2' : 'p-3'} bg-muted/50 rounded-lg`}>
-                    <div className={`p-2 rounded-full ${typeInfo.color}`}>
-                      <Icon className="h-4 w-4 text-white" />
+                  <div key={reminder.id} className="flex items-center space-x-1 p-1 bg-gray-50 border border-gray-200/50">
+                    <div className={`p-1 ${typeInfo.color}`}>
+                      <Icon className="h-2.5 w-2.5 text-white" />
                     </div>
-                    <div className="flex-1">
-                      <h4 className={`font-medium ${isMobile ? 'text-sm' : ''}`}>{reminder.title}</h4>
-                      <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
-                        {isMobile ? reminder.title : reminder.description}
-                      </p>
-                      <div className={`flex items-center space-x-2 ${isMobile ? 'mt-0.5' : 'mt-1'}`}>
-                        <Clock className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">{reminder.time}</span>
-                        {!isMobile && (
-                          <Badge variant="outline" className="text-xs">
-                            {frequencies.find(f => f.value === reminder.frequency)?.label}
-                          </Badge>
-                        )}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-[10px] font-medium truncate">{reminder.title}</h4>
+                      <div className="flex items-center space-x-1">
+                        <Clock className="h-2 w-2 text-muted-foreground" />
+                        <span className="text-[9px] text-muted-foreground">{reminder.time}</span>
                       </div>
                     </div>
-                    <div className={`flex items-center ${isMobile ? 'flex-col space-y-2' : 'space-x-2'}`}>
+                    <div className="flex items-center space-x-0.5">
                       <Switch
                         checked={reminder.isActive}
                         onCheckedChange={() => handleToggleReminder(reminder.id)}
-                        className={isMobile ? 'scale-75' : ''}
+                        className="scale-50"
                       />
-                      {!isMobile && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteReminder(reminder.id)}
-                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        onClick={() => handleDeleteReminder(reminder.id)}
+                        className="h-4 w-4 p-0 text-destructive hover:text-destructive rounded-none"
+                      >
+                        <Trash2 className="h-2.5 w-2.5" />
+                      </Button>
                     </div>
                   </div>
                 );
               })
             ) : (
-              <p className="text-muted-foreground text-center py-4">
+              <p className="text-[10px] text-muted-foreground text-center py-2">
                 Нет активных напоминаний
               </p>
             )}
@@ -199,53 +189,44 @@ const CalendarReminders = ({ currentDate }: CalendarRemindersProps) => {
 
       {/* Add Reminder Form */}
       {showAddForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Новое напоминание</CardTitle>
+        <Card className="shadow-none border-gray-200/80 rounded-none">
+          <CardHeader className="pb-1 px-2 py-1">
+            <CardTitle className="text-xs font-medium">Новое напоминание</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="px-2 py-1 pt-0">
+            <div className="space-y-2">
               <div>
-                <Label htmlFor="title">Название</Label>
+                <Label htmlFor="title" className="text-[10px]">Название</Label>
                 <Input
                   id="title"
                   value={newReminder.title}
                   onChange={(e) => setNewReminder({...newReminder, title: e.target.value})}
-                  placeholder="Название напоминания"
+                  placeholder="Название"
+                  className="h-6 text-[10px] rounded-none border-gray-300"
                 />
               </div>
               
-              <div>
-                <Label htmlFor="description">Описание</Label>
-                <Textarea
-                  id="description"
-                  value={newReminder.description}
-                  onChange={(e) => setNewReminder({...newReminder, description: e.target.value})}
-                  placeholder="Описание напоминания"
-                  rows={3}
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-1">
                 <div>
-                  <Label htmlFor="time">Время</Label>
+                  <Label htmlFor="time" className="text-[10px]">Время</Label>
                   <Input
                     id="time"
                     type="time"
                     value={newReminder.time}
                     onChange={(e) => setNewReminder({...newReminder, time: e.target.value})}
+                    className="h-6 text-[10px] rounded-none border-gray-300"
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="type">Тип</Label>
+                  <Label htmlFor="type" className="text-[10px]">Тип</Label>
                   <Select value={newReminder.type} onValueChange={(value) => setNewReminder({...newReminder, type: value})}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-6 text-[10px] rounded-none border-gray-300">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {reminderTypes.map(type => (
-                        <SelectItem key={type.value} value={type.value}>
+                        <SelectItem key={type.value} value={type.value} className="text-[10px]">
                           {type.label}
                         </SelectItem>
                       ))}
@@ -254,27 +235,11 @@ const CalendarReminders = ({ currentDate }: CalendarRemindersProps) => {
                 </div>
               </div>
               
-              <div>
-                <Label htmlFor="frequency">Частота</Label>
-                <Select value={newReminder.frequency} onValueChange={(value) => setNewReminder({...newReminder, frequency: value})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {frequencies.map(freq => (
-                      <SelectItem key={freq.value} value={freq.value}>
-                        {freq.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Button onClick={handleAddReminder}>
-                  Добавить напоминание
+              <div className="flex items-center space-x-1">
+                <Button onClick={handleAddReminder} size="xs" className="h-6 text-[10px] rounded-none">
+                  Добавить
                 </Button>
-                <Button variant="outline" onClick={() => setShowAddForm(false)}>
+                <Button variant="outline" onClick={() => setShowAddForm(false)} size="xs" className="h-6 text-[10px] rounded-none border-gray-300">
                   Отмена
                 </Button>
               </div>
@@ -284,41 +249,41 @@ const CalendarReminders = ({ currentDate }: CalendarRemindersProps) => {
       )}
 
       {/* AI Recommendations */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <AlertCircle className="h-5 w-5 mr-2" />
+      <Card className="shadow-none border-gray-200/80 rounded-none">
+        <CardHeader className="pb-1 px-2 py-1">
+          <CardTitle className="text-xs font-medium flex items-center gap-1">
+            <AlertCircle className="h-3 w-3" />
             Рекомендации ИИ
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
-              <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5" />
+        <CardContent className="px-2 py-1 pt-0">
+          <div className="space-y-1">
+            <div className="flex items-start space-x-1 p-1 bg-blue-50 border border-gray-200/50">
+              <AlertCircle className="h-2.5 w-2.5 text-blue-500 mt-0.5" />
               <div>
-                <p className="text-sm font-medium">Оптимальное время для тренировки</p>
-                <p className="text-xs text-muted-foreground">
-                  Основываясь на ваших данных, лучшее время для тренировки - 7:00-8:00 утра
+                <p className="text-[10px] font-medium">Время тренировки</p>
+                <p className="text-[9px] text-muted-foreground">
+                  Лучшее время 7:00-8:00 утра
                 </p>
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
-              <AlertCircle className="h-5 w-5 text-green-500 mt-0.5" />
+            <div className="flex items-start space-x-1 p-1 bg-green-50 border border-gray-200/50">
+              <AlertCircle className="h-2.5 w-2.5 text-green-500 mt-0.5" />
               <div>
-                <p className="text-sm font-medium">Напоминание о воде</p>
-                <p className="text-xs text-muted-foreground">
-                  Рекомендуется добавить напоминание о питье воды каждые 2 часа
+                <p className="text-[10px] font-medium">Напоминание о воде</p>
+                <p className="text-[9px] text-muted-foreground">
+                  Каждые 2 часа
                 </p>
               </div>
             </div>
             
-            <div className="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg">
-              <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+            <div className="flex items-start space-x-1 p-1 bg-yellow-50 border border-gray-200/50">
+              <AlertCircle className="h-2.5 w-2.5 text-yellow-500 mt-0.5" />
               <div>
-                <p className="text-sm font-medium">Режим сна</p>
-                <p className="text-xs text-muted-foreground">
-                  Установите напоминание о сне в 22:00 для лучшего восстановления
+                <p className="text-[10px] font-medium">Режим сна</p>
+                <p className="text-[9px] text-muted-foreground">
+                  Напоминание в 22:00
                 </p>
               </div>
             </div>

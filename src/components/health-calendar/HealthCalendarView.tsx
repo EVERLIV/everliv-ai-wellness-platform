@@ -107,8 +107,8 @@ const HealthCalendarView = ({
                   <Button
                     variant="ghost"
                     className={cn(
-                      `${isMobile ? 'h-10' : 'h-12'} w-full p-0.5 relative border border-transparent hover:border-primary/20 transition-all`,
-                      isToday(day) && `ring-1 ring-primary ring-offset-1`,
+                      `${isMobile ? 'h-7' : 'h-8'} w-full p-0.5 relative border border-transparent hover:border-primary/20 transition-all rounded-none`,
+                      isToday(day) && `ring-1 ring-primary ring-offset-0`,
                       selectedDate && isSameDay(selectedDate, day) && "border-primary",
                       !isSameMonth(day, currentDate) && "opacity-50",
                       getHealthScoreColor(healthScore)
@@ -131,7 +131,7 @@ const HealthCalendarView = ({
                         <Badge 
                           variant="outline" 
                           className={cn(
-                            `text-[9px] px-0.5 py-0 h-2.5 border-0 leading-none`,
+                            `text-[8px] px-0.5 py-0 h-2 border-0 leading-none rounded-none`,
                             getHealthScoreColor(healthScore)
                           )}
                         >
