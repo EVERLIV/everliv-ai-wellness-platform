@@ -8,14 +8,17 @@ export const useAuthNavigation = () => {
   const location = useLocation();
 
   const handleSignInNavigation = (session: Session | null) => {
-    setTimeout(() => {
-      toast.success('Успешный вход в систему');
-      
-      // Only navigate if on auth pages or home page, but NOT on admin pages
-      const isOnAuthPages = location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/';
-      const isOnAdminPages = location.pathname.startsWith('/admin');
-      
-      if (isOnAuthPages && !isOnAdminPages) {
+    // Only navigate if on auth pages or home page, but NOT on admin or protected pages
+    const isOnAuthPages = location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/';
+    const isOnAdminPages = location.pathname.startsWith('/admin');
+    const isOnProtectedPages = location.pathname.startsWith('/ai-doctor') || 
+                               location.pathname.startsWith('/dashboard') ||
+                               location.pathname.startsWith('/welcome');
+    
+    if (isOnAuthPages && !isOnAdminPages && !isOnProtectedPages) {
+      setTimeout(() => {
+        toast.success('Успешный вход в систему');
+        
         // Check if this is first login ever for this user
         const isFirstLogin = !session?.user?.last_sign_in_at;
         if (isFirstLogin) {
@@ -23,8 +26,8 @@ export const useAuthNavigation = () => {
         } else {
           navigate('/dashboard');
         }
-      }
-    }, 0);
+      }, 0);
+    }
   };
 
   const handleSignOutNavigation = () => {
