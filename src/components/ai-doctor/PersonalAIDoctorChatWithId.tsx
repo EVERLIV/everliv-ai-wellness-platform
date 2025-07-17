@@ -139,11 +139,10 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           </div>
         </div>
       ) : (
-        // Убираем header для desktop - кнопки есть на странице
         null
       )}
 
-      {/* Messages Area - Полная ширина на мобильных */}
+      {/* Messages Area */}
       <div className={`flex-1 overflow-y-auto ${isMobile ? 'px-1 py-1' : 'px-2.5 py-1 xs:py-2 sm:py-4'}`} style={{ scrollBehavior: 'smooth' }}>
         {allMessages.length === 0 ? (
           <div className={`flex items-start ${isMobile ? 'space-x-1 mb-2' : 'space-x-2 xs:space-x-3 sm:space-x-4 mb-4 xs:mb-5 sm:mb-6'}`}>
@@ -315,7 +314,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isProcessing}
-              className={`w-full min-h-[32px] xs:min-h-[36px] sm:min-h-[44px] p-2 xs:p-3 sm:p-4 pr-12 xs:pr-14 sm:pr-16 resize-none border border-input bg-background placeholder:text-muted-foreground overflow-hidden focus:border-ring focus:outline-none text-[11px] xs:text-xs sm:text-sm rounded-lg transition-all duration-200`}
+              className={`w-full min-h-[32px] xs:min-h-[36px] sm:min-h-[44px] p-2 xs:p-3 sm:p-4 pr-10 xs:pr-12 sm:pr-14 resize-none border border-input bg-background placeholder:text-muted-foreground overflow-hidden focus:border-ring focus:outline-none text-[11px] xs:text-xs sm:text-sm rounded-lg transition-all duration-200`}
               style={{ 
                 lineHeight: '1.3',
                 wordBreak: 'break-word',
@@ -328,7 +327,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               onClick={handleSubmit}
               disabled={!inputText.trim() || isProcessing}
               size="sm"
-              className={`absolute right-1 bottom-1 ${isMobile ? 'h-6 w-6 p-0' : 'h-8 w-8 p-0'} rounded-md shadow-sm hover:shadow-md transition-all duration-200`}
+              className={`absolute right-1 bottom-1 ${isMobile ? 'h-6 w-6 p-0' : 'h-8 w-8 p-0'} rounded-lg shadow-sm hover:shadow-md transition-all duration-200`}
             >
               {isProcessing ? (
                 <Loader2 className={`${isMobile ? 'h-3 w-3' : 'h-3.5 w-3.5'} animate-spin`} />
