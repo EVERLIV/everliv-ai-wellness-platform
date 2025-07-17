@@ -307,7 +307,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       )}
 
       {/* Modern Input Panel */}
-      <div className="border-t border-border bg-card p-1 xs:p-2 sm:p-4">
+      <div className={`border-t border-border bg-card ${isMobile ? 'p-1 mt-2' : 'p-4 mt-4'}`}>
         <div className="flex gap-1 xs:gap-2 sm:gap-3 items-end">
           <div className="flex-1 min-w-0 relative">
             <textarea
