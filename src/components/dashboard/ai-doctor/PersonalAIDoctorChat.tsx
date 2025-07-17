@@ -85,8 +85,8 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
             <Bot className="h-3 w-3 sm:h-5 sm:w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-sm sm:text-lg font-semibold text-foreground">ИИ Доктор</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+            <h1 className="text-lg sm:text-xl font-semibold text-foreground">ИИ Доктор</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               <span className="hidden sm:inline">Персональные консультации</span>
               {remainingMessages !== null && (
                 <span className="ml-1 sm:ml-2 text-xs font-medium text-primary">
