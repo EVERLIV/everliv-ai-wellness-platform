@@ -187,28 +187,28 @@ const HealthCalendar = () => {
                       size="xs"
                       className="h-6 px-2 text-xs rounded-none border-gray-300"
                     >
-                      Day
+                      День
                     </Button>
                     <Button
                       variant="outline"
                       size="xs"
                       className="h-6 px-2 text-xs rounded-none border-gray-300"
                     >
-                      Week
+                      Неделя
                     </Button>
                     <Button
                       variant="default"
                       size="xs"
                       className="h-6 px-2 text-xs rounded-none"
                     >
-                      Month
+                      Месяц
                     </Button>
                     <Button
                       variant="outline"
                       size="xs"
                       className="h-6 px-2 text-xs rounded-none border-gray-300"
                     >
-                      Year
+                      Год
                     </Button>
                   </div>
                   <Button
@@ -217,7 +217,7 @@ const HealthCalendar = () => {
                     onClick={() => setCurrentDate(new Date())}
                     className="h-6 px-2 text-xs rounded-none border-gray-300"
                   >
-                    Today
+                    Сегодня
                   </Button>
                 </div>
                 <div className="flex items-center justify-center space-x-2">
@@ -275,7 +275,7 @@ const HealthCalendar = () => {
                   onClick={() => setViewMode('reminders')}
                   className="flex-1 h-6 text-xs rounded-none border-gray-300"
                 >
-                  Events
+                  События
                 </Button>
                 <Button 
                   variant={viewMode === 'analytics' ? 'default' : 'outline'} 
@@ -283,7 +283,14 @@ const HealthCalendar = () => {
                   onClick={() => setViewMode('analytics')}
                   className="flex-1 h-6 text-xs rounded-none border-gray-300"
                 >
-                  Analytics
+                  Напоминания
+                </Button>
+                <Button 
+                  variant="outline"
+                  size="xs"
+                  className="flex-1 h-6 text-xs rounded-none border-gray-300"
+                >
+                  Список дел
                 </Button>
               </div>
 

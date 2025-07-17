@@ -40,11 +40,11 @@ const HealthCalendarView = ({
   };
 
   const getHealthScoreColor = (score: number | null) => {
-    if (score === null) return 'bg-gray-100 text-gray-400';
-    if (score >= 80) return 'bg-green-100 text-green-800 border-green-200';
-    if (score >= 60) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    if (score >= 40) return 'bg-orange-100 text-orange-800 border-orange-200';
-    return 'bg-red-100 text-red-800 border-red-200';
+    if (score === null) return '';
+    if (score >= 80) return 'bg-green-500';
+    if (score >= 60) return 'bg-yellow-500';
+    if (score >= 40) return 'bg-orange-500';
+    return 'bg-red-500';
   };
 
   const getHealthScoreIcon = (score: number | null) => {
@@ -107,49 +107,37 @@ const HealthCalendarView = ({
                   <Button
                     variant="ghost"
                     className={cn(
-                      `${isMobile ? 'h-7' : 'h-8'} w-full p-0.5 relative border border-transparent hover:border-primary/20 transition-all rounded-none`,
+                      `h-8 w-full p-0.5 relative border border-gray-200 hover:border-primary/40 transition-all rounded-none bg-white`,
                       isToday(day) && `ring-1 ring-primary ring-offset-0`,
                       selectedDate && isSameDay(selectedDate, day) && "border-primary",
-                      !isSameMonth(day, currentDate) && "opacity-50",
-                      getHealthScoreColor(healthScore)
+                      !isSameMonth(day, currentDate) && "opacity-50"
                     )}
                     onClick={() => handleDateClick(day)}
                   >
-                    <div className="flex flex-col items-center justify-between h-full w-full">
-                      <div className="flex items-center justify-between w-full">
-                        <span className="text-[11px] font-medium leading-none">
-                          {format(day, 'd')}
-                        </span>
-                        {hasData && !isMobile && (
-                          <div className="flex items-center">
-                            {getHealthScoreIcon(healthScore)}
-                          </div>
-                        )}
-                      </div>
+                    <div className="flex flex-col items-center justify-center h-full w-full">
+                      <span className="text-xs font-medium leading-none text-gray-900">
+                        {format(day, 'd')}
+                      </span>
                       
+                      {/* Индикатор здоровья - точка под числом */}
                       {healthScore && (
-                        <Badge 
-                          variant="outline" 
-                          className={cn(
-                            `text-[8px] px-0.5 py-0 h-2 border-0 leading-none rounded-none`,
-                            getHealthScoreColor(healthScore)
-                          )}
-                        >
-                          {Math.round(healthScore)}
-                        </Badge>
+                        <div className={cn(
+                          "w-1.5 h-1.5 rounded-full mt-1",
+                          getHealthScoreColor(healthScore)
+                        )} />
                       )}
                       
-                      {/* Activity indicators - только точки для компактности */}
+                      {/* Дополнительные индикаторы активности */}
                       {!isMobile && hasData && (
-                        <div className="flex space-x-0.5">
+                        <div className="flex space-x-0.5 mt-0.5">
                           {dayData?.steps && dayData.steps > 8000 && (
-                            <div className="w-0.5 h-0.5 bg-green-500"></div>
+                            <div className="w-0.5 h-0.5 bg-green-500 rounded-full"></div>
                           )}
                           {dayData?.sleep_hours && dayData.sleep_hours >= 7 && (
-                            <div className="w-0.5 h-0.5 bg-blue-500"></div>
+                            <div className="w-0.5 h-0.5 bg-blue-500 rounded-full"></div>
                           )}
                           {dayData?.mood_level && dayData.mood_level >= 7 && (
-                            <div className="w-0.5 h-0.5 bg-yellow-500"></div>
+                            <div className="w-0.5 h-0.5 bg-yellow-500 rounded-full"></div>
                           )}
                         </div>
                       )}

@@ -124,38 +124,38 @@ const CalendarReminders = ({ currentDate }: CalendarRemindersProps) => {
   return (
     <div className="space-y-2">
       {/* Daily Tasks */}
-      <div className="text-[10px] text-muted-foreground mb-1">7:30 AM TO 9:00 AM</div>
+      <div className="text-[10px] text-muted-foreground mb-1">7:30 УТРА ДО 9:00 УТРА</div>
       <Card className="shadow-none border-0 rounded-none bg-blue-100">
         <CardContent className="p-2">
-          <div className="text-[10px] font-medium text-blue-800">Daily Tasks</div>
-          <div className="text-[9px] text-blue-700">Meditate, Exercise</div>
+          <div className="text-[10px] font-medium text-blue-800">Ежедневные задачи</div>
+          <div className="text-[9px] text-blue-700">Медитация, Упражнения</div>
         </CardContent>
       </Card>
 
       {/* Office Tasks */}
-      <div className="text-[10px] text-muted-foreground mb-1">10:00 AM TO 1:00 PM</div>
+      <div className="text-[10px] text-muted-foreground mb-1">10:00 УТРА ДО 13:00 ДНЯ</div>
       <Card className="shadow-none border-0 rounded-none bg-pink-100">
         <CardContent className="p-2">
-          <div className="text-[10px] font-medium text-pink-800">Office Tasks</div>
-          <div className="text-[9px] text-pink-700">Submit Reports, Check Emails & Attend Meetings</div>
+          <div className="text-[10px] font-medium text-pink-800">Рабочие задачи</div>
+          <div className="text-[9px] text-pink-700">Отчеты, Проверка почты & Встречи</div>
         </CardContent>
       </Card>
 
       {/* Appointments */}
-      <div className="text-[10px] text-muted-foreground mb-1">3:00 PM TO 4:00 PM</div>
+      <div className="text-[10px] text-muted-foreground mb-1">15:00 ДНЯ ДО 16:00 ДНЯ</div>
       <Card className="shadow-none border-0 rounded-none bg-green-100">
         <CardContent className="p-2">
-          <div className="text-[10px] font-medium text-green-800">Appointments</div>
-          <div className="text-[9px] text-green-700">Dental Doctor's Appointments</div>
+          <div className="text-[10px] font-medium text-green-800">Встречи</div>
+          <div className="text-[9px] text-green-700">Прием у стоматолога</div>
         </CardContent>
       </Card>
 
       {/* Study & Learning */}
-      <div className="text-[10px] text-muted-foreground mb-1">8:00 PM TO 9:00 PM</div>
+      <div className="text-[10px] text-muted-foreground mb-1">20:00 ВЕЧЕРА ДО 21:00 ВЕЧЕРА</div>
       <Card className="shadow-none border-0 rounded-none bg-blue-100">
         <CardContent className="p-2">
-          <div className="text-[10px] font-medium text-blue-800">Study & Learning</div>
-          <div className="text-[9px] text-blue-700">Join Online Advance Excel Webinars</div>
+          <div className="text-[10px] font-medium text-blue-800">Обучение</div>
+          <div className="text-[9px] text-blue-700">Онлайн курс по Excel</div>
         </CardContent>
       </Card>
 
@@ -165,7 +165,7 @@ const CalendarReminders = ({ currentDate }: CalendarRemindersProps) => {
         className="w-full text-[10px] text-muted-foreground hover:text-primary h-6 rounded-none"
         onClick={() => setShowAddForm(true)}
       >
-        + Add Event
+        + Добавить событие
       </Button>
 
       {/* Add Reminder Form */}
