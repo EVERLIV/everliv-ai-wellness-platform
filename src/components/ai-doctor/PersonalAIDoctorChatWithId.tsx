@@ -193,10 +193,18 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                   <div className={`border-l-2 pl-1.5 xs:pl-2 sm:pl-3 ${
                     message.role === "user" ? "border-l-muted" : "border-l-primary"
                   }`}>
-                    <div className="text-xs xs:text-sm sm:text-base text-foreground leading-tight whitespace-pre-wrap" 
-                         style={{ wordBreak: 'break-word', lineHeight: '1.3' }}>
-                      {message.content}
-                    </div>
+                    {message.role === "assistant" && message.content.includes('<div') ? (
+                      <div 
+                        className="text-xs xs:text-sm sm:text-base text-foreground leading-tight" 
+                        style={{ wordBreak: 'break-word', lineHeight: '1.3' }}
+                        dangerouslySetInnerHTML={{ __html: message.content }}
+                      />
+                    ) : (
+                      <div className="text-xs xs:text-sm sm:text-base text-foreground leading-tight whitespace-pre-wrap" 
+                           style={{ wordBreak: 'break-word', lineHeight: '1.3' }}>
+                        {message.content}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
