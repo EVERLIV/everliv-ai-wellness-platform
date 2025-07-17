@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.generate-biomarker-recommendations]
 verify_jwt = false
+
+[functions.generate-analysis-recommendations]
+verify_jwt = false

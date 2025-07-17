@@ -10,6 +10,7 @@ import HealthCalendarView from '@/components/health-calendar/HealthCalendarView'
 import CalendarAnalytics from '@/components/health-calendar/CalendarAnalytics';
 import CalendarReminders from '@/components/health-calendar/CalendarReminders';
 import CalendarEvents from '@/components/health-calendar/CalendarEvents';
+import RecommendedAnalyses from '@/components/health-calendar/RecommendedAnalyses';
 import { useHealthCalendar } from '@/hooks/useHealthCalendar';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -224,14 +225,15 @@ const HealthCalendar = () => {
                   onClick={() => setViewMode('analytics')}
                   className="flex-1 h-6 text-xs rounded-none border-gray-300"
                 >
-                  Напоминания
+                  Аналитика
                 </Button>
                 <Button 
-                  variant="outline"
+                  variant={viewMode === 'calendar' ? 'default' : 'outline'}
                   size="xs"
+                  onClick={() => setViewMode('calendar')}
                   className="flex-1 h-6 text-xs rounded-none border-gray-300"
                 >
-                  Список дел
+                  Мои Анализы
                 </Button>
               </div>
 
@@ -240,11 +242,10 @@ const HealthCalendar = () => {
                 <CalendarEvents currentDate={currentDate} selectedDate={selectedDate} />
               )}
               {viewMode === 'analytics' && (
-                <CalendarAnalytics
-                  calendarData={calendarData}
-                  currentDate={currentDate}
-                  aiInsights={aiInsights}
-                />
+                <CalendarReminders currentDate={currentDate} />
+              )}
+              {viewMode === 'calendar' && (
+                <RecommendedAnalyses currentDate={currentDate} selectedDate={selectedDate} />
               )}
             </div>
           </div>
