@@ -43,6 +43,7 @@ const Community = lazy(() => import("./pages/Community"));
 const Webinars = lazy(() => import("./pages/Webinars"));
 const BiologicalAgePage = lazy(() => import("./pages/BiologicalAge"));
 const DiagnosticsPage = lazy(() => import("./pages/DiagnosticsPage"));
+const HealthCalendar = lazy(() => import("./pages/HealthCalendar"));
 
 // Auth pages
 const Login = lazy(() => import("./pages/Login"));
@@ -203,6 +204,11 @@ const App = () => (
                       <Route path="/checkout" element={
                         <ProtectedRoute>
                           <Checkout />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/health-calendar" element={
+                        <ProtectedRoute>
+                          <HealthCalendar />
                         </ProtectedRoute>
                       } />
 
