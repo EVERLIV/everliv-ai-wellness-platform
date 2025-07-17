@@ -145,79 +145,95 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       {/* Messages Area - Maximized on Mobile */}
       <div className="flex-1 overflow-y-auto px-1 xs:px-2 sm:px-6 py-1 xs:py-2 sm:py-4" style={{ scrollBehavior: 'smooth' }}>
         {allMessages.length === 0 ? (
-          <div className="flex items-start space-x-1 xs:space-x-2 sm:space-x-3 mb-2 xs:mb-3 sm:mb-5">
-            <div className="w-5 h-5 xs:w-6 xs:h-6 sm:w-9 sm:h-9 bg-primary text-primary-foreground border border-primary flex items-center justify-center flex-shrink-0">
-              <Sparkles className="h-2.5 w-2.5 xs:h-3 xs:w-3 sm:h-4 sm:w-4" />
+          <div className="flex items-start space-x-2 xs:space-x-3 sm:space-x-4 mb-4 xs:mb-5 sm:mb-6">
+            <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10 bg-primary text-primary-foreground border border-primary flex items-center justify-center rounded-full flex-shrink-0">
+              <Sparkles className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5" />
             </div>
             <div className="flex-1 max-w-[90%]">
-              <div className="flex items-center space-x-1 mb-0.5 xs:mb-1 sm:mb-2">
-                <span className="text-xs xs:text-sm sm:text-base font-semibold text-foreground">ИИ Доктор</span>
-                <span className="text-[8px] xs:text-[10px] sm:text-xs text-muted-foreground">
+              <div className="flex items-center space-x-2 mb-1 xs:mb-1.5 sm:mb-3">
+                <span className="text-sm xs:text-base sm:text-lg font-semibold text-foreground">ИИ Доктор</span>
+                <span className="text-xs xs:text-sm sm:text-base text-muted-foreground">
                   {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
-              <div className="text-xs xs:text-sm sm:text-base leading-tight text-foreground" style={{ wordBreak: 'break-word', lineHeight: '1.3' }}>
+              <div className="text-sm xs:text-base sm:text-lg leading-relaxed text-foreground" style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
                 Я помню нашу историю общения и имею доступ к вашим медицинским анализам для точных рекомендаций
               </div>
             </div>
           </div>
         ) : (
-          <div className="space-y-1 xs:space-y-2 sm:space-y-4">
+          <div className="space-y-3 xs:space-y-4 sm:space-y-6">
             {allMessages.map((message) => (
-              <div key={message.id} className="flex items-start space-x-1 xs:space-x-2 sm:space-x-3">
-                <div className={`w-5 h-5 xs:w-6 xs:h-6 sm:w-9 sm:h-9 border flex items-center justify-center flex-shrink-0 ${
-                  message.role === "user" 
-                    ? "bg-muted border-border" 
-                    : "bg-primary text-primary-foreground border-primary"
-                }`}>
-                  {message.role === "user" ? (
-                    <User className="h-2.5 w-2.5 xs:h-3 xs:w-3 sm:h-4 sm:w-4" />
-                  ) : (
-                    <Sparkles className="h-2.5 w-2.5 xs:h-3 xs:w-3 sm:h-4 sm:w-4" />
-                  )}
-                </div>
+              <div key={message.id} className={`${
+                message.role === "user" ? "flex justify-end" : "flex justify-start"
+              }`}>
+                {message.role === "user" ? (
+                  // User message bubble
+                  <div className="max-w-[85%] bg-primary text-primary-foreground rounded-2xl px-3 xs:px-4 sm:px-6 py-2 xs:py-3 sm:py-4 shadow-sm">
+                    <div className="flex items-center space-x-2 mb-1 xs:mb-1.5">
+                      <span className="text-xs xs:text-sm sm:text-base font-medium opacity-90">
+                        Вы
+                      </span>
+                      <span className="text-xs xs:text-sm opacity-75">
+                        {message.timestamp.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    <div className="text-sm xs:text-base sm:text-lg leading-relaxed whitespace-pre-wrap" 
+                         style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
+                      {message.content}
+                    </div>
+                  </div>
+                ) : (
+                  // AI message
+                  <div className="flex items-start space-x-2 xs:space-x-3 sm:space-x-4 max-w-[95%]">
+                    <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10 bg-primary text-primary-foreground border border-primary flex items-center justify-center rounded-full flex-shrink-0 mt-1">
+                      <Sparkles className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5" />
+                    </div>
 
-                <div className="flex-1 min-w-0 max-w-[90%]">
-                  <div className="flex items-center space-x-1 mb-0.5 xs:mb-1 sm:mb-2">
-                    <span className="text-xs xs:text-sm sm:text-base font-medium text-foreground">
-                      {message.role === "user" ? "Вы" : "ИИ Доктор"}
-                    </span>
-                    <span className="text-[8px] xs:text-[10px] sm:text-xs text-muted-foreground">
-                      {message.timestamp.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                  
-                  <div className={`border-l-2 pl-1.5 xs:pl-2 sm:pl-3 ${
-                    message.role === "user" ? "border-l-muted" : "border-l-primary"
-                  }`}>
-                    {message.role === "assistant" && message.content.includes('<div') ? (
-                      <div 
-                        className="text-xs xs:text-sm sm:text-base text-foreground leading-tight" 
-                        style={{ wordBreak: 'break-word', lineHeight: '1.3' }}
-                        dangerouslySetInnerHTML={{ __html: message.content }}
-                      />
-                    ) : (
-                      <div className="text-xs xs:text-sm sm:text-base text-foreground leading-tight whitespace-pre-wrap" 
-                           style={{ wordBreak: 'break-word', lineHeight: '1.3' }}>
-                        {message.content}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 mb-1 xs:mb-1.5 sm:mb-3">
+                        <span className="text-sm xs:text-base sm:text-lg font-semibold text-foreground">
+                          ИИ Доктор - Анализ результатов
+                        </span>
+                        <span className="text-xs xs:text-sm sm:text-base text-muted-foreground">
+                          {message.timestamp.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
                       </div>
-                    )}
+                      
+                      <div className="border-l-3 border-l-primary pl-3 xs:pl-4 sm:pl-5">
+                        {message.role === "assistant" && message.content.includes('<div') ? (
+                          <div 
+                            className="text-sm xs:text-base sm:text-lg text-foreground leading-relaxed" 
+                            style={{ wordBreak: 'break-word', lineHeight: '1.4' }}
+                            dangerouslySetInnerHTML={{ __html: message.content }}
+                          />
+                        ) : (
+                          <div className="text-sm xs:text-base sm:text-lg text-foreground leading-relaxed whitespace-pre-wrap" 
+                               style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
+                            {message.content}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ))}
             
             {isProcessing && (
-              <div className="flex items-start space-x-1 xs:space-x-2 sm:space-x-3">
-                <div className="w-5 h-5 xs:w-6 xs:h-6 sm:w-9 sm:h-9 bg-primary text-primary-foreground border border-primary flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="h-2.5 w-2.5 xs:h-3 xs:w-3 sm:h-4 sm:w-4" />
+              <div className="flex items-start space-x-2 xs:space-x-3 sm:space-x-4">
+                <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10 bg-primary text-primary-foreground border border-primary flex items-center justify-center rounded-full flex-shrink-0">
+                  <Sparkles className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5" />
                 </div>
                 <div className="flex-1 min-w-0 max-w-[90%]">
-                  <div className="flex items-center space-x-1 mb-0.5 xs:mb-1 sm:mb-2">
-                    <span className="text-[10px] xs:text-xs sm:text-sm font-medium text-foreground">ИИ Доктор</span>
+                  <div className="flex items-center space-x-2 mb-1 xs:mb-1.5 sm:mb-2">
+                    <span className="text-sm xs:text-base sm:text-lg font-semibold text-foreground">ИИ Доктор</span>
                   </div>
                   <div className="border-l-2 border-l-primary pl-1.5 xs:pl-2 sm:pl-3">
                     <div className="flex items-center space-x-1 text-muted-foreground">
