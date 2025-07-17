@@ -1,7 +1,6 @@
-
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User } from "lucide-react";
+import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User, ChevronDown, ChevronUp } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SuggestedQuestions from "@/components/dashboard/ai-doctor/SuggestedQuestions";
 import { usePersonalAIDoctorChatWithId } from "./usePersonalAIDoctorChatWithId";
@@ -10,6 +9,7 @@ import { useUserPresence } from "@/hooks/useUserPresence";
 import { getSuggestedQuestions } from "@/services/ai/ai-doctor-service";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Microscope, Pill, TrendingUp, Heart, Apple } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const iconMap = {
   microscope: Microscope,
@@ -51,12 +51,13 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
   const isMobile = useIsMobile();
   const suggestedQuestions = getSuggestedQuestions({});
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [showSuggestedQuestions, setShowSuggestedQuestions] = useState(false);
   
   const allMessages = [...messages, ...realtimeMessages].sort((a, b) => 
     new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
   );
   
-  const showSuggestedQuestions = allMessages.length === 0 || (allMessages.length === 1 && allMessages[0].role === 'assistant');
+  const shouldShowSuggestedQuestions = allMessages.length === 0 || (allMessages.length === 1 && allMessages[0].role === 'assistant');
 
   // Auto-resize textarea
   useEffect(() => {
@@ -249,48 +250,64 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Popular Questions - Compact on Mobile */}
-      {showSuggestedQuestions && (
-        <div className="border-t border-border bg-muted/30 p-1 xs:p-2 sm:p-5">
-          <div className="text-center mb-1 xs:mb-2 sm:mb-4">
-            <h3 className="text-xs xs:text-sm sm:text-lg font-semibold text-foreground mb-0.5">
-              Популярные вопросы
-            </h3>
-            <p className="text-[10px] xs:text-xs sm:text-base text-muted-foreground">
-              Выберите вопрос или задайте свой
-            </p>
+      {/* Collapsible Popular Questions */}
+      {shouldShowSuggestedQuestions && (
+        <Collapsible open={showSuggestedQuestions} onOpenChange={setShowSuggestedQuestions}>
+          <div className="border-t border-border bg-muted/30">
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className={`w-full ${isMobile ? 'h-8 text-xs' : 'h-10 text-sm'} flex items-center justify-between px-2 hover:bg-muted/50`}
+              >
+                <span className="font-medium text-foreground">
+                  {showSuggestedQuestions ? 'Скрыть популярные вопросы' : 'Показать популярные вопросы'}
+                </span>
+                {showSuggestedQuestions ? (
+                  <ChevronUp className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
+                ) : (
+                  <ChevronDown className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            
+            <CollapsibleContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <div className="p-1 xs:p-2 sm:p-3">
+                <div className="grid grid-cols-1 gap-1 xs:gap-1.5 sm:gap-3">
+                  {suggestedQuestions.map((question, index) => {
+                    const IconComponent = iconMap[question.icon as keyof typeof iconMap] || BookOpen;
+                    
+                    return (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        onClick={() => {
+                          handleSuggestedQuestion(question.text);
+                          setShowSuggestedQuestions(false);
+                        }}
+                        className="h-auto p-1.5 xs:p-2 sm:p-3 text-left justify-start hover:bg-muted/50 bg-card min-h-[28px] xs:min-h-[32px] sm:min-h-[44px]"
+                      >
+                        <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-3 w-full">
+                          <div className="w-4 h-4 xs:w-5 xs:h-5 sm:w-8 sm:h-8 bg-muted flex items-center justify-center text-primary flex-shrink-0">
+                            <IconComponent className="h-2 w-2 xs:h-2.5 xs:w-2.5 sm:h-4 sm:w-4" />
+                          </div>
+                          <span className="text-[10px] xs:text-xs sm:text-sm text-foreground text-left leading-tight" style={{ wordBreak: 'break-word' }}>
+                            {question.text}
+                          </span>
+                        </div>
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            </CollapsibleContent>
           </div>
-          
-          <div className="grid grid-cols-1 gap-1 xs:gap-1.5 sm:gap-3">
-            {suggestedQuestions.map((question, index) => {
-              const IconComponent = iconMap[question.icon as keyof typeof iconMap] || BookOpen;
-              
-              return (
-                <Button
-                  key={index}
-                  variant="outline"
-                  onClick={() => handleSuggestedQuestion(question.text)}
-                  className="h-auto p-1.5 xs:p-2 sm:p-3 text-left justify-start hover:bg-muted/50 bg-card min-h-[28px] xs:min-h-[32px] sm:min-h-[44px]"
-                >
-                  <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-3 w-full">
-                    <div className="w-4 h-4 xs:w-5 xs:h-5 sm:w-8 sm:h-8 bg-muted flex items-center justify-center text-primary flex-shrink-0">
-                      <IconComponent className="h-2 w-2 xs:h-2.5 xs:w-2.5 sm:h-4 sm:w-4" />
-                    </div>
-                    <span className="text-[10px] xs:text-xs sm:text-sm text-foreground text-left leading-tight" style={{ wordBreak: 'break-word' }}>
-                      {question.text}
-                    </span>
-                  </div>
-                </Button>
-              );
-            })}
-          </div>
-        </div>
+        </Collapsible>
       )}
 
-      {/* Compact Input Panel */}
-      <div className="border-t border-border bg-card p-1 xs:p-2 sm:p-6">
-        <div className="flex gap-1 xs:gap-1.5 sm:gap-3 items-center">
-          <div className="flex-1 min-w-0">
+      {/* Modern Input Panel */}
+      <div className="border-t border-border bg-card p-1 xs:p-2 sm:p-4">
+        <div className="flex gap-1 xs:gap-2 sm:gap-3 items-end">
+          <div className="flex-1 min-w-0 relative">
             <textarea
               ref={textareaRef}
               placeholder="Задайте вопрос о здоровье..."
@@ -298,7 +315,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isProcessing}
-              className="w-full min-h-[32px] xs:min-h-[36px] sm:min-h-[44px] p-1.5 xs:p-2 sm:p-3 resize-none border border-input bg-background placeholder:text-muted-foreground overflow-hidden focus:border-ring focus:outline-none text-[11px] xs:text-xs sm:text-sm"
+              className={`w-full min-h-[32px] xs:min-h-[36px] sm:min-h-[44px] p-2 xs:p-3 sm:p-4 pr-12 xs:pr-14 sm:pr-16 resize-none border border-input bg-background placeholder:text-muted-foreground overflow-hidden focus:border-ring focus:outline-none text-[11px] xs:text-xs sm:text-sm rounded-lg transition-all duration-200`}
               style={{ 
                 lineHeight: '1.3',
                 wordBreak: 'break-word',
@@ -307,22 +324,20 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               }}
               rows={1}
             />
+            <Button
+              onClick={handleSubmit}
+              disabled={!inputText.trim() || isProcessing}
+              size="sm"
+              className={`absolute right-1 bottom-1 ${isMobile ? 'h-6 w-6 p-0' : 'h-8 w-8 p-0'} rounded-md shadow-sm hover:shadow-md transition-all duration-200`}
+            >
+              {isProcessing ? (
+                <Loader2 className={`${isMobile ? 'h-3 w-3' : 'h-3.5 w-3.5'} animate-spin`} />
+              ) : (
+                <Send className={`${isMobile ? 'h-3 w-3' : 'h-3.5 w-3.5'}`} />
+              )}
+            </Button>
           </div>
-          <Button
-            onClick={handleSubmit}
-            disabled={!inputText.trim() || isProcessing}
-            className="h-[32px] w-[32px] xs:h-[36px] xs:w-[36px] sm:h-[44px] sm:w-[44px] p-0 flex-shrink-0"
-          >
-            {isProcessing ? (
-              <Loader2 className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-4 sm:w-4 animate-spin" />
-            ) : (
-              <Send className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-4 sm:w-4" />
-            )}
-          </Button>
         </div>
-        
-        {/* Ultra Compact Footer - Убираем для desktop, кнопки есть на странице */}
-        {!isMobile ? null : null}
       </div>
     </div>
   );
