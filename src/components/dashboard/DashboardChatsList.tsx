@@ -6,6 +6,13 @@ import { MessageSquare, Bot, Clock, ArrowRight, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSecureAIDoctor } from '@/hooks/useSecureAIDoctor';
 
+// Функция для удаления HTML тегов из текста
+const stripHtml = (html: string): string => {
+  const tmp = document.createElement("DIV");
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || "";
+};
+
 const DashboardChatsList: React.FC = () => {
   const navigate = useNavigate();
   const { chats, isLoading } = useSecureAIDoctor();
@@ -45,9 +52,11 @@ const DashboardChatsList: React.FC = () => {
 
       // Если есть первое сообщение пользователя - создаем заголовок на его основе
       if (firstUserMessage) {
-        const truncated = firstUserMessage.length > 40 
-          ? firstUserMessage.substring(0, 40) + '...' 
-          : firstUserMessage;
+        // Удаляем HTML теги из сообщения
+        const cleanMessage = stripHtml(firstUserMessage);
+        const truncated = cleanMessage.length > 40 
+          ? cleanMessage.substring(0, 40) + '...' 
+          : cleanMessage;
         return truncated;
       }
 
@@ -66,9 +75,12 @@ const DashboardChatsList: React.FC = () => {
       id: chat.id,
       title: smartTitle,
       lastMessage: lastMessage?.content ? 
-        (lastMessage.content.length > 50 ? 
-          lastMessage.content.substring(0, 50) + '...' : 
-          lastMessage.content) : 
+        ((() => {
+          const cleanContent = stripHtml(lastMessage.content);
+          return cleanContent.length > 50 ? 
+            cleanContent.substring(0, 50) + '...' : 
+            cleanContent;
+        })()) : 
         'Чат создан',
       timestamp: formatTimeAgo(new Date(chat.updated_at)),
       type: chatType
@@ -111,7 +123,7 @@ const DashboardChatsList: React.FC = () => {
 
   const handleChatClick = (chatId: string) => {
     console.log('Navigating to chat:', chatId);
-    navigate(`/ai-doctor?chat=${chatId}`);
+    navigate(`/ai-doctor/personal?chat=${chatId}`);
   };
 
   if (isLoading) {
@@ -152,7 +164,7 @@ const DashboardChatsList: React.FC = () => {
             <p className="text-xs text-gray-500 mb-2">Чаты с ИИ доктором отсутствуют</p>
             <Button 
               size="sm" 
-              onClick={() => navigate('/ai-doctor')}
+              onClick={() => navigate('/ai-doctor/personal')}
               className="text-xs h-7"
             >
               <Plus className="h-3 w-3 mr-1" />
@@ -196,7 +208,7 @@ const DashboardChatsList: React.FC = () => {
             <Button 
               variant="outline" 
               className="w-full mt-3 border-purple-200 text-purple-700 hover:bg-purple-50 h-8 text-xs"
-              onClick={() => navigate('/ai-doctor')}
+              onClick={() => navigate('/ai-doctor/personal')}
             >
               <MessageSquare className="h-3 w-3 mr-1" />
               Все чаты с ИИ доктором
