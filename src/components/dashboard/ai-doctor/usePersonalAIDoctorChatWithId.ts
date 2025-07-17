@@ -44,7 +44,13 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
   // Загружаем чат и сообщения
   useEffect(() => {
     if (chatId && user) {
+      console.log('Loading chat data for chatId:', chatId);
       loadChatData();
+    } else if (!chatId) {
+      // Если нет chatId, очищаем состояние
+      setMessages([]);
+      setIsLoading(false);
+      console.log('No chatId provided, clearing messages');
     }
   }, [chatId, user]);
 
@@ -57,6 +63,7 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
     if (!chatId || !user) return;
     
     setIsLoading(true);
+    console.log('Starting to load chat data for chatId:', chatId);
     
     try {
       // Загружаем сообщения чата
@@ -67,6 +74,8 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
         .order('created_at', { ascending: true });
 
       if (messagesError) throw messagesError;
+
+      console.log(`Loaded ${messagesData.length} messages from database`);
 
       // Преобразуем сообщения в нужный формат
       const chatMessages: Message[] = messagesData.map(msg => ({
@@ -80,6 +89,7 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
 
       // Если нет сообщений, добавляем приветственное
       if (chatMessages.length === 0) {
+        console.log('No messages found, adding welcome message');
         const welcomeMessage: Message = {
           id: uuidv4(),
           role: 'assistant',
@@ -99,17 +109,24 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
           }]);
       }
 
-      // Загружаем медицинский контекст и анализы
-      const context = await getUserMedicalContext(user);
-      setMedicalContext(context);
+      // Загружаем медицинский контекст и анализы только если еще не загружены
+      if (!medicalContext) {
+        const context = await getUserMedicalContext(user);
+        setMedicalContext(context);
+        console.log('Medical context loaded');
+      }
       
-      const analyses = await getMedicalAnalysesHistory(user.id);
-      setUserAnalyses(analyses);
+      if (userAnalyses.length === 0) {
+        const analyses = await getMedicalAnalysesHistory(user.id);
+        setUserAnalyses(analyses);
+        console.log('User analyses loaded');
+      }
       
     } catch (error) {
       console.error('Ошибка загрузки чата:', error);
     } finally {
       setIsLoading(false);
+      console.log('Chat data loading completed');
     }
   };
 

@@ -31,9 +31,15 @@ const AIDoctorPersonalPage = () => {
   // Обработка URL параметра chat
   useEffect(() => {
     const chatId = searchParams.get('chat');
+    console.log('URL chat parameter:', chatId);
     if (chatId) {
+      console.log('Setting selectedChatId from URL:', chatId);
       setSelectedChatId(chatId);
       setShowChatHistory(false);
+    } else {
+      // Если нет chatId в URL, показываем историю чатов
+      setSelectedChatId(undefined);
+      setShowChatHistory(true);
     }
   }, [searchParams]);
 
@@ -58,12 +64,21 @@ const AIDoctorPersonalPage = () => {
   }, [user?.id, hasPersonalAIDoctorAccess]);
 
   const handleSelectChat = (chatId: string) => {
+    // Обновляем URL при выборе чата
+    navigate(`/ai-doctor/personal?chat=${chatId}`, { replace: true });
     setSelectedChatId(chatId);
     setShowChatHistory(false);
   };
 
   const handleCreateNewChat = async () => {
     if (!user) return;
+    
+    // Если уже есть выбранный чат из URL, не создаем новый
+    const chatFromUrl = searchParams.get('chat');
+    if (chatFromUrl && selectedChatId === chatFromUrl) {
+      console.log('Chat already selected from URL, not creating new one');
+      return;
+    }
     
     try {
       const { data, error } = await supabase
@@ -77,6 +92,8 @@ const AIDoctorPersonalPage = () => {
 
       if (error) throw error;
       
+      // Обновляем URL с новым chatId
+      navigate(`/ai-doctor/personal?chat=${data.id}`, { replace: true });
       setSelectedChatId(data.id);
       setShowChatHistory(false);
     } catch (error) {
