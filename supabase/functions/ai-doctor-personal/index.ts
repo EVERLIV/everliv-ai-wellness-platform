@@ -113,8 +113,7 @@ function buildEnhancedSystemPrompt(userContext: string, criticalAlerts: string[]
 - Показатели давления
 - Другие лабораторные исследования
 
-ПРИМЕР СТРУКТУРЫ HTML:
-\`\`\`html
+ПРИМЕР СТРУКТУРЫ HTML (НЕ ВКЛЮЧАЙ ТЕГИ ```html В ОТВЕТ):
 <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
   <div style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
     <h2 style="color: #2c5282;">📊 Анализ ваших результатов</h2>
@@ -146,7 +145,6 @@ function buildEnhancedSystemPrompt(userContext: string, criticalAlerts: string[]
     [Конкретные показатели из результатов]
   </div>
 </div>
-\`\`\`
 
 ТОНАЛЬНОСТЬ:
 - Дружелюбная и поддерживающая

@@ -143,7 +143,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       )}
 
       {/* Messages Area - Maximized on Mobile */}
-      <div className="flex-1 overflow-y-auto px-1 xs:px-2 sm:px-6 py-1 xs:py-2 sm:py-4" style={{ scrollBehavior: 'smooth' }}>
+      <div className="flex-1 overflow-y-auto px-2.5 py-1 xs:py-2 sm:py-4" style={{ scrollBehavior: 'smooth' }}>
         {allMessages.length === 0 ? (
           <div className="flex items-start space-x-2 xs:space-x-3 sm:space-x-4 mb-4 xs:mb-5 sm:mb-6">
             <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10 bg-primary text-primary-foreground border border-primary flex items-center justify-center rounded-full flex-shrink-0">
@@ -188,7 +188,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                   </div>
                 ) : (
                   // AI message
-                  <div className="flex items-start space-x-2 xs:space-x-3 sm:space-x-4 max-w-[95%]">
+                  <div className="flex items-start space-x-2 xs:space-x-3 sm:space-x-4 w-full">
                     <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10 bg-primary text-primary-foreground border border-primary flex items-center justify-center rounded-full flex-shrink-0 mt-1">
                       <Sparkles className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5" />
                     </div>
