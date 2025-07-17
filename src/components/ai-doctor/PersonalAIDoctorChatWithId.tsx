@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User, ChevronDown, ChevronUp } from "lucide-react";
@@ -256,7 +257,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
             <CollapsibleTrigger asChild>
               <Button
                 variant="ghost"
-                className={`w-full ${isMobile ? 'h-8' : 'h-10'} flex items-center justify-between px-2 hover:bg-muted/50 text-sm`}
+                className={`w-full ${isMobile ? 'h-8 text-xs' : 'h-10 text-sm'} flex items-center justify-between px-2 hover:bg-muted/50`}
               >
                 <span className="font-medium text-foreground">
                   {showSuggestedQuestions ? 'Скрыть популярные вопросы' : 'Показать популярные вопросы'}
@@ -314,7 +315,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isProcessing}
-              className={`w-full min-h-[32px] xs:min-h-[36px] sm:min-h-[44px] p-2 xs:p-3 sm:p-4 pr-10 xs:pr-12 sm:pr-14 resize-none border border-input bg-background placeholder:text-muted-foreground overflow-hidden focus:border-ring focus:outline-none text-[11px] xs:text-xs sm:text-sm rounded-lg transition-all duration-200`}
+              className={`w-full min-h-[32px] xs:min-h-[36px] sm:min-h-[44px] p-2 xs:p-3 sm:p-4 ${isMobile ? 'pr-9' : 'pr-10 xs:pr-12 sm:pr-14'} resize-none border border-input bg-background placeholder:text-muted-foreground overflow-hidden focus:border-ring focus:outline-none text-[11px] xs:text-xs sm:text-sm rounded-lg transition-all duration-200`}
               style={{ 
                 lineHeight: '1.3',
                 wordBreak: 'break-word',
@@ -327,12 +328,12 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               onClick={handleSubmit}
               disabled={!inputText.trim() || isProcessing}
               size="sm"
-              className={`absolute right-2 top-1/2 -translate-y-1/2 ${isMobile ? 'h-6 w-6 p-1' : 'h-7 w-7 p-1'} rounded-md bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md transition-all duration-200`}
+              className={`absolute ${isMobile ? 'right-1 top-1/2 -translate-y-1/2 h-5 w-5 p-0' : 'right-2 top-1/2 -translate-y-1/2 h-7 w-7 p-1'} rounded-md bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md transition-all duration-200`}
             >
               {isProcessing ? (
-                <Loader2 className={`${isMobile ? 'h-3 w-3' : 'h-3.5 w-3.5'} animate-spin`} />
+                <Loader2 className={`${isMobile ? 'h-2.5 w-2.5' : 'h-3.5 w-3.5'} animate-spin`} />
               ) : (
-                <Send className={`${isMobile ? 'h-3 w-3' : 'h-3.5 w-3.5'}`} />
+                <Send className={`${isMobile ? 'h-2.5 w-2.5' : 'h-3.5 w-3.5'}`} />
               )}
             </Button>
           </div>
