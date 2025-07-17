@@ -327,12 +327,12 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               onClick={handleSubmit}
               disabled={!inputText.trim() || isProcessing}
               size="sm"
-              className={`absolute right-1 bottom-1 ${isMobile ? 'h-6 w-6 p-0' : 'h-8 w-8 p-0'} rounded-lg shadow-sm hover:shadow-md transition-all duration-200`}
+              className={`absolute right-2 top-1/2 -translate-y-1/2 ${isMobile ? 'h-5 w-5 p-0' : 'h-6 w-6 p-0'} rounded-md bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md transition-all duration-200`}
             >
               {isProcessing ? (
-                <Loader2 className={`${isMobile ? 'h-3 w-3' : 'h-3.5 w-3.5'} animate-spin`} />
+                <Loader2 className={`${isMobile ? 'h-2.5 w-2.5' : 'h-3 w-3'} animate-spin`} />
               ) : (
-                <Send className={`${isMobile ? 'h-3 w-3' : 'h-3.5 w-3.5'}`} />
+                <Send className={`${isMobile ? 'h-2.5 w-2.5' : 'h-3 w-3'}`} />
               )}
             </Button>
           </div>
