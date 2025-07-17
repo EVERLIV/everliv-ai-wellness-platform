@@ -10,22 +10,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import AddEventDialog from '@/components/health-calendar/AddEventDialog';
+import { useSavedRecommendations, AnalysisRecommendation } from '@/hooks/useSavedRecommendations';
+import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 
 interface RecommendedAnalysesProps {
   currentDate: Date;
   selectedDate?: Date;
-}
-
-interface AnalysisRecommendation {
-  name: string;
-  type: string;
-  priority: 'high' | 'medium' | 'low';
-  reason: string;
-  optimal_timing: string;
-  preparation: string;
-  frequency: string;
-  cost_estimate: string;
-  biomarkers: string[];
 }
 
 interface UrgentRecommendation {
@@ -44,6 +34,13 @@ const RecommendedAnalyses = ({ currentDate, selectedDate }: RecommendedAnalysesP
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { createEvent } = useCalendarEvents();
+  const { 
+    saveRecommendation, 
+    isRecommendationSaved, 
+    getSavedHashes,
+    linkRecommendationToEvent 
+  } = useSavedRecommendations();
   const [isLoading, setIsLoading] = useState(false);
   const [recommendations, setRecommendations] = useState<RecommendationsData | null>(null);
   const [expandedCard, setExpandedCard] = useState<number | null>(null);
@@ -53,10 +50,13 @@ const RecommendedAnalyses = ({ currentDate, selectedDate }: RecommendedAnalysesP
 
     setIsLoading(true);
     try {
+      const savedHashes = getSavedHashes();
+      
       const { data, error } = await supabase.functions.invoke('generate-analysis-recommendations', {
         body: {
           user_id: user.id,
-          selected_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')
+          selected_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+          excluded_hashes: savedHashes // Передаем хэши уже сохраненных рекомендаций
         }
       });
 
@@ -79,6 +79,29 @@ const RecommendedAnalyses = ({ currentDate, selectedDate }: RecommendedAnalysesP
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Функция для добавления рекомендации в календарь
+  const addToCalendar = async (analysis: AnalysisRecommendation, scheduledDate: Date) => {
+    // 1. Сначала создаем событие в календаре
+    const event = await createEvent({
+      title: `Анализ: ${analysis.name}`,
+      description: analysis.reason,
+      event_date: scheduledDate,
+      event_type: 'analysis',
+      priority: analysis.priority,
+      related_data: { analysis_recommendation: analysis }
+    });
+
+    if (event) {
+      // 2. Сохраняем рекомендацию и связываем с событием
+      const savedRec = await saveRecommendation(analysis, scheduledDate, event.id);
+      
+      if (savedRec) {
+        // 3. Обновляем список рекомендаций
+        generateRecommendations();
+      }
     }
   };
 
@@ -257,26 +280,41 @@ const RecommendedAnalyses = ({ currentDate, selectedDate }: RecommendedAnalysesP
                           ↓
                         </div>
                       </Button>
-                      <AddEventDialog 
-                        selectedDate={selectedDate || new Date()}
-                        prefilledData={{
-                          title: `Анализ: ${analysis.name}`,
-                          description: analysis.reason,
-                          event_type: 'analysis',
-                          priority: analysis.priority,
-                          related_data: { analysis_recommendation: analysis }
-                        }}
-                        triggerButton={
-                          <Button
-                            variant="ghost"
-                            size="xs"
-                            className="h-5 w-5 p-0 rounded-none ml-1"
-                            title="Добавить в календарь"
-                          >
-                            +
-                          </Button>
-                        }
-                      />
+                      {!isRecommendationSaved(analysis) ? (
+                        <AddEventDialog 
+                          selectedDate={selectedDate || new Date()}
+                          prefilledData={{
+                            title: `Анализ: ${analysis.name}`,
+                            description: analysis.reason,
+                            event_type: 'analysis',
+                            priority: analysis.priority,
+                            related_data: { 
+                              analysis_recommendation: analysis,
+                              onSave: () => addToCalendar(analysis, selectedDate || new Date())
+                            }
+                          }}
+                          triggerButton={
+                            <Button
+                              variant="ghost"
+                              size="xs"
+                              className="h-5 w-5 p-0 rounded-none ml-1"
+                              title="Добавить в календарь"
+                            >
+                              +
+                            </Button>
+                          }
+                        />
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="h-5 w-5 p-0 rounded-none ml-1 text-green-600"
+                          title="Уже добавлено"
+                          disabled
+                        >
+                          ✓
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

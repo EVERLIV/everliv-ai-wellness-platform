@@ -1660,6 +1660,54 @@ export type Database = {
           },
         ]
       }
+      saved_analysis_recommendations: {
+        Row: {
+          analysis_name: string
+          analysis_type: string
+          created_at: string
+          event_id: string | null
+          id: string
+          priority: string
+          reason: string
+          recommendation_data: Json
+          recommendation_hash: string
+          scheduled_date: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_name: string
+          analysis_type: string
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          priority: string
+          reason: string
+          recommendation_data?: Json
+          recommendation_hash: string
+          scheduled_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_name?: string
+          analysis_type?: string
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          priority?: string
+          reason?: string
+          recommendation_data?: Json
+          recommendation_hash?: string
+          scheduled_date?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       specialist_reviews: {
         Row: {
           consultation_date: string | null

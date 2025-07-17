@@ -5,9 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 import { useCalendarEvents, CreateEventData } from '@/hooks/useCalendarEvents';
 
 interface AddEventDialogProps {
@@ -103,6 +106,33 @@ const AddEventDialog: React.FC<AddEventDialogProps> = ({
             />
           </div>
 
+          <div className="space-y-1">
+            <Label htmlFor="event_date" className="text-xs">Дата*</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "h-8 text-xs justify-start text-left font-normal",
+                    !formData.event_date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-3 w-3" />
+                  {formData.event_date ? format(formData.event_date, "d MMMM yyyy", { locale: ru }) : "Выберите дату"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={formData.event_date}
+                  onSelect={(date) => date && setFormData(prev => ({ ...prev, event_date: date }))}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
               <Label htmlFor="event_type" className="text-xs">Тип</Label>
@@ -151,9 +181,6 @@ const AddEventDialog: React.FC<AddEventDialogProps> = ({
             />
           </div>
 
-          <div className="text-[10px] text-muted-foreground">
-            Дата: {format(selectedDate, 'd MMMM yyyy', { locale: ru })}
-          </div>
 
           <div className="flex justify-end gap-2 pt-2">
             <Button

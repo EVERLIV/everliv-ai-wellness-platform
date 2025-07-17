@@ -24,7 +24,7 @@ serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const { user_id, selected_date } = await req.json();
+    const { user_id, selected_date, excluded_hashes = [] } = await req.json();
 
     console.log('Generating analysis recommendations for user:', user_id, 'date:', selected_date);
 
