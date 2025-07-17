@@ -151,12 +151,12 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
             </div>
             <div className="flex-1 max-w-[90%]">
               <div className="flex items-center space-x-1 mb-0.5 xs:mb-1 sm:mb-2">
-                <span className="text-[10px] xs:text-xs sm:text-sm font-semibold text-foreground">ИИ Доктор</span>
+                <span className="text-xs xs:text-sm sm:text-base font-semibold text-foreground">ИИ Доктор</span>
                 <span className="text-[8px] xs:text-[10px] sm:text-xs text-muted-foreground">
                   {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
-              <div className="text-[10px] xs:text-xs sm:text-sm leading-tight text-foreground" style={{ wordBreak: 'break-word', lineHeight: '1.3' }}>
+              <div className="text-xs xs:text-sm sm:text-base leading-tight text-foreground" style={{ wordBreak: 'break-word', lineHeight: '1.3' }}>
                 Я помню нашу историю общения и имею доступ к вашим медицинским анализам для точных рекомендаций
               </div>
             </div>
@@ -179,7 +179,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
 
                 <div className="flex-1 min-w-0 max-w-[90%]">
                   <div className="flex items-center space-x-1 mb-0.5 xs:mb-1 sm:mb-2">
-                    <span className="text-[10px] xs:text-xs sm:text-sm font-medium text-foreground">
+                    <span className="text-xs xs:text-sm sm:text-base font-medium text-foreground">
                       {message.role === "user" ? "Вы" : "ИИ Доктор"}
                     </span>
                     <span className="text-[8px] xs:text-[10px] sm:text-xs text-muted-foreground">
@@ -193,7 +193,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                   <div className={`border-l-2 pl-1.5 xs:pl-2 sm:pl-3 ${
                     message.role === "user" ? "border-l-muted" : "border-l-primary"
                   }`}>
-                    <div className="text-[10px] xs:text-xs sm:text-sm text-foreground leading-tight whitespace-pre-wrap" 
+                    <div className="text-xs xs:text-sm sm:text-base text-foreground leading-tight whitespace-pre-wrap" 
                          style={{ wordBreak: 'break-word', lineHeight: '1.3' }}>
                       {message.content}
                     </div>
@@ -229,10 +229,10 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       {showSuggestedQuestions && (
         <div className="border-t border-border bg-muted/30 p-1 xs:p-2 sm:p-5">
           <div className="text-center mb-1 xs:mb-2 sm:mb-4">
-            <h3 className="text-[10px] xs:text-xs sm:text-base font-semibold text-foreground mb-0.5">
+            <h3 className="text-xs xs:text-sm sm:text-lg font-semibold text-foreground mb-0.5">
               Популярные вопросы
             </h3>
-            <p className="text-[8px] xs:text-[10px] sm:text-sm text-muted-foreground">
+            <p className="text-[10px] xs:text-xs sm:text-base text-muted-foreground">
               Выберите вопрос или задайте свой
             </p>
           </div>
@@ -252,7 +252,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                     <div className="w-4 h-4 xs:w-5 xs:h-5 sm:w-8 sm:h-8 bg-muted flex items-center justify-center text-primary flex-shrink-0">
                       <IconComponent className="h-2 w-2 xs:h-2.5 xs:w-2.5 sm:h-4 sm:w-4" />
                     </div>
-                    <span className="text-[9px] xs:text-[10px] sm:text-sm text-foreground text-left leading-tight" style={{ wordBreak: 'break-word' }}>
+                    <span className="text-[10px] xs:text-xs sm:text-sm text-foreground text-left leading-tight" style={{ wordBreak: 'break-word' }}>
                       {question.text}
                     </span>
                   </div>
