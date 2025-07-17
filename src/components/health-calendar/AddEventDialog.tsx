@@ -44,8 +44,13 @@ const AddEventDialog: React.FC<AddEventDialogProps> = ({
     const result = await createEvent(formData);
     
     if (result) {
+      // Если есть callback функция в related_data, вызываем её
+      if (formData.related_data?.onSave) {
+        await formData.related_data.onSave(formData.event_date);
+      }
+      
       setOpen(false);
-      // Сбрасываем форму
+      // Сбрасываем форму  
       setFormData({
         title: '',
         description: '',

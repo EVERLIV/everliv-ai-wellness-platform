@@ -290,7 +290,9 @@ const RecommendedAnalyses = ({ currentDate, selectedDate }: RecommendedAnalysesP
                             priority: analysis.priority,
                             related_data: { 
                               analysis_recommendation: analysis,
-                              onSave: () => addToCalendar(analysis, selectedDate || new Date())
+                              onSave: async (eventDate: Date) => {
+                                await addToCalendar(analysis, eventDate);
+                              }
                             }
                           }}
                           triggerButton={
