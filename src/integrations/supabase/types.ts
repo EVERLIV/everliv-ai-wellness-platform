@@ -350,6 +350,51 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_events: {
+        Row: {
+          created_at: string
+          description: string | null
+          event_date: string
+          event_time: string | null
+          event_type: string
+          id: string
+          priority: string
+          related_data: Json | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          event_date: string
+          event_time?: string | null
+          event_type?: string
+          id?: string
+          priority?: string
+          related_data?: Json | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          event_time?: string | null
+          event_type?: string
+          id?: string
+          priority?: string
+          related_data?: Json | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_health_metrics: {
         Row: {
           activity_level: number | null
@@ -1885,6 +1930,48 @@ export type Database = {
           analytics_data?: Json
           created_at?: string
           id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_analytics_insights: {
+        Row: {
+          created_at: string
+          health_score: number | null
+          id: string
+          insights_data: Json
+          insights_date: string
+          key_findings: string[] | null
+          next_update_date: string | null
+          recommendations: Json
+          trending_metrics: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          health_score?: number | null
+          id?: string
+          insights_data?: Json
+          insights_date: string
+          key_findings?: string[] | null
+          next_update_date?: string | null
+          recommendations?: Json
+          trending_metrics?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          health_score?: number | null
+          id?: string
+          insights_data?: Json
+          insights_date?: string
+          key_findings?: string[] | null
+          next_update_date?: string | null
+          recommendations?: Json
+          trending_metrics?: Json
           updated_at?: string
           user_id?: string
         }

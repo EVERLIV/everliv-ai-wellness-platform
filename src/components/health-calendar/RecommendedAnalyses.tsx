@@ -9,6 +9,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import AddEventDialog from '@/components/health-calendar/AddEventDialog';
 
 interface RecommendedAnalysesProps {
   currentDate: Date;
@@ -256,6 +257,26 @@ const RecommendedAnalyses = ({ currentDate, selectedDate }: RecommendedAnalysesP
                           ↓
                         </div>
                       </Button>
+                      <AddEventDialog 
+                        selectedDate={selectedDate || new Date()}
+                        prefilledData={{
+                          title: `Анализ: ${analysis.name}`,
+                          description: analysis.reason,
+                          event_type: 'analysis',
+                          priority: analysis.priority,
+                          related_data: { analysis_recommendation: analysis }
+                        }}
+                        triggerButton={
+                          <Button
+                            variant="ghost"
+                            size="xs"
+                            className="h-5 w-5 p-0 rounded-none ml-1"
+                            title="Добавить в календарь"
+                          >
+                            +
+                          </Button>
+                        }
+                      />
                     </div>
                   </CardContent>
                 </Card>

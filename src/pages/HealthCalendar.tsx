@@ -10,6 +10,7 @@ import HealthCalendarView from '@/components/health-calendar/HealthCalendarView'
 import CalendarAnalytics from '@/components/health-calendar/CalendarAnalytics';
 import CalendarReminders from '@/components/health-calendar/CalendarReminders';
 import CalendarEvents from '@/components/health-calendar/CalendarEvents';
+import AddEventDialog from '@/components/health-calendar/AddEventDialog';
 import RecommendedAnalyses from '@/components/health-calendar/RecommendedAnalyses';
 import AIAnalytics from '@/components/health-calendar/AIAnalytics';
 import { useHealthCalendar } from '@/hooks/useHealthCalendar';
@@ -240,7 +241,13 @@ const HealthCalendar = () => {
 
               {/* Content */}
               {viewMode === 'reminders' && (
-                <CalendarEvents currentDate={currentDate} selectedDate={selectedDate} />
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-medium">События</div>
+                    <AddEventDialog selectedDate={selectedDate || new Date()} />
+                  </div>
+                  <CalendarEvents selectedDate={selectedDate} />
+                </div>
               )}
               {viewMode === 'analytics' && (
                 <AIAnalytics currentDate={currentDate} selectedDate={selectedDate} />
