@@ -8,9 +8,17 @@ import { useSecureAIDoctor } from '@/hooks/useSecureAIDoctor';
 
 // Функция для удаления HTML тегов из текста
 const stripHtml = (html: string): string => {
-  const tmp = document.createElement("DIV");
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || "";
+  if (!html) return '';
+  // Удаляем HTML теги и декодируем HTML entities
+  return html
+    .replace(/<[^>]*>/g, '') // Удаляем все HTML теги
+    .replace(/&nbsp;/g, ' ') // Заменяем неразрывные пробелы
+    .replace(/&lt;/g, '<')   // Декодируем HTML entities
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;/g, "'")
+    .trim(); // Убираем лишние пробелы
 };
 
 const DashboardChatsList: React.FC = () => {

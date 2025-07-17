@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +14,7 @@ import { ArrowLeft, MessageSquare, Lock, Sparkles, Plus, Brain } from "lucide-re
 
 const AIDoctorPersonalPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { canUseFeature } = useSubscription();
   const isMobile = useIsMobile();
@@ -26,6 +27,15 @@ const AIDoctorPersonalPage = () => {
   const messageLimit = 3;
 
   console.log('PersonalPage - User:', user?.email, 'Premium access:', hasPersonalAIDoctorAccess);
+
+  // Обработка URL параметра chat
+  useEffect(() => {
+    const chatId = searchParams.get('chat');
+    if (chatId) {
+      setSelectedChatId(chatId);
+      setShowChatHistory(false);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!hasPersonalAIDoctorAccess) {
