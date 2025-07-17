@@ -125,17 +125,85 @@
   .mobile-heading-primary {
     @apply text-xl sm:text-2xl lg:text-3xl font-bold leading-tight;
   }
-  
+
   .mobile-heading-secondary {
     @apply text-lg sm:text-xl lg:text-2xl font-semibold leading-snug;
   }
-  
+
   .mobile-text-body {
     @apply text-base sm:text-base leading-relaxed;
   }
-  
+
   .mobile-text-small {
     @apply text-sm sm:text-base leading-relaxed;
+  }
+
+  /* Мобильная оптимизация для ИИ доктора */
+  .ai-doctor-mobile-header {
+    @apply p-2 sm:p-4 border-b bg-card/50 backdrop-blur-sm;
+    @apply safe-area-pt;
+  }
+
+  .ai-doctor-mobile-messages {
+    @apply flex-1 overflow-y-auto p-2 sm:p-4;
+    @apply space-y-2 sm:space-y-4;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ai-doctor-mobile-message {
+    @apply flex items-start space-x-2 sm:space-x-3 w-full;
+  }
+
+  .ai-doctor-mobile-avatar {
+    @apply w-6 h-6 sm:w-8 sm:h-8 border flex items-center justify-center flex-shrink-0;
+  }
+
+  .ai-doctor-mobile-content {
+    @apply flex-1 min-w-0;
+  }
+
+  .ai-doctor-mobile-meta {
+    @apply flex items-center space-x-1 sm:space-x-2 mb-1 sm:mb-2;
+  }
+
+  .ai-doctor-mobile-text {
+    @apply text-xs sm:text-sm text-foreground leading-relaxed whitespace-pre-wrap break-words;
+  }
+
+  .ai-doctor-mobile-input {
+    @apply p-2 sm:p-4 border-t bg-card/50 backdrop-blur-sm;
+    @apply safe-area-pb;
+  }
+
+  .ai-doctor-mobile-textarea {
+    @apply w-full min-h-[36px] sm:min-h-[44px] p-2 sm:p-4 resize-none border border-input bg-background rounded-md;
+    @apply text-xs sm:text-sm placeholder:text-muted-foreground overflow-hidden;
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-height: 25vh;
+  }
+
+  .ai-doctor-mobile-button {
+    @apply h-[36px] w-[36px] sm:h-[44px] sm:w-[44px] p-0 flex-shrink-0;
+  }
+
+  .ai-doctor-mobile-suggestions {
+    @apply p-2 sm:p-4 border-b border-border;
+  }
+
+  .ai-doctor-mobile-suggestion-btn {
+    @apply h-auto p-2 sm:p-3 text-left justify-start hover:bg-muted/50 w-full;
+  }
+
+  .ai-doctor-mobile-suggestion-icon {
+    @apply w-4 h-4 sm:w-5 sm:h-5 bg-primary text-primary-foreground border border-primary;
+    @apply flex items-center justify-center flex-shrink-0;
+  }
+
+  .ai-doctor-mobile-suggestion-text {
+    @apply text-xs sm:text-sm font-medium text-foreground leading-snug;
   }
   
   /* Мобильные карточки */

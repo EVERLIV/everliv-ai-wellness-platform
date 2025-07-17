@@ -67,29 +67,29 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
   const showSuggestedQuestions = messages.length === 0 || (messages.length === 1 && messages[0].role === 'assistant');
 
   return (
-    <div className="h-screen flex flex-col bg-white">
-      {/* Компактный заголовок */}
-      <div className="flex items-center gap-3 p-4 border-b bg-white">
+    <div className="h-screen flex flex-col bg-background">
+      {/* Компактный заголовок для мобильных */}
+      <div className="flex items-center gap-1 sm:gap-3 p-2 sm:p-4 border-b bg-card/50 backdrop-blur-sm">
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={onBack}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 sm:gap-2 p-1 sm:p-2 h-7 sm:h-8"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Назад
+          <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="text-xs sm:text-sm">Назад</span>
         </Button>
         
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-            <Bot className="h-5 w-5 text-blue-600" />
+        <div className="flex items-center gap-1 sm:gap-2">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+            <Bot className="h-3 w-3 sm:h-5 sm:w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-gray-900">ИИ Доктор</h1>
-            <p className="text-sm text-gray-600">
-              Персональные консультации
+            <h1 className="text-sm sm:text-lg font-semibold text-foreground">ИИ Доктор</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              <span className="hidden sm:inline">Персональные консультации</span>
               {remainingMessages !== null && (
-                <span className="ml-2 text-xs font-medium text-blue-600">
+                <span className="ml-1 sm:ml-2 text-xs font-medium text-primary">
                   ({remainingMessages} сообщений)
                 </span>
               )}
@@ -101,7 +101,7 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
       {/* Chat Interface */}
       <div className="flex-1 flex flex-col min-h-0">
         {/* Messages Area with Scroll */}
-        <ScrollArea className="flex-1 p-4">
+        <ScrollArea className="flex-1 p-2 sm:p-4">
           <ChatMessages 
             messages={messages} 
             isProcessing={isProcessing}
@@ -110,7 +110,7 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
           
           {/* Показываем быстрые сообщения когда нет пользовательских сообщений */}
           {showSuggestedQuestions && (
-            <div className="mt-4">
+            <div className="mt-3 sm:mt-4">
               <SuggestedQuestions 
                 questions={suggestedQuestions}
                 onSelectQuestion={handleSuggestedQuestion} 
@@ -120,7 +120,7 @@ const PersonalAIDoctorChat: React.FC<PersonalAIDoctorChatProps> = ({ onBack }) =
         </ScrollArea>
         
         {/* Input Area */}
-        <div className="p-4 border-t bg-white">
+        <div className="p-2 sm:p-4 border-t bg-card/50 backdrop-blur-sm">
           <ChatInput
             inputText={inputText}
             setInputText={setInputText}

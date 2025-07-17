@@ -37,16 +37,16 @@ const AIDoctorConsultation: React.FC = () => {
   if (isMobile) {
     // Мобильная версия - полноэкранный чат
     return (
-      <div className="h-full flex flex-col bg-white rounded-lg shadow-sm border">
-        <div className="p-4 border-b">
-          <h2 className="text-lg font-semibold flex items-center">
-            <Bot className="h-5 w-5 mr-2 text-blue-600" />
-            Консультация с ИИ-доктором
+      <div className="h-full flex flex-col bg-background">
+        <div className="p-2 border-b bg-card/50 backdrop-blur-sm">
+          <h2 className="text-sm font-semibold flex items-center">
+            <Bot className="h-4 w-4 mr-2 text-primary" />
+            ИИ-доктор
           </h2>
         </div>
 
         <div className="flex-1 flex flex-col min-h-0">
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 p-2">
             <ChatMessages 
               messages={messages}
               isProcessing={isProcessing}
@@ -54,7 +54,7 @@ const AIDoctorConsultation: React.FC = () => {
             />
             
             {showSuggestedQuestions && (
-              <div className="mt-4">
+              <div className="mt-3">
                 <SuggestedQuestions 
                   onSelectQuestion={sendMessage}
                   questions={suggestedQuestions}
@@ -63,7 +63,7 @@ const AIDoctorConsultation: React.FC = () => {
             )}
           </ScrollArea>
 
-          <div className="p-4 border-t">
+          <div className="p-2 border-t bg-card/50 backdrop-blur-sm">
             <ChatInput
               inputText={inputText}
               setInputText={setInputText}
