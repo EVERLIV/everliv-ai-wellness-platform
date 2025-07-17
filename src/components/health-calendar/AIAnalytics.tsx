@@ -61,10 +61,13 @@ const AIAnalytics = ({ currentDate, selectedDate }: AIAnalyticsProps) => {
       if (error) throw error;
 
       setInsights(data);
-      toast({
-        title: "Аналитика обновлена",
-        description: "Получены персональные рекомендации от ИИ"
-      });
+      // Показываем тост только если есть данные
+      if (data?.recommendations?.length > 0) {
+        toast({
+          title: "Аналитика обновлена",
+          description: "Получены персональные рекомендации от ИИ"
+        });
+      }
     } catch (error) {
       console.error('Error generating insights:', error);
       
@@ -114,10 +117,6 @@ const AIAnalytics = ({ currentDate, selectedDate }: AIAnalyticsProps) => {
       };
       
       setInsights(fallbackInsights);
-      toast({
-        title: "Используется кэшированная аналитика",
-        description: "Данные обновятся при следующем подключении"
-      });
     } finally {
       setIsLoading(false);
     }

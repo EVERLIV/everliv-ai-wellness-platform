@@ -62,10 +62,13 @@ const RecommendedAnalyses = ({ currentDate, selectedDate }: RecommendedAnalysesP
       if (error) throw error;
 
       setRecommendations(data);
-      toast({
-        title: "Рекомендации обновлены",
-        description: "Получены персональные рекомендации по анализам"
-      });
+      // Показываем тост только если есть рекомендации
+      if (data?.recommendations?.length > 0 || data?.urgent_recommendations?.length > 0) {
+        toast({
+          title: "Рекомендации обновлены",
+          description: "Получены персональные рекомендации по анализам"
+        });
+      }
     } catch (error) {
       console.error('Error generating recommendations:', error);
       toast({
