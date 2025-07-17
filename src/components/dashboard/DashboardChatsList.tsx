@@ -33,11 +33,38 @@ const DashboardChatsList: React.FC = () => {
       return 'general';
     };
 
-    const chatType = getChatType(chat.title, lastMessage?.content || '');
+    // Создаем более осмысленный заголовок
+    const generateSmartTitle = (originalTitle: string, firstUserMessage: string) => {
+      // Если заголовок не является базовым - используем его
+      if (originalTitle && 
+          !originalTitle.includes('Новый чат') && 
+          !originalTitle.includes('Новая консультация') &&
+          !originalTitle.includes('Консультация')) {
+        return originalTitle;
+      }
+
+      // Если есть первое сообщение пользователя - создаем заголовок на его основе
+      if (firstUserMessage) {
+        const truncated = firstUserMessage.length > 40 
+          ? firstUserMessage.substring(0, 40) + '...' 
+          : firstUserMessage;
+        return truncated;
+      }
+
+      // Используем дату создания для заголовка
+      const date = new Date(chat.created_at);
+      return `Консультация ${date.toLocaleDateString('ru-RU')}`;
+    };
+
+    // Находим первое сообщение пользователя для создания заголовка
+    const firstUserMessage = chat.ai_doctor_messages?.find(msg => msg.role === 'user')?.content || '';
+    const smartTitle = generateSmartTitle(chat.title, firstUserMessage);
+    
+    const chatType = getChatType(smartTitle, lastMessage?.content || '');
 
     return {
       id: chat.id,
-      title: chat.title,
+      title: smartTitle,
       lastMessage: lastMessage?.content ? 
         (lastMessage.content.length > 50 ? 
           lastMessage.content.substring(0, 50) + '...' : 
