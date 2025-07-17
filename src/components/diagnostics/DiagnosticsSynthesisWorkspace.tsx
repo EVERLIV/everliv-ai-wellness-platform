@@ -160,7 +160,7 @@ const DiagnosticsSynthesisWorkspace: React.FC = () => {
 
       toast({
         title: "Анализ завершен",
-        description: "ИИ синтез диагноза готов",
+        description: "Функциональная диагностика готова",
       });
 
     } catch (error) {
@@ -311,7 +311,7 @@ const DiagnosticsSynthesisWorkspace: React.FC = () => {
                         ) : (
                           <>
                             <Brain className="h-4 w-4 mr-2" />
-                            Запустить ИИ синтез
+                            Запустить функциональную диагностику
                           </>
                         )}
                       </Button>

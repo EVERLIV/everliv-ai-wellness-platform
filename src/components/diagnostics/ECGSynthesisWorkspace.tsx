@@ -212,7 +212,7 @@ const ECGSynthesisWorkspace: React.FC = () => {
       {/* Заголовок */}
       <div className="border-b border-gray-200 p-4 md:p-6 mb-4 md:mb-6">
         <h1 className="text-lg md:text-xl font-medium text-gray-900 mb-1">
-          ИИ Синтез диагностики
+          Функциональная диагностика
         </h1>
         <p className="text-sm text-gray-600">
           Загрузите ЭКГ и введите диагноз для получения рекомендаций

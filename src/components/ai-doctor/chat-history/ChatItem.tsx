@@ -40,6 +40,15 @@ const ChatItem: React.FC<ChatItemProps> = ({
     return date.toLocaleDateString();
   };
 
+  // Функция для извлечения чистого текста из HTML
+  const stripHtml = (html: string) => {
+    if (!html) return '';
+    // Удаляем HTML теги и decode HTML entities
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
+  };
+
   const TimeIcon = isMobile ? Calendar : Clock;
 
   return (
@@ -53,7 +62,7 @@ const ChatItem: React.FC<ChatItemProps> = ({
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-sm truncate">{chat.title}</h3>
+          <h3 className="font-medium text-sm truncate">{stripHtml(chat.title)}</h3>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-xs text-gray-500 flex items-center">
               <TimeIcon className="h-3 w-3 mr-1" />

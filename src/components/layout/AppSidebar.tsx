@@ -40,7 +40,7 @@ const menuItems = [
     groupLabel: "Инструменты",
     items: [
       { title: "ИИ Доктор", url: "/ai-doctor", icon: Brain },
-      { title: "ИИ Синтез", url: "/diagnostics", icon: Stethoscope },
+      { title: "Функциональная диагностика", url: "/diagnostics", icon: Stethoscope },
       { title: "Профиль здоровья", url: "/health-profile", icon: Heart },
       { title: "Аналитика", url: "/analytics", icon: BarChart3 },
       { title: "Дневник питания", url: "/nutrition-diary", icon: Utensils },
