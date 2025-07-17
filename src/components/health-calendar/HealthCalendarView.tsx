@@ -76,26 +76,26 @@ const HealthCalendarView = ({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      <div className="flex items-center justify-center p-4">
+        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
     <TooltipProvider>
-      <div className="space-y-4">
+      <div className="space-y-2">
         {/* Week headers */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5">
           {weekDays.map(day => (
-            <div key={day} className={`${isMobile ? 'p-1' : 'p-2'} text-center ${isMobile ? 'text-xs' : 'text-sm'} font-medium text-muted-foreground`}>
+            <div key={day} className={`p-1 text-center text-[10px] font-medium text-muted-foreground`}>
               {day}
             </div>
           ))}
         </div>
 
         {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5">
           {days.map(day => {
             const dayData = getDayData(day);
             const healthScore = dayData?.healthScore;
@@ -107,8 +107,8 @@ const HealthCalendarView = ({
                   <Button
                     variant="ghost"
                     className={cn(
-                      `${isMobile ? 'h-12' : 'h-16'} w-full ${isMobile ? 'p-0.5' : 'p-1'} relative border-2 border-transparent hover:border-primary/20 transition-all`,
-                      isToday(day) && `ring-2 ring-primary ${isMobile ? 'ring-offset-1' : 'ring-offset-2'}`,
+                      `${isMobile ? 'h-10' : 'h-12'} w-full p-0.5 relative border border-transparent hover:border-primary/20 transition-all`,
+                      isToday(day) && `ring-1 ring-primary ring-offset-1`,
                       selectedDate && isSameDay(selectedDate, day) && "border-primary",
                       !isSameMonth(day, currentDate) && "opacity-50",
                       getHealthScoreColor(healthScore)
@@ -117,7 +117,7 @@ const HealthCalendarView = ({
                   >
                     <div className="flex flex-col items-center justify-between h-full w-full">
                       <div className="flex items-center justify-between w-full">
-                        <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
+                        <span className="text-[11px] font-medium leading-none">
                           {format(day, 'd')}
                         </span>
                         {hasData && !isMobile && (
@@ -131,32 +131,32 @@ const HealthCalendarView = ({
                         <Badge 
                           variant="outline" 
                           className={cn(
-                            `${isMobile ? 'text-[10px] px-0.5 py-0 h-3' : 'text-xs px-1 py-0 h-4'} border-0`,
+                            `text-[9px] px-0.5 py-0 h-2.5 border-0 leading-none`,
                             getHealthScoreColor(healthScore)
                           )}
                         >
-                          {isMobile ? Math.round(healthScore) : healthScore}
+                          {Math.round(healthScore)}
                         </Badge>
                       )}
                       
-                      {/* Activity indicators - только для десктопа */}
-                      {!isMobile && (
-                        <div className="flex space-x-1 mt-1">
+                      {/* Activity indicators - только точки для компактности */}
+                      {!isMobile && hasData && (
+                        <div className="flex space-x-0.5">
                           {dayData?.steps && dayData.steps > 8000 && (
-                            <div className="w-1 h-1 bg-green-500 rounded-full"></div>
+                            <div className="w-0.5 h-0.5 bg-green-500"></div>
                           )}
                           {dayData?.sleep_hours && dayData.sleep_hours >= 7 && (
-                            <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+                            <div className="w-0.5 h-0.5 bg-blue-500"></div>
                           )}
                           {dayData?.mood_level && dayData.mood_level >= 7 && (
-                            <div className="w-1 h-1 bg-yellow-500 rounded-full"></div>
+                            <div className="w-0.5 h-0.5 bg-yellow-500"></div>
                           )}
                         </div>
                       )}
                     </div>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent className="whitespace-pre-line">
+                <TooltipContent className="whitespace-pre-line text-xs">
                   {formatTooltipContent(dayData)}
                 </TooltipContent>
               </Tooltip>
