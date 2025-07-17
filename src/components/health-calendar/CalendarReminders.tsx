@@ -122,70 +122,51 @@ const CalendarReminders = ({ currentDate }: CalendarRemindersProps) => {
   const upcomingReminders = getUpcomingReminders();
 
   return (
-    <div className="space-y-3">
-      {/* Upcoming Reminders */}
-      <Card className="shadow-none border-gray-200/80 rounded-none">
-        <CardHeader className="pb-1 px-2 py-1">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xs font-medium flex items-center gap-1">
-              <Bell className="h-3 w-3" />
-              Ближайшие напоминания
-            </CardTitle>
-            <Button 
-              variant="outline" 
-              size="xs"
-              onClick={() => setShowAddForm(true)}
-              className="h-5 px-1 text-[9px] rounded-none border-gray-300"
-            >
-              <Plus className="h-2.5 w-2.5" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="px-2 py-1 pt-0">
-          <div className="space-y-1">
-            {upcomingReminders.length > 0 ? (
-              upcomingReminders.map((reminder) => {
-                const typeInfo = getReminderTypeInfo(reminder.type);
-                const Icon = typeInfo.icon;
-                
-                return (
-                  <div key={reminder.id} className="flex items-center space-x-1 p-1 bg-gray-50 border border-gray-200/50">
-                    <div className={`p-1 ${typeInfo.color}`}>
-                      <Icon className="h-2.5 w-2.5 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-[10px] font-medium truncate">{reminder.title}</h4>
-                      <div className="flex items-center space-x-1">
-                        <Clock className="h-2 w-2 text-muted-foreground" />
-                        <span className="text-[9px] text-muted-foreground">{reminder.time}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-0.5">
-                      <Switch
-                        checked={reminder.isActive}
-                        onCheckedChange={() => handleToggleReminder(reminder.id)}
-                        className="scale-50"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        onClick={() => handleDeleteReminder(reminder.id)}
-                        className="h-4 w-4 p-0 text-destructive hover:text-destructive rounded-none"
-                      >
-                        <Trash2 className="h-2.5 w-2.5" />
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <p className="text-[10px] text-muted-foreground text-center py-2">
-                Нет активных напоминаний
-              </p>
-            )}
-          </div>
+    <div className="space-y-2">
+      {/* Daily Tasks */}
+      <div className="text-[10px] text-muted-foreground mb-1">7:30 AM TO 9:00 AM</div>
+      <Card className="shadow-none border-0 rounded-none bg-blue-100">
+        <CardContent className="p-2">
+          <div className="text-[10px] font-medium text-blue-800">Daily Tasks</div>
+          <div className="text-[9px] text-blue-700">Meditate, Exercise</div>
         </CardContent>
       </Card>
+
+      {/* Office Tasks */}
+      <div className="text-[10px] text-muted-foreground mb-1">10:00 AM TO 1:00 PM</div>
+      <Card className="shadow-none border-0 rounded-none bg-pink-100">
+        <CardContent className="p-2">
+          <div className="text-[10px] font-medium text-pink-800">Office Tasks</div>
+          <div className="text-[9px] text-pink-700">Submit Reports, Check Emails & Attend Meetings</div>
+        </CardContent>
+      </Card>
+
+      {/* Appointments */}
+      <div className="text-[10px] text-muted-foreground mb-1">3:00 PM TO 4:00 PM</div>
+      <Card className="shadow-none border-0 rounded-none bg-green-100">
+        <CardContent className="p-2">
+          <div className="text-[10px] font-medium text-green-800">Appointments</div>
+          <div className="text-[9px] text-green-700">Dental Doctor's Appointments</div>
+        </CardContent>
+      </Card>
+
+      {/* Study & Learning */}
+      <div className="text-[10px] text-muted-foreground mb-1">8:00 PM TO 9:00 PM</div>
+      <Card className="shadow-none border-0 rounded-none bg-blue-100">
+        <CardContent className="p-2">
+          <div className="text-[10px] font-medium text-blue-800">Study & Learning</div>
+          <div className="text-[9px] text-blue-700">Join Online Advance Excel Webinars</div>
+        </CardContent>
+      </Card>
+
+      {/* Add Event Button */}
+      <Button 
+        variant="ghost" 
+        className="w-full text-[10px] text-muted-foreground hover:text-primary h-6 rounded-none"
+        onClick={() => setShowAddForm(true)}
+      >
+        + Add Event
+      </Button>
 
       {/* Add Reminder Form */}
       {showAddForm && (

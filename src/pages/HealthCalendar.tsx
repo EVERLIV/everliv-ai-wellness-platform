@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, ChevronLeft, ChevronRight, Plus, Brain, TrendingUp, AlertCircle } from 'lucide-react';
+import { format } from 'date-fns';
+import { ru } from 'date-fns/locale';
 import HealthCalendarView from '@/components/health-calendar/HealthCalendarView';
 import CalendarAnalytics from '@/components/health-calendar/CalendarAnalytics';
 import CalendarReminders from '@/components/health-calendar/CalendarReminders';
@@ -172,67 +174,133 @@ const HealthCalendar = () => {
           </Card>
         </div>
 
-        {/* Calendar Navigation */}
-        <Card className="shadow-none border-gray-200/80 rounded-none">
-          <CardHeader className="pb-1 px-2 py-1">
-            <div className={`flex ${isMobile ? 'flex-col space-y-1' : 'items-center justify-between'}`}>
-              <CardTitle className={`${isMobile ? 'text-center text-xs' : 'text-sm'} capitalize font-medium`}>
-                {formatMonth(currentDate)}
-              </CardTitle>
-              <div className={`flex items-center ${isMobile ? 'justify-center' : ''} space-x-1`}>
-                <Button
-                  variant="outline"
+        {/* Main Calendar Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          {/* Left Side - Calendar */}
+          <div className="lg:col-span-2">
+            <Card className="shadow-none border-gray-200/80 rounded-none">
+              <CardHeader className="pb-1 px-2 py-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      className="h-6 px-2 text-xs rounded-none border-gray-300"
+                    >
+                      Day
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      className="h-6 px-2 text-xs rounded-none border-gray-300"
+                    >
+                      Week
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="xs"
+                      className="h-6 px-2 text-xs rounded-none"
+                    >
+                      Month
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      className="h-6 px-2 text-xs rounded-none border-gray-300"
+                    >
+                      Year
+                    </Button>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="xs"
+                    onClick={() => setCurrentDate(new Date())}
+                    className="h-6 px-2 text-xs rounded-none border-gray-300"
+                  >
+                    Today
+                  </Button>
+                </div>
+                <div className="flex items-center justify-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="xs"
+                    onClick={() => navigateMonth('prev')}
+                    className="h-6 w-6 p-0 rounded-none"
+                  >
+                    <ChevronLeft className="h-3 w-3" />
+                  </Button>
+                  <CardTitle className="text-sm font-medium">
+                    {formatMonth(currentDate).toUpperCase()}
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="xs"
+                    onClick={() => navigateMonth('next')}
+                    className="h-6 w-6 p-0 rounded-none"
+                  >
+                    <ChevronRight className="h-3 w-3" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="px-2 py-1 pt-0">
+                <HealthCalendarView
+                  currentDate={currentDate}
+                  calendarData={calendarData}
+                  selectedDate={selectedDate}
+                  onDateSelect={setSelectedDate}
+                  isLoading={isLoading}
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Side - Events & Reminders */}
+          <div className="lg:col-span-1">
+            <div className="space-y-2">
+              {/* Date Display */}
+              <div className="text-right">
+                <div className="text-lg font-bold">
+                  {format(selectedDate || new Date(), 'd MMM', { locale: ru }).toUpperCase()}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {format(selectedDate || new Date(), 'EEEE', { locale: ru })}
+                </div>
+              </div>
+
+              {/* Tab Buttons */}
+              <div className="flex gap-1">
+                <Button 
+                  variant={viewMode === 'reminders' ? 'default' : 'outline'} 
                   size="xs"
-                  onClick={() => navigateMonth('prev')}
-                  className={`${isMobile ? 'h-6 px-1' : 'h-6 px-2'} rounded-none border-gray-300`}
+                  onClick={() => setViewMode('reminders')}
+                  className="flex-1 h-6 text-xs rounded-none border-gray-300"
                 >
-                  <ChevronLeft className="h-3 w-3" />
-                  {!isMobile && <span className="ml-1 text-xs">Назад</span>}
+                  Events
                 </Button>
-                <Button
-                  variant="outline"
+                <Button 
+                  variant={viewMode === 'analytics' ? 'default' : 'outline'} 
                   size="xs"
-                  onClick={() => setCurrentDate(new Date())}
-                  className={`${isMobile ? 'h-6 px-1' : 'h-6 px-2'} rounded-none border-gray-300 text-xs`}
+                  onClick={() => setViewMode('analytics')}
+                  className="flex-1 h-6 text-xs rounded-none border-gray-300"
                 >
-                  Сегодня
-                </Button>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  onClick={() => navigateMonth('next')}
-                  className={`${isMobile ? 'h-6 px-1' : 'h-6 px-2'} rounded-none border-gray-300`}
-                >
-                  <ChevronRight className="h-3 w-3" />
-                  {!isMobile && <span className="ml-1 text-xs">Вперед</span>}
+                  Analytics
                 </Button>
               </div>
+
+              {/* Content */}
+              {viewMode === 'reminders' && (
+                <CalendarReminders currentDate={currentDate} />
+              )}
+              {viewMode === 'analytics' && (
+                <CalendarAnalytics
+                  calendarData={calendarData}
+                  currentDate={currentDate}
+                  aiInsights={aiInsights}
+                />
+              )}
             </div>
-          </CardHeader>
-          <CardContent className="px-2 py-1 pt-0">
-            {viewMode === 'calendar' && (
-              <HealthCalendarView
-                currentDate={currentDate}
-                calendarData={calendarData}
-                selectedDate={selectedDate}
-                onDateSelect={setSelectedDate}
-                isLoading={isLoading}
-              />
-            )}
-            {viewMode === 'analytics' && (
-              <CalendarAnalytics
-                calendarData={calendarData}
-                currentDate={currentDate}
-                aiInsights={aiInsights}
-              />
-            )}
-            {viewMode === 'reminders' && (
-              <CalendarReminders
-                currentDate={currentDate}
-              />
-            )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* AI Insights */}
         {aiInsights && aiInsights.length > 0 && (
