@@ -11,6 +11,7 @@ import CalendarAnalytics from '@/components/health-calendar/CalendarAnalytics';
 import CalendarReminders from '@/components/health-calendar/CalendarReminders';
 import CalendarEvents from '@/components/health-calendar/CalendarEvents';
 import RecommendedAnalyses from '@/components/health-calendar/RecommendedAnalyses';
+import AIAnalytics from '@/components/health-calendar/AIAnalytics';
 import { useHealthCalendar } from '@/hooks/useHealthCalendar';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -242,7 +243,7 @@ const HealthCalendar = () => {
                 <CalendarEvents currentDate={currentDate} selectedDate={selectedDate} />
               )}
               {viewMode === 'analytics' && (
-                <CalendarReminders currentDate={currentDate} />
+                <AIAnalytics currentDate={currentDate} selectedDate={selectedDate} />
               )}
               {viewMode === 'calendar' && (
                 <RecommendedAnalyses currentDate={currentDate} selectedDate={selectedDate} />
