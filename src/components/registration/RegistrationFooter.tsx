@@ -1,4 +1,6 @@
 
+import { Link } from "react-router-dom";
+
 const RegistrationFooter = () => {
   return (
     <footer className="bg-white border-t border-gray-100 py-6 mt-auto">
@@ -8,9 +10,9 @@ const RegistrationFooter = () => {
             © 2024 EVERLIV. Все права защищены.
           </div>
           <div className="flex space-x-6">
-            <a href="/terms" className="hover:text-primary transition-colors">Условия использования</a>
-            <a href="/privacy" className="hover:text-primary transition-colors">Конфиденциальность</a>
-            <a href="/contact" className="hover:text-primary transition-colors">Поддержка</a>
+            <Link to="/terms" className="hover:text-primary transition-colors">Условия использования</Link>
+            <Link to="/privacy" className="hover:text-primary transition-colors">Конфиденциальность</Link>
+            <Link to="/contact" className="hover:text-primary transition-colors">Поддержка</Link>
           </div>
         </div>
       </div>

@@ -15,6 +15,7 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
   const [isLoading, setIsLoading] = useState(false);
   const [medicalContext, setMedicalContext] = useState('');
   const [userAnalyses, setUserAnalyses] = useState([]);
+  const [currentChatId, setCurrentChatId] = useState<string | undefined>(chatId);
   const { user } = useAuth();
   const { canUseFeature } = useSubscription();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -145,8 +146,35 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
     }
   };
 
-  const saveMessage = async (message: Message) => {
-    if (!chatId) return;
+  const createNewChat = async (): Promise<string | null> => {
+    if (!user) return null;
+    
+    try {
+      const today = new Date();
+      const title = `Консультация ${today.toLocaleDateString('ru-RU')}`;
+      
+      const { data: newChat, error } = await supabase
+        .from('ai_doctor_chats')
+        .insert([{
+          user_id: user.id,
+          title
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      console.log('Created new chat:', newChat.id);
+      return newChat.id;
+    } catch (error) {
+      console.error('Ошибка создания чата:', error);
+      return null;
+    }
+  };
+
+  const saveMessage = async (message: Message, targetChatId?: string) => {
+    const chatIdToUse = targetChatId || currentChatId;
+    if (!chatIdToUse) return;
     
     try {
       console.log('Saving message to database:', message.role, message.content.substring(0, 50) + '...');
@@ -154,7 +182,7 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
       const { error } = await supabase
         .from('ai_doctor_messages')
         .insert([{
-          chat_id: chatId,
+          chat_id: chatIdToUse,
           role: message.role,
           content: message.content
         }]);
@@ -165,7 +193,7 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
       await supabase
         .from('ai_doctor_chats')
         .update({ updated_at: new Date().toISOString() })
-        .eq('id', chatId);
+        .eq('id', chatIdToUse);
         
       console.log('Message saved successfully');
     } catch (error) {
@@ -217,9 +245,19 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
     setIsProcessing(true);
     setInputText('');
     
-    // Сохраняем сообщение пользователя в базу только если есть chatId
-    if (chatId) {
-      await saveMessage(userMessage);
+    let activeChatId = currentChatId || chatId;
+    
+    // Создаем новый чат если его нет
+    if (!activeChatId && user) {
+      activeChatId = await createNewChat();
+      if (activeChatId) {
+        setCurrentChatId(activeChatId);
+      }
+    }
+    
+    // Сохраняем сообщение пользователя в базу
+    if (activeChatId) {
+      await saveMessage(userMessage, activeChatId);
     }
     
     // Update message count только для пользователей без премиума
@@ -244,9 +282,9 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
       
       setMessages(prev => [...prev, botResponse]);
       
-      // Сохраняем ответ ИИ в базу только если есть chatId
-      if (chatId) {
-        await saveMessage(botResponse);
+      // Сохраняем ответ ИИ в базу
+      if (activeChatId) {
+        await saveMessage(botResponse, activeChatId);
       }
       
     } catch (error) {
@@ -260,13 +298,13 @@ export const usePersonalAIDoctorChatWithId = (chatId: string | undefined) => {
       };
       
       setMessages(prev => [...prev, errorMessage]);
-      if (chatId) {
-        await saveMessage(errorMessage);
+      if (activeChatId) {
+        await saveMessage(errorMessage, activeChatId);
       }
     } finally {
       setIsProcessing(false);
     }
-  }, [messages, user, userAnalyses, medicalContext, canUsePersonalAIDoctor, messagesUsed, messageLimit, chatId]);
+  }, [messages, user, userAnalyses, medicalContext, canUsePersonalAIDoctor, messagesUsed, messageLimit, chatId, currentChatId]);
 
   return {
     messages,
