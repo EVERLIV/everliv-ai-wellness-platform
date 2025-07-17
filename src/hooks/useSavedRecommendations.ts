@@ -41,7 +41,14 @@ export const useSavedRecommendations = () => {
   // Генерация хэша для рекомендации для проверки дубликатов
   const generateRecommendationHash = (recommendation: AnalysisRecommendation): string => {
     const key = `${recommendation.name}_${recommendation.type}_${recommendation.priority}`;
-    return btoa(key).replace(/[^a-zA-Z0-9]/g, '').substring(0, 32);
+    // Используем простой хэш вместо btoa для поддержки Unicode
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+      const char = key.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash).toString(36).substring(0, 16);
   };
 
   // Загрузка сохраненных рекомендаций
