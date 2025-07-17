@@ -100,10 +100,10 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col border border-border bg-card">
+    <div className={`h-full flex flex-col ${isMobile ? 'border-0' : 'border border-border'} bg-card`}>
       {/* Compact Mobile Header */}
       {isMobile ? (
-        <div className="flex items-center justify-between p-1 border-b border-border bg-muted/30">
+        <div className="flex items-center justify-between px-2 py-1 border-b border-border bg-muted/30">
           <Button
             variant="ghost"
             size="sm"
@@ -142,63 +142,63 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
         null
       )}
 
-      {/* Messages Area - Maximized on Mobile */}
-      <div className="flex-1 overflow-y-auto px-2.5 py-1 xs:py-2 sm:py-4" style={{ scrollBehavior: 'smooth' }}>
+      {/* Messages Area - Полная ширина на мобильных */}
+      <div className={`flex-1 overflow-y-auto ${isMobile ? 'px-1 py-1' : 'px-2.5 py-1 xs:py-2 sm:py-4'}`} style={{ scrollBehavior: 'smooth' }}>
         {allMessages.length === 0 ? (
-          <div className="flex items-start space-x-2 xs:space-x-3 sm:space-x-4 mb-4 xs:mb-5 sm:mb-6">
-            <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10 bg-primary text-primary-foreground border border-primary flex items-center justify-center rounded-full flex-shrink-0">
-              <Sparkles className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5" />
+          <div className={`flex items-start ${isMobile ? 'space-x-1 mb-2' : 'space-x-2 xs:space-x-3 sm:space-x-4 mb-4 xs:mb-5 sm:mb-6'}`}>
+            <div className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10'} bg-primary text-primary-foreground ${isMobile ? 'border-0' : 'border border-primary'} flex items-center justify-center rounded-full flex-shrink-0`}>
+              <Sparkles className={`${isMobile ? 'h-3 w-3' : 'h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5'}`} />
             </div>
-            <div className="flex-1 max-w-[90%]">
-              <div className="flex items-center space-x-2 mb-1 xs:mb-1.5 sm:mb-3">
-                <span className="text-sm xs:text-base sm:text-lg font-semibold text-foreground">ИИ Доктор</span>
-                <span className="text-xs xs:text-sm sm:text-base text-muted-foreground">
+            <div className={`flex-1 ${isMobile ? 'max-w-[95%]' : 'max-w-[90%]'}`}>
+              <div className={`flex items-center ${isMobile ? 'space-x-1 mb-1' : 'space-x-2 mb-1 xs:mb-1.5 sm:mb-3'}`}>
+                <span className={`${isMobile ? 'text-xs' : 'text-sm xs:text-base sm:text-lg'} font-semibold text-foreground`}>ИИ Доктор</span>
+                <span className={`${isMobile ? 'text-xs' : 'text-xs xs:text-sm sm:text-base'} text-muted-foreground`}>
                   {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
-              <div className="text-sm xs:text-base sm:text-lg leading-relaxed text-foreground" style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
+              <div className={`${isMobile ? 'text-xs' : 'text-sm xs:text-base sm:text-lg'} leading-relaxed text-foreground`} style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
                 Я помню нашу историю общения и имею доступ к вашим медицинским анализам для точных рекомендаций
               </div>
             </div>
           </div>
         ) : (
-          <div className="space-y-3 xs:space-y-4 sm:space-y-6">
+          <div className={`${isMobile ? 'space-y-1' : 'space-y-3 xs:space-y-4 sm:space-y-6'}`}>
             {allMessages.map((message) => (
               <div key={message.id} className={`${
                 message.role === "user" ? "flex justify-end" : "flex justify-start"
               }`}>
                 {message.role === "user" ? (
-                  // User message bubble
-                  <div className="max-w-[85%] bg-primary text-primary-foreground rounded-2xl px-3 xs:px-4 sm:px-6 py-2 xs:py-3 sm:py-4 shadow-sm">
-                    <div className="flex items-center space-x-2 mb-1 xs:mb-1.5">
-                      <span className="text-xs xs:text-sm sm:text-base font-medium opacity-90">
+                  // User message bubble - во всю ширину на мобильных
+                  <div className={`${isMobile ? 'w-full bg-primary text-primary-foreground rounded-lg px-2 py-1.5' : 'max-w-[85%] bg-primary text-primary-foreground rounded-2xl px-3 xs:px-4 sm:px-6 py-2 xs:py-3 sm:py-4'} ${isMobile ? '' : 'shadow-sm'}`}>
+                    <div className={`flex items-center ${isMobile ? 'space-x-1 mb-0.5' : 'space-x-2 mb-1 xs:mb-1.5'}`}>
+                      <span className={`${isMobile ? 'text-xs' : 'text-xs xs:text-sm sm:text-base'} font-medium opacity-90`}>
                         Вы
                       </span>
-                      <span className="text-xs xs:text-sm opacity-75">
+                      <span className={`${isMobile ? 'text-xs' : 'text-xs xs:text-sm'} opacity-75`}>
                         {message.timestamp.toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
                       </span>
                     </div>
-                    <div className="text-sm xs:text-base sm:text-lg leading-relaxed whitespace-pre-wrap" 
+                    <div className={`${isMobile ? 'text-xs' : 'text-sm xs:text-base sm:text-lg'} leading-relaxed whitespace-pre-wrap`} 
                          style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
                       {message.content}
                     </div>
                   </div>
                 ) : (
-                  // AI message
-                  <div className="flex items-start space-x-2 xs:space-x-3 sm:space-x-4 w-full">
-                    <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10 bg-primary text-primary-foreground border border-primary flex items-center justify-center rounded-full flex-shrink-0 mt-1">
-                      <Sparkles className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5" />
+                  // AI message - во всю ширину на мобильных
+                  <div className={`flex items-start ${isMobile ? 'space-x-1 w-full' : 'space-x-2 xs:space-x-3 sm:space-x-4 w-full'}`}>
+                    <div className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10'} bg-primary text-primary-foreground ${isMobile ? 'border-0' : 'border border-primary'} flex items-center justify-center rounded-full flex-shrink-0 mt-1`}>
+                      <Sparkles className={`${isMobile ? 'h-3 w-3' : 'h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5'}`} />
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2 mb-1 xs:mb-1.5 sm:mb-3">
-                        <span className="text-sm xs:text-base sm:text-lg font-semibold text-foreground">
+                      <div className={`flex items-center ${isMobile ? 'space-x-1 mb-0.5' : 'space-x-2 mb-1 xs:mb-1.5 sm:mb-3'}`}>
+                        <span className={`${isMobile ? 'text-xs' : 'text-sm xs:text-base sm:text-lg'} font-semibold text-foreground`}>
                           ИИ Доктор - Анализ результатов
                         </span>
-                        <span className="text-xs xs:text-sm sm:text-base text-muted-foreground">
+                        <span className={`${isMobile ? 'text-xs' : 'text-xs xs:text-sm sm:text-base'} text-muted-foreground`}>
                           {message.timestamp.toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -206,15 +206,15 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                         </span>
                       </div>
                       
-                      <div className="border-l-3 border-l-primary pl-3 xs:pl-4 sm:pl-5">
+                      <div className={`${isMobile ? 'border-l-2 border-l-primary pl-2' : 'border-l-3 border-l-primary pl-3 xs:pl-4 sm:pl-5'}`}>
                         {message.role === "assistant" && message.content.includes('<div') ? (
                           <div 
-                            className="text-sm xs:text-base sm:text-lg text-foreground leading-relaxed" 
+                            className={`${isMobile ? 'text-xs' : 'text-sm xs:text-base sm:text-lg'} text-foreground leading-relaxed`} 
                             style={{ wordBreak: 'break-word', lineHeight: '1.4' }}
                             dangerouslySetInnerHTML={{ __html: message.content }}
                           />
                         ) : (
-                          <div className="text-sm xs:text-base sm:text-lg text-foreground leading-relaxed whitespace-pre-wrap" 
+                          <div className={`${isMobile ? 'text-xs' : 'text-sm xs:text-base sm:text-lg'} text-foreground leading-relaxed whitespace-pre-wrap`} 
                                style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
                             {message.content}
                           </div>

@@ -205,11 +205,11 @@ const AIDoctorPersonalPage = () => {
               </div>
             </div>
 
-            {/* Chat Interface */}
-            <div className="min-h-[70vh] border border-border bg-card">
+            {/* Chat Interface - убираем границы на мобильных */}
+            <div className={`min-h-[70vh] ${isMobile ? 'border-0' : 'border border-border'} bg-card`}>
               <div className="h-full">
                 {showChatHistory ? (
-                  <div className="p-4 h-full">
+                  <div className={`${isMobile ? 'p-1 h-full' : 'p-4 h-full'}`}>
                     <ChatHistory 
                       onSelectChat={handleSelectChat}
                       onCreateNewChat={handleCreateNewChat}
