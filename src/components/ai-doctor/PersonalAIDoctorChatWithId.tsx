@@ -256,7 +256,8 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
             <CollapsibleTrigger asChild>
               <Button
                 variant="ghost"
-                className={`w-full ${isMobile ? 'h-8 text-xs' : 'h-10 text-sm'} flex items-center justify-between px-2 hover:bg-muted/50`}
+                className={`w-full ${isMobile ? 'h-8' : 'h-10'} flex items-center justify-between px-2 hover:bg-muted/50`}
+                style={{ fontSize: '14px' }}
               >
                 <span className="font-medium text-foreground">
                   {showSuggestedQuestions ? 'Скрыть популярные вопросы' : 'Показать популярные вопросы'}
@@ -327,7 +328,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               onClick={handleSubmit}
               disabled={!inputText.trim() || isProcessing}
               size="sm"
-              className={`absolute right-2 top-1/2 -translate-y-1/2 ${isMobile ? 'h-5 w-5 p-0' : 'h-6 w-6 p-0'} rounded-md bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md transition-all duration-200`}
+              className={`absolute right-1.5 top-1/2 -translate-y-1/2 ${isMobile ? 'h-5 w-5 p-0' : 'h-6 w-6 p-0'} rounded-lg bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md transition-all duration-200`}
             >
               {isProcessing ? (
                 <Loader2 className={`${isMobile ? 'h-2.5 w-2.5' : 'h-3 w-3'} animate-spin`} />
