@@ -8,8 +8,10 @@ import HealthCalendarView from '@/components/health-calendar/HealthCalendarView'
 import CalendarAnalytics from '@/components/health-calendar/CalendarAnalytics';
 import CalendarReminders from '@/components/health-calendar/CalendarReminders';
 import { useHealthCalendar } from '@/hooks/useHealthCalendar';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const HealthCalendar = () => {
+  const isMobile = useIsMobile();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewMode, setViewMode] = useState<'calendar' | 'analytics' | 'reminders'>('calendar');
@@ -54,46 +56,80 @@ const HealthCalendar = () => {
     <AppLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Календарь здоровья</h1>
-            <p className="text-muted-foreground">
+        <div className="flex flex-col space-y-4">
+          <div className={`${isMobile ? 'text-center' : ''}`}>
+            <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-foreground`}>
+              Календарь здоровья
+            </h1>
+            <p className={`text-muted-foreground ${isMobile ? 'text-sm' : ''}`}>
               Отслеживайте показатели здоровья и получайте ИИ-рекомендации
             </p>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setViewMode('calendar')}
-              className={viewMode === 'calendar' ? 'bg-primary/10' : ''}
-            >
-              <Calendar className="h-4 w-4 mr-2" />
-              Календарь
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setViewMode('analytics')}
-              className={viewMode === 'analytics' ? 'bg-primary/10' : ''}
-            >
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Аналитика
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setViewMode('reminders')}
-              className={viewMode === 'reminders' ? 'bg-primary/10' : ''}
-            >
-              <AlertCircle className="h-4 w-4 mr-2" />
-              Напоминания
-            </Button>
-          </div>
+          
+          {/* Mobile View Mode Selector */}
+          {isMobile ? (
+            <div className="flex rounded-lg bg-muted p-1">
+              <Button
+                variant={viewMode === 'calendar' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('calendar')}
+                className="flex-1 h-9"
+              >
+                <Calendar className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'analytics' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('analytics')}
+                className="flex-1 h-9"
+              >
+                <TrendingUp className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'reminders' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('reminders')}
+                className="flex-1 h-9"
+              >
+                <AlertCircle className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            /* Desktop View Mode Selector */
+            <div className="flex items-center justify-end space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setViewMode('calendar')}
+                className={viewMode === 'calendar' ? 'bg-primary/10' : ''}
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                Календарь
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setViewMode('analytics')}
+                className={viewMode === 'analytics' ? 'bg-primary/10' : ''}
+              >
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Аналитика
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setViewMode('reminders')}
+                className={viewMode === 'reminders' ? 'bg-primary/10' : ''}
+              >
+                <AlertCircle className="h-4 w-4 mr-2" />
+                Напоминания
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'}`}>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Средний показатель</CardTitle>
@@ -137,31 +173,36 @@ const HealthCalendar = () => {
         {/* Calendar Navigation */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg capitalize">
+            <div className={`flex ${isMobile ? 'flex-col space-y-3' : 'items-center justify-between'}`}>
+              <CardTitle className={`${isMobile ? 'text-center text-base' : 'text-lg'} capitalize`}>
                 {formatMonth(currentDate)}
               </CardTitle>
-              <div className="flex items-center space-x-2">
+              <div className={`flex items-center ${isMobile ? 'justify-center' : ''} space-x-2`}>
                 <Button
                   variant="outline"
-                  size="sm"
+                  size={isMobile ? "sm" : "sm"}
                   onClick={() => navigateMonth('prev')}
+                  className={isMobile ? 'h-9 px-3' : ''}
                 >
                   <ChevronLeft className="h-4 w-4" />
+                  {!isMobile && <span className="ml-1">Назад</span>}
                 </Button>
                 <Button
                   variant="outline"
-                  size="sm"
+                  size={isMobile ? "sm" : "sm"}
                   onClick={() => setCurrentDate(new Date())}
+                  className={isMobile ? 'h-9 px-3' : ''}
                 >
                   Сегодня
                 </Button>
                 <Button
                   variant="outline"
-                  size="sm"
+                  size={isMobile ? "sm" : "sm"}
                   onClick={() => navigateMonth('next')}
+                  className={isMobile ? 'h-9 px-3' : ''}
                 >
                   <ChevronRight className="h-4 w-4" />
+                  {!isMobile && <span className="ml-1">Вперед</span>}
                 </Button>
               </div>
             </div>

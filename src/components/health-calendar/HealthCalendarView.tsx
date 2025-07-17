@@ -8,6 +8,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday
 import { ru } from 'date-fns/locale';
 import { CalendarDayDetail } from './CalendarDayDetail';
 import { Loader2, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface HealthCalendarViewProps {
   currentDate: Date;
@@ -24,6 +25,7 @@ const HealthCalendarView = ({
   onDateSelect,
   isLoading
 }: HealthCalendarViewProps) => {
+  const isMobile = useIsMobile();
   const [showDetail, setShowDetail] = useState(false);
 
   const monthStart = startOfMonth(currentDate);
@@ -68,7 +70,9 @@ const HealthCalendarView = ({
     return metrics.length > 0 ? metrics.join('\n') : 'Нет данных';
   };
 
-  const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+  const weekDays = isMobile 
+    ? ['П', 'В', 'С', 'Ч', 'П', 'С', 'В'] // Сокращенные названия для мобильных
+    : ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
   if (isLoading) {
     return (
@@ -84,7 +88,7 @@ const HealthCalendarView = ({
         {/* Week headers */}
         <div className="grid grid-cols-7 gap-1">
           {weekDays.map(day => (
-            <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
+            <div key={day} className={`${isMobile ? 'p-1' : 'p-2'} text-center ${isMobile ? 'text-xs' : 'text-sm'} font-medium text-muted-foreground`}>
               {day}
             </div>
           ))}
@@ -103,8 +107,8 @@ const HealthCalendarView = ({
                   <Button
                     variant="ghost"
                     className={cn(
-                      "h-16 w-full p-1 relative border-2 border-transparent hover:border-primary/20 transition-all",
-                      isToday(day) && "ring-2 ring-primary ring-offset-2",
+                      `${isMobile ? 'h-12' : 'h-16'} w-full ${isMobile ? 'p-0.5' : 'p-1'} relative border-2 border-transparent hover:border-primary/20 transition-all`,
+                      isToday(day) && `ring-2 ring-primary ${isMobile ? 'ring-offset-1' : 'ring-offset-2'}`,
                       selectedDate && isSameDay(selectedDate, day) && "border-primary",
                       !isSameMonth(day, currentDate) && "opacity-50",
                       getHealthScoreColor(healthScore)
@@ -113,10 +117,10 @@ const HealthCalendarView = ({
                   >
                     <div className="flex flex-col items-center justify-between h-full w-full">
                       <div className="flex items-center justify-between w-full">
-                        <span className="text-sm font-medium">
+                        <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>
                           {format(day, 'd')}
                         </span>
-                        {hasData && (
+                        {hasData && !isMobile && (
                           <div className="flex items-center">
                             {getHealthScoreIcon(healthScore)}
                           </div>
@@ -127,26 +131,28 @@ const HealthCalendarView = ({
                         <Badge 
                           variant="outline" 
                           className={cn(
-                            "text-xs px-1 py-0 h-4 border-0",
+                            `${isMobile ? 'text-[10px] px-0.5 py-0 h-3' : 'text-xs px-1 py-0 h-4'} border-0`,
                             getHealthScoreColor(healthScore)
                           )}
                         >
-                          {healthScore}
+                          {isMobile ? Math.round(healthScore) : healthScore}
                         </Badge>
                       )}
                       
-                      {/* Activity indicators */}
-                      <div className="flex space-x-1 mt-1">
-                        {dayData?.steps && dayData.steps > 8000 && (
-                          <div className="w-1 h-1 bg-green-500 rounded-full"></div>
-                        )}
-                        {dayData?.sleep_hours && dayData.sleep_hours >= 7 && (
-                          <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
-                        )}
-                        {dayData?.mood_level && dayData.mood_level >= 7 && (
-                          <div className="w-1 h-1 bg-yellow-500 rounded-full"></div>
-                        )}
-                      </div>
+                      {/* Activity indicators - только для десктопа */}
+                      {!isMobile && (
+                        <div className="flex space-x-1 mt-1">
+                          {dayData?.steps && dayData.steps > 8000 && (
+                            <div className="w-1 h-1 bg-green-500 rounded-full"></div>
+                          )}
+                          {dayData?.sleep_hours && dayData.sleep_hours >= 7 && (
+                            <div className="w-1 h-1 bg-blue-500 rounded-full"></div>
+                          )}
+                          {dayData?.mood_level && dayData.mood_level >= 7 && (
+                            <div className="w-1 h-1 bg-yellow-500 rounded-full"></div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </Button>
                 </TooltipTrigger>

@@ -4,6 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { TrendingUp, TrendingDown, Calendar, Target, Brain, BarChart3 } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CalendarAnalyticsProps {
   calendarData: any[] | null;
@@ -12,6 +13,7 @@ interface CalendarAnalyticsProps {
 }
 
 const CalendarAnalytics = ({ calendarData, currentDate, aiInsights }: CalendarAnalyticsProps) => {
+  const isMobile = useIsMobile();
   const getCurrentWeekData = () => {
     if (!calendarData) return [];
     
@@ -136,30 +138,38 @@ const CalendarAnalytics = ({ calendarData, currentDate, aiInsights }: CalendarAn
         </CardHeader>
         <CardContent>
           {weeklyAverages ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className={`grid gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-4'}`}>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-blue-600`}>
                   {weeklyAverages.steps.toLocaleString()}
                 </div>
-                <div className="text-sm text-muted-foreground">Шаги/день</div>
+                <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
+                  {isMobile ? 'Шаги' : 'Шаги/день'}
+                </div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">
+                <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-purple-600`}>
                   {weeklyAverages.sleep_hours}ч
                 </div>
-                <div className="text-sm text-muted-foreground">Сон/день</div>
+                <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
+                  {isMobile ? 'Сон' : 'Сон/день'}
+                </div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
+                <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-green-600`}>
                   {weeklyAverages.exercise_minutes}мин
                 </div>
-                <div className="text-sm text-muted-foreground">Активность/день</div>
+                <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
+                  {isMobile ? 'Спорт' : 'Активность/день'}
+                </div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-pink-600">
+                <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-pink-600`}>
                   {weeklyAverages.mood_level}/10
                 </div>
-                <div className="text-sm text-muted-foreground">Настроение</div>
+                <div className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
+                  Настроение
+                </div>
               </div>
             </div>
           ) : (

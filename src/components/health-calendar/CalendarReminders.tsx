@@ -10,12 +10,14 @@ import { Switch } from '@/components/ui/switch';
 import { AlertCircle, Bell, Plus, Trash2, Clock, Heart, Activity, Moon, Droplets } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CalendarRemindersProps {
   currentDate: Date;
 }
 
 const CalendarReminders = ({ currentDate }: CalendarRemindersProps) => {
+  const isMobile = useIsMobile();
   const [reminders, setReminders] = useState([
     {
       id: 1,
@@ -146,34 +148,41 @@ const CalendarReminders = ({ currentDate }: CalendarRemindersProps) => {
                 const Icon = typeInfo.icon;
                 
                 return (
-                  <div key={reminder.id} className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+                  <div key={reminder.id} className={`flex items-center space-x-3 ${isMobile ? 'p-2' : 'p-3'} bg-muted/50 rounded-lg`}>
                     <div className={`p-2 rounded-full ${typeInfo.color}`}>
                       <Icon className="h-4 w-4 text-white" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium">{reminder.title}</h4>
-                      <p className="text-sm text-muted-foreground">{reminder.description}</p>
-                      <div className="flex items-center space-x-2 mt-1">
+                      <h4 className={`font-medium ${isMobile ? 'text-sm' : ''}`}>{reminder.title}</h4>
+                      <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
+                        {isMobile ? reminder.title : reminder.description}
+                      </p>
+                      <div className={`flex items-center space-x-2 ${isMobile ? 'mt-0.5' : 'mt-1'}`}>
                         <Clock className="h-3 w-3 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">{reminder.time}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {frequencies.find(f => f.value === reminder.frequency)?.label}
-                        </Badge>
+                        {!isMobile && (
+                          <Badge variant="outline" className="text-xs">
+                            {frequencies.find(f => f.value === reminder.frequency)?.label}
+                          </Badge>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className={`flex items-center ${isMobile ? 'flex-col space-y-2' : 'space-x-2'}`}>
                       <Switch
                         checked={reminder.isActive}
                         onCheckedChange={() => handleToggleReminder(reminder.id)}
+                        className={isMobile ? 'scale-75' : ''}
                       />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteReminder(reminder.id)}
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {!isMobile && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteReminder(reminder.id)}
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 );
