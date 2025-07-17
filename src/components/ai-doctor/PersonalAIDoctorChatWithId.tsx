@@ -151,12 +151,12 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
             </div>
             <div className={`flex-1 ${isMobile ? 'max-w-[95%]' : 'max-w-[90%]'}`}>
               <div className={`flex items-center ${isMobile ? 'space-x-1 mb-1' : 'space-x-2 mb-1 xs:mb-1.5 sm:mb-3'}`}>
-                <span className={`${isMobile ? 'text-xs' : 'text-sm xs:text-base sm:text-lg'} font-semibold text-foreground`}>ИИ Доктор</span>
+                <span className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} font-semibold text-foreground`}>ИИ Доктор</span>
                 <span className={`${isMobile ? 'text-xs' : 'text-xs xs:text-sm sm:text-base'} text-muted-foreground`}>
                   {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
-              <div className={`${isMobile ? 'text-xs' : 'text-sm xs:text-base sm:text-lg'} leading-relaxed text-foreground`} style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
+              <div className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} leading-relaxed text-foreground`} style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
                 Я помню нашу историю общения и имею доступ к вашим медицинским анализам для точных рекомендаций
               </div>
             </div>
@@ -181,7 +181,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                         })}
                       </span>
                     </div>
-                    <div className={`${isMobile ? 'text-xs' : 'text-sm xs:text-base sm:text-lg'} leading-relaxed whitespace-pre-wrap`} 
+                    <div className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} leading-relaxed whitespace-pre-wrap`} 
                          style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
                       {message.content}
                     </div>
@@ -195,7 +195,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
 
                     <div className="flex-1 min-w-0">
                       <div className={`flex items-center ${isMobile ? 'space-x-1 mb-0.5' : 'space-x-2 mb-1 xs:mb-1.5 sm:mb-3'}`}>
-                        <span className={`${isMobile ? 'text-xs' : 'text-sm xs:text-base sm:text-lg'} font-semibold text-foreground`}>
+                        <span className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} font-semibold text-foreground`}>
                           ИИ Доктор - Анализ результатов
                         </span>
                         <span className={`${isMobile ? 'text-xs' : 'text-xs xs:text-sm sm:text-base'} text-muted-foreground`}>
@@ -209,12 +209,12 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                       <div className={`${isMobile ? 'border-l-2 border-l-primary pl-2' : 'border-l-3 border-l-primary pl-3 xs:pl-4 sm:pl-5'}`}>
                         {message.role === "assistant" && message.content.includes('<div') ? (
                           <div 
-                            className={`${isMobile ? 'text-xs' : 'text-sm xs:text-base sm:text-lg'} text-foreground leading-relaxed`} 
+                            className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} text-foreground leading-relaxed`} 
                             style={{ wordBreak: 'break-word', lineHeight: '1.4' }}
                             dangerouslySetInnerHTML={{ __html: message.content }}
                           />
                         ) : (
-                          <div className={`${isMobile ? 'text-xs' : 'text-sm xs:text-base sm:text-lg'} text-foreground leading-relaxed whitespace-pre-wrap`} 
+                          <div className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} text-foreground leading-relaxed whitespace-pre-wrap`} 
                                style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
                             {message.content}
                           </div>
