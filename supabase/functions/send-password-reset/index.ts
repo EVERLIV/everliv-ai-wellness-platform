@@ -43,6 +43,8 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Reset URL:', resetUrl);
 
     // Render the email template
+    console.log('About to render email template with:', { resetUrl, userEmail: email });
+    
     const html = await renderAsync(
       React.createElement(PasswordResetEmail, {
         resetUrl: resetUrl,
@@ -50,8 +52,11 @@ const handler = async (req: Request): Promise<Response> => {
       })
     );
 
+    console.log('Rendered HTML length:', html.length);
+    console.log('HTML preview (first 200 chars):', html.substring(0, 200));
+
     const emailResponse = await resend.emails.send({
-      from: "EVERLIV <noreply@everliv.ru>",
+      from: "EVERLIV <noreply@updates.everliv.online>",
       to: [email],
       subject: "Восстановление пароля EVERLIV",
       html: html,
