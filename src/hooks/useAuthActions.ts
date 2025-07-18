@@ -164,20 +164,24 @@ export const useAuthActions = () => {
       
       console.log('Password reset email sent successfully via Supabase');
       
-      // Опционально отправляем кастомный email (если нужен дополнительный дизайн)
+      // Дополнительно отправляем кастомный email через edge function
       try {
-        await supabase.functions.invoke('send-password-reset', {
+        const { data, error: edgeError } = await supabase.functions.invoke('send-password-reset', {
           body: {
             email: email,
             resetUrl: redirectUrl
           }
         });
-        console.log('Custom password reset email sent successfully');
+        
+        if (edgeError) {
+          console.error('Edge function error:', edgeError);
+        } else {
+          console.log('Custom password reset email sent successfully');
+        }
       } catch (emailError) {
         console.error('Failed to send custom email (fallback to Supabase default):', emailError);
       }
       
-      console.log('Password reset email sent successfully');
       toast.success('Ссылка для сброса пароля отправлена на вашу почту!');
       return Promise.resolve();
     } catch (error: any) {

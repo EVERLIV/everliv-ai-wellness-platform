@@ -34,7 +34,7 @@ const ResetPasswordPage = () => {
       let refreshToken: string | null = null;
       let type: string | null = null;
       
-      // Проверяем hash параметры (приоритет)
+      // Проверяем hash параметры (Supabase отправляет токены в hash)
       if (window.location.hash) {
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
         accessToken = hashParams.get('access_token');
@@ -51,54 +51,7 @@ const ResetPasswordPage = () => {
         console.log('Found tokens in query:', { hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, type });
       }
       
-      // Проверяем, есть ли токены во всем URL (на случай неправильного парсинга)
-      if (!accessToken && fullUrl.includes('access_token=')) {
-        try {
-          const urlMatch = fullUrl.match(/access_token=([^&]+)/);
-          const refreshMatch = fullUrl.match(/refresh_token=([^&]+)/);
-          const typeMatch = fullUrl.match(/type=([^&]+)/);
-          
-          if (urlMatch) accessToken = urlMatch[1];
-          if (refreshMatch) refreshToken = refreshMatch[1];
-          if (typeMatch) type = typeMatch[1];
-          
-          console.log('Found tokens via regex:', { hasAccessToken: !!accessToken, hasRefreshToken: !!refreshToken, type });
-        } catch (error) {
-          console.error('Error parsing URL tokens:', error);
-        }
-      }
-      
-      // Проверяем старый формат токена (для совместимости)
-      const token = searchParams.get('token');
-      const tokenType = searchParams.get('type');
-      
-      if (token && tokenType === 'recovery') {
-        try {
-          console.log('Found old format recovery token, attempting to exchange...');
-          
-          // Пытаемся обменять токен на сессию
-          const { data, error } = await supabase.auth.verifyOtp({
-            token_hash: token,
-            type: 'recovery'
-          });
-          
-          if (error) {
-            console.error('Error verifying recovery token:', error);
-            toast.error('Недействительная ссылка для сброса пароля');
-            navigate('/forgot-password');
-          } else {
-            console.log('Recovery token verified successfully:', data);
-            setIsValidToken(true);
-            
-            // Очищаем URL от токенов
-            window.history.replaceState({}, document.title, '/reset-password');
-          }
-        } catch (error) {
-          console.error('Error processing recovery token:', error);
-          toast.error('Ошибка обработки токена восстановления');
-          navigate('/forgot-password');
-        }
-      } else if (accessToken && refreshToken && type === 'recovery') {
+      if (accessToken && refreshToken && type === 'recovery') {
         try {
           console.log('Setting session with recovery tokens...');
           
@@ -116,7 +69,7 @@ const ResetPasswordPage = () => {
             console.log('Session set successfully:', data);
             setIsValidToken(true);
             
-            // Очищаем URL от токенов и перенаправляем на чистую страницу
+            // Очищаем URL от токенов
             window.history.replaceState({}, document.title, '/reset-password');
           }
         } catch (error) {
