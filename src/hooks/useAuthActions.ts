@@ -152,12 +152,19 @@ export const useAuthActions = () => {
       
       console.log('Reset password redirect URL:', redirectUrl);
       
+      // Используем встроенную функцию Supabase для отправки reset email
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase reset password error:', error);
+        throw error;
+      }
       
+      console.log('Password reset email sent successfully via Supabase');
+      
+      // Опционально отправляем кастомный email (если нужен дополнительный дизайн)
       try {
         await supabase.functions.invoke('send-password-reset', {
           body: {
@@ -167,7 +174,7 @@ export const useAuthActions = () => {
         });
         console.log('Custom password reset email sent successfully');
       } catch (emailError) {
-        console.error('Failed to send custom email:', emailError);
+        console.error('Failed to send custom email (fallback to Supabase default):', emailError);
       }
       
       console.log('Password reset email sent successfully');
