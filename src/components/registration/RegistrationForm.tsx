@@ -18,8 +18,7 @@ const RegistrationForm = ({ onSuccess }: RegistrationFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [nickname, setNickname] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,28 +32,32 @@ const RegistrationForm = ({ onSuccess }: RegistrationFormProps) => {
     try {
       // Sanitize inputs
       const sanitizedEmail = InputSanitizer.sanitizeEmail(email);
-      const sanitizedFirstName = InputSanitizer.sanitizeString(firstName);
-      const sanitizedLastName = InputSanitizer.sanitizeString(lastName);
+      const sanitizedNickname = InputSanitizer.sanitizeString(nickname);
 
       // Validate inputs
       if (!InputSanitizer.isValidEmail(sanitizedEmail)) {
-        setError('Please enter a valid email address');
+        setError('Пожалуйста, введите действительный email адрес');
+        return;
+      }
+
+      if (!sanitizedNickname.trim()) {
+        setError('Пожалуйста, введите никнейм');
         return;
       }
 
       if (password !== confirmPassword) {
-        setError('Passwords do not match');
+        setError('Пароли не совпадают');
         return;
       }
 
-      if (password.length < 8) {
-        setError('Password must be at least 8 characters long');
+      if (password.length < 6) {
+        setError('Пароль должен содержать минимум 6 символов');
         return;
       }
 
       // Check rate limiting
       if (!InputSanitizer.checkRateLimit('registration', 3, 300000)) {
-        setError('Too many registration attempts. Please try again later.');
+        setError('Слишком много попыток регистрации. Попробуйте позже.');
         return;
       }
 
@@ -63,8 +66,8 @@ const RegistrationForm = ({ onSuccess }: RegistrationFormProps) => {
         password: password,
         options: {
           data: {
-            first_name: sanitizedFirstName,
-            last_name: sanitizedLastName,
+            nickname: sanitizedNickname,
+            full_name: sanitizedNickname
           },
         },
       });
@@ -75,11 +78,11 @@ const RegistrationForm = ({ onSuccess }: RegistrationFormProps) => {
       }
 
       if (data.user) {
-        toast.success('Registration successful! Please check your email for verification.');
+        toast.success('Регистрация успешна! Проверьте почту для подтверждения.');
         onSuccess?.();
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      setError('Произошла неожиданная ошибка. Попробуйте еще раз.');
       console.error('Registration error:', err);
     } finally {
       setIsLoading(false);
@@ -89,8 +92,8 @@ const RegistrationForm = ({ onSuccess }: RegistrationFormProps) => {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Create Account</CardTitle>
-        <CardDescription>Sign up for your new account</CardDescription>
+        <CardTitle>Создать аккаунт</CardTitle>
+        <CardDescription>Зарегистрируйтесь для создания нового аккаунта</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -100,29 +103,17 @@ const RegistrationForm = ({ onSuccess }: RegistrationFormProps) => {
             </Alert>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input
-                id="firstName"
-                type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="nickname">Никнейм</Label>
+            <Input
+              id="nickname"
+              type="text"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              placeholder="Введите ваш никнейм"
+              required
+              disabled={isLoading}
+            />
           </div>
 
           <div className="space-y-2">
@@ -132,19 +123,21 @@ const RegistrationForm = ({ onSuccess }: RegistrationFormProps) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
               required
               disabled={isLoading}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Пароль</Label>
             <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="Введите пароль"
                 required
                 disabled={isLoading}
               />
@@ -166,13 +159,14 @@ const RegistrationForm = ({ onSuccess }: RegistrationFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
             <div className="relative">
               <Input
                 id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Подтвердите пароль"
                 required
                 disabled={isLoading}
               />
@@ -194,7 +188,7 @@ const RegistrationForm = ({ onSuccess }: RegistrationFormProps) => {
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Creating Account...' : 'Create Account'}
+            {isLoading ? 'Создание аккаунта...' : 'Создать аккаунт'}
           </Button>
         </form>
       </CardContent>

@@ -18,7 +18,9 @@ const Signup = () => {
       description="Присоединяйтесь к EVERLIV и начните путь к оптимальному здоровью."
       type="signup"
     >
-      <RegistrationForm />
+      <RegistrationForm onSuccess={() => {
+        // Регистрация завершена, можно добавить дополнительную логику
+      }} />
     </AuthLayout>
   );
 };
