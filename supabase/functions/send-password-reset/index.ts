@@ -3,8 +3,15 @@ import { Resend } from "npm:resend@2.0.0";
 import React from 'npm:react@18.3.1';
 import { renderAsync } from 'npm:@react-email/components@0.0.22';
 import { PasswordResetEmail } from "./_templates/password-reset.tsx";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
+// Создаем Supabase client с service role для административных операций
+const supabaseAdmin = createClient(
+  Deno.env.get('SUPABASE_URL') ?? '',
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,12 +49,29 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Sending password reset email to:', email);
     console.log('Reset URL:', resetUrl);
 
-    // Render the email template
-    console.log('About to render email template with:', { resetUrl, userEmail: email });
+    // Генерируем токен восстановления через Supabase Admin API
+    const { data, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email: email,
+      options: {
+        redirectTo: resetUrl
+      }
+    });
+
+    if (resetError) {
+      console.error('Failed to generate reset link:', resetError);
+      throw resetError;
+    }
+
+    const resetUrlWithToken = data.properties?.action_link || resetUrl;
+    console.log('Generated reset URL with token:', resetUrlWithToken);
+
+    // Render the email template with proper reset URL
+    console.log('About to render email template with:', { resetUrl: resetUrlWithToken, userEmail: email });
     
     const html = await renderAsync(
       React.createElement(PasswordResetEmail, {
-        resetUrl: resetUrl,
+        resetUrl: resetUrlWithToken,
         userEmail: email,
       })
     );
