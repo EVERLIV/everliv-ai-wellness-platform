@@ -24,6 +24,19 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Проверяем наличие API ключа
+    const apiKey = Deno.env.get("RESEND_API_KEY");
+    if (!apiKey) {
+      console.error('RESEND_API_KEY not found');
+      return new Response(
+        JSON.stringify({ error: "Email service not configured" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     const { email, resetUrl }: PasswordResetRequest = await req.json();
 
     console.log('Sending password reset email to:', email);

@@ -152,19 +152,7 @@ export const useAuthActions = () => {
       
       console.log('Reset password redirect URL:', redirectUrl);
       
-      // Используем встроенную функцию Supabase для отправки reset email
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: redirectUrl,
-      });
-      
-      if (error) {
-        console.error('Supabase reset password error:', error);
-        throw error;
-      }
-      
-      console.log('Password reset email sent successfully via Supabase');
-      
-      // Дополнительно отправляем кастомный email через edge function
+      // Отправляем кастомный email через edge function
       try {
         const { data, error: edgeError } = await supabase.functions.invoke('send-password-reset', {
           body: {
@@ -175,11 +163,24 @@ export const useAuthActions = () => {
         
         if (edgeError) {
           console.error('Edge function error:', edgeError);
+          throw edgeError;
         } else {
           console.log('Custom password reset email sent successfully');
         }
       } catch (emailError) {
-        console.error('Failed to send custom email (fallback to Supabase default):', emailError);
+        console.error('Failed to send custom email:', emailError);
+        
+        // Fallback к стандартному Supabase email
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: redirectUrl,
+        });
+        
+        if (error) {
+          console.error('Supabase reset password error:', error);
+          throw error;
+        }
+        
+        console.log('Fallback password reset email sent via Supabase');
       }
       
       toast.success('Ссылка для сброса пароля отправлена на вашу почту!');
