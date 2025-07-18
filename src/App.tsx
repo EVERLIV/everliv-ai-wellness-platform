@@ -102,13 +102,14 @@ const App = () => (
                       <Route path="/" element={<Index />} />
                       <Route path="/home" element={<Home />} />
 
-                      {/* Auth routes */}
-                      <Route path="/login" element={<Login />} />
-                      <Route path="/signup" element={<Signup />} />
-                      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                      <Route path="/reset-password" element={<ResetPassword />} />
-                      <Route path="/auth/confirm" element={<AuthConfirm />} />
-                      <Route path="/welcome" element={<Welcome />} />
+                       {/* Auth routes */}
+                       <Route path="/login" element={<Login />} />
+                       <Route path="/signup" element={<Signup />} />
+                       <Route path="/register" element={<Signup />} />
+                       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                       <Route path="/reset-password" element={<ResetPassword />} />
+                       <Route path="/auth/confirm" element={<AuthConfirm />} />
+                       <Route path="/welcome" element={<Welcome />} />
 
                       {/* Protected routes */}
                       <Route path="/dashboard" element={
