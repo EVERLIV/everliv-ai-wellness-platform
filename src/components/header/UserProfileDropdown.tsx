@@ -111,17 +111,6 @@ const UserProfileDropdown: React.FC = () => {
 
   return (
     <div className="flex items-center gap-3">
-      {/* Кнопка улучшения подписки только для не-премиум пользователей */}
-      {shouldShowUpgradeButton && (
-        <Button 
-          size="sm" 
-          onClick={() => navigate('/subscription')}
-          className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-medium shadow-sm"
-        >
-          <ArrowUp className="h-4 w-4 mr-1" />
-          Улучшить
-        </Button>
-      )}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -177,11 +166,6 @@ const UserProfileDropdown: React.FC = () => {
           >
             <CreditCard className="mr-2 h-4 w-4" />
             <span>Подписка</span>
-            {shouldShowUpgradeButton && (
-              <Badge variant="secondary" className="ml-auto bg-yellow-100 text-yellow-800">
-                Улучшить
-              </Badge>
-            )}
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => navigate('/contact')}

@@ -227,14 +227,6 @@ const SubscriptionManagement = () => {
                         <h4 className="font-medium">Хотите больше возможностей?</h4>
                         <p className="text-sm text-gray-500">Улучшите свой план для доступа ко всем функциям</p>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        className="flex items-center"
-                        onClick={() => handleUpgrade('premium')}
-                        disabled={isProcessing}
-                      >
-                        Улучшить <ChevronRight className="ml-1 h-4 w-4" />
-                      </Button>
                     </CardContent>
                   </Card>
                 )}
