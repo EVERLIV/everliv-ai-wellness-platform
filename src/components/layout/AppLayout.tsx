@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { AppFooter } from "./AppFooter";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,7 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const { isPremiumActive, isLoading: subscriptionLoading } = useSubscription();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");

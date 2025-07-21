@@ -104,7 +104,8 @@ const checkPremiumFromDatabase = (subscription: Subscription | null, userEmail?:
 };
 
 export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
-  const { user } = useSmartAuth();
+  const smartAuth = useSmartAuth();
+  const user = smartAuth?.user;
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [featureTrials, setFeatureTrials] = useState<FeatureTrial[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -487,6 +488,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (context === undefined) {
+    console.error("❌ useSubscription called outside SubscriptionProvider");
     throw new Error("useSubscription must be used within a SubscriptionProvider");
   }
   return context;
