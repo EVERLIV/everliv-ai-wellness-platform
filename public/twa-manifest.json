@@ -1,0 +1,51 @@
+{
+  "packageId": "online.everliv.app",
+  "host": {
+    "scheme": "https",
+    "name": "everliv.online"
+  },
+  "name": "EVERLIV",
+  "launcherName": "EVERLIV",
+  "display": "standalone",
+  "orientation": "default",
+  "themeColor": "#3b82f6",
+  "navigationColor": "#ffffff",
+  "backgroundColor": "#ffffff",
+  "startUrl": "/",
+  "iconUrl": "/android-chrome-512x512.png",
+  "maskableIconUrl": "/android-chrome-512x512.png",
+  "monochromeIconUrl": "/favicon.ico",
+  "splashScreenFadeOutDuration": 300,
+  "enableSiteSettingsShortcut": true,
+  "shortcuts": [
+    {
+      "name": "Анализы крови",
+      "shortName": "Анализы",
+      "url": "/dashboard/blood-tests",
+      "iconUrl": "/favicon.ico"
+    },
+    {
+      "name": "AI Консультация",
+      "shortName": "AI Врач", 
+      "url": "/dashboard/ai-consultation",
+      "iconUrl": "/favicon.ico"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "fallbackType": "customtabs",
+  "features": {
+    "playBilling": {
+      "enabled": false
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://everliv.online/site.webmanifest",
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  }
+}

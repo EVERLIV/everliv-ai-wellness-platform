@@ -1,17 +1,64 @@
 
 {
-  "name": "EVERLIV",
+  "name": "EVERLIV - Персонализированная медицина",
   "short_name": "EVERLIV",
-  "description": "Персонализированная медицина и аналитика здоровья",
+  "description": "Персонализированная медицина и аналитика здоровья с ИИ",
+  "categories": ["health", "medical", "lifestyle"],
+  "lang": "ru",
+  "scope": "/",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#3b82f6",
+  "background_color": "#ffffff",
   "icons": [
     {
       "src": "/favicon.ico",
-      "sizes": "any",
-      "type": "image/x-icon"
+      "sizes": "48x48",
+      "type": "image/x-icon",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
-  "theme_color": "#3b82f6",
-  "background_color": "#ffffff",
-  "display": "standalone",
-  "start_url": "/"
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Анализ крови",
+      "short_name": "Анализы",
+      "description": "Загрузить результаты анализов",
+      "url": "/dashboard/blood-tests",
+      "icons": [{ "src": "/favicon.ico", "sizes": "48x48" }]
+    },
+    {
+      "name": "AI Консультация",
+      "short_name": "AI Врач",
+      "description": "Консультация с AI врачом",
+      "url": "/dashboard/ai-consultation",
+      "icons": [{ "src": "/favicon.ico", "sizes": "48x48" }]
+    }
+  ]
 }
