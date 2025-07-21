@@ -90,7 +90,7 @@ export default function SubscriptionPathways() {
                 <CardDescription>
                   Ваш текущий тариф: <span className="font-medium">
                     {subscription.plan_type === 'basic' ? 'Базовый' : 
-                     subscription.plan_type === 'standard' ? 'Стандарт' : 'Премиум'}
+                     'Премиум'}
                   </span>
                 </CardDescription>
               </CardHeader>

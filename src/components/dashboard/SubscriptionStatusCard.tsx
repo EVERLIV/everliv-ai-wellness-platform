@@ -57,15 +57,6 @@ const SubscriptionStatusCard: React.FC = () => {
       const expiresAt = new Date(subscription.expires_at);
       
       switch (subscription.plan_type) {
-        case 'standard':
-          console.log('✅ Standard subscription in status card');
-          return {
-            title: 'Стандарт подписка',
-            description: `Активна до ${expiresAt.toLocaleDateString('ru-RU')}`,
-            gradient: 'from-blue-400 to-blue-600',
-            icon: <Zap className="h-5 w-5 text-white" />,
-            badge: 'standard'
-          };
         case 'basic':
           console.log('✅ Basic subscription in status card');
           return {

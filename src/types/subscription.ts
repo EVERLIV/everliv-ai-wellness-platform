@@ -1,5 +1,5 @@
 
-export type SubscriptionPlan = 'basic' | 'standard' | 'premium';
+export type SubscriptionPlan = 'basic' | 'premium';
 
 export type SubscriptionStatus = 'active' | 'canceled' | 'expired';
 
@@ -26,7 +26,6 @@ export interface PlanFeature {
   description: string;
   includedIn: {
     basic: boolean;
-    standard: boolean;
     premium: boolean;
   };
 }

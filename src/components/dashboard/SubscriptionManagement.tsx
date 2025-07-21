@@ -26,12 +26,10 @@ const SubscriptionManagement = () => {
   }
 
   // Helper function to calculate plan price
-  const getPlanPrice = (planType: 'basic' | 'standard' | 'premium') => {
+  const getPlanPrice = (planType: 'basic' | 'premium') => {
     switch (planType) {
       case 'basic':
         return 0;
-      case 'standard':
-        return 1490;
       case 'premium':
         return 999;
       default:
@@ -40,21 +38,21 @@ const SubscriptionManagement = () => {
   };
 
   // Calculate price difference for upgrade (if applicable)
-  const calculatePriceDifference = (currentPlan: string, newPlan: 'basic' | 'standard' | 'premium') => {
+  const calculatePriceDifference = (currentPlan: string, newPlan: 'basic' | 'premium') => {
     if (!currentPlan) return getPlanPrice(newPlan);
     
-    const currentPrice = getPlanPrice(currentPlan as 'basic' | 'standard' | 'premium');
+    const currentPrice = getPlanPrice(currentPlan as 'basic' | 'premium');
     const newPrice = getPlanPrice(newPlan);
     
     return Math.max(0, newPrice - currentPrice);
   };
 
-  const handlePurchase = (planType: 'basic' | 'standard' | 'premium') => {
+  const handlePurchase = (planType: 'basic' | 'premium') => {
     navigate('/checkout', {
       state: {
         plan: {
           type: planType,
-          name: planType === 'basic' ? 'Базовый' : planType === 'standard' ? 'Стандарт' : 'Премиум',
+          name: planType === 'basic' ? 'Базовый' : 'Премиум',
           price: getPlanPrice(planType),
           period: "месяц",
           annual: false
@@ -63,7 +61,7 @@ const SubscriptionManagement = () => {
     });
   };
 
-  const handleUpgrade = (planType: 'basic' | 'standard' | 'premium') => {
+  const handleUpgrade = (planType: 'basic' | 'premium') => {
     if (!subscription) return;
     
     const priceDifference = calculatePriceDifference(subscription.plan_type, planType);
@@ -72,7 +70,7 @@ const SubscriptionManagement = () => {
       state: {
         plan: {
           type: planType,
-          name: planType === 'basic' ? 'Базовый' : planType === 'standard' ? 'Стандарт' : 'Премиум',
+          name: planType === 'basic' ? 'Базовый' : 'Премиум',
           price: priceDifference,
           period: "месяц",
           annual: false,
@@ -135,7 +133,7 @@ const SubscriptionManagement = () => {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   Текущая подписка: {subscription.plan_type === 'basic' ? 'Базовый' : 
-                                  subscription.plan_type === 'standard' ? 'Стандарт' : 'Премиум'}
+                                  'Премиум'}
                   <Badge className={subscription.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
                     {subscription.status === 'active' ? 'Активна' : 'Отменена'}
                   </Badge>
@@ -202,11 +200,11 @@ const SubscriptionManagement = () => {
                   <ul className="space-y-2">
                     {Object.entries(FEATURE_DESCRIPTIONS).map(([key, feature]) => (
                       <li key={key} className={`flex items-start gap-2 ${
-                        feature.includedIn[subscription.plan_type as 'basic' | 'standard' | 'premium'] 
+                        feature.includedIn[subscription.plan_type as 'basic' | 'premium']
                           ? 'text-gray-800' 
                           : 'text-gray-400'
                       }`}>
-                        {feature.includedIn[subscription.plan_type as 'basic' | 'standard' | 'premium'] ? (
+                        {feature.includedIn[subscription.plan_type as 'basic' | 'premium'] ? (
                           <CheckCircle className="h-5 w-5 text-evergreen-500 mt-0.5 flex-shrink-0" />
                         ) : (
                           <AlertCircle className="h-5 w-5 text-gray-300 mt-0.5 flex-shrink-0" />
@@ -273,10 +271,10 @@ const SubscriptionManagement = () => {
                 {subscription.plan_type === 'basic' && (
                   <Button 
                     variant="outline" 
-                    onClick={() => handleUpgrade('standard')} 
+                    onClick={() => handleUpgrade('premium')} 
                     disabled={isProcessing}
                   >
-                    Обновить до Стандарт
+                    Обновить до Премиум
                   </Button>
                 )}
                 <Button 
@@ -291,7 +289,7 @@ const SubscriptionManagement = () => {
             
             {subscription.status !== 'active' && (
               <Button 
-                onClick={() => handlePurchase(subscription.plan_type as 'basic' | 'standard' | 'premium')} 
+                onClick={() => handlePurchase(subscription.plan_type as 'basic' | 'premium')} 
                 disabled={isProcessing}
                 className="flex items-center gap-1"
               >

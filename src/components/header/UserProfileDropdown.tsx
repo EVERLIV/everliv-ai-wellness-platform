@@ -64,13 +64,6 @@ const UserProfileDropdown: React.FC = () => {
     // Проверяем другие типы активных подписок
     if (subscription && subscription.status === 'active' && new Date(subscription.expires_at) > new Date()) {
       switch (subscription.plan_type) {
-        case 'standard':
-          console.log('✅ Standard subscription active in dropdown');
-          return { 
-            plan: 'Стандарт', 
-            color: 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0 shadow-md', 
-            icon: <Star className="h-3 w-3" />
-          };
         case 'basic':
           console.log('✅ Basic subscription active in dropdown');
           return { 
