@@ -38,6 +38,8 @@ interface SubscriptionContextType {
   isPremiumActive: boolean;
   canAccessAnalytics: () => boolean;
   getCurrentPlanType: () => 'basic' | 'premium';
+  forceRefreshSubscription: () => Promise<void>;
+  debugInfo: any;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -48,25 +50,57 @@ const isValidUUID = (str: string): boolean => {
   return uuidRegex.test(str);
 };
 
-// Проверяем статус подписки из базы данных
-const checkPremiumFromDatabase = (subscription: Subscription | null): boolean => {
-  if (!subscription) return false;
+// Enhanced premium check with detailed logging
+const checkPremiumFromDatabase = (subscription: Subscription | null, userEmail?: string): boolean => {
+  console.log('🔍 [PREMIUM CHECK] Starting premium check for user:', userEmail);
+  
+  if (!subscription) {
+    console.log('❌ [PREMIUM CHECK] No subscription found');
+    return false;
+  }
+  
+  const now = new Date();
+  const expiresAt = new Date(subscription.expires_at);
   
   const isActive = subscription.status === 'active';
   const isPremium = subscription.plan_type === 'premium';
-  const notExpired = new Date(subscription.expires_at) > new Date();
+  const notExpired = expiresAt > now;
   
-  console.log('🔍 Database premium check:', {
-    subscription: subscription.id,
+  console.log('📊 [PREMIUM CHECK] Subscription details:', {
+    subscriptionId: subscription.id,
+    userEmail,
+    status: subscription.status,
+    planType: subscription.plan_type,
+    expiresAt: subscription.expires_at,
+    expiresAtParsed: expiresAt.toISOString(),
+    currentTime: now.toISOString(),
+    timeDiff: expiresAt.getTime() - now.getTime(),
     isActive,
     isPremium,
     notExpired,
-    expiresAt: subscription.expires_at,
-    now: new Date().toISOString(),
     result: isActive && isPremium && notExpired
   });
   
-  return isActive && isPremium && notExpired;
+  if (!isActive) {
+    console.log('❌ [PREMIUM CHECK] Subscription is not active:', subscription.status);
+  }
+  
+  if (!isPremium) {
+    console.log('❌ [PREMIUM CHECK] Not premium plan:', subscription.plan_type);
+  }
+  
+  if (!notExpired) {
+    console.log('❌ [PREMIUM CHECK] Subscription expired:', {
+      expiresAt: subscription.expires_at,
+      now: now.toISOString(),
+      expired: expiresAt <= now
+    });
+  }
+  
+  const result = isActive && isPremium && notExpired;
+  console.log(result ? '✅ [PREMIUM CHECK] Premium subscription confirmed' : '❌ [PREMIUM CHECK] Premium subscription denied');
+  
+  return result;
 };
 
 export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
@@ -77,45 +111,55 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const [isTrialActive, setIsTrialActive] = useState<boolean>(false);
   const [trialExpiresAt, setTrialExpiresAt] = useState<Date | null>(null);
   const [trialTimeRemaining, setTrialTimeRemaining] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<any>({});
   const { hasFeatureTrial, canUseFeature } = useSubscriptionHelpers(featureTrials);
 
-  // Функция для проверки активности премиум подписки
+  // Enhanced premium check function
   const checkIsPremiumActive = () => {
-    console.log('🔍 Checking premium status for user:', user?.email);
+    console.log('🔍 [PREMIUM ACTIVE] Checking premium status for user:', user?.email);
     
     // В dev-режиме с невалидным UUID всегда считаем премиум активным
     if (user?.id && !isValidUUID(user.id)) {
-      console.log('🔧 Dev mode detected, treating as premium subscription');
+      console.log('🔧 [PREMIUM ACTIVE] Dev mode detected, treating as premium subscription');
       return true;
     }
     
     // Проверяем подписку из базы данных
-    return checkPremiumFromDatabase(subscription);
+    const result = checkPremiumFromDatabase(subscription, user?.email);
+    console.log('🎯 [PREMIUM ACTIVE] Final premium status:', result);
+    
+    return result;
   };
 
   const isPremiumActive = checkIsPremiumActive();
 
-  // Функция определения текущего плана для ограничений
+  // Enhanced plan type detection
   const getCurrentPlanType = (): 'basic' | 'premium' => {
+    console.log('🔍 [PLAN TYPE] Determining plan type for user:', user?.email);
+    
     // В dev-режиме с невалидным UUID всегда премиум
     if (user?.id && !isValidUUID(user.id)) {
+      console.log('🔧 [PLAN TYPE] Dev mode detected, returning premium');
       return 'premium';
     }
     
     // Проверяем активную подписку из Supabase
-    return checkPremiumFromDatabase(subscription) ? 'premium' : 'basic';
+    const result = checkPremiumFromDatabase(subscription, user?.email) ? 'premium' : 'basic';
+    console.log('📋 [PLAN TYPE] Final plan type:', result);
+    
+    return result;
   };
 
-  // Функция определения текущего плана для отображения - ИСПРАВЛЕНА
+  // Enhanced current plan info with detailed logging
   const getCurrentPlanInfo = () => {
-    console.log('🔍 Determining current plan. Loading:', isLoading, 'User:', user?.email);
+    console.log('🔍 [PLAN INFO] Determining current plan display. Loading:', isLoading, 'User:', user?.email);
     
     if (isLoading) return { plan: "Загрузка...", hasActive: false };
     
-    // Используем ту же логику что и в getCurrentPlanType для консистентности
     const planType = getCurrentPlanType();
     
     if (planType === 'premium') {
+      console.log('✅ [PLAN INFO] Premium plan detected');
       if (user?.id && !isValidUUID(user.id)) {
         return { plan: 'Премиум (Dev)', hasActive: true };
       } else {
@@ -125,18 +169,82 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     
     // Проверяем пробный период только если нет активной подписки
     if (isTrialActive && trialTimeRemaining) {
-      console.log('🎯 Using trial period:', trialTimeRemaining);
+      console.log('🎯 [PLAN INFO] Using trial period:', trialTimeRemaining);
       return { 
         plan: `Пробный (${trialTimeRemaining})`,
         hasActive: true
       };
     }
     
-    console.log('📋 Defaulting to basic plan for user:', user?.email);
+    console.log('📋 [PLAN INFO] Defaulting to basic plan for user:', user?.email);
     return { plan: 'Базовый', hasActive: false };
   };
 
   const { plan: currentPlan, hasActive: hasActiveSubscription } = getCurrentPlanInfo();
+
+  // Force refresh subscription function
+  const forceRefreshSubscription = async (): Promise<void> => {
+    console.log('🔄 [FORCE REFRESH] Starting forced subscription refresh for user:', user?.email);
+    
+    if (!user?.id) {
+      console.log('❌ [FORCE REFRESH] No user ID available');
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      if (isValidUUID(user.id)) {
+        console.log('🔄 [FORCE REFRESH] Fetching fresh subscription data...');
+        const data = await fetchSubscriptionData(user.id);
+        
+        console.log('📊 [FORCE REFRESH] Fresh subscription data received:', data);
+        
+        setSubscription(data.subscription);
+        setFeatureTrials(data.featureTrials);
+        
+        // Update debug info
+        setDebugInfo({
+          lastRefresh: new Date().toISOString(),
+          subscriptionData: data.subscription,
+          userEmail: user.email,
+          userId: user.id,
+          premiumCheck: checkPremiumFromDatabase(data.subscription, user.email)
+        });
+        
+        // Check trial status
+        const hasValidSubscription = checkPremiumFromDatabase(data.subscription, user.email);
+        
+        if (!hasValidSubscription) {
+          console.log('🔍 [FORCE REFRESH] No valid subscription, checking trial status...');
+          const trialStatus = await checkTrialStatusService(user.id);
+          console.log('🎯 [FORCE REFRESH] Trial status:', trialStatus);
+          
+          setIsTrialActive(trialStatus.isActive);
+          if (trialStatus.expiresAt) {
+            setTrialExpiresAt(new Date(trialStatus.expiresAt));
+          }
+        } else {
+          console.log('✅ [FORCE REFRESH] Valid subscription found, resetting trial');
+          setIsTrialActive(false);
+          setTrialExpiresAt(null);
+        }
+        
+        toast.success('Подписка обновлена');
+      } else {
+        console.log('🔧 [FORCE REFRESH] Dev mode, resetting to defaults');
+        setSubscription(null);
+        setFeatureTrials([]);
+        setIsTrialActive(false);
+        setTrialExpiresAt(null);
+      }
+    } catch (error) {
+      console.error('❌ [FORCE REFRESH] Error during forced refresh:', error);
+      toast.error('Ошибка при обновлении подписки');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Calculate time remaining for trial
   useEffect(() => {
@@ -172,57 +280,84 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     return () => clearInterval(timer);
   }, [trialExpiresAt]);
 
-  // Fetch subscription data when user changes
+  // Enhanced subscription data loading with extensive logging
   useEffect(() => {
     const loadSubscriptionData = async () => {
+      console.log('🔄 [LOAD DATA] Loading subscription data for user:', user?.id, user?.email);
+      
       if (!user?.id) {
-        console.log('👤 No user, resetting subscription state');
+        console.log('👤 [LOAD DATA] No user, resetting subscription state');
         setSubscription(null);
         setFeatureTrials([]);
         setIsLoading(false);
         setIsTrialActive(false);
         setTrialExpiresAt(null);
+        setDebugInfo({ noUser: true, timestamp: new Date().toISOString() });
         return;
       }
 
-      console.log('🔄 Loading subscription data for user:', user.id, user.email);
+      console.log('🔄 [LOAD DATA] User found, starting data load...');
       setIsLoading(true);
       
       // Для пользователей с валидным UUID пытаемся загрузить данные из базы
       if (isValidUUID(user.id)) {
         try {
+          console.log('📊 [LOAD DATA] Fetching subscription data from database...');
           const data = await fetchSubscriptionData(user.id);
-          console.log('📊 Subscription data loaded for', user.email, ':', data);
+          console.log('📊 [LOAD DATA] Subscription data loaded:', data);
           
           setSubscription(data.subscription);
           setFeatureTrials(data.featureTrials);
           
+          // Update debug info
+          setDebugInfo({
+            loadedAt: new Date().toISOString(),
+            subscriptionData: data.subscription,
+            userEmail: user.email,
+            userId: user.id,
+            premiumCheck: checkPremiumFromDatabase(data.subscription, user.email),
+            hasValidUUID: true
+          });
+          
           // Check trial status only if there is no active subscription
-          const hasValidSubscription = checkPremiumFromDatabase(data.subscription);
-            
+          const hasValidSubscription = checkPremiumFromDatabase(data.subscription, user.email);
+          
           if (!hasValidSubscription) {
-            console.log('🔍 No valid subscription, checking trial status for:', user.email);
+            console.log('🔍 [LOAD DATA] No valid subscription, checking trial status...');
             const trialStatus = await checkTrialStatusService(user.id);
-            console.log('🎯 Trial status loaded for', user.email, ':', trialStatus);
+            console.log('🎯 [LOAD DATA] Trial status loaded:', trialStatus);
             
             setIsTrialActive(trialStatus.isActive);
             if (trialStatus.expiresAt) {
               setTrialExpiresAt(new Date(trialStatus.expiresAt));
             }
           } else {
-            console.log('✅ Valid subscription found for', user.email, ', resetting trial');
+            console.log('✅ [LOAD DATA] Valid subscription found, resetting trial');
             setIsTrialActive(false);
             setTrialExpiresAt(null);
           }
         } catch (error) {
-          console.error("❌ Error loading subscription data for", user.email, ":", error);
+          console.error("❌ [LOAD DATA] Error loading subscription data:", error);
+          setDebugInfo({
+            error: error.message,
+            timestamp: new Date().toISOString(),
+            userEmail: user.email,
+            userId: user.id
+          });
         }
       } else {
-        console.log('🔧 Dev mode detected, skipping subscription data fetch');
+        console.log('🔧 [LOAD DATA] Dev mode detected, skipping subscription data fetch');
         setSubscription(null);
         setFeatureTrials([]);
         setIsTrialActive(false);
         setTrialExpiresAt(null);
+        setDebugInfo({
+          devMode: true,
+          timestamp: new Date().toISOString(),
+          userEmail: user.email,
+          userId: user.id,
+          hasValidUUID: false
+        });
       }
       
       setIsLoading(false);
@@ -293,7 +428,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     if (!user?.id || !isValidUUID(user.id)) return;
 
     // Не увеличиваем счетчик для премиум пользователей
-    if (checkPremiumFromDatabase(subscription)) {
+    if (checkPremiumFromDatabase(subscription, user?.email)) {
       console.log('🎯 Skipping usage increment for premium user:', user.email);
       return;
     }
@@ -306,10 +441,15 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Новая функция для проверки доступа к аналитике
+  // Enhanced analytics access check
   const canAccessAnalytics = (): boolean => {
     const planType = getCurrentPlanType();
-    console.log('🔍 Analytics access check:', { planType, canAccess: planType === 'premium' });
+    console.log('🔍 [ANALYTICS ACCESS] Analytics access check:', { 
+      planType, 
+      canAccess: planType === 'premium',
+      userEmail: user?.email,
+      subscription: subscription?.id
+    });
     return planType === 'premium';
   };
 
@@ -332,7 +472,9 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     hasActiveSubscription,
     isPremiumActive,
     canAccessAnalytics,
-    getCurrentPlanType: getCurrentPlanType
+    getCurrentPlanType,
+    forceRefreshSubscription,
+    debugInfo
   };
 
   return (
