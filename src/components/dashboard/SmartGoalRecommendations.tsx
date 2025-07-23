@@ -2,18 +2,16 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Target, Plus, Lightbulb, ArrowRight, Maximize2 } from 'lucide-react';
+import { Target, Plus, Lightbulb, ArrowRight, BarChart3 } from 'lucide-react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useNavigate } from 'react-router-dom';
-import { useSmartRecommendations } from './recommendations/useSmartRecommendations';
-import RecommendationPopup from './recommendations/RecommendationPopup';
+import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { translateGoalText, translateHealthGoal } from '@/utils/goalTranslations';
 
 const SmartGoalRecommendations: React.FC = () => {
   const { healthProfile } = useHealthProfile();
   const navigate = useNavigate();
-  const { recommendations, isGenerating } = useSmartRecommendations();
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const { analytics, isLoading } = useCachedAnalytics();
 
   // Мемоизируем переводы для стабильности
   const goalTranslations = useMemo(() => ({
@@ -46,7 +44,13 @@ const SmartGoalRecommendations: React.FC = () => {
     return healthProfile?.healthGoals || [];
   }, [healthProfile?.healthGoals]);
 
-  if (isGenerating) {
+  // Получаем рекомендации из analytics
+  const recommendations = useMemo(() => {
+    if (!analytics?.recommendations || !Array.isArray(analytics.recommendations)) return [];
+    return analytics.recommendations.slice(0, 5); // Показываем первые 5 рекомендаций
+  }, [analytics?.recommendations]);
+
+  if (isLoading) {
     return (
       <Card className="shadow-sm border-gray-200/80">
         <CardHeader className="pb-3">
@@ -99,7 +103,7 @@ const SmartGoalRecommendations: React.FC = () => {
             </div>
           )}
 
-          {/* ИИ рекомендации на основе профиля */}
+          {/* ИИ рекомендации из аналитики */}
           {recommendations.length > 0 && (
             <div className="space-y-3 pt-2 border-t border-gray-100">
               <div className="flex items-center justify-between">
@@ -110,49 +114,45 @@ const SmartGoalRecommendations: React.FC = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setIsPopupOpen(true)}
-                  className="text-xs text-purple-600 hover:text-purple-700"
+                  onClick={() => navigate('/analytics')}
+                  className="text-xs text-blue-600 hover:text-blue-700"
                 >
-                  <Maximize2 className="h-3 w-3 mr-1" />
-                  Открыть все
+                  <BarChart3 className="h-3 w-3 mr-1" />
+                  Все инсайты
                 </Button>
               </div>
               
-              {recommendations.slice(0, 2).map((rec) => (
+              {recommendations.slice(0, 2).map((rec, index) => (
                 <div
-                  key={`rec-${rec.id}`}
+                  key={`rec-${index}`}
                   className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200/50"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <h5 className="font-medium text-gray-900 text-sm mb-1">
-                        {rec.title}
+                        {typeof rec === 'string' ? rec : (rec as any)?.title || (rec as any)?.description || 'Рекомендация'}
                       </h5>
-                      <p className="text-xs text-gray-600 mb-2">
-                        {rec.description}
-                      </p>
+                      {typeof rec === 'object' && (rec as any)?.details && (
+                        <p className="text-xs text-gray-600 mb-2">
+                          {(rec as any).details}
+                        </p>
+                      )}
                       <div className="text-xs text-purple-700 bg-purple-100 px-2 py-1 rounded-full inline-block">
-                        {rec.timeframe}
+                        ИИ рекомендация
                       </div>
                     </div>
                   </div>
-                  
-                  {rec.scientificBasis && (
-                    <div className="mt-2 p-2 bg-blue-50/50 border border-blue-100 rounded text-xs text-blue-800">
-                      <strong>Научная основа:</strong> {rec.scientificBasis}
-                    </div>
-                  )}
                 </div>
               ))}
               
               {recommendations.length > 2 && (
                 <Button 
                   variant="outline" 
-                  className="w-full mt-2 text-xs border-purple-200 text-purple-700 hover:bg-purple-50"
-                  onClick={() => navigate('/my-recommendations')}
+                  className="w-full mt-2 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+                  onClick={() => navigate('/analytics')}
                 >
                   <ArrowRight className="h-3 w-3 mr-1" />
-                  Показать все рекомендации ({recommendations.length})
+                  Смотреть все в аналитике ({recommendations.length})
                 </Button>
               )}
             </div>
@@ -175,12 +175,6 @@ const SmartGoalRecommendations: React.FC = () => {
           )}
         </CardContent>
       </Card>
-
-      <RecommendationPopup
-        isOpen={isPopupOpen}
-        onClose={() => setIsPopupOpen(false)}
-        recommendations={recommendations}
-      />
     </>
   );
 };
