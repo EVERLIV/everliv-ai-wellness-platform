@@ -130,7 +130,7 @@ export const useCachedAnalytics = () => {
     if (!user) return;
 
     const channel = supabase
-      .channel(`cached_analytics_${user.id}`)
+      .channel(`cached_analytics_${user.id}_${Date.now()}`)
       .on(
         'postgres_changes',
         {
@@ -150,7 +150,7 @@ export const useCachedAnalytics = () => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      channel.unsubscribe();
     };
   }, [user]);
 
