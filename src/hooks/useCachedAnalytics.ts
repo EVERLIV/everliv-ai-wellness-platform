@@ -129,28 +129,40 @@ export const useCachedAnalytics = () => {
   useEffect(() => {
     if (!user) return;
 
-    const channel = supabase
-      .channel(`cached_analytics_${user.id}_${Date.now()}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_analytics',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          console.log('Analytics updated in real-time:', payload);
-          if (payload.new) {
-            setAnalytics(payload.new.analytics_data as CachedAnalytics);
-            setLastUpdated(payload.new.updated_at);
+    let channel: any = null;
+    
+    try {
+      channel = supabase
+        .channel(`cached_analytics_${user.id}_${Date.now()}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'user_analytics',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Analytics updated in real-time:', payload);
+            if (payload.new) {
+              setAnalytics(payload.new.analytics_data as CachedAnalytics);
+              setLastUpdated(payload.new.updated_at);
+            }
           }
-        }
-      )
-      .subscribe();
+        )
+        .subscribe();
+    } catch (error) {
+      console.error('Failed to create analytics subscription:', error);
+    }
 
     return () => {
-      channel.unsubscribe();
+      if (channel) {
+        try {
+          channel.unsubscribe();
+        } catch (error) {
+          console.error('Failed to unsubscribe from analytics channel:', error);
+        }
+      }
     };
   }, [user]);
 
