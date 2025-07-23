@@ -59,12 +59,16 @@ const checkPremiumFromDatabase = (subscription: Subscription | null, userEmail?:
     return false;
   }
   
+  // Более точная обработка дат с учетом часовых поясов
   const now = new Date();
   const expiresAt = new Date(subscription.expires_at);
   
+  // Добавляем буферное время в 1 час для обработки часовых поясов
+  const bufferTime = 60 * 60 * 1000; // 1 час в миллисекундах
+  const notExpired = (expiresAt.getTime() + bufferTime) > now.getTime();
+  
   const isActive = subscription.status === 'active';
   const isPremium = subscription.plan_type === 'premium';
-  const notExpired = expiresAt > now;
   
   console.log('📊 [PREMIUM CHECK] Subscription details:', {
     subscriptionId: subscription.id,
@@ -75,6 +79,8 @@ const checkPremiumFromDatabase = (subscription: Subscription | null, userEmail?:
     expiresAtParsed: expiresAt.toISOString(),
     currentTime: now.toISOString(),
     timeDiff: expiresAt.getTime() - now.getTime(),
+    timeDiffHours: (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60),
+    bufferApplied: true,
     isActive,
     isPremium,
     notExpired,
@@ -93,7 +99,8 @@ const checkPremiumFromDatabase = (subscription: Subscription | null, userEmail?:
     console.log('❌ [PREMIUM CHECK] Subscription expired:', {
       expiresAt: subscription.expires_at,
       now: now.toISOString(),
-      expired: expiresAt <= now
+      expired: expiresAt <= now,
+      timeDiffHours: (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60)
     });
   }
   
