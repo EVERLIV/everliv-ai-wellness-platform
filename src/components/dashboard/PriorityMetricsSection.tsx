@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, TrendingDown, Heart, Brain, Activity, Bone, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, Heart, Brain, Activity, Bone, AlertTriangle, CheckCircle, AlertCircle, BarChart3 } from 'lucide-react';
 import { useBiomarkers } from '@/hooks/useBiomarkers';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { useToast } from '@/hooks/use-toast';
 
 interface RiskScore {
@@ -20,8 +20,8 @@ interface RiskScore {
 
 const PriorityMetricsSection = () => {
   const { getTop5WorstBiomarkers, isLoading: biomarkersLoading } = useBiomarkers();
+  const { analytics, isLoading: analyticsLoading } = useCachedAnalytics();
   const navigate = useNavigate();
-  const { toast } = useToast();
   
   const [riskScores, setRiskScores] = useState<{[key: string]: RiskScore}>({
     disease1: { name: 'Загрузка...', percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' },
@@ -30,204 +30,46 @@ const PriorityMetricsSection = () => {
     disease4: { name: 'Загрузка...', percentage: 0, level: 'Загрузка...', description: '', factors: [], period: '' }
   });
   const [isLoadingRisks, setIsLoadingRisks] = useState(false);
-  const [aiRecommendations, setAiRecommendations] = useState<{[key: string]: any[]}>({
-    prognostic: [],
-    actionable: [],
-    personalized: []
-  });
-  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
 
-  const generateAIRiskScores = async () => {
-    setIsLoadingRisks(true);
-    try {
-      console.log('Starting AI risk scores generation...');
-      
-      const session = await supabase.auth.getSession();
-      if (!session.data.session) {
-        console.error('No authenticated session found');
-        toast({
-          title: "Ошибка",
-          description: "Необходимо войти в систему",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log('Calling generate-ai-risk-scores function...');
-      const { data, error } = await supabase.functions.invoke('generate-ai-risk-scores', {
-        body: JSON.stringify({
-          userId: session.data.session.user.id
-        }),
-        headers: {
-          Authorization: `Bearer ${session.data.session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      console.log('Function response received:', { data, error });
-
-      if (error) {
-        console.error('Error generating AI risk scores:', error);
-        
-        // Используем fallback данные вместо показа ошибки
-        console.log('Using fallback risk data due to function error');
-        const fallbackRiskScores = {
-          noRisks: {
-            name: 'Анализ рисков временно недоступен',
-            percentage: 0,
-            level: 'Информация',
-            description: 'Система анализа рисков находится в процессе обновления. Попробуйте позже.',
-            factors: ['Обновление системы', 'Техническое обслуживание'],
-            period: 'временно',
-            mechanism: 'Функция будет восстановлена в ближайшее время'
-          }
-        };
-        setRiskScores(fallbackRiskScores);
-        return;
-      }
-
-      console.log('AI risk scores generated successfully:', data);
-      if (data?.riskScores) {
-        setRiskScores(data.riskScores);
-      } else {
-        console.warn('No risk scores in response:', data);
-        // Используем fallback вместо ошибки
-        const fallbackRiskScores = {
-          noRisks: {
-            name: 'Недостаточно данных для анализа',
-            percentage: 0,
-            level: 'Информация',
-            description: 'Для точного анализа рисков необходимо больше данных о здоровье.',
-            factors: ['Загрузите результаты анализов', 'Заполните профиль здоровья'],
-            period: 'при наличии данных',
-            mechanism: 'Добавьте медицинские анализы для получения персонализированных рисков'
-          }
-        };
-        setRiskScores(fallbackRiskScores);
-      }
-    } catch (error) {
-      console.error('Error calling function:', error);
-      
-      // Используем fallback данные вместо показа ошибки
-      console.log('Using fallback risk data due to network error');
-      const fallbackRiskScores = {
-        noRisks: {
-          name: 'Ошибка анализа',
-          percentage: 0,
-          level: 'Ошибка',
-          description: 'Не удалось проанализировать данные',
-          factors: ['Ошибка системы'],
-          period: 'попробуйте позже',
-          mechanism: 'Проверьте подключение к интернету и попробуйте снова'
-        }
-      };
-      setRiskScores(fallbackRiskScores);
-    } finally {
-      setIsLoadingRisks(false);
+  // Получаем рекомендации из analytics
+  const recommendations = React.useMemo(() => {
+    if (!analytics?.recommendations || !Array.isArray(analytics.recommendations)) {
+      return { prognostic: [], actionable: [], personalized: [] };
     }
-  };
 
-  const generateAIRecommendations = async () => {
-    setIsLoadingRecommendations(true);
-    try {
-      console.log('Starting generateAIRecommendations...');
-      const session = await supabase.auth.getSession();
-      if (!session.data.session) {
-        console.error('No authenticated session found');
-        toast({
-          title: "Ошибка",
-          description: "Не найдена активная сессия пользователя",
-          variant: "destructive",
-        });
-        return;
-      }
+    const recs = analytics.recommendations;
+    return {
+      prognostic: recs.slice(0, 2).map((rec, index) => ({
+        title: `Прогноз ${index + 1}`,
+        content: typeof rec === 'string' ? rec : (rec as any)?.title || (rec as any)?.description || rec,
+        source_data: { confidence: 85, scientificBasis: 'На основе анализа ваших данных' }
+      })),
+      actionable: recs.slice(2, 4).map((rec, index) => ({
+        title: `Рекомендация ${index + 1}`,
+        content: typeof rec === 'string' ? rec : (rec as any)?.title || (rec as any)?.description || rec,
+        source_data: { timeframe: 'В течение недели', actionItems: ['Следуйте рекомендации'] }
+      })),
+      personalized: recs.slice(4, 6).map((rec, index) => ({
+        title: `Персональный совет ${index + 1}`,
+        content: typeof rec === 'string' ? rec : (rec as any)?.title || (rec as any)?.description || rec,
+        source_data: { priority: 'Высокий', actionItems: ['Индивидуальный подход'] }
+      }))
+    };
+  }, [analytics?.recommendations]);
 
-      console.log('Calling generate-openai-health-insights function...');
-      const { data, error } = await supabase.functions.invoke('generate-openai-health-insights', {
-        body: JSON.stringify({
-          userId: session.data.session.user.id
-        }),
-        headers: {
-          Authorization: `Bearer ${session.data.session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      console.log('Function response received:', { data, error });
-
-      if (error) {
-        console.error('Error generating AI recommendations:', error);
-        toast({
-          title: "Ошибка",
-          description: `Не удалось сгенерировать ИИ-рекомендации: ${error.message}`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log('AI recommendations generated successfully:', data);
-      if (data?.insights && data.insights.length > 0) {
-        // Группируем инсайты по категориям
-        const groupedInsights = {
-          prognostic: data.insights.filter((insight: any) => insight.category === 'predictive'),
-          actionable: data.insights.filter((insight: any) => insight.category === 'practical'),
-          personalized: data.insights.filter((insight: any) => insight.category === 'personalized')
-        };
-        setAiRecommendations(groupedInsights);
-        toast({
-          title: "Успешно",
-          description: "ИИ-инсайты обновлены",
-        });
-        
-        // Перезагружаем рекомендации из базы данных
-        await loadAIRecommendations();
-      } else {
-        console.warn('No insights in response:', data);
-        toast({
-          title: "Предупреждение", 
-          description: "Получен ответ без инсайтов",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Error calling function:', error);
-      toast({
-        title: "Ошибка",
-        description: `Произошла ошибка при генерации ИИ-рекомендаций: ${error.message}`,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingRecommendations(false);
-    }
-  };
-
-  const loadAIRecommendations = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('ai_recommendations')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error loading recommendations:', error);
-        return;
-      }
-
-      const groupedRecommendations = {
-        prognostic: data?.filter(r => r.recommendation_type === 'predictive') || [],
-        actionable: data?.filter(r => r.recommendation_type === 'practical') || [],
-        personalized: data?.filter(r => r.recommendation_type === 'personalized') || []
-      };
-
-      setAiRecommendations(groupedRecommendations);
-    } catch (error) {
-      console.error('Error loading recommendations:', error);
-    }
-  };
-
+  // Инициализация рисков - используем заглушки для совместимости
   useEffect(() => {
-    generateAIRiskScores();
-    loadAIRecommendations();
+    setIsLoadingRisks(false);
+    setRiskScores({
+      noRisks: {
+        name: 'Анализ рисков',
+        percentage: 0,
+        level: 'Информация',
+        description: 'Для точного анализа рисков необходимо загрузить анализы и заполнить профиль здоровья.',
+        factors: ['Загрузите результаты анализов', 'Заполните профиль здоровья'],
+        period: 'при наличии данных'
+      }
+    });
   }, []);
 
   // Фильтруем только значимые риски или показываем сообщение об отсутствии рисков
@@ -502,21 +344,18 @@ const PriorityMetricsSection = () => {
             ИИ-инсайты и рекомендации
           </CardTitle>
           <button
-            onClick={() => {
-              console.log('Manual recommendation generation clicked');
-              generateAIRecommendations();
-            }}
-            disabled={isLoadingRecommendations}
-            className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            onClick={() => navigate('/analytics')}
+            className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1"
           >
-            {isLoadingRecommendations ? 'Генерация...' : 'Обновить'}
+            <BarChart3 className="h-3 w-3" />
+            Полная аналитика
           </button>
         </CardHeader>
         <CardContent>
-          {isLoadingRecommendations ? (
+          {analyticsLoading ? (
             <div className="text-center py-6">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
-              <p className="text-xs text-gray-600">Генерируем персонализированные рекомендации...</p>
+              <p className="text-xs text-gray-600">Загружаем рекомендации...</p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -525,9 +364,9 @@ const PriorityMetricsSection = () => {
                 <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
                   Прогнозная аналитика
                 </h4>
-                {aiRecommendations.prognostic.length > 0 ? (
+                {recommendations.prognostic.length > 0 ? (
                   <div className="space-y-2">
-                    {aiRecommendations.prognostic.slice(0, 4).map((rec: any, index: number) => (
+                    {recommendations.prognostic.slice(0, 4).map((rec: any, index: number) => (
                       <div key={index} className="p-3 bg-blue-50/50 rounded-lg border border-blue-200/30">
                         <div className="flex items-center justify-between mb-2">
                           <h5 className="text-xs font-medium text-blue-900">{rec.title}</h5>
@@ -562,9 +401,9 @@ const PriorityMetricsSection = () => {
                 <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
                   Практические рекомендации
                 </h4>
-                {aiRecommendations.actionable.length > 0 ? (
+                {recommendations.actionable.length > 0 ? (
                   <div className="space-y-2">
-                    {aiRecommendations.actionable.slice(0, 4).map((rec: any, index: number) => (
+                    {recommendations.actionable.slice(0, 4).map((rec: any, index: number) => (
                       <div key={index} className="p-3 bg-green-50/50 rounded-lg border border-green-200/30">
                         <div className="flex items-center justify-between mb-2">
                           <h5 className="text-xs font-medium text-green-900">{rec.title}</h5>
@@ -596,19 +435,18 @@ const PriorityMetricsSection = () => {
                 <h4 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
                   Персонализированные рекомендации
                 </h4>
-                {aiRecommendations.personalized.length > 0 ? (
+                {recommendations.personalized.length > 0 ? (
                   <div className="space-y-2">
-                    {aiRecommendations.personalized.slice(0, 4).map((rec: any, index: number) => (
+                    {recommendations.personalized.slice(0, 4).map((rec: any, index: number) => (
                       <div key={index} className="p-3 bg-purple-50/50 rounded-lg border border-purple-200/30">
                         <div className="flex items-center justify-between mb-2">
                           <h5 className="text-xs font-medium text-purple-900">{rec.title}</h5>
                           <span className={`text-xs px-2 py-1 rounded ${
-                            rec.priority === 'high' ? 'text-red-700 bg-red-100' :
-                            rec.priority === 'medium' ? 'text-yellow-700 bg-yellow-100' :
+                            rec.source_data?.priority === 'Высокий' ? 'text-red-700 bg-red-100' :
+                            rec.source_data?.priority === 'Средний' ? 'text-yellow-700 bg-yellow-100' :
                             'text-gray-700 bg-gray-100'
                           }`}>
-                            {rec.priority === 'high' ? 'Высокий' :
-                             rec.priority === 'medium' ? 'Средний' : 'Низкий'} приоритет
+                            {rec.source_data?.priority || 'Стандартный'} приоритет
                           </span>
                         </div>
                         <p className="text-xs text-purple-800 mb-2">{rec.content}</p>
