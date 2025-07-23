@@ -126,6 +126,12 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const checkIsPremiumActive = () => {
     console.log('🔍 [PREMIUM ACTIVE] Checking premium status for user:', user?.email);
     
+    // Специальная обработка для пользователя kushnirush@gmail.com
+    if (user?.email === 'kushnirush@gmail.com') {
+      console.log('🎯 [PREMIUM ACTIVE] Special handling for kushnirush@gmail.com - forcing premium');
+      return true;
+    }
+    
     // В dev-режиме с невалидным UUID всегда считаем премиум активным
     if (user?.id && !isValidUUID(user.id)) {
       console.log('🔧 [PREMIUM ACTIVE] Dev mode detected, treating as premium subscription');
@@ -144,6 +150,12 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   // Enhanced plan type detection
   const getCurrentPlanType = (): 'basic' | 'premium' => {
     console.log('🔍 [PLAN TYPE] Determining plan type for user:', user?.email);
+    
+    // Специальная обработка для пользователя kushnirush@gmail.com
+    if (user?.email === 'kushnirush@gmail.com') {
+      console.log('🎯 [PLAN TYPE] Special handling for kushnirush@gmail.com - returning premium');
+      return 'premium';
+    }
     
     // В dev-режиме с невалидным UUID всегда премиум
     if (user?.id && !isValidUUID(user.id)) {
@@ -434,6 +446,12 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
   const incrementFeatureUsage = async (featureType: string): Promise<void> => {
     if (!user?.id || !isValidUUID(user.id)) return;
+
+    // Специальная обработка для kushnirush@gmail.com - не увеличиваем счетчик
+    if (user?.email === 'kushnirush@gmail.com') {
+      console.log('🎯 Skipping usage increment for premium user kushnirush@gmail.com');
+      return;
+    }
 
     // Не увеличиваем счетчик для премиум пользователей
     if (checkPremiumFromDatabase(subscription, user?.email)) {
