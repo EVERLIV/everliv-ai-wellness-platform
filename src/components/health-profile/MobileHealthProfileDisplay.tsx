@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { HealthProfileData } from "@/types/healthProfile";
 import { translateValue } from "@/utils/healthProfileTranslations";
+import { translateGoalText, translateHealthGoal } from "@/utils/goalTranslations";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHealthGoalsManager } from "@/hooks/useHealthGoalsManager";
 import { useDailyHealthMetrics } from "@/hooks/useDailyHealthMetrics";
@@ -48,10 +49,10 @@ const MobileHealthProfileDisplay: React.FC<MobileHealthProfileDisplayProps> = ({
   const databaseGoals = goals || [];
   const profileGoals = healthProfile.healthGoals || [];
   
-  // Преобразуем цели из профиля в формат для отображения
+  // Преобразуем цели из профиля в формат для отображения с переводом
   const convertedProfileGoals = profileGoals.map((goal, index) => ({
     id: `profile-${index}`,
-    title: goal,
+    title: translateHealthGoal(goal), // Используем новую функцию перевода
     description: '',
     category: 'health',
     priority: 'medium' as const,

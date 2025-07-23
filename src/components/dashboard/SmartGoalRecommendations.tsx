@@ -7,6 +7,7 @@ import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useNavigate } from 'react-router-dom';
 import { useSmartRecommendations } from './recommendations/useSmartRecommendations';
 import RecommendationPopup from './recommendations/RecommendationPopup';
+import { translateGoalText, translateHealthGoal } from '@/utils/goalTranslations';
 
 const SmartGoalRecommendations: React.FC = () => {
   const { healthProfile } = useHealthProfile();
@@ -51,7 +52,7 @@ const SmartGoalRecommendations: React.FC = () => {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-gray-900">
             <Target className="h-5 w-5 text-blue-600" />
-            <span className="text-lg font-semibold">Цели здоровья</span>
+            <span className="text-lg font-semibold">{translateGoalText("Health Goals")}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -71,7 +72,7 @@ const SmartGoalRecommendations: React.FC = () => {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-gray-900">
             <Target className="h-5 w-5 text-blue-600" />
-            <span className="text-lg font-semibold">Цели здоровья</span>
+            <span className="text-lg font-semibold">{translateGoalText("Health Goals")}</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -82,7 +83,7 @@ const SmartGoalRecommendations: React.FC = () => {
               {healthGoals.slice(0, 3).map((goal, index) => (
                 <div key={`goal-${goal}-${index}`} className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span className="text-sm text-gray-800">{translateGoal(goal)}</span>
+                  <span className="text-sm text-gray-800">{translateHealthGoal(goal)}</span>
                 </div>
               ))}
               {healthGoals.length > 3 && (

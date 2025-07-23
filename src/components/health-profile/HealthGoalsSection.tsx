@@ -16,6 +16,7 @@ import { useHealthGoalsManager } from "@/hooks/useHealthGoalsManager";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { translateGoalText } from "@/utils/goalTranslations";
 
 interface HealthGoalsSectionProps {
   healthProfile: HealthProfileData;
@@ -94,7 +95,7 @@ const HealthGoalsSection: React.FC<HealthGoalsSectionProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Target className="h-5 w-5" />
-          Цели здоровья
+          {translateGoalText("Health Goals")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
