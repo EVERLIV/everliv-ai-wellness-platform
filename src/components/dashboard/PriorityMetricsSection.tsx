@@ -59,82 +59,90 @@ const PriorityMetricsSection = () => {
 
   // Инициализация ИИ-рисков заболеваний на основе профиля и биомаркеров
   useEffect(() => {
+    // Получаем биомаркеры сразу, без задержки
+    const worstBiomarkers = getTop5WorstBiomarkers();
+    
     setIsLoadingRisks(true);
     
-    // Симуляция анализа рисков на основе данных пользователя
-    setTimeout(() => {
-      const calculateRisks = () => {
-        // Получаем худшие биомаркеры для анализа рисков
-        const worstBiomarkers = getTop5WorstBiomarkers();
-        
-        if (worstBiomarkers.length === 0) {
-          return {
-            noData: {
-              name: 'Анализ рисков',
-              percentage: 0,
-              level: 'Недостаточно данных',
-              description: 'Для точного анализа рисков необходимо загрузить анализы и заполнить профиль здоровья.',
-              factors: ['Загрузите результаты анализов', 'Заполните профиль здоровья'],
-              period: 'при наличии данных'
-            }
-          };
-        }
-
-        // Анализируем риски на основе биомаркеров
-        const risks: {[key: string]: RiskScore} = {};
-        
-        // Сердечно-сосудистые заболевания
-        risks.cardiovascular = {
-          name: 'Сердечно-сосудистые заболевания',
-          percentage: Math.min(45, worstBiomarkers.length * 8 + Math.random() * 15),
-          level: 'умеренный',
-          description: 'Риск развития ишемической болезни сердца и инсульта',
-          factors: ['Повышенный холестерин', 'Артериальное давление', 'Воспалительные маркеры'],
-          period: 'в течение 10 лет',
-          mechanism: 'Атеросклеротические изменения в сосудах'
+    const calculateRisks = () => {
+      if (worstBiomarkers.length === 0) {
+        return {
+          noData: {
+            name: 'Анализ рисков',
+            percentage: 0,
+            level: 'Недостаточно данных',
+            description: 'Для точного анализа рисков необходимо загрузить анализы и заполнить профиль здоровья.',
+            factors: ['Загрузите результаты анализов', 'Заполните профиль здоровья'],
+            period: 'при наличии данных'
+          }
         };
+      }
 
-        // Диабет 2 типа
-        risks.diabetes = {
-          name: 'Сахарный диабет 2 типа',
-          percentage: Math.min(35, worstBiomarkers.length * 6 + Math.random() * 12),
-          level: 'низкий',
-          description: 'Риск развития инсулинорезистентности и диабета',
-          factors: ['Уровень глюкозы', 'HbA1c', 'Индекс массы тела'],
-          period: 'в течение 5 лет',
-          mechanism: 'Нарушение углеводного обмена'
-        };
-
-        // Метаболический синдром
-        risks.metabolic = {
-          name: 'Метаболический синдром',
-          percentage: Math.min(40, worstBiomarkers.length * 7 + Math.random() * 10),
-          level: 'умеренный',
-          description: 'Комплекс нарушений обмена веществ',
-          factors: ['Липидный профиль', 'Инсулинорезистентность', 'Абдоминальное ожирение'],
-          period: 'в течение 3 лет',
-          mechanism: 'Системные метаболические нарушения'
-        };
-
-        // Остеопороз
-        risks.osteoporosis = {
-          name: 'Остеопороз',
-          percentage: Math.min(25, worstBiomarkers.length * 4 + Math.random() * 8),
-          level: 'низкий',
-          description: 'Риск снижения плотности костной ткани',
-          factors: ['Кальций', 'Витамин D', 'Фосфор'],
-          period: 'в течение 15 лет',
-          mechanism: 'Нарушение костного метаболизма'
-        };
-
-        return risks;
+      // Анализируем риски на основе биомаркеров
+      const risks: {[key: string]: RiskScore} = {};
+      
+      // Подсчитываем базовый риск на основе количества и серьезности отклонений
+      const riskMultiplier = worstBiomarkers.reduce((acc, biomarker) => {
+        if (biomarker.status === 'critical') return acc + 3;
+        if (biomarker.status === 'high' || biomarker.status === 'elevated') return acc + 2;
+        if (biomarker.status === 'low' || biomarker.status === 'attention') return acc + 1;
+        return acc;
+      }, 0);
+      
+      // Сердечно-сосудистые заболевания
+      risks.cardiovascular = {
+        name: 'Сердечно-сосудистые заболевания',
+        percentage: Math.min(50, 5 + riskMultiplier * 4),
+        level: riskMultiplier > 6 ? 'высокий' : riskMultiplier > 3 ? 'умеренный' : 'низкий',
+        description: 'Риск развития ишемической болезни сердца и инсульта',
+        factors: ['Холестерин', 'Артериальное давление', 'C-реактивный белок'],
+        period: 'в течение 10 лет',
+        mechanism: 'Атеросклеротические изменения в сосудах'
       };
 
+      // Диабет 2 типа
+      risks.diabetes = {
+        name: 'Сахарный диабет 2 типа',
+        percentage: Math.min(40, 3 + riskMultiplier * 3),
+        level: riskMultiplier > 6 ? 'высокий' : riskMultiplier > 3 ? 'умеренный' : 'низкий',
+        description: 'Риск развития инсулинорезистентности и диабета',
+        factors: ['Глюкоза', 'HbA1c', 'Инсулин'],
+        period: 'в течение 5 лет',
+        mechanism: 'Нарушение углеводного обмена'
+      };
+
+      // Метаболический синдром
+      risks.metabolic = {
+        name: 'Метаболический синдром',
+        percentage: Math.min(45, 4 + riskMultiplier * 3.5),
+        level: riskMultiplier > 6 ? 'высокий' : riskMultiplier > 3 ? 'умеренный' : 'низкий',
+        description: 'Комплекс нарушений обмена веществ',
+        factors: ['Липидный профиль', 'Инсулинорезистентность', 'Воспаление'],
+        period: 'в течение 3 лет',
+        mechanism: 'Системные метаболические нарушения'
+      };
+
+      // Остеопороз
+      risks.osteoporosis = {
+        name: 'Остеопороз',
+        percentage: Math.min(30, 2 + riskMultiplier * 2),
+        level: riskMultiplier > 6 ? 'умеренный' : 'низкий',
+        description: 'Риск снижения плотности костной ткани',
+        factors: ['Кальций', 'Витамин D', 'Фосфор'],
+        period: 'в течение 15 лет',
+        mechanism: 'Нарушение костного метаболизма'
+      };
+
+      return risks;
+    };
+
+    // Небольшая задержка только для UX, чтобы показать что идет анализ
+    setTimeout(() => {
       const calculatedRisks = calculateRisks();
       setRiskScores(calculatedRisks);
       setIsLoadingRisks(false);
-    }, 1500);
-  }, [getTop5WorstBiomarkers]);
+    }, 800);
+  }, [biomarkersLoading]); // Зависимость только от загрузки биомаркеров
 
   // Формируем ИИ-предикты рисков заболеваний
   const aiRiskScores = (() => {
