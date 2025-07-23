@@ -57,22 +57,39 @@ const PriorityMetricsSection = () => {
     };
   }, [analytics?.recommendations]);
 
-  // Инициализация рисков - используем заглушки для совместимости
+  // Инициализация данных на основе аналитики
   useEffect(() => {
     setIsLoadingRisks(false);
+    
+    // Если нет данных аналитики, показываем сообщение о необходимости данных
+    if (!analytics) {
+      setRiskScores({
+        noData: {
+          name: 'Аналитика здоровья',
+          percentage: 0,
+          level: 'Ожидание',
+          description: 'Для получения показателей здоровья необходимо заполнить профиль и добавить анализы.',
+          factors: ['Загрузите результаты анализов', 'Заполните профиль здоровья'],
+          period: 'при наличии данных'
+        }
+      });
+      return;
+    }
+
+    // Если есть данные аналитики, показываем краткую информацию
     setRiskScores({
-      noRisks: {
-        name: 'Анализ рисков',
-        percentage: 0,
-        level: 'Информация',
-        description: 'Для точного анализа рисков необходимо загрузить анализы и заполнить профиль здоровья.',
-        factors: ['Загрузите результаты анализов', 'Заполните профиль здоровья'],
-        period: 'при наличии данных'
+      healthSummary: {
+        name: 'Общая оценка здоровья',
+        percentage: analytics.healthScore || 0,
+        level: analytics.riskLevel || 'Не определен',
+        description: analytics.keyInsights?.[0] || 'Анализ ваших показателей здоровья',
+        factors: [analytics.keyInsights?.[1] || 'Продолжайте мониторинг здоровья'],
+        period: 'текущее состояние'
       }
     });
-  }, []);
+  }, [analytics]);
 
-  // Фильтруем только значимые риски или показываем сообщение об отсутствии рисков
+  // Формируем отображение на основе имеющихся данных
   const aiRiskScores = (() => {
     const scores = Object.values(riskScores);
     const validScores = scores.filter(score => score.name && score.name !== 'Загрузка...');
@@ -81,20 +98,7 @@ const PriorityMetricsSection = () => {
       return [];
     }
     
-    // Если есть специальное сообщение об отсутствии рисков
-    if (riskScores.noRisks) {
-      return [{
-        title: riskScores.noRisks.name,
-        value: riskScores.noRisks.percentage,
-        period: riskScores.noRisks.period,
-        level: riskScores.noRisks.level,
-        description: riskScores.noRisks.description,
-        factors: riskScores.noRisks.factors.join(', '),
-        mechanism: riskScores.noRisks.mechanism
-      }];
-    }
-    
-    // Показываем найденные риски
+    // Возвращаем данные для отображения
     return validScores.map(score => ({
       title: score.name,
       value: score.percentage,
@@ -102,7 +106,8 @@ const PriorityMetricsSection = () => {
       level: score.level,
       description: score.description,
       factors: score.factors.join(', '),
-      mechanism: score.mechanism
+      mechanism: score.mechanism,
+      hasData: analytics ? true : false
     }));
   })();
 
@@ -213,35 +218,35 @@ const PriorityMetricsSection = () => {
               <div className="space-y-3">
                 {aiRiskScores.map((risk, index) => (
                   <div key={index} className={`flex items-center justify-between py-3 px-4 rounded-lg border-l-4 ${
-                    risk.value === 0 ? 'border-l-green-500 bg-green-50/50' : 'border-l-gray-200 bg-gray-50/30'
+                    risk.hasData ? 'border-l-blue-500 bg-blue-50/50' : 'border-l-gray-300 bg-gray-50/50'
                   }`}>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
                         <h5 className={`text-sm font-medium ${
-                          risk.value === 0 ? 'text-green-800' : 'text-gray-900'
+                          risk.hasData ? 'text-blue-800' : 'text-gray-700'
                         }`}>
                           {risk.title}
                         </h5>
-                        {risk.value > 0 && (
+                        {risk.hasData && risk.value > 0 && (
                           <div className="flex items-center gap-2">
-                            <span className={`text-lg font-bold ${getRiskColor(risk.value)}`}>
-                              {risk.value}%
+                            <span className="text-lg font-bold text-blue-600">
+                              {Math.round(risk.value)}/100
                             </span>
-                            <span className="text-xs text-gray-500">
-                              ({risk.period})
+                            <span className="text-xs text-blue-500">
+                              балл
                             </span>
                           </div>
                         )}
                       </div>
                       <p className={`text-xs mb-1 ${
-                        risk.value === 0 ? 'text-green-700' : 'text-gray-600'
+                        risk.hasData ? 'text-blue-700' : 'text-gray-600'
                       }`}>
                         {risk.description}
                       </p>
                       <p className={`text-xs ${
-                        risk.value === 0 ? 'text-green-600' : 'text-gray-500'
+                        risk.hasData ? 'text-blue-600' : 'text-gray-500'
                       }`}>
-                        {risk.value === 0 ? risk.factors : `Анализ: ${risk.factors}`}
+                        {risk.factors}
                       </p>
                     </div>
                   </div>
