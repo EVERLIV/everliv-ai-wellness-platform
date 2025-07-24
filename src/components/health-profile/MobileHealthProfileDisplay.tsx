@@ -17,6 +17,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useHealthGoalsManager } from "@/hooks/useHealthGoalsManager";
 import { useDailyHealthMetrics } from "@/hooks/useDailyHealthMetrics";
 import DynamicHealthMetrics from "./DynamicHealthMetrics";
+import EditHealthGoalsModal from "./EditHealthGoalsModal";
+import { useHealthProfile } from "@/hooks/useHealthProfile";
 
 interface MobileHealthProfileDisplayProps {
   healthProfile: HealthProfileData;
@@ -30,6 +32,11 @@ const MobileHealthProfileDisplay: React.FC<MobileHealthProfileDisplayProps> = ({
   const { user } = useAuth();
   const { goals } = useHealthGoalsManager();
   const { metrics, isLoading: metricsLoading, saveMetrics } = useDailyHealthMetrics();
+  const { updateHealthProfile, saveHealthProfile } = useHealthProfile();
+
+  const handleSaveHealthProfile = async (): Promise<void> => {
+    await saveHealthProfile();
+  };
 
   const calculateBMI = (weight: number, height: number): number => {
     const heightInMeters = height / 100;
@@ -188,9 +195,16 @@ const MobileHealthProfileDisplay: React.FC<MobileHealthProfileDisplayProps> = ({
       {/* Health Goals */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-purple-600" />
-            Цели здоровья
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-purple-600" />
+              Цели здоровья
+            </div>
+            <EditHealthGoalsModal
+              healthProfile={healthProfile}
+              onUpdate={updateHealthProfile}
+              onSave={handleSaveHealthProfile}
+            />
           </CardTitle>
         </CardHeader>
         <CardContent>
