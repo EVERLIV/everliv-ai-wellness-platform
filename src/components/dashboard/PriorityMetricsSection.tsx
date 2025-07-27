@@ -57,12 +57,11 @@ const PriorityMetricsSection = () => {
     };
   }, [analytics?.recommendations]);
 
-  // Инициализация ИИ-рисков заболеваний на основе профиля и биомаркеров
+  // Стабильное вычисление рисков без мерцания данных
   useEffect(() => {
-    // Получаем биомаркеры сразу, без задержки
-    const worstBiomarkers = getTop5WorstBiomarkers();
+    if (biomarkersLoading) return;
     
-    setIsLoadingRisks(true);
+    const worstBiomarkers = getTop5WorstBiomarkers();
     
     const calculateRisks = () => {
       if (worstBiomarkers.length === 0) {
@@ -136,13 +135,11 @@ const PriorityMetricsSection = () => {
       return risks;
     };
 
-    // Небольшая задержка только для UX, чтобы показать что идет анализ
-    setTimeout(() => {
-      const calculatedRisks = calculateRisks();
-      setRiskScores(calculatedRisks);
-      setIsLoadingRisks(false);
-    }, 800);
-  }, [biomarkersLoading]); // Зависимость только от загрузки биомаркеров
+    setIsLoadingRisks(true);
+    const calculatedRisks = calculateRisks();
+    setRiskScores(calculatedRisks);
+    setIsLoadingRisks(false);
+  }, [biomarkersLoading]);
 
   // Формируем ИИ-предикты рисков заболеваний
   const aiRiskScores = (() => {

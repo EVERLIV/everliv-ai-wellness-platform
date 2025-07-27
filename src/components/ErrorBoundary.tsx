@@ -1,98 +1,71 @@
-
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { toast } from 'sonner';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, AlertTriangle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Props {
   children: ReactNode;
-  fallback?: ReactNode;
 }
 
 interface State {
   hasError: boolean;
-  error?: Error;
-  errorInfo?: ErrorInfo;
+  error: Error | null;
 }
 
 class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { hasError: false };
-  }
+  public state: State = {
+    hasError: false,
+    error: null,
+  };
 
-  static getDerivedStateFromError(error: Error): State {
+  public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error Boundary caught an error:', error, errorInfo);
-    
-    this.setState({ errorInfo });
-    
-    // Проверяем, является ли это сетевой ошибкой
-    const isNetworkError = error.message?.includes('fetch') ||
-                          error.message?.includes('network') ||
-                          error.message?.includes('connection');
-    
-    if (isNetworkError) {
-      toast.error('Проблемы с подключением. Проверьте соединение с интернетом.');
-    } else {
-      toast.error('Произошла ошибка. Пожалуйста, обновите страницу.');
-    }
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
-  handleRetry = () => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+  private handleRetry = () => {
+    this.setState({ hasError: false, error: null });
   };
 
-  handleReload = () => {
-    window.location.reload();
-  };
-
-  render() {
+  public render() {
     if (this.state.hasError) {
-      return this.props.fallback || (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-          <div className="max-w-md w-full text-center space-y-4">
-            <div className="flex justify-center">
-              <AlertTriangle className="h-16 w-16 text-red-500" />
-            </div>
-            
-            <h2 className="text-xl font-semibold text-gray-900">
-              Что-то пошло не так
-            </h2>
-            
-            <p className="text-gray-600">
-              {this.state.error?.message?.includes('fetch') || 
-               this.state.error?.message?.includes('network') 
-                ? 'Проблемы с подключением к серверу. Проверьте соединение с интернетом.'
-                : 'Произошла непредвиденная ошибка при загрузке страницы.'
-              }
-            </p>
-            
-            <div className="flex gap-2 justify-center">
-              <Button onClick={this.handleRetry} variant="outline">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Попробовать снова
-              </Button>
-              
-              <Button onClick={this.handleReload}>
-                Обновить страницу
-              </Button>
-            </div>
-            
-            {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="mt-4 text-left">
-                <summary className="text-sm text-gray-500 cursor-pointer">
-                  Детали ошибки (только для разработки)
-                </summary>
-                <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto">
-                  {this.state.error.stack}
-                </pre>
-              </details>
-            )}
-          </div>
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
+              <CardTitle className="text-destructive">Произошла ошибка</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground text-center">
+                Что-то пошло не так. Попробуйте обновить страницу или обратитесь в поддержку.
+              </p>
+              {process.env.NODE_ENV === 'development' && this.state.error && (
+                <div className="p-2 bg-muted rounded text-xs text-muted-foreground">
+                  {this.state.error.message}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={this.handleRetry}
+                  className="flex-1"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Повторить
+                </Button>
+                <Button
+                  onClick={() => window.location.reload()}
+                  className="flex-1"
+                >
+                  Обновить страницу
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       );
     }
