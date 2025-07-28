@@ -104,7 +104,7 @@ export function AppSidebar() {
                         title={collapsed ? item.title : undefined}
                       >
                         <item.icon className="h-4 w-4 flex-shrink-0" />
-                        {!collapsed && <span className="text-sm">{item.title}</span>}
+                        {!collapsed && <span className="text-sm text-muted-foreground">{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
