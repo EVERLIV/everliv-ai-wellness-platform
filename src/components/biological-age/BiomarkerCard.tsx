@@ -62,7 +62,20 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
   const valueStatus = biomarker.value ? getValueStatus(biomarker.value, adjustedRange) : null;
 
   const getStatusColor = () => {
-    if (biomarker.status === 'filled') return 'bg-green-100 text-green-800';
+    if (lastEntry) {
+      const valueStatus = getValueStatus(lastEntry.value, adjustedRange);
+      switch (valueStatus.status) {
+        case 'optimal':
+        case 'normal':
+          return 'bg-green-100 text-green-800 border-green-200';
+        case 'high':
+          return 'bg-red-100 text-red-800 border-red-200';
+        case 'low':
+          return 'bg-blue-100 text-blue-800 border-blue-200';
+        default:
+          return 'bg-gray-100 text-gray-600';
+      }
+    }
     return 'bg-gray-100 text-gray-600';
   };
 
