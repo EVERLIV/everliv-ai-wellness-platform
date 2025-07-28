@@ -40,7 +40,6 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
   useEffect(() => {
     if (biomarker.value !== undefined) {
       setInputValue(biomarker.value.toString());
-      setIsOpen(true);
     }
   }, [biomarker.value]);
 

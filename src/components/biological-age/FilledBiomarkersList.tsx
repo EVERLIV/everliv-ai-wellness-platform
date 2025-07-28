@@ -90,17 +90,7 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
     }
   };
 
-  useEffect(() => {
-    // Генерируем рекомендации для биомаркеров с отклонениями
-    biomarkers.forEach(biomarker => {
-      if (biomarker.value && biomarker.normal_range) {
-        const valueStatus = getValueStatus(biomarker.value, biomarker.normal_range);
-        if (valueStatus.status !== 'В норме' && valueStatus.status !== 'Оптимально') {
-          generateAIRecommendation(biomarker);
-        }
-      }
-    });
-  }, [biomarkers]);
+  // Убираем автоматическую генерацию рекомендаций для улучшения производительности
 
   return (
     <div className="border border-gray-200 bg-white p-1 md:p-2">
@@ -158,22 +148,31 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                   <span className="bio-text-caption font-medium">Функция:</span> {impact.description}
                 </div>
                 
-                {/* ИИ рекомендации при отклонениях */}
+                {/* ИИ рекомендации при отклонениях - по запросу */}
                 {(valueStatus.status !== 'В норме' && valueStatus.status !== 'Оптимально') && (
                   <div className="bio-text-caption text-orange-600 bg-orange-50 p-1 rounded">
-                    <div className="flex items-start gap-1">
-                      <span className="bio-text-caption font-medium">Рекомендации ИИ:</span>
-                      {isLoadingRecommendation ? (
-                        <div className="flex items-center gap-1">
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                          <span>Генерирую...</span>
-                        </div>
-                      ) : (
-                        <span className="bio-text-caption leading-tight">
-                          {aiRecommendation || 'Загрузка рекомендаций...'}
-                        </span>
-                      )}
-                    </div>
+                    {!aiRecommendation && !isLoadingRecommendation ? (
+                      <button
+                        onClick={() => generateAIRecommendation(biomarker)}
+                        className="bio-text-caption underline hover:text-orange-700"
+                      >
+                        Получить рекомендации ИИ
+                      </button>
+                    ) : (
+                      <div className="flex items-start gap-1">
+                        <span className="bio-text-caption font-medium">Рекомендации ИИ:</span>
+                        {isLoadingRecommendation ? (
+                          <div className="flex items-center gap-1">
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            <span>Генерирую...</span>
+                          </div>
+                        ) : (
+                          <span className="bio-text-caption leading-tight">
+                            {aiRecommendation}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
