@@ -38,52 +38,45 @@ const BiologicalAgeCalculator = () => {
 
   return (
     <div className="space-y-6">
-      {/* Компактное размещение диаграммы и введенных данных */}
-      {filledBiomarkers.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <BiologicalAgeRadarChart biomarkers={biomarkers} />
-          
-          {/* Детальный список введенных биомаркеров */}
-          <FilledBiomarkersList biomarkers={filledBiomarkers} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Основной контент */}
+        <div className="lg:col-span-2">
+          <BiomarkerCategories
+            biomarkers={biomarkers}
+            onValueChange={handleBiomarkerValueChange}
+            healthProfile={healthProfile}
+          />
         </div>
-      )}
+        
+        {/* Боковая панель */}
+        <div className="space-y-4">
+          {/* Введенные показатели */}
+          {filledBiomarkers.length > 0 && (
+            <FilledBiomarkersList biomarkers={filledBiomarkers} />
+          )}
 
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Основной контент */}
-          <div className="lg:col-span-2">
-            <BiomarkerCategories
-              biomarkers={biomarkers}
-              onValueChange={handleBiomarkerValueChange}
-              healthProfile={healthProfile}
+          <AccuracyIndicator accuracy={currentAccuracy} />
+
+          {connectionError && (
+            <ConnectionErrorAlert 
+              error={connectionError} 
+              onRetry={retryCalculation} 
             />
-          </div>
-          
-          {/* Боковая панель */}
-          <div className="space-y-4">
-            <AccuracyIndicator accuracy={currentAccuracy} />
+          )}
 
-            {connectionError && (
-              <ConnectionErrorAlert 
-                error={connectionError} 
-                onRetry={retryCalculation} 
-              />
-            )}
+          <CalculationControls
+            onCalculate={calculateBiologicalAge}
+            isCalculating={isCalculating}
+            currentAccuracy={currentAccuracy}
+            totalBiomarkers={biomarkers.length}
+          />
 
-            <CalculationControls
-              onCalculate={calculateBiologicalAge}
-              isCalculating={isCalculating}
-              currentAccuracy={currentAccuracy}
-              totalBiomarkers={biomarkers.length}
-            />
+          {results && (
+            <BiologicalAgeResults results={results} />
+          )}
 
-            {results && (
-              <BiologicalAgeResults results={results} />
-            )}
-
-            {/* История биологического возраста */}
-            <BiologicalAgeHistoryCard />
-          </div>
+          {/* История биологического возраста */}
+          <BiologicalAgeHistoryCard />
         </div>
       </div>
     </div>
