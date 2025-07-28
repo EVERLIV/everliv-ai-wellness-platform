@@ -96,12 +96,25 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
 
       // Update biomarkers with user data
       const updatedBiomarkers = biomarkers.map(biomarker => {
-        // Try to find matching biomarker by name (case-insensitive)
-        const userBiomarker = userBiomarkers.find(ub => 
-          ub.name && biomarker.name && 
-          ub.name.toLowerCase().includes(biomarker.name.toLowerCase()) ||
-          biomarker.name.toLowerCase().includes(ub.name.toLowerCase())
-        );
+        // Try to find matching biomarker by exact or very close name match
+        const userBiomarker = userBiomarkers.find(ub => {
+          if (!ub.name || !biomarker.name) return false;
+          
+          const ubName = ub.name.toLowerCase().trim();
+          const biomarkerName = biomarker.name.toLowerCase().trim();
+          
+          // Exact match
+          if (ubName === biomarkerName) return true;
+          
+          // For specific known matches
+          if (biomarkerName.includes('соэ') && ubName.includes('соэ')) return true;
+          if (biomarkerName.includes('креатинин') && ubName === 'креатинин') return true;
+          if (biomarkerName.includes('глюкоза') && ubName === 'глюкоза') return true;
+          if (biomarkerName.includes('мочевина') && ubName === 'мочевина') return true;
+          
+          // Avoid false matches like "Гемоглобин" matching "Гликированный гемоглобин"
+          return false;
+        });
 
         if (userBiomarker && userBiomarker.value) {
           const numericValue = parseFloat(userBiomarker.value);
