@@ -106,13 +106,36 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
           // Exact match
           if (ubName === biomarkerName) return true;
           
-          // For specific known matches
-          if (biomarkerName.includes('соэ') && ubName.includes('соэ')) return true;
-          if (biomarkerName.includes('креатинин') && ubName === 'креатинин') return true;
-          if (biomarkerName.includes('глюкоза') && ubName === 'глюкоза') return true;
-          if (biomarkerName.includes('мочевина') && ubName === 'мочевина') return true;
+          // Specific cardiovascular matches
+          if (biomarkerName.includes('общий холестерин') && ubName.includes('холестерин') && !ubName.includes('лпнп') && !ubName.includes('лпвп')) return true;
+          if (biomarkerName.includes('лпнп') && (ubName.includes('лпнп') || ubName.includes('ldl') || ubName.includes('плохой холестерин'))) return true;
+          if (biomarkerName.includes('лпвп') && (ubName.includes('лпвп') || ubName.includes('hdl') || ubName.includes('хороший холестерин'))) return true;
+          if (biomarkerName.includes('триглицериды') && ubName.includes('триглицерид')) return true;
+          if (biomarkerName.includes('с-реактивный белок') && (ubName.includes('срб') || ubName.includes('c-реактивный') || ubName.includes('crp'))) return true;
+          if (biomarkerName.includes('гомоцистеин') && ubName.includes('гомоцистеин')) return true;
           
-          // Avoid false matches like "Гемоглобин" matching "Гликированный гемоглобин"
+          // Metabolic matches
+          if (biomarkerName.includes('глюкоза') && ubName.includes('глюкоза')) return true;
+          if (biomarkerName.includes('гликированный гемоглобин') && (ubName.includes('hba1c') || ubName.includes('гликированный'))) return true;
+          if (biomarkerName.includes('инсулин') && ubName.includes('инсулин') && !ubName.includes('homa')) return true;
+          
+          // Inflammatory markers
+          if (biomarkerName.includes('соэ') && (ubName.includes('соэ') || ubName.includes('скорость оседания'))) return true;
+          
+          // Kidney function
+          if (biomarkerName.includes('креатинин') && ubName.includes('креатинин')) return true;
+          if (biomarkerName.includes('мочевина') && ubName.includes('мочевина')) return true;
+          
+          // Liver function  
+          if (biomarkerName.includes('алт') && (ubName.includes('алт') || ubName.includes('аланин'))) return true;
+          if (biomarkerName.includes('аст') && (ubName.includes('аст') || ubName.includes('аспартат'))) return true;
+          if (biomarkerName.includes('билирубин') && ubName.includes('билирубин')) return true;
+          
+          // Vitamins
+          if (biomarkerName.includes('витамин d') && (ubName.includes('витамин d') || ubName.includes('25-oh'))) return true;
+          if (biomarkerName.includes('витамин b12') && (ubName.includes('b12') || ubName.includes('цианокобаламин'))) return true;
+          if (biomarkerName.includes('фолиевая кислота') && (ubName.includes('фолиевая') || ubName.includes('фолат'))) return true;
+          
           return false;
         });
 
