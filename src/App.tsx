@@ -42,7 +42,7 @@ const ServicesPage = lazy(() => import("./pages/ServicesPage"));
 const Community = lazy(() => import("./pages/Community"));
 const Webinars = lazy(() => import("./pages/Webinars"));
 const BiologicalAgePage = lazy(() => import("./pages/BiologicalAge"));
-const DiagnosticsPage = lazy(() => import("./pages/DiagnosticsPage"));
+
 const HealthCalendar = lazy(() => import("./pages/HealthCalendar"));
 
 // Auth pages
@@ -68,9 +68,6 @@ const Analytics = lazy(() => import("./pages/Analytics"));
 const AIDoctorPage = lazy(() => import("./pages/AIDoctorPage"));
 const AIDoctorBasicPage = lazy(() => import("./pages/AIDoctorBasicPage"));
 const AIDoctorPersonalPage = lazy(() => import("./pages/AIDoctorPersonalPage"));
-const NutritionDiaryPage = lazy(() => import("./pages/NutritionDiary"));
-const MyBiomarkers = lazy(() => import("./pages/MyBiomarkers"));
-const MyRecommendations = lazy(() => import("./pages/MyRecommendations"));
 const ProtocolTracking = lazy(() => import("./pages/ProtocolTracking"));
 const SubscriptionPage = lazy(() => import("./pages/SubscriptionPage"));
 const UserSubscription = lazy(() => import("./pages/UserSubscription"));
@@ -172,26 +169,6 @@ const App = () => (
                           <AIDoctorPersonalPage />
                         </ProtectedRoute>
                       } />
-                      <Route path="/nutrition-diary" element={
-                        <ProtectedRoute>
-                          <NutritionDiaryPage />
-                        </ProtectedRoute>
-                      } />
-                       <Route path="/my-biomarkers" element={
-                        <ProtectedRoute>
-                          <MyBiomarkers />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/my-recommendations" element={
-                        <ProtectedRoute>
-                          <MyRecommendations />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/protocol-tracking" element={
-                        <ProtectedRoute>
-                          <ProtocolTracking />
-                        </ProtectedRoute>
-                      } />
                       <Route path="/subscription" element={
                         <ProtectedRoute>
                           <SubscriptionPage />
@@ -237,11 +214,6 @@ const App = () => (
                       <Route path="/community" element={<Community />} />
                       <Route path="/webinars" element={<Webinars />} />
                       <Route path="/biological-age" element={<BiologicalAgePage />} />
-                      <Route path="/diagnostics/*" element={
-                        <ProtectedRoute>
-                          <DiagnosticsPage />
-                        </ProtectedRoute>
-                      } />
 
                       {/* Route modules - lazy loaded */}
                       <Route path="/services/*" element={<ServiceRoutes />} />

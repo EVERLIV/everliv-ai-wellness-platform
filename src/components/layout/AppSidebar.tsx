@@ -40,13 +40,10 @@ const menuItems = [
     groupLabel: "Инструменты",
     items: [
       { title: "ИИ Доктор", url: "/ai-doctor", icon: Brain },
-      { title: "Функциональная диагностика", url: "/diagnostics", icon: Stethoscope },
       { title: "Профиль здоровья", url: "/health-profile", icon: Heart },
       { title: "Аналитика", url: "/analytics", icon: BarChart3 },
-      { title: "Дневник питания", url: "/nutrition-diary", icon: Utensils },
       { title: "Лабораторные анализы", url: "/lab-analyses", icon: TestTube },
       { title: "Мои биомаркеры", url: "/my-biomarkers", icon: Activity },
-      { title: "Рекомендации", url: "/my-recommendations", icon: HeartHandshake },
       { title: "Биологический возраст", url: "/biological-age", icon: TrendingUp },
       { title: "База знаний", url: "/knowledge-base", icon: BookOpen },
       { title: "Календарь здоровья", url: "/health-calendar", icon: Calendar },
@@ -56,7 +53,6 @@ const menuItems = [
     groupLabel: "Поддержка",
     items: [
       { title: "Центр помощи", url: "/help", icon: HelpCircle },
-      { title: "Чат с командой", url: "/support-chat", icon: MessageSquare },
       { title: "Уведомления", url: "/notifications", icon: Bell },
       { title: "Конфиденциальность", url: "/privacy", icon: Shield },
     ]
@@ -65,8 +61,6 @@ const menuItems = [
     groupLabel: "Настройки",
     items: [
       { title: "Настройки профиля", url: "/settings", icon: Settings },
-      { title: "Инструменты разработчика", url: "/dev-tools", icon: Wrench },
-      { title: "Медицинские услуги", url: "/medical-services", icon: Pill },
     ]
   }
 ];

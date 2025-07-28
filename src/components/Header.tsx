@@ -31,9 +31,6 @@ const Header: React.FC = () => {
                    <Link to="/dashboard">
                      <Button variant="outline" size="sm">Панель Управления</Button>
                    </Link>
-                   <Link to="/diagnostics">
-                     <Button variant="outline" size="sm">Диагностика</Button>
-                   </Link>
                  </div>
                 <UserProfileDropdown />
               </>
