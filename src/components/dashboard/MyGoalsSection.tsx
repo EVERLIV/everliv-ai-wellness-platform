@@ -27,7 +27,13 @@ const MyGoalsSection: React.FC = () => {
       'bone_health': 'Здоровье костей',
       'mental_health': 'Психическое здоровье',
       'detox': 'Детоксикация организма',
-      'athletic_performance': 'Спортивные результаты'
+      'athletic_performance': 'Спортивные результаты',
+      // Добавляем недостающие переводы
+      'musculoskeletal': 'Здоровье костно-мышечной системы',
+      'metabolism': 'Улучшение метаболизма',
+      'immunity': 'Укрепление иммунной системы',
+      'cardiovascular_health': 'Здоровье сердца и сосудов',
+      'cognitive_health': 'Когнитивное здоровье'
     };
     return translations[goalKey] || goalKey;
   };
