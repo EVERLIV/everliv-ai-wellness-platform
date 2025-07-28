@@ -77,8 +77,11 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
+  const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "bg-accent text-accent-foreground font-medium" : "hover:bg-neutral-50 hover:text-neutral-700";
+    isActive 
+      ? "bg-accent text-accent-foreground font-medium" 
+      : "text-muted-foreground hover:bg-neutral-100 hover:text-neutral-700";
 
   return (
     <Sidebar
@@ -102,7 +105,7 @@ export function AppSidebar() {
                         className={getNavCls}
                         title={collapsed ? item.title : undefined}
                       >
-                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        <item.icon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                         {!collapsed && <span className="text-sm text-muted-foreground">{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
