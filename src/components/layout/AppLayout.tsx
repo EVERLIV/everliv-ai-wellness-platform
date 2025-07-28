@@ -240,7 +240,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <div className="flex flex-1 flex-col min-w-0">
             {/* Основной контент */}
             <main className="flex-1 overflow-auto bg-background">
-              <div className="container mx-auto px-4 py-4 max-w-5xl min-h-full">
+              <div className="container mx-auto px-5 py-5 max-w-5xl min-h-full">
                 {children}
               </div>
             </main>
