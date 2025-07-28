@@ -77,7 +77,7 @@ const BiologicalAgeHistoryCard = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Текущий результат */}
-        <div className="bg-blue-50/50 rounded-lg p-4">
+        <div className="rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="bio-text-body text-muted-foreground">Последний расчет</span>
             <span className="bio-text-small text-muted-foreground">
