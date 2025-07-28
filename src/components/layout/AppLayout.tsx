@@ -239,7 +239,8 @@ export function AppLayout({ children }: AppLayoutProps) {
           <div className="flex flex-1 flex-col min-w-0">
             {/* Основной контент */}
             <main className="flex-1 overflow-auto bg-background">
-              <div className="container mx-auto px-2 py-6 max-w-none min-h-full">
+              <div className="container mx-auto px-8 py-6 max-w-none min-h-full"
+                style={{ marginLeft: '30px' }}>
                 {children}
               </div>
             </main>

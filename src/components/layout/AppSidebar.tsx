@@ -82,7 +82,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className="w-64 border-r border-gray-200 bg-white"
+      className="w-56 border-r border-gray-200 bg-white"
       collapsible="icon"
     >
       {/* Отступ от хедера */}
