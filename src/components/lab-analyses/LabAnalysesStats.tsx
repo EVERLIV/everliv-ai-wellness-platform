@@ -65,7 +65,7 @@ const LabAnalysesStats: React.FC<LabAnalysesStatsProps> = ({ statistics }) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-      <Card className="rounded-none border-gray-200/80">
+      <Card className="border-gray-200/80">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 py-2">
           <CardTitle className="text-xs font-medium">Всего анализов</CardTitle>
           <FileText className="h-3 w-3 text-muted-foreground" />
@@ -78,7 +78,7 @@ const LabAnalysesStats: React.FC<LabAnalysesStatsProps> = ({ statistics }) => {
         </CardContent>
       </Card>
 
-      <Card className="rounded-none border-gray-200/80">
+      <Card className="border-gray-200/80">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 py-2">
           <CardTitle className="text-xs font-medium">Этот месяц</CardTitle>
           <Calendar className="h-3 w-3 text-muted-foreground" />
@@ -88,7 +88,7 @@ const LabAnalysesStats: React.FC<LabAnalysesStatsProps> = ({ statistics }) => {
             {statistics.currentMonthAnalyses}/{limit}
           </div>
           <div className="flex items-center gap-2">
-            <div className={`h-1.5 w-full bg-gray-200 rounded-none overflow-hidden`}>
+            <div className={`h-1.5 w-full bg-gray-200 overflow-hidden`}>
               <div 
                 className={`h-full transition-all duration-300 ${
                   usagePercentage >= 100 
@@ -107,7 +107,7 @@ const LabAnalysesStats: React.FC<LabAnalysesStatsProps> = ({ statistics }) => {
         </CardContent>
       </Card>
 
-      <Card className="rounded-none border-gray-200/80">
+      <Card className="border-gray-200/80">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 py-2">
           <CardTitle className="text-xs font-medium">План подписки</CardTitle>
           <Crown className="h-3 w-3 text-muted-foreground" />
@@ -122,7 +122,7 @@ const LabAnalysesStats: React.FC<LabAnalysesStatsProps> = ({ statistics }) => {
         </CardContent>
       </Card>
 
-      <Card className="rounded-none border-gray-200/80">
+      <Card className="border-gray-200/80">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 px-3 py-2">
           <CardTitle className="text-xs font-medium">Последний анализ</CardTitle>
           <TrendingUp className="h-3 w-3 text-muted-foreground" />

@@ -131,9 +131,9 @@ const CheckupsList: React.FC = () => {
             {recommendations.map((recommendation, index) => (
               <div 
                 key={index}
-                className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-start gap-3 p-3 bg-gray-50 hover:bg-gray-100 transition-colors"
               >
-                <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                <div className="p-2 bg-blue-100 flex-shrink-0">
                   <Clock className="h-4 w-4 text-blue-600" />
                 </div>
                 <div className="flex-1 min-w-0">

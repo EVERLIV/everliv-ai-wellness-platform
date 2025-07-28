@@ -48,7 +48,7 @@ const HealthProfileQuickView: React.FC = () => {
             </div>
             <div className="space-y-1">
               {profileData.goals.map((goal, index) => (
-                <div key={index} className="text-sm bg-blue-50 text-blue-700 px-2 py-1 rounded">
+                <div key={index} className="text-sm bg-blue-50 text-blue-700 px-2 py-1">
                   {goal}
                 </div>
               ))}

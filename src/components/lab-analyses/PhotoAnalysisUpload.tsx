@@ -163,7 +163,7 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
         {!selectedPhoto ? (
           <div className="space-y-4">
             <div 
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+              className={`border-2 border-dashed p-8 text-center transition-colors ${
                 isDragOver 
                   ? 'border-emerald-500 bg-emerald-100/50' 
                   : 'border-emerald-300 bg-emerald-50/30'
@@ -228,13 +228,13 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="relative border-2 border-emerald-200 rounded-lg p-4 bg-emerald-50/30">
+            <div className="relative border-2 border-emerald-200 p-4 bg-emerald-50/30">
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={onPhotoRemove}
-                className="absolute top-2 right-2 h-8 w-8 p-0 bg-white hover:bg-gray-100 rounded-full shadow-sm z-10"
+                className="absolute top-2 right-2 h-8 w-8 p-0 bg-white hover:bg-gray-100 shadow-sm z-10"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -242,7 +242,7 @@ const PhotoAnalysisUpload: React.FC<PhotoAnalysisUploadProps> = ({
                 <img
                   src={photoPreviewUrl}
                   alt="Предварительный просмотр анализа"
-                  className="max-w-full max-h-64 mx-auto rounded shadow-sm"
+                  className="max-w-full max-h-64 mx-auto shadow-sm"
                 />
               )}
               <p className="text-xs text-gray-500 text-center mt-2">

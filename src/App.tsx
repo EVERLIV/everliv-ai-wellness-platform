@@ -72,6 +72,7 @@ const ProtocolTracking = lazy(() => import("./pages/ProtocolTracking"));
 const SubscriptionPage = lazy(() => import("./pages/SubscriptionPage"));
 const UserSubscription = lazy(() => import("./pages/UserSubscription"));
 const Checkout = lazy(() => import("./pages/Checkout"));
+const MyBiomarkers = lazy(() => import("./pages/MyBiomarkers"));
 
 import { SmartAuthProvider } from "./contexts/SmartAuthContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
@@ -187,6 +188,11 @@ const App = () => (
                       <Route path="/health-calendar" element={
                         <ProtectedRoute>
                           <HealthCalendar />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/my-biomarkers" element={
+                        <ProtectedRoute>
+                          <MyBiomarkers />
                         </ProtectedRoute>
                       } />
 
