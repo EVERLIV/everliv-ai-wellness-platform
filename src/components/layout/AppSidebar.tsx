@@ -88,17 +88,20 @@ export function AppSidebar() {
       {/* Отступ от хедера */}
       <div className="h-16"></div>
 
-      <SidebarContent className="bg-white pt-0 relative">
-        {/* Компактная кнопка скрытия в углу */}
+      {/* Компактная кнопка скрытия */}
+      <div className="flex justify-end px-2 pb-2">
         <Button
           variant="ghost"
           size="sm"
           onClick={toggleSidebar}
-          className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-gray-100 rounded-full z-10 opacity-60 hover:opacity-100 transition-opacity"
+          className="h-6 w-6 p-0 hover:bg-gray-100 rounded-full opacity-60 hover:opacity-100 transition-opacity"
           title="Скрыть панель"
         >
           <ChevronLeft className="h-3 w-3 text-muted-foreground" />
         </Button>
+      </div>
+
+      <SidebarContent className="bg-white pt-0">
         {menuItems.map((group, groupIndex) => (
           <SidebarGroup key={groupIndex}>
             <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3 py-2">
