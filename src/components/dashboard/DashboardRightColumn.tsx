@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Heart, Activity, TrendingUp, Calendar } from 'lucide-react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
-import NutritionSummarySection from './NutritionSummarySection';
+import MyGoalsSection from './MyGoalsSection';
 import DashboardChatsList from './DashboardChatsList';
 import BiologicalAgeHistoryCard from '../biological-age/BiologicalAgeHistoryCard';
 
@@ -136,8 +136,8 @@ const DashboardRightColumn: React.FC<DashboardRightColumnProps> = ({
       {/* История биологического возраста */}
       <BiologicalAgeHistoryCard />
 
-      {/* Питание сегодня */}
-      <NutritionSummarySection />
+      {/* Мои цели */}
+      <MyGoalsSection />
 
       {/* Последние чаты */}
       <DashboardChatsList />

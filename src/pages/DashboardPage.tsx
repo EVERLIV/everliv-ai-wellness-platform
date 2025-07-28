@@ -9,8 +9,8 @@ import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import DashboardQuickActionsGrid from '@/components/dashboard/DashboardQuickActionsGrid';
 import DashboardChatsList from '@/components/dashboard/DashboardChatsList';
-import NutritionSummarySection from '@/components/dashboard/NutritionSummarySection';
-import MyGoalsSection from '@/components/dashboard/health-goals/MyGoalsSection';
+import MyGoalsSection from '@/components/dashboard/MyGoalsSection';
+
 import PriorityMetricsSection from '@/components/dashboard/PriorityMetricsSection';
 
 const DashboardPage = () => {
@@ -80,16 +80,6 @@ const DashboardPage = () => {
           </p>
         </div>
 
-        {/* Мои цели */}
-        <Card className="shadow-sm border-gray-200/80">
-          <CardContent className="p-2 sm:p-3">
-            <h2 className="text-sm sm:text-base font-medium text-gray-900 mb-2 flex items-center gap-1.5">
-              <Target className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500" />
-              Мои цели
-            </h2>
-            <MyGoalsSection />
-          </CardContent>
-        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Левая колонка - Быстрые действия */}
@@ -173,8 +163,8 @@ const DashboardPage = () => {
               </CardContent>
             </Card>
 
-            {/* Питание сегодня */}
-            <NutritionSummarySection />
+            {/* Мои цели */}
+            <MyGoalsSection />
 
             {/* Истории чатов с ИИ */}
             <DashboardChatsList />
