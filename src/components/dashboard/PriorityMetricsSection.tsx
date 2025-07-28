@@ -257,111 +257,94 @@ const PriorityMetricsSection = () => {
       {/* ИИ-скоры рисков */}
       <Card className="shadow-sm border-gray-200/80">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2">
+            <Brain className="h-4 w-4 text-purple-500" />
             ИИ-предикты рисков заболеваний
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="text-xs text-gray-600 mb-4 p-3 bg-blue-50/50 rounded-lg">
-              <p className="font-medium mb-1">ИИ-анализ рисков развития заболеваний</p>
-              <p>На основе биомаркеров, генетических факторов и клинических исследований</p>
+            <div className="text-xs text-gray-600 mb-4 p-3 bg-purple-50/50 rounded-lg border border-purple-100/50">
+              <p className="font-medium mb-1 text-purple-800">ИИ-анализ рисков развития заболеваний</p>
+              <p className="text-purple-700">На основе биомаркеров, генетических факторов и клинических исследований</p>
             </div>
             
             {isLoadingRisks ? (
               <div className="text-center py-6">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                <p className="text-xs text-gray-600">Анализируем риски на основе ваших биомаркеров...</p>
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500 mx-auto mb-2"></div>
+                <p className="text-sm text-gray-600">Анализируем риски...</p>
               </div>
             ) : aiRiskScores.length === 0 ? (
               <div className="text-center py-8">
                 <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-3" />
-                <h3 className="text-lg font-semibold text-green-700 mb-2">Рисков не выявлено</h3>
+                <h3 className="text-base font-semibold text-green-700 mb-2">Рисков не выявлено</h3>
                 <p className="text-sm text-green-600 mb-1">Вы в отличной форме!</p>
                 <p className="text-xs text-gray-600">Ваши показатели в норме, продолжайте здоровый образ жизни</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {aiRiskScores.map((risk, index) => (
-                  <div key={index} className={`flex items-center justify-between py-3 px-4 rounded-lg border-l-4 ${
-                    !risk.hasData ? 'border-l-gray-300 bg-gray-50/50' : 
-                    risk.value <= 15 ? 'border-l-green-500 bg-green-50/50' :
-                    risk.value <= 30 ? 'border-l-yellow-500 bg-yellow-50/50' :
-                    risk.value <= 45 ? 'border-l-orange-500 bg-orange-50/50' : 
-                    'border-l-red-500 bg-red-50/50'
+                  <div key={index} className={`p-4 rounded-xl border ${
+                    !risk.hasData ? 'border-gray-200 bg-gray-50/30' : 
+                    risk.value <= 15 ? 'border-green-200 bg-green-50/30' :
+                    risk.value <= 30 ? 'border-yellow-200 bg-yellow-50/30' :
+                    risk.value <= 45 ? 'border-orange-200 bg-orange-50/30' : 
+                    'border-red-200 bg-red-50/30'
                   }`}>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h5 className={`text-sm font-medium ${
-                          !risk.hasData ? 'text-gray-700' :
-                          risk.value <= 15 ? 'text-green-800' :
-                          risk.value <= 30 ? 'text-yellow-800' :
-                          risk.value <= 45 ? 'text-orange-800' : 
-                          'text-red-800'
-                        }`}>
-                          {risk.title}
-                        </h5>
-                        {risk.hasData && risk.value > 0 && (
-                          <div className="flex items-center gap-2">
-                            <span className={`text-lg font-bold ${getRiskColor(risk.value)}`}>
-                              {Math.round(risk.value)}%
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {risk.period}
-                            </span>
+                    <div className="flex justify-between items-start mb-2">
+                      <h5 className={`text-sm font-medium leading-tight ${
+                        !risk.hasData ? 'text-gray-700' :
+                        risk.value <= 15 ? 'text-green-800' :
+                        risk.value <= 30 ? 'text-yellow-800' :
+                        risk.value <= 45 ? 'text-orange-800' : 
+                        'text-red-800'
+                      }`}>
+                        {risk.title}
+                      </h5>
+                      {risk.hasData && risk.value > 0 && (
+                        <div className="text-right flex-shrink-0 ml-3">
+                          <div className={`text-lg font-bold ${getRiskColor(risk.value)}`}>
+                            {Math.round(risk.value)}%
                           </div>
-                        )}
-                      </div>
-                      <p className={`text-xs mb-1 ${
-                        !risk.hasData ? 'text-gray-600' :
-                        risk.value <= 15 ? 'text-green-700' :
-                        risk.value <= 30 ? 'text-yellow-700' :
-                        risk.value <= 45 ? 'text-orange-700' : 
-                        'text-red-700'
-                      }`}>
-                        {risk.description}
-                      </p>
-                      <p className={`text-xs ${
-                        !risk.hasData ? 'text-gray-500' :
-                        risk.value <= 15 ? 'text-green-600' :
-                        risk.value <= 30 ? 'text-yellow-600' :
-                        risk.value <= 45 ? 'text-orange-600' : 
-                        'text-red-600'
-                      }`}>
-                        {!risk.hasData ? risk.factors : `Факторы риска: ${risk.factors}`}
-                      </p>
-                      {risk.mechanism && (
-                        <p className="text-xs text-gray-500 mt-1 italic">
-                          Механизм: {risk.mechanism}
-                        </p>
+                          <div className="text-xs text-gray-500">
+                            {risk.period}
+                          </div>
+                        </div>
                       )}
                     </div>
+                    
+                    <p className={`text-xs mb-2 leading-relaxed ${
+                      !risk.hasData ? 'text-gray-600' :
+                      risk.value <= 15 ? 'text-green-700' :
+                      risk.value <= 30 ? 'text-yellow-700' :
+                      risk.value <= 45 ? 'text-orange-700' : 
+                      'text-red-700'
+                    }`}>
+                      {risk.description}
+                    </p>
+                    
+                    <div className={`text-xs ${
+                      !risk.hasData ? 'text-gray-500' :
+                      risk.value <= 15 ? 'text-green-600' :
+                      risk.value <= 30 ? 'text-yellow-600' :
+                      risk.value <= 45 ? 'text-orange-600' : 
+                      'text-red-600'
+                    }`}>
+                      <span className="font-medium">
+                        {!risk.hasData ? '' : 'Факторы: '}
+                      </span>
+                      {risk.factors}
+                    </div>
+                    
+                    {risk.mechanism && (
+                      <p className="text-xs text-gray-500 mt-2 italic">
+                        {risk.mechanism}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
             )}
-
-            <div className="mt-4 p-3 bg-gray-50/50 rounded-lg">
-              <h6 className="text-[10px] sm:text-xs font-medium text-gray-700 mb-2">Градация рисков заболеваний:</h6>
-              <div className="grid grid-cols-2 gap-1 text-[8px] sm:text-[10px]">
-                <div className="flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                  <span>0-15%: Низкий риск</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full"></div>
-                  <span>16-30%: Умеренный</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
-                  <span>31-45%: Повышенный</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-                  <span>46%+: Высокий риск</span>
-                </div>
-              </div>
-            </div>
           </div>
         </CardContent>
       </Card>
