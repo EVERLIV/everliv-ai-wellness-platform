@@ -114,13 +114,14 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
           if (biomarkerName.includes('с-реактивный белок') && (ubName.includes('срб') || ubName.includes('c-реактивный') || ubName.includes('crp'))) return true;
           if (biomarkerName.includes('гомоцистеин') && ubName.includes('гомоцистеин')) return true;
           
+          // Use general blood test markers for cardiovascular assessment where applicable
+          // СОЭ can indicate inflammation (cardiovascular risk)
+          if (biomarkerName.includes('соэ') && (ubName.includes('соэ') || ubName.includes('скорость оседания'))) return true;
+          
           // Metabolic matches
           if (biomarkerName.includes('глюкоза') && ubName.includes('глюкоза')) return true;
           if (biomarkerName.includes('гликированный гемоглобин') && (ubName.includes('hba1c') || ubName.includes('гликированный'))) return true;
           if (biomarkerName.includes('инсулин') && ubName.includes('инсулин') && !ubName.includes('homa')) return true;
-          
-          // Inflammatory markers
-          if (biomarkerName.includes('соэ') && (ubName.includes('соэ') || ubName.includes('скорость оседания'))) return true;
           
           // Kidney function
           if (biomarkerName.includes('креатинин') && ubName.includes('креатинин')) return true;
