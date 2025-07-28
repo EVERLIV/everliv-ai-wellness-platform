@@ -77,9 +77,8 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
-  const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "bg-accent text-accent-foreground font-medium" : "hover:bg-accent/50";
+    isActive ? "bg-accent text-accent-foreground font-medium" : "hover:bg-neutral-50 hover:text-neutral-700";
 
   return (
     <Sidebar
