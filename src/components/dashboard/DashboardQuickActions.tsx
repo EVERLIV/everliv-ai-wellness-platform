@@ -24,15 +24,6 @@ const DashboardQuickActions = () => {
 
   const quickActions = [
     {
-      title: "Мои рекомендации",
-      description: "Просматривайте и отслеживайте выполнение ваших персональных рекомендаций по здоровью, сохраненных из аналитики",
-      icon: <Star className="h-8 w-8 text-yellow-600" />,
-      action: () => navigate("/my-recommendations"),
-      color: "bg-yellow-50",
-      badge: <Badge className="bg-yellow-600 text-white">Персональное</Badge>,
-      features: ["Сохраненные рекомендации", "Отслеживание прогресса", "Отметки выполнения"]
-    },
-    {
       title: "Профиль здоровья",
       description: "Создайте полный профиль здоровья с персональными данными, медицинской историей и результатами анализов",
       icon: <Heart className="h-8 w-8 text-pink-600" />,
@@ -58,15 +49,6 @@ const DashboardQuickActions = () => {
       color: "bg-blue-50",
       badge: <Badge className="bg-blue-600 text-white">ИИ-анализ</Badge>,
       features: ["Умный анализ", "Рекомендации", "Трекинг динамики"]
-    },
-    {
-      title: "Дневник питания",
-      description: "Ведите детальный учет питания с анализом калорийности, макронутриентов и получайте персональные диетические рекомендации",
-      icon: <Utensils className="h-8 w-8 text-green-600" />,
-      action: () => navigate("/nutrition-diary"),
-      color: "bg-green-50",
-      badge: <Badge className="bg-green-600 text-white">Pro</Badge>,
-      features: ["Подсчет калорий", "Анализ БЖУ", "Персональные советы"]
     },
     {
       title: "Анализ и рекомендации",

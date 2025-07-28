@@ -36,10 +36,10 @@ const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ isMobile = false })
               variant="outline" 
               size="sm" 
               className="w-full justify-start bg-white/80 hover:bg-white border-emerald-200 hover:border-emerald-300 text-emerald-700 shadow-sm"
-              onClick={() => navigate('/my-recommendations')}
+              onClick={() => navigate('/analytics')}
             >
-              <Star className="h-4 w-4 mr-2" />
-              Мои рекомендации
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Аналитика
             </Button>
           </div>
         </CardContent>
@@ -73,11 +73,11 @@ const QuickActionsCard: React.FC<QuickActionsCardProps> = ({ isMobile = false })
             variant="outline" 
             size="sm" 
             className="w-full justify-between bg-white/80 hover:bg-white border-emerald-200 hover:border-emerald-300 text-emerald-700 shadow-sm group"
-            onClick={() => navigate('/my-recommendations')}
+            onClick={() => navigate('/analytics')}
           >
             <div className="flex items-center">
-              <Star className="h-4 w-4 mr-3" />
-              Мои рекомендации
+              <BarChart3 className="h-4 w-4 mr-3" />
+              Аналитика здоровья
             </div>
             <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Button>

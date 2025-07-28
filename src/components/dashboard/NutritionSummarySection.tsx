@@ -80,11 +80,11 @@ const NutritionSummarySection: React.FC = () => {
             <p className="text-sm text-gray-500 mb-3">Записи о питании отсутствуют</p>
             <Button 
               size="sm" 
-              onClick={() => navigate('/nutrition-diary')}
+              onClick={() => navigate('/health-profile')}
               className="text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
-              Добавить прием пищи
+              Настроить профиль
             </Button>
           </div>
         </CardContent>

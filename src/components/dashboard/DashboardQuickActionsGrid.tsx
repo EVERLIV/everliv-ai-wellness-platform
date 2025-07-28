@@ -48,14 +48,6 @@ const DashboardQuickActionsGrid: React.FC = () => {
       iconColor: 'text-green-100'
     },
     {
-      icon: Utensils,
-      title: 'Дневник питания',
-      description: 'Трекинг рациона',
-      path: '/nutrition-diary',
-      gradient: 'from-orange-500 to-orange-600',
-      iconColor: 'text-orange-100'
-    },
-    {
       icon: TestTube,
       title: 'Лабораторные анализы',
       description: 'Результаты тестов',
@@ -70,14 +62,6 @@ const DashboardQuickActionsGrid: React.FC = () => {
       path: '/my-biomarkers',
       gradient: 'from-cyan-500 to-cyan-600',
       iconColor: 'text-cyan-100'
-    },
-    {
-      icon: FileText,
-      title: 'Рекомендации',
-      description: 'Персональные советы',
-      path: '/my-recommendations',
-      gradient: 'from-indigo-500 to-indigo-600',
-      iconColor: 'text-indigo-100'
     },
     {
       icon: TrendingUp,

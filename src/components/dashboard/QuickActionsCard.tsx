@@ -16,22 +16,10 @@ const QuickActionsCard = () => {
       </CardHeader>
       <CardContent className="pt-4">
         <div className="grid grid-cols-2 gap-3">
-          <Link to="/my-recommendations">
-            <Button variant="outline" className="w-full justify-start">
-              <Star className="h-4 w-4 mr-2" />
-              Мои рекомендации
-            </Button>
-          </Link>
-          <Link to="/nutrition-diary">
-            <Button variant="outline" className="w-full justify-start">
-              <Apple className="h-4 w-4 mr-2" />
-              Дневник питания
-            </Button>
-          </Link>
-          <Link to="/profile">
+          <Link to="/health-profile">
             <Button variant="outline" className="w-full justify-start">
               <User className="h-4 w-4 mr-2" />
-              Мой профиль
+              Профиль здоровья
             </Button>
           </Link>
           <Link to="/lab-analyses">
@@ -40,16 +28,16 @@ const QuickActionsCard = () => {
               Анализ крови
             </Button>
           </Link>
-          <Link to="/diagnostics">
-            <Button variant="outline" className="w-full justify-start">
-              <Stethoscope className="h-4 w-4 mr-2" />
-              Диагностика
-            </Button>
-          </Link>
           <Link to="/analytics">
             <Button variant="outline" className="w-full justify-start">
               <Activity className="h-4 w-4 mr-2" />
               Оценка здоровья
+            </Button>
+          </Link>
+          <Link to="/biological-age">
+            <Button variant="outline" className="w-full justify-start">
+              <Calendar className="h-4 w-4 mr-2" />
+              Биологический возраст
             </Button>
           </Link>
         </div>
