@@ -179,57 +179,6 @@ const BiologicalAgeRadarChart: React.FC<BiologicalAgeRadarChartProps> = ({
           </p>
         </div>
 
-        {/* Categories grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {categoryData.map((category) => (
-            <div
-              key={category.id}
-              className="border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md"
-              onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <div className={`p-2 rounded-lg ${category.healthStatus.bgColor}`}>
-                  <category.icon className={`h-4 w-4 ${category.healthStatus.color}`} />
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-medium">{category.name}</h4>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={`text-xs font-semibold ${category.healthStatus.color}`}>
-                      {category.healthStatus.status}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      ({category.filledCount}/{category.totalCount})
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Progress 
-                  value={category.completeness} 
-                  className="h-2"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {category.healthStatus.description}
-                </p>
-                
-                {selectedCategory === category.id && (
-                  <div className="mt-3 p-3 bg-muted rounded-lg">
-                    <p className="text-xs font-medium mb-1">Рекомендация:</p>
-                    <p className="text-xs text-muted-foreground">
-                      {category.recommendation}
-                    </p>
-                    {category.completeness < 100 && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Для более точной оценки добавьте недостающие анализы
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
 
         {/* Summary recommendations */}
         {overallCompleteness < 50 && (
