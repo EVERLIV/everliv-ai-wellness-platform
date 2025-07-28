@@ -64,92 +64,64 @@ const AccuracyIndicator: React.FC<AccuracyIndicatorProps> = ({ accuracy }) => {
   };
 
   return (
-    <div className="border border-gray-200 bg-white">
-      <div className="p-3">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-1">
-            <Target className="h-3 w-3 text-blue-600" />
-            <h3 className="bio-text-small font-medium">Уровень точности</h3>
+    <div className="bg-background border-l-2 border-l-primary/20">
+      <div className="p-4 space-y-4">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-primary"></div>
+          <h3 className="text-sm font-medium text-foreground">Уровень точности</h3>
+          <div className="ml-auto text-xs text-muted-foreground">
+            {accuracy.percentage}%
           </div>
-          <Badge className={getLevelColor(accuracy.level)} variant="secondary">
-            {accuracy.description} ({accuracy.percentage}%)
-          </Badge>
         </div>
 
-        <div className="space-y-2">
-          <div className="flex justify-between bio-text-caption">
-            <span>Заполнено анализов: {accuracy.current_tests}</span>
-            <span>Точность: {accuracy.percentage}%</span>
+        <div className="space-y-3">
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Заполнено: {accuracy.current_tests}</span>
+            <span>{accuracy.description}</span>
           </div>
           <Progress value={accuracy.percentage} className="h-1" />
         </div>
 
-        {/* Уровни точности */}
-        <div className="grid grid-cols-3 gap-1 bio-text-caption mt-3">
-          <div className={`p-2 border text-center ${
+        {/* Минималистичные уровни */}
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          <div className={`p-2 text-center border-l-2 ${
             accuracy.current_tests >= ACCURACY_LEVELS.basic.min 
-              ? 'bg-green-50 text-green-700 border-green-200' 
-              : 'bg-gray-50 text-gray-600 border-gray-200'
+              ? 'border-l-green-500 bg-green-500/5' 
+              : 'border-l-muted bg-muted/20'
           }`}>
-            <div className="flex items-center justify-center mb-1">
-              {accuracy.current_tests >= ACCURACY_LEVELS.basic.min ? (
-                <CheckCircle className="h-2 w-2" />
-              ) : (
-                <span className="bio-text-caption">{ACCURACY_LEVELS.basic.min}</span>
-              )}
-            </div>
-            <div className="bio-text-caption">Базовый</div>
-            <div className="bio-text-caption">{ACCURACY_LEVELS.basic.percentage}%</div>
+            <div className="font-medium text-foreground">{ACCURACY_LEVELS.basic.min}</div>
+            <div className="text-muted-foreground">Базовый</div>
           </div>
           
-          <div className={`p-2 border text-center ${
+          <div className={`p-2 text-center border-l-2 ${
             accuracy.current_tests >= ACCURACY_LEVELS.extended.min 
-              ? 'bg-green-50 text-green-700 border-green-200' 
-              : 'bg-gray-50 text-gray-600 border-gray-200'
+              ? 'border-l-blue-500 bg-blue-500/5' 
+              : 'border-l-muted bg-muted/20'
           }`}>
-            <div className="flex items-center justify-center mb-1">
-              {accuracy.current_tests >= ACCURACY_LEVELS.extended.min ? (
-                <CheckCircle className="h-2 w-2" />
-              ) : (
-                <span className="bio-text-caption">{ACCURACY_LEVELS.extended.min}</span>
-              )}
-            </div>
-            <div className="bio-text-caption">Расширенный</div>
-            <div className="bio-text-caption">{ACCURACY_LEVELS.extended.percentage}%</div>
+            <div className="font-medium text-foreground">{ACCURACY_LEVELS.extended.min}</div>
+            <div className="text-muted-foreground">Расширенный</div>
           </div>
           
-          <div className={`p-2 border text-center ${
+          <div className={`p-2 text-center border-l-2 ${
             accuracy.current_tests >= ACCURACY_LEVELS.comprehensive.min 
-              ? 'bg-green-50 text-green-700 border-green-200' 
-              : 'bg-gray-50 text-gray-600 border-gray-200'
+              ? 'border-l-purple-500 bg-purple-500/5' 
+              : 'border-l-muted bg-muted/20'
           }`}>
-            <div className="flex items-center justify-center mb-1">
-              {accuracy.current_tests >= ACCURACY_LEVELS.comprehensive.min ? (
-                <CheckCircle className="h-2 w-2" />
-              ) : (
-                <span className="bio-text-caption">{ACCURACY_LEVELS.comprehensive.min}</span>
-              )}
-            </div>
-            <div className="bio-text-caption">Полный</div>
-            <div className="bio-text-caption">{ACCURACY_LEVELS.comprehensive.percentage}%</div>
+            <div className="font-medium text-foreground">{ACCURACY_LEVELS.comprehensive.min}</div>
+            <div className="text-muted-foreground">Полный</div>
           </div>
         </div>
 
         {/* Следующая цель */}
         {nextMilestone && (
-          <div className="bg-blue-50 border border-blue-200 mt-3">
-            <div className="p-2">
-              <div className="flex items-center gap-1 mb-1">
-                <TrendingUp className="h-3 w-3 text-blue-600" />
-                <span className="bio-text-caption font-medium text-blue-900">
-                  Следующая цель
-                </span>
-              </div>
-              <p className="bio-text-caption text-blue-800">
-                Добавьте еще <strong>{nextMilestone.needed}</strong> анализ(ов) 
-                для достижения {nextMilestone.description}
-              </p>
+          <div className="border-l-2 border-l-primary bg-primary/5 p-3">
+            <div className="flex items-center gap-2 text-xs text-primary font-medium mb-1">
+              <TrendingUp className="h-3 w-3" />
+              Следующая цель
             </div>
+            <p className="text-xs text-muted-foreground">
+              +{nextMilestone.needed} для {nextMilestone.description}
+            </p>
           </div>
         )}
       </div>

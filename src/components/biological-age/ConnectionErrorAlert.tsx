@@ -20,39 +20,35 @@ const ConnectionErrorAlert: React.FC<ConnectionErrorAlertProps> = ({
                         error.toLowerCase().includes('fetch');
 
   return (
-    <Alert className="border-red-200 bg-red-50">
-      <WifiOff className="h-4 w-4 text-red-600" />
-      <AlertDescription className="flex items-center justify-between">
-        <div className="flex-1">
-          <strong>Ошибка подключения:</strong> 
-          <div className="mt-1 text-sm">
-            {isNetworkError 
-              ? 'Проверьте подключение к интернету и попробуйте еще раз'
-              : error
-            }
+    <div className="bg-background border-l-4 border-l-red-500">
+      <div className="p-4">
+        <div className="flex items-start gap-3">
+          <WifiOff className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <div className="text-xs font-medium text-red-700 mb-1">Ошибка соединения</div>
+            <div className="text-xs text-red-600">
+              {isNetworkError 
+                ? 'Проверьте подключение к интернету'
+                : error
+              }
+            </div>
           </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onRetry}
+            disabled={isRetrying}
+            className="h-6 px-2 text-xs"
+          >
+            {isRetrying ? (
+              <RefreshCw className="h-3 w-3 animate-spin" />
+            ) : (
+              <Wifi className="h-3 w-3" />
+            )}
+          </Button>
         </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={onRetry}
-          disabled={isRetrying}
-          className="ml-4 flex-shrink-0"
-        >
-          {isRetrying ? (
-            <>
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              Повтор...
-            </>
-          ) : (
-            <>
-              <Wifi className="h-4 w-4 mr-2" />
-              Повторить
-            </>
-          )}
-        </Button>
-      </AlertDescription>
-    </Alert>
+      </div>
+    </div>
   );
 };
 

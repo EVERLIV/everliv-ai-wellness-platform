@@ -75,88 +75,70 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* Основной результат */}
-      <div className="border-2 border-blue-200 bg-white">
-        <div className="p-3 text-center">
-          <h3 className="bio-heading-tertiary mb-3">Ваш биологический возраст</h3>
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div className="space-y-1">
-              <div className="flex items-center justify-center gap-1">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="bio-text-small text-muted-foreground">Хронологический</span>
-              </div>
-              <div className="bio-heading-secondary text-foreground">
-                {results.chronological_age} лет
-              </div>
-            </div>
+      <div className="bg-background border-l-4 border-l-primary">
+        <div className="p-4">
+          <div className="text-center space-y-3">
+            <h3 className="text-sm font-medium text-foreground">Биологический возраст</h3>
             
-            <div className="space-y-1">
-              <div className="flex items-center justify-center gap-1">
-                <Heart className="h-4 w-4 text-primary" />
-                <span className="bio-text-small text-muted-foreground">Биологический</span>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className="text-xs text-muted-foreground mb-1">Хронологический</div>
+                <div className="text-lg font-medium text-foreground">{results.chronological_age}</div>
               </div>
-              <div className="bio-heading-secondary text-primary">
-                {results.biological_age} лет
+              <div className="text-center">
+                <div className="text-xs text-muted-foreground mb-1">Биологический</div>
+                <div className="text-lg font-medium text-primary">{results.biological_age}</div>
               </div>
             </div>
-          </div>
 
-          <div className={`inline-flex items-center gap-1 px-3 py-1 border ${getAgeDifferenceColor()}`}>
-            {getAgeDifferenceIcon()}
-            <span className="bio-text-body font-medium">
+            <div className={`inline-block px-3 py-1 text-xs font-medium ${getAgeDifferenceColor()}`}>
               {getAgeDifferenceText()}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 pt-3 mt-3 border-t">
-            <div className="text-center">
-              <div className="bio-text-caption text-muted-foreground mb-1">Точность расчета</div>
-              <div className="bio-text-body font-medium">{results.accuracy_percentage}%</div>
-              <Progress value={results.accuracy_percentage} className="h-1 mt-1" />
             </div>
-            
-            <div className="text-center">
-              <div className="bio-text-caption text-muted-foreground mb-1">Уровень достоверности</div>
-              <div className="bio-text-body font-medium">{results.confidence_level}%</div>
-              <Progress value={results.confidence_level} className="h-1 mt-1" />
+
+            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border">
+              <div className="text-center">
+                <div className="text-xs text-muted-foreground">Точность</div>
+                <div className="text-sm font-medium">{results.accuracy_percentage}%</div>
+                <Progress value={results.accuracy_percentage} className="h-1 mt-1" />
+              </div>
+              <div className="text-center">
+                <div className="text-xs text-muted-foreground">Достоверность</div>
+                <div className="text-sm font-medium">{results.confidence_level}%</div>
+                <Progress value={results.confidence_level} className="h-1 mt-1" />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Анализ */}
-      <div className="border border-gray-200 bg-white">
-        <div className="p-3 border-b border-gray-200">
-          <h4 className="bio-text-body font-medium flex items-center gap-1">
-            <FileText className="h-4 w-4" />
-            Детальный анализ
+      <div className="bg-background border-l-2 border-l-muted">
+        <div className="p-4">
+          <h4 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+            <div className="w-1 h-4 bg-muted"></div>
+            Анализ
           </h4>
-        </div>
-        <div className="p-3">
-          <div className="prose prose-sm max-w-none">
-            <p className="whitespace-pre-wrap bio-text-small">{results.analysis}</p>
-          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">{results.analysis}</p>
         </div>
       </div>
 
       {/* Рекомендации */}
       {results.recommendations.length > 0 && (
-        <div className="border border-gray-200 bg-white">
-          <div className="p-3 border-b border-gray-200">
-            <h4 className="bio-text-body font-medium flex items-center gap-1">
-              <Target className="h-4 w-4" />
-              Рекомендации по улучшению
+        <div className="bg-background border-l-2 border-l-blue-500">
+          <div className="p-4">
+            <h4 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+              <div className="w-1 h-4 bg-blue-500"></div>
+              Рекомендации
             </h4>
-          </div>
-          <div className="p-3">
             <div className="space-y-2">
               {results.recommendations.map((recommendation, index) => (
-                <div key={index} className="flex items-start gap-2 p-2 bg-blue-50 border border-blue-200">
-                  <div className="flex-shrink-0 w-5 h-5 bg-primary text-primary-foreground border flex items-center justify-center bio-text-caption font-medium">
+                <div key={index} className="flex gap-3 text-xs">
+                  <div className="w-4 h-4 bg-blue-500/10 text-blue-600 flex items-center justify-center font-medium flex-shrink-0 mt-0.5">
                     {index + 1}
                   </div>
-                  <p className="bio-text-small">{recommendation}</p>
+                  <p className="text-muted-foreground leading-relaxed">{recommendation}</p>
                 </div>
               ))}
             </div>
@@ -164,32 +146,17 @@ const BiologicalAgeResults: React.FC<BiologicalAgeResultsProps> = ({ results }) 
         </div>
       )}
 
-      {/* Дополнительная информация */}
-      <div className="bg-amber-50 border border-amber-200">
-        <div className="p-3">
-          <div className="space-y-2">
-            <h4 className="bio-text-body font-medium text-amber-900">Важные замечания:</h4>
-            <ul className="bio-text-small text-amber-800 space-y-1 list-disc list-inside">
-              <li>Результат не является медицинским диагнозом</li>
-              <li>Консультируйтесь с врачом перед принятием решений о здоровье</li>
-              <li>Рекомендуется обновлять данные каждые 6-12 месяцев</li>
-              <li>Точность увеличивается с количеством предоставленных анализов</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
       {/* Действия */}
-      <div className="border border-gray-200 bg-white">
-        <div className="p-3">
+      <div className="bg-background border-l-2 border-l-muted">
+        <div className="p-4">
           <div className="grid grid-cols-2 gap-2">
-            <Button onClick={exportToPDF} variant="outline" className="h-8 bio-text-caption px-2">
+            <Button onClick={exportToPDF} variant="outline" size="sm" className="h-8 text-xs">
               <Download className="h-3 w-3 mr-1" />
-              PDF
+              Экспорт
             </Button>
-            <Button onClick={scheduleNextAnalysis} variant="outline" className="h-8 bio-text-caption px-2">
-              <Trophy className="h-3 w-3 mr-1" />
-              Напоминание
+            <Button onClick={scheduleNextAnalysis} variant="outline" size="sm" className="h-8 text-xs">
+              <Repeat className="h-3 w-3 mr-1" />
+              Повтор
             </Button>
           </div>
         </div>

@@ -93,99 +93,79 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
   // Убираем автоматическую генерацию рекомендаций для улучшения производительности
 
   return (
-    <div className="border border-gray-200 bg-white p-1 md:p-2">
-      <div className="flex items-center justify-between mb-1 md:mb-2">
-        <h4 className="bio-text-small font-medium">Введенные показатели</h4>
-        <Badge variant="secondary" size="sm" className="text-[8px] px-0.5 py-0 h-4">
-          {biomarkers.length} показателей
-        </Badge>
-      </div>
-      
-      <div className="space-y-1 md:space-y-2 max-h-80 overflow-y-auto">
-        {biomarkers.map((biomarker) => {
-          const valueStatus = getValueStatus(biomarker.value!, biomarker.normal_range);
-          const impact = getBiomarkerImpact(biomarker.name);
-          const aiRecommendation = recommendations[biomarker.id];
-          const isLoadingRecommendation = loadingRecommendations[biomarker.id];
-          
-          return (
-            <div key={biomarker.id} className="border border-gray-100 p-1 md:p-2 bg-gray-50">
-              <div className="space-y-0.5 md:space-y-1">
-                {/* Заголовок с названием и статусом */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-0.5 md:gap-1">
-                    <span className="bio-text-caption font-medium">{biomarker.name}</span>
-                    {getImpactIcon(getBiomarkerImpact(biomarker.name).impact)}
-                  </div>
-                  <span className={`bio-text-caption font-medium ${valueStatus.color}`}>
-                    {valueStatus.status}
-                  </span>
-                </div>
-                
-                {/* Значение и норма */}
-                <div className="grid grid-cols-2 gap-1 md:gap-2 bio-text-caption">
-                  <div>
-                    <span className="bio-text-caption text-muted-foreground">Ваш показатель:</span>
-                    <div className="bio-text-caption font-medium text-foreground">
-                      {biomarker.value} {biomarker.unit}
+    <div className="bg-background border-l-2 border-l-green-500">
+      <div className="p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-2 h-2 bg-green-500"></div>
+          <h3 className="text-sm font-medium text-foreground">Введенные показатели</h3>
+          <div className="ml-auto text-xs text-muted-foreground">
+            {biomarkers.length}
+          </div>
+        </div>
+        
+        <div className="space-y-3 max-h-80 overflow-y-auto">
+          {biomarkers.map((biomarker) => {
+            const valueStatus = getValueStatus(biomarker.value!, biomarker.normal_range);
+            const impact = getBiomarkerImpact(biomarker.name);
+            const aiRecommendation = recommendations[biomarker.id];
+            const isLoadingRecommendation = loadingRecommendations[biomarker.id];
+            const needsAI = valueStatus.status !== 'В норме' && valueStatus.status !== 'Оптимально';
+            
+            return (
+              <div key={biomarker.id} className="space-y-2">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      {getImpactIcon(impact.impact)}
+                      <h4 className="text-xs font-medium text-foreground">{biomarker.name}</h4>
                     </div>
-                  </div>
-                  <div>
-                    <span className="bio-text-caption text-muted-foreground">Норма:</span>
-                    <div className="bio-text-caption font-medium text-foreground">
-                      {biomarker.normal_range?.min} - {biomarker.normal_range?.max} {biomarker.unit}
-                      {biomarker.normal_range?.optimal && (
-                        <div className="text-green-600 bio-text-caption">
-                          (опт: {biomarker.normal_range.optimal})
-                        </div>
-                      )}
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`text-xs px-1 ${valueStatus.color}`}>
+                        {valueStatus.status}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {biomarker.value} {biomarker.unit}
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Норма: {biomarker.normal_range?.min} - {biomarker.normal_range?.max}
                     </div>
                   </div>
                 </div>
-                
-                {/* Описание функции */}
-                <div className="bio-text-caption text-muted-foreground">
-                  <span className="bio-text-caption font-medium">Функция:</span> {impact.description}
-                </div>
-                
-                {/* ИИ рекомендации при отклонениях - по запросу */}
-                {(valueStatus.status !== 'В норме' && valueStatus.status !== 'Оптимально') && (
-                  <div className="bio-text-caption text-orange-600 bg-orange-50 p-1 rounded">
-                    {!aiRecommendation && !isLoadingRecommendation ? (
+
+                {needsAI && (
+                  <div className="border-l-2 border-l-orange-300 bg-orange-50/50 p-2">
+                    {isLoadingRecommendation ? (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Анализ...
+                      </div>
+                    ) : aiRecommendation ? (
+                      <div className="text-xs text-muted-foreground">
+                        <div className="font-medium text-orange-700 mb-1">Рекомендация:</div>
+                        <p className="leading-relaxed">{aiRecommendation}</p>
+                      </div>
+                    ) : (
                       <button
                         onClick={() => generateAIRecommendation(biomarker)}
-                        className="bio-text-caption underline hover:text-orange-700"
+                        className="text-xs text-orange-600 hover:text-orange-700 underline"
                       >
-                        Получить рекомендации ИИ
+                        Получить рекомендацию
                       </button>
-                    ) : (
-                      <div className="flex items-start gap-1">
-                        <span className="bio-text-caption font-medium">Рекомендации ИИ:</span>
-                        {isLoadingRecommendation ? (
-                          <div className="flex items-center gap-1">
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                            <span>Генерирую...</span>
-                          </div>
-                        ) : (
-                          <span className="bio-text-caption leading-tight">
-                            {aiRecommendation}
-                          </span>
-                        )}
-                      </div>
                     )}
                   </div>
                 )}
               </div>
-            </div>
-          );
-        })}
-      </div>
-      
-      {biomarkers.length === 0 && (
-        <div className="text-center py-2 md:py-4 bio-text-caption text-muted-foreground">
-          Введите показатели для получения детального анализа
+            );
+          })}
         </div>
-      )}
+        
+        {biomarkers.length === 0 && (
+          <div className="text-center py-4 text-xs text-muted-foreground">
+            Введите показатели для получения детального анализа
+          </div>
+        )}
+      </div>
     </div>
   );
 };
