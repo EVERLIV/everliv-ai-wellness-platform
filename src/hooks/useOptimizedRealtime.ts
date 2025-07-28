@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { realtimeManager } from '@/services/realtime/RealtimeManager';
+import { optimizedRealtimeManager } from '@/services/realtime/OptimizedRealtimeManager';
+import { logger } from '@/services/logger/LoggerService';
 
 /**
  * Оптимизированный хук для realtime подписок
@@ -17,27 +18,20 @@ export const useOptimizedRealtime = (
   useEffect(() => {
     if (!user || !enabled) return;
 
-    const unsubscribeFunctions: (() => void)[] = [];
+    logger.debug(`Setting up realtime for ${tableName}`, {
+      events,
+      userId: user.id
+    }, 'useOptimizedRealtime');
 
-    // Создаем подписки для каждого события
-    events.forEach(event => {
-      const unsubscribe = realtimeManager.subscribe(
-        `${tableName}_${user.id}`,
-        {
-          event,
-          schema: 'public',
-          table: tableName,
-          filter: `user_id=eq.${user.id}`
-        },
-        callback
-      );
-      
-      unsubscribeFunctions.push(unsubscribe);
-    });
+    // Создаем единую подписку для всех событий
+    const unsubscribe = optimizedRealtimeManager.subscribe(
+      tableName,
+      user.id,
+      events,
+      callback
+    );
 
-    return () => {
-      unsubscribeFunctions.forEach(unsub => unsub());
-    };
+    return unsubscribe;
   }, [user, tableName, JSON.stringify(events), callback, enabled]);
 };
 
@@ -47,12 +41,12 @@ export const useOptimizedRealtime = (
 export const useRealtimeStats = () => {
   useEffect(() => {
     const interval = setInterval(() => {
-      const stats = realtimeManager.getStats();
-      console.log('Realtime Stats:', stats);
-    }, 30000); // Логируем каждые 30 секунд
+      const stats = optimizedRealtimeManager.getStats();
+      logger.info('Realtime Stats', stats, 'RealtimeStats');
+    }, 60000); // Логируем каждую минуту
 
     return () => clearInterval(interval);
   }, []);
 
-  return realtimeManager.getStats();
+  return optimizedRealtimeManager.getStats();
 };

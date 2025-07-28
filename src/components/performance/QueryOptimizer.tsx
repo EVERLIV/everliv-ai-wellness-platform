@@ -6,8 +6,8 @@ const createOptimizedQueryClient = () => {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 5 * 60 * 1000, // 5 minutes
-        gcTime: 10 * 60 * 1000, // 10 minutes
+        staleTime: 3 * 60 * 1000, // 3 minutes - более агрессивное кэширование
+        gcTime: 15 * 60 * 1000, // 15 minutes - дольше держим в памяти
         retry: (failureCount, error) => {
           // Don't retry auth errors or permission errors
           if (error?.message?.includes('JWT') || 
@@ -15,11 +15,13 @@ const createOptimizedQueryClient = () => {
               error?.message?.includes('row-level security')) {
             return false;
           }
-          return failureCount < 2;
+          return failureCount < 1; // Меньше ретраев для скорости
         },
         refetchOnWindowFocus: false,
         refetchOnMount: false,
         refetchOnReconnect: true,
+        // Включаем background refetch для fresh data
+        refetchIntervalInBackground: false,
       },
       mutations: {
         retry: false,
@@ -36,10 +38,21 @@ export const QueryOptimizer = ({ children }: QueryOptimizerProps) => {
   const [queryClient] = React.useState(() => createOptimizedQueryClient());
 
   React.useEffect(() => {
-    // Cleanup stale data every 15 minutes
+    // Более умная очистка кэша - только устаревшие данные
     const interval = setInterval(() => {
-      queryClient.getQueryCache().clear();
-    }, 15 * 60 * 1000);
+      const cache = queryClient.getQueryCache();
+      const queries = cache.getAll();
+      
+      queries.forEach(query => {
+        const lastFetched = query.state.dataUpdatedAt;
+        const now = Date.now();
+        const maxAge = 30 * 60 * 1000; // 30 минут
+        
+        if (now - lastFetched > maxAge) {
+          cache.remove(query);
+        }
+      });
+    }, 10 * 60 * 1000); // Проверяем каждые 10 минут
 
     return () => clearInterval(interval);
   }, [queryClient]);
