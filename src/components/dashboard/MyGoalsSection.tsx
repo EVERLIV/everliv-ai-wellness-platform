@@ -8,32 +8,33 @@ const MyGoalsSection: React.FC = () => {
   const { goals, isLoading } = useHealthGoalsManager();
 
   // Предустановленные цели здоровья из профиля
-  const predefinedGoalsTranslations = {
-    'cognitive': 'Улучшение когнитивных функций',
-    'cardiovascular': 'Здоровье сердечно-сосудистой системы',
-    'weight_loss': 'Снижение веса',
-    'muscle_gain': 'Набор мышечной массы',
-    'energy_boost': 'Повышение энергии',
-    'sleep_improvement': 'Улучшение сна',
-    'stress_reduction': 'Снижение стресса',
-    'immunity_boost': 'Укрепление иммунитета',
-    'longevity': 'Увеличение продолжительности жизни',
-    'hormonal_balance': 'Гормональный баланс',
-    'digestive_health': 'Здоровье пищеварения',
-    'skin_health': 'Здоровье кожи',
-    'biological_age': 'Улучшение биологического возраста',
-    'metabolic_health': 'Метаболическое здоровье',
-    'bone_health': 'Здоровье костей',
-    'mental_health': 'Психическое здоровье',
-    'detox': 'Детоксикация организма',
-    'athletic_performance': 'Спортивные результаты'
-  } as const;
+  const getPredefinedGoalName = (goalKey: string): string => {
+    const translations: Record<string, string> = {
+      'cognitive': 'Улучшение когнитивных функций',
+      'cardiovascular': 'Здоровье сердечно-сосудистой системы',
+      'weight_loss': 'Снижение веса',
+      'muscle_gain': 'Набор мышечной массы',
+      'energy_boost': 'Повышение энергии',
+      'sleep_improvement': 'Улучшение сна',
+      'stress_reduction': 'Снижение стресса',
+      'immunity_boost': 'Укрепление иммунитета',
+      'longevity': 'Увеличение продолжительности жизни',
+      'hormonal_balance': 'Гормональный баланс',
+      'digestive_health': 'Здоровье пищеварения',
+      'skin_health': 'Здоровье кожи',
+      'biological_age': 'Улучшение биологического возраста',
+      'metabolic_health': 'Метаболическое здоровье',
+      'bone_health': 'Здоровье костей',
+      'mental_health': 'Психическое здоровье',
+      'detox': 'Детоксикация организма',
+      'athletic_performance': 'Спортивные результаты'
+    };
+    return translations[goalKey] || goalKey;
+  };
 
   // Цели из профиля здоровья (выбранные)
   const profileGoals = healthProfile?.healthGoals || [];
-  const selectedGoals = profileGoals.map(goalKey => 
-    predefinedGoalsTranslations[goalKey as keyof typeof predefinedGoalsTranslations] || goalKey
-  );
+  const selectedGoals = profileGoals.map(goalKey => getPredefinedGoalName(goalKey));
 
   // Пользовательские цели
   const customGoals = goals || [];

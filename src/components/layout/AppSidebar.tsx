@@ -20,7 +20,8 @@ import {
   Utensils,
   TestTube,
   TrendingUp,
-  BookOpen
+  BookOpen,
+  ChevronLeft
 } from "lucide-react";
 
 import {
@@ -33,7 +34,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 
 const menuItems = [
   {
@@ -66,7 +69,7 @@ const menuItems = [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, toggleSidebar } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
@@ -82,7 +85,22 @@ export function AppSidebar() {
       className="w-64 border-r border-gray-200 bg-white"
       collapsible="icon"
     >
-      <SidebarContent className="bg-white pt-14">
+      {/* Отступ от хедера */}
+      <div className="h-16"></div>
+      {/* Кнопка скрытия панели */}
+      <div className="flex justify-end p-2 border-b border-gray-100">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleSidebar}
+          className="h-8 w-8 p-0 hover:bg-gray-100"
+          title="Скрыть панель навигации"
+        >
+          <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+        </Button>
+      </div>
+
+      <SidebarContent className="bg-white pt-0">
         {menuItems.map((group, groupIndex) => (
           <SidebarGroup key={groupIndex}>
             <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3 py-2">
