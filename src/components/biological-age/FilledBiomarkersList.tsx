@@ -117,7 +117,7 @@ const FilledBiomarkersList: React.FC<FilledBiomarkersListProps> = ({ biomarkers 
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       {getImpactIcon(impact.impact)}
-                      <h4 className="text-xs font-medium text-foreground">{biomarker.name}</h4>
+                      <h4 className="text-xs font-bold text-foreground">{biomarker.name}</h4>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`text-xs px-1 ${valueStatus.color}`}>
