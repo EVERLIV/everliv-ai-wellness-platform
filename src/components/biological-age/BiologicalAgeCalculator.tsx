@@ -37,54 +37,57 @@ const BiologicalAgeCalculator = () => {
   const filledBiomarkers = biomarkers.filter(b => b.status === 'filled');
 
   return (
-    <div className="space-y-6">
-      {/* Компактное размещение диаграммы и введенных данных */}
-      {filledBiomarkers.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <BiologicalAgeRadarChart biomarkers={biomarkers} />
-          
-          {/* Детальный список введенных биомаркеров */}
-          <FilledBiomarkersList biomarkers={filledBiomarkers} />
-        </div>
-      )}
-
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Основной контент */}
-          <div className="lg:col-span-2">
-            <BiomarkerCategories
-              biomarkers={biomarkers}
-              onValueChange={handleBiomarkerValueChange}
-              healthProfile={healthProfile}
-            />
+    <div className="space-y-4">
+      {/* Компактная верхняя секция */}
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
+        {/* Диаграмма - компактная */}
+        {filledBiomarkers.length > 0 && (
+          <div className="xl:col-span-1">
+            <BiologicalAgeRadarChart biomarkers={biomarkers} />
           </div>
-          
-          {/* Боковая панель */}
-          <div className="space-y-4">
-            <AccuracyIndicator accuracy={currentAccuracy} />
-
-            {connectionError && (
-              <ConnectionErrorAlert 
-                error={connectionError} 
-                onRetry={retryCalculation} 
-              />
-            )}
-
-            <CalculationControls
-              onCalculate={calculateBiologicalAge}
-              isCalculating={isCalculating}
-              currentAccuracy={currentAccuracy}
-              totalBiomarkers={biomarkers.length}
-            />
-
-            {results && (
-              <BiologicalAgeResults results={results} />
-            )}
-
-            {/* История биологического возраста */}
-            <BiologicalAgeHistoryCard />
+        )}
+        
+        {/* Детальный список введенных биомаркеров */}
+        {filledBiomarkers.length > 0 && (
+          <div className="xl:col-span-2">
+            <FilledBiomarkersList biomarkers={filledBiomarkers} />
           </div>
+        )}
+        
+        {/* Боковая панель с контролами */}
+        <div className="xl:col-span-1 space-y-3">
+          <AccuracyIndicator accuracy={currentAccuracy} />
+
+          {connectionError && (
+            <ConnectionErrorAlert 
+              error={connectionError} 
+              onRetry={retryCalculation} 
+            />
+          )}
+
+          <CalculationControls
+            onCalculate={calculateBiologicalAge}
+            isCalculating={isCalculating}
+            currentAccuracy={currentAccuracy}
+            totalBiomarkers={biomarkers.length}
+          />
+
+          {results && (
+            <BiologicalAgeResults results={results} />
+          )}
+
+          {/* История биологического возраста */}
+          <BiologicalAgeHistoryCard />
         </div>
+      </div>
+
+      {/* Основной контент - категории биомаркеров */}
+      <div>
+        <BiomarkerCategories
+          biomarkers={biomarkers}
+          onValueChange={handleBiomarkerValueChange}
+          healthProfile={healthProfile}
+        />
       </div>
     </div>
   );
