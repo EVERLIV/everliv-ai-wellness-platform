@@ -37,10 +37,10 @@ const BiologicalAgeCalculator = () => {
   const filledBiomarkers = biomarkers.filter(b => b.status === 'filled');
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-6">
       {/* Компактное размещение диаграммы и введенных данных */}
       {filledBiomarkers.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <BiologicalAgeRadarChart biomarkers={biomarkers} />
           
           {/* Детальный список введенных биомаркеров */}
@@ -48,8 +48,8 @@ const BiologicalAgeCalculator = () => {
         </div>
       )}
 
-      <div className="space-y-2">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Основной контент */}
           <div className="lg:col-span-2">
             <BiomarkerCategories
@@ -60,7 +60,7 @@ const BiologicalAgeCalculator = () => {
           </div>
           
           {/* Боковая панель */}
-          <div className="space-y-2">
+          <div className="space-y-4">
             <AccuracyIndicator accuracy={currentAccuracy} />
 
             {connectionError && (

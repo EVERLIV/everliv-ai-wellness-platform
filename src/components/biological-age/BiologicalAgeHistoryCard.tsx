@@ -87,29 +87,29 @@ const BiologicalAgeHistoryCard = () => {
               })}
             </span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="space-y-3">
             <div>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-gray-900 mb-1">
                 {Math.round(latest.biological_age)} лет
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 break-words">
                 {latest.age_difference > 0 ? '+' : ''}{Math.round(latest.age_difference)} к хронологическому
               </div>
             </div>
             {previous && (
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2 pt-1">
                 {getTrendIcon(trend)}
-                <span className={`bio-text-body font-medium ${getTrendColor(trend)}`}>
+                <span className={`text-sm font-medium ${getTrendColor(trend)}`}>
                   {trend > 0 ? '+' : ''}{Math.round(trend * 10) / 10}
                 </span>
               </div>
             )}
           </div>
-          <div className="mt-2 flex gap-2">
-            <Badge variant="secondary" className="text-[8px] px-0.5 py-0 h-4">
+          <div className="mt-3 flex flex-wrap gap-1">
+            <Badge variant="secondary" className="text-xs px-2 py-1 h-auto">
               {latest.biomarkers_count} показателей
             </Badge>
-            <Badge variant="outline" className="text-[8px] px-0.5 py-0 h-4">
+            <Badge variant="outline" className="text-xs px-2 py-1 h-auto">
               {latest.accuracy_percentage}% точность
             </Badge>
           </div>
@@ -117,20 +117,17 @@ const BiologicalAgeHistoryCard = () => {
 
         {/* Показатели последнего расчета */}
         {latest.biomarker_history && latest.biomarker_history.length > 0 && (
-          <div className="space-y-2">
-            <h4 className="bio-text-body font-medium text-muted-foreground">Показатели:</h4>
-            <div className="space-y-3">
-              <div className="flex flex-wrap gap-2">
-                {latest.biomarker_history.map((biomarker, index) => (
-                  <Badge 
-                    key={index}
-                    variant="secondary" 
-                    className="text-[8px] px-0.5 py-0 h-4"
-                  >
-                    {biomarker.biomarker_name}: {biomarker.value} {biomarker.unit}
-                  </Badge>
-                ))}
-              </div>
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-gray-700">Показатели:</h4>
+            <div className="grid gap-2">
+              {latest.biomarker_history.map((biomarker, index) => (
+                <div 
+                  key={index}
+                  className="text-xs bg-gray-50 px-2 py-1 border border-gray-200"
+                >
+                  <span className="font-medium">{biomarker.biomarker_name}:</span> {biomarker.value} {biomarker.unit}
+                </div>
+              ))}
             </div>
           </div>
         )}
