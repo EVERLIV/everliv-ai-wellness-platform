@@ -22,7 +22,7 @@ const BiologicalAge = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto space-y-4">
+      <div className="container mx-auto px-2 sm:px-3 py-2 sm:py-3 max-w-5xl space-y-4">
         <div className="mb-4">
           <h1 className="text-xl font-semibold mb-2 text-gray-900">
             Определение биологического возраста

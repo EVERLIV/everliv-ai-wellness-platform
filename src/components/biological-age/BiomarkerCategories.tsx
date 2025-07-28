@@ -91,15 +91,15 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
               <div className="bio-text-caption font-medium mb-1">Влияние на биологический возраст:</div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  <div className="w-2 h-2 bg-red-500"></div>
                   <span>Высокое влияние</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                  <div className="w-2 h-2 bg-yellow-500"></div>
                   <span>Среднее влияние</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <div className="w-2 h-2 bg-green-500"></div>
                   <span>Низкое влияние</span>
                 </div>
               </div>
@@ -110,15 +110,15 @@ const BiomarkerCategories: React.FC<BiomarkerCategoriesProps> = ({
               <div className="bio-text-caption font-medium mb-1">Фон карточки - статус показателя:</div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-3 bg-green-50 border border-green-200 rounded"></div>
+                  <div className="w-4 h-3 bg-green-50 border border-green-200"></div>
                   <span>В норме</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-3 bg-red-50 border border-red-200 rounded"></div>
+                  <div className="w-4 h-3 bg-red-50 border border-red-200"></div>
                   <span>Выше нормы</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-3 bg-blue-50 border border-blue-200 rounded"></div>
+                  <div className="w-4 h-3 bg-blue-50 border border-blue-200"></div>
                   <span>Ниже нормы</span>
                 </div>
               </div>

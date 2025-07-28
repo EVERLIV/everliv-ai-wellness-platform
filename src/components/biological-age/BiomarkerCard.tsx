@@ -77,10 +77,10 @@ const BiomarkerCard: React.FC<BiomarkerCardProps> = ({
 
   const getImpactDot = () => {
     switch (impact.impact) {
-      case 'high': return <div className="w-2 h-2 rounded-full bg-red-500" />;
-      case 'medium': return <div className="w-2 h-2 rounded-full bg-yellow-500" />;
-      case 'low': return <div className="w-2 h-2 rounded-full bg-green-500" />;
-      default: return <div className="w-2 h-2 rounded-full bg-gray-400" />;
+      case 'high': return <div className="w-2 h-2 bg-red-500" />;
+      case 'medium': return <div className="w-2 h-2 bg-yellow-500" />;
+      case 'low': return <div className="w-2 h-2 bg-green-500" />;
+      default: return <div className="w-2 h-2 bg-gray-400" />;
     }
   };
 
