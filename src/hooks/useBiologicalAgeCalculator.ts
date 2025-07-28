@@ -92,6 +92,7 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
       }
 
       console.log('Found user biomarkers:', userBiomarkers.length);
+      console.log('User biomarkers data:', userBiomarkers);
 
       // Update biomarkers with user data
       const updatedBiomarkers = biomarkers.map(biomarker => {
@@ -105,6 +106,7 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
         if (userBiomarker && userBiomarker.value) {
           const numericValue = parseFloat(userBiomarker.value);
           if (!isNaN(numericValue)) {
+            console.log(`Auto-filling biomarker: ${biomarker.name} with value: ${numericValue} from DB biomarker: ${userBiomarker.name}`);
             return {
               ...biomarker,
               value: numericValue,
@@ -115,6 +117,9 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
         return biomarker;
       });
 
+      const filledCount = updatedBiomarkers.filter(b => b.status === 'filled').length;
+      console.log(`Total filled biomarkers after DB load: ${filledCount}`);
+      
       setBiomarkers(updatedBiomarkers);
       console.log('Updated biomarkers with user data');
 
