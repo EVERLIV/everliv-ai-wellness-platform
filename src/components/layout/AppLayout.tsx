@@ -237,14 +237,14 @@ export function AppLayout({ children }: AppLayoutProps) {
           <AppSidebar />
           
           <div className="flex flex-1 flex-col min-w-0">
-            {/* Кнопка открытия меню */}
-            <div className="p-4 border-b bg-background">
-              <SidebarTrigger />
-            </div>
-            
             {/* Основной контент */}
             <main className="flex-1 overflow-auto bg-background">
               <div className="container mx-auto px-2 py-6 max-w-none min-h-full">
+                {/* Кнопка скрытия меню в правом верхнем углу */}
+                <div className="flex justify-end mb-4">
+                  <SidebarTrigger className="ml-auto" />
+                </div>
+                
                 {children}
               </div>
             </main>

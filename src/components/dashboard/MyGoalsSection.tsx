@@ -61,19 +61,19 @@ const MyGoalsSection: React.FC = () => {
         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
           <Target className="h-4 w-4 text-white" />
         </div>
-        <h2 className="text-lg font-semibold text-gray-900">Мои цели</h2>
+        <h2 className="text-base font-semibold text-gray-900">Мои цели</h2>
       </div>
 
       <div className="space-y-4">
         {/* Пользовательские цели */}
         {customGoals.length > 0 && (
           <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Личные цели</h3>
+            <h3 className="text-xs font-medium text-gray-700 mb-2">Личные цели</h3>
             <div className="space-y-2">
-              {customGoals.slice(0, 2).map((goal) => (
+              {customGoals.map((goal) => (
                 <div key={goal.id} className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
-                  <p className="text-sm text-gray-700 leading-relaxed">{goal.title}</p>
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 flex-shrink-0" />
+                  <p className="text-xs text-gray-700 leading-relaxed">{goal.title}</p>
                 </div>
               ))}
             </div>
@@ -83,12 +83,12 @@ const MyGoalsSection: React.FC = () => {
         {/* Выбранные цели из профиля здоровья */}
         {selectedGoals.length > 0 && (
           <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Цели здоровья</h3>
+            <h3 className="text-xs font-medium text-gray-700 mb-2">Цели здоровья</h3>
             <div className="space-y-2">
-              {selectedGoals.slice(0, 3).map((goal, index) => (
+              {selectedGoals.map((goal, index) => (
                 <div key={index} className="flex items-start gap-2">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2 flex-shrink-0" />
-                  <p className="text-sm text-gray-600 leading-relaxed">{goal}</p>
+                  <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full mt-1.5 flex-shrink-0" />
+                  <p className="text-xs text-gray-600 leading-relaxed">{goal}</p>
                 </div>
               ))}
             </div>
