@@ -11,11 +11,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ leftColumn, rightColu
   const isMobile = useIsMobile();
 
   return (
-    <div className={`container mx-auto px-2 sm:px-3 py-2 sm:py-3 max-w-[1400px] ${isMobile ? 'mobile-compact' : ''}`}>
+    <div className={`container mx-auto px-2 sm:px-3 py-2 sm:py-3 max-w-5xl ${isMobile ? 'mobile-compact' : ''}`}>
       <div className={`grid h-full ${
         isMobile 
-          ? 'grid-cols-1 gap-2' 
-          : 'grid-cols-12 gap-3'
+          ? 'grid-cols-1 gap-1' 
+          : 'grid-cols-12 gap-2'
       }`}>
         <div className={`${isMobile ? 'col-span-1' : 'col-span-12 lg:col-span-8'} space-y-2 sm:space-y-3`}>
           {leftColumn}
