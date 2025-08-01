@@ -38,7 +38,7 @@ export default defineConfig(({ mode }) => ({
         assetFileNames: 'assets/[name].[hash].[ext]',
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-avatar', '@radix-ui/react-button', '@radix-ui/react-card'],
+          ui: ['@radix-ui/react-avatar', '@radix-ui/react-slot'],
           router: ['react-router-dom'],
           query: ['@tanstack/react-query'],
           supabase: ['@supabase/supabase-js'],
