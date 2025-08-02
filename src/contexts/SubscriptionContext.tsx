@@ -113,6 +113,7 @@ const checkPremiumFromDatabase = (subscription: Subscription | null, userEmail?:
 export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const smartAuth = useSmartAuth();
   const user = smartAuth?.user;
+  const authLoading = smartAuth?.isLoading;
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [featureTrials, setFeatureTrials] = useState<FeatureTrial[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -502,6 +503,15 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     forceRefreshSubscription,
     debugInfo
   };
+
+  // Don't render context until auth is loaded to prevent errors
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <SubscriptionContext.Provider value={contextValue}>
