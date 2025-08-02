@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { Navigate } from 'react-router-dom';
 import Home from './Home';
@@ -6,8 +6,21 @@ import SEO from '@/components/SEO';
 
 const Index = () => {
   const { user, isLoading } = useSmartAuth();
+  const [forceShowContent, setForceShowContent] = useState(false);
 
-  if (isLoading) {
+  // Принудительно показываем контент через 5 секунд
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (isLoading) {
+        console.warn('🚨 Index: принудительное завершение загрузки через 5 секунд');
+        setForceShowContent(true);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
+  if (isLoading && !forceShowContent) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
