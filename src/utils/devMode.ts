@@ -1,8 +1,6 @@
 
-// Production mode utilities - dev mode completely disabled
 export const isDevelopmentMode = (): boolean => {
-  // Always return false to disable development mode completely
-  return false;
+  return import.meta.env.DEV;
 };
 
 // Remove the ability to create fake users - security risk
