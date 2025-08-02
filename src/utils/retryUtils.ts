@@ -1,100 +1,77 @@
+// Retry utilities for better error handling
 
 export interface RetryOptions {
   maxAttempts?: number;
   baseDelay?: number;
   maxDelay?: number;
-  backoffFactor?: number;
   retryCondition?: (error: any) => boolean;
 }
 
-export const sleep = (ms: number): Promise<void> => 
-  new Promise(resolve => setTimeout(resolve, ms));
+export const isRetryableError = (error: any): boolean => {
+  // Don't retry auth errors
+  if (error?.message?.includes('JWT') || 
+      error?.message?.includes('auth') ||
+      error?.message?.includes('row-level security')) {
+    return false;
+  }
+  
+  // Retry network errors
+  if (error?.name === 'NetworkError' || 
+      error?.message?.includes('fetch') ||
+      error?.message?.includes('network')) {
+    return true;
+  }
+  
+  // Retry 5xx errors
+  if (error?.status >= 500) {
+    return true;
+  }
+  
+  return false;
+};
 
 export const withRetry = async <T>(
-  operation: () => Promise<T>,
+  fn: () => Promise<T>,
   options: RetryOptions = {}
 ): Promise<T> => {
   const {
     maxAttempts = 3,
     baseDelay = 1000,
     maxDelay = 10000,
-    backoffFactor = 2,
-    retryCondition = (error) => isRetryableError(error)
+    retryCondition = isRetryableError
   } = options;
 
   let lastError: any;
   
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const result = await operation();
-      return result;
+      return await fn();
     } catch (error) {
       lastError = error;
       
-      console.warn(`Attempt ${attempt}/${maxAttempts} failed:`, error);
-      
-      // Если это последняя попытка или ошибка не подлежит повтору
-      if (attempt === maxAttempts || !retryCondition(error)) {
+      // Don't retry if condition not met or last attempt
+      if (!retryCondition(error) || attempt === maxAttempts) {
         throw error;
       }
       
-      // Вычисляем задержку с экспоненциальным backoff
-      const delay = Math.min(
-        baseDelay * Math.pow(backoffFactor, attempt - 1),
-        maxDelay
-      );
+      // Calculate delay with exponential backoff
+      const delay = Math.min(baseDelay * Math.pow(2, attempt - 1), maxDelay);
       
-      console.log(`Retrying in ${delay}ms...`);
-      await sleep(delay);
+      console.warn(`Attempt ${attempt} failed, retrying in ${delay}ms:`, error);
+      
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
   
   throw lastError;
 };
 
-export const isRetryableError = (error: any): boolean => {
-  if (!error) return false;
-  
-  // Сетевые ошибки
-  if (error.code === 'ERR_CONNECTION_RESET' || 
-      error.code === 'ERR_NETWORK' ||
-      error.code === 'ERR_INTERNET_DISCONNECTED') {
-    return true;
-  }
-  
-  // HTTP статусы, которые можно повторить
-  if (error.status) {
-    const retryableStatuses = [408, 429, 500, 502, 503, 504];
-    return retryableStatuses.includes(error.status);
-  }
-  
-  // Ошибки Supabase
-  if (error.message) {
-    const retryableMessages = [
-      'connection reset',
-      'network error',
-      'timeout',
-      'failed to fetch',
-      'load failed'
-    ];
-    return retryableMessages.some(msg => 
-      error.message.toLowerCase().includes(msg)
-    );
-  }
-  
-  return false;
-};
-
 export const withConnectionCheck = async <T>(
-  operation: () => Promise<T>
+  fn: () => Promise<T>
 ): Promise<T> => {
-  if (!navigator.onLine) {
-    throw new Error('Нет подключения к интернету');
-  }
-  
-  return withRetry(operation, {
-    maxAttempts: 3,
-    baseDelay: 1000,
+  return withRetry(fn, {
+    maxAttempts: 2,
+    baseDelay: 500,
     retryCondition: isRetryableError
   });
 };
