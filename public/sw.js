@@ -92,6 +92,12 @@ async function networkFirst(request, cacheName) {
 }
 
 async function networkAndCache(request, cacheName) {
+  // Skip caching for unsupported schemes
+  const url = new URL(request.url);
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return fetch(request);
+  }
+  
   const response = await fetch(request);
   if (response.status === 200) {
     const cache = await caches.open(cacheName);
