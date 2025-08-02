@@ -303,6 +303,16 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
   // Enhanced subscription data loading with extensive logging
   useEffect(() => {
+    let mounted = true;
+    
+    // Принудительный таймаут для SubscriptionProvider
+    const forceTimeout = setTimeout(() => {
+      if (mounted) {
+        console.warn('🔧 [SUBSCRIPTION] Forcing completion due to timeout');
+        setIsLoading(false);
+      }
+    }, 10000); // 10 секунд таймаут
+    
     const loadSubscriptionData = async () => {
       console.log('🔄 [LOAD DATA] Loading subscription data for user:', user?.id, user?.email);
       
@@ -314,6 +324,7 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         setIsTrialActive(false);
         setTrialExpiresAt(null);
         setDebugInfo({ noUser: true, timestamp: new Date().toISOString() });
+        clearTimeout(forceTimeout);
         return;
       }
 
@@ -381,10 +392,18 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         });
       }
       
-      setIsLoading(false);
+      if (mounted) {
+        setIsLoading(false);
+        clearTimeout(forceTimeout);
+      }
     };
 
     loadSubscriptionData();
+    
+    return () => {
+      mounted = false;
+      clearTimeout(forceTimeout);
+    };
   }, [user?.id, user?.email]);
 
   const recordFeatureTrial = async (featureName: string): Promise<void> => {

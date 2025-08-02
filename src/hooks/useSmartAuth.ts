@@ -20,7 +20,8 @@ export const useSmartAuth = (): AuthContextType => {
     hasAuthContext: !!authContext, 
     hasDevAuthContext: !!devAuthContext,
     devUser: devAuthContext?.user?.email,
-    authUser: authContext?.user?.email
+    authUser: authContext?.user?.email,
+    hostname: window.location.hostname
   });
   
   try {
@@ -37,17 +38,23 @@ export const useSmartAuth = (): AuthContextType => {
     if (authContext) {
       prodLogger.info('Using AuthContext', {
         user: authContext.user?.email,
-        hasSession: !!authContext.session
+        hasSession: !!authContext.session,
+        isLoading: authContext.isLoading
       });
       return authContext;
     }
     
     // Безопасный fallback
-    prodLogger.warn('SmartAuth: No auth context available, using fallback');
+    prodLogger.warn('SmartAuth: No auth context available, using fallback', {
+      isDevMode,
+      hostname: window.location.hostname,
+      authContextExists: !!authContext,
+      devAuthContextExists: !!devAuthContext
+    });
     return fallbackAuth;
     
   } catch (error) {
-    prodLogger.error('SmartAuth error, using fallback', {}, error as Error);
+    prodLogger.error('SmartAuth error, using fallback', { isDevMode, hostname: window.location.hostname }, error as Error);
     return fallbackAuth;
   }
 };

@@ -3,11 +3,11 @@ export const isDevelopmentMode = (): boolean => {
   // Проверяем несколько условий для определения dev режима
   const isViteDev = import.meta.env.DEV;
   const isLocalhost = window.location.hostname === 'localhost' || 
-                     window.location.hostname === '127.0.0.1' || 
-                     window.location.hostname.includes('lovable.app');
+                     window.location.hostname === '127.0.0.1';
   const hasDevParam = new URLSearchParams(window.location.search).has('dev');
   
-  // Dev режим активен если это Vite dev сервер ИЛИ localhost ИЛИ есть dev параметр
+  // Dev режим активен ТОЛЬКО для localhost или явного dev параметра
+  // lovable.app теперь работает как production для правильной работы предпросмотра
   const result = isViteDev || isLocalhost || hasDevParam;
   
   console.log('🔧 Development mode check:', {
