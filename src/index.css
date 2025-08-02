@@ -1,10 +1,6 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import './styles/mobile-optimization.css';
-@import './styles/base.css';
-@import './styles/components.css';
-@import './styles/layout.css';
-@import './styles/pages.css';
 
 @tailwind base;
 @tailwind components;
