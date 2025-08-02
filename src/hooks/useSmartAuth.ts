@@ -4,15 +4,18 @@ import { AuthContext } from '@/contexts/AuthContext';
 import { DevAuthContext } from '@/contexts/DevAuthContext';
 import { isDevelopmentMode } from '@/utils/devMode';
 import { AuthContextType } from '@/types/auth';
+import { useAuthFallback } from '@/hooks/useAuthFallback';
+import { prodLogger } from '@/utils/production-logger';
 
 export const useSmartAuth = (): AuthContextType => {
   const isDevMode = isDevelopmentMode();
+  const fallbackAuth = useAuthFallback();
   
   // Получаем оба контекста
   const authContext = useContext(AuthContext);
   const devAuthContext = useContext(DevAuthContext);
   
-  console.log('🔧 useSmartAuth check:', { 
+  prodLogger.info('SmartAuth context check', { 
     isDevMode, 
     hasAuthContext: !!authContext, 
     hasDevAuthContext: !!devAuthContext,
@@ -20,48 +23,31 @@ export const useSmartAuth = (): AuthContextType => {
     authUser: authContext?.user?.email
   });
   
-  // В dev режиме приоритет DevAuthContext
-  if (isDevMode && devAuthContext) {
-    console.log('🔧 Using DevAuthContext:', {
-      user: devAuthContext.user?.email,
-      hasSession: !!devAuthContext.session
-    });
-    return devAuthContext;
+  try {
+    // В dev режиме приоритет DevAuthContext
+    if (isDevMode && devAuthContext) {
+      prodLogger.info('Using DevAuthContext', {
+        user: devAuthContext.user?.email,
+        hasSession: !!devAuthContext.session
+      });
+      return devAuthContext;
+    }
+    
+    // В prod режиме или если DevAuthContext недоступен, используем AuthContext
+    if (authContext) {
+      prodLogger.info('Using AuthContext', {
+        user: authContext.user?.email,
+        hasSession: !!authContext.session
+      });
+      return authContext;
+    }
+    
+    // Безопасный fallback
+    prodLogger.warn('SmartAuth: No auth context available, using fallback');
+    return fallbackAuth;
+    
+  } catch (error) {
+    prodLogger.error('SmartAuth error, using fallback', {}, error as Error);
+    return fallbackAuth;
   }
-  
-  // В prod режиме или если DevAuthContext недоступен, используем AuthContext
-  if (authContext) {
-    console.log('🔧 Using AuthContext:', {
-      user: authContext.user?.email,
-      hasSession: !!authContext.session
-    });
-    return authContext;
-  }
-  
-  // Fallback: создаем безопасный контекст с заглушками
-  console.warn('⚠️ SmartAuth: No auth context available, using fallback');
-  
-  return {
-    user: null,
-    session: null,
-    isLoading: false,
-    signInWithMagicLink: async () => {
-      throw new Error('Authentication not available');
-    },
-    signUpWithMagicLink: async () => {
-      throw new Error('Authentication not available');
-    },
-    signOut: async () => {
-      throw new Error('Authentication not available');
-    },
-    resetPassword: async () => {
-      throw new Error('Authentication not available');
-    },
-    signIn: async () => {
-      throw new Error('Authentication not available');
-    },
-    updatePassword: async () => {
-      throw new Error('Authentication not available');
-    },
-  };
 };

@@ -80,21 +80,28 @@ import { SecureDataProvider } from "./components/common/SecureDataProvider";
 import RealtimeNotifications from "./components/realtime/RealtimeNotifications";
 import RealtimeMonitor from "./components/admin/RealtimeMonitor";
 import DevModeIndicator from "./components/DevModeIndicator";
+import ProductionDebugPanel from "./components/debug/ProductionDebugPanel";
+import { prodLogger } from "./utils/production-logger";
 
-const App = () => (
-  <ErrorBoundary>
-    <HelmetProvider>
-      <QueryOptimizer>
-        <TooltipProvider delayDuration={0}>
-          <Toaster />
-          <Sonner />
-          <Suspense fallback={<LoadingFallback />}>
-            <BrowserRouter>
-              <SmartAuthProvider>
-                <SubscriptionProvider>
-                  <SecureDataProvider>
-                    <DevModeIndicator />
-                    <RealtimeNotifications />
+const App = () => {
+  try {
+    prodLogger.info('App component rendering');
+    
+    return (
+      <ErrorBoundary>
+        <HelmetProvider>
+          <QueryOptimizer>
+            <TooltipProvider delayDuration={0}>
+              <Toaster />
+              <Sonner />
+              <Suspense fallback={<LoadingFallback />}>
+                <BrowserRouter>
+                  <SmartAuthProvider>
+                    <SubscriptionProvider>
+                      <SecureDataProvider>
+                        <DevModeIndicator />
+                        <RealtimeNotifications />
+                        <ProductionDebugPanel />
                     <Routes>
                       {/* Critical path routes - no lazy loading */}
                       <Route path="/" element={<Index />} />
@@ -238,6 +245,11 @@ const App = () => (
       </QueryOptimizer>
     </HelmetProvider>
   </ErrorBoundary>
-);
+    );
+  } catch (error) {
+    prodLogger.error('App component render error', {}, error as Error);
+    throw error;
+  }
+};
 
 export default App;
