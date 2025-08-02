@@ -3,8 +3,18 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { withRetry, isRetryableError } from '@/utils/retryUtils';
 
-const SUPABASE_URL = "https://dajowxmdmnsvckdkugmd.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRham93eG1kbW5zdmNrZGt1Z21kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczMDk4MjIsImV4cCI6MjA2Mjg4NTgyMn0.G5VeyG16dUwl5IU98WEIxjWTSmlbPLoLuq6ZOiZxjeM";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://dajowxmdmnsvckdkugmd.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRham93eG1kbW5zdmNrZGt1Z21kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczMDk4MjIsImV4cCI6MjA2Mjg4NTgyMn0.G5VeyG16dUwl5IU98WEIxjWTSmlbPLoLuq6ZOiZxjeM";
+
+// Debug: Log environment variables in production
+if (!import.meta.env.DEV) {
+  console.log('Production Supabase config:', {
+    url: SUPABASE_URL,
+    keyLength: SUPABASE_PUBLISHABLE_KEY.length,
+    hasEnvUrl: !!import.meta.env.VITE_SUPABASE_URL,
+    hasEnvKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY
+  });
+}
 
 // Clear any invalid tokens on initialization
 const clearInvalidTokens = () => {
