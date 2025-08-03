@@ -291,11 +291,45 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Compact Input Panel - 25% of screen */}
-      <div className="bg-white border-t border-border py-2" style={{ maxHeight: '25vh' }}>
+      {/* Compact Input Panel with integrated buttons */}
+      <div className="bg-white border-t border-border py-2">
         <div className="max-w-3xl mx-auto px-2">
-          <div className="relative">
-            <div className="flex items-center gap-2 bg-white rounded-2xl shadow-lg border border-gray-200 px-3 py-2">
+          <div className="flex items-center gap-2">
+            {/* Integrated Action Buttons */}
+            <button 
+              onClick={handleChatHistoryClick}
+              className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
+            >
+              <MessageSquare className="w-4 h-4 text-white" />
+            </button>
+            
+            <button 
+              onClick={handleCameraClick}
+              className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
+            >
+              <Camera className="w-4 h-4 text-white" />
+            </button>
+            
+            <button 
+              onClick={handleFileClick}
+              className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
+            >
+              <FileText className="w-4 h-4 text-white" />
+            </button>
+            
+            <button 
+              onClick={handleMicClick}
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                isRecording 
+                  ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
+                  : 'bg-gray-500 hover:bg-gray-600'
+              }`}
+            >
+              <Mic className="w-4 h-4 text-white" />
+            </button>
+            
+            {/* Input Field */}
+            <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-full px-3 py-2 border border-gray-200">
               <textarea
                 ref={textareaRef}
                 placeholder="Что вас беспокоит? Как я могу помочь?"
@@ -310,90 +344,27 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                 rows={1}
               />
               
-              <Button
+              <button
                 onClick={handleSubmit}
                 disabled={!inputText.trim() || isProcessing}
-                size="sm"
-                className="h-6 w-6 p-0 rounded-full bg-gradient-to-r from-brand-accent to-brand-accent/80 hover:from-brand-accent hover:to-brand-accent shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-7 h-7 rounded-full bg-gradient-to-r from-brand-accent to-brand-accent/80 hover:from-brand-accent hover:to-brand-accent transition-all duration-200 flex items-center justify-center disabled:opacity-50"
               >
                 {isProcessing ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <Loader2 className="h-3 w-3 animate-spin text-white" />
                 ) : (
-                  <Send className="h-3 w-3" />
+                  <Send className="h-3 w-3 text-white" />
                 )}
-              </Button>
+              </button>
             </div>
             
-            <p className="text-xs text-muted-foreground text-center mt-1">
-              Персональный ИИ-доктор анализирует ваши данные для точных рекомендаций.
-            </p>
+            {/* New Chat Button */}
+            <button 
+              onClick={onCreateNewChat}
+              className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
+            >
+              <Plus className="w-4 h-4 text-white" />
+            </button>
           </div>
-        </div>
-      </div>
-
-      {/* Compact Bottom Navigation */}
-      <div className="flex items-center justify-center py-1 px-4 bg-gradient-to-r from-gray-50 to-white border-t border-gray-100">
-        <div className="flex items-center justify-between w-full max-w-sm">
-          {/* Чаты */}
-          <button 
-            onClick={handleChatHistoryClick}
-            className="flex flex-col items-center gap-0.5 group"
-          >
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-200 group-hover:scale-105">
-              <MessageSquare className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-xs text-gray-600 font-medium">Чаты</span>
-          </button>
-          
-          {/* Камера */}
-          <button 
-            onClick={handleCameraClick}
-            className="flex flex-col items-center gap-0.5 group"
-          >
-            <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-200 group-hover:scale-105">
-              <Camera className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-xs text-gray-600 font-medium">Камера</span>
-          </button>
-          
-          {/* Новый чат - центральная кнопка */}
-          <button 
-            onClick={onCreateNewChat}
-            className="flex flex-col items-center gap-0.5 group"
-          >
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200 group-hover:scale-110">
-              <Plus className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xs text-green-600 font-bold">Новый</span>
-          </button>
-          
-          {/* Файлы */}
-          <button 
-            onClick={handleFileClick}
-            className="flex flex-col items-center gap-0.5 group"
-          >
-            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-200 group-hover:scale-105">
-              <FileText className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-xs text-gray-600 font-medium">Файлы</span>
-          </button>
-          
-          {/* Микрофон */}
-          <button 
-            onClick={handleMicClick}
-            className="flex flex-col items-center gap-0.5 group"
-          >
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-200 group-hover:scale-105 ${
-              isRecording 
-                ? 'bg-gradient-to-br from-red-500 to-red-600 animate-pulse' 
-                : 'bg-gradient-to-br from-indigo-500 to-purple-600'
-            }`}>
-              <Mic className="w-4 h-4 text-white" />
-            </div>
-            <span className={`text-xs font-medium ${isRecording ? 'text-red-600' : 'text-gray-600'}`}>
-              {isRecording ? 'Запись' : 'Голос'}
-            </span>
-          </button>
         </div>
       </div>
     </div>
