@@ -5,11 +5,12 @@ import DashboardHealthSummary from "@/components/dashboard/DashboardHealthSummar
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";
 import DashboardWrapper from "@/components/dashboard/DashboardWrapper";
 import MobileLayout from "@/components/mobile/MobileLayout";
+import MenuCard from "@/components/dashboard/menu/MenuCard";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SubscriptionStatusCard from "@/components/dashboard/header/SubscriptionStatusCard";
-import { Crown, Zap, Shield } from "lucide-react";
+import { Crown, Zap, Shield, Target, Activity, BookOpen, User } from "lucide-react";
 
 const Dashboard = () => {
   const { user } = useSmartAuth();
@@ -33,6 +34,35 @@ const Dashboard = () => {
     return "bg-gray-100 text-gray-600 border-gray-200";
   };
 
+  const mobileMenuContent = (
+    <div className="space-y-4">
+      <MenuCard 
+        icon={<Target className="w-6 h-6" />}
+        title="Планирование целей"
+        description="Постановка и отслеживание целей здоровья"
+        href="/dashboard/goals"
+      />
+      <MenuCard 
+        icon={<Activity className="w-6 h-6" />}
+        title="Диагностика"
+        description="Анализ биомаркеров и показателей"
+        href="/dashboard/diagnostics"
+      />
+      <MenuCard 
+        icon={<BookOpen className="w-6 h-6" />}
+        title="Обучение"
+        description="Курсы и материалы по здоровью"
+        href="/dashboard/learning"
+      />
+      <MenuCard 
+        icon={<User className="w-6 h-6" />}
+        title="Профиль"
+        description="Персональные настройки"
+        href="/dashboard/profile"
+      />
+    </div>
+  );
+
   const dashboardContent = (
     <>
       <SubscriptionStatusCard 
@@ -51,9 +81,9 @@ const Dashboard = () => {
   if (isMobile) {
     return (
       <DashboardWrapper>
-        <MobileLayout title="Главная">
-          <div className="p-4 space-y-4">
-            {dashboardContent}
+        <MobileLayout title="МЕНЮ" subtitle="Выберите раздел для продолжения">
+          <div className="p-6 space-y-4">
+            {mobileMenuContent}
           </div>
         </MobileLayout>
       </DashboardWrapper>

@@ -7,8 +7,11 @@ import { cn } from '@/lib/utils';
 interface MobileLayoutProps {
   children: React.ReactNode;
   title?: string;
+  subtitle?: string;
   showHeader?: boolean;
   showBottomNav?: boolean;
+  showBack?: boolean;
+  onBack?: () => void;
   headerProps?: any;
   className?: string;
 }
@@ -16,8 +19,11 @@ interface MobileLayoutProps {
 const MobileLayout: React.FC<MobileLayoutProps> = ({
   children,
   title,
+  subtitle,
   showHeader = true,
   showBottomNav = true,
+  showBack = false,
+  onBack,
   headerProps = {},
   className
 }) => {
@@ -28,20 +34,23 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50">
       {showHeader && (
-        <MobileHeader title={title} {...headerProps} />
+        <MobileHeader 
+          title={title} 
+          subtitle={subtitle}
+          showBack={showBack}
+          onBack={onBack}
+          {...headerProps} 
+        />
       )}
       
       <main className={cn(
         "flex-1",
-        showHeader && "pt-16",
         showBottomNav && "pb-20",
         className
       )}>
-        <div className="safe-area-inset">
-          {children}
-        </div>
+        {children}
       </main>
 
       {showBottomNav && <MobileBottomNavigation />}

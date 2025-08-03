@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Calendar, User, MessageCircle, Activity } from 'lucide-react';
+import { Home, Target, BarChart3, User, BookOpen } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
@@ -24,19 +24,19 @@ const MobileBottomNavigation: React.FC = () => {
       href: '/dashboard',
     },
     {
-      icon: Activity,
-      label: 'Здоровье',
-      href: '/dashboard/health',
+      icon: Target,
+      label: 'Цели',
+      href: '/dashboard/goals',
     },
     {
-      icon: MessageCircle,
-      label: 'AI Врач',
-      href: '/dashboard/ai-consultation',
+      icon: BarChart3,
+      label: 'Анализ',
+      href: '/dashboard/diagnostics',
     },
     {
-      icon: Calendar,
-      label: 'План',
-      href: '/dashboard/plan',
+      icon: BookOpen,
+      label: 'Обучение',
+      href: '/dashboard/learning',
     },
     {
       icon: User,
@@ -53,9 +53,9 @@ const MobileBottomNavigation: React.FC = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 md:hidden">
       <div className="safe-area-bottom">
-        <div className="flex items-center justify-around px-2 py-1">
+        <div className="flex justify-around px-6 py-3">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -65,38 +65,19 @@ const MobileBottomNavigation: React.FC = () => {
                 key={item.href}
                 to={item.href}
                 className={cn(
-                  "flex flex-col items-center justify-center min-h-[60px] px-2 py-1 rounded-lg transition-all duration-200",
-                  "relative overflow-hidden",
-                  active
-                    ? "text-primary bg-primary/10"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors",
+                  active ? "text-emerald-600" : "text-gray-600"
                 )}
               >
-                {/* Active indicator */}
-                {active && (
-                  <div className="absolute top-0 left-1/2 w-8 h-1 bg-primary rounded-full transform -translate-x-1/2" />
-                )}
-                
                 <div className="relative">
-                  <Icon 
-                    className={cn(
-                      "h-5 w-5 transition-transform duration-200",
-                      active && "scale-110"
-                    )} 
-                  />
+                  <Icon className="w-6 h-6" />
                   {item.badge && (
-                    <span className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                       {item.badge}
                     </span>
                   )}
                 </div>
-                
-                <span className={cn(
-                  "text-xs font-medium mt-1 transition-all duration-200",
-                  active ? "text-primary scale-105" : "text-muted-foreground"
-                )}>
-                  {item.label}
-                </span>
+                <span className="text-xs font-medium">{item.label}</span>
               </Link>
             );
           })}
