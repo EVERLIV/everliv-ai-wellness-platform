@@ -53,9 +53,9 @@ const MobileBottomNavigation: React.FC = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-border/50 md:hidden shadow-lg">
       <div className="safe-area-bottom">
-        <div className="flex justify-around px-6 py-3">
+        <div className="flex justify-around px-4 py-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -65,19 +65,27 @@ const MobileBottomNavigation: React.FC = () => {
                 key={item.href}
                 to={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors",
-                  active ? "text-emerald-600" : "text-gray-600"
+                  "flex flex-col items-center gap-1 py-3 px-4 rounded-xl transition-all duration-200 min-w-[60px]",
+                  active 
+                    ? "text-brand-primary bg-brand-primary/10" 
+                    : "text-muted-foreground hover:text-brand-primary hover:bg-brand-primary/5"
                 )}
               >
                 <div className="relative">
-                  <Icon className="w-6 h-6" />
+                  <Icon className={cn(
+                    "w-5 h-5 transition-transform",
+                    active && "scale-110"
+                  )} />
                   {item.badge && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-brand-error text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
                       {item.badge}
                     </span>
                   )}
                 </div>
-                <span className="text-xs font-medium">{item.label}</span>
+                <span className={cn(
+                  "text-xs font-medium leading-tight",
+                  active && "font-semibold"
+                )}>{item.label}</span>
               </Link>
             );
           })}
