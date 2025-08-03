@@ -149,9 +149,9 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
 
   return (
     <div className="h-full flex flex-col bg-background">
-      {/* Compact Mobile Header */}
+      {/* Full Width Header */}
       {isMobile ? (
-        <div className="w-full flex items-center justify-between px-2 py-1 bg-white shadow-sm">
+        <div className="w-screen flex items-center justify-between px-2 py-1 bg-white shadow-sm fixed top-0 left-0 z-10">
           <Button
             variant="ghost"
             size="sm"
@@ -162,12 +162,10 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           </Button>
           
           <div className="flex items-center gap-1">
-            <div className="w-5 h-5 bg-brand-accent/10 rounded-lg flex items-center justify-center">
-              <Brain className="h-3 w-3 text-brand-accent" />
+            <div className="w-4 h-4 bg-brand-accent/10 rounded flex items-center justify-center">
+              <Brain className="h-2 w-2 text-brand-accent" />
             </div>
-            <div>
-              <h2 className="text-xs font-semibold text-foreground">ИИ-Доктор</h2>
-            </div>
+            <h2 className="text-xs font-semibold text-foreground">ИИ-Доктор</h2>
           </div>
           
           <div className="w-6"></div>
@@ -189,7 +187,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       )}
 
       {/* Messages Area - 75% of screen */}
-      <div className="flex-1 overflow-y-auto px-2 py-6 bg-gray-50/50" style={{ scrollBehavior: 'smooth', minHeight: '75vh' }}>
+      <div className={`flex-1 overflow-y-auto px-2 py-6 bg-gray-50/50 ${isMobile ? 'mt-10' : ''}`} style={{ scrollBehavior: 'smooth', minHeight: '75vh' }}>
         <div className="space-y-2 max-w-3xl mx-auto">
           {/* Quick Actions только если нет сообщений */}
           {allMessages.length === 0 && (
@@ -291,9 +289,9 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       </div>
 
       {/* Compact Input Panel with integrated buttons */}
-      <div className="bg-white border-t border-border py-1">
+      <div className="bg-white border-t border-border py-2">
         <div className="max-w-3xl mx-auto px-2">
-          <div className="bg-gray-50 rounded-2xl px-2 py-1 border border-gray-200">
+          <div className="bg-gray-50 rounded-full px-3 py-1 border border-gray-200" style={{ minHeight: '32px' }}>
             {/* Input Field */}
             <textarea
               ref={textareaRef}
@@ -302,7 +300,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isProcessing}
-              className="w-full min-h-[12px] max-h-12 resize-none outline-none text-xs placeholder:text-muted-foreground bg-transparent"
+              className="w-full min-h-[14px] max-h-8 resize-none outline-none text-xs placeholder:text-muted-foreground bg-transparent"
               style={{ 
                 lineHeight: '1.1'
               }}
@@ -310,7 +308,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
             />
             
             {/* Bottom row with buttons */}
-            <div className="flex items-center justify-between mt-1">
+            <div className="flex items-center justify-between">
               {/* Left side buttons */}
               <div className="flex items-center gap-1">
                 <button 
