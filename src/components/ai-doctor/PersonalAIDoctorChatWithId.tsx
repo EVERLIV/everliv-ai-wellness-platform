@@ -108,7 +108,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
         </button>
         
         <div className="text-center">
-          <h1 className="font-semibold text-gray-900 text-lg">Get to know you</h1>
+          <h1 className="font-semibold text-gray-900 text-lg">Узнаем вас лучше</h1>
         </div>
         
         <button className="w-8 h-8 flex items-center justify-center">
@@ -125,13 +125,16 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Brain className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Привет, меня зовут ITSY</h3>
-              <p className="text-gray-600 text-sm mb-8 px-4">Я ваш виртуальный персональный тренер для всех ваших фитнес целей. Сначала - дайте мне узнать вас лучше!</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Привет, меня зовут ИИ Доктор</h3>
+              <p className="text-gray-600 text-sm mb-8 px-4">Я ваш виртуальный персональный доктор для всех ваших медицинских вопросов. Сначала - дайте мне узнать вас лучше!</p>
               
               <div className="space-y-3">
-                <p className="text-gray-800 font-medium">Должны ли мы продолжить?</p>
+                <p className="text-gray-800 font-medium">Готовы начать консультацию?</p>
                 <div className="flex gap-3 justify-center">
-                  <button className="bg-green-500 text-white px-8 py-2 rounded-full text-sm font-medium">
+                  <button 
+                    onClick={() => handleSuggestedQuestion("Проанализируй мои последние анализы")}
+                    className="bg-green-500 text-white px-8 py-2 rounded-full text-sm font-medium"
+                  >
                     ДА
                   </button>
                   <button className="border border-gray-300 text-gray-700 px-6 py-2 rounded-full text-sm">
@@ -209,45 +212,45 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       {/* Input Area */}
       <div className="bg-white border-t border-gray-100">
         {/* Text Input */}
-        <div className="p-4">
-          <div className="flex items-end gap-3 bg-gray-50 rounded-3xl px-4 py-3">
+        <div className="px-4 py-2">
+          <div className="flex items-end gap-2 bg-gray-50 rounded-3xl px-3 py-2">
             <textarea
               ref={textareaRef}
-              placeholder="Press here to talk to ITSY"
+              placeholder="Нажмите здесь, чтобы поговорить с ИИ Доктором"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isProcessing}
-              className="flex-1 min-h-[20px] max-h-32 resize-none outline-none bg-transparent text-gray-800 placeholder-gray-500 text-sm"
-              style={{ lineHeight: '1.4' }}
+              className="flex-1 min-h-[16px] max-h-20 resize-none outline-none bg-transparent text-gray-800 placeholder-gray-500 text-sm"
+              style={{ lineHeight: '1.2' }}
               rows={1}
             />
             
             <button
               onClick={handleSubmit}
               disabled={!inputText.trim() || isProcessing}
-              className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-50 flex-shrink-0"
+              className="w-7 h-7 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-50 flex-shrink-0"
             >
               {isProcessing ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3 h-3 animate-spin" />
               ) : (
-                <Send className="w-4 h-4" />
+                <Send className="w-3 h-3" />
               )}
             </button>
           </div>
         </div>
         
         {/* Bottom Navigation */}
-        <div className="flex items-center justify-around py-4 px-6 bg-white border-t border-gray-100">
+        <div className="flex items-center justify-around py-2 px-6 bg-white border-t border-gray-100">
           <button className="flex flex-col items-center gap-1">
-            <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
-              <MessageSquare className="w-4 h-4 text-gray-500" />
+            <div className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center">
+              <MessageSquare className="w-3 h-3 text-gray-500" />
             </div>
           </button>
           
           <button className="flex flex-col items-center gap-1">
-            <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
-              <Camera className="w-4 h-4 text-gray-500" />
+            <div className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center">
+              <Camera className="w-3 h-3 text-gray-500" />
             </div>
           </button>
           
@@ -255,20 +258,20 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
             onClick={onShowChatHistory}
             className="flex flex-col items-center gap-1"
           >
-            <div className="w-8 h-8 bg-green-500 rounded-2xl flex items-center justify-center">
-              <Plus className="w-5 h-5 text-white" />
+            <div className="w-7 h-7 bg-green-500 rounded-2xl flex items-center justify-center">
+              <Plus className="w-4 h-4 text-white" />
             </div>
           </button>
           
           <button className="flex flex-col items-center gap-1">
-            <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
-              <Paperclip className="w-4 h-4 text-gray-500" />
+            <div className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center">
+              <Paperclip className="w-3 h-3 text-gray-500" />
             </div>
           </button>
           
           <button className="flex flex-col items-center gap-1">
-            <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
-              <Mic className="w-4 h-4 text-gray-500" />
+            <div className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center">
+              <Mic className="w-3 h-3 text-gray-500" />
             </div>
           </button>
         </div>

@@ -37,9 +37,9 @@ const AIDoctorPersonalPage = () => {
       setSelectedChatId(chatId);
       setShowChatHistory(false);
     } else {
-      // Если нет chatId в URL, показываем историю чатов
+      // Если нет chatId в URL, показываем чат без истории
       setSelectedChatId(undefined);
-      setShowChatHistory(true);
+      setShowChatHistory(false);
     }
   }, [searchParams]);
 
