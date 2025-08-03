@@ -291,7 +291,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       {/* Compact Input Panel with integrated buttons */}
       <div className="bg-white border-t border-border py-2">
         <div className="max-w-3xl mx-auto px-2">
-          <div className="bg-gray-50 rounded-full px-3 py-1 border border-gray-200" style={{ minHeight: '32px' }}>
+          <div className="bg-gray-50 rounded-md px-4 py-2 border border-gray-200" style={{ minHeight: '32px' }}>
             {/* Input Field */}
             <textarea
               ref={textareaRef}
