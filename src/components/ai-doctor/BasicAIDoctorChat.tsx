@@ -1,19 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User } from "lucide-react";
+import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User, Camera, Mic, FileText, Brain } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Microscope, Pill, TrendingUp, Heart, Apple, Stethoscope } from "lucide-react";
-
-const iconMap = {
-  microscope: Microscope,
-  pill: Pill,
-  "trending-up": TrendingUp,
-  "book-open": BookOpen,
-  heart: Heart,
-  apple: Apple,
-};
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   id: string;
@@ -35,6 +27,8 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
   const [messageCount, setMessageCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { toast } = useToast();
+  const [isRecording, setIsRecording] = useState(false);
   const maxMessages = 3;
 
   const suggestedQuestions = [
@@ -51,8 +45,6 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
         setMessageCount(parseInt(savedCount, 10));
       }
     }
-
-    // Убираем приветственное сообщение
   }, [user]);
 
   useEffect(() => {
@@ -68,6 +60,50 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
       textareaRef.current.style.height = `${Math.max(newHeight, 32)}px`;
     }
   }, [inputText]);
+
+  // Обработчики для кнопок меню
+  const handleCameraClick = () => {
+    toast({
+      title: "Камера",
+      description: "Функция камеры будет доступна в следующих обновлениях",
+    });
+  };
+
+  const handleMicClick = () => {
+    if (isRecording) {
+      setIsRecording(false);
+      toast({
+        title: "Запись остановлена",
+        description: "Голосовое сообщение обрабатывается",
+      });
+    } else {
+      setIsRecording(true);
+      toast({
+        title: "Запись началась",
+        description: "Говорите в микрофон",
+      });
+      // Имитация записи
+      setTimeout(() => {
+        setIsRecording(false);
+      }, 3000);
+    }
+  };
+
+  const handleFileClick = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf,.doc,.docx,.txt,.jpg,.png';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        toast({
+          title: "Файл загружен",
+          description: `${file.name} готов к анализу`,
+        });
+      }
+    };
+    input.click();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,82 +207,76 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
   };
 
   const isLimitReached = messageCount >= maxMessages;
-  const showSuggestedQuestions = messages.length === 0;
+  const shouldShowSuggestedQuestions = messages.length === 0;
 
   return (
     <div className="h-full flex flex-col bg-background">
-      {/* Compact Mobile Header */}
+      {/* Full Width Header */}
       {isMobile ? (
-        <div className="flex items-center justify-between p-3 bg-white rounded-t-lg shadow-sm">
+        <div className="w-screen flex items-center justify-between px-2 py-1 bg-white shadow-sm fixed top-0 left-0 z-10">
           <Button
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="p-2 h-auto"
+            className="p-1 h-auto"
           >
-            <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+            <ArrowLeft className="h-4 w-4 text-muted-foreground" />
           </Button>
           
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-brand-primary/10 rounded-lg flex items-center justify-center">
-              <MessageSquare className="h-4 w-4 text-brand-primary" />
+          <div className="flex items-center gap-1">
+            <div className="w-4 h-4 bg-brand-primary/10 rounded flex items-center justify-center">
+              <Sparkles className="h-2 w-2 text-brand-primary" />
             </div>
-            <div>
-              <h2 className="text-sm font-semibold text-foreground">Базовый ИИ-Доктор</h2>
-              <p className="text-xs text-muted-foreground">
-                {maxMessages - messageCount} сообщений осталось
-              </p>
-            </div>
+            <h2 className="text-xs font-semibold text-foreground">Базовый ИИ-Доктор</h2>
           </div>
           
-          <div className="w-8"></div>
+          <div className="text-xs text-muted-foreground">
+            {maxMessages - messageCount} осталось
+          </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between p-4 bg-white rounded-t-lg shadow-sm">
+        <div className="w-full flex items-center justify-between px-3 py-1 bg-white shadow-sm">
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
               onClick={onBack}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground p-1"
             >
-              <ArrowLeft className="h-5 w-5 mr-2" />
-              <span className="text-sm">Назад к выбору чатов</span>
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              <span className="text-xs">Назад</span>
             </Button>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              {maxMessages - messageCount} сообщений осталось
-            </span>
+          <div className="text-xs text-muted-foreground">
+            {maxMessages - messageCount} сообщений осталось
           </div>
         </div>
       )}
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-2 bg-gray-50/50" style={{ scrollBehavior: 'smooth' }}>
-        <div className="space-y-3 max-w-3xl mx-auto">
-          {/* Welcome Screen with Quick Actions */}
-          {messages.length === 0 && showSuggestedQuestions && !isLimitReached && (
-            <div className="text-center py-8">
-              <h3 className="text-xl font-bold text-foreground mb-2">Задайте вопрос о здоровье</h3>
-              <p className="text-muted-foreground mb-6">Выберите быстрое действие или опишите свои симптомы</p>
+      {/* Messages Area - 75% of screen */}
+      <div className={`flex-1 overflow-y-auto px-2 py-6 bg-gray-50/50 ${isMobile ? 'mt-10' : ''}`} style={{ scrollBehavior: 'smooth', minHeight: '75vh' }}>
+        <div className="space-y-2 max-w-3xl mx-auto">
+          {/* Quick Actions только если нет сообщений */}
+          {messages.length === 0 && shouldShowSuggestedQuestions && !isLimitReached && (
+            <div className="text-center py-4">
+              <h3 className="text-lg font-bold text-foreground mb-1">Базовая консультация</h3>
+              <p className="text-muted-foreground mb-4 text-sm">Выберите быстрое действие или задайте свой вопрос</p>
               
               {/* Quick Actions */}
-              <div className="grid grid-cols-1 gap-3 max-w-xs mx-auto">
+              <div className="grid grid-cols-1 gap-2 max-w-xs mx-auto">
                 {suggestedQuestions.map((question, index) => {
                   const IconComponent = question.icon;
                   return (
                     <button
                       key={index}
-                      className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 border border-border"
+                      className="p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 border border-border"
                       onClick={() => handleSuggestedQuestion(question.text)}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-brand-primary rounded-lg flex items-center justify-center">
-                          <IconComponent className="w-5 h-5 text-white" />
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
+                          <IconComponent className="w-4 h-4 text-white" />
                         </div>
-                        <p className="text-sm font-medium text-foreground text-left">{question.text}</p>
+                        <p className="text-xs font-medium text-foreground text-left">{question.text}</p>
                       </div>
                     </button>
                   );
@@ -256,22 +286,22 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
           )}
 
           {messages.map((message) => (
-            <div key={message.id} className="flex items-start gap-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+            <div key={message.id} className="flex items-start gap-2">
+              <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
                 message.role === "user" 
                   ? "bg-white border border-border" 
                   : "bg-brand-primary text-white"
               }`}>
                 {message.role === "user" ? (
-                  <User className="h-4 w-4" />
+                  <User className="h-3 w-3" />
                 ) : (
-                  <Sparkles className="h-4 w-4" />
+                  <Sparkles className="h-3 w-3" />
                 )}
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-foreground">
+                <div className="flex items-center gap-1 mb-1">
+                  <span className="text-xs font-medium text-foreground">
                     {message.role === "user" ? "Вы" : "ИИ Доктор"}
                   </span>
                   <span className="text-xs text-muted-foreground">
@@ -282,12 +312,12 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
                   </span>
                 </div>
                 
-                <div className={`p-3 rounded-lg ${
+                <div className={`p-2 rounded-lg ${
                   message.role === "user" 
                     ? "bg-white border border-border" 
                     : "bg-brand-primary/10 border border-brand-primary/20"
                 }`}>
-                  <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+                  <div className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
                     {message.content}
                   </div>
                 </div>
@@ -296,18 +326,18 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
           ))}
           
           {isProcessing && (
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-brand-primary text-white rounded-lg flex items-center justify-center flex-shrink-0">
-                <Sparkles className="h-4 w-4" />
+            <div className="flex items-start gap-2">
+              <div className="w-6 h-6 bg-brand-primary text-white rounded-lg flex items-center justify-center flex-shrink-0">
+                <Sparkles className="h-3 w-3" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-foreground">ИИ Доктор</span>
+                <div className="flex items-center gap-1 mb-1">
+                  <span className="text-xs font-medium text-foreground">ИИ Доктор</span>
                 </div>
-                <div className="p-3 rounded-lg bg-brand-primary/10 border border-brand-primary/20">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
-                    <span className="text-sm">Анализирую...</span>
+                <div className="p-2 rounded-lg bg-brand-primary/10 border border-brand-primary/20">
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Loader2 className="h-3 w-3 animate-spin flex-shrink-0" />
+                    <span className="text-xs">Анализирую...</span>
                   </div>
                 </div>
               </div>
@@ -317,11 +347,11 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Modern Input Panel */}
-      <div className="bg-white border-t border-border p-4">
-        <div className="max-w-3xl mx-auto">
+      {/* Compact Input Panel with integrated buttons */}
+      <div className="bg-white border-t border-border py-2">
+        <div className="max-w-3xl mx-auto px-2">
           {isLimitReached ? (
-            <div className="text-center p-6 bg-gradient-to-br from-brand-accent/10 to-brand-primary/10 rounded-2xl border border-brand-primary/20">
+            <div className="text-center p-6 bg-gradient-to-br from-brand-accent/10 to-brand-primary/10 rounded-md border border-brand-primary/20">
               <h3 className="text-lg font-semibold mb-2 text-foreground">Дневной лимит исчерпан</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Для неограниченного общения оформите премиум подписку
@@ -336,39 +366,65 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
               </Button>
             </div>
           ) : (
-            <div className="relative">
-              <div className="flex items-center gap-3 bg-white rounded-2xl shadow-lg border border-gray-200 px-4 py-3">
-                <textarea
-                  ref={textareaRef}
-                  placeholder="Опишите свои симптомы..."
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  disabled={isProcessing}
-                  className="flex-1 min-h-[20px] max-h-32 resize-none outline-none text-sm placeholder:text-muted-foreground bg-transparent"
-                  style={{ 
-                    lineHeight: '1.4'
-                  }}
-                  rows={1}
-                />
+            <div className="bg-gray-50 rounded-md px-4 py-2 border border-gray-200" style={{ minHeight: '32px' }}>
+              {/* Input Field */}
+              <textarea
+                ref={textareaRef}
+                placeholder="Что вас беспокоит? Как я могу помочь?"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={isProcessing}
+                className="w-full min-h-[14px] max-h-8 resize-none outline-none text-xs placeholder:text-muted-foreground bg-transparent"
+                style={{ 
+                  lineHeight: '1.1'
+                }}
+                rows={1}
+              />
+              
+              {/* Bottom row with buttons */}
+              <div className="flex items-center justify-between">
+                {/* Left side buttons - без новый чат и история */}
+                <div className="flex items-center gap-1">
+                  <button 
+                    onClick={handleFileClick}
+                    className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                  >
+                    <FileText className="w-3 h-3 text-gray-500" />
+                  </button>
+                  
+                  <button 
+                    onClick={handleCameraClick}
+                    className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+                  >
+                    <Camera className="w-3 h-3 text-gray-500" />
+                  </button>
+                  
+                  <button 
+                    onClick={handleMicClick}
+                    className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors ${
+                      isRecording 
+                        ? 'bg-red-100 hover:bg-red-200' 
+                        : 'bg-transparent hover:bg-gray-200'
+                    }`}
+                  >
+                    <Mic className={`w-3 h-3 ${isRecording ? 'text-red-500' : 'text-gray-500'}`} />
+                  </button>
+                </div>
                 
-                <Button
+                {/* Right side send button */}
+                <button
                   onClick={handleSubmit}
                   disabled={!inputText.trim() || isProcessing}
-                  size="sm"
-                  className="h-10 w-10 p-0 rounded-full bg-gradient-to-r from-brand-primary to-brand-primaryLight hover:from-brand-primaryDark hover:to-brand-primary shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-5 h-5 rounded-full bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary hover:to-brand-primary transition-all duration-200 flex items-center justify-center disabled:opacity-50"
                 >
                   {isProcessing ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <Loader2 className="h-2.5 w-2.5 animate-spin text-white" />
                   ) : (
-                    <Send className="h-4 w-4" />
+                    <Send className="h-2.5 w-2.5 text-white" />
                   )}
-                </Button>
+                </button>
               </div>
-              
-              <p className="text-xs text-muted-foreground text-center mt-3">
-                ИИ может ошибаться. Проконсультируйтесь с врачом для серьезных вопросов.
-              </p>
             </div>
           )}
         </div>

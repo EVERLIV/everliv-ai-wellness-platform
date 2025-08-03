@@ -1,4 +1,8 @@
 
+// ⚠️ ВАЖНО: НЕ МЕНЯТЬ ДИЗАЙН ЭТОГО КОМПОНЕНТА! 
+// ⚠️ Дизайн закреплен и утвержден пользователем
+// ⚠️ Любые изменения дизайна должны согласовываться отдельно
+
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User, ChevronDown, ChevronUp, MoreHorizontal, Camera, Mic, Paperclip, FileText, Image } from "lucide-react";
