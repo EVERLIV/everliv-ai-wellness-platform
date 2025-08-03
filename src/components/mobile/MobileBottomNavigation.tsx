@@ -20,28 +20,23 @@ const MobileBottomNavigation: React.FC = () => {
   const navItems: NavItem[] = [
     {
       icon: Home,
-      label: 'Главная',
+      label: 'ИИ доктор',
       href: '/dashboard',
     },
     {
       icon: Target,
-      label: 'Цели',
-      href: '/dashboard/goals',
+      label: 'Профиль здоровья',
+      href: '/dashboard/health-profile',
     },
     {
       icon: BarChart3,
-      label: 'Анализ',
+      label: 'Анализы',
       href: '/dashboard/diagnostics',
     },
     {
       icon: User,
-      label: 'Профиль',
-      href: '/dashboard/profile',
-    },
-    {
-      icon: BookOpen,
-      label: 'Меню',
-      href: '/more',
+      label: 'Аналитика',
+      href: '/dashboard/analytics',
     },
   ];
 
@@ -53,41 +48,39 @@ const MobileBottomNavigation: React.FC = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-border/50 md:hidden shadow-2xl">
-      <div className="safe-area-bottom">
-        <div className="flex justify-around px-2 py-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.href);
-            
-            return (
-              <Link
-                key={item.href}
-                to={item.href}
-                className={cn(
-                  "flex items-center gap-2 py-2 px-3 rounded-lg transition-all duration-200 min-w-[44px] justify-center",
-                  active 
-                    ? "text-white bg-brand-primary shadow-lg scale-105 min-w-[120px] justify-start" 
-                    : "text-muted-foreground hover:text-brand-primary hover:bg-brand-primary/10"
-                )}
-              >
-                <div className="relative">
-                  <Icon className="w-5 h-5" />
-                  {item.badge && (
-                    <span className="absolute -top-1 -right-1 bg-brand-error text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
-                      {item.badge}
-                    </span>
-                  )}
-                </div>
-                {active && (
-                  <span className="text-xs font-semibold leading-tight">
-                    {item.label}
+    <nav className="fixed bottom-4 left-4 right-4 z-50 bg-white/90 backdrop-blur-xl border border-border/20 rounded-2xl shadow-2xl md:hidden">
+      <div className="flex justify-around px-2 py-2">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item.href);
+          
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={cn(
+                "flex items-center gap-2 py-3 px-3 rounded-xl transition-all duration-300 min-w-[44px] justify-center",
+                active 
+                  ? "text-white bg-brand-primary shadow-lg scale-105 min-w-[140px] justify-start" 
+                  : "text-muted-foreground hover:text-brand-primary hover:bg-brand-primary/10"
+              )}
+            >
+              <div className="relative">
+                <Icon className="w-5 h-5" />
+                {item.badge && (
+                  <span className="absolute -top-1 -right-1 bg-brand-error text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
+                    {item.badge}
                   </span>
                 )}
-              </Link>
-            );
-          })}
-        </div>
+              </div>
+              {active && (
+                <span className="text-[11px] font-medium leading-tight truncate">
+                  {item.label}
+                </span>
+              )}
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );
