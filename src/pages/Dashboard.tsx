@@ -1,6 +1,4 @@
 
-console.log('🚀 Dashboard.tsx loaded');
-
 import React from "react";
 import Header from "@/components/Header";
 import DashboardHealthSummary from "@/components/dashboard/DashboardHealthSummary";
