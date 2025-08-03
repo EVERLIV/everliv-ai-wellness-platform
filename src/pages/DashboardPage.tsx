@@ -70,71 +70,72 @@ const DashboardPage = () => {
   };
 
   return (
-    <AppLayout>
-      <div className="space-y-3 pb-4">
-        {/* Mobile-First Header с градиентом */}
-        <div className="bg-gradient-to-r from-brand-primary to-brand-primary-light rounded-xl p-4 text-white shadow-md">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-              <Heart className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold leading-tight">
-                Привет, {userName}! 👋
-              </h1>
-              <p className="text-white/90 text-sm">
-                Управляйте здоровьем с ИИ
-              </p>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
+      <div className="container mx-auto px-4 py-6 space-y-6 max-w-5xl">
+        {/* Mobile-First Header с зеленым градиентом */}
+        <div className="bg-white rounded-3xl shadow-lg border border-green-100 p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center">
+                <Heart className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Привет, {userName}! 👋
+                </h1>
+                <p className="text-gray-600">
+                  Управляйте здоровьем с ИИ
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-
-        <div className="space-y-3">
-          {/* Индекс здоровья - компактный светло-зеленый блок */}
-          <div className="bg-gradient-to-r from-neutral-100 to-neutral-50 border border-neutral-200 rounded-lg p-3 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 bg-brand-primary/10 rounded-lg flex items-center justify-center">
-                  <Heart className="h-4 w-4 text-brand-primary" />
+        <div className="space-y-6">
+          {/* Индекс здоровья - зеленый блок */}
+          <div className="bg-white rounded-3xl shadow-lg border border-green-100 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-100 rounded-2xl flex items-center justify-center">
+                  <Heart className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-semibold text-foreground">Индекс здоровья</h2>
-                  <p className="text-xs text-muted-foreground">Общий показатель</p>
+                  <h2 className="text-lg font-semibold text-gray-900">Индекс здоровья</h2>
+                  <p className="text-sm text-gray-600">Общий показатель</p>
                 </div>
               </div>
               
               {analyticsLoading ? (
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-primary"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
                 </div>
               ) : currentHealthScore !== undefined ? (
-                <div className="text-right">
-                  <div className="text-xl font-bold text-brand-primary mb-1">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-800 mb-2">
                     {Math.round(currentHealthScore)}%
                   </div>
-                  <div className="w-14 bg-neutral-200 rounded-full h-1.5">
+                  <div className="w-20 bg-green-200 rounded-full h-2">
                     <div 
-                      className="bg-brand-primary h-1.5 rounded-full transition-all duration-500"
+                      className="bg-green-600 h-2 rounded-full transition-all duration-500"
                       style={{ width: `${currentHealthScore}%` }}
                     ></div>
                   </div>
                 </div>
               ) : (
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">Нет данных</p>
+                <div className="text-center">
+                  <p className="text-sm text-gray-500">Нет данных</p>
                 </div>
               )}
             </div>
             
-            <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-neutral-200">
-              <div className="text-center bg-white/50 rounded-lg p-2">
-                <div className="text-base font-bold text-foreground">{currentBiologicalAge}</div>
-                <div className="text-xs text-muted-foreground">Биовозраст</div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-4 bg-green-50 rounded-2xl border border-green-100">
+                <div className="text-2xl font-bold text-green-800">{currentBiologicalAge}</div>
+                <div className="text-sm text-green-600 font-medium">Биовозраст</div>
               </div>
-              <div className="text-center bg-white/50 rounded-lg p-2">
-                <div className="text-base font-bold text-foreground">0.85</div>
-                <div className="text-xs text-brand-success">↓15% скорость</div>
+              <div className="text-center p-4 bg-green-50 rounded-2xl border border-green-100">
+                <div className="text-2xl font-bold text-green-800">0.85</div>
+                <div className="text-sm text-green-600 font-medium">↓15% скорость</div>
               </div>
             </div>
           </div>
@@ -149,7 +150,7 @@ const DashboardPage = () => {
           <PriorityMetricsSection />
         </div>
       </div>
-    </AppLayout>
+    </div>
   );
 };
 
