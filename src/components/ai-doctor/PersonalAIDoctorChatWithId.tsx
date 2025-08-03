@@ -270,7 +270,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           <div className="flex items-end gap-2 bg-gray-50 rounded-3xl px-3 py-2">
             <textarea
               ref={textareaRef}
-              placeholder="Нажмите здесь, чтобы поговорить с ИИ Доктором"
+              placeholder="Что вас беспокоит? Как я могу помочь?"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -283,7 +283,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
             <button
               onClick={handleSubmit}
               disabled={!inputText.trim() || isProcessing}
-              className="w-7 h-7 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-50 flex-shrink-0"
+              className="w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-50 flex-shrink-0"
             >
               {isProcessing ? (
                 <Loader2 className="w-3 h-3 animate-spin" />
