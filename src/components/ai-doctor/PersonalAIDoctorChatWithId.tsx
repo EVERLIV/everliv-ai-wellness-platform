@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User, ChevronDown, ChevronUp, MoreHorizontal, Camera, Mic, Paperclip } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SuggestedQuestions from "@/components/dashboard/ai-doctor/SuggestedQuestions";
 import { usePersonalAIDoctorChatWithId } from "./usePersonalAIDoctorChatWithId";
@@ -99,55 +99,46 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Header */}
-      <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100">
+      <div className="bg-white px-4 py-4 flex items-center justify-between">
         <button 
           onClick={onBack}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="w-8 h-8 flex items-center justify-center"
         >
           <ArrowLeft className="w-5 h-5 text-gray-600" />
         </button>
         
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center">
-            <Brain className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="font-semibold text-gray-900">AI Доктор</h1>
-            <p className="text-sm text-green-600">Онлайн • Готов помочь</p>
-          </div>
+        <div className="text-center">
+          <h1 className="font-semibold text-gray-900 text-lg">Get to know you</h1>
         </div>
         
-        <button 
-          onClick={onShowChatHistory}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-        >
-          <MessageSquare className="w-5 h-5 text-gray-600" />
+        <button className="w-8 h-8 flex items-center justify-center">
+          <MoreHorizontal className="w-5 h-5 text-gray-600" />
         </button>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="flex-1 overflow-y-auto px-4 pb-4">
         <div className="space-y-4 max-w-full">
-          {/* Quick Actions */}
+          {/* Avatar and intro */}
           {allMessages.length === 0 && (
-            <div className="grid grid-cols-1 gap-3 max-w-sm mx-auto mb-8">
-              {suggestedQuestions.map((question, index) => {
-                const IconComponent = question.icon;
-                return (
-                  <button
-                    key={index}
-                    className="p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100"
-                    onClick={() => handleSuggestedQuestion(question.text)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
-                        <IconComponent className="w-5 h-5 text-white" />
-                      </div>
-                      <p className="text-sm font-medium text-gray-700 text-left">{question.text}</p>
-                    </div>
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Brain className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Привет, меня зовут ITSY</h3>
+              <p className="text-gray-600 text-sm mb-8 px-4">Я ваш виртуальный персональный тренер для всех ваших фитнес целей. Сначала - дайте мне узнать вас лучше!</p>
+              
+              <div className="space-y-3">
+                <p className="text-gray-800 font-medium">Должны ли мы продолжить?</p>
+                <div className="flex gap-3 justify-center">
+                  <button className="bg-green-500 text-white px-8 py-2 rounded-full text-sm font-medium">
+                    ДА
                   </button>
-                );
-              })}
+                  <button className="border border-gray-300 text-gray-700 px-6 py-2 rounded-full text-sm">
+                    НЕ СЕЙЧАС
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
@@ -215,31 +206,70 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="p-4 bg-white border-t border-gray-100">
-        <div className="flex items-end gap-3 bg-gray-50 rounded-3xl px-4 py-3">
-          <textarea
-            ref={textareaRef}
-            placeholder="Сообщение..."
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isProcessing}
-            className="flex-1 min-h-[20px] max-h-32 resize-none outline-none bg-transparent text-gray-800 placeholder-gray-500 text-sm"
-            style={{ lineHeight: '1.4' }}
-            rows={1}
-          />
+      {/* Input Area */}
+      <div className="bg-white border-t border-gray-100">
+        {/* Text Input */}
+        <div className="p-4">
+          <div className="flex items-end gap-3 bg-gray-50 rounded-3xl px-4 py-3">
+            <textarea
+              ref={textareaRef}
+              placeholder="Press here to talk to ITSY"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isProcessing}
+              className="flex-1 min-h-[20px] max-h-32 resize-none outline-none bg-transparent text-gray-800 placeholder-gray-500 text-sm"
+              style={{ lineHeight: '1.4' }}
+              rows={1}
+            />
+            
+            <button
+              onClick={handleSubmit}
+              disabled={!inputText.trim() || isProcessing}
+              className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-50 flex-shrink-0"
+            >
+              {isProcessing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+        </div>
+        
+        {/* Bottom Navigation */}
+        <div className="flex items-center justify-around py-4 px-6 bg-white border-t border-gray-100">
+          <button className="flex flex-col items-center gap-1">
+            <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+              <MessageSquare className="w-4 h-4 text-gray-500" />
+            </div>
+          </button>
           
-          <button
-            onClick={handleSubmit}
-            disabled={!inputText.trim() || isProcessing}
-            className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-50 flex-shrink-0"
+          <button className="flex flex-col items-center gap-1">
+            <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+              <Camera className="w-4 h-4 text-gray-500" />
+            </div>
+          </button>
+          
+          <button 
+            onClick={onShowChatHistory}
+            className="flex flex-col items-center gap-1"
           >
-            {isProcessing ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
+            <div className="w-8 h-8 bg-green-500 rounded-2xl flex items-center justify-center">
+              <Plus className="w-5 h-5 text-white" />
+            </div>
+          </button>
+          
+          <button className="flex flex-col items-center gap-1">
+            <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+              <Paperclip className="w-4 h-4 text-gray-500" />
+            </div>
+          </button>
+          
+          <button className="flex flex-col items-center gap-1">
+            <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+              <Mic className="w-4 h-4 text-gray-500" />
+            </div>
           </button>
         </div>
       </div>
