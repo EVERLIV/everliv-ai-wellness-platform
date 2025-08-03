@@ -97,150 +97,115 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col bg-background">
-      {/* Compact Mobile Header */}
-      {isMobile ? (
-        <div className="flex items-center justify-between p-3 bg-white rounded-t-lg shadow-sm">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="p-2 h-auto"
-          >
-            <ArrowLeft className="h-5 w-5 text-muted-foreground" />
-          </Button>
-          
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-brand-accent/10 rounded-lg flex items-center justify-center">
-              <Brain className="h-4 w-4 text-brand-accent" />
-            </div>
-            <div>
-              <h2 className="text-sm font-semibold text-foreground">Персональный ИИ-Доктор</h2>
-              <p className="text-xs text-muted-foreground">Премиум консультации</p>
-            </div>
+    <div className="h-full flex flex-col bg-white">
+      {/* Header */}
+      <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-100">
+        <button 
+          onClick={onBack}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 text-gray-600" />
+        </button>
+        
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center">
+            <Brain className="w-5 h-5 text-white" />
           </div>
-          
-          <div className="flex items-center gap-1">
-            {onCreateNewChat && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onCreateNewChat}
-                className="p-2 h-auto"
-              >
-                <Plus className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            )}
-            
-            {onShowChatHistory && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onShowChatHistory}
-                className="p-2 h-auto"
-              >
-                <MessageSquare className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            )}
+          <div>
+            <h1 className="font-semibold text-gray-900">AI Доктор</h1>
+            <p className="text-sm text-green-600">Онлайн • Готов помочь</p>
           </div>
         </div>
-      ) : (
-        null
-      )}
+        
+        <button 
+          onClick={onShowChatHistory}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <MessageSquare className="w-5 h-5 text-gray-600" />
+        </button>
+      </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-2 bg-gray-50/50" style={{ scrollBehavior: 'smooth' }}>
-        <div className="space-y-3 max-w-3xl mx-auto">
-          {/* Welcome Screen with Quick Actions */}
-          {allMessages.length === 0 && shouldShowSuggestedQuestions && (
-            <div className="text-center py-8">
-              <h3 className="text-xl font-bold text-foreground mb-2">Персональная консультация</h3>
-              <p className="text-muted-foreground mb-6">Выберите быстрое действие или задайте свой вопрос</p>
-              
-              {/* Quick Actions */}
-              <div className="grid grid-cols-1 gap-3 max-w-xs mx-auto">
-                {suggestedQuestions.map((question, index) => {
-                  const IconComponent = question.icon;
-                  return (
-                    <button
-                      key={index}
-                      className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 border border-border"
-                      onClick={() => handleSuggestedQuestion(question.text)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-brand-accent rounded-lg flex items-center justify-center">
-                          <IconComponent className="w-5 h-5 text-white" />
-                        </div>
-                        <p className="text-sm font-medium text-foreground text-left">{question.text}</p>
+      <div className="flex-1 overflow-y-auto px-4 py-6">
+        <div className="space-y-4 max-w-full">
+          {/* Quick Actions */}
+          {allMessages.length === 0 && (
+            <div className="grid grid-cols-1 gap-3 max-w-sm mx-auto mb-8">
+              {suggestedQuestions.map((question, index) => {
+                const IconComponent = question.icon;
+                return (
+                  <button
+                    key={index}
+                    className="p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100"
+                    onClick={() => handleSuggestedQuestion(question.text)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
+                        <IconComponent className="w-5 h-5 text-white" />
                       </div>
-                    </button>
-                  );
-                })}
-              </div>
+                      <p className="text-sm font-medium text-gray-700 text-left">{question.text}</p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
 
-          {allMessages.map((message) => (
-            <div key={message.id} className="flex items-start gap-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                message.role === "user" 
-                  ? "bg-white border border-border" 
-                  : "bg-brand-accent text-white"
-              }`}>
-                {message.role === "user" ? (
-                  <User className="h-4 w-4" />
-                ) : (
-                  <Brain className="h-4 w-4" />
-                )}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-foreground">
-                    {message.role === "user" ? "Вы" : "Персональный ИИ Доктор"}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
+          {allMessages.map((message, index) => (
+            <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`flex gap-3 max-w-[85%] ${message.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  message.role === 'user' 
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-600' 
+                    : 'bg-gradient-to-r from-green-400 to-emerald-500'
+                }`}>
+                  {message.role === 'user' ? (
+                    <User className="w-4 h-4 text-white" />
+                  ) : (
+                    <Brain className="w-4 h-4 text-white" />
+                  )}
+                </div>
+                
+                <div className={`px-4 py-3 rounded-2xl max-w-full ${
+                  message.role === 'user'
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-md'
+                    : 'bg-gray-100 text-gray-800 rounded-bl-md'
+                }`}>
+                  {message.role === "assistant" && message.content.includes('<div') ? (
+                    <div 
+                      className="text-sm leading-relaxed"
+                      style={{ wordBreak: 'break-word' }}
+                      dangerouslySetInnerHTML={{ __html: message.content }}
+                    />
+                  ) : (
+                    <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                      {message.content}
+                    </div>
+                  )}
+                  <p className={`text-xs mt-2 ${
+                    message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
+                  }`}>
                     {message.timestamp.toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
-                  </span>
-                </div>
-                
-                <div className={`p-3 rounded-lg ${
-                  message.role === "user" 
-                    ? "bg-white border border-border" 
-                    : "bg-brand-accent/10 border border-brand-accent/20"
-                }`}>
-                  {message.role === "assistant" && message.content.includes('<div') ? (
-                    <div 
-                      className="text-sm text-foreground leading-relaxed"
-                      style={{ wordBreak: 'break-word', lineHeight: '1.4' }}
-                      dangerouslySetInnerHTML={{ __html: message.content }}
-                    />
-                  ) : (
-                    <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
-                      {message.content}
-                    </div>
-                  )}
+                  </p>
                 </div>
               </div>
             </div>
           ))}
           
           {isProcessing && (
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-brand-accent text-white rounded-lg flex items-center justify-center flex-shrink-0">
-                <Brain className="h-4 w-4" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-foreground">Персональный ИИ Доктор</span>
+            <div className="flex justify-start">
+              <div className="flex gap-3 max-w-[85%]">
+                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                  <Brain className="w-4 h-4 text-white" />
                 </div>
-                <div className="p-3 rounded-lg bg-brand-accent/10 border border-brand-accent/20">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
-                    <span className="text-sm">Анализирую данные...</span>
+                <div className="px-4 py-3 bg-gray-100 rounded-2xl rounded-bl-md">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
                   </div>
                 </div>
               </div>
@@ -250,43 +215,32 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Modern Input Panel */}
-      <div className="bg-white border-t border-border p-4">
-        <div className="max-w-3xl mx-auto">
-          <div className="relative">
-            <div className="flex items-center gap-3 bg-white rounded-2xl shadow-lg border border-gray-200 px-4 py-3">
-              <textarea
-                ref={textareaRef}
-                placeholder="Задайте вопрос о вашем здоровье..."
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={isProcessing}
-                className="flex-1 min-h-[20px] max-h-32 resize-none outline-none text-sm placeholder:text-muted-foreground bg-transparent"
-                style={{ 
-                  lineHeight: '1.4'
-                }}
-                rows={1}
-              />
-              
-              <Button
-                onClick={handleSubmit}
-                disabled={!inputText.trim() || isProcessing}
-                size="sm"
-                className="h-10 w-10 p-0 rounded-full bg-gradient-to-r from-brand-accent to-brand-accent/80 hover:from-brand-accent hover:to-brand-accent shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                {isProcessing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-            
-            <p className="text-xs text-muted-foreground text-center mt-3">
-              Персональный ИИ-доктор анализирует ваши данные для точных рекомендаций.
-            </p>
-          </div>
+      {/* Input */}
+      <div className="p-4 bg-white border-t border-gray-100">
+        <div className="flex items-end gap-3 bg-gray-50 rounded-3xl px-4 py-3">
+          <textarea
+            ref={textareaRef}
+            placeholder="Сообщение..."
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={isProcessing}
+            className="flex-1 min-h-[20px] max-h-32 resize-none outline-none bg-transparent text-gray-800 placeholder-gray-500 text-sm"
+            style={{ lineHeight: '1.4' }}
+            rows={1}
+          />
+          
+          <button
+            onClick={handleSubmit}
+            disabled={!inputText.trim() || isProcessing}
+            className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-50 flex-shrink-0"
+          >
+            {isProcessing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+          </button>
         </div>
       </div>
     </div>
