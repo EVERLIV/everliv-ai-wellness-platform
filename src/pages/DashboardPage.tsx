@@ -70,20 +70,20 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 space-y-6 max-w-5xl">
         {/* Mobile-First Header с зеленым градиентом */}
-        <div className="bg-white rounded-3xl shadow-lg border border-green-100 p-6">
+        <div className="bg-card rounded-3xl shadow-lg border border-brand-primary/20 p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center">
-                <Heart className="h-6 w-6 text-green-600" />
+              <div className="w-12 h-12 bg-brand-primary/10 rounded-2xl flex items-center justify-center">
+                <Heart className="h-6 w-6 text-brand-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-foreground">
                   Привет, {userName}! 👋
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   Управляйте здоровьем с ИИ
                 </p>
               </div>
@@ -93,49 +93,49 @@ const DashboardPage = () => {
 
         <div className="space-y-6">
           {/* Индекс здоровья - зеленый блок */}
-          <div className="bg-white rounded-3xl shadow-lg border border-green-100 p-6">
+          <div className="bg-card rounded-3xl shadow-lg border border-brand-primary/20 p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-100 rounded-2xl flex items-center justify-center">
-                  <Heart className="h-5 w-5 text-green-600" />
+                <div className="w-8 h-8 bg-brand-primary/10 rounded-2xl flex items-center justify-center">
+                  <Heart className="h-5 w-5 text-brand-primary" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Индекс здоровья</h2>
-                  <p className="text-sm text-gray-600">Общий показатель</p>
+                  <h2 className="text-lg font-semibold text-foreground">Индекс здоровья</h2>
+                  <p className="text-sm text-muted-foreground">Общий показатель</p>
                 </div>
               </div>
               
               {analyticsLoading ? (
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand-primary"></div>
                 </div>
               ) : currentHealthScore !== undefined ? (
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-800 mb-2">
+                  <div className="text-3xl font-bold text-brand-primary mb-2">
                     {Math.round(currentHealthScore)}%
                   </div>
-                  <div className="w-20 bg-green-200 rounded-full h-2">
+                  <div className="w-20 bg-brand-primary/20 rounded-full h-2">
                     <div 
-                      className="bg-green-600 h-2 rounded-full transition-all duration-500"
+                      className="bg-brand-primary h-2 rounded-full transition-all duration-500"
                       style={{ width: `${currentHealthScore}%` }}
                     ></div>
                   </div>
                 </div>
               ) : (
                 <div className="text-center">
-                  <p className="text-sm text-gray-500">Нет данных</p>
+                  <p className="text-sm text-muted-foreground">Нет данных</p>
                 </div>
               )}
             </div>
             
             <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-green-50 rounded-2xl border border-green-100">
-                <div className="text-2xl font-bold text-green-800">{currentBiologicalAge}</div>
-                <div className="text-sm text-green-600 font-medium">Биовозраст</div>
+              <div className="text-center p-4 bg-brand-primary/5 rounded-2xl border border-brand-primary/10">
+                <div className="text-2xl font-bold text-brand-primary">{currentBiologicalAge}</div>
+                <div className="text-sm text-brand-primary/80 font-medium">Биовозраст</div>
               </div>
-              <div className="text-center p-4 bg-green-50 rounded-2xl border border-green-100">
-                <div className="text-2xl font-bold text-green-800">0.85</div>
-                <div className="text-sm text-green-600 font-medium">↓15% скорость</div>
+              <div className="text-center p-4 bg-brand-primary/5 rounded-2xl border border-brand-primary/10">
+                <div className="text-2xl font-bold text-brand-primary">0.85</div>
+                <div className="text-sm text-brand-primary/80 font-medium">↓15% скорость</div>
               </div>
             </div>
           </div>
