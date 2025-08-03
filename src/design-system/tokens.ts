@@ -7,13 +7,13 @@ export const designTokens = {
   // EVERLIV Brand Colors
   colors: {
     brand: {
-      primary: 'hsl(210, 85%, 45%)',          // #1D4ED8 - Основной синий
-      primaryDark: 'hsl(210, 85%, 35%)',     // #1E40AF - Темный синий  
-      primaryLight: 'hsl(210, 85%, 55%)',    // #3B82F6 - Светлый синий
-      secondary: 'hsl(160, 55%, 48%)',       // #10B981 - Изумрудный
-      accent: 'hsl(285, 85%, 65%)',          // #A855F7 - Фиолетовый
+      primary: 'hsl(160, 70%, 45%)',          // #10B981 - Основной зеленый как на картинке
+      primaryDark: 'hsl(160, 70%, 35%)',     // #047857 - Темный зеленый  
+      primaryLight: 'hsl(160, 70%, 55%)',    // #34D399 - Светлый зеленый
+      secondary: 'hsl(160, 70%, 45%)',       // #10B981 - Зеленый вместо изумрудного
+      accent: 'hsl(45, 95%, 55%)',           // #F59E0B - Желтый акцент как на картинке
       warning: 'hsl(45, 95%, 55%)',          // #F59E0B - Янтарный
-      success: 'hsl(140, 60%, 45%)',         // #059669 - Зеленый успех
+      success: 'hsl(160, 70%, 45%)',         // #10B981 - Зеленый успех
       error: 'hsl(0, 85%, 60%)',             // #EF4444 - Красный ошибок
     },
     
@@ -39,7 +39,7 @@ export const designTokens = {
       popover: 'hsl(0, 0%, 100%)',          // #FFFFFF - Фон поповеров
       border: 'hsl(214, 32%, 91%)',         // #E1E7EF - Границы
       input: 'hsl(214, 32%, 91%)',          // #E1E7EF - Поля ввода
-      ring: 'hsl(210, 85%, 45%)',           // Фокус outline
+      ring: 'hsl(160, 70%, 45%)',           // Фокус outline - зеленый
     },
   },
 
@@ -116,8 +116,8 @@ export const designTokens = {
     md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06)',
     lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05)',
     xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04)',
-    glow: '0 0 40px hsl(210, 85%, 45%, 0.3)',
-    colored: '0 10px 30px -10px hsl(210, 85%, 45%, 0.3)',
+    glow: '0 0 40px hsl(160, 70%, 45%, 0.3)',
+    colored: '0 10px 30px -10px hsl(160, 70%, 45%, 0.3)',
   },
 
   // Transitions
