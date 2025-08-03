@@ -20,23 +20,28 @@ const MobileBottomNavigation: React.FC = () => {
   const navItems: NavItem[] = [
     {
       icon: Home,
-      label: 'ИИ доктор',
+      label: 'Главная',
       href: '/dashboard',
     },
     {
       icon: Target,
-      label: 'Профиль здоровья',
-      href: '/dashboard/health-profile',
+      label: 'ИИ доктор',
+      href: '/ai-doctor',
     },
     {
       icon: BarChart3,
-      label: 'Анализы',
-      href: '/dashboard/diagnostics',
+      label: 'Профиль здоровья',
+      href: '/health-profile',
     },
     {
       icon: User,
+      label: 'Анализы',
+      href: '/diagnostics',
+    },
+    {
+      icon: BookOpen,
       label: 'Аналитика',
-      href: '/dashboard/analytics',
+      href: '/analytics',
     },
   ];
 
