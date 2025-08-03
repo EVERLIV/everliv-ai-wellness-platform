@@ -34,14 +34,14 @@ const MobileBottomNavigation: React.FC = () => {
       href: '/dashboard/diagnostics',
     },
     {
-      icon: BookOpen,
-      label: 'Обучение',
-      href: '/dashboard/learning',
-    },
-    {
       icon: User,
       label: 'Профиль',
       href: '/dashboard/profile',
+    },
+    {
+      icon: BookOpen,
+      label: 'Меню',
+      href: '/more',
     },
   ];
 

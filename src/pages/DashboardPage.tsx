@@ -71,15 +71,15 @@ const DashboardPage = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-6 px-5 pb-6">
+      <div className="space-y-3 pb-4">
         {/* Mobile-First Header с градиентом */}
-        <div className="bg-gradient-to-r from-brand-primary to-brand-primary-light rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <Heart className="h-6 w-6 text-white" />
+        <div className="bg-gradient-to-r from-brand-primary to-brand-primary-light rounded-xl p-4 text-white shadow-md">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+              <Heart className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold leading-tight">
+              <h1 className="text-lg font-bold leading-tight">
                 Привет, {userName}! 👋
               </h1>
               <p className="text-white/90 text-sm">
@@ -90,12 +90,12 @@ const DashboardPage = () => {
         </div>
 
 
-        <div className="space-y-5">
+        <div className="space-y-3">
           {/* Индекс здоровья - компактный светло-зеленый блок */}
-          <div className="bg-gradient-to-r from-neutral-100 to-neutral-50 border border-neutral-200 rounded-xl p-4 shadow-sm">
+          <div className="bg-gradient-to-r from-neutral-100 to-neutral-50 border border-neutral-200 rounded-lg p-3 shadow-sm">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-brand-primary/10 rounded-lg flex items-center justify-center">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 bg-brand-primary/10 rounded-lg flex items-center justify-center">
                   <Heart className="h-4 w-4 text-brand-primary" />
                 </div>
                 <div>
@@ -110,10 +110,10 @@ const DashboardPage = () => {
                 </div>
               ) : currentHealthScore !== undefined ? (
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-brand-primary mb-1">
+                  <div className="text-xl font-bold text-brand-primary mb-1">
                     {Math.round(currentHealthScore)}%
                   </div>
-                  <div className="w-16 bg-neutral-200 rounded-full h-1.5">
+                  <div className="w-14 bg-neutral-200 rounded-full h-1.5">
                     <div 
                       className="bg-brand-primary h-1.5 rounded-full transition-all duration-500"
                       style={{ width: `${currentHealthScore}%` }}
@@ -127,13 +127,13 @@ const DashboardPage = () => {
               )}
             </div>
             
-            <div className="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-neutral-200">
+            <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-neutral-200">
               <div className="text-center bg-white/50 rounded-lg p-2">
-                <div className="text-lg font-bold text-foreground">{currentBiologicalAge}</div>
+                <div className="text-base font-bold text-foreground">{currentBiologicalAge}</div>
                 <div className="text-xs text-muted-foreground">Биовозраст</div>
               </div>
               <div className="text-center bg-white/50 rounded-lg p-2">
-                <div className="text-lg font-bold text-foreground">0.85</div>
+                <div className="text-base font-bold text-foreground">0.85</div>
                 <div className="text-xs text-brand-success">↓15% скорость</div>
               </div>
             </div>
