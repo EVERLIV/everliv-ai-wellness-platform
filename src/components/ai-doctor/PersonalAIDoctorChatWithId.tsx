@@ -151,68 +151,68 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
     <div className="h-full flex flex-col bg-background">
       {/* Compact Mobile Header */}
       {isMobile ? (
-        <div className="flex items-center justify-between p-3 bg-white rounded-t-lg shadow-sm">
+        <div className="flex items-center justify-between px-3 py-2 bg-white shadow-sm">
           <Button
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="p-2 h-auto"
+            className="p-1 h-auto"
           >
-            <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+            <ArrowLeft className="h-4 w-4 text-muted-foreground" />
           </Button>
           
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-brand-accent/10 rounded-lg flex items-center justify-center">
-              <Brain className="h-4 w-4 text-brand-accent" />
+            <div className="w-6 h-6 bg-brand-accent/10 rounded-lg flex items-center justify-center">
+              <Brain className="h-3 w-3 text-brand-accent" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-foreground">Персональный ИИ-Доктор</h2>
+              <h2 className="text-xs font-semibold text-foreground">Персональный ИИ-Доктор</h2>
               <p className="text-xs text-muted-foreground">Премиум консультации</p>
             </div>
           </div>
           
-          <div className="w-8"></div>
+          <div className="w-6"></div>
         </div>
       ) : (
-        <div className="flex items-center justify-between p-4 bg-white rounded-t-lg shadow-sm">
+        <div className="flex items-center justify-between px-4 py-2 bg-white shadow-sm">
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
               onClick={onBack}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground p-1"
             >
-              <ArrowLeft className="h-5 w-5 mr-2" />
-              <span className="text-sm">Назад к выбору чатов</span>
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              <span className="text-xs">Назад</span>
             </Button>
           </div>
         </div>
       )}
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-2 bg-gray-50/50" style={{ scrollBehavior: 'smooth' }}>
-        <div className="space-y-3 max-w-3xl mx-auto">
+      {/* Messages Area - 75% of screen */}
+      <div className="flex-1 overflow-y-auto px-2 py-1 bg-gray-50/50" style={{ scrollBehavior: 'smooth', minHeight: '75vh' }}>
+        <div className="space-y-2 max-w-3xl mx-auto">
           {/* Quick Actions только если нет сообщений */}
           {allMessages.length === 0 && (
-            <div className="text-center py-8">
-              <h3 className="text-xl font-bold text-foreground mb-2">Персональная консультация</h3>
-              <p className="text-muted-foreground mb-6">Выберите быстрое действие или задайте свой вопрос</p>
+            <div className="text-center py-4">
+              <h3 className="text-lg font-bold text-foreground mb-1">Персональная консультация</h3>
+              <p className="text-muted-foreground mb-4 text-sm">Выберите быстрое действие или задайте свой вопрос</p>
               
               {/* Quick Actions */}
-              <div className="grid grid-cols-1 gap-3 max-w-xs mx-auto">
+              <div className="grid grid-cols-1 gap-2 max-w-xs mx-auto">
                 {suggestedQuestions.map((question, index) => {
                   const IconComponent = question.icon;
                   return (
                     <button
                       key={index}
-                      className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 border border-border"
+                      className="p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 border border-border"
                       onClick={() => handleSuggestedQuestion(question.text)}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-brand-accent rounded-lg flex items-center justify-center">
-                          <IconComponent className="w-5 h-5 text-white" />
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-brand-accent rounded-lg flex items-center justify-center">
+                          <IconComponent className="w-4 h-4 text-white" />
                         </div>
-                        <p className="text-sm font-medium text-foreground text-left">{question.text}</p>
+                        <p className="text-xs font-medium text-foreground text-left">{question.text}</p>
                       </div>
                     </button>
                   );
@@ -222,22 +222,22 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           )}
 
           {allMessages.map((message) => (
-            <div key={message.id} className="flex items-start gap-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+            <div key={message.id} className="flex items-start gap-2">
+              <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
                 message.role === "user" 
                   ? "bg-white border border-border" 
                   : "bg-brand-accent text-white"
               }`}>
                 {message.role === "user" ? (
-                  <User className="h-4 w-4" />
+                  <User className="h-3 w-3" />
                 ) : (
-                  <Brain className="h-4 w-4" />
+                  <Brain className="h-3 w-3" />
                 )}
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-foreground">
+                <div className="flex items-center gap-1 mb-1">
+                  <span className="text-xs font-medium text-foreground">
                     {message.role === "user" ? "Вы" : "Персональный ИИ Доктор"}
                   </span>
                   <span className="text-xs text-muted-foreground">
@@ -248,19 +248,19 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                   </span>
                 </div>
                 
-                <div className={`p-3 rounded-lg ${
+                <div className={`p-2 rounded-lg ${
                   message.role === "user" 
                     ? "bg-white border border-border" 
                     : "bg-brand-accent/10 border border-brand-accent/20"
                 }`}>
                   {message.role === "assistant" && message.content.includes('<div') ? (
                     <div 
-                      className="text-sm text-foreground leading-relaxed"
+                      className="text-xs text-foreground leading-relaxed"
                       style={{ wordBreak: 'break-word' }}
                       dangerouslySetInnerHTML={{ __html: message.content }}
                     />
                   ) : (
-                    <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+                    <div className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
                       {message.content}
                     </div>
                   )}
@@ -270,18 +270,18 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           ))}
           
           {isProcessing && (
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-brand-accent text-white rounded-lg flex items-center justify-center flex-shrink-0">
-                <Brain className="h-4 w-4" />
+            <div className="flex items-start gap-2">
+              <div className="w-6 h-6 bg-brand-accent text-white rounded-lg flex items-center justify-center flex-shrink-0">
+                <Brain className="h-3 w-3" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-foreground">Персональный ИИ Доктор</span>
+                <div className="flex items-center gap-1 mb-1">
+                  <span className="text-xs font-medium text-foreground">Персональный ИИ Доктор</span>
                 </div>
-                <div className="p-3 rounded-lg bg-brand-accent/10 border border-brand-accent/20">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
-                    <span className="text-sm">Анализирую данные...</span>
+                <div className="p-2 rounded-lg bg-brand-accent/10 border border-brand-accent/20">
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Loader2 className="h-3 w-3 animate-spin flex-shrink-0" />
+                    <span className="text-xs">Анализирую данные...</span>
                   </div>
                 </div>
               </div>
@@ -291,11 +291,11 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Modern Input Panel */}
-      <div className="bg-white border-t border-border p-4">
-        <div className="max-w-3xl mx-auto">
+      {/* Compact Input Panel - 25% of screen */}
+      <div className="bg-white border-t border-border py-2" style={{ maxHeight: '25vh' }}>
+        <div className="max-w-3xl mx-auto px-2">
           <div className="relative">
-            <div className="flex items-center gap-3 bg-white rounded-2xl shadow-lg border border-gray-200 px-4 py-3">
+            <div className="flex items-center gap-2 bg-white rounded-2xl shadow-lg border border-gray-200 px-3 py-2">
               <textarea
                 ref={textareaRef}
                 placeholder="Что вас беспокоит? Как я могу помочь?"
@@ -303,9 +303,9 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={isProcessing}
-                className="flex-1 min-h-[20px] max-h-32 resize-none outline-none text-sm placeholder:text-muted-foreground bg-transparent"
+                className="flex-1 min-h-[16px] max-h-16 resize-none outline-none text-xs placeholder:text-muted-foreground bg-transparent"
                 style={{ 
-                  lineHeight: '1.4'
+                  lineHeight: '1.2'
                 }}
                 rows={1}
               />
@@ -314,33 +314,33 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                 onClick={handleSubmit}
                 disabled={!inputText.trim() || isProcessing}
                 size="sm"
-                className="h-10 w-10 p-0 rounded-full bg-gradient-to-r from-brand-accent to-brand-accent/80 hover:from-brand-accent hover:to-brand-accent shadow-lg hover:shadow-xl transition-all duration-200"
+                className="h-6 w-6 p-0 rounded-full bg-gradient-to-r from-brand-accent to-brand-accent/80 hover:from-brand-accent hover:to-brand-accent shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 {isProcessing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-3 w-3 animate-spin" />
                 ) : (
-                  <Send className="h-4 w-4" />
+                  <Send className="h-3 w-3" />
                 )}
               </Button>
             </div>
             
-            <p className="text-xs text-muted-foreground text-center mt-3">
+            <p className="text-xs text-muted-foreground text-center mt-1">
               Персональный ИИ-доктор анализирует ваши данные для точных рекомендаций.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="flex items-center justify-center py-3 px-6 bg-gradient-to-r from-gray-50 to-white border-t border-gray-100">
+      {/* Compact Bottom Navigation */}
+      <div className="flex items-center justify-center py-1 px-4 bg-gradient-to-r from-gray-50 to-white border-t border-gray-100">
         <div className="flex items-center justify-between w-full max-w-sm">
           {/* Чаты */}
           <button 
             onClick={handleChatHistoryClick}
-            className="flex flex-col items-center gap-1 group"
+            className="flex flex-col items-center gap-0.5 group"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200 group-hover:scale-105">
-              <MessageSquare className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-200 group-hover:scale-105">
+              <MessageSquare className="w-4 h-4 text-white" />
             </div>
             <span className="text-xs text-gray-600 font-medium">Чаты</span>
           </button>
@@ -348,10 +348,10 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           {/* Камера */}
           <button 
             onClick={handleCameraClick}
-            className="flex flex-col items-center gap-1 group"
+            className="flex flex-col items-center gap-0.5 group"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200 group-hover:scale-105">
-              <Camera className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-200 group-hover:scale-105">
+              <Camera className="w-4 h-4 text-white" />
             </div>
             <span className="text-xs text-gray-600 font-medium">Камера</span>
           </button>
@@ -359,10 +359,10 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           {/* Новый чат - центральная кнопка */}
           <button 
             onClick={onCreateNewChat}
-            className="flex flex-col items-center gap-1 group"
+            className="flex flex-col items-center gap-0.5 group"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-200 group-hover:scale-110">
-              <Plus className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200 group-hover:scale-110">
+              <Plus className="w-5 h-5 text-white" />
             </div>
             <span className="text-xs text-green-600 font-bold">Новый</span>
           </button>
@@ -370,10 +370,10 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           {/* Файлы */}
           <button 
             onClick={handleFileClick}
-            className="flex flex-col items-center gap-1 group"
+            className="flex flex-col items-center gap-0.5 group"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200 group-hover:scale-105">
-              <FileText className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-200 group-hover:scale-105">
+              <FileText className="w-4 h-4 text-white" />
             </div>
             <span className="text-xs text-gray-600 font-medium">Файлы</span>
           </button>
@@ -381,14 +381,14 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
           {/* Микрофон */}
           <button 
             onClick={handleMicClick}
-            className="flex flex-col items-center gap-1 group"
+            className="flex flex-col items-center gap-0.5 group"
           >
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200 group-hover:scale-105 ${
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-200 group-hover:scale-105 ${
               isRecording 
                 ? 'bg-gradient-to-br from-red-500 to-red-600 animate-pulse' 
                 : 'bg-gradient-to-br from-indigo-500 to-purple-600'
             }`}>
-              <Mic className="w-5 h-5 text-white" />
+              <Mic className="w-4 h-4 text-white" />
             </div>
             <span className={`text-xs font-medium ${isRecording ? 'text-red-600' : 'text-gray-600'}`}>
               {isRecording ? 'Запись' : 'Голос'}
