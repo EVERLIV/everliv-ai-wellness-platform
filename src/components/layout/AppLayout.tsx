@@ -244,9 +244,6 @@ export function AppLayout({ children }: AppLayoutProps) {
                 {children}
               </div>
             </main>
-            
-            {/* Футер */}
-            <AppFooter />
           </div>
         </SidebarProvider>
       </div>

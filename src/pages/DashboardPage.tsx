@@ -90,143 +90,64 @@ const DashboardPage = () => {
         </div>
 
 
-        {isMobile ? (
-          // Мобильная версия с новым дизайном
-          <div className="space-y-5">
-            {/* 1. Индекс здоровья - яркая карточка */}
-            <div className="bg-gradient-to-br from-brand-primary to-brand-primary-light rounded-2xl p-6 text-white shadow-lg">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Heart className="h-5 w-5 text-white" />
+        <div className="space-y-5">
+          {/* Индекс здоровья - компактный светло-зеленый блок */}
+          <div className="bg-gradient-to-r from-neutral-100 to-neutral-50 border border-neutral-200 rounded-xl p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-brand-primary/10 rounded-lg flex items-center justify-center">
+                  <Heart className="h-4 w-4 text-brand-primary" />
                 </div>
-                <h2 className="text-lg font-bold">Индекс здоровья</h2>
+                <div>
+                  <h2 className="text-sm font-semibold text-foreground">Индекс здоровья</h2>
+                  <p className="text-xs text-muted-foreground">Общий показатель</p>
+                </div>
               </div>
               
               {analyticsLoading ? (
-                <div className="text-center py-4">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mx-auto mb-2"></div>
-                  <p className="text-sm text-white/80">Загружаем...</p>
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-brand-primary"></div>
                 </div>
               ) : currentHealthScore !== undefined ? (
-                <div className="text-center mb-6">
-                  <div className="text-4xl font-bold mb-2 text-white">
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-brand-primary mb-1">
                     {Math.round(currentHealthScore)}%
                   </div>
-                  <div className="w-full bg-white/20 rounded-full h-3 mb-2">
+                  <div className="w-16 bg-neutral-200 rounded-full h-1.5">
                     <div 
-                      className="bg-brand-accent h-3 rounded-full transition-all duration-500"
+                      className="bg-brand-primary h-1.5 rounded-full transition-all duration-500"
                       style={{ width: `${currentHealthScore}%` }}
                     ></div>
                   </div>
-                  <p className="text-sm text-white/80">Данные из ИИ-аналитики</p>
                 </div>
               ) : (
-                <div className="text-center py-6">
-                  <Heart className="h-8 w-8 text-white/60 mx-auto mb-2" />
-                  <p className="text-sm text-white/80">Заполните профиль для аналитики</p>
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">Нет данных</p>
                 </div>
               )}
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
-                  <div className="text-2xl font-bold text-white mb-1">
-                    {currentBiologicalAge}
-                  </div>
-                  <div className="text-xs text-white/80">Биовозраст</div>
-                  <div className="text-xs text-white/70">лет</div>
-                </div>
-                
-                <div className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
-                  <div className="text-2xl font-bold text-white mb-1">
-                    0.85
-                  </div>
-                  <div className="text-xs text-white/80">Скорость</div>
-                  <div className="text-xs text-brand-accent font-medium">↓15%</div>
-                </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-neutral-200">
+              <div className="text-center bg-white/50 rounded-lg p-2">
+                <div className="text-lg font-bold text-foreground">{currentBiologicalAge}</div>
+                <div className="text-xs text-muted-foreground">Биовозраст</div>
+              </div>
+              <div className="text-center bg-white/50 rounded-lg p-2">
+                <div className="text-lg font-bold text-foreground">0.85</div>
+                <div className="text-xs text-brand-success">↓15% скорость</div>
               </div>
             </div>
-
-            {/* 2. Мои цели - улучшенный стиль */}
-            <MyGoalsSection />
-
-            {/* 3. Быстрые действия - с обновленными стилями */}
-            <DashboardQuickActionsGrid />
-
-            {/* 4. Метрики и риски */}
-            <PriorityMetricsSection />
-
-            {/* 5. Чаты с ИИ */}
-            <DashboardChatsList />
           </div>
-        ) : (
-          // Единый мобильный дизайн - убираем разделение
-          <div className="space-y-5">
-            {/* Индекс здоровья - мобильный дизайн */}
-            <div className="bg-gradient-to-br from-brand-primary to-brand-primary-light rounded-2xl p-6 text-white shadow-lg">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Heart className="h-5 w-5 text-white" />
-                </div>
-                <h2 className="text-lg font-bold">Индекс здоровья</h2>
-              </div>
-              
-              {analyticsLoading ? (
-                <div className="text-center py-4">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mx-auto mb-2"></div>
-                  <p className="text-sm text-white/80">Загружаем...</p>
-                </div>
-              ) : currentHealthScore !== undefined ? (
-                <div className="text-center mb-6">
-                  <div className="text-4xl font-bold mb-2 text-white">
-                    {Math.round(currentHealthScore)}%
-                  </div>
-                  <div className="w-full bg-white/20 rounded-full h-3 mb-2">
-                    <div 
-                      className="bg-brand-accent h-3 rounded-full transition-all duration-500"
-                      style={{ width: `${currentHealthScore}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-sm text-white/80">Данные из ИИ-аналитики</p>
-                </div>
-              ) : (
-                <div className="text-center py-6">
-                  <Heart className="h-8 w-8 text-white/60 mx-auto mb-2" />
-                  <p className="text-sm text-white/80">Заполните профиль для аналитики</p>
-                </div>
-              )}
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
-                  <div className="text-2xl font-bold text-white mb-1">
-                    {currentBiologicalAge}
-                  </div>
-                  <div className="text-xs text-white/80">Биовозраст</div>
-                  <div className="text-xs text-white/70">лет</div>
-                </div>
-                
-                <div className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
-                  <div className="text-2xl font-bold text-white mb-1">
-                    0.85
-                  </div>
-                  <div className="text-xs text-white/80">Скорость</div>
-                  <div className="text-xs text-brand-accent font-medium">↓15%</div>
-                </div>
-              </div>
-            </div>
 
-            {/* Мои цели */}
-            <MyGoalsSection />
+          {/* Мои цели */}
+          <MyGoalsSection />
 
-            {/* Быстрые действия */}
-            <DashboardQuickActionsGrid />
+          {/* Быстрые действия */}
+          <DashboardQuickActionsGrid />
 
-            {/* Метрики и риски */}
-            <PriorityMetricsSection />
-
-            {/* Чаты с ИИ */}
-            <DashboardChatsList />
-          </div>
-        )}
+          {/* Метрики и риски */}
+          <PriorityMetricsSection />
+        </div>
       </div>
     </AppLayout>
   );
