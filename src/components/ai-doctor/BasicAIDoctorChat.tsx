@@ -4,7 +4,7 @@ import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Microscope, Pill, TrendingUp, Heart, Apple } from "lucide-react";
+import { Microscope, Pill, TrendingUp, Heart, Apple, Stethoscope } from "lucide-react";
 
 const iconMap = {
   microscope: Microscope,
@@ -38,10 +38,8 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
   const maxMessages = 3;
 
   const suggestedQuestions = [
-    { text: "У меня болит голова, что делать?", icon: "heart" },
-    { text: "Какие витамины нужны зимой?", icon: "pill" },
-    { text: "Как улучшить качество сна?", icon: "trending-up" },
-    { text: "Что означают мои симптомы?", icon: "book-open" },
+    { text: "У меня болит голова, что делать?", icon: Heart },
+    { text: "Какие витамины нужны зимой?", icon: Apple },
   ];
 
   useEffect(() => {
@@ -235,6 +233,38 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-2 bg-gray-50/50" style={{ scrollBehavior: 'smooth' }}>
         <div className="space-y-3 max-w-3xl mx-auto">
+          {/* Welcome Screen with Quick Actions */}
+          {messages.length === 1 && showSuggestedQuestions && !isLimitReached && (
+            <div className="text-center py-8">
+              <div className="w-20 h-20 bg-gradient-to-r from-brand-primary to-brand-primaryLight rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+                <Stethoscope className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-2">Добро пожаловать!</h3>
+              <p className="text-muted-foreground mb-6">Выберите быстрое действие или опишите свои симптомы</p>
+              
+              {/* Quick Actions */}
+              <div className="grid grid-cols-1 gap-3 max-w-xs mx-auto">
+                {suggestedQuestions.map((question, index) => {
+                  const IconComponent = question.icon;
+                  return (
+                    <button
+                      key={index}
+                      className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 border border-border"
+                      onClick={() => handleSuggestedQuestion(question.text)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-brand-primary rounded-lg flex items-center justify-center">
+                          <IconComponent className="w-5 h-5 text-white" />
+                        </div>
+                        <p className="text-sm font-medium text-foreground text-left">{question.text}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {messages.map((message) => (
             <div key={message.id} className="flex items-start gap-3">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
@@ -296,46 +326,6 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
         </div>
         <div ref={messagesEndRef} />
       </div>
-
-      {/* Popular Questions */}
-      {showSuggestedQuestions && !isLimitReached && (
-        <div className="bg-white border-t border-border p-4">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-4">
-              <h3 className="text-base font-semibold text-foreground mb-1">
-                Популярные вопросы
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Выберите вопрос или задайте свой
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {suggestedQuestions.map((question, index) => {
-                const IconComponent = iconMap[question.icon as keyof typeof iconMap] || BookOpen;
-                
-                return (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    onClick={() => handleSuggestedQuestion(question.text)}
-                    className="h-auto p-3 text-left justify-start hover:bg-brand-primary/5 hover:border-brand-primary/20 min-h-[60px]"
-                  >
-                    <div className="flex items-center gap-3 w-full">
-                      <div className="w-8 h-8 bg-brand-primary/10 rounded-lg flex items-center justify-center text-brand-primary flex-shrink-0">
-                        <IconComponent className="h-4 w-4" />
-                      </div>
-                      <span className="text-sm text-foreground text-left leading-tight">
-                        {question.text}
-                      </span>
-                    </div>
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Input Panel */}
       <div className="bg-white border-t border-border p-4">
