@@ -52,14 +52,7 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
       }
     }
 
-    // Приветственное сообщение
-    const welcomeMessage: Message = {
-      id: 'welcome',
-      role: 'assistant',
-      content: 'Привет! Я базовый ИИ-доктор EVERLIV. У вас есть 3 бесплатных сообщения в день. Задайте вопрос о здоровье.',
-      timestamp: new Date()
-    };
-    setMessages([welcomeMessage]);
+    // Убираем приветственное сообщение
   }, [user]);
 
   useEffect(() => {
@@ -178,7 +171,7 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
   };
 
   const isLimitReached = messageCount >= maxMessages;
-  const showSuggestedQuestions = messages.length <= 1;
+  const showSuggestedQuestions = messages.length === 0;
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -234,12 +227,9 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
       <div className="flex-1 overflow-y-auto p-2 bg-gray-50/50" style={{ scrollBehavior: 'smooth' }}>
         <div className="space-y-3 max-w-3xl mx-auto">
           {/* Welcome Screen with Quick Actions */}
-          {messages.length === 1 && showSuggestedQuestions && !isLimitReached && (
+          {messages.length === 0 && showSuggestedQuestions && !isLimitReached && (
             <div className="text-center py-8">
-              <div className="w-20 h-20 bg-gradient-to-r from-brand-primary to-brand-primaryLight rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl">
-                <Stethoscope className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">Добро пожаловать!</h3>
+              <h3 className="text-xl font-bold text-foreground mb-2">Задайте вопрос о здоровье</h3>
               <p className="text-muted-foreground mb-6">Выберите быстрое действие или опишите свои симптомы</p>
               
               {/* Quick Actions */}
@@ -327,11 +317,11 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Panel */}
+      {/* Modern Input Panel */}
       <div className="bg-white border-t border-border p-4">
         <div className="max-w-3xl mx-auto">
           {isLimitReached ? (
-            <div className="text-center p-6 bg-gradient-to-br from-brand-accent/10 to-brand-primary/10 rounded-lg border border-brand-primary/20">
+            <div className="text-center p-6 bg-gradient-to-br from-brand-accent/10 to-brand-primary/10 rounded-2xl border border-brand-primary/20">
               <h3 className="text-lg font-semibold mb-2 text-foreground">Дневной лимит исчерпан</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Для неограниченного общения оформите премиум подписку
@@ -346,34 +336,39 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
               </Button>
             </div>
           ) : (
-            <div className="flex gap-3 items-end">
-              <div className="flex-1 min-w-0">
+            <div className="relative">
+              <div className="flex items-center gap-3 bg-white rounded-2xl shadow-lg border border-gray-200 px-4 py-3">
                 <textarea
                   ref={textareaRef}
-                  placeholder="Задайте вопрос о здоровье..."
+                  placeholder="Опишите свои симптомы..."
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={handleKeyDown}
                   disabled={isProcessing}
-                  className="w-full min-h-[48px] p-3 resize-none border border-border rounded-lg bg-background placeholder:text-muted-foreground overflow-hidden focus:border-brand-primary focus:outline-none text-sm"
+                  className="flex-1 min-h-[20px] max-h-32 resize-none outline-none text-sm placeholder:text-muted-foreground bg-transparent"
                   style={{ 
-                    lineHeight: '1.4',
-                    maxHeight: isMobile ? '20vh' : '30vh'
+                    lineHeight: '1.4'
                   }}
                   rows={1}
                 />
+                
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!inputText.trim() || isProcessing}
+                  size="sm"
+                  className="h-10 w-10 p-0 rounded-full bg-gradient-to-r from-brand-primary to-brand-primaryLight hover:from-brand-primaryDark hover:to-brand-primary shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                </Button>
               </div>
-              <Button
-                onClick={handleSubmit}
-                disabled={!inputText.trim() || isProcessing}
-                className="h-[48px] w-[48px] p-0 flex-shrink-0 bg-brand-primary hover:bg-brand-primaryDark"
-              >
-                {isProcessing ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Send className="h-5 w-5" />
-                )}
-              </Button>
+              
+              <p className="text-xs text-muted-foreground text-center mt-3">
+                ИИ может ошибаться. Проконсультируйтесь с врачом для серьезных вопросов.
+              </p>
             </div>
           )}
         </div>
