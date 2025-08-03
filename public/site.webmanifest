@@ -6,11 +6,15 @@
   "categories": ["health", "medical", "lifestyle"],
   "lang": "ru",
   "scope": "/",
-  "start_url": "/",
+  "start_url": "/dashboard",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#3b82f6",
   "background_color": "#ffffff",
+  "edge_side_panel": {
+    "preferred_width": 320
+  },
+  "display_override": ["window-controls-overlay", "standalone"],
   "icons": [
     {
       "src": "/favicon.ico",
