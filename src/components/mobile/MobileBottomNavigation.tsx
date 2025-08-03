@@ -65,9 +65,9 @@ const MobileBottomNavigation: React.FC = () => {
                 key={item.href}
                 to={item.href}
                 className={cn(
-                  "flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-all duration-200 min-w-[64px]",
+                  "flex items-center gap-2 py-2 px-3 rounded-lg transition-all duration-200 min-w-[44px] justify-center",
                   active 
-                    ? "text-white bg-brand-primary shadow-lg scale-105" 
+                    ? "text-white bg-brand-primary shadow-lg scale-105 min-w-[120px] justify-start" 
                     : "text-muted-foreground hover:text-brand-primary hover:bg-brand-primary/10"
                 )}
               >
@@ -79,10 +79,11 @@ const MobileBottomNavigation: React.FC = () => {
                     </span>
                   )}
                 </div>
-                <span className={cn(
-                  "text-xs font-medium leading-tight",
-                  active && "font-semibold"
-                )}>{item.label}</span>
+                {active && (
+                  <span className="text-xs font-semibold leading-tight">
+                    {item.label}
+                  </span>
+                )}
               </Link>
             );
           })}

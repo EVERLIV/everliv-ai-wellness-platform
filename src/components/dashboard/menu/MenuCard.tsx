@@ -21,7 +21,7 @@ const MenuCard: React.FC<MenuCardProps> = ({ icon, title, description, href }) =
       >
         <CardContent className="space-y-0">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-brand-secondary/10 rounded-xl flex items-center justify-center text-brand-secondary group-hover:bg-brand-secondary/20 transition-colors">
+            <div className="w-12 h-12 bg-brand-secondary/10 rounded-lg flex items-center justify-center text-brand-secondary group-hover:bg-brand-secondary/20 transition-colors">
               {icon}
             </div>
             <div className="flex-1">
