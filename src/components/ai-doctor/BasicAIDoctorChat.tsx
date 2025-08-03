@@ -210,7 +210,7 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
   const shouldShowSuggestedQuestions = messages.length === 0;
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-background">
       {/* Full Width Header */}
       {isMobile && (
         <div className="w-screen flex items-center justify-between px-2 py-1 bg-white shadow-sm fixed top-0 left-0 z-10">
