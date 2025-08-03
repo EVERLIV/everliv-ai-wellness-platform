@@ -159,95 +159,72 @@ const DashboardPage = () => {
             <DashboardChatsList />
           </div>
         ) : (
-          // Десктопная версия - оригинальная компоновка
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Левая колонка - Быстрые действия */}
-            <div className="lg:col-span-2 space-y-6">
-              <DashboardQuickActionsGrid />
-
-              {/* Приоритетные метрики */}
-              <PriorityMetricsSection />
-            </div>
-
-            {/* Правая колонка - Данные здоровья */}
-            <div className="space-y-6">
-              {/* Индекс здоровья */}
-              <Card className="shadow-sm border-gray-200/80">
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-gray-900">
-                    <Heart className="h-4 w-4 text-red-500" />
-                    <span className="text-base font-semibold">Индекс здоровья</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {analyticsLoading ? (
-                    <div className="text-center py-6">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                      <p className="text-xs text-gray-600">Загружаем индекс здоровья...</p>
-                    </div>
-                  ) : currentHealthScore !== undefined ? (
-                    <div className="text-center">
-                      <div className={`text-3xl font-bold mb-2 ${getScoreColor(currentHealthScore)}`}>
-                        {Math.round(currentHealthScore)}%
-                      </div>
-                      <Progress 
-                        value={currentHealthScore} 
-                        className={`h-2 ${getScoreGradient(currentHealthScore)}`}
-                      />
-                      {analytics && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          Данные из ИИ-аналитики
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center py-6">
-                      <Heart className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                      <p className="text-xs text-gray-600">Нет данных об индексе здоровья</p>
-                      <p className="text-xs text-gray-500 mt-1">Заполните профиль для получения аналитики</p>
-                    </div>
-                  )}
-                  
-                  <div className="grid grid-cols-2 gap-3 pt-3 border-t">
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 mb-1">
-                        <Activity className="h-3 w-3 text-blue-500" />
-                        <span className="text-xs text-gray-600">Биовозраст</span>
-                      </div>
-                      <div className="text-xl font-semibold text-gray-900">
-                        {currentBiologicalAge}
-                      </div>
-                      <div className="text-xs text-gray-500">лет</div>
-                      {!healthProfile && (
-                        <p className="text-xs text-orange-500 mt-1">
-                          Создайте профиль
-                        </p>
-                      )}
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1 mb-1">
-                        <Activity className="h-3 w-3 text-blue-500" />
-                        <span className="text-xs text-gray-600">Скорость старения</span>
-                      </div>
-                      <div className="text-xl font-semibold text-gray-900">
-                        0.85
-                      </div>
-                      <div className="text-xs text-gray-500">коэффициент</div>
-                      <div className="text-xs text-green-600 mt-1">
-                        ↓15% улучшение
-                      </div>
-                    </div>
+          // Единый мобильный дизайн - убираем разделение
+          <div className="space-y-5">
+            {/* Индекс здоровья - мобильный дизайн */}
+            <div className="bg-gradient-to-br from-brand-primary to-brand-primary-light rounded-2xl p-6 text-white shadow-lg">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Heart className="h-5 w-5 text-white" />
+                </div>
+                <h2 className="text-lg font-bold">Индекс здоровья</h2>
+              </div>
+              
+              {analyticsLoading ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mx-auto mb-2"></div>
+                  <p className="text-sm text-white/80">Загружаем...</p>
+                </div>
+              ) : currentHealthScore !== undefined ? (
+                <div className="text-center mb-6">
+                  <div className="text-4xl font-bold mb-2 text-white">
+                    {Math.round(currentHealthScore)}%
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Мои цели */}
-              <MyGoalsSection />
-
-              {/* Истории чатов с ИИ */}
-              <DashboardChatsList />
+                  <div className="w-full bg-white/20 rounded-full h-3 mb-2">
+                    <div 
+                      className="bg-brand-accent h-3 rounded-full transition-all duration-500"
+                      style={{ width: `${currentHealthScore}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-sm text-white/80">Данные из ИИ-аналитики</p>
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <Heart className="h-8 w-8 text-white/60 mx-auto mb-2" />
+                  <p className="text-sm text-white/80">Заполните профиль для аналитики</p>
+                </div>
+              )}
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
+                  <div className="text-2xl font-bold text-white mb-1">
+                    {currentBiologicalAge}
+                  </div>
+                  <div className="text-xs text-white/80">Биовозраст</div>
+                  <div className="text-xs text-white/70">лет</div>
+                </div>
+                
+                <div className="bg-white/10 rounded-xl p-4 text-center backdrop-blur-sm">
+                  <div className="text-2xl font-bold text-white mb-1">
+                    0.85
+                  </div>
+                  <div className="text-xs text-white/80">Скорость</div>
+                  <div className="text-xs text-brand-accent font-medium">↓15%</div>
+                </div>
+              </div>
             </div>
+
+            {/* Мои цели */}
+            <MyGoalsSection />
+
+            {/* Быстрые действия */}
+            <DashboardQuickActionsGrid />
+
+            {/* Метрики и риски */}
+            <PriorityMetricsSection />
+
+            {/* Чаты с ИИ */}
+            <DashboardChatsList />
           </div>
         )}
       </div>
