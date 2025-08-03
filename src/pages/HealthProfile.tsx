@@ -1,13 +1,13 @@
-
 import React from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import MobileHealthProfileDisplay from "@/components/health-profile/MobileHealthProfileDisplay";
+import HealthProfileDashboard from "@/components/health-profile/HealthProfileDashboard";
 import StepByStepHealthProfileForm from "@/components/health-profile/StepByStepHealthProfileForm";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { HealthProfileData } from "@/types/healthProfile";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { Heart } from "lucide-react";
 
 const HealthProfile: React.FC = () => {
   const { user } = useAuth();
@@ -72,22 +72,20 @@ const HealthProfile: React.FC = () => {
   if (!user && !isLoading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center max-w-md mx-auto">
-            <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-              <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center px-4">
+          <div className="text-center max-w-md mx-auto bg-white rounded-3xl shadow-lg p-8">
+            <div className="w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
+              <Heart className="w-8 h-8 text-green-600" />
             </div>
-            <h3 className="text-xl font-bold mb-2">
+            <h3 className="text-2xl font-bold mb-3 text-gray-900">
               Требуется авторизация
             </h3>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-gray-600 mb-8 leading-relaxed">
               Для доступа к профилю здоровья необходимо войти в систему
             </p>
             <button 
               onClick={() => navigate('/login')}
-              className="px-8 py-3 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium rounded-md"
+              className="w-full px-8 py-4 bg-green-600 text-white hover:bg-green-700 transition-colors font-medium rounded-2xl shadow-lg"
             >
               Войти в систему
             </button>
@@ -100,10 +98,10 @@ const HealthProfile: React.FC = () => {
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Загрузка профиля здоровья...</p>
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center px-4">
+          <div className="text-center bg-white rounded-3xl shadow-lg p-8">
+            <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <p className="text-gray-600 text-lg">Загрузка профиля здоровья...</p>
           </div>
         </div>
       </AppLayout>
@@ -113,30 +111,28 @@ const HealthProfile: React.FC = () => {
   if (error) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center max-w-md mx-auto">
-            <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-              <svg className="w-8 h-8 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center px-4">
+          <div className="text-center max-w-md mx-auto bg-white rounded-3xl shadow-lg p-8">
+            <div className="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center">
+              <Heart className="w-8 h-8 text-red-600" />
             </div>
-            <h3 className="text-xl font-bold mb-2">
+            <h3 className="text-2xl font-bold mb-3 text-gray-900">
               Ошибка загрузки профиля
             </h3>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-gray-600 mb-8 leading-relaxed">
               {error}
             </p>
             <div className="space-y-4">
               <button 
                 onClick={() => window.location.reload()}
-                className="block w-full px-8 py-3 bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors font-medium rounded-md"
+                className="block w-full px-8 py-4 bg-red-600 text-white hover:bg-red-700 transition-colors font-medium rounded-2xl shadow-lg"
               >
                 Попробовать снова
               </button>
               {error.includes('авторизац') && (
                 <button 
                   onClick={() => navigate('/login')}
-                  className="block w-full px-8 py-3 bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors font-medium rounded-md"
+                  className="block w-full px-8 py-4 bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors font-medium rounded-2xl"
                 >
                   Войти заново
                 </button>
@@ -151,22 +147,20 @@ const HealthProfile: React.FC = () => {
   if (!healthProfile) {
     return (
       <AppLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center max-w-md mx-auto">
-            <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-              <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center px-4">
+          <div className="text-center max-w-md mx-auto bg-white rounded-3xl shadow-lg p-8">
+            <div className="w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
+              <Heart className="w-8 h-8 text-green-600" />
             </div>
-            <h3 className="text-xl font-bold mb-2">
+            <h3 className="text-2xl font-bold mb-3 text-gray-900">
               Профиль здоровья не найден
             </h3>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-gray-600 mb-8 leading-relaxed">
               Создайте свой профиль здоровья, чтобы получать персональные рекомендации и отслеживать показатели здоровья
             </p>
             <button 
               onClick={handleCreateProfile}
-              className="px-8 py-3 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium rounded-md"
+              className="w-full px-8 py-4 bg-green-600 text-white hover:bg-green-700 transition-colors font-medium rounded-2xl shadow-lg"
             >
               Создать профиль
             </button>
@@ -191,7 +185,7 @@ const HealthProfile: React.FC = () => {
 
   return (
     <AppLayout>
-      <MobileHealthProfileDisplay 
+      <HealthProfileDashboard 
         healthProfile={healthProfile}
         onEdit={handleEdit}
       />
