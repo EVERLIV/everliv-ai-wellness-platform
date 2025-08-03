@@ -190,7 +190,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       )}
 
       {/* Messages Area - 75% of screen */}
-      <div className="flex-1 overflow-y-auto px-2 py-1 bg-gray-50/50" style={{ scrollBehavior: 'smooth', minHeight: '75vh' }}>
+      <div className="flex-1 overflow-y-auto px-2 py-6 bg-gray-50/50" style={{ scrollBehavior: 'smooth', minHeight: '75vh' }}>
         <div className="space-y-2 max-w-3xl mx-auto">
           {/* Quick Actions только если нет сообщений */}
           {allMessages.length === 0 && (
@@ -294,60 +294,70 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       {/* Compact Input Panel with integrated buttons */}
       <div className="bg-white border-t border-border py-2">
         <div className="max-w-3xl mx-auto px-2">
-          <div className="flex items-center gap-2">
-            {/* Integrated Action Buttons */}
-            <button 
-              onClick={handleChatHistoryClick}
-              className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
-            >
-              <MessageSquare className="w-4 h-4 text-white" />
-            </button>
-            
-            <button 
-              onClick={handleCameraClick}
-              className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
-            >
-              <Camera className="w-4 h-4 text-white" />
-            </button>
-            
-            <button 
-              onClick={handleFileClick}
-              className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
-            >
-              <FileText className="w-4 h-4 text-white" />
-            </button>
-            
-            <button 
-              onClick={handleMicClick}
-              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                isRecording 
-                  ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-                  : 'bg-gray-500 hover:bg-gray-600'
-              }`}
-            >
-              <Mic className="w-4 h-4 text-white" />
-            </button>
+          <div className="flex items-center gap-2 bg-gray-50 rounded-full px-3 py-2 border border-gray-200">
+            {/* Left side buttons inside input */}
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={handleFileClick}
+                className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+              >
+                <FileText className="w-3 h-3 text-gray-500" />
+              </button>
+              
+              <button 
+                onClick={handleCameraClick}
+                className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+              >
+                <Camera className="w-3 h-3 text-gray-500" />
+              </button>
+              
+              <button 
+                onClick={handleMicClick}
+                className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors ${
+                  isRecording 
+                    ? 'bg-red-100 hover:bg-red-200' 
+                    : 'bg-transparent hover:bg-gray-200'
+                }`}
+              >
+                <Mic className={`w-3 h-3 ${isRecording ? 'text-red-500' : 'text-gray-500'}`} />
+              </button>
+              
+              <button 
+                onClick={handleChatHistoryClick}
+                className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+              >
+                <MessageSquare className="w-3 h-3 text-gray-500" />
+              </button>
+            </div>
             
             {/* Input Field */}
-            <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-full px-3 py-2 border border-gray-200">
-              <textarea
-                ref={textareaRef}
-                placeholder="Что вас беспокоит? Как я могу помочь?"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={isProcessing}
-                className="flex-1 min-h-[16px] max-h-16 resize-none outline-none text-xs placeholder:text-muted-foreground bg-transparent"
-                style={{ 
-                  lineHeight: '1.2'
-                }}
-                rows={1}
-              />
+            <textarea
+              ref={textareaRef}
+              placeholder="Что вас беспокоит? Как я могу помочь?"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isProcessing}
+              className="flex-1 min-h-[16px] max-h-16 resize-none outline-none text-xs placeholder:text-muted-foreground bg-transparent"
+              style={{ 
+                lineHeight: '1.2'
+              }}
+              rows={1}
+            />
+            
+            {/* Right side buttons */}
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={onCreateNewChat}
+                className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+              >
+                <Plus className="w-3 h-3 text-gray-500" />
+              </button>
               
               <button
                 onClick={handleSubmit}
                 disabled={!inputText.trim() || isProcessing}
-                className="w-7 h-7 rounded-full bg-gradient-to-r from-brand-accent to-brand-accent/80 hover:from-brand-accent hover:to-brand-accent transition-all duration-200 flex items-center justify-center disabled:opacity-50"
+                className="w-6 h-6 rounded-full bg-gradient-to-r from-brand-accent to-brand-accent/80 hover:from-brand-accent hover:to-brand-accent transition-all duration-200 flex items-center justify-center disabled:opacity-50"
               >
                 {isProcessing ? (
                   <Loader2 className="h-3 w-3 animate-spin text-white" />
@@ -356,14 +366,6 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
                 )}
               </button>
             </div>
-            
-            {/* New Chat Button */}
-            <button 
-              onClick={onCreateNewChat}
-              className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center hover:bg-gray-600 transition-colors"
-            >
-              <Plus className="w-4 h-4 text-white" />
-            </button>
           </div>
         </div>
       </div>
