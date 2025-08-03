@@ -151,7 +151,7 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
     <div className="h-full flex flex-col bg-background">
       {/* Compact Mobile Header */}
       {isMobile ? (
-        <div className="flex items-center justify-between px-3 py-2 bg-white shadow-sm">
+        <div className="w-full flex items-center justify-between px-2 py-1 bg-white shadow-sm">
           <Button
             variant="ghost"
             size="sm"
@@ -161,20 +161,19 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
             <ArrowLeft className="h-4 w-4 text-muted-foreground" />
           </Button>
           
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-brand-accent/10 rounded-lg flex items-center justify-center">
+          <div className="flex items-center gap-1">
+            <div className="w-5 h-5 bg-brand-accent/10 rounded-lg flex items-center justify-center">
               <Brain className="h-3 w-3 text-brand-accent" />
             </div>
             <div>
-              <h2 className="text-xs font-semibold text-foreground">Персональный ИИ-Доктор</h2>
-              <p className="text-xs text-muted-foreground">Премиум консультации</p>
+              <h2 className="text-xs font-semibold text-foreground">ИИ-Доктор</h2>
             </div>
           </div>
           
           <div className="w-6"></div>
         </div>
       ) : (
-        <div className="flex items-center justify-between px-4 py-2 bg-white shadow-sm">
+        <div className="w-full flex items-center justify-between px-3 py-1 bg-white shadow-sm">
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -292,9 +291,9 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
       </div>
 
       {/* Compact Input Panel with integrated buttons */}
-      <div className="bg-white border-t border-border py-2">
+      <div className="bg-white border-t border-border py-1">
         <div className="max-w-3xl mx-auto px-2">
-          <div className="bg-gray-50 rounded-2xl px-3 py-2 border border-gray-200">
+          <div className="bg-gray-50 rounded-2xl px-2 py-1 border border-gray-200">
             {/* Input Field */}
             <textarea
               ref={textareaRef}
@@ -303,15 +302,15 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isProcessing}
-              className="w-full min-h-[16px] max-h-16 resize-none outline-none text-xs placeholder:text-muted-foreground bg-transparent"
+              className="w-full min-h-[12px] max-h-12 resize-none outline-none text-xs placeholder:text-muted-foreground bg-transparent"
               style={{ 
-                lineHeight: '1.2'
+                lineHeight: '1.1'
               }}
               rows={1}
             />
             
             {/* Bottom row with buttons */}
-            <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center justify-between mt-1">
               {/* Left side buttons */}
               <div className="flex items-center gap-1">
                 <button 
