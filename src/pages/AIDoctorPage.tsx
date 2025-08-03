@@ -17,12 +17,13 @@ const AIDoctorPage = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-4xl">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Добро пожаловать, Пользователь!
+      <div className="px-2 py-4 space-y-4 min-h-screen">
+        {/* Header */}
+        <div className="px-2">
+          <h1 className="text-2xl font-bold text-foreground mb-1">
+            ИИ-Доктор EVERLIV
           </h1>
-          <p className="text-gray-600 text-sm">
+          <p className="text-muted-foreground text-sm">
             Управляйте своим здоровьем с помощью ИИ-платформы
           </p>
         </div>

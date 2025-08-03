@@ -153,9 +153,9 @@ const AIDoctorPersonalPage = () => {
     <>
       {isMobile ? (
         <MobileChatLayout>
-          <div className="h-full">
+          <div className="px-2 py-2 h-full">
             {showChatHistory ? (
-              <div className="p-4 h-full">
+              <div className="h-full">
                 <ChatHistory 
                   onSelectChat={handleSelectChat}
                   onCreateNewChat={handleCreateNewChat}
@@ -174,59 +174,55 @@ const AIDoctorPersonalPage = () => {
         </MobileChatLayout>
       ) : (
         <AppLayout>
-          <div className="space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => navigate("/ai-doctor")}
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Назад к выбору чатов</span>
-                </Button>
+          <div className="px-2 py-4 space-y-4 min-h-screen">
+            {/* Mobile-style Header */}
+            <div className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate("/ai-doctor")}
+                className="p-2 h-auto"
+              >
+                <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+              </Button>
+              
+              <div className="w-10 h-10 bg-brand-accent/10 rounded-lg flex items-center justify-center">
+                <Brain className="h-5 w-5 text-brand-accent" />
               </div>
               
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                  <Brain className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-semibold text-foreground">
-                    Персональный ИИ-Доктор
-                  </h1>
-                  <p className="text-sm text-muted-foreground">Персональные консультации</p>
-                </div>
+              <div className="flex-1">
+                <h1 className="text-lg font-semibold text-foreground">
+                  Персональный ИИ-Доктор
+                </h1>
+                <p className="text-sm text-muted-foreground">Персональные консультации</p>
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleCreateNewChat}
+                  className="h-8 px-2"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  <span className="text-sm">Новый чат</span>
+                  <Plus className="h-4 w-4" />
                 </Button>
                 
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleShowChatHistory}
+                  className="h-8 px-2"
                 >
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  <span className="text-sm">История</span>
+                  <MessageSquare className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
-            {/* Chat Interface - убираем границы на мобильных */}
-            <div className={`min-h-[70vh] ${isMobile ? 'border-0' : 'border border-border'} bg-card`}>
+            {/* Chat Interface */}
+            <div className="flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
               <div className="h-full">
                 {showChatHistory ? (
-                  <div className={`${isMobile ? 'p-1 h-full' : 'p-4 h-full'}`}>
+                  <div className="p-2 h-full">
                     <ChatHistory 
                       onSelectChat={handleSelectChat}
                       onCreateNewChat={handleCreateNewChat}
