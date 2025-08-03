@@ -237,15 +237,10 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
       ) : (
         <div className="w-full flex items-center justify-between px-3 py-1 bg-white shadow-sm">
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onBack}
-              className="text-muted-foreground hover:text-foreground p-1"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              <span className="text-xs">Назад</span>
-            </Button>
+            <div className="w-4 h-4 bg-brand-primary/10 rounded flex items-center justify-center">
+              <Sparkles className="h-2 w-2 text-brand-primary" />
+            </div>
+            <h2 className="text-xs font-semibold text-foreground">Базовый ИИ-Доктор</h2>
           </div>
           <div className="text-xs text-muted-foreground">
             {maxMessages - messageCount} сообщений осталось
