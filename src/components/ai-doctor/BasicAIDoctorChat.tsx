@@ -234,22 +234,10 @@ const BasicAIDoctorChat: React.FC<BasicAIDoctorChatProps> = ({ onBack }) => {
             {maxMessages - messageCount} осталось
           </div>
         </div>
-      ) : (
-        <div className="w-full flex items-center justify-between px-3 py-1 bg-white shadow-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-brand-primary/10 rounded flex items-center justify-center">
-              <Sparkles className="h-2 w-2 text-brand-primary" />
-            </div>
-            <h2 className="text-xs font-semibold text-foreground">Базовый ИИ-Доктор</h2>
-          </div>
-          <div className="text-xs text-muted-foreground">
-            {maxMessages - messageCount} сообщений осталось
-          </div>
-        </div>
       )}
 
-      {/* Messages Area - 75% of screen */}
-      <div className={`flex-1 overflow-y-auto px-2 py-6 bg-gray-50/50 ${isMobile ? 'mt-10' : ''}`} style={{ scrollBehavior: 'smooth', minHeight: '75vh' }}>
+      {/* Messages Area */}
+      <div className={`flex-1 overflow-y-auto px-2 py-6 bg-gray-50/50 ${isMobile ? 'mt-10' : 'pt-4'}`}>
         <div className="space-y-2 max-w-3xl mx-auto">
           {/* Quick Actions только если нет сообщений */}
           {messages.length === 0 && shouldShowSuggestedQuestions && !isLimitReached && (
