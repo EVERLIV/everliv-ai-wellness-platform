@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { isDevelopmentMode } from '@/utils/devMode';
@@ -12,16 +11,36 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log('🔧 DevAuthProvider mounted');
-    
-    if (isDevelopmentMode()) {
-      console.log('🔧 Development mode: Enhanced dev features available');
+    const initializeAuth = async () => {
+      console.log('🔧 DevAuthProvider mounted');
       
-      // Автоматически создаем dev пользователя с правильным UUID
-      const autoCreateDevUser = () => {
-        console.log('🔧 Auto-creating dev user...');
+      try {
+        if (!isDevelopmentMode()) {
+          console.log('🔧 Not in dev mode, skipping dev auth');
+          setIsLoading(false);
+          return;
+        }
         
-        // Используем фиксированный UUID для dev пользователя
+        console.log('🔧 Development mode: Enhanced dev features available');
+        
+        // Проверяем, есть ли сохраненная dev сессия
+        const savedDevSession = localStorage.getItem('dev-auth-session');
+        if (savedDevSession) {
+          const parsedSession = JSON.parse(savedDevSession);
+          // Проверяем валидность сессии
+          if (parsedSession.user && parsedSession.user.id === '00000000-0000-0000-0000-000000000001') {
+            console.log('🔧 Restoring saved dev session:', parsedSession.user.email);
+            setUser(parsedSession.user);
+            setSession(parsedSession);
+            setIsLoading(false);
+            return;
+          } else {
+            localStorage.removeItem('dev-auth-session');
+          }
+        }
+
+        // Создаем новую dev сессию
+        console.log('🔧 Creating new dev session...');
         const devUserId = '00000000-0000-0000-0000-000000000001';
         
         const mockDevUser: User = {
@@ -57,52 +76,24 @@ export const DevAuthProvider = ({ children }: { children: React.ReactNode }) => 
           user: mockDevUser
         };
 
-        // Сохраняем сессию в localStorage для персистентности
         localStorage.setItem('dev-auth-session', JSON.stringify(mockSession));
-        
         setUser(mockDevUser);
         setSession(mockSession);
         
-        console.log('🔧 Dev user auto-created:', {
-          user: mockDevUser.email,
-          id: mockDevUser.id
-        });
-      };
-
-      // Проверяем, есть ли сохраненная dev сессия
-      const savedDevSession = localStorage.getItem('dev-auth-session');
-      if (savedDevSession) {
-        try {
-          const parsedSession = JSON.parse(savedDevSession);
-          // Проверяем, что у сохраненной сессии правильный UUID
-          if (parsedSession.user && parsedSession.user.id === '00000000-0000-0000-0000-000000000001') {
-            console.log('🔧 Restoring saved dev session:', parsedSession.user.email);
-            setUser(parsedSession.user);
-            setSession(parsedSession);
-          } else {
-            // Если сессия устарела, создаем новую
-            console.log('🔧 Outdated dev session, creating new one');
-            localStorage.removeItem('dev-auth-session');
-            autoCreateDevUser();
-          }
-        } catch (error) {
-          console.error('🔧 Error restoring dev session:', error);
-          localStorage.removeItem('dev-auth-session');
-          autoCreateDevUser();
-        }
-      } else {
-        // Если нет сохраненной сессии, создаем новую
-        autoCreateDevUser();
+        console.log('🔧 Dev user created:', mockDevUser.email);
+      } catch (error) {
+        console.error('🔧 Dev auth initialization error:', error);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    
-    setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const signInWithMagicLink = async (email: string) => {
     if (isDevelopmentMode()) {
       console.log('🔧 Dev mode: Magic link login for', email);
-      // В dev режиме сразу логиним пользователя
       return;
     }
     throw new Error('Use production authentication context');
