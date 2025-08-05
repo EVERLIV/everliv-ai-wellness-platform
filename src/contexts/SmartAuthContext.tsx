@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { isDevelopmentMode } from '@/utils/devMode';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { DevAuthProvider } from '@/contexts/DevAuthContext';
@@ -9,9 +9,12 @@ interface SmartAuthProviderProps {
 }
 
 export const SmartAuthProvider = ({ children }: SmartAuthProviderProps) => {
-  const isDevMode = isDevelopmentMode();
-  
-  console.log('🔧 SmartAuthProvider: Mode detection', { isDevMode });
+  // Мемоизируем результат проверки dev режима для избежания множественных вызовов
+  const isDevMode = useMemo(() => {
+    const result = isDevelopmentMode();
+    console.log('🔧 SmartAuthProvider: Mode detection (memoized)', { isDevMode: result });
+    return result;
+  }, []);
   
   if (isDevMode) {
     console.log('🔧 Using DevAuthProvider with enhanced dev features');
