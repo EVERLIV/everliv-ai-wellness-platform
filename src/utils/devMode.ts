@@ -1,29 +1,28 @@
 export const isDevelopmentMode = (): boolean => {
   try {
-    // В продакшене НИКОГДА не должен быть dev режим
-    if (import.meta.env.PROD) {
-      return false;
-    }
+    // Определяем dev режим только по домену, так как import.meta.env может быть ненадежным
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
     
-    // Проверяем несколько условий для определения dev режима
-    const isViteDev = import.meta.env.DEV;
-    const isLocalhost = typeof window !== 'undefined' && 
-                       (window.location.hostname === 'localhost' || 
-                        window.location.hostname === '127.0.0.1' ||
-                        window.location.hostname.includes('lovableproject.com'));
+    // Dev режим ТОЛЬКО для localhost и разработческих доменов
+    const isDevDomain = hostname === 'localhost' || 
+                       hostname === '127.0.0.1' ||
+                       hostname.includes('lovableproject.com');
+    
     const hasDevParam = typeof window !== 'undefined' && 
                        new URLSearchParams(window.location.search).has('dev');
     
-    // Dev режим активен ТОЛЬКО для localhost, lovableproject.com или явного dev параметра
-    // И ТОЛЬКО если НЕ production
-    const result = !import.meta.env.PROD && (isViteDev || isLocalhost || hasDevParam);
+    // Для production доменов НИКОГДА не должен быть dev режим
+    const isProductionDomain = hostname.includes('everliv.online') || 
+                              (hostname.includes('.app') && !hostname.includes('lovableproject.com'));
+    
+    // Результат: dev режим только для dev доменов или с явным параметром
+    const result = !isProductionDomain && (isDevDomain || hasDevParam);
     
     console.log('🔧 Development mode check:', {
-      isProd: import.meta.env.PROD,
-      isViteDev,
-      isLocalhost,
+      hostname,
+      isDevDomain,
+      isProductionDomain,
       hasDevParam,
-      hostname: typeof window !== 'undefined' ? window.location.hostname : 'SSR',
       result
     });
     
