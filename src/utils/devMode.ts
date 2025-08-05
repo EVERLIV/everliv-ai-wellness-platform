@@ -3,10 +3,9 @@ export const isDevelopmentMode = (): boolean => {
     // Определяем dev режим только по домену, так как import.meta.env может быть ненадежным
     const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
     
-    // Dev режим ТОЛЬКО для localhost и разработческих доменов
+    // Dev режим ТОЛЬКО для localhost (НЕ для опубликованных Lovable проектов)
     const isDevDomain = hostname === 'localhost' || 
-                       hostname === '127.0.0.1' ||
-                       hostname.includes('lovableproject.com');
+                       hostname === '127.0.0.1';
     
     const hasDevParam = typeof window !== 'undefined' && 
                        new URLSearchParams(window.location.search).has('dev');
