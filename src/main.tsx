@@ -6,8 +6,8 @@ import './index.css'
 import PerformanceProvider from './components/performance/PerformanceProvider'
 import { prodLogger } from './utils/production-logger'
 
-// Register service worker for caching - только в production
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
+// Register service worker for caching
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {

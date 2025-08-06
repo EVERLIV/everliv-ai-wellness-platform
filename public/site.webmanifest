@@ -6,7 +6,7 @@
   "categories": ["health", "medical", "lifestyle"],
   "lang": "ru",
   "scope": "/",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#3b82f6",

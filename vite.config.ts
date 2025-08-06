@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => ({
         background_color: '#ffffff',
         display: 'standalone',
         scope: '/',
-        start_url: '/dashboard',
+        start_url: '/',
         orientation: 'portrait-primary',
         icons: [
           {
