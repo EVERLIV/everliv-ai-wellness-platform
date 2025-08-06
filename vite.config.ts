@@ -74,14 +74,12 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    // Enhanced performance optimizations
     target: 'esnext',
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: mode === 'production',
+        drop_console: false, // Оставляем console.log для отладки
         drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info'],
       },
       mangle: {
         safari10: true,
@@ -93,11 +91,15 @@ export default defineConfig(({ mode }) => ({
         chunkFileNames: 'assets/[name].[hash].js',
         assetFileNames: 'assets/[name].[hash].[ext]',
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-avatar', '@radix-ui/react-slot'],
-          router: ['react-router-dom'],
-          query: ['@tanstack/react-query'],
-          supabase: ['@supabase/supabase-js'],
+          'react-vendor': ['react', 'react-dom'],
+          'react-router': ['react-router-dom'],
+          'supabase': ['@supabase/supabase-js'],
+          'radix-ui': [
+            '@radix-ui/react-avatar', 
+            '@radix-ui/react-slot', 
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu'
+          ],
         },
       },
       treeshake: {
