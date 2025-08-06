@@ -16,17 +16,7 @@ export const SmartAuthProvider = ({ children }: SmartAuthProviderProps) => {
     return result;
   }, []);
   
-  if (isDevMode) {
-    console.log('🔧 Using DevAuthProvider with enhanced dev features');
-    return (
-      <DevAuthProvider>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </DevAuthProvider>
-    );
-  }
-  
-  console.log('🔧 Using production AuthProvider');
+  // В dev режиме используем только AuthProvider (без DevAuthProvider для упрощения)
+  console.log('🔧 Using production AuthProvider (simplified)');
   return <AuthProvider>{children}</AuthProvider>;
 };

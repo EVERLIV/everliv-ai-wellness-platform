@@ -27,11 +27,24 @@ export const useAuthState = () => {
     const forceTimeout = setTimeout(() => {
       if (mounted) {
         console.warn('🔧 Auth initialization timeout, forcing completion');
-        setAuthState(prev => ({
-          ...prev,
-          isLoading: false,
-          isInitialized: true,
-        }));
+        setAuthState(prev => {
+          // Если уже есть сессия, не сбрасываем её
+          if (prev.session) {
+            return {
+              ...prev,
+              isLoading: false,
+              isInitialized: true,
+            };
+          }
+          // Если нет сессии, помечаем как завершённое без пользователя
+          return {
+            ...prev,
+            isLoading: false,
+            isInitialized: true,
+            user: null,
+            session: null,
+          };
+        });
       }
     }, 8000); // 8 секунд таймаут
     

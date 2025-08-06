@@ -10,8 +10,16 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, isLoading } = useSmartAuth();
 
+  console.log('🔒 ProtectedRoute check:', { 
+    user: !!user, 
+    isLoading, 
+    userId: user?.id,
+    route: window.location.pathname 
+  });
+
   // Show loading spinner while auth is initializing
   if (isLoading) {
+    console.log('🔒 ProtectedRoute: showing loading...');
     return (
       <div className="h-screen flex justify-center items-center">
         <div className="flex flex-col items-center space-y-4">
@@ -24,9 +32,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   // Redirect to login if no user
   if (!user) {
+    console.log('🔒 ProtectedRoute: redirecting to login...');
     return <Navigate to="/login" replace />;
   }
 
+  console.log('🔒 ProtectedRoute: rendering protected content...');
   // Render protected content
   return <>{children}</>;
 };
