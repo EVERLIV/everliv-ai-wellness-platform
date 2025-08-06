@@ -81,6 +81,7 @@ import RealtimeNotifications from "./components/realtime/RealtimeNotifications";
 import RealtimeMonitor from "./components/admin/RealtimeMonitor";
 import DevModeIndicator from "./components/DevModeIndicator";
 import ProductionDebugPanel from "./components/debug/ProductionDebugPanel";
+import AppDiagnostics from "./components/debug/AppDiagnostics";
 import { prodLogger } from "./utils/production-logger";
 
 const App = () => {
@@ -100,6 +101,7 @@ const App = () => {
                     <SubscriptionProvider>
                       <SecureDataProvider>
                         <DevModeIndicator />
+                        <AppDiagnostics />
                         <RealtimeNotifications />
                         <ProductionDebugPanel />
                     <Routes>
