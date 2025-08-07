@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
 import { Suspense, lazy } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { QueryOptimizer } from "./components/performance/QueryOptimizer";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -229,6 +230,7 @@ const App = () => (
                       {/* 404 Route */}
                       <Route path="*" element={<NotFound />} />
                     </Routes>
+                    <PWAInstallPrompt />
                   </SecureDataProvider>
                 </SubscriptionProvider>
               </SmartAuthProvider>
