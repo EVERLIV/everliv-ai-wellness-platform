@@ -9,6 +9,12 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Clear any invalid tokens on initialization
 const clearInvalidTokens = () => {
   try {
+    // Check if localStorage is available
+    if (typeof Storage === 'undefined' || !window.localStorage) {
+      console.warn('localStorage is not available');
+      return;
+    }
+    
     const keys = Object.keys(localStorage);
     keys.forEach(key => {
       if (key.startsWith('sb-') && key.includes('auth-token')) {
@@ -20,17 +26,39 @@ const clearInvalidTokens = () => {
       }
     });
   } catch (error) {
-    console.error('Error clearing invalid tokens:', error);
+    console.warn('localStorage access denied, continuing without token cleanup:', error.message);
   }
 };
 
 // Clear invalid tokens on client initialization
 clearInvalidTokens();
 
+// Create a safe storage wrapper
+const createSafeStorage = () => {
+  try {
+    if (typeof Storage !== 'undefined' && window.localStorage) {
+      return window.localStorage;
+    }
+  } catch (error) {
+    console.warn('localStorage not available, using memory storage');
+  }
+  
+  // Fallback to memory storage
+  const memoryStorage: Storage = {
+    length: 0,
+    clear: () => {},
+    getItem: () => null,
+    key: () => null,
+    removeItem: () => {},
+    setItem: () => {}
+  };
+  return memoryStorage;
+};
+
 // Create enhanced Supabase client with retry capabilities
 const baseClient = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: window.localStorage,
+    storage: createSafeStorage(),
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
