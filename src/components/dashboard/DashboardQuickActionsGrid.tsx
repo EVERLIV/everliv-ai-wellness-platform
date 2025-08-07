@@ -28,64 +28,64 @@ const DashboardQuickActionsGrid: React.FC = () => {
       title: 'ИИ Доктор',
       description: 'Персональная консультация',
       path: '/ai-doctor',
-      gradient: 'from-blue-500 to-blue-600',
-      iconColor: 'text-blue-100'
+      gradient: 'bg-gradient-to-br from-brand-primary to-brand-primary-dark',
+      iconColor: 'text-white/90'
     },
     {
       icon: Heart,
       title: 'Профиль здоровья',
       description: 'Управление данными',
       path: '/health-profile',
-      gradient: 'from-red-500 to-red-600',
-      iconColor: 'text-red-100'
+      gradient: 'bg-gradient-to-br from-brand-error to-red-600',
+      iconColor: 'text-white/90'
     },
     {
       icon: BarChart3,
       title: 'Аналитика',
       description: 'Отчеты и тренды',
       path: '/analytics',
-      gradient: 'from-green-500 to-green-600',
-      iconColor: 'text-green-100'
+      gradient: 'bg-gradient-to-br from-brand-success to-green-600',
+      iconColor: 'text-white/90'
     },
     {
       icon: TestTube,
       title: 'Лабораторные анализы',
       description: 'Результаты тестов',
       path: '/lab-analyses',
-      gradient: 'from-purple-500 to-purple-600',
-      iconColor: 'text-purple-100'
+      gradient: 'bg-gradient-to-br from-brand-accent to-purple-600',
+      iconColor: 'text-white/90'
     },
     {
       icon: Activity,
       title: 'Мои биомаркеры',
       description: 'Динамика показателей',
       path: '/my-biomarkers',
-      gradient: 'from-cyan-500 to-cyan-600',
-      iconColor: 'text-cyan-100'
+      gradient: 'bg-gradient-to-br from-brand-secondary to-cyan-600',
+      iconColor: 'text-white/90'
     },
     {
       icon: TrendingUp,
       title: 'Биологический возраст',
       description: 'Пошаговый анализ',
       path: '/biological-age',
-      gradient: 'from-pink-500 to-pink-600',
-      iconColor: 'text-pink-100'
+      gradient: 'bg-gradient-to-br from-pink-500 to-brand-accent',
+      iconColor: 'text-white/90'
     },
     {
       icon: BookOpen,
       title: 'База знаний',
       description: 'Медицинские статьи',
       path: '/knowledge-base',
-      gradient: 'from-teal-500 to-teal-600',
-      iconColor: 'text-teal-100'
+      gradient: 'bg-gradient-to-br from-teal-500 to-brand-secondary',
+      iconColor: 'text-white/90'
     },
     {
       icon: Calendar,
       title: 'Календарь здоровья',
       description: 'Планирование и напоминания',
       path: '/health-calendar',
-      gradient: 'from-amber-500 to-amber-600',
-      iconColor: 'text-amber-100'
+      gradient: 'bg-gradient-to-br from-brand-warning to-amber-600',
+      iconColor: 'text-white/90'
     }
   ];
 
@@ -109,7 +109,7 @@ const DashboardQuickActionsGrid: React.FC = () => {
             onClick={() => navigate(action.path)}
           >
             <div className={`
-              w-full bg-gradient-to-br ${action.gradient} rounded-lg p-3 text-left
+              w-full ${action.gradient} rounded-lg p-3 text-left
               shadow-md hover:shadow-lg transition-all duration-200
               ${isMobile ? 'min-h-[60px]' : 'min-h-[70px]'}
             `}>

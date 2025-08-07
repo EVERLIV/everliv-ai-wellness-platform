@@ -234,13 +234,13 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Основной контент с боковым меню с отступом от навбара */}
       <div className="flex flex-1 pt-14 w-full">
-        <SidebarProvider defaultOpen={true}>
+        <SidebarProvider defaultOpen={false}>
           <AppSidebar />
           
           <div className="flex flex-1 flex-col min-w-0">
             {/* Основной контент */}
             <main className="flex-1 overflow-auto bg-background">
-              <div className="container mx-auto px-5 py-5 max-w-5xl min-h-full">
+              <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-6xl min-h-full">
                 {children}
               </div>
             </main>

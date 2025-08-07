@@ -82,11 +82,11 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className="w-56 border-r border-gray-200 bg-white"
+      className="w-56 border-r border-border bg-card"
       collapsible="icon"
     >
       {/* Отступ от хедера */}
-      <div className="h-16"></div>
+      <div className="h-14"></div>
 
       {/* Компактная кнопка скрытия */}
       <div className="flex justify-end px-2 pb-2">
@@ -101,7 +101,7 @@ export function AppSidebar() {
         </Button>
       </div>
 
-      <SidebarContent className="bg-white pt-0">
+      <SidebarContent className="bg-card pt-0">
         {menuItems.map((group, groupIndex) => (
           <SidebarGroup key={groupIndex}>
             <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3 py-2">
