@@ -70,87 +70,199 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 space-y-6 max-w-5xl">
-        {/* Mobile-First Header с зеленым градиентом */}
-        <div className="bg-card rounded-3xl shadow-lg border border-brand-primary/20 p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-brand-primary/10 rounded-2xl flex items-center justify-center">
-                <Heart className="h-6 w-6 text-brand-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">
-                  Привет, {userName}! 👋
-                </h1>
-                <p className="text-muted-foreground">
-                  Управляйте здоровьем с ИИ
-                </p>
-              </div>
-            </div>
-          </div>
+    <AppLayout>
+      <div className="space-y-8">
+        {/* Заголовок */}
+        <div>
+          <h1 className="text-3xl font-bold mb-2">
+            Добро пожаловать, {userName}!
+          </h1>
+          <p className="text-muted-foreground">
+            Управляйте своим здоровьем с помощью ИИ-платформы
+          </p>
         </div>
 
-        <div className="space-y-6">
-          {/* Индекс здоровья - зеленый блок */}
-          <div className="bg-card rounded-3xl shadow-lg border border-brand-primary/20 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-brand-primary/10 rounded-2xl flex items-center justify-center">
-                  <Heart className="h-5 w-5 text-brand-primary" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">Индекс здоровья</h2>
-                  <p className="text-sm text-muted-foreground">Общий показатель</p>
-                </div>
-              </div>
-              
-              {analyticsLoading ? (
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand-primary"></div>
-                </div>
-              ) : currentHealthScore !== undefined ? (
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-brand-primary mb-2">
-                    {Math.round(currentHealthScore)}%
+
+        {isMobile ? (
+          // Мобильная версия - новый порядок блоков
+          <div className="space-y-6">
+            {/* 1. Индекс здоровья */}
+            <Card className="shadow-sm border-gray-200/80">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-gray-900">
+                  <Heart className="h-4 w-4 text-red-500" />
+                  <span className="text-base font-semibold">Индекс здоровья</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {analyticsLoading ? (
+                  <div className="text-center py-6">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                    <p className="text-xs text-gray-600">Загружаем индекс здоровья...</p>
                   </div>
-                  <div className="w-20 bg-brand-primary/20 rounded-full h-2">
-                    <div 
-                      className="bg-brand-primary h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${currentHealthScore}%` }}
-                    ></div>
+                ) : currentHealthScore !== undefined ? (
+                  <div className="text-center">
+                    <div className={`text-3xl font-bold mb-2 ${getScoreColor(currentHealthScore)}`}>
+                      {Math.round(currentHealthScore)}%
+                    </div>
+                    <Progress 
+                      value={currentHealthScore} 
+                      className={`h-2 ${getScoreGradient(currentHealthScore)}`}
+                    />
+                    {analytics && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Данные из ИИ-аналитики
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <Heart className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-xs text-gray-600">Нет данных об индексе здоровья</p>
+                    <p className="text-xs text-gray-500 mt-1">Заполните профиль для получения аналитики</p>
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Activity className="h-3 w-3 text-blue-500" />
+                      <span className="text-xs text-gray-600">Биовозраст</span>
+                    </div>
+                    <div className="text-xl font-semibold text-gray-900">
+                      {currentBiologicalAge}
+                    </div>
+                    <div className="text-xs text-gray-500">лет</div>
+                    {!healthProfile && (
+                      <p className="text-xs text-orange-500 mt-1">
+                        Создайте профиль
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <Activity className="h-3 w-3 text-blue-500" />
+                      <span className="text-xs text-gray-600">Скорость старения</span>
+                    </div>
+                    <div className="text-xl font-semibold text-gray-900">
+                      0.85
+                    </div>
+                    <div className="text-xs text-gray-500">коэффициент</div>
+                    <div className="text-xs text-green-600 mt-1">
+                      ↓15% улучшение
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground">Нет данных</p>
-                </div>
-              )}
+              </CardContent>
+            </Card>
+
+            {/* 2. Мои цели */}
+            <MyGoalsSection />
+
+            {/* 3. Быстрые действия */}
+            <DashboardQuickActionsGrid />
+
+            {/* 4. ИИ-предикты рисков заболеваний и 5. Топ-5 критических биомаркеров */}
+            <PriorityMetricsSection />
+
+            {/* 6. Истории чатов с ИИ */}
+            <DashboardChatsList />
+          </div>
+        ) : (
+          // Десктопная версия - оригинальная компоновка
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Левая колонка - Быстрые действия */}
+            <div className="lg:col-span-2 space-y-6">
+              <DashboardQuickActionsGrid />
+
+              {/* Приоритетные метрики */}
+              <PriorityMetricsSection />
             </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-brand-primary/5 rounded-2xl border border-brand-primary/10">
-                <div className="text-2xl font-bold text-brand-primary">{currentBiologicalAge}</div>
-                <div className="text-sm text-brand-primary/80 font-medium">Биовозраст</div>
-              </div>
-              <div className="text-center p-4 bg-brand-primary/5 rounded-2xl border border-brand-primary/10">
-                <div className="text-2xl font-bold text-brand-primary">0.85</div>
-                <div className="text-sm text-brand-primary/80 font-medium">↓15% скорость</div>
-              </div>
+
+            {/* Правая колонка - Данные здоровья */}
+            <div className="space-y-6">
+              {/* Индекс здоровья */}
+              <Card className="shadow-sm border-gray-200/80">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-gray-900">
+                    <Heart className="h-4 w-4 text-red-500" />
+                    <span className="text-base font-semibold">Индекс здоровья</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {analyticsLoading ? (
+                    <div className="text-center py-6">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+                      <p className="text-xs text-gray-600">Загружаем индекс здоровья...</p>
+                    </div>
+                  ) : currentHealthScore !== undefined ? (
+                    <div className="text-center">
+                      <div className={`text-3xl font-bold mb-2 ${getScoreColor(currentHealthScore)}`}>
+                        {Math.round(currentHealthScore)}%
+                      </div>
+                      <Progress 
+                        value={currentHealthScore} 
+                        className={`h-2 ${getScoreGradient(currentHealthScore)}`}
+                      />
+                      {analytics && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          Данные из ИИ-аналитики
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <Heart className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                      <p className="text-xs text-gray-600">Нет данных об индексе здоровья</p>
+                      <p className="text-xs text-gray-500 mt-1">Заполните профиль для получения аналитики</p>
+                    </div>
+                  )}
+                  
+                  <div className="grid grid-cols-2 gap-3 pt-3 border-t">
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <Activity className="h-3 w-3 text-blue-500" />
+                        <span className="text-xs text-gray-600">Биовозраст</span>
+                      </div>
+                      <div className="text-xl font-semibold text-gray-900">
+                        {currentBiologicalAge}
+                      </div>
+                      <div className="text-xs text-gray-500">лет</div>
+                      {!healthProfile && (
+                        <p className="text-xs text-orange-500 mt-1">
+                          Создайте профиль
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="text-center">
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <Activity className="h-3 w-3 text-blue-500" />
+                        <span className="text-xs text-gray-600">Скорость старения</span>
+                      </div>
+                      <div className="text-xl font-semibold text-gray-900">
+                        0.85
+                      </div>
+                      <div className="text-xs text-gray-500">коэффициент</div>
+                      <div className="text-xs text-green-600 mt-1">
+                        ↓15% улучшение
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Мои цели */}
+              <MyGoalsSection />
+
+              {/* Истории чатов с ИИ */}
+              <DashboardChatsList />
             </div>
           </div>
-
-          {/* Мои цели */}
-          <MyGoalsSection />
-
-          {/* Быстрые действия */}
-          <DashboardQuickActionsGrid />
-
-          {/* Метрики и риски */}
-          <PriorityMetricsSection />
-        </div>
+        )}
       </div>
-    </div>
+    </AppLayout>
   );
 };
 

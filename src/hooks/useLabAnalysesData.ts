@@ -1,13 +1,13 @@
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { toast } from "sonner";
 import { AnalysisItem, AnalysisStatistics } from "@/types/labAnalyses";
 import { labAnalysesService } from "@/services/labAnalysesService";
 import { isValidUUID, calculateAnalysisStatistics } from "@/utils/labAnalysesUtils";
 
 export const useLabAnalysesData = () => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const [analysisHistory, setAnalysisHistory] = useState<AnalysisItem[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [statistics, setStatistics] = useState<AnalysisStatistics>({

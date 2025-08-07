@@ -1,27 +1,25 @@
 
-// ⚠️ ВАЖНО: НЕ МЕНЯТЬ ДИЗАЙН ЭТОГО КОМПОНЕНТА! 
-// ⚠️ Дизайн закреплен и утвержден пользователем
-// ⚠️ Любые изменения дизайна должны согласовываться отдельно
-
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User, ChevronDown, ChevronUp, MoreHorizontal, Camera, Mic, Paperclip, FileText, Image } from "lucide-react";
+import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User, ChevronDown, ChevronUp } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/hooks/use-toast";
 import SuggestedQuestions from "@/components/dashboard/ai-doctor/SuggestedQuestions";
 import { usePersonalAIDoctorChatWithId } from "./usePersonalAIDoctorChatWithId";
 import { useRealtimeMessages } from "@/hooks/useRealtimeMessages";
 import { useUserPresence } from "@/hooks/useUserPresence";
 import { getSuggestedQuestions } from "@/services/ai/ai-doctor-service";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Microscope, Pill, TrendingUp, Heart, Apple, Stethoscope, Brain } from "lucide-react";
+import { Microscope, Pill, TrendingUp, Heart, Apple } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-// Популярные вопросы для персонального доктора
-const suggestedQuestions = [
-  { text: "Проанализируй мои последние анализы", icon: Heart },
-  { text: "Какие обследования мне нужны?", icon: Apple },
-];
+const iconMap = {
+  microscope: Microscope,
+  pill: Pill,
+  "trending-up": TrendingUp,
+  "book-open": BookOpen,
+  heart: Heart,
+  apple: Apple,
+};
 
 interface PersonalAIDoctorChatWithIdProps {
   chatId?: string;
@@ -52,15 +50,15 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
   const { onlineUsers, updatePresence } = useUserPresence(chatId || 'no-chat');
 
   const isMobile = useIsMobile();
+  const suggestedQuestions = getSuggestedQuestions({});
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { toast } = useToast();
-  const [isRecording, setIsRecording] = useState(false);
+  const [showSuggestedQuestions, setShowSuggestedQuestions] = useState(false);
   
   const allMessages = [...messages, ...realtimeMessages].sort((a, b) => 
     new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
   );
   
-  const shouldShowSuggestedQuestions = allMessages.length === 0;
+  const shouldShowSuggestedQuestions = allMessages.length === 0 || (allMessages.length === 1 && allMessages[0].role === 'assistant');
 
   // Auto-resize textarea
   useEffect(() => {
@@ -87,54 +85,6 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
     }
   }, [inputText]);
 
-  // Обработчики для кнопок меню
-  const handleCameraClick = () => {
-    toast({
-      title: "Камера",
-      description: "Функция камеры будет доступна в следующих обновлениях",
-    });
-  };
-
-  const handleMicClick = () => {
-    if (isRecording) {
-      setIsRecording(false);
-      toast({
-        title: "Запись остановлена",
-        description: "Голосовое сообщение обрабатывается",
-      });
-    } else {
-      setIsRecording(true);
-      toast({
-        title: "Запись началась",
-        description: "Говорите в микрофон",
-      });
-      // Имитация записи
-      setTimeout(() => {
-        setIsRecording(false);
-      }, 3000);
-    }
-  };
-
-  const handleFileClick = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.pdf,.doc,.docx,.txt,.jpg,.png';
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        toast({
-          title: "Файл загружен",
-          description: `${file.name} готов к анализу`,
-        });
-      }
-    };
-    input.click();
-  };
-
-  const handleChatHistoryClick = () => {
-    onShowChatHistory?.();
-  };
-
   if (isLoading && !chatId) {
     return (
       <div className="h-full flex items-center justify-center py-12 sm:py-16 px-4">
@@ -152,222 +102,242 @@ const PersonalAIDoctorChatWithId: React.FC<PersonalAIDoctorChatWithIdProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col bg-background">
-      {/* Full Width Header */}
+    <div className={`h-full flex flex-col ${isMobile ? 'border-0' : 'border border-border'} bg-card`}>
+      {/* Compact Mobile Header */}
       {isMobile ? (
-        <div className="w-screen flex items-center justify-between px-2 py-1 bg-white shadow-sm fixed top-0 left-0 z-10">
+        <div className="flex items-center justify-between px-2 py-1 border-b border-border bg-muted/30">
           <Button
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="p-1 h-auto"
+            className="text-muted-foreground hover:text-foreground p-1 h-6 w-6 min-w-[24px] flex-shrink-0"
           >
-            <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+            <ArrowLeft className="h-3 w-3" />
           </Button>
           
           <div className="flex items-center gap-1">
-            <div className="w-4 h-4 bg-brand-accent/10 rounded flex items-center justify-center">
-              <Brain className="h-2 w-2 text-brand-accent" />
-            </div>
-            <h2 className="text-xs font-semibold text-foreground">ИИ-Доктор</h2>
+            {onCreateNewChat && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onCreateNewChat}
+                className="text-muted-foreground hover:text-foreground h-6 w-6 min-w-[24px] p-1"
+              >
+                <Plus className="h-3 w-3" />
+              </Button>
+            )}
+            
+            {onShowChatHistory && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onShowChatHistory}
+                className="text-muted-foreground hover:text-foreground h-6 w-6 min-w-[24px] p-1"
+              >
+                <MessageSquare className="h-3 w-3" />
+              </Button>
+            )}
           </div>
-          
-          <div className="w-6"></div>
         </div>
       ) : (
-        <div className="w-full flex items-center justify-between px-3 py-1 bg-white shadow-sm">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onBack}
-              className="text-muted-foreground hover:text-foreground p-1"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              <span className="text-xs">Назад</span>
-            </Button>
-          </div>
-        </div>
+        null
       )}
 
-      {/* Messages Area - 75% of screen */}
-      <div className={`flex-1 overflow-y-auto px-2 py-6 bg-gray-50/50 ${isMobile ? 'mt-10' : ''}`} style={{ scrollBehavior: 'smooth', minHeight: '75vh' }}>
-        <div className="space-y-2 max-w-3xl mx-auto">
-          {/* Quick Actions только если нет сообщений */}
-          {allMessages.length === 0 && (
-            <div className="text-center py-4">
-              <h3 className="text-lg font-bold text-foreground mb-1">Персональная консультация</h3>
-              <p className="text-muted-foreground mb-4 text-sm">Выберите быстрое действие или задайте свой вопрос</p>
-              
-              {/* Quick Actions */}
-              <div className="grid grid-cols-1 gap-2 max-w-xs mx-auto">
-                {suggestedQuestions.map((question, index) => {
-                  const IconComponent = question.icon;
-                  return (
-                    <button
-                      key={index}
-                      className="p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 border border-border"
-                      onClick={() => handleSuggestedQuestion(question.text)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-brand-accent rounded-lg flex items-center justify-center">
-                          <IconComponent className="w-4 h-4 text-white" />
-                        </div>
-                        <p className="text-xs font-medium text-foreground text-left">{question.text}</p>
-                      </div>
-                    </button>
-                  );
-                })}
+      {/* Messages Area */}
+      <div className={`flex-1 overflow-y-auto ${isMobile ? 'px-1 py-1' : 'px-2.5 py-1 xs:py-2 sm:py-4'}`} style={{ scrollBehavior: 'smooth' }}>
+        {allMessages.length === 0 ? (
+          <div className={isMobile ? 'mt-4' : 'mt-8'}>
+            <div className={`flex items-start ${isMobile ? 'space-x-1 mb-2' : 'space-x-2 xs:space-x-3 sm:space-x-4 mb-4 xs:mb-5 sm:mb-6'}`}>
+              <div className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10'} bg-primary text-primary-foreground ${isMobile ? 'border-0' : 'border border-primary'} flex items-center justify-center rounded-full flex-shrink-0`}>
+                <Sparkles className={`${isMobile ? 'h-3 w-3' : 'h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5'}`} />
+              </div>
+              <div className={`flex-1 ${isMobile ? 'max-w-[95%]' : 'max-w-[90%]'}`}>
+                <div className={`flex items-center ${isMobile ? 'space-x-1 mb-1' : 'space-x-2 mb-1 xs:mb-1.5 sm:mb-3'}`}>
+                  <span className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} font-semibold text-foreground`}>ИИ Доктор</span>
+                  <span className={`${isMobile ? 'text-xs' : 'text-xs xs:text-sm sm:text-base'} text-muted-foreground`}>
+                    {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+                <div className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} leading-relaxed text-foreground`} style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
+                  Здравствуйте! Я персональный ИИ-доктор EVERLIV. Я помню нашу историю общения и имею доступ к вашим медицинским анализам для более точных рекомендаций. Как дела с вашим здоровьем?
+                </div>
               </div>
             </div>
-          )}
-
-          {allMessages.map((message) => (
-            <div key={message.id} className="flex items-start gap-2">
-              <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                message.role === "user" 
-                  ? "bg-white border border-border" 
-                  : "bg-brand-accent text-white"
+          </div>
+        ) : (
+          <div className={`${isMobile ? 'space-y-1' : 'space-y-3 xs:space-y-4 sm:space-y-6'}`}>
+            {allMessages.map((message) => (
+              <div key={message.id} className={`${
+                message.role === "user" ? "flex justify-end" : "flex justify-start"
               }`}>
                 {message.role === "user" ? (
-                  <User className="h-3 w-3" />
-                ) : (
-                  <Brain className="h-3 w-3" />
-                )}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1 mb-1">
-                  <span className="text-xs font-medium text-foreground">
-                    {message.role === "user" ? "Вы" : "Персональный ИИ Доктор"}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {message.timestamp.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-                
-                <div className={`p-2 rounded-lg ${
-                  message.role === "user" 
-                    ? "bg-white border border-border" 
-                    : "bg-brand-accent/10 border border-brand-accent/20"
-                }`}>
-                  {message.role === "assistant" && message.content.includes('<div') ? (
-                    <div 
-                      className="text-xs text-foreground leading-relaxed"
-                      style={{ wordBreak: 'break-word' }}
-                      dangerouslySetInnerHTML={{ __html: message.content }}
-                    />
-                  ) : (
-                    <div className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">
+                  // User message bubble - во всю ширину на мобильных
+                  <div className={`${isMobile ? 'w-full bg-primary text-primary-foreground rounded-lg px-2 py-1.5' : 'max-w-[85%] bg-primary text-primary-foreground rounded-2xl px-3 xs:px-4 sm:px-6 py-2 xs:py-3 sm:py-4'} ${isMobile ? '' : 'shadow-sm'}`}>
+                    <div className={`flex items-center ${isMobile ? 'space-x-1 mb-0.5' : 'space-x-2 mb-1 xs:mb-1.5'}`}>
+                      <span className={`${isMobile ? 'text-xs' : 'text-xs xs:text-sm sm:text-base'} font-medium opacity-90`}>
+                        Вы
+                      </span>
+                      <span className={`${isMobile ? 'text-xs' : 'text-xs xs:text-sm'} opacity-75`}>
+                        {message.timestamp.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    <div className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} leading-relaxed whitespace-pre-wrap`} 
+                         style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
                       {message.content}
                     </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  // AI message - во всю ширину на мобильных
+                  <div className={`flex items-start ${isMobile ? 'space-x-1 w-full' : 'space-x-2 xs:space-x-3 sm:space-x-4 w-full'}`}>
+                    <div className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10'} bg-primary text-primary-foreground ${isMobile ? 'border-0' : 'border border-primary'} flex items-center justify-center rounded-full flex-shrink-0 mt-1`}>
+                      <Sparkles className={`${isMobile ? 'h-3 w-3' : 'h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5'}`} />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className={`flex items-center ${isMobile ? 'space-x-1 mb-0.5' : 'space-x-2 mb-1 xs:mb-1.5 sm:mb-3'}`}>
+                        <span className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} font-semibold text-foreground`}>
+                          ИИ Доктор - Анализ результатов
+                        </span>
+                        <span className={`${isMobile ? 'text-xs' : 'text-xs xs:text-sm sm:text-base'} text-muted-foreground`}>
+                          {message.timestamp.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
+                      
+                      <div className={`${isMobile ? 'border-l-2 border-l-primary pl-2' : 'border-l-3 border-l-primary pl-3 xs:pl-4 sm:pl-5'}`}>
+                        {message.role === "assistant" && message.content.includes('<div') ? (
+                          <div 
+                            className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} text-foreground leading-relaxed`} 
+                            style={{ wordBreak: 'break-word', lineHeight: '1.4' }}
+                            dangerouslySetInnerHTML={{ __html: message.content }}
+                          />
+                        ) : (
+                          <div className={`${isMobile ? 'text-sm' : 'text-sm xs:text-base sm:text-lg'} text-foreground leading-relaxed whitespace-pre-wrap`} 
+                               style={{ wordBreak: 'break-word', lineHeight: '1.4' }}>
+                            {message.content}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
-          
-          {isProcessing && (
-            <div className="flex items-start gap-2">
-              <div className="w-6 h-6 bg-brand-accent text-white rounded-lg flex items-center justify-center flex-shrink-0">
-                <Brain className="h-3 w-3" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1 mb-1">
-                  <span className="text-xs font-medium text-foreground">Персональный ИИ Доктор</span>
+            ))}
+            
+            {isProcessing && (
+              <div className="flex items-start space-x-2 xs:space-x-3 sm:space-x-4">
+                <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-10 sm:h-10 bg-primary text-primary-foreground border border-primary flex items-center justify-center rounded-full flex-shrink-0">
+                  <Sparkles className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-5 sm:w-5" />
                 </div>
-                <div className="p-2 rounded-lg bg-brand-accent/10 border border-brand-accent/20">
-                  <div className="flex items-center gap-1 text-muted-foreground">
-                    <Loader2 className="h-3 w-3 animate-spin flex-shrink-0" />
-                    <span className="text-xs">Анализирую данные...</span>
+                <div className="flex-1 min-w-0 max-w-[90%]">
+                  <div className="flex items-center space-x-2 mb-1 xs:mb-1.5 sm:mb-2">
+                    <span className="text-sm xs:text-base sm:text-lg font-semibold text-foreground">ИИ Доктор</span>
+                  </div>
+                  <div className="border-l-2 border-l-primary pl-1.5 xs:pl-2 sm:pl-3">
+                    <div className="flex items-center space-x-1 text-muted-foreground">
+                      <Loader2 className="h-2.5 w-2.5 xs:h-3 xs:w-3 sm:h-4 sm:w-4 animate-spin flex-shrink-0" />
+                      <span className="text-[10px] xs:text-xs sm:text-sm">Анализирую...</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Compact Input Panel with integrated buttons */}
-      <div className="bg-white border-t border-border py-2">
-        <div className="max-w-3xl mx-auto px-2">
-          <div className="bg-gray-50 rounded-md px-4 py-2 border border-gray-200" style={{ minHeight: '32px' }}>
-            {/* Input Field */}
+      {/* Collapsible Popular Questions */}
+      {shouldShowSuggestedQuestions && (
+        <Collapsible open={showSuggestedQuestions} onOpenChange={setShowSuggestedQuestions}>
+          <div className="border-t border-border bg-muted/30">
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                className={`w-full ${isMobile ? 'h-8 text-xs' : 'h-10 text-sm'} flex items-center justify-between px-2 hover:bg-muted/50`}
+              >
+                <span className="font-medium text-foreground">
+                  {showSuggestedQuestions ? 'Скрыть популярные вопросы' : 'Показать популярные вопросы'}
+                </span>
+                {showSuggestedQuestions ? (
+                  <ChevronUp className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
+                ) : (
+                  <ChevronDown className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'}`} />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+            
+            <CollapsibleContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <div className="p-1 xs:p-2 sm:p-3">
+                <div className="grid grid-cols-1 gap-1 xs:gap-1.5 sm:gap-3">
+                  {suggestedQuestions.map((question, index) => {
+                    const IconComponent = iconMap[question.icon as keyof typeof iconMap] || BookOpen;
+                    
+                    return (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        onClick={() => {
+                          handleSuggestedQuestion(question.text);
+                          setShowSuggestedQuestions(false);
+                        }}
+                        className="h-auto p-1.5 xs:p-2 sm:p-3 text-left justify-start hover:bg-muted/50 bg-card min-h-[28px] xs:min-h-[32px] sm:min-h-[44px]"
+                      >
+                        <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-3 w-full">
+                          <div className="w-4 h-4 xs:w-5 xs:h-5 sm:w-8 sm:h-8 bg-muted flex items-center justify-center text-primary flex-shrink-0">
+                            <IconComponent className="h-2 w-2 xs:h-2.5 xs:w-2.5 sm:h-4 sm:w-4" />
+                          </div>
+                          <span className="text-[10px] xs:text-xs sm:text-sm text-foreground text-left leading-tight" style={{ wordBreak: 'break-word' }}>
+                            {question.text}
+                          </span>
+                        </div>
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            </CollapsibleContent>
+          </div>
+        </Collapsible>
+      )}
+
+      {/* Modern Input Panel */}
+      <div className={`border-t border-border bg-card ${isMobile ? 'p-1 mt-2' : 'p-4 mt-4'}`}>
+        <div className="flex gap-1 xs:gap-2 sm:gap-3 items-end">
+          <div className="flex-1 min-w-0 relative">
             <textarea
               ref={textareaRef}
-              placeholder="Что вас беспокоит? Как я могу помочь?"
+              placeholder="Задайте вопрос о здоровье..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isProcessing}
-              className="w-full min-h-[14px] max-h-8 resize-none outline-none text-xs placeholder:text-muted-foreground bg-transparent"
+              className={`w-full min-h-[32px] xs:min-h-[36px] sm:min-h-[44px] p-2 xs:p-3 sm:p-4 ${isMobile ? 'pr-9' : 'pr-10 xs:pr-12 sm:pr-14'} resize-none border border-input bg-background placeholder:text-muted-foreground overflow-hidden focus:border-ring focus:outline-none text-[11px] xs:text-xs sm:text-sm rounded-lg transition-all duration-200`}
               style={{ 
-                lineHeight: '1.1'
+                lineHeight: '1.3',
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+                maxHeight: isMobile ? '15vh' : '30vh'
               }}
               rows={1}
             />
-            
-            {/* Bottom row with buttons */}
-            <div className="flex items-center justify-between">
-              {/* Left side buttons */}
-              <div className="flex items-center gap-1">
-                <button 
-                  onClick={handleFileClick}
-                  className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
-                >
-                  <FileText className="w-3 h-3 text-gray-500" />
-                </button>
-                
-                <button 
-                  onClick={handleCameraClick}
-                  className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
-                >
-                  <Camera className="w-3 h-3 text-gray-500" />
-                </button>
-                
-                <button 
-                  onClick={handleMicClick}
-                  className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors ${
-                    isRecording 
-                      ? 'bg-red-100 hover:bg-red-200' 
-                      : 'bg-transparent hover:bg-gray-200'
-                  }`}
-                >
-                  <Mic className={`w-3 h-3 ${isRecording ? 'text-red-500' : 'text-gray-500'}`} />
-                </button>
-                
-                <button 
-                  onClick={handleChatHistoryClick}
-                  className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
-                >
-                  <MessageSquare className="w-3 h-3 text-gray-500" />
-                </button>
-                
-                <button 
-                  onClick={onCreateNewChat}
-                  className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
-                >
-                  <Plus className="w-3 h-3 text-gray-500" />
-                </button>
-              </div>
-              
-              {/* Right side send button */}
-              <button
-                onClick={handleSubmit}
-                disabled={!inputText.trim() || isProcessing}
-                className="w-5 h-5 rounded-full bg-gradient-to-r from-brand-accent to-brand-accent/80 hover:from-brand-accent hover:to-brand-accent transition-all duration-200 flex items-center justify-center disabled:opacity-50"
-              >
-                {isProcessing ? (
-                  <Loader2 className="h-2.5 w-2.5 animate-spin text-white" />
-                ) : (
-                  <Send className="h-2.5 w-2.5 text-white" />
-                )}
-              </button>
-            </div>
+            <Button
+              onClick={handleSubmit}
+              disabled={!inputText.trim() || isProcessing}
+              size="sm"
+              className={`absolute ${isMobile ? 'right-1 top-1/2 -translate-y-1/2 h-5 w-5 p-0' : 'right-2 top-1/2 -translate-y-1/2 h-7 w-7 p-1'} rounded-md bg-primary hover:bg-primary/90 shadow-sm hover:shadow-md transition-all duration-200`}
+            >
+              {isProcessing ? (
+                <Loader2 className={`${isMobile ? 'h-2.5 w-2.5' : 'h-3.5 w-3.5'} animate-spin`} />
+              ) : (
+                <Send className={`${isMobile ? 'h-2.5 w-2.5' : 'h-3.5 w-3.5'}`} />
+              )}
+            </Button>
           </div>
         </div>
       </div>

@@ -1,13 +1,13 @@
 
 import React, { ReactNode } from 'react';
-import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const createOptimizedQueryClient = () => {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 5 * 60 * 1000, // 5 minutes - more aggressive caching
-        gcTime: 30 * 60 * 1000, // 30 minutes - keep in memory longer
+        staleTime: 3 * 60 * 1000, // 3 minutes - более агрессивное кэширование
+        gcTime: 15 * 60 * 1000, // 15 minutes - дольше держим в памяти
         retry: (failureCount, error) => {
           // Don't retry auth errors or permission errors
           if (error?.message?.includes('JWT') || 
@@ -15,34 +15,18 @@ const createOptimizedQueryClient = () => {
               error?.message?.includes('row-level security')) {
             return false;
           }
-          return failureCount < 2; // Reduce retries for speed
+          return failureCount < 1; // Меньше ретраев для скорости
         },
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
         refetchOnWindowFocus: false,
         refetchOnMount: false,
-        refetchOnReconnect: 'always',
+        refetchOnReconnect: true,
+        // Включаем background refetch для fresh data
         refetchIntervalInBackground: false,
-        // Network mode optimization
-        networkMode: 'online',
-        // Optimize background updates
-        structuralSharing: true,
       },
       mutations: {
         retry: false,
-        networkMode: 'online',
       },
     },
-    // Add query deduplication
-    queryCache: new QueryCache({
-      onError: (error) => {
-        console.error('Query cache error:', error);
-      },
-    }),
-    mutationCache: new MutationCache({
-      onError: (error) => {
-        console.error('Mutation cache error:', error);
-      },
-    }),
   });
 };
 

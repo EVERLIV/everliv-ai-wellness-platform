@@ -23,31 +23,6 @@ export const useAuthState = () => {
   useEffect(() => {
     let mounted = true;
     
-    // Принудительный таймаут для предотвращения зависания
-    const forceTimeout = setTimeout(() => {
-      if (mounted) {
-        console.warn('🔧 Auth initialization timeout, forcing completion');
-        setAuthState(prev => {
-          // Если уже есть сессия, не сбрасываем её
-          if (prev.session) {
-            return {
-              ...prev,
-              isLoading: false,
-              isInitialized: true,
-            };
-          }
-          // Если нет сессии, помечаем как завершённое без пользователя
-          return {
-            ...prev,
-            isLoading: false,
-            isInitialized: true,
-            user: null,
-            session: null,
-          };
-        });
-      }
-    }, 8000); // 8 секунд таймаут
-    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -90,20 +65,10 @@ export const useAuthState = () => {
       if (session && !error) {
         handleInitialSessionNavigation(session, false);
       }
-    }).catch((error) => {
-      console.error('Failed to get session:', error);
-      if (mounted) {
-        setAuthState(prev => ({
-          ...prev,
-          isLoading: false,
-          isInitialized: true,
-        }));
-      }
     });
 
     return () => {
       mounted = false;
-      clearTimeout(forceTimeout);
       subscription.unsubscribe();
     };
   }, []);

@@ -22,7 +22,7 @@ import {
 import { SmartRecommendation } from './types';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 
 interface RecommendationPopupProps {
   isOpen: boolean;
@@ -35,7 +35,7 @@ const RecommendationPopup: React.FC<RecommendationPopupProps> = ({
   onClose,
   recommendations
 }) => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const [savingStates, setSavingStates] = useState<Record<string, boolean>>({});
   const [savedStates, setSavedStates] = useState<Record<string, boolean>>({});
 

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { PLAN_FEATURES } from "@/constants/subscription-features";
 import { useSubscriptionHelpers } from "@/hooks/use-subscription-helpers";
 import { 
@@ -111,9 +111,8 @@ const checkPremiumFromDatabase = (subscription: Subscription | null, userEmail?:
 };
 
 export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
-  const auth = useAuth();
-  const user = auth?.user;
-  const authLoading = auth?.isLoading;
+  const smartAuth = useSmartAuth();
+  const user = smartAuth?.user;
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [featureTrials, setFeatureTrials] = useState<FeatureTrial[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -303,16 +302,6 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
 
   // Enhanced subscription data loading with extensive logging
   useEffect(() => {
-    let mounted = true;
-    
-    // Принудительный таймаут для SubscriptionProvider
-    const forceTimeout = setTimeout(() => {
-      if (mounted) {
-        console.warn('🔧 [SUBSCRIPTION] Forcing completion due to timeout');
-        setIsLoading(false);
-      }
-    }, 10000); // 10 секунд таймаут
-    
     const loadSubscriptionData = async () => {
       console.log('🔄 [LOAD DATA] Loading subscription data for user:', user?.id, user?.email);
       
@@ -324,7 +313,6 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         setIsTrialActive(false);
         setTrialExpiresAt(null);
         setDebugInfo({ noUser: true, timestamp: new Date().toISOString() });
-        clearTimeout(forceTimeout);
         return;
       }
 
@@ -392,18 +380,10 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
         });
       }
       
-      if (mounted) {
-        setIsLoading(false);
-        clearTimeout(forceTimeout);
-      }
+      setIsLoading(false);
     };
 
     loadSubscriptionData();
-    
-    return () => {
-      mounted = false;
-      clearTimeout(forceTimeout);
-    };
   }, [user?.id, user?.email]);
 
   const recordFeatureTrial = async (featureName: string): Promise<void> => {
@@ -522,15 +502,6 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     forceRefreshSubscription,
     debugInfo
   };
-
-  // Don't render context until auth is loaded to prevent errors
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   return (
     <SubscriptionContext.Provider value={contextValue}>

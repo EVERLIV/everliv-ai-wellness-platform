@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { normalizeStatus, generateAIRecommendation } from '@/utils/biomarkerTrendsUtils';
 import { generateDetailedBiomarkerRecommendation } from '@/services/ai/biomarker-recommendations';
@@ -25,7 +25,7 @@ interface BiomarkerTrend {
 }
 
 export const useBiomarkerTrends = () => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const [biomarkerTrends, setBiomarkerTrends] = useState<BiomarkerTrend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from './useSmartAuth';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SmartTip {
@@ -15,7 +15,7 @@ export interface SmartTip {
 }
 
 export const useSmartTips = () => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const [tips, setTips] = useState<SmartTip[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

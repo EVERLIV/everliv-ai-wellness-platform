@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 interface VitalMetric {
@@ -29,7 +29,7 @@ interface HealthTask {
 }
 
 export const useHealthTracking = () => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const [vitalMetrics, setVitalMetrics] = useState<VitalMetric[]>([]);
   const [healthTasks, setHealthTasks] = useState<HealthTask[]>([]);
   const [isLoading, setIsLoading] = useState(true);

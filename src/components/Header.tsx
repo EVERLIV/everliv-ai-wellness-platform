@@ -4,25 +4,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useIsMobile } from "@/hooks/use-mobile";
 import Logo from "./header/Logo";
 import UserProfileDropdown from "./header/UserProfileDropdown";
-import MobileHeader from "./mobile/MobileHeader";
 
 const Header: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/");
   };
-
-  // Используем мобильный заголовок для мобильных устройств
-  if (isMobile) {
-    return null; // MobileHeader будет отображаться в MobileLayout
-  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">

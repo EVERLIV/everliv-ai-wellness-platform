@@ -7,7 +7,7 @@ import { ChevronDown, ChevronUp, Save, Heart, Dumbbell, Moon, Brain, Apple, Test
 import { AnalyticsRecommendation } from '@/types/analyticsRecommendations';
 import RecommendationDetails from './RecommendationDetails';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { toast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -22,7 +22,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({
   isExpanded,
   onToggleExpanded
 }) => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const isMobile = useIsMobile();
 
   const getCategoryIcon = (category: string) => {

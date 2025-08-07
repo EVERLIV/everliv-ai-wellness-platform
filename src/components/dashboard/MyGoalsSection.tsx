@@ -47,42 +47,40 @@ const MyGoalsSection: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-br from-brand-secondary/30 to-brand-accent/20 rounded-2xl p-5 shadow-md border border-brand-secondary/30">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-sm">
-            <Target className="h-5 w-5 text-white" />
+      <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/40 rounded-xl p-4 sm:p-5 mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+            <Target className="h-4 w-4 text-white" />
           </div>
-          <h2 className="text-lg font-bold text-foreground">Мои цели</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Мои цели</h2>
         </div>
-        <div className="text-center py-6 bg-white/50 rounded-xl">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand-primary mx-auto mb-3"></div>
-          <p className="text-sm text-muted-foreground">Загрузка целей...</p>
+        <div className="text-center py-4">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
+          <p className="text-sm text-gray-500">Загрузка целей...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gradient-to-br from-brand-secondary/30 to-brand-accent/20 rounded-2xl p-5 shadow-md border border-brand-secondary/30">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-sm">
-          <Target className="h-5 w-5 text-white" />
+    <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/40 rounded-xl p-4 sm:p-5 mb-6">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+          <Target className="h-4 w-4 text-white" />
         </div>
-        <h2 className="text-lg font-bold text-foreground">Мои цели</h2>
+        <h2 className="text-base font-semibold text-gray-900">Мои цели</h2>
       </div>
 
       <div className="space-y-4">
         {/* Пользовательские цели */}
         {customGoals.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-foreground/80 mb-3">Личные цели</h3>
-            <div className="space-y-3">
+            <h3 className="text-xs font-medium text-gray-700 mb-2">Личные цели</h3>
+            <div className="space-y-2">
               {customGoals.map((goal) => (
-                <div key={goal.id} className="bg-white/70 rounded-xl p-3 border border-white/50">
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-brand-primary rounded-full mt-2 flex-shrink-0" />
-                    <p className="text-sm text-foreground font-medium leading-relaxed">{goal.title}</p>
-                  </div>
+                <div key={goal.id} className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 flex-shrink-0" />
+                  <p className="text-xs text-gray-700 leading-relaxed">{goal.title}</p>
                 </div>
               ))}
             </div>
@@ -92,14 +90,12 @@ const MyGoalsSection: React.FC = () => {
         {/* Выбранные цели из профиля здоровья */}
         {selectedGoals.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-foreground/80 mb-3">Цели здоровья</h3>
-            <div className="space-y-3">
+            <h3 className="text-xs font-medium text-gray-700 mb-2">Цели здоровья</h3>
+            <div className="space-y-2">
               {selectedGoals.map((goal, index) => (
-                <div key={index} className="bg-white/70 rounded-xl p-3 border border-white/50">
-                  <div className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-brand-accent rounded-full mt-2 flex-shrink-0" />
-                    <p className="text-sm text-foreground/90 font-medium leading-relaxed">{goal}</p>
-                  </div>
+                <div key={index} className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full mt-1.5 flex-shrink-0" />
+                  <p className="text-xs text-gray-600 leading-relaxed">{goal}</p>
                 </div>
               ))}
             </div>
@@ -108,12 +104,12 @@ const MyGoalsSection: React.FC = () => {
 
         {/* Пустое состояние */}
         {selectedGoals.length === 0 && customGoals.length === 0 && (
-          <div className="text-center py-6 bg-white/50 rounded-xl">
-            <Target className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-            <p className="text-sm text-muted-foreground mb-4">У вас пока нет целей</p>
+          <div className="text-center py-4">
+            <Target className="h-8 w-8 mx-auto text-gray-400 mb-2" />
+            <p className="text-sm text-gray-500 mb-3">У вас пока нет целей</p>
             <button 
               onClick={() => window.location.href = '/health-profile'}
-              className="bg-brand-primary text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-brand-primary-dark transition-colors"
+              className="text-xs text-blue-600 hover:text-blue-700 font-medium"
             >
               Установить цели здоровья
             </button>

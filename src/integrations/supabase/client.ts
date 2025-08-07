@@ -3,26 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { withRetry, isRetryableError } from '@/utils/retryUtils';
 
-// Используем хардкодированные значения для надежности
 const SUPABASE_URL = "https://dajowxmdmnsvckdkugmd.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRham93eG1kbW5zdmNrZGt1Z21kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDczMDk4MjIsImV4cCI6MjA2Mjg4NTgyMn0.G5VeyG16dUwl5IU98WEIxjWTSmlbPLoLuq6ZOiZxjeM";
-
-// Debug: Log Supabase config (safe for production)
-console.log('🔧 Supabase client config:', {
-  url: SUPABASE_URL,
-  keyLength: SUPABASE_PUBLISHABLE_KEY.length,
-  isDev: import.meta.env.DEV,
-  hostname: typeof window !== 'undefined' ? window.location.hostname : 'SSR'
-});
 
 // Clear any invalid tokens on initialization
 const clearInvalidTokens = () => {
   try {
-    if (typeof window === 'undefined' || !window.localStorage) {
-      console.log('LocalStorage not available, skipping token cleanup');
-      return;
-    }
-    
     const keys = Object.keys(localStorage);
     keys.forEach(key => {
       if (key.startsWith('sb-') && key.includes('auth-token')) {
@@ -44,10 +30,10 @@ clearInvalidTokens();
 // Create enhanced Supabase client with retry capabilities
 const baseClient = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    storage: window.localStorage,
     autoRefreshToken: true,
-    persistSession: typeof window !== 'undefined',
-    detectSessionInUrl: typeof window !== 'undefined'
+    persistSession: true,
+    detectSessionInUrl: true
   },
   global: {
     headers: {

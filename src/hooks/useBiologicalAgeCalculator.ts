@@ -1,32 +1,21 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { BIOMARKERS, ACCURACY_LEVELS } from '@/data/biomarkers';
 import { Biomarker, BiologicalAgeResult, AccuracyLevel } from '@/types/biologicalAge';
 import { HealthProfileData } from '@/types/healthProfile';
 import { analyzeBiologicalAgeWithOpenAI } from '@/services/ai/biological-age-analysis';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useSmartAuth } from '@/hooks/useSmartAuth';
 import { useBiologicalAgeHistory } from '@/hooks/useBiologicalAgeHistory';
 import { useBiomarkerHistory } from '@/hooks/useBiomarkerHistory';
 
 export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | null) => {
-  const { user } = useAuth();
+  const { user } = useSmartAuth();
   const { saveSnapshot } = useBiologicalAgeHistory();
   const { saveBiomarkerData } = useBiomarkerHistory();
-  
-  // Initialize with cached data from localStorage
-  const [biomarkers, setBiomarkers] = useState<Biomarker[]>(() => {
-    try {
-      const cached = localStorage.getItem(`biomarkers_${user?.id}`);
-      return cached ? JSON.parse(cached) : BIOMARKERS;
-    } catch {
-      return BIOMARKERS;
-    }
-  });
-  
+  const [biomarkers, setBiomarkers] = useState<Biomarker[]>(BIOMARKERS);
   const [isCalculating, setIsCalculating] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<BiologicalAgeResult | null>(null);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [currentAccuracy, setCurrentAccuracy] = useState<AccuracyLevel>({
@@ -36,13 +25,6 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
     current_tests: 0,
     description: 'Недостаточно данных'
   });
-
-  // Persist biomarkers to localStorage when they change
-  useEffect(() => {
-    if (user?.id) {
-      localStorage.setItem(`biomarkers_${user.id}`, JSON.stringify(biomarkers));
-    }
-  }, [biomarkers, user?.id]);
 
   // Load biomarkers from user's lab analyses
   useEffect(() => {
@@ -69,27 +51,38 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
     }
   }, [healthProfile]);
 
-  const loadUserBiomarkers = useCallback(async () => {
+  const loadUserBiomarkers = async () => {
     if (!user) return;
 
-    setIsLoading(true);
     try {
       console.log('Loading user biomarkers for biological age calculation');
 
-      // Optimized single query with JOIN
-      const { data: userBiomarkers, error } = await supabase
-        .from('biomarkers')
-        .select(`
-          name, 
-          value, 
-          reference_range, 
-          status,
-          medical_analyses!inner(user_id)
-        `)
-        .eq('medical_analyses.user_id', user.id);
+      // Get user's analyses
+      const { data: analyses, error: analysesError } = await supabase
+        .from('medical_analyses')
+        .select('id')
+        .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error fetching biomarkers:', error);
+      if (analysesError) {
+        console.error('Error fetching analyses:', analysesError);
+        return;
+      }
+
+      if (!analyses || analyses.length === 0) {
+        console.log('No analyses found for user');
+        return;
+      }
+
+      const analysisIds = analyses.map(a => a.id);
+
+      // Get biomarkers for those analyses
+      const { data: userBiomarkers, error: biomarkersError } = await supabase
+        .from('biomarkers')
+        .select('name, value, reference_range, status')
+        .in('analysis_id', analysisIds);
+
+      if (biomarkersError) {
+        console.error('Error fetching biomarkers:', biomarkersError);
         return;
       }
 
@@ -101,15 +94,50 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
       console.log('Found user biomarkers:', userBiomarkers.length);
       console.log('User biomarkers data:', userBiomarkers);
 
-      // Enhanced biomarker matching with better category detection
-      const updatedBiomarkers = BIOMARKERS.map(biomarker => {
+      // Update biomarkers with user data
+      const updatedBiomarkers = biomarkers.map(biomarker => {
+        // Try to find matching biomarker by exact or very close name match
         const userBiomarker = userBiomarkers.find(ub => {
           if (!ub.name || !biomarker.name) return false;
           
           const ubName = ub.name.toLowerCase().trim();
           const biomarkerName = biomarker.name.toLowerCase().trim();
           
-          return matchBiomarker(biomarkerName, ubName, biomarker.category);
+          // Exact match
+          if (ubName === biomarkerName) return true;
+          
+          // Specific cardiovascular matches
+          if (biomarkerName.includes('общий холестерин') && ubName.includes('холестерин') && !ubName.includes('лпнп') && !ubName.includes('лпвп')) return true;
+          if (biomarkerName.includes('лпнп') && (ubName.includes('лпнп') || ubName.includes('ldl') || ubName.includes('плохой холестерин'))) return true;
+          if (biomarkerName.includes('лпвп') && (ubName.includes('лпвп') || ubName.includes('hdl') || ubName.includes('хороший холестерин'))) return true;
+          if (biomarkerName.includes('триглицериды') && ubName.includes('триглицерид')) return true;
+          if (biomarkerName.includes('с-реактивный белок') && (ubName.includes('срб') || ubName.includes('c-реактивный') || ubName.includes('crp'))) return true;
+          if (biomarkerName.includes('гомоцистеин') && ubName.includes('гомоцистеин')) return true;
+          
+          // Use general blood test markers for cardiovascular assessment where applicable
+          // СОЭ can indicate inflammation (cardiovascular risk)
+          if (biomarkerName.includes('соэ') && (ubName.includes('соэ') || ubName.includes('скорость оседания'))) return true;
+          
+          // Metabolic matches
+          if (biomarkerName.includes('глюкоза') && ubName.includes('глюкоза')) return true;
+          if (biomarkerName.includes('гликированный гемоглобин') && (ubName.includes('hba1c') || ubName.includes('гликированный'))) return true;
+          if (biomarkerName.includes('инсулин') && ubName.includes('инсулин') && !ubName.includes('homa')) return true;
+          
+          // Kidney function
+          if (biomarkerName.includes('креатинин') && ubName.includes('креатинин')) return true;
+          if (biomarkerName.includes('мочевина') && ubName.includes('мочевина')) return true;
+          
+          // Liver function  
+          if (biomarkerName.includes('алт') && (ubName.includes('алт') || ubName.includes('аланин'))) return true;
+          if (biomarkerName.includes('аст') && (ubName.includes('аст') || ubName.includes('аспартат'))) return true;
+          if (biomarkerName.includes('билирубин') && ubName.includes('билирубин')) return true;
+          
+          // Vitamins
+          if (biomarkerName.includes('витамин d') && (ubName.includes('витамин d') || ubName.includes('25-oh'))) return true;
+          if (biomarkerName.includes('витамин b12') && (ubName.includes('b12') || ubName.includes('цианокобаламин'))) return true;
+          if (biomarkerName.includes('фолиевая кислота') && (ubName.includes('фолиевая') || ubName.includes('фолат'))) return true;
+          
+          return false;
         });
 
         if (userBiomarker && userBiomarker.value) {
@@ -134,75 +162,7 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
 
     } catch (error) {
       console.error('Error loading user biomarkers:', error);
-    } finally {
-      setIsLoading(false);
     }
-  }, [user]);
-
-  // Enhanced biomarker matching function
-  const matchBiomarker = (biomarkerName: string, ubName: string, category: string): boolean => {
-    // Exact match
-    if (ubName === biomarkerName) return true;
-    
-    // Category-specific matching
-    switch (category) {
-      case 'cardiovascular':
-        return matchCardiovascular(biomarkerName, ubName);
-      case 'metabolic':
-        return matchMetabolic(biomarkerName, ubName);
-      case 'kidney':
-        return matchKidney(biomarkerName, ubName);
-      case 'liver':
-        return matchLiver(biomarkerName, ubName);
-      case 'vitamins':
-        return matchVitamins(biomarkerName, ubName);
-      case 'inflammatory':
-        return matchInflammatory(biomarkerName, ubName);
-      default:
-        return false;
-    }
-  };
-
-  const matchCardiovascular = (biomarkerName: string, ubName: string): boolean => {
-    if (biomarkerName.includes('общий холестерин') && ubName.includes('холестерин') && !ubName.includes('лпнп') && !ubName.includes('лпвп')) return true;
-    if (biomarkerName.includes('лпнп') && (ubName.includes('лпнп') || ubName.includes('ldl'))) return true;
-    if (biomarkerName.includes('лпвп') && (ubName.includes('лпвп') || ubName.includes('hdl'))) return true;
-    if (biomarkerName.includes('триглицериды') && ubName.includes('триглицерид')) return true;
-    if (biomarkerName.includes('с-реактивный белок') && (ubName.includes('срб') || ubName.includes('c-реактивный') || ubName.includes('crp'))) return true;
-    if (biomarkerName.includes('гомоцистеин') && ubName.includes('гомоцистеин')) return true;
-    return false;
-  };
-
-  const matchMetabolic = (biomarkerName: string, ubName: string): boolean => {
-    if (biomarkerName.includes('глюкоза') && ubName.includes('глюкоза')) return true;
-    if (biomarkerName.includes('гликированный гемоглобин') && (ubName.includes('hba1c') || ubName.includes('гликированный'))) return true;
-    if (biomarkerName.includes('инсулин') && ubName.includes('инсулин') && !ubName.includes('homa')) return true;
-    return false;
-  };
-
-  const matchKidney = (biomarkerName: string, ubName: string): boolean => {
-    if (biomarkerName.includes('креатинин') && ubName.includes('креатинин')) return true;
-    if (biomarkerName.includes('мочевина') && ubName.includes('мочевина')) return true;
-    return false;
-  };
-
-  const matchLiver = (biomarkerName: string, ubName: string): boolean => {
-    if (biomarkerName.includes('алт') && (ubName.includes('алт') || ubName.includes('аланин'))) return true;
-    if (biomarkerName.includes('аст') && (ubName.includes('аст') || ubName.includes('аспартат'))) return true;
-    if (biomarkerName.includes('билирубин') && ubName.includes('билирубин')) return true;
-    return false;
-  };
-
-  const matchVitamins = (biomarkerName: string, ubName: string): boolean => {
-    if (biomarkerName.includes('витамин d') && (ubName.includes('витамин d') || ubName.includes('25-oh'))) return true;
-    if (biomarkerName.includes('витамин b12') && (ubName.includes('b12') || ubName.includes('цианокобаламин'))) return true;
-    if (biomarkerName.includes('фолиевая кислота') && (ubName.includes('фолиевая') || ubName.includes('фолат'))) return true;
-    return false;
-  };
-
-  const matchInflammatory = (biomarkerName: string, ubName: string): boolean => {
-    if (biomarkerName.includes('соэ') && (ubName.includes('соэ') || ubName.includes('скорость оседания'))) return true;
-    return false;
   };
 
   // Update accuracy level
@@ -383,7 +343,6 @@ export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | nu
   return {
     biomarkers,
     isCalculating,
-    isLoading,
     results,
     connectionError,
     currentAccuracy,

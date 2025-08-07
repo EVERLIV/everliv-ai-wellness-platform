@@ -76,21 +76,24 @@ const MyBiomarkers = lazy(() => import("./pages/MyBiomarkers"));
 
 import { SmartAuthProvider } from "./contexts/SmartAuthContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
-import SecureRouteWrapper from "./components/common/SecureRouteWrapper";
+import { SecureDataProvider } from "./components/common/SecureDataProvider";
 import RealtimeNotifications from "./components/realtime/RealtimeNotifications";
+import RealtimeMonitor from "./components/admin/RealtimeMonitor";
+import DevModeIndicator from "./components/DevModeIndicator";
 
-const App = () => {
-  return (
-    <ErrorBoundary>
-      <HelmetProvider>
-        <QueryOptimizer>
-          <TooltipProvider delayDuration={0}>
-            <Toaster />
-            <Sonner />
-            <Suspense fallback={<LoadingFallback />}>
-              <BrowserRouter>
-                <SmartAuthProvider>
-                  <SubscriptionProvider>
+const App = () => (
+  <ErrorBoundary>
+    <HelmetProvider>
+      <QueryOptimizer>
+        <TooltipProvider delayDuration={0}>
+          <Toaster />
+          <Sonner />
+          <Suspense fallback={<LoadingFallback />}>
+            <BrowserRouter>
+              <SmartAuthProvider>
+                <SubscriptionProvider>
+                  <SecureDataProvider>
+                    <DevModeIndicator />
                     <RealtimeNotifications />
                     <Routes>
                       {/* Critical path routes - no lazy loading */}
@@ -109,121 +112,87 @@ const App = () => {
                       {/* Protected routes */}
                       <Route path="/dashboard" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <DashboardPage />
-                          </SecureRouteWrapper>
+                          <DashboardPage />
                         </ProtectedRoute>
                       } />
                       <Route path="/notifications" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <NotificationsPage />
-                          </SecureRouteWrapper>
+                          <NotificationsPage />
                         </ProtectedRoute>
                       } />
                       <Route path="/profile" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <UserProfile />
-                          </SecureRouteWrapper>
+                          <UserProfile />
                         </ProtectedRoute>
                       } />
                       <Route path="/settings" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <Settings />
-                          </SecureRouteWrapper>
+                          <Settings />
                         </ProtectedRoute>
                       } />
                       <Route path="/health-profile" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <HealthProfile />
-                          </SecureRouteWrapper>
+                          <HealthProfile />
                         </ProtectedRoute>
                       } />
                       <Route path="/blood-analysis" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <BloodAnalysis />
-                          </SecureRouteWrapper>
+                          <BloodAnalysis />
                         </ProtectedRoute>
                       } />
                       <Route path="/lab-analyses" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <LabAnalyses />
-                          </SecureRouteWrapper>
+                          <LabAnalyses />
                         </ProtectedRoute>
                       } />
                       <Route path="/analysis-details" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <AnalysisDetails />
-                          </SecureRouteWrapper>
+                          <AnalysisDetails />
                         </ProtectedRoute>
                       } />
                       <Route path="/analytics" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <Analytics />
-                          </SecureRouteWrapper>
+                          <Analytics />
                         </ProtectedRoute>
                       } />
                       <Route path="/ai-doctor" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <AIDoctorPage />
-                          </SecureRouteWrapper>
+                          <AIDoctorPage />
                         </ProtectedRoute>
                       } />
                       <Route path="/ai-doctor/basic" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <AIDoctorBasicPage />
-                          </SecureRouteWrapper>
+                          <AIDoctorBasicPage />
                         </ProtectedRoute>
                       } />
                       <Route path="/ai-doctor/personal" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <AIDoctorPersonalPage />
-                          </SecureRouteWrapper>
+                          <AIDoctorPersonalPage />
                         </ProtectedRoute>
                       } />
                       <Route path="/subscription" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <SubscriptionPage />
-                          </SecureRouteWrapper>
+                          <SubscriptionPage />
                         </ProtectedRoute>
                       } />
                       <Route path="/user-subscription" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <UserSubscription />
-                          </SecureRouteWrapper>
+                          <UserSubscription />
                         </ProtectedRoute>
                       } />
                       <Route path="/checkout" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <Checkout />
-                          </SecureRouteWrapper>
+                          <Checkout />
                         </ProtectedRoute>
                       } />
                       <Route path="/health-calendar" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <HealthCalendar />
-                          </SecureRouteWrapper>
+                          <HealthCalendar />
                         </ProtectedRoute>
                       } />
                       <Route path="/my-biomarkers" element={
                         <ProtectedRoute>
-                          <SecureRouteWrapper>
-                            <MyBiomarkers />
-                          </SecureRouteWrapper>
+                          <MyBiomarkers />
                         </ProtectedRoute>
                       } />
 
@@ -260,15 +229,15 @@ const App = () => {
                       {/* 404 Route */}
                       <Route path="*" element={<NotFound />} />
                     </Routes>
-                  </SubscriptionProvider>
-                </SmartAuthProvider>
-              </BrowserRouter>
+                  </SecureDataProvider>
+                </SubscriptionProvider>
+              </SmartAuthProvider>
+            </BrowserRouter>
           </Suspense>
         </TooltipProvider>
       </QueryOptimizer>
     </HelmetProvider>
   </ErrorBoundary>
-  );
-};
+);
 
 export default App;
