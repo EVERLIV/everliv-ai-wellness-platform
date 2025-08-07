@@ -6,6 +6,6 @@ interface SmartAuthProviderProps {
   children: React.ReactNode;
 }
 
-export const SmartAuthProvider = ({ children }: SmartAuthProviderProps) => {
-  return <AuthProvider>{children}</AuthProvider>;
-};
+export const SmartAuthProvider = ({ children }: SmartAuthProviderProps) => (
+  <AuthProvider>{children}</AuthProvider>
+);

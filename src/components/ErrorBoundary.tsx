@@ -2,7 +2,6 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Download, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { prodLogger } from '@/utils/production-logger';
 
 interface Props {
   children: ReactNode;
@@ -32,13 +31,6 @@ class ErrorBoundary extends Component<Props, State> {
     
     // Save error info to state
     this.setState({ errorInfo });
-    
-    // Log to production logger
-    prodLogger.error('React Error Boundary', {
-      component: errorInfo.componentStack,
-      error: error.message,
-      stack: error.stack
-    }, error);
   }
 
   private handleRetry = () => {
@@ -51,8 +43,14 @@ class ErrorBoundary extends Component<Props, State> {
   };
 
   private downloadLogs = () => {
-    const logs = prodLogger.exportLogs();
-    const blob = new Blob([logs], { type: 'application/json' });
+    const errorData = {
+      timestamp: new Date().toISOString(),
+      error: this.state.error?.message,
+      stack: this.state.error?.stack,
+      componentStack: this.state.errorInfo?.componentStack
+    };
+    
+    const blob = new Blob([JSON.stringify(errorData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -65,7 +63,6 @@ class ErrorBoundary extends Component<Props, State> {
     // Clear all cache and storage
     localStorage.clear();
     sessionStorage.clear();
-    prodLogger.clearLogs();
     
     // Clear service worker cache if available
     if ('serviceWorker' in navigator && 'caches' in window) {
