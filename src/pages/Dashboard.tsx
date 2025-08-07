@@ -7,13 +7,13 @@ import DashboardWrapper from "@/components/dashboard/DashboardWrapper";
 import MobileLayout from "@/components/mobile/MobileLayout";
 import MenuCard from "@/components/dashboard/menu/MenuCard";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import { useSmartAuth } from "@/hooks/useSmartAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SubscriptionStatusCard from "@/components/dashboard/header/SubscriptionStatusCard";
 import { Crown, Zap, Shield, Target, Activity, BookOpen, User } from "lucide-react";
 
 const Dashboard = () => {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
   const { subscription, isPremiumActive, currentPlan, isLoading } = useSubscription();
   const isMobile = useIsMobile();
 

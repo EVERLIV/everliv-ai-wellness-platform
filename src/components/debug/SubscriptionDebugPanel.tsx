@@ -4,11 +4,11 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useSmartAuth } from '@/hooks/useSmartAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { RefreshCw, Bug, Eye, EyeOff } from 'lucide-react';
 
 const SubscriptionDebugPanel = () => {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
   const { 
     subscription, 
     isLoading, 

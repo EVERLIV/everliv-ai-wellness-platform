@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Subscription, SubscriptionPlan, FeatureTrial } from "@/types/subscription";
-import { useSmartAuth } from "@/hooks/useSmartAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { PLAN_FEATURES } from "@/constants/subscription-features";
 import { useSubscriptionHelpers } from "@/hooks/use-subscription-helpers";
 import { 
@@ -111,9 +111,9 @@ const checkPremiumFromDatabase = (subscription: Subscription | null, userEmail?:
 };
 
 export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
-  const smartAuth = useSmartAuth();
-  const user = smartAuth?.user;
-  const authLoading = smartAuth?.isLoading;
+  const auth = useAuth();
+  const user = auth?.user;
+  const authLoading = auth?.isLoading;
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [featureTrials, setFeatureTrials] = useState<FeatureTrial[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);

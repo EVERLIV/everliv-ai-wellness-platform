@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useSmartAuth } from '@/hooks/useSmartAuth';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface AggregatedHealthProfile {
   user_id: string;
@@ -44,7 +44,7 @@ export interface AggregatedHealthProfile {
  * Использует специальное представление user_health_ai_profile
  */
 export const useAggregatedHealthProfile = () => {
-  const { user, isLoading: authLoading } = useSmartAuth();
+  const { user, isLoading: authLoading } = useAuth();
 
   return useQuery<AggregatedHealthProfile | null>({
     queryKey: ['aggregated-health-profile', user?.id],

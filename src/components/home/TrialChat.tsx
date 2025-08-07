@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Send, Bot, User, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
-import { useSmartAuth } from "@/hooks/useSmartAuth";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Message {
   id: string;
@@ -24,7 +24,7 @@ const TrialChat: React.FC = () => {
   const [gender, setGender] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const maxMessages = 5;
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

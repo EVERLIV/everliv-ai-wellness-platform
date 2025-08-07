@@ -8,7 +8,7 @@ import { MedicalAnalysisResults as ResultsType } from "@/services/ai/medical-ana
 import { toast } from "sonner";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useSmartAuth } from "@/hooks/useSmartAuth";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface MedicalAnalysisResultsProps {
   results: ResultsType | null;
@@ -18,7 +18,7 @@ interface MedicalAnalysisResultsProps {
 }
 
 const MedicalAnalysisResults = ({ results, isAnalyzing, apiError, onBack }: MedicalAnalysisResultsProps) => {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 

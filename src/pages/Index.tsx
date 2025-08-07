@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useSmartAuth } from '@/hooks/useSmartAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import Home from './Home';
 import SEO from '@/components/SEO';
 
 const Index = () => {
-  const { user, isLoading } = useSmartAuth();
+  const { user, isLoading } = useAuth();
   const [forceShowContent, setForceShowContent] = useState(false);
 
   // Принудительно показываем контент через 5 секунд

@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { CachedAnalytics } from '@/types/analytics';
-import { useSmartAuth } from './useSmartAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 export const useCachedAnalytics = () => {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
   const [analytics, setAnalytics] = useState<CachedAnalytics | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);

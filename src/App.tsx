@@ -78,31 +78,20 @@ import { SmartAuthProvider } from "./contexts/SmartAuthContext";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import SecureRouteWrapper from "./components/common/SecureRouteWrapper";
 import RealtimeNotifications from "./components/realtime/RealtimeNotifications";
-import RealtimeMonitor from "./components/admin/RealtimeMonitor";
-import DevModeIndicator from "./components/DevModeIndicator";
-import ProductionDebugPanel from "./components/debug/ProductionDebugPanel";
-import AppDiagnostics from "./components/debug/AppDiagnostics";
-import { prodLogger } from "./utils/production-logger";
 
 const App = () => {
-  try {
-    prodLogger.info('App component rendering');
-    
-    return (
-      <ErrorBoundary>
-        <HelmetProvider>
-          <QueryOptimizer>
-            <TooltipProvider delayDuration={0}>
-              <Toaster />
-              <Sonner />
-              <Suspense fallback={<LoadingFallback />}>
-                <BrowserRouter>
-                  <SmartAuthProvider>
-                    <SubscriptionProvider>
-                      <DevModeIndicator />
-                      <AppDiagnostics />
-                      <RealtimeNotifications />
-                      <ProductionDebugPanel />
+  return (
+    <ErrorBoundary>
+      <HelmetProvider>
+        <QueryOptimizer>
+          <TooltipProvider delayDuration={0}>
+            <Toaster />
+            <Sonner />
+            <Suspense fallback={<LoadingFallback />}>
+              <BrowserRouter>
+                <SmartAuthProvider>
+                  <SubscriptionProvider>
+                    <RealtimeNotifications />
                     <Routes>
                       {/* Critical path routes - no lazy loading */}
                       <Route path="/" element={<Index />} />
@@ -279,11 +268,7 @@ const App = () => {
       </QueryOptimizer>
     </HelmetProvider>
   </ErrorBoundary>
-    );
-  } catch (error) {
-    prodLogger.error('App component render error', {}, error as Error);
-    throw error;
-  }
+  );
 };
 
 export default App;

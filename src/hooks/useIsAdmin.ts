@@ -1,11 +1,10 @@
 
 import { useState, useEffect } from "react";
-import { useSmartAuth } from "@/hooks/useSmartAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { isDevelopmentMode } from "@/utils/devMode";
 
 export function useIsAdmin() {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -17,13 +16,6 @@ export function useIsAdmin() {
         return;
       }
 
-      // В dev режиме автоматически предоставляем админ права для dev пользователя
-      if (isDevelopmentMode() && user.id === '00000000-0000-0000-0000-000000000001') {
-        console.log('🔧 Dev mode: Granting admin access to dev user');
-        setIsAdmin(true);
-        setIsLoading(false);
-        return;
-      }
 
       try {
         // Безопасная серверная проверка через RPC функцию

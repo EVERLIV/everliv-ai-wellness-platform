@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useSmartAuth } from "@/hooks/useSmartAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import MobileBottomNavigation from '@/components/mobile/MobileBottomNavigation';
 
 interface AppLayoutProps {
@@ -8,7 +8,7 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen w-full bg-background">

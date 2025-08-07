@@ -1,4 +1,4 @@
-import { useSmartAuth } from '@/hooks/useSmartAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { AnalyticsRecommendation } from '@/types/analyticsRecommendations';
 import { CachedAnalytics } from '@/types/analytics';
 import { useCachedRecommendations } from '@/hooks/useCachedRecommendations';
@@ -8,7 +8,7 @@ export const useRecommendationsGeneration = (
   analytics: CachedAnalytics,
   healthProfile?: any
 ) => {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
 
   // Создаем источник данных для отслеживания изменений только если все данные доступны
   const sourceData = analytics && healthProfile ? {

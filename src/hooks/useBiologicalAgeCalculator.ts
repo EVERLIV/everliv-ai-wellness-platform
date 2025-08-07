@@ -6,12 +6,12 @@ import { Biomarker, BiologicalAgeResult, AccuracyLevel } from '@/types/biologica
 import { HealthProfileData } from '@/types/healthProfile';
 import { analyzeBiologicalAgeWithOpenAI } from '@/services/ai/biological-age-analysis';
 import { supabase } from '@/integrations/supabase/client';
-import { useSmartAuth } from '@/hooks/useSmartAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useBiologicalAgeHistory } from '@/hooks/useBiologicalAgeHistory';
 import { useBiomarkerHistory } from '@/hooks/useBiomarkerHistory';
 
 export const useBiologicalAgeCalculator = (healthProfile: HealthProfileData | null) => {
-  const { user } = useSmartAuth();
+  const { user } = useAuth();
   const { saveSnapshot } = useBiologicalAgeHistory();
   const { saveBiomarkerData } = useBiomarkerHistory();
   
