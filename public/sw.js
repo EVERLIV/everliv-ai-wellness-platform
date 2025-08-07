@@ -1,5 +1,5 @@
 // Service Worker for EVERLIV PWA/TWA
-const CACHE_NAME = 'everliv-v1';
+const CACHE_NAME = 'everliv-v' + Date.now();
 const urlsToCache = [
   '/',
   '/index.html',
@@ -11,6 +11,8 @@ const urlsToCache = [
 
 // Install event
 self.addEventListener('install', (event) => {
+  console.log('SW: Installing new service worker');
+  self.skipWaiting(); // Force new SW to activate
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(urlsToCache))
@@ -31,11 +33,14 @@ self.addEventListener('fetch', (event) => {
 
 // Activate event
 self.addEventListener('activate', (event) => {
+  console.log('SW: Activating new service worker');
+  self.clients.claim(); // Take control of all clients immediately
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log('SW: Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
