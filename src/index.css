@@ -61,7 +61,10 @@
     --gradient-secondary: linear-gradient(135deg, hsl(var(--brand-secondary)), hsl(var(--brand-accent)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--brand-primary)), hsl(var(--brand-accent)));
     --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--neutral-50)));
-    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+    --gradient-mesh: radial-gradient(ellipse at top, hsl(var(--brand-primary) / 0.1), transparent 70%),
+                     radial-gradient(ellipse at bottom right, hsl(var(--brand-accent) / 0.08), transparent 70%),
+                     radial-gradient(ellipse at bottom left, hsl(var(--brand-secondary) / 0.08), transparent 70%);
     
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(var(--neutral-900) / 0.05);

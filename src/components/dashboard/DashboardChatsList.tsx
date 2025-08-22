@@ -158,67 +158,80 @@ const DashboardChatsList: React.FC = () => {
   }
 
   return (
-    <Card className="shadow-sm border-gray-200/80">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-gray-900">
-          <MessageSquare className="h-4 w-4 text-purple-600" />
-          <span className="text-base font-semibold">Истории чатов с ИИ</span>
+    <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in">
+      <div className="absolute inset-0 bg-gradient-glass"></div>
+      <CardHeader className="relative pb-3">
+        <CardTitle className="flex items-center gap-3 text-foreground">
+          <div className="p-2 bg-gradient-to-br from-brand-accent/20 to-brand-accent/10 rounded-lg">
+            <MessageSquare className="h-4 w-4 text-brand-accent" />
+          </div>
+          <span className="text-base font-semibold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            Истории чатов с ИИ
+          </span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="relative space-y-3">
         {recentChats.length === 0 ? (
-          <div className="text-center py-3">
-            <MessageSquare className="h-6 w-6 mx-auto text-gray-400 mb-2" />
-            <p className="text-xs text-gray-500 mb-2">Чаты с ИИ доктором отсутствуют</p>
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-gradient-to-br from-brand-accent/10 to-brand-accent/5 rounded-full flex items-center justify-center mx-auto mb-4">
+              <MessageSquare className="h-8 w-8 text-brand-accent/60" />
+            </div>
+            <h3 className="text-sm font-semibold text-foreground mb-2">Нет чатов с ИИ доктором</h3>
+            <p className="text-xs text-muted-foreground mb-4">Начните персональную консультацию с ИИ</p>
             <Button 
               size="sm" 
               onClick={() => navigate('/ai-doctor/personal')}
-              className="text-xs h-7"
+              className="bg-gradient-to-r from-brand-accent to-brand-accent/80 text-white hover:shadow-lg transition-all duration-300 hover:scale-105"
             >
-              <Plus className="h-3 w-3 mr-1" />
-              Начать чат
+              <Plus className="h-3 w-3 mr-2" />
+              Начать консультацию
             </Button>
           </div>
         ) : (
           <>
-            {recentChats.map((chat) => (
+            {recentChats.map((chat, index) => (
               <div
                 key={chat.id}
-                className="p-2 bg-gradient-to-r from-gray-50 to-purple-50/30 rounded-md border border-gray-200/50 hover:shadow-sm transition-all duration-200 cursor-pointer"
+                className="p-3 bg-gradient-to-r from-white/80 via-brand-accent/5 to-white/80 rounded-xl border border-brand-accent/20 hover:shadow-md hover:border-brand-accent/30 transition-all duration-300 cursor-pointer hover:scale-[1.01] backdrop-blur-sm"
                 onClick={() => handleChatClick(chat.id)}
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="flex items-start justify-between mb-1">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <Bot className="h-3 w-3 text-purple-600 flex-shrink-0" />
-                    <h4 className="font-medium text-gray-900 text-xs truncate">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="p-1.5 bg-gradient-to-br from-brand-accent/20 to-brand-accent/10 rounded-lg">
+                      <Bot className="h-3 w-3 text-brand-accent flex-shrink-0" />
+                    </div>
+                    <h4 className="font-semibold text-foreground text-sm truncate">
                       {chat.title}
                     </h4>
                   </div>
-                  <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ml-1 ${getTypeColor(chat.type)}`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ml-2 ${getTypeColor(chat.type)} border border-current/20`}>
                     {getTypeLabel(chat.type)}
                   </span>
                 </div>
                 
-                <p className="text-xs text-gray-600 mb-1 line-clamp-1">
+                <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed pl-7">
                   {chat.lastMessage}
                 </p>
                 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <Clock className="h-2.5 w-2.5" />
-                    <span className="text-xs">{chat.timestamp}</span>
+                <div className="flex items-center justify-between pl-7">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    <span>{chat.timestamp}</span>
                   </div>
-                  <ArrowRight className="h-3 w-3 text-gray-400" />
+                  <div className="p-1 bg-brand-accent/10 rounded-full group-hover:bg-brand-accent/20 transition-colors">
+                    <ArrowRight className="h-3 w-3 text-brand-accent" />
+                  </div>
                 </div>
               </div>
             ))}
             
             <Button 
               variant="outline" 
-              className="w-full mt-3 border-purple-200 text-purple-700 hover:bg-purple-50 h-8 text-xs"
+              className="w-full mt-4 border-brand-accent/30 text-brand-accent hover:bg-brand-accent/10 hover:border-brand-accent/50 transition-all duration-300 backdrop-blur-sm"
               onClick={() => navigate('/ai-doctor/personal')}
             >
-              <MessageSquare className="h-3 w-3 mr-1" />
+              <MessageSquare className="h-4 w-4 mr-2" />
               Все чаты с ИИ доктором
             </Button>
           </>

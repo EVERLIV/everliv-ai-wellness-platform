@@ -74,42 +74,51 @@ const DashboardQuickActionsGrid: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4 animate-fade-in">
       <div className="flex items-center justify-between px-1">
-        <h3 className={`font-semibold text-gray-900 ${isMobile ? 'text-base' : 'text-lg'}`}>
+        <h3 className={`font-semibold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent ${isMobile ? 'text-base' : 'text-lg'}`}>
           Быстрые действия
         </h3>
+        <div className="w-16 h-0.5 bg-gradient-to-r from-brand-primary to-transparent rounded-full"></div>
       </div>
       
-      <div className={`grid ${isMobile ? 'grid-cols-1 gap-2' : 'grid-cols-2 lg:grid-cols-3 gap-3'}`}>
-        {actions.map((action) => (
+      <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-2 lg:grid-cols-3 gap-4'}`}>
+        {actions.map((action, index) => (
           <Button
             key={action.path}
             variant="ghost"
             className={`
-              h-auto p-0 group hover:scale-[1.01] transition-all duration-200
+              h-auto p-0 group hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 hover:shadow-xl
               ${isMobile ? 'w-full' : ''}
             `}
             onClick={() => navigate(action.path)}
+            style={{ animationDelay: `${index * 100}ms` }}
           >
             <div className={`
-              w-full ${action.gradient} rounded-lg p-3 text-left
-              shadow-md hover:shadow-lg transition-all duration-200
-              ${isMobile ? 'min-h-[60px]' : 'min-h-[70px]'}
+              w-full ${action.gradient} rounded-xl p-4 text-left relative overflow-hidden
+              shadow-card hover:shadow-xl transition-all duration-300
+              ${isMobile ? 'min-h-[70px]' : 'min-h-[80px]'}
+              before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/10 before:to-transparent before:opacity-0 before:transition-opacity before:duration-300 group-hover:before:opacity-100
             `}>
-              <div className="flex items-center justify-between">
+              <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <action.icon className={`${isMobile ? 'h-4 w-4' : 'h-4 w-4'} ${action.iconColor} flex-shrink-0`} />
-                    <h4 className={`font-medium text-white truncate ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                      <action.icon className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-white flex-shrink-0`} />
+                    </div>
+                    <h4 className={`font-semibold text-white truncate ${isMobile ? 'text-sm' : 'text-base'}`}>
                       {action.title}
                     </h4>
                   </div>
-                  <p className={`text-white/80 ${isMobile ? 'text-xs' : 'text-xs'} leading-tight truncate`}>
+                  <p className={`text-white/90 ${isMobile ? 'text-xs' : 'text-sm'} leading-relaxed truncate`}>
                     {action.description}
                   </p>
                 </div>
-                <ChevronRight className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-white/60 group-hover:text-white transition-colors flex-shrink-0 ml-2`} />
+                <div className="flex-shrink-0 ml-3">
+                  <div className="p-2 bg-white/20 rounded-full group-hover:bg-white/30 transition-colors">
+                    <ChevronRight className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-white group-hover:translate-x-0.5 transition-transform`} />
+                  </div>
+                </div>
               </div>
             </div>
           </Button>

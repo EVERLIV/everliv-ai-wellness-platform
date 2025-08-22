@@ -73,13 +73,16 @@ const DashboardPage = () => {
     <AppLayout>
       <div className="space-y-8">
         {/* Заголовок */}
-        <div>
-          <h1 className="text-3xl font-bold mb-2">
-            Добро пожаловать, {userName}!
-          </h1>
-          <p className="text-muted-foreground">
-            Управляйте своим здоровьем с помощью ИИ-платформы
-          </p>
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/5 via-brand-accent/5 to-transparent rounded-2xl"></div>
+          <div className="relative p-6 sm:p-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 bg-gradient-to-r from-brand-primary via-brand-accent to-brand-secondary bg-clip-text text-transparent animate-fade-in">
+              Добро пожаловать, {userName}!
+            </h1>
+            <p className="text-muted-foreground text-base sm:text-lg leading-relaxed animate-fade-in">
+              Управляйте своим здоровьем с помощью ИИ-платформы
+            </p>
+          </div>
         </div>
 
 
@@ -87,70 +90,97 @@ const DashboardPage = () => {
           // Мобильная версия - новый порядок блоков
           <div className="space-y-6">
             {/* 1. Индекс здоровья */}
-            <Card className="shadow-sm border-gray-200/80">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-gray-900">
-                  <Heart className="h-4 w-4 text-red-500" />
-                  <span className="text-base font-semibold">Индекс здоровья</span>
+            <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/50 to-card border-0 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in">
+              <div className="absolute inset-0 bg-gradient-glass"></div>
+              <CardHeader className="relative pb-2">
+                <CardTitle className="flex items-center gap-3 text-foreground">
+                  <div className="p-2 bg-gradient-to-br from-brand-error/20 to-brand-error/10 rounded-lg">
+                    <Heart className="h-4 w-4 text-brand-error" />
+                  </div>
+                  <span className="text-base font-semibold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                    Индекс здоровья
+                  </span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="relative space-y-4">
                 {analyticsLoading ? (
-                  <div className="text-center py-6">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                    <p className="text-xs text-gray-600">Загружаем индекс здоровья...</p>
+                  <div className="text-center py-8">
+                    <div className="relative">
+                      <div className="w-12 h-12 border-4 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin mx-auto mb-4"></div>
+                      <div className="absolute inset-0 w-8 h-8 border-2 border-transparent border-t-brand-accent rounded-full animate-spin mx-auto mt-2" style={{animationDirection: 'reverse'}}></div>
+                    </div>
+                    <p className="text-sm text-muted-foreground font-medium">Анализируем ваше здоровье...</p>
+                    <p className="text-xs text-muted-foreground/80 mt-1">Обработка ИИ-данных</p>
                   </div>
                 ) : currentHealthScore !== undefined ? (
-                  <div className="text-center">
-                    <div className={`text-3xl font-bold mb-2 ${getScoreColor(currentHealthScore)}`}>
-                      {Math.round(currentHealthScore)}%
+                  <div className="text-center space-y-4">
+                    <div className="relative">
+                      <div className={`text-4xl font-bold mb-3 transition-all duration-500 ${getScoreColor(currentHealthScore)}`}>
+                        {Math.round(currentHealthScore)}%
+                      </div>
+                      <Progress 
+                        value={currentHealthScore} 
+                        className={`h-3 rounded-full ${getScoreGradient(currentHealthScore)} transition-all duration-700 shadow-sm`}
+                      />
+                      <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-md animate-pulse"></div>
                     </div>
-                    <Progress 
-                      value={currentHealthScore} 
-                      className={`h-2 ${getScoreGradient(currentHealthScore)}`}
-                    />
                     {analytics && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Данные из ИИ-аналитики
-                      </p>
+                      <div className="p-3 bg-gradient-to-r from-brand-primary/5 to-brand-accent/5 rounded-lg border border-brand-primary/10">
+                        <p className="text-xs text-brand-primary font-medium">
+                          ✨ Данные из ИИ-аналитики
+                        </p>
+                      </div>
                     )}
                   </div>
                 ) : (
-                  <div className="text-center py-6">
-                    <Heart className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                    <p className="text-xs text-gray-600">Нет данных об индексе здоровья</p>
-                    <p className="text-xs text-gray-500 mt-1">Заполните профиль для получения аналитики</p>
+                  <div className="text-center py-8">
+                    <div className="relative mb-4">
+                      <div className="w-16 h-16 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-full flex items-center justify-center mx-auto">
+                        <Heart className="h-8 w-8 text-neutral-400" />
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-pulse"></div>
+                    </div>
+                    <h3 className="text-sm font-medium text-foreground mb-2">Нет данных об индексе здоровья</h3>
+                    <p className="text-xs text-muted-foreground mb-3">Заполните профиль для получения персональной аналитики</p>
+                    <button className="text-xs text-brand-primary font-medium hover:text-brand-primary-dark transition-colors">
+                      Перейти к профилю →
+                    </button>
                   </div>
                 )}
                 
-                <div className="grid grid-cols-2 gap-3 pt-3 border-t">
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Activity className="h-3 w-3 text-blue-500" />
-                      <span className="text-xs text-gray-600">Биовозраст</span>
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
+                  <div className="text-center p-3 bg-gradient-to-br from-brand-primary/5 to-brand-primary/10 rounded-xl border border-brand-primary/20 hover:shadow-md transition-all duration-300">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <div className="p-1 bg-brand-primary/20 rounded-full">
+                        <Activity className="h-3 w-3 text-brand-primary" />
+                      </div>
+                      <span className="text-xs font-medium text-brand-primary">Биовозраст</span>
                     </div>
-                    <div className="text-xl font-semibold text-gray-900">
+                    <div className="text-2xl font-bold text-brand-primary mb-1">
                       {currentBiologicalAge}
                     </div>
-                    <div className="text-xs text-gray-500">лет</div>
+                    <div className="text-xs text-brand-primary/70">лет</div>
                     {!healthProfile && (
-                      <p className="text-xs text-orange-500 mt-1">
+                      <p className="text-xs text-brand-warning mt-2 font-medium">
                         Создайте профиль
                       </p>
                     )}
                   </div>
                   
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Activity className="h-3 w-3 text-blue-500" />
-                      <span className="text-xs text-gray-600">Скорость старения</span>
+                  <div className="text-center p-3 bg-gradient-to-br from-brand-success/5 to-brand-success/10 rounded-xl border border-brand-success/20 hover:shadow-md transition-all duration-300">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <div className="p-1 bg-brand-success/20 rounded-full">
+                        <TrendingUp className="h-3 w-3 text-brand-success" />
+                      </div>
+                      <span className="text-xs font-medium text-brand-success">Скорость старения</span>
                     </div>
-                    <div className="text-xl font-semibold text-gray-900">
+                    <div className="text-2xl font-bold text-brand-success mb-1">
                       0.85
                     </div>
-                    <div className="text-xs text-gray-500">коэффициент</div>
-                    <div className="text-xs text-green-600 mt-1">
-                      ↓15% улучшение
+                    <div className="text-xs text-brand-success/70">коэффициент</div>
+                    <div className="text-xs text-brand-success font-medium mt-2 flex items-center justify-center gap-1">
+                      <TrendingUp className="h-3 w-3" />
+                      15% улучшение
                     </div>
                   </div>
                 </div>
