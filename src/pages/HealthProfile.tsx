@@ -1,7 +1,7 @@
 
 import React from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
-import MobileHealthProfileDisplay from "@/components/health-profile/MobileHealthProfileDisplay";
+import ModernHealthProfileDisplay from "@/components/health-profile/ModernHealthProfileDisplay";
 import StepByStepHealthProfileForm from "@/components/health-profile/StepByStepHealthProfileForm";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { HealthProfileData } from "@/types/healthProfile";
@@ -191,7 +191,7 @@ const HealthProfile: React.FC = () => {
 
   return (
     <AppLayout>
-      <MobileHealthProfileDisplay 
+      <ModernHealthProfileDisplay 
         healthProfile={healthProfile}
         onEdit={handleEdit}
       />
