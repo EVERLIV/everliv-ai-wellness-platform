@@ -92,33 +92,20 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className="w-64 border-r border-border/60 bg-white/95 backdrop-blur-sm"
+      className="border-r border-border bg-surface"
       collapsible="icon"
     >
       {/* Отступ от хедера */}
       <div className="h-14"></div>
 
-      {/* Компактная кнопка скрытия */}
-      <div className="flex justify-end px-3 pb-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleSidebar}
-          className="h-7 w-7 p-0 hover:bg-slate-100 rounded-lg opacity-70 hover:opacity-100 transition-all duration-200"
-          title="Скрыть панель"
-        >
-          <ChevronLeft className="h-4 w-4 text-slate-600" />
-        </Button>
-      </div>
-
-      <SidebarContent className="bg-transparent pt-0 px-2">
+      <SidebarContent className="bg-transparent px-4">
         {menuItems.map((group, groupIndex) => (
-          <SidebarGroup key={groupIndex} className="mb-6">
-            <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2 mb-2">
+          <SidebarGroup key={groupIndex} className="mb-8">
+            <SidebarGroupLabel className="text-xs font-semibold text-foreground-light uppercase tracking-wider mb-3">
               {!collapsed && group.groupLabel}
             </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu className="space-y-1">
+              <SidebarMenu className="space-y-2">
                 {group.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
@@ -126,30 +113,30 @@ export function AppSidebar() {
                         to={item.url} 
                         end 
                         className={({ isActive }) =>
-                          `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${
+                          `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
                             isActive 
-                              ? "bg-blue-50 text-blue-700 border-l-3 border-blue-600 shadow-sm" 
-                              : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                              ? "bg-primary-ultra-light text-primary border-l-2 border-primary" 
+                              : "text-foreground-medium hover:bg-surface-elevated hover:text-foreground"
                           }`
                         }
                         title={collapsed ? item.title : undefined}
                       >
                         <item.icon className={`h-5 w-5 flex-shrink-0 transition-colors ${
-                          currentPath === item.url ? "text-blue-600" : "text-slate-500 group-hover:text-slate-700"
+                          currentPath === item.url ? "text-primary" : "text-foreground-light group-hover:text-foreground-medium"
                         }`} />
                         {!collapsed && (
                           <div className="flex-1 flex items-center justify-between">
                             <span className="text-sm font-medium">{item.title}</span>
                             {item.badge && (
-                              <Badge variant={item.badge === "Новое" ? "destructive" : "secondary"} className="text-xs px-2 py-0.5">
+                              <Badge 
+                                variant={item.badge === "Новое" ? "destructive" : "secondary"} 
+                                size="sm"
+                                className="text-xs"
+                              >
                                 {item.badge}
                               </Badge>
                             )}
                           </div>
-                        )}
-                        {/* Активная полоска */}
-                        {currentPath === item.url && !collapsed && (
-                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-full" />
                         )}
                       </NavLink>
                     </SidebarMenuButton>
@@ -160,11 +147,11 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
         
-        {/* Полезная информация внизу */}
+        {/* Совет дня внизу */}
         {!collapsed && (
-          <div className="mt-auto mb-4 mx-2 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-            <div className="text-sm font-medium text-blue-900 mb-1">Совет дня</div>
-            <div className="text-xs text-blue-700 leading-relaxed">
+          <div className="mt-auto mb-6 p-4 bg-secondary-ultra-light rounded-xl border border-secondary/20">
+            <div className="text-sm font-semibold text-secondary-dark mb-2">💡 Совет дня</div>
+            <div className="text-xs text-foreground-medium leading-relaxed">
               Регулярно отслеживайте показатели здоровья для лучших результатов
             </div>
           </div>
