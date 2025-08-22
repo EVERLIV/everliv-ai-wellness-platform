@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   User, 
@@ -9,7 +9,15 @@ import {
   Edit,
   Bell,
   BarChart3,
-  TrendingUp
+  TrendingUp,
+  ChevronDown,
+  ChevronUp,
+  Heart,
+  Brain,
+  Droplets,
+  Coffee,
+  Bed,
+  Dumbbell
 } from "lucide-react";
 import { HealthProfileData } from "@/types/healthProfile";
 import { translateValue } from "@/utils/healthProfileTranslations";
@@ -35,6 +43,11 @@ const ModernHealthProfileDisplay: React.FC<ModernHealthProfileDisplayProps> = ({
   const { goals } = useHealthGoalsManager();
   const { metrics, isLoading: metricsLoading, saveMetrics } = useDailyHealthMetrics();
   const { updateHealthProfile, saveHealthProfile } = useHealthProfile();
+
+  // Состояния для управления открытием секций
+  const [isMetricsOpen, setIsMetricsOpen] = useState(false);
+  const [isGoalsOpen, setIsGoalsOpen] = useState(false);
+  const [isMedicalOpen, setIsMedicalOpen] = useState(false);
 
   const handleSaveHealthProfile = async (): Promise<void> => {
     await saveHealthProfile();
@@ -114,183 +127,224 @@ const ModernHealthProfileDisplay: React.FC<ModernHealthProfileDisplayProps> = ({
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white min-h-screen">
+    <div className="max-w-md mx-auto bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="px-5 py-6 bg-white">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+      <div className="px-4 py-4 bg-white border-b border-gray-100">
+        <h1 className="text-xl font-semibold text-gray-900 mb-1">
           Профиль здоровья
         </h1>
-        <p className="text-gray-600 mb-5">
+        <p className="text-sm text-gray-600 mb-3">
           Управление и мониторинг вашего здоровья
         </p>
         
-        <div className="flex items-center gap-3">
-          <button className="w-10 h-10 border border-gray-200 rounded-lg bg-white flex items-center justify-center hover:bg-gray-50 transition-colors">
-            <Bell className="w-5 h-5 text-gray-600" />
+        <div className="flex items-center gap-2">
+          <button className="w-8 h-8 border border-gray-200 rounded-lg bg-white flex items-center justify-center hover:bg-gray-50 transition-colors">
+            <Bell className="w-4 h-4 text-gray-600" />
           </button>
           <button
             onClick={onEdit}
-            className="bg-blue-600 text-white border-none rounded-lg px-4 py-2.5 text-sm font-medium flex items-center gap-2 hover:bg-blue-700 transition-colors"
+            className="bg-blue-600 text-white border-none rounded-lg px-3 py-2 text-sm font-medium flex items-center gap-1.5 hover:bg-blue-700 transition-colors"
           >
-            <Edit className="w-4 h-4" />
+            <Edit className="w-3 h-3" />
             Изменить
           </button>
         </div>
       </div>
 
       {/* Basic Information Section */}
-      <div className="mx-5 mb-5 bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
-          <User className="w-5 h-5 text-blue-600" />
-          <span className="text-base font-semibold text-gray-900">Основная информация</span>
+      <div className="mx-4 mb-3 bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm">
+        <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
+          <User className="w-4 h-4 text-blue-600" />
+          <span className="text-sm font-semibold text-gray-900">Основная информация</span>
         </div>
-        <div className="p-5 grid grid-cols-2 gap-6">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900 leading-tight">{healthProfile.age}</div>
-            <div className="text-sm text-gray-600 mt-1">Возраст</div>
+        <div className="p-4 grid grid-cols-2 gap-4">
+          <div className="text-center p-2 bg-gray-50 rounded-lg">
+            <div className="text-2xl font-bold text-gray-900">{healthProfile.age}</div>
+            <div className="text-xs text-gray-600">Возраст</div>
           </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900 leading-tight">
+          <div className="text-center p-2 bg-gray-50 rounded-lg">
+            <div className="text-2xl font-bold text-gray-900">
               {healthProfile.gender === 'male' ? 'М' : 'Ж'}
             </div>
-            <div className="text-sm text-gray-600 mt-1">Пол</div>
+            <div className="text-xs text-gray-600">Пол</div>
           </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900 leading-tight">{healthProfile.height}</div>
-            <div className="text-sm text-gray-600 mt-1">Рост (см)</div>
+          <div className="text-center p-2 bg-gray-50 rounded-lg">
+            <div className="text-2xl font-bold text-gray-900">{healthProfile.height}</div>
+            <div className="text-xs text-gray-600">Рост (см)</div>
           </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900 leading-tight">{healthProfile.weight}</div>
-            <div className="text-sm text-gray-600 mt-1">Вес (кг)</div>
+          <div className="text-center p-2 bg-gray-50 rounded-lg">
+            <div className="text-2xl font-bold text-gray-900">{healthProfile.weight}</div>
+            <div className="text-xs text-gray-600">Вес (кг)</div>
           </div>
         </div>
       </div>
 
       {/* BMI Section */}
-      <div className="mx-5 mb-5 bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <div className="p-5">
-          <div className="text-base font-semibold text-gray-900 mb-1">Индекс массы тела (ИМТ)</div>
-          <div className="text-sm text-gray-600 mb-4">Расчет на основе роста и веса</div>
-          <div className={cn("text-4xl font-bold leading-tight mb-1", getBMIColor(bmi))}>
-            {bmi.toFixed(1)}
-          </div>
-          <div className={cn("text-sm font-medium", getBMIColor(bmi))}>
-            {getBMICategory(bmi)}
+      <div className="mx-4 mb-3 bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm">
+        <div className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm font-semibold text-gray-900 mb-1">ИМТ</div>
+              <div className="text-xs text-gray-600">Индекс массы тела</div>
+            </div>
+            <div className="text-right">
+              <div className={cn("text-2xl font-bold", getBMIColor(bmi))}>
+                {bmi.toFixed(1)}
+              </div>
+              <div className={cn("text-xs font-medium", getBMIColor(bmi))}>
+                {getBMICategory(bmi)}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Health Metrics Section */}
-      <div className="mx-5 mb-5 bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-green-600" />
-          <span className="text-base font-semibold text-gray-900">Метрики здоровья</span>
-        </div>
-        <div className="p-5">
-          <DynamicHealthMetrics 
-            metrics={metrics}
-            isLoading={metricsLoading}
-            onMetricsUpdate={() => {}}
-          />
-        </div>
+      <div className="mx-4 mb-3 bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm">
+        <button 
+          onClick={() => setIsMetricsOpen(!isMetricsOpen)}
+          className="w-full px-4 py-3 border-b border-gray-100 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-green-600" />
+            <span className="text-sm font-semibold text-gray-900">Метрики здоровья</span>
+          </div>
+          {isMetricsOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+        </button>
+        {isMetricsOpen && (
+          <div className="p-4">
+            <DynamicHealthMetrics 
+              metrics={metrics}
+              isLoading={metricsLoading}
+              onMetricsUpdate={() => {}}
+            />
+          </div>
+        )}
       </div>
 
       {/* Health Goals Section */}
-      <div className="mx-5 mb-5 bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+      <div className="mx-4 mb-3 bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm">
+        <button 
+          onClick={() => setIsGoalsOpen(!isGoalsOpen)}
+          className="w-full px-4 py-3 border-b border-gray-100 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
           <div className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-purple-600" />
-            <span className="text-base font-semibold text-gray-900">Цели здоровья</span>
+            <Target className="w-4 h-4 text-purple-600" />
+            <span className="text-sm font-semibold text-gray-900">Цели здоровья</span>
+            <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
+              {allGoals.length}
+            </span>
           </div>
-          <EditHealthGoalsModal
-            healthProfile={healthProfile}
-            onUpdate={updateHealthProfile}
-            onSave={handleSaveHealthProfile}
-          />
-        </div>
-        <div className="p-5">
-          {allGoals.length > 0 ? (
-            <div className="space-y-3">
-              {allGoals.slice(0, 6).map((goal) => (
-                <div key={goal.id} className="p-3 border border-gray-100 rounded-lg">
-                  <h3 className="font-medium text-gray-900 text-sm">{goal.title}</h3>
-                  {goal.description && (
-                    <p className="text-xs text-gray-600 mt-1 line-clamp-2">{goal.description}</p>
-                  )}
-                  <div className="flex flex-wrap items-center gap-2 mt-2">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(goal.priority)}`}>
-                      {getPriorityText(goal.priority)}
-                    </span>
-                    <span className="text-xs text-gray-500">{getCategoryText(goal.category)}</span>
+          {isGoalsOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+        </button>
+        {isGoalsOpen && (
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-xs text-gray-600">Активные цели</span>
+              <EditHealthGoalsModal
+                healthProfile={healthProfile}
+                onUpdate={updateHealthProfile}
+                onSave={handleSaveHealthProfile}
+              />
+            </div>
+            {allGoals.length > 0 ? (
+              <div className="space-y-2">
+                {allGoals.slice(0, 3).map((goal) => (
+                  <div key={goal.id} className="p-3 bg-gray-50 rounded-lg">
+                    <h3 className="font-medium text-gray-900 text-sm">{goal.title}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(goal.priority)}`}>
+                        {getPriorityText(goal.priority)}
+                      </span>
+                      <span className="text-xs text-gray-500">{getCategoryText(goal.category)}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <Target className="w-10 h-10 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-base font-medium text-gray-900 mb-2">Нет активных целей</h3>
-              <p className="text-sm text-gray-600 mb-4">Создайте цели для отслеживания прогресса здоровья</p>
-              <button className="bg-purple-600 text-white border-none rounded-lg px-4 py-2 text-sm font-medium hover:bg-purple-700 transition-colors">
-                Добавить цель
-              </button>
-            </div>
-          )}
-        </div>
+                ))}
+                {allGoals.length > 3 && (
+                  <div className="text-center py-2">
+                    <span className="text-xs text-gray-500">+{allGoals.length - 3} ещё</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <Target className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-xs text-gray-600 mb-3">Нет активных целей</p>
+                <button className="bg-purple-600 text-white border-none rounded-lg px-3 py-2 text-xs font-medium hover:bg-purple-700 transition-colors">
+                  Добавить цель
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Medical Information */}
-      <div className="mx-5 mb-5 bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
-          <Pill className="w-5 h-5 text-orange-600" />
-          <span className="text-base font-semibold text-gray-900">Медицинская информация</span>
-        </div>
-        <div className="p-5">
-          <div className="mb-4">
-            <h3 className="text-base font-semibold text-gray-900 mb-3">Показатели здоровья</h3>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 bg-gray-50 rounded-lg text-center">
-                <div className="text-sm text-gray-600">Уровень стресса</div>
+      <div className="mx-4 mb-3 bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm">
+        <button 
+          onClick={() => setIsMedicalOpen(!isMedicalOpen)}
+          className="w-full px-4 py-3 border-b border-gray-100 flex items-center justify-between hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <Heart className="w-4 h-4 text-red-500" />
+            <span className="text-sm font-semibold text-gray-900">Показатели здоровья</span>
+          </div>
+          {isMedicalOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+        </button>
+        {isMedicalOpen && (
+          <div className="p-4">
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="p-3 bg-red-50 rounded-lg text-center">
+                <Brain className="w-4 h-4 text-red-500 mx-auto mb-1" />
+                <div className="text-xs text-gray-600">Стресс</div>
                 <div className="text-lg font-semibold text-gray-900">{healthProfile.stressLevel}/10</div>
               </div>
-              <div className="p-3 bg-gray-50 rounded-lg text-center">
-                <div className="text-sm text-gray-600">Уровень тревоги</div>
+              <div className="p-3 bg-orange-50 rounded-lg text-center">
+                <Brain className="w-4 h-4 text-orange-500 mx-auto mb-1" />
+                <div className="text-xs text-gray-600">Тревога</div>
                 <div className="text-lg font-semibold text-gray-900">{healthProfile.anxietyLevel}/10</div>
               </div>
-              <div className="p-3 bg-gray-50 rounded-lg text-center">
-                <div className="text-sm text-gray-600">Часы сна</div>
+              <div className="p-3 bg-blue-50 rounded-lg text-center">
+                <Bed className="w-4 h-4 text-blue-500 mx-auto mb-1" />
+                <div className="text-xs text-gray-600">Сон</div>
                 <div className="text-lg font-semibold text-gray-900">{healthProfile.sleepHours}ч</div>
               </div>
-              <div className="p-3 bg-gray-50 rounded-lg text-center">
-                <div className="text-sm text-gray-600">Упражнения/нед</div>
-                <div className="text-lg font-semibold text-gray-900">{healthProfile.exerciseFrequency}</div>
+              <div className="p-3 bg-green-50 rounded-lg text-center">
+                <Dumbbell className="w-4 h-4 text-green-500 mx-auto mb-1" />
+                <div className="text-xs text-gray-600">Спорт</div>
+                <div className="text-lg font-semibold text-gray-900">{healthProfile.exerciseFrequency}/нед</div>
               </div>
-              <div className="p-3 bg-gray-50 rounded-lg text-center">
-                <div className="text-sm text-gray-600">Вода (стаканы)</div>
+              <div className="p-3 bg-cyan-50 rounded-lg text-center">
+                <Droplets className="w-4 h-4 text-cyan-500 mx-auto mb-1" />
+                <div className="text-xs text-gray-600">Вода</div>
                 <div className="text-lg font-semibold text-gray-900">{healthProfile.waterIntake}</div>
               </div>
-              <div className="p-3 bg-gray-50 rounded-lg text-center">
-                <div className="text-sm text-gray-600">Кофеин (чашки)</div>
+              <div className="p-3 bg-amber-50 rounded-lg text-center">
+                <Coffee className="w-4 h-4 text-amber-500 mx-auto mb-1" />
+                <div className="text-xs text-gray-600">Кофеин</div>
                 <div className="text-lg font-semibold text-gray-900">{healthProfile.caffeineIntake}</div>
               </div>
             </div>
-          </div>
-          
-          {/* Lab Results */}
-          {healthProfile.labResults && Object.keys(healthProfile.labResults).length > 0 && (
-            <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-3">Результаты анализов</h3>
-              <div className="space-y-2">
-                {Object.entries(healthProfile.labResults).map(([key, value]) => (
-                  <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                    <span className="text-sm text-gray-600">{key}</span>
-                    <span className="text-sm font-medium text-gray-900">{value}</span>
-                  </div>
-                ))}
+            
+            {/* Lab Results */}
+            {healthProfile.labResults && Object.keys(healthProfile.labResults).length > 0 && (
+              <div className="border-t border-gray-100 pt-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-gray-600" />
+                  Результаты анализов
+                </h3>
+                <div className="space-y-2">
+                  {Object.entries(healthProfile.labResults).map(([key, value]) => (
+                    <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded text-sm">
+                      <span className="text-gray-600">{key}</span>
+                      <span className="font-medium text-gray-900">{value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
