@@ -27,7 +27,7 @@ const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const Science = lazy(() => import("./pages/Science"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
-const PricingPage = lazy(() => import("./pages/Pricing"));
+const Pricing = lazy(() => import("./pages/Pricing"));
 const Partnership = lazy(() => import("./pages/Partnership"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Support = lazy(() => import("./pages/Support"));
@@ -128,7 +128,7 @@ const App = () => (
                       <Route path="/science" element={<Science />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/contact" element={<Contact />} />
-                      <Route path="/pricing" element={<PricingPage />} />
+                      <Route path="/pricing" element={<Pricing />} />
                       <Route path="/partnership" element={<Partnership />} />
                       <Route path="/faq" element={<FAQ />} />
                       <Route path="/support" element={<Support />} />
