@@ -132,7 +132,7 @@ const DashboardChatsList: React.FC = () => {
 
   const handleChatClick = (chatId: string) => {
     console.log('Navigating to chat:', chatId);
-    navigate(`/ai-doctor/personal?chat=${chatId}`);
+    navigate(`/ai-doctor`);
   };
 
   if (isLoading) {

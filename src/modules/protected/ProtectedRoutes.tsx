@@ -12,9 +12,9 @@ const BloodAnalysis = lazy(() => import("@/pages/BloodAnalysis"));
 const LabAnalyses = lazy(() => import("@/pages/LabAnalyses"));
 const AnalysisDetails = lazy(() => import("@/pages/AnalysisDetails"));
 const Analytics = lazy(() => import("@/pages/Analytics"));
-const AIDoctorPage = lazy(() => import("@/pages/AIDoctorPage"));
+
 const AIDoctorBasicPage = lazy(() => import("@/pages/AIDoctorBasicPage"));
-const AIDoctorPersonalPage = lazy(() => import("@/pages/AIDoctorPersonalPage"));
+
 const ProtocolTracking = lazy(() => import("@/pages/ProtocolTracking"));
 const SubscriptionPage = lazy(() => import("@/pages/SubscriptionPage"));
 const UserSubscription = lazy(() => import("@/pages/UserSubscription"));
@@ -65,17 +65,7 @@ const ProtectedRoutes = () => {
       } />
       <Route path="/ai-doctor" element={
         <ProtectedRoute>
-          <AIDoctorPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/ai-doctor/basic" element={
-        <ProtectedRoute>
           <AIDoctorBasicPage />
-        </ProtectedRoute>
-      } />
-      <Route path="/ai-doctor/personal" element={
-        <ProtectedRoute>
-          <AIDoctorPersonalPage />
         </ProtectedRoute>
       } />
       <Route path="/subscription" element={

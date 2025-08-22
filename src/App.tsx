@@ -61,9 +61,9 @@ const Settings = lazy(() => import("./pages/Settings"));
 const HealthProfile = lazy(() => import("./pages/HealthProfile"));
 const LabAnalyses = lazy(() => import("./pages/LabAnalyses"));
 const Analytics = lazy(() => import("./pages/Analytics"));
-const AIDoctorPage = lazy(() => import("./pages/AIDoctorPage"));
+
 const AIDoctorBasicPage = lazy(() => import("./pages/AIDoctorBasicPage"));
-const AIDoctorPersonalPage = lazy(() => import("./pages/AIDoctorPersonalPage"));
+
 const MyBiomarkers = lazy(() => import("./pages/MyBiomarkers"));
 
 import { SmartAuthProvider } from "./contexts/SmartAuthContext";
@@ -134,17 +134,7 @@ const App = () => (
                       } />
                       <Route path="/ai-doctor" element={
                         <ProtectedRoute>
-                          <AIDoctorPage />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/ai-doctor/basic" element={
-                        <ProtectedRoute>
                           <AIDoctorBasicPage />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/ai-doctor/personal" element={
-                        <ProtectedRoute>
-                          <AIDoctorPersonalPage />
                         </ProtectedRoute>
                       } />
                       <Route path="/my-biomarkers" element={

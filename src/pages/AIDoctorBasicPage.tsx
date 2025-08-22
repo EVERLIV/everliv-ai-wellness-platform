@@ -15,7 +15,7 @@ const AIDoctorBasicPage = () => {
   const isMobile = useIsMobile();
 
   const handleBack = () => {
-    navigate("/ai-doctor");
+    navigate("/dashboard");
   };
 
   if (!user) {

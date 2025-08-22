@@ -340,68 +340,6 @@ function calculateAge(dateOfBirth: string): number {
   return age;
 }
 
-/**
- * Обработка сообщения для персонального ИИ-доктора с доступом к анализам
- */
-export async function processPersonalAIDoctorMessage(
-  message: string, 
-  user: User | null, 
-  conversationHistory: Message[],
-  userAnalyses: any[] = [],
-  medicalContext: string = ""
-): Promise<Message> {
-  try {
-    // Получаем полный расширенный медицинский контекст пользователя
-    const fullMedicalContext = await getUserMedicalContext(user);
-    
-    console.log('Sending to enhanced AI with context length:', fullMedicalContext.length);
-    
-    // Форматируем историю для ИИ
-    const formattedHistory = conversationHistory.map(msg => ({
-      role: msg.role,
-      content: msg.content
-    }));
-    
-    // Вызываем edge функцию для персонального ИИ-доктора
-    const { data, error } = await supabase.functions.invoke('ai-doctor-personal', {
-      body: {
-        message,
-        medicalContext: fullMedicalContext,
-        conversationHistory: formattedHistory,
-        userAnalyses: userAnalyses.slice(0, 5),
-        systemPrompt: 'enhanced' // Flag for enhanced processing
-      }
-    });
-
-    if (error) throw error;
-    
-    return {
-      id: uuidv4(),
-      role: "assistant",
-      content: data.response,
-      timestamp: new Date()
-    };
-  } catch (error) {
-    console.error("Ошибка персонального ИИ-доктора:", error);
-    
-    return {
-      id: uuidv4(),
-      role: "assistant",
-      content: "Извините, произошла ошибка при обработке вашего запроса. Пожалуйста, попробуйте еще раз позже или обратитесь в службу поддержки.",
-      timestamp: new Date()
-    };
-  }
-}
-
-/**
- * Создает расширенный медицинский контекст с анализами
- */
-async function buildEnhancedMedicalContext(user: User | null, userAnalyses: any[], basicContext: string): Promise<string> {
-  if (!user) return "";
-  
-  // Используем новую функцию getUserMedicalContext вместо basicContext
-  return await getUserMedicalContext(user);
-}
 
 function getAnalysisTypeLabel(type: string): string {
   const types = {
