@@ -1,23 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User, ChevronRight } from "lucide-react";
+import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User, ChevronRight, Grid3X3 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Microscope, Pill, TrendingUp, Heart, Apple, Brain, Activity, Stethoscope } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const iconMap = {
-  microscope: Microscope,
-  pill: Pill,
-  "trending-up": TrendingUp,
-  "book-open": BookOpen,
-  heart: Heart,
-  apple: Apple,
-  brain: Brain,
-  activity: Activity,
-  stethoscope: Stethoscope,
-};
 
 interface Message {
   id: string;
@@ -42,11 +30,11 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
   const maxMessages = 3;
 
   const suggestedQuestions = [
-    "У меня болит голова уже 3 дня",
-    "Какие витамины принимать зимой?", 
-    "Как улучшить качество сна?",
-    "Что означают результаты анализов?",
-    "Боль в спине при работе",
+    "Головная боль",
+    "Витамины зимой", 
+    "Качество сна",
+    "Результаты анализов",
+    "Боль в спине",
     "Профилактика простуды"
   ];
 
@@ -191,10 +179,10 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
   const showSuggestedQuestions = messages.length <= 1;
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-background via-background to-muted/10">
+    <div className="h-full flex flex-col bg-gray-50">
       {/* Minimalist Header */}
       <div className={cn(
-        "flex items-center justify-between border-b bg-background/95 backdrop-blur-sm",
+        "flex items-center justify-between bg-gray-50",
         isMobile ? "px-4 py-3 safe-area-pt" : "px-6 py-4"
       )}>
         <div className="flex items-center gap-3">
@@ -202,62 +190,64 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="text-muted-foreground hover:text-foreground rounded-full w-9 h-9 p-0"
+            className="text-gray-500 hover:text-gray-700 rounded-full w-9 h-9 p-0 hover:bg-gray-100"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
-              <Stethoscope className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <h1 className={cn("font-semibold text-foreground", isMobile ? "text-base" : "text-lg")}>
-                ИИ-Доктор
-              </h1>
-              {!isMobile && (
-                <p className="text-xs text-muted-foreground">Медицинская консультация</p>
-              )}
-            </div>
+          <div>
+            <h1 className={cn("font-semibold text-gray-900", isMobile ? "text-base" : "text-lg")}>
+              ИИ-Доктор
+            </h1>
           </div>
         </div>
         
-        <div className={cn(
-          "px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full font-medium border border-blue-100",
-          isMobile ? "text-xs" : "text-sm"
-        )}>
-          {maxMessages - messageCount} из {maxMessages}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-gray-500 hover:text-gray-700 rounded-lg w-9 h-9 p-0 hover:bg-gray-100"
+          >
+            <Grid3X3 className="h-4 w-4" />
+          </Button>
+          
+          <div className={cn(
+            "px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full font-medium",
+            isMobile ? "text-xs" : "text-sm"
+          )}>
+            {maxMessages - messageCount}/{maxMessages}
+          </div>
         </div>
       </div>
 
-      {/* Chat Messages */}
+      {/* Chat Messages - Pure Background */}
       <div className={cn(
-        "flex-1 overflow-y-auto scroll-smooth",
+        "flex-1 overflow-y-auto scroll-smooth bg-gray-50",
         isMobile ? "px-4 py-4" : "px-6 py-6"
       )}>
         <div className="space-y-6 max-w-4xl mx-auto">
           {messages.map((message) => (
             <div key={message.id} className="flex items-start gap-3">
               <div className={cn(
-                "flex-shrink-0 rounded-full flex items-center justify-center shadow-sm",
-                isMobile ? "w-8 h-8" : "w-10 h-10",
+                "flex-shrink-0 rounded-full flex items-center justify-center",
+                isMobile ? "w-8 h-8" : "w-9 h-9",
                 message.role === "user" 
-                  ? "bg-gray-100 text-gray-600" 
-                  : "bg-gradient-to-br from-blue-500 to-blue-600 text-white"
+                  ? "bg-gray-200 text-gray-600" 
+                  : "bg-blue-500 text-white"
               )}>
                 {message.role === "user" ? (
-                  <User className={cn(isMobile ? "h-4 w-4" : "h-5 w-5")} />
+                  <User className={cn(isMobile ? "h-4 w-4" : "h-4 w-4")} />
                 ) : (
-                  <Stethoscope className={cn(isMobile ? "h-4 w-4" : "h-5 w-5")} />
+                  <Stethoscope className={cn(isMobile ? "h-4 w-4" : "h-4 w-4")} />
                 )}
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className={cn("font-medium text-foreground", isMobile ? "text-sm" : "text-base")}>
+                  <span className={cn("font-medium text-gray-900", isMobile ? "text-sm" : "text-base")}>
                     {message.role === "user" ? "Вы" : "ИИ-Доктор"}
                   </span>
-                  <span className={cn("text-muted-foreground", isMobile ? "text-xs" : "text-sm")}>
+                  <span className={cn("text-gray-500", isMobile ? "text-xs" : "text-sm")}>
                     {message.timestamp.toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -266,14 +256,14 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
                 </div>
                 
                 <div className={cn(
-                  "rounded-2xl shadow-sm border",
+                  "rounded-2xl",
                   isMobile ? "p-3" : "p-4",
                   message.role === "user" 
-                    ? "bg-gray-50 border-gray-100 ml-0" 
-                    : "bg-white border-gray-200"
+                    ? "bg-gray-100 text-gray-900" 
+                    : "bg-white text-gray-900"
                 )}>
                   <div className={cn(
-                    "text-foreground leading-relaxed whitespace-pre-wrap",
+                    "leading-relaxed whitespace-pre-wrap",
                     isMobile ? "text-sm" : "text-base"
                   )}>
                     {message.content}
@@ -283,47 +273,46 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
             </div>
           ))}
           
-          {/* Suggested Questions - Встроенные в чат */}
+          {/* Suggested Questions - Integrated seamlessly */}
           {showSuggestedQuestions && !isLimitReached && (
             <div className="flex items-start gap-3">
               <div className={cn(
-                "flex-shrink-0 rounded-full flex items-center justify-center shadow-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white",
-                isMobile ? "w-8 h-8" : "w-10 h-10"
+                "flex-shrink-0 rounded-full flex items-center justify-center bg-blue-500 text-white",
+                isMobile ? "w-8 h-8" : "w-9 h-9"
               )}>
-                <Stethoscope className={cn(isMobile ? "h-4 w-4" : "h-5 w-5")} />
+                <Stethoscope className={cn(isMobile ? "h-4 w-4" : "h-4 w-4")} />
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className={cn("font-medium text-foreground", isMobile ? "text-sm" : "text-base")}>
+                  <span className={cn("font-medium text-gray-900", isMobile ? "text-sm" : "text-base")}>
                     ИИ-Доктор
                   </span>
                 </div>
                 
                 <div className={cn(
-                  "rounded-2xl shadow-sm border bg-white border-gray-200",
+                  "rounded-2xl bg-white",
                   isMobile ? "p-3" : "p-4"
                 )}>
-                  <div className={cn("text-foreground mb-3", isMobile ? "text-sm" : "text-base")}>
-                    💡 Выберите популярный вопрос или задайте свой:
+                  <div className={cn("text-gray-900 mb-4", isMobile ? "text-sm" : "text-base")}>
+                    Выберите популярный вопрос:
                   </div>
                   
                   <div className={cn(
                     "flex flex-wrap gap-2",
-                    isMobile ? "gap-1.5" : "gap-2"
+                    isMobile ? "gap-2" : "gap-2"
                   )}>
                     {suggestedQuestions.map((question, index) => (
-                      <Button
+                      <button
                         key={index}
-                        variant="outline"
                         onClick={() => handleSuggestedQuestion(question)}
                         className={cn(
-                          "h-auto text-left justify-start bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 hover:text-blue-800 rounded-full transition-all duration-200 hover:scale-105",
+                          "bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-full transition-colors duration-200",
                           isMobile ? "px-3 py-2 text-xs" : "px-4 py-2 text-sm"
                         )}
                       >
                         {question}
-                      </Button>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -334,27 +323,27 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
           {isProcessing && (
             <div className="flex items-start gap-3">
               <div className={cn(
-                "flex-shrink-0 rounded-full flex items-center justify-center shadow-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white",
-                isMobile ? "w-8 h-8" : "w-10 h-10"
+                "flex-shrink-0 rounded-full flex items-center justify-center bg-blue-500 text-white",
+                isMobile ? "w-8 h-8" : "w-9 h-9"
               )}>
-                <Stethoscope className={cn(isMobile ? "h-4 w-4" : "h-5 w-5")} />
+                <Stethoscope className={cn(isMobile ? "h-4 w-4" : "h-4 w-4")} />
               </div>
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className={cn("font-medium text-foreground", isMobile ? "text-sm" : "text-base")}>
+                  <span className={cn("font-medium text-gray-900", isMobile ? "text-sm" : "text-base")}>
                     ИИ-Доктор
                   </span>
                 </div>
                 
                 <div className={cn(
-                  "rounded-2xl shadow-sm border bg-white border-gray-200",
+                  "rounded-2xl bg-white",
                   isMobile ? "p-3" : "p-4"
                 )}>
                   <div className="flex items-center gap-2 text-blue-600">
-                    <Loader2 className={cn("animate-spin", isMobile ? "h-4 w-4" : "h-5 w-5")} />
+                    <Loader2 className={cn("animate-spin", isMobile ? "h-4 w-4" : "h-4 w-4")} />
                     <span className={cn(isMobile ? "text-sm" : "text-base")}>
-                      Анализирую ваш вопрос...
+                      Анализирую...
                     </span>
                   </div>
                 </div>
@@ -366,39 +355,39 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Modern Input Area */}
+      {/* Input Area - Clean Design */}
       <div className={cn(
-        "border-t bg-background/95 backdrop-blur-sm safe-area-pb",
+        "bg-gray-50 safe-area-pb",
         isMobile ? "px-4 py-3" : "px-6 py-4"
       )}>
         <div className="max-w-4xl mx-auto">
           {isLimitReached ? (
-            <div className="text-center p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
+            <div className="text-center p-6 bg-blue-50 rounded-2xl">
               <h3 className={cn("font-semibold text-blue-900 mb-2", isMobile ? "text-base" : "text-lg")}>
                 ⏰ Дневной лимит исчерпан
               </h3>
               <p className={cn("text-blue-700 mb-4", isMobile ? "text-sm" : "text-base")}>
                 Для неограниченного общения с персональным ИИ-доктором
               </p>
-              <Button 
-                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-200"
+              <button 
+                className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6 py-2 font-medium transition-colors duration-200"
                 onClick={() => window.location.href = "/pricing"}
               >
                 🚀 Обновить до Премиум
-              </Button>
+              </button>
             </div>
           ) : (
             <div className="flex gap-3 items-end">
               <div className="flex-1 min-w-0">
                 <textarea
                   ref={textareaRef}
-                  placeholder="Опишите ваши симптомы или задайте вопрос..."
+                  placeholder="Задайте вопрос о здоровье..."
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={handleKeyDown}
                   disabled={isProcessing}
                   className={cn(
-                    "w-full resize-none border-0 bg-gray-50 placeholder:text-gray-400 overflow-hidden focus:ring-2 focus:ring-blue-500/20 focus:outline-none rounded-2xl transition-all duration-200 shadow-sm",
+                    "w-full resize-none bg-white placeholder:text-gray-400 overflow-hidden focus:outline-none rounded-2xl transition-all duration-200",
                     isMobile 
                       ? "min-h-[44px] px-4 py-3 text-sm" 
                       : "min-h-[48px] px-5 py-3 text-base"
@@ -412,22 +401,22 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
                   rows={1}
                 />
               </div>
-              <Button
+              <button
                 onClick={handleSubmit}
                 disabled={!inputText.trim() || isProcessing}
                 className={cn(
-                  "flex-shrink-0 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl rounded-full border-0 disabled:opacity-50",
+                  "flex-shrink-0 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 transition-colors duration-200 rounded-full flex items-center justify-center",
                   isMobile 
                     ? "h-[44px] w-[44px]" 
                     : "h-[48px] w-[48px]"
                 )}
               >
                 {isProcessing ? (
-                  <Loader2 className={cn("animate-spin text-white", isMobile ? "h-4 w-4" : "h-5 w-5")} />
+                  <Loader2 className={cn("animate-spin text-white", isMobile ? "h-4 w-4" : "h-4 w-4")} />
                 ) : (
-                  <Send className={cn("text-white", isMobile ? "h-4 w-4" : "h-5 w-5")} />
+                  <Send className={cn("text-white", isMobile ? "h-4 w-4" : "h-4 w-4")} />
                 )}
-              </Button>
+              </button>
             </div>
           )}
         </div>
