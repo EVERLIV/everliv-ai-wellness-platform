@@ -7,18 +7,54 @@ export const WeeklyProgress: React.FC = () => {
   
   // Генерируем данные на основе профиля здоровья
   const generateWeeklyData = () => {
-    const baseSteps = healthProfile?.exerciseFrequency ? healthProfile.exerciseFrequency * 1500 : 8000;
-    const goal = 10000;
+    if (!healthProfile) {
+      // Данные по умолчанию для незарегистрированных пользователей
+      return [
+        { day: 'Пн', steps: 6500, goal: 10000 },
+        { day: 'Вт', steps: 8200, goal: 10000 },
+        { day: 'Ср', steps: 7800, goal: 10000 },
+        { day: 'Чт', steps: 9100, goal: 10000 },
+        { day: 'Пт', steps: 7500, goal: 10000 },
+        { day: 'Сб', steps: 12300, goal: 10000 },
+        { day: 'Вс', steps: 5200, goal: 10000 }
+      ];
+    }
+
+    // Базовый уровень активности на основе данных профиля
+    const activityMultiplier = {
+      'sedentary': 0.6,
+      'light': 0.8,
+      'moderate': 1.0,
+      'active': 1.3,
+      'very_active': 1.6
+    };
+
+    const baseActivity = healthProfile.physicalActivity || 'moderate';
+    const exerciseFreq = healthProfile.exerciseFrequency || 2;
+    const fitnessLevel = healthProfile.fitnessLevel || 'intermediate';
     
-    return [
-      { day: 'Пн', steps: Math.round(baseSteps + Math.random() * 2000), goal },
-      { day: 'Вт', steps: Math.round(baseSteps + Math.random() * 3000), goal },
-      { day: 'Ср', steps: Math.round(baseSteps + Math.random() * 2500), goal },
-      { day: 'Чт', steps: Math.round(baseSteps + Math.random() * 2800), goal },
-      { day: 'Пт', steps: Math.round(baseSteps + Math.random() * 2200), goal },
-      { day: 'Сб', steps: Math.round(baseSteps + Math.random() * 4000), goal },
-      { day: 'Вс', steps: Math.round(baseSteps + Math.random() * 1500), goal }
-    ];
+    // Рассчитываем базовое количество шагов
+    let baseSteps = 6000;
+    baseSteps *= activityMultiplier[baseActivity];
+    baseSteps += exerciseFreq * 800; // Добавляем за каждую тренировку в неделю
+    
+    if (fitnessLevel === 'advanced') baseSteps *= 1.2;
+    if (fitnessLevel === 'beginner') baseSteps *= 0.8;
+
+    const goal = Math.max(8000, Math.round(baseSteps * 1.2));
+    
+    // Генерируем реалистичные данные с вариацией
+    const weeklyVariations = [0.8, 1.1, 0.9, 1.2, 0.85, 1.4, 0.7]; // Пн-Вс
+    
+    return weeklyVariations.map((variation, index) => {
+      const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+      const steps = Math.round(baseSteps * variation + (Math.random() - 0.5) * 1000);
+      return { 
+        day: days[index], 
+        steps: Math.max(2000, steps), // Минимум 2000 шагов
+        goal 
+      };
+    });
   };
 
   const data = generateWeeklyData();
