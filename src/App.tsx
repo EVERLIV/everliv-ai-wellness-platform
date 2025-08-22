@@ -54,6 +54,10 @@ const Welcome = lazy(() => import("./pages/Welcome"));
 
 // Protected pages
 // Protected pages  
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
+const Settings = lazy(() => import("./pages/Settings"));
 const HealthProfile = lazy(() => import("./pages/HealthProfile"));
 const LabAnalyses = lazy(() => import("./pages/LabAnalyses"));
 const Analytics = lazy(() => import("./pages/Analytics"));
@@ -96,6 +100,21 @@ const App = () => (
                        <Route path="/welcome" element={<Welcome />} />
 
                       {/* Protected routes */}
+                      <Route path="/dashboard" element={
+                        <ProtectedRoute>
+                          <DashboardPage />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/profile" element={
+                        <ProtectedRoute>
+                          <UserProfile />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/settings" element={
+                        <ProtectedRoute>
+                          <Settings />
+                        </ProtectedRoute>
+                      } />
                       <Route path="/health-profile" element={
                         <ProtectedRoute>
                           <HealthProfile />
