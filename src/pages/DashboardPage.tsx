@@ -2,8 +2,8 @@ import React from 'react';
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { HealthLayout, HealthHeader, HealthSection } from '@/design-system/components/HealthLayout';
+import { MetricCard } from '@/design-system/components/HealthMetrics';
 import { Heart, Activity, TrendingUp, Calendar, Target } from 'lucide-react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
@@ -11,7 +11,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import DashboardQuickActionsGrid from '@/components/dashboard/DashboardQuickActionsGrid';
 import DashboardChatsList from '@/components/dashboard/DashboardChatsList';
 import MyGoalsSection from '@/components/dashboard/MyGoalsSection';
-
 import PriorityMetricsSection from '@/components/dashboard/PriorityMetricsSection';
 
 const DashboardPage = () => {
@@ -71,20 +70,20 @@ const DashboardPage = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-8">
-        {/* Заголовок */}
-        <div>
-          <h1 className="text-3xl font-bold mb-2">
-            Добро пожаловать, {userName}!
-          </h1>
-          <p className="text-muted-foreground">
-            Управляйте своим здоровьем с помощью ИИ-платформы
-          </p>
-        </div>
-
+      <HealthLayout variant="gradient" padding="lg">
+        {/* EVA Health Header */}
+        <HealthHeader
+          title={`Добро пожаловать, ${userName}!`}
+          subtitle="Управляйте своим здоровьем с помощью ИИ-платформы"
+          avatar={
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-eva-primary to-eva-accent flex items-center justify-center">
+              <Heart className="w-6 h-6 text-white" />
+            </div>
+          }
+        />
 
         {isMobile ? (
-          // Мобильная версия - новый порядок блоков
+          // Мобильная версия с EVA layout
           <div className="space-y-6">
             {/* 1. Мои цели */}
             <MyGoalsSection />
@@ -99,10 +98,10 @@ const DashboardPage = () => {
             <DashboardChatsList />
           </div>
         ) : (
-          // Десктопная версия - оригинальная компоновка
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          // Десктопная версия с EVA layout
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Левая колонка - Быстрые действия */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-8">
               <DashboardQuickActionsGrid />
 
               {/* Приоритетные метрики */}
@@ -110,7 +109,7 @@ const DashboardPage = () => {
             </div>
 
             {/* Правая колонка - Данные здоровья */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               {/* Мои цели */}
               <MyGoalsSection />
 
@@ -119,7 +118,7 @@ const DashboardPage = () => {
             </div>
           </div>
         )}
-      </div>
+      </HealthLayout>
     </AppLayout>
   );
 };

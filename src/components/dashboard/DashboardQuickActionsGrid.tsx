@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { EVAButton } from '@/design-system/components/EVAButton';
+import { HealthMetricsGrid, HealthSection } from '@/design-system/components/HealthLayout';
 import { 
   MessageSquare, 
   User, 
@@ -28,94 +29,85 @@ const DashboardQuickActionsGrid: React.FC = () => {
       title: 'ИИ Доктор',
       description: 'Персональная консультация',
       path: '/ai-doctor',
-      gradient: 'bg-gradient-to-br from-brand-primary to-brand-primary-dark',
-      iconColor: 'text-white/90'
+      variant: 'primary' as const
     },
     {
       icon: Heart,
       title: 'Профиль здоровья',
       description: 'Управление данными',
       path: '/health-profile',
-      gradient: 'bg-gradient-to-br from-brand-error to-red-600',
-      iconColor: 'text-white/90'
+      variant: 'danger' as const
     },
     {
       icon: BarChart3,
       title: 'Аналитика',
       description: 'Отчеты и тренды',
       path: '/analytics',
-      gradient: 'bg-gradient-to-br from-brand-success to-green-600',
-      iconColor: 'text-white/90'
+      variant: 'success' as const
     },
     {
       icon: TestTube,
       title: 'Лабораторные анализы',
       description: 'Результаты тестов',
       path: '/lab-analyses',
-      gradient: 'bg-gradient-to-br from-brand-accent to-purple-600',
-      iconColor: 'text-white/90'
+      variant: 'secondary' as const
     },
     {
       icon: Activity,
       title: 'Мои биомаркеры',
       description: 'Динамика показателей',
       path: '/my-biomarkers',
-      gradient: 'bg-gradient-to-br from-brand-secondary to-cyan-600',
-      iconColor: 'text-white/90'
+      variant: 'primary' as const
     },
     {
       icon: BookOpen,
       title: 'База знаний',
       description: 'Медицинская информация',
       path: '/medical-knowledge',
-      gradient: 'bg-gradient-to-br from-teal-500 to-brand-secondary',
-      iconColor: 'text-white/90'
+      variant: 'secondary' as const
     }
   ];
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between px-1">
-        <h3 className={`font-semibold text-gray-900 ${isMobile ? 'text-base' : 'text-lg'}`}>
-          Быстрые действия
-        </h3>
-      </div>
-      
-      <div className={`grid ${isMobile ? 'grid-cols-1 gap-2' : 'grid-cols-2 lg:grid-cols-3 gap-3'}`}>
+    <HealthSection 
+      title="Быстрые действия" 
+      background="surface"
+      className="eva-mobile-section"
+    >
+      <HealthMetricsGrid 
+        layout={isMobile ? "1x3" : "2x3"} 
+        className={isMobile ? "gap-3" : "gap-4"}
+      >
         {actions.map((action) => (
-          <Button
+          <div
             key={action.path}
-            variant="ghost"
-            className={`
-              h-auto p-0 group hover:scale-[1.01] transition-all duration-200
-              ${isMobile ? 'w-full' : ''}
-            `}
+            className="group cursor-pointer"
             onClick={() => navigate(action.path)}
           >
-            <div className={`
-              w-full ${action.gradient} rounded-lg p-3 text-left
-              shadow-md hover:shadow-lg transition-all duration-200
-              ${isMobile ? 'min-h-[60px]' : 'min-h-[70px]'}
-            `}>
+            <div className="bg-eva-surface border border-neutral-200 rounded-2xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 eva-touch-target">
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <action.icon className={`${isMobile ? 'h-4 w-4' : 'h-4 w-4'} ${action.iconColor} flex-shrink-0`} />
-                    <h4 className={`font-medium text-white truncate ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                      {action.title}
-                    </h4>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 rounded-xl bg-eva-primary/10 flex items-center justify-center group-hover:bg-eva-primary/20 transition-colors">
+                      <action.icon className="h-5 w-5 text-eva-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-eva-text-primary text-sm truncate group-hover:text-eva-primary transition-colors">
+                        {action.title}
+                      </h4>
+                      <p className="text-eva-text-secondary text-xs leading-tight truncate">
+                        {action.description}
+                      </p>
+                    </div>
                   </div>
-                  <p className={`text-white/80 ${isMobile ? 'text-xs' : 'text-xs'} leading-tight truncate`}>
-                    {action.description}
-                  </p>
                 </div>
-                <ChevronRight className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-white/60 group-hover:text-white transition-colors flex-shrink-0 ml-2`} />
+                <ChevronRight className="h-4 w-4 text-eva-text-muted group-hover:text-eva-primary transition-colors flex-shrink-0" />
               </div>
             </div>
-          </Button>
+          </div>
         ))}
-      </div>
-    </div>
+      </HealthMetricsGrid>
+    </HealthSection>
   );
 };
 
