@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { AppFooter } from "./AppFooter";
+import BottomNavigation from "./BottomNavigation";
 import { useSmartAuth } from "@/hooks/useSmartAuth";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { Button } from "@/components/ui/button";
@@ -100,7 +101,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col w-full bg-background">
       {/* Полноширинный навбар */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 hidden md:block">
         <div className="flex h-14 items-center justify-between px-4 lg:px-6">
           {/* Левая часть - Кнопка назад и логотип */}
           <div className="flex items-center gap-4">
@@ -233,23 +234,30 @@ export function AppLayout({ children }: AppLayoutProps) {
       </header>
 
       {/* Основной контент с боковым меню с отступом от навбара */}
-      <div className="flex flex-1 pt-14 w-full">
+      <div className="flex flex-1 pt-0 md:pt-14 w-full">
         <SidebarProvider defaultOpen={false}>
-          <AppSidebar />
+          <div className="hidden md:block">
+            <AppSidebar />
+          </div>
           
           <div className="flex flex-1 flex-col min-w-0">
             {/* Основной контент */}
             <main className="flex-1 overflow-auto bg-background">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-6xl min-h-full">
+              <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20 md:pb-6 max-w-6xl min-h-full">
                 {children}
               </div>
             </main>
             
-            {/* Футер */}
-            <AppFooter />
+            {/* Футер только на десктопе */}
+            <div className="hidden md:block">
+              <AppFooter />
+            </div>
           </div>
         </SidebarProvider>
       </div>
+      
+      {/* Нижнее меню только на мобильных */}
+      <BottomNavigation />
     </div>
   );
 }

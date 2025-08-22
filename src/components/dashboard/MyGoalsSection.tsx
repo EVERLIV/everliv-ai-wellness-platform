@@ -63,77 +63,61 @@ const MyGoalsSection: React.FC = () => {
   }
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-brand-primary/5 via-brand-accent/5 to-brand-secondary/5 rounded-2xl p-5 sm:p-6 mb-6 border border-brand-primary/10 animate-fade-in">
-      <div className="absolute inset-0 bg-gradient-glass"></div>
-      <div className="relative z-10">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-xl flex items-center justify-center">
-            <Target className="h-5 w-5 text-white" />
+    <div className="bg-gradient-to-r from-brand-primary/5 to-brand-accent/5 rounded-lg p-3 animate-fade-in">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-6 h-6 bg-gradient-to-br from-brand-primary to-brand-accent rounded-lg flex items-center justify-center">
+          <Target className="h-3 w-3 text-white" />
+        </div>
+        <h2 className="text-sm font-semibold text-foreground">Мои цели</h2>
+      </div>
+
+      <div className="space-y-2">
+        {/* Пользовательские цели */}
+        {customGoals.length > 0 && (
+          <div className="space-y-1">
+            {customGoals.slice(0, 2).map((goal, index) => (
+              <div key={goal.id} className="flex items-center gap-2 text-xs">
+                <div className="w-3 h-3 bg-brand-primary rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-1 h-1 bg-white rounded-full"></div>
+                </div>
+                <p className="text-foreground leading-tight truncate">{goal.title}</p>
+              </div>
+            ))}
+            {customGoals.length > 2 && (
+              <p className="text-xs text-muted-foreground pl-5">+{customGoals.length - 2} еще</p>
+            )}
           </div>
-          <h2 className="text-lg font-semibold bg-gradient-to-r from-brand-primary to-brand-accent bg-clip-text text-transparent">
-            Мои цели
-          </h2>
-        </div>
+        )}
 
-        <div className="space-y-5">
-          {/* Пользовательские цели */}
-          {customGoals.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-brand-primary flex items-center gap-2">
-                <div className="w-4 h-0.5 bg-brand-primary rounded-full"></div>
-                Личные цели
-              </h3>
-              <div className="space-y-3">
-                {customGoals.map((goal, index) => (
-                  <div key={goal.id} className="flex items-start gap-3 p-3 bg-white/60 rounded-xl hover:bg-white/80 transition-all duration-300" style={{ animationDelay: `${index * 100}ms` }}>
-                    <div className="w-6 h-6 bg-brand-primary rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                    <p className="text-sm text-foreground leading-relaxed font-medium">{goal.title}</p>
-                  </div>
-                ))}
+        {/* Выбранные цели из профиля здоровья */}
+        {selectedGoals.length > 0 && (
+          <div className="space-y-1">
+            {selectedGoals.slice(0, 2).map((goal, index) => (
+              <div key={index} className="flex items-center gap-2 text-xs">
+                <div className="w-3 h-3 bg-brand-secondary rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-1 h-1 bg-white rounded-full"></div>
+                </div>
+                <p className="text-foreground/90 leading-tight truncate">{goal}</p>
               </div>
-            </div>
-          )}
+            ))}
+            {selectedGoals.length > 2 && (
+              <p className="text-xs text-muted-foreground pl-5">+{selectedGoals.length - 2} еще</p>
+            )}
+          </div>
+        )}
 
-          {/* Выбранные цели из профиля здоровья */}
-          {selectedGoals.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-brand-secondary flex items-center gap-2">
-                <div className="w-4 h-0.5 bg-brand-secondary rounded-full"></div>
-                Цели здоровья
-              </h3>
-              <div className="space-y-3">
-                {selectedGoals.map((goal, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-white/60 rounded-xl hover:bg-white/80 transition-all duration-300" style={{ animationDelay: `${index * 100 + 50}ms` }}>
-                    <div className="w-6 h-6 bg-brand-secondary rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                    <p className="text-sm text-foreground/90 leading-relaxed">{goal}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Пустое состояние */}
-          {selectedGoals.length === 0 && customGoals.length === 0 && (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Target className="h-8 w-8 text-neutral-400" />
-              </div>
-              <h3 className="text-base font-semibold text-foreground mb-2">Пока нет целей</h3>
-              <p className="text-sm text-muted-foreground mb-4">Установите цели здоровья для персонализированных рекомендаций</p>
-              <button 
-                onClick={() => window.location.href = '/health-profile'}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-accent text-white font-medium rounded-lg transition-all duration-300 hover:scale-105"
-              >
-                <Target className="h-4 w-4" />
-                Установить цели здоровья
-              </button>
-            </div>
-          )}
-        </div>
+        {/* Пустое состояние */}
+        {selectedGoals.length === 0 && customGoals.length === 0 && (
+          <div className="text-center py-2">
+            <p className="text-xs text-muted-foreground mb-2">Нет целей</p>
+            <button 
+              onClick={() => window.location.href = '/health-profile'}
+              className="text-xs text-brand-primary font-medium hover:text-brand-primary-dark transition-colors"
+            >
+              Добавить →
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
