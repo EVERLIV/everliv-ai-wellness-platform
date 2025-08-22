@@ -186,11 +186,11 @@ const PriorityMetricsSection = () => {
   };
 
   const getRiskColor = (value: number) => {
-    if (value <= 5) return 'text-green-600';
-    if (value <= 15) return 'text-yellow-600';
-    if (value <= 30) return 'text-orange-600';
-    if (value <= 50) return 'text-red-600';
-    return 'text-red-800';
+    if (value <= 5) return 'text-brand-success';
+    if (value <= 15) return 'text-brand-success';
+    if (value <= 30) return 'text-brand-warning';
+    if (value <= 50) return 'text-brand-error';
+    return 'text-brand-error';
   };
 
   // Получаем топ-5 худших биомаркеров
@@ -301,17 +301,17 @@ const PriorityMetricsSection = () => {
                   <div 
                     key={index} 
                     className={`p-5 rounded-2xl transition-all duration-300 ${
-                      !risk.hasData ? 'bg-neutral-50/80' : 
-                      risk.value <= 15 ? 'bg-brand-success/5' :
-                      risk.value <= 30 ? 'bg-brand-warning/5' :
-                      risk.value <= 45 ? 'bg-orange-50/80' : 
-                      'bg-brand-error/5'
+                      !risk.hasData ? 'bg-neutral-100' : 
+                      risk.value <= 15 ? 'bg-brand-success/10' :
+                      risk.value <= 30 ? 'bg-brand-warning/10' :
+                      risk.value <= 45 ? 'bg-orange-100' : 
+                      'bg-brand-error/10'
                     }`}
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div className="flex justify-between items-start mb-3">
                       <h5 className={`text-base font-semibold leading-tight ${
-                        !risk.hasData ? 'text-neutral-700' :
+                        !risk.hasData ? 'text-neutral-800' :
                         risk.value <= 15 ? 'text-brand-success' :
                         risk.value <= 30 ? 'text-brand-warning' :
                         risk.value <= 45 ? 'text-orange-700' : 
@@ -331,31 +331,31 @@ const PriorityMetricsSection = () => {
                       )}
                     </div>
                     
-                    <p className={`text-sm mb-3 leading-relaxed ${
-                      !risk.hasData ? 'text-neutral-600' :
-                      risk.value <= 15 ? 'text-brand-success/80' :
-                      risk.value <= 30 ? 'text-brand-warning/80' :
-                      risk.value <= 45 ? 'text-orange-600' : 
-                      'text-brand-error/80'
+                    <p className={`text-sm mb-3 leading-relaxed font-medium ${
+                      !risk.hasData ? 'text-neutral-700' :
+                      risk.value <= 15 ? 'text-brand-success' :
+                      risk.value <= 30 ? 'text-brand-warning' :
+                      risk.value <= 45 ? 'text-orange-700' : 
+                      'text-brand-error'
                     }`}>
                       {risk.description}
                     </p>
                     
-                    <div className={`text-sm font-medium ${
-                      !risk.hasData ? 'text-neutral-500' :
-                      risk.value <= 15 ? 'text-brand-success/70' :
-                      risk.value <= 30 ? 'text-brand-warning/70' :
-                      risk.value <= 45 ? 'text-orange-600' : 
-                      'text-brand-error/70'
+                    <div className={`text-sm font-semibold ${
+                      !risk.hasData ? 'text-neutral-600' :
+                      risk.value <= 15 ? 'text-brand-success' :
+                      risk.value <= 30 ? 'text-brand-warning' :
+                      risk.value <= 45 ? 'text-orange-700' : 
+                      'text-brand-error'
                     }`}>
-                      <span className="font-semibold">
+                      <span className="font-bold">
                         {!risk.hasData ? '' : 'Факторы: '}
                       </span>
                       {risk.factors}
                     </div>
                     
                     {risk.mechanism && (
-                      <p className="text-sm text-muted-foreground mt-3 italic pt-3 border-t border-current/10">
+                      <p className="text-sm text-muted-foreground/80 mt-3 italic pt-3 border-t border-current/20 font-medium">
                         {risk.mechanism}
                       </p>
                     )}
