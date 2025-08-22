@@ -4,12 +4,36 @@
  */
 
 export const designTokens = {
-  // Brand Colors
+  // EVA Health App Colors
   colors: {
+    eva: {
+      // Primary blue gradient colors from screenshots
+      primary: 'hsl(217, 91%, 60%)', // Main blue
+      primaryDark: 'hsl(217, 91%, 45%)',
+      primaryLight: 'hsl(217, 91%, 75%)',
+      
+      // Health status colors
+      critical: 'hsl(0, 85%, 60%)', // Red for critical values
+      warning: 'hsl(45, 95%, 55%)', // Orange for warnings
+      normal: 'hsl(140, 60%, 45%)', // Green for normal values
+      optimal: 'hsl(160, 70%, 40%)', // Darker green for optimal
+      
+      // UI colors
+      background: 'hsl(217, 33%, 97%)', // Light blue-gray background
+      surface: 'hsl(217, 33%, 99%)', // Card backgrounds
+      accent: 'hsl(285, 85%, 65%)', // Purple accent
+      
+      // Text colors
+      textPrimary: 'hsl(217, 25%, 15%)', // Dark blue-gray
+      textSecondary: 'hsl(217, 15%, 45%)', // Medium blue-gray
+      textMuted: 'hsl(217, 15%, 65%)', // Light blue-gray
+    },
+    
+    // Legacy brand colors for compatibility
     brand: {
-      primary: 'hsl(210, 85%, 45%)',
-      primaryDark: 'hsl(210, 85%, 35%)',
-      primaryLight: 'hsl(210, 85%, 55%)',
+      primary: 'hsl(217, 91%, 60%)',
+      primaryDark: 'hsl(217, 91%, 45%)',
+      primaryLight: 'hsl(217, 91%, 75%)',
       secondary: 'hsl(160, 55%, 48%)',
       accent: 'hsl(285, 85%, 65%)',
       warning: 'hsl(45, 95%, 55%)',

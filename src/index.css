@@ -4,7 +4,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import mobile optimization styles */
+/* Import EVA design system and existing styles */
+@import './styles/eva-theme.css';
 @import './styles/mobile-optimization.css';
 @import './styles/base.css';
 @import './styles/components.css';

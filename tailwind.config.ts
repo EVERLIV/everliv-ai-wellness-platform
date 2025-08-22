@@ -79,7 +79,23 @@ export default {
 					border: 'hsl(var(--border))',
 					ring: 'hsl(var(--ring))'
 				},
-				// Brand colors using HSL variables
+				// EVA Health App colors
+				eva: {
+					primary: 'hsl(var(--eva-primary))',
+					'primary-dark': 'hsl(var(--eva-primary-dark))',
+					'primary-light': 'hsl(var(--eva-primary-light))',
+					critical: 'hsl(var(--eva-critical))',
+					warning: 'hsl(var(--eva-warning))',
+					normal: 'hsl(var(--eva-normal))',
+					optimal: 'hsl(var(--eva-optimal))',
+					background: 'hsl(var(--eva-background))',
+					surface: 'hsl(var(--eva-surface))',
+					accent: 'hsl(var(--eva-accent))',
+					'text-primary': 'hsl(var(--eva-text-primary))',
+					'text-secondary': 'hsl(var(--eva-text-secondary))',
+					'text-muted': 'hsl(var(--eva-text-muted))',
+				},
+				// Legacy brand colors for compatibility
 				brand: {
 					primary: 'hsl(var(--brand-primary))',
 					'primary-dark': 'hsl(var(--brand-primary-dark))',
