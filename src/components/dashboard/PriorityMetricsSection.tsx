@@ -255,7 +255,7 @@ const PriorityMetricsSection = () => {
     <div className="space-y-6 animate-fade-in">
 
       {/* ИИ-скоры рисков */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+      <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 hover:shadow-xl transition-all duration-300">
         <div className="absolute inset-0 bg-gradient-glass"></div>
         <CardHeader className="relative pb-4">
           <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-3">
@@ -368,7 +368,7 @@ const PriorityMetricsSection = () => {
       </Card>
 
       {/* Топ-5 критических биомаркеров */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+      <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 hover:shadow-xl transition-all duration-300">
         <div className="absolute inset-0 bg-gradient-glass"></div>
         <CardHeader className="relative pb-4">
           <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-3">

@@ -158,7 +158,7 @@ const DashboardChatsList: React.FC = () => {
   }
 
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in">
+    <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 hover:shadow-xl transition-all duration-300 animate-fade-in">
       <div className="absolute inset-0 bg-gradient-glass"></div>
       <CardHeader className="relative pb-3">
         <CardTitle className="flex items-center gap-3 text-foreground">

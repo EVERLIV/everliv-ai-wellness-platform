@@ -90,7 +90,7 @@ const DashboardPage = () => {
           // Мобильная версия - новый порядок блоков
           <div className="space-y-6">
             {/* 1. Индекс здоровья */}
-            <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/50 to-card border-0 shadow-lg hover:shadow-xl transition-all duration-300 animate-fade-in">
+            <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/50 to-card border-0 hover:shadow-xl transition-all duration-300 animate-fade-in">
               <div className="absolute inset-0 bg-gradient-glass"></div>
               <CardHeader className="relative pb-2">
                 <CardTitle className="flex items-center gap-3 text-foreground">
@@ -120,9 +120,9 @@ const DashboardPage = () => {
                       </div>
                       <Progress 
                         value={currentHealthScore} 
-                        className={`h-3 rounded-full ${getScoreGradient(currentHealthScore)} transition-all duration-700 shadow-sm`}
+                        className={`h-3 rounded-full ${getScoreGradient(currentHealthScore)} transition-all duration-700`}
                       />
-                      <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-md animate-pulse"></div>
+                      <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full animate-pulse"></div>
                     </div>
                     {analytics && (
                       <div className="p-3 bg-gradient-to-r from-brand-primary/5 to-brand-accent/5 rounded-lg border border-brand-primary/10">
@@ -211,7 +211,7 @@ const DashboardPage = () => {
             {/* Правая колонка - Данные здоровья */}
             <div className="space-y-8">
               {/* Индекс здоровья */}
-              <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/50 to-card border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/50 to-card border-0 hover:shadow-xl transition-all duration-300">
                 <div className="absolute inset-0 bg-gradient-glass"></div>
                 <CardHeader className="relative pb-3">
                   <CardTitle className="flex items-center gap-3 text-foreground">
@@ -241,9 +241,9 @@ const DashboardPage = () => {
                         </div>
                         <Progress 
                           value={currentHealthScore} 
-                          className={`h-4 rounded-full ${getScoreGradient(currentHealthScore)} transition-all duration-700 shadow-md`}
+                          className={`h-4 rounded-full ${getScoreGradient(currentHealthScore)} transition-all duration-700`}
                         />
-                        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white rounded-full shadow-lg animate-pulse"></div>
+                        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white rounded-full animate-pulse"></div>
                       </div>
                       {analytics && (
                         <div className="p-4 bg-gradient-to-r from-brand-primary/10 to-brand-accent/10 rounded-xl border border-brand-primary/20">

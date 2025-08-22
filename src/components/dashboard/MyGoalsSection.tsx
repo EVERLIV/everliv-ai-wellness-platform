@@ -67,7 +67,7 @@ const MyGoalsSection: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-glass"></div>
       <div className="relative z-10">
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-xl flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-xl flex items-center justify-center">
             <Target className="h-5 w-5 text-white" />
           </div>
           <h2 className="text-lg font-semibold bg-gradient-to-r from-brand-primary to-brand-accent bg-clip-text text-transparent">
