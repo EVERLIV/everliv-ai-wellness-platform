@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { supabase } from "@/integrations/supabase/client";
-import PersonalAIDoctorChatWithId from "@/components/ai-doctor/PersonalAIDoctorChatWithId";
+import ModernPersonalChat from "@/components/ai-doctor/ModernPersonalChat";
 import ChatHistory from "@/components/ai-doctor/ChatHistory";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { MobileChatLayout } from "@/components/layout/MobileChatLayout";
@@ -163,7 +163,7 @@ const AIDoctorPersonalPage = () => {
                 />
               </div>
             ) : (
-              <PersonalAIDoctorChatWithId 
+              <ModernPersonalChat 
                 chatId={selectedChatId}
                 onBack={handleBackToHistory}
                 onCreateNewChat={handleCreateNewChat}
@@ -234,7 +234,7 @@ const AIDoctorPersonalPage = () => {
                     />
                   </div>
                 ) : (
-                  <PersonalAIDoctorChatWithId 
+                  <ModernPersonalChat 
                     chatId={selectedChatId}
                     onBack={handleBackToHistory}
                     onCreateNewChat={handleCreateNewChat}
