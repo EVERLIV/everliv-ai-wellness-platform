@@ -41,7 +41,7 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
     const welcomeMessage: Message = {
       id: 'welcome',
       role: 'assistant',
-      content: 'Привет! 👋 Я ваш ИИ-доктор EVERLIV.\n\nГотов помочь с вопросами о здоровье!',
+      content: 'Привет! 👋 Готов помочь с вопросами о здоровье.',
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
