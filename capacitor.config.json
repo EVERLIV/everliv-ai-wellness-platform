@@ -1,0 +1,22 @@
+{
+  "appId": "app.lovable.a1fd57249efe441ba45b5f255a22c9c9",
+  "appName": "everliv-ai-wellness-platform",
+  "webDir": "dist",
+  "server": {
+    "url": "https://a1fd5724-9efe-441b-a45b-5f255a22c9c9.lovableproject.com?forceHideBadge=true",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
+      "backgroundColor": "#f8f9fa",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "LIGHT"
+    }
+  }
+}
