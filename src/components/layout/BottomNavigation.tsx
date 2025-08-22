@@ -56,8 +56,8 @@ const BottomNavigation = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 border-t border-border/20 backdrop-blur-lg md:hidden safe-area-pb">
-      <div className="grid grid-cols-5 h-14 sm:h-16">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/98 border-t border-border/30 backdrop-blur-md md:hidden safe-area-pb">
+      <div className="grid grid-cols-5">
         {navItems.map((item) => {
           const isItemActive = isActive(item.path);
           return (
@@ -65,39 +65,51 @@ const BottomNavigation = () => {
               key={item.path}
               onClick={() => navigate(item.path)}
               className={cn(
-                "relative flex flex-col items-center justify-center transition-all duration-300 ease-out",
-                "active:scale-95 touch-manipulation min-h-[44px]",
-                "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-0",
+                "relative flex flex-col items-center justify-center",
+                "py-2 px-1 transition-all duration-300 ease-out",
+                "active:scale-95 touch-manipulation",
+                "focus:outline-none focus:ring-2 focus:ring-primary/20",
                 isItemActive 
                   ? `${item.color}` 
-                  : "text-muted-foreground/70 hover:text-foreground/80"
+                  : "text-muted-foreground/60 hover:text-foreground/80 hover:scale-105"
               )}
+              style={{ minHeight: '64px' }}
             >
               <div className={cn(
-                "flex flex-col items-center transition-all duration-300",
-                isItemActive ? "gap-1" : "gap-0"
+                "flex flex-col items-center justify-center transition-all duration-300 ease-out",
+                isItemActive ? "gap-1.5" : "gap-0"
               )}>
-                <item.icon 
-                  className={cn(
-                    "transition-all duration-300 ease-out",
-                    isItemActive 
-                      ? "h-5 w-5 sm:h-6 sm:w-6 scale-110" 
-                      : "h-5 w-5 sm:h-5 sm:w-5"
-                  )} 
-                />
-                <span className={cn(
-                  "text-[10px] sm:text-xs font-medium transition-all duration-300 ease-out leading-none",
+                <div className={cn(
+                  "p-1.5 rounded-full transition-all duration-300 ease-out",
                   isItemActive 
-                    ? "opacity-100 transform translate-y-0 font-semibold" 
-                    : "opacity-0 transform translate-y-1 absolute"
+                    ? "bg-current/10 scale-110" 
+                    : "scale-100 hover:bg-current/5"
+                )}>
+                  <item.icon 
+                    className={cn(
+                      "transition-all duration-300 ease-out",
+                      isItemActive 
+                        ? "h-5 w-5" 
+                        : "h-4 w-4"
+                    )} 
+                  />
+                </div>
+                
+                <span className={cn(
+                  "text-[9px] font-medium leading-tight text-center px-0.5",
+                  "transition-all duration-300 ease-out max-w-full",
+                  isItemActive 
+                    ? "opacity-100 transform translate-y-0 font-semibold scale-100" 
+                    : "opacity-0 transform translate-y-2 scale-95 absolute pointer-events-none"
                 )}>
                   {item.label}
                 </span>
               </div>
+              
               {isItemActive && (
                 <div className={cn(
-                  "absolute -bottom-[1px] left-1/2 transform -translate-x-1/2",
-                  "w-6 h-[2px] rounded-full transition-all duration-300",
+                  "absolute bottom-0 left-1/2 transform -translate-x-1/2",
+                  "w-5 h-[2px] rounded-full transition-all duration-300 animate-scale-in",
                   item.color.replace('text-', 'bg-')
                 )} />
               )}
