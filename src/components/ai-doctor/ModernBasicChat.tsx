@@ -178,32 +178,28 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         <div className="space-y-4 max-w-4xl mx-auto">
           {messages.map((message) => (
             <div key={message.id} className={cn(
-              "flex",
+              "flex w-full",
               message.role === "user" ? "justify-end" : "justify-start"
             )}>
               {message.role === "user" ? (
                 // Исходящие сообщения (пользователь) - справа с градиентом
                 <div className={cn(
-                  "relative max-w-[75%] rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 text-white animate-in slide-in-from-right-2 duration-300 shadow-lg",
+                  "relative w-full rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 text-white animate-in slide-in-from-right-2 duration-300 shadow-lg",
                   isMobile ? "px-4 py-3 text-sm" : "px-5 py-4 text-sm"
                 )}>
                   <div className="leading-relaxed whitespace-pre-wrap">
                     {message.content}
                   </div>
-                  {/* Хвостик справа */}
-                  <div className="absolute right-[-6px] top-4 w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[8px] border-l-blue-600"></div>
                 </div>
               ) : (
                 // Входящие сообщения (ИИ) - слева
                 <div className={cn(
-                  "relative max-w-[75%] rounded-2xl bg-gray-100 text-gray-900 animate-in slide-in-from-left-2 duration-300 shadow-md",
+                  "relative w-full rounded-2xl bg-gray-100 text-gray-900 animate-in slide-in-from-left-2 duration-300 shadow-md",
                   isMobile ? "px-4 py-3 text-sm" : "px-5 py-4 text-sm"
                 )}>
                   <div className="leading-relaxed whitespace-pre-wrap">
                     {message.content}
                   </div>
-                  {/* Хвостик слева */}
-                  <div className="absolute left-[-6px] top-4 w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-r-[8px] border-r-gray-100"></div>
                 </div>
               )}
             </div>
@@ -211,9 +207,9 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
           
           {/* Suggested Questions - облачный стиль */}
           {showSuggestedQuestions && (
-            <div className="flex justify-start">
+            <div className="flex justify-start w-full">
               <div className={cn(
-                "relative max-w-[75%] rounded-2xl bg-gradient-to-r from-gray-100 to-gray-200 text-gray-900 animate-in slide-in-from-left-2 duration-300 shadow-md",
+                "relative w-full rounded-2xl bg-gray-100 text-gray-900 animate-in slide-in-from-left-2 duration-300 shadow-md",
                 isMobile ? "px-4 py-3" : "px-5 py-4"
               )}>
                 <div className={cn("text-gray-900 mb-3", isMobile ? "text-xs" : "text-sm")}>
@@ -234,16 +230,14 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
                     </button>
                   ))}
                 </div>
-                {/* Хвостик слева */}
-                <div className="absolute left-[-6px] top-4 w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-r-[8px] border-r-gray-200"></div>
               </div>
             </div>
           )}
           
           {isProcessing && (
-            <div className="flex justify-start">
+            <div className="flex justify-start w-full">
               <div className={cn(
-                "relative max-w-[75%] rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 text-gray-900 animate-in slide-in-from-left-2 duration-300 shadow-md",
+                "relative w-full rounded-2xl bg-blue-50 text-gray-900 animate-in slide-in-from-left-2 duration-300 shadow-md",
                 isMobile ? "px-4 py-3" : "px-5 py-4"
               )}>
                 <div className="flex items-center gap-3 text-blue-600">
@@ -252,8 +246,6 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
                     Анализирую...
                   </span>
                 </div>
-                {/* Хвостик слева */}
-                <div className="absolute left-[-6px] top-4 w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-r-[8px] border-r-blue-100"></div>
               </div>
             </div>
           )}
