@@ -64,27 +64,11 @@ const DashboardQuickActionsGrid: React.FC = () => {
       iconColor: 'text-white/90'
     },
     {
-      icon: TrendingUp,
-      title: 'Биологический возраст',
-      description: 'Пошаговый анализ',
-      path: '/biological-age',
-      gradient: 'bg-gradient-to-br from-pink-500 to-brand-accent',
-      iconColor: 'text-white/90'
-    },
-    {
       icon: BookOpen,
       title: 'База знаний',
-      description: 'Медицинские статьи',
-      path: '/knowledge-base',
+      description: 'Медицинская информация',
+      path: '/medical-knowledge',
       gradient: 'bg-gradient-to-br from-teal-500 to-brand-secondary',
-      iconColor: 'text-white/90'
-    },
-    {
-      icon: Calendar,
-      title: 'Календарь здоровья',
-      description: 'Планирование и напоминания',
-      path: '/health-calendar',
-      gradient: 'bg-gradient-to-br from-brand-warning to-amber-600',
       iconColor: 'text-white/90'
     }
   ];

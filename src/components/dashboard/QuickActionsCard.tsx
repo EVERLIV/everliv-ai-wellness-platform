@@ -34,10 +34,10 @@ const QuickActionsCard = () => {
               Оценка здоровья
             </Button>
           </Link>
-          <Link to="/biological-age">
+          <Link to="/my-biomarkers">
             <Button variant="outline" className="w-full justify-start">
-              <Calendar className="h-4 w-4 mr-2" />
-              Биологический возраст
+              <Activity className="h-4 w-4 mr-2" />
+              Мои биомаркеры
             </Button>
           </Link>
         </div>

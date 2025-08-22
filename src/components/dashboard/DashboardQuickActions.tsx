@@ -33,15 +33,6 @@ const DashboardQuickActions = () => {
       features: ["Медицинская история", "Лабораторные показатели", "Персонализация"]
     },
     {
-      title: "Биологический возраст",
-      description: "Определите свой биологический возраст на основе комплексной оценки биомаркеров и показателей здоровья",
-      icon: <Clock className="h-8 w-8 text-indigo-600" />,
-      action: () => navigate("/biological-age"),
-      color: "bg-indigo-50",
-      badge: <Badge className="bg-indigo-600 text-white">ИИ-анализ</Badge>,
-      features: ["Анализ биомаркеров", "ИИ-расчеты", "Персональные рекомендации"]
-    },
-    {
       title: "Лабораторные анализы",
       description: "Загружайте и анализируйте результаты лабораторных исследований с помощью ИИ для получения персональных рекомендаций",
       icon: <TestTube className="h-8 w-8 text-blue-600" />,
@@ -49,6 +40,15 @@ const DashboardQuickActions = () => {
       color: "bg-blue-50",
       badge: <Badge className="bg-blue-600 text-white">ИИ-анализ</Badge>,
       features: ["Умный анализ", "Рекомендации", "Трекинг динамики"]
+    },
+    {
+      title: "Мои биомаркеры",
+      description: "Отслеживайте и анализируйте ваши биомаркеры для мониторинга состояния здоровья",
+      icon: <Activity className="h-8 w-8 text-green-600" />,
+      action: () => navigate("/my-biomarkers"),
+      color: "bg-green-50",
+      badge: <Badge className="bg-green-600 text-white">Трекинг</Badge>,
+      features: ["Мониторинг", "Динамика", "Анализ трендов"]
     },
     {
       title: "Анализ и рекомендации",

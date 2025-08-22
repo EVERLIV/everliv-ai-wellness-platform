@@ -21,9 +21,9 @@ const AIRecommendationsCard = () => {
             <div className="text-sm text-gray-600 mt-1">
               Получите персонализированные рекомендации для улучшения здоровья
             </div>
-            <Link to="/biological-age">
+            <Link to="/analytics">
               <Button size="sm" className="mt-2 w-full">
-                Начать
+                Начать анализ
               </Button>
             </Link>
           </div>
