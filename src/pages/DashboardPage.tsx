@@ -149,11 +149,9 @@ const DashboardPage = () => {
                 )}
                 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
-                  <div className="text-center p-3 bg-gradient-to-br from-brand-primary/5 to-brand-primary/10 rounded-xl border border-brand-primary/20 hover:shadow-md transition-all duration-300">
+                  <div className="text-center p-3 bg-brand-primary/5 rounded-xl hover:bg-brand-primary/10 transition-all duration-300">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                      <div className="p-1 bg-brand-primary/20 rounded-full">
-                        <Activity className="h-3 w-3 text-brand-primary" />
-                      </div>
+                      <Activity className="h-3 w-3 text-brand-primary" />
                       <span className="text-xs font-medium text-brand-primary">Биовозраст</span>
                     </div>
                     <div className="text-2xl font-bold text-brand-primary mb-1">
@@ -167,11 +165,9 @@ const DashboardPage = () => {
                     )}
                   </div>
                   
-                  <div className="text-center p-3 bg-gradient-to-br from-brand-success/5 to-brand-success/10 rounded-xl border border-brand-success/20 hover:shadow-md transition-all duration-300">
+                  <div className="text-center p-3 bg-brand-success/5 rounded-xl hover:bg-brand-success/10 transition-all duration-300">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                      <div className="p-1 bg-brand-success/20 rounded-full">
-                        <TrendingUp className="h-3 w-3 text-brand-success" />
-                      </div>
+                      <TrendingUp className="h-3 w-3 text-brand-success" />
                       <span className="text-xs font-medium text-brand-success">Скорость старения</span>
                     </div>
                     <div className="text-2xl font-bold text-brand-success mb-1">
@@ -274,11 +270,9 @@ const DashboardPage = () => {
                   )}
                   
                   <div className="grid grid-cols-2 gap-4 pt-5 border-t border-border/50">
-                    <div className="text-center p-4 bg-gradient-to-br from-brand-primary/10 to-brand-primary/5 rounded-xl border border-brand-primary/20 hover:shadow-lg transition-all duration-300">
+                    <div className="text-center p-4 bg-brand-primary/5 rounded-xl hover:bg-brand-primary/10 transition-all duration-300">
                       <div className="flex items-center justify-center gap-2 mb-3">
-                        <div className="p-1.5 bg-brand-primary/20 rounded-full">
-                          <Activity className="h-4 w-4 text-brand-primary" />
-                        </div>
+                        <Activity className="h-4 w-4 text-brand-primary" />
                         <span className="text-sm font-semibold text-brand-primary">Биовозраст</span>
                       </div>
                       <div className="text-3xl font-bold text-brand-primary mb-1">
@@ -292,11 +286,9 @@ const DashboardPage = () => {
                       )}
                     </div>
                     
-                    <div className="text-center p-4 bg-gradient-to-br from-brand-success/10 to-brand-success/5 rounded-xl border border-brand-success/20 hover:shadow-lg transition-all duration-300">
+                    <div className="text-center p-4 bg-brand-success/5 rounded-xl hover:bg-brand-success/10 transition-all duration-300">
                       <div className="flex items-center justify-center gap-2 mb-3">
-                        <div className="p-1.5 bg-brand-success/20 rounded-full">
-                          <TrendingUp className="h-4 w-4 text-brand-success" />
-                        </div>
+                        <TrendingUp className="h-4 w-4 text-brand-success" />
                         <span className="text-sm font-semibold text-brand-success">Скорость старения</span>
                       </div>
                       <div className="text-3xl font-bold text-brand-success mb-1">

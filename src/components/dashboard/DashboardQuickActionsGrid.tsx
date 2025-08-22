@@ -96,16 +96,13 @@ const DashboardQuickActionsGrid: React.FC = () => {
           >
             <div className={`
               w-full ${action.gradient} rounded-xl p-4 text-left relative overflow-hidden
-              shadow-card hover:shadow-xl transition-all duration-300
+              transition-all duration-300
               ${isMobile ? 'min-h-[70px]' : 'min-h-[80px]'}
-              before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/10 before:to-transparent before:opacity-0 before:transition-opacity before:duration-300 group-hover:before:opacity-100
             `}>
               <div className="relative z-10 flex items-center justify-between h-full">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                      <action.icon className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-white flex-shrink-0`} />
-                    </div>
+                    <action.icon className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} text-white flex-shrink-0`} />
                     <h4 className={`font-semibold text-white truncate ${isMobile ? 'text-sm' : 'text-base'}`}>
                       {action.title}
                     </h4>
@@ -115,9 +112,7 @@ const DashboardQuickActionsGrid: React.FC = () => {
                   </p>
                 </div>
                 <div className="flex-shrink-0 ml-3">
-                  <div className="p-2 bg-white/20 rounded-full group-hover:bg-white/30 transition-colors">
-                    <ChevronRight className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-white group-hover:translate-x-0.5 transition-transform`} />
-                  </div>
+                  <ChevronRight className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-white group-hover:translate-x-0.5 transition-transform`} />
                 </div>
               </div>
             </div>

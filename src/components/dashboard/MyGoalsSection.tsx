@@ -85,8 +85,8 @@ const MyGoalsSection: React.FC = () => {
               </h3>
               <div className="space-y-3">
                 {customGoals.map((goal, index) => (
-                  <div key={goal.id} className="flex items-start gap-3 p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/20 hover:bg-white/80 transition-all duration-300" style={{ animationDelay: `${index * 100}ms` }}>
-                    <div className="w-6 h-6 bg-gradient-to-br from-brand-primary to-brand-accent rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div key={goal.id} className="flex items-start gap-3 p-3 bg-white/60 rounded-xl hover:bg-white/80 transition-all duration-300" style={{ animationDelay: `${index * 100}ms` }}>
+                    <div className="w-6 h-6 bg-brand-primary rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <div className="w-2 h-2 bg-white rounded-full"></div>
                     </div>
                     <p className="text-sm text-foreground leading-relaxed font-medium">{goal.title}</p>
@@ -105,8 +105,8 @@ const MyGoalsSection: React.FC = () => {
               </h3>
               <div className="space-y-3">
                 {selectedGoals.map((goal, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/20 hover:bg-white/80 transition-all duration-300" style={{ animationDelay: `${index * 100 + 50}ms` }}>
-                    <div className="w-6 h-6 bg-gradient-to-br from-brand-secondary to-brand-accent rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div key={index} className="flex items-start gap-3 p-3 bg-white/60 rounded-xl hover:bg-white/80 transition-all duration-300" style={{ animationDelay: `${index * 100 + 50}ms` }}>
+                    <div className="w-6 h-6 bg-brand-secondary rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                       <div className="w-2 h-2 bg-white rounded-full"></div>
                     </div>
                     <p className="text-sm text-foreground/90 leading-relaxed">{goal}</p>

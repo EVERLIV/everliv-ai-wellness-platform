@@ -300,12 +300,12 @@ const PriorityMetricsSection = () => {
                 {aiRiskScores.map((risk, index) => (
                   <div 
                     key={index} 
-                    className={`p-5 rounded-2xl border transition-all duration-300 hover:shadow-md ${
-                      !risk.hasData ? 'border-neutral-200 bg-gradient-to-r from-neutral-50/80 to-neutral-100/50' : 
-                      risk.value <= 15 ? 'border-brand-success/30 bg-gradient-to-r from-brand-success/5 to-brand-success/10' :
-                      risk.value <= 30 ? 'border-brand-warning/30 bg-gradient-to-r from-brand-warning/5 to-brand-warning/10' :
-                      risk.value <= 45 ? 'border-orange-300 bg-gradient-to-r from-orange-50 to-orange-100/50' : 
-                      'border-brand-error/30 bg-gradient-to-r from-brand-error/5 to-brand-error/10'
+                    className={`p-5 rounded-2xl transition-all duration-300 hover:opacity-90 ${
+                      !risk.hasData ? 'bg-neutral-50/80' : 
+                      risk.value <= 15 ? 'bg-brand-success/5' :
+                      risk.value <= 30 ? 'bg-brand-warning/5' :
+                      risk.value <= 45 ? 'bg-orange-50/80' : 
+                      'bg-brand-error/5'
                     }`}
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
@@ -355,7 +355,7 @@ const PriorityMetricsSection = () => {
                     </div>
                     
                     {risk.mechanism && (
-                      <p className="text-sm text-muted-foreground mt-3 italic border-t border-current/20 pt-3">
+                      <p className="text-sm text-muted-foreground mt-3 italic pt-3 border-t border-current/10">
                         {risk.mechanism}
                       </p>
                     )}
@@ -408,14 +408,12 @@ const PriorityMetricsSection = () => {
                 return (
                   <div 
                     key={index} 
-                    className="flex items-center justify-between p-4 bg-gradient-to-r from-white/80 to-neutral-50/80 rounded-xl border border-neutral-200/50 hover:bg-white/90 hover:shadow-md transition-all duration-300 cursor-pointer hover:scale-[1.01] backdrop-blur-sm group" 
+                    className="flex items-center justify-between p-4 bg-white/80 rounded-xl hover:bg-white/90 transition-all duration-300 cursor-pointer hover:scale-[1.01] group" 
                     onClick={() => navigate('/my-biomarkers')}
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="p-2 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-lg group-hover:shadow-sm transition-all duration-300">
-                        <StatusIcon className={`h-5 w-5 ${getBiomarkerStatusColor(biomarker.status)}`} />
-                      </div>
+                      <StatusIcon className={`h-5 w-5 ${getBiomarkerStatusColor(biomarker.status)}`} />
                       <div>
                         <h5 className="text-base font-semibold text-foreground mb-1">
                           {biomarker.name}
@@ -425,7 +423,7 @@ const PriorityMetricsSection = () => {
                             {biomarker.value || 'Нет данных'}
                           </span>
                           {biomarker.reference_range && (
-                            <span className="text-xs text-muted-foreground/70 px-2 py-1 bg-neutral-100 rounded-full">
+                            <span className="text-xs text-muted-foreground/70 px-2 py-1 bg-neutral-50 rounded-full">
                               норма: {biomarker.reference_range}
                             </span>
                           )}
@@ -434,7 +432,7 @@ const PriorityMetricsSection = () => {
                     </div>
                     
                     <div className="flex items-center gap-3">
-                      <div className={`px-3 py-1 rounded-full text-xs font-semibold border ${getBiomarkerStatusColor(biomarker.status)} bg-current/10`}>
+                      <div className={`px-3 py-1 rounded-full text-xs font-semibold ${getBiomarkerStatusColor(biomarker.status)} bg-current/10`}>
                         {biomarker.status === 'critical' ? 'Критично' :
                          biomarker.status?.toLowerCase() === 'high' ? 'Высокий' :
                          biomarker.status?.toLowerCase() === 'elevated' ? 'Повышен' :
@@ -447,9 +445,7 @@ const PriorityMetricsSection = () => {
                          biomarker.status}
                       </div>
                       
-                      <div className="p-1 bg-neutral-100 rounded-full group-hover:bg-neutral-200 transition-colors">
-                        <ChevronRight className="h-4 w-4 text-neutral-400 group-hover:text-neutral-600 group-hover:translate-x-0.5 transition-all" />
-                      </div>
+                      <ChevronRight className="h-4 w-4 text-neutral-400 group-hover:text-neutral-600 group-hover:translate-x-0.5 transition-all" />
                     </div>
                   </div>
                 );

@@ -192,36 +192,32 @@ const DashboardChatsList: React.FC = () => {
             {recentChats.map((chat, index) => (
               <div
                 key={chat.id}
-                className="p-3 bg-gradient-to-r from-white/80 via-brand-accent/5 to-white/80 rounded-xl border border-brand-accent/20 hover:shadow-md hover:border-brand-accent/30 transition-all duration-300 cursor-pointer hover:scale-[1.01] backdrop-blur-sm"
+                className="p-3 bg-white/80 rounded-xl hover:bg-white/90 transition-all duration-300 cursor-pointer hover:scale-[1.01]"
                 onClick={() => handleChatClick(chat.id)}
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="p-1.5 bg-gradient-to-br from-brand-accent/20 to-brand-accent/10 rounded-lg">
-                      <Bot className="h-3 w-3 text-brand-accent flex-shrink-0" />
-                    </div>
+                    <Bot className="h-3 w-3 text-brand-accent flex-shrink-0" />
                     <h4 className="font-semibold text-foreground text-sm truncate">
                       {chat.title}
                     </h4>
                   </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ml-2 ${getTypeColor(chat.type)} border border-current/20`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ml-2 ${getTypeColor(chat.type)}`}>
                     {getTypeLabel(chat.type)}
                   </span>
                 </div>
                 
-                <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed pl-7">
+                <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed pl-6">
                   {chat.lastMessage}
                 </p>
                 
-                <div className="flex items-center justify-between pl-7">
+                <div className="flex items-center justify-between pl-6">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
                     <span>{chat.timestamp}</span>
                   </div>
-                  <div className="p-1 bg-brand-accent/10 rounded-full group-hover:bg-brand-accent/20 transition-colors">
-                    <ArrowRight className="h-3 w-3 text-brand-accent" />
-                  </div>
+                  <ArrowRight className="h-3 w-3 text-brand-accent" />
                 </div>
               </div>
             ))}
