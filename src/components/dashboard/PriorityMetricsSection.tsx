@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, TrendingDown, Heart, Brain, Activity, Bone, AlertTriangle, CheckCircle, AlertCircle, BarChart3 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Heart, Brain, Activity, Bone, AlertTriangle, CheckCircle, AlertCircle, BarChart3, ChevronRight } from 'lucide-react';
 import { useBiomarkers } from '@/hooks/useBiomarkers';
 import { useNavigate } from 'react-router-dom';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
@@ -252,92 +252,110 @@ const PriorityMetricsSection = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 animate-fade-in">
 
       {/* ИИ-скоры рисков */}
-      <Card className="shadow-sm border-gray-200/80">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2">
-            <Brain className="h-4 w-4 text-purple-500" />
-            ИИ-предикты рисков заболеваний
+      <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="absolute inset-0 bg-gradient-glass"></div>
+        <CardHeader className="relative pb-4">
+          <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-brand-accent/20 to-brand-accent/10 rounded-lg">
+              <Brain className="h-5 w-5 text-brand-accent" />
+            </div>
+            <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              ИИ-предикты рисков заболеваний
+            </span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="text-xs text-gray-600 mb-4 p-3 bg-purple-50/50 rounded-lg border border-purple-100/50">
-              <p className="font-medium mb-1 text-purple-800">ИИ-анализ рисков развития заболеваний</p>
-              <p className="text-purple-700">На основе биомаркеров, генетических факторов и клинических исследований</p>
+        <CardContent className="relative">
+          <div className="space-y-5">
+            <div className="text-sm text-muted-foreground p-4 bg-gradient-to-r from-brand-accent/5 to-brand-accent/10 rounded-xl border border-brand-accent/20">
+              <p className="font-semibold mb-2 text-brand-accent flex items-center gap-2">
+                <Brain className="h-4 w-4" />
+                ИИ-анализ рисков развития заболеваний
+              </p>
+              <p className="text-muted-foreground">На основе биомаркеров, генетических факторов и клинических исследований</p>
             </div>
             
             {isLoadingRisks ? (
-              <div className="text-center py-6">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500 mx-auto mb-2"></div>
-                <p className="text-sm text-gray-600">Анализируем риски...</p>
+              <div className="text-center py-10">
+                <div className="relative">
+                  <div className="w-12 h-12 border-4 border-brand-accent/20 border-t-brand-accent rounded-full animate-spin mx-auto mb-4"></div>
+                  <div className="absolute inset-0 w-8 h-8 border-2 border-transparent border-t-brand-primary rounded-full animate-spin mx-auto mt-2" style={{animationDirection: 'reverse'}}></div>
+                </div>
+                <p className="text-base font-medium text-muted-foreground">Анализируем риски...</p>
+                <p className="text-sm text-muted-foreground/80 mt-1">Обработка данных ИИ</p>
               </div>
             ) : aiRiskScores.length === 0 ? (
-              <div className="text-center py-8">
-                <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-3" />
-                <h3 className="text-base font-semibold text-green-700 mb-2">Рисков не выявлено</h3>
-                <p className="text-sm text-green-600 mb-1">Вы в отличной форме!</p>
-                <p className="text-xs text-gray-600">Ваши показатели в норме, продолжайте здоровый образ жизни</p>
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gradient-to-br from-brand-success/20 to-brand-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-8 w-8 text-brand-success" />
+                </div>
+                <h3 className="text-lg font-semibold text-brand-success mb-3">Рисков не выявлено</h3>
+                <p className="text-base text-brand-success/80 mb-2">Вы в отличной форме!</p>
+                <p className="text-sm text-muted-foreground">Ваши показатели в норме, продолжайте здоровый образ жизни</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {aiRiskScores.map((risk, index) => (
-                  <div key={index} className={`p-4 rounded-xl border ${
-                    !risk.hasData ? 'border-gray-200 bg-gray-50/30' : 
-                    risk.value <= 15 ? 'border-green-200 bg-green-50/30' :
-                    risk.value <= 30 ? 'border-yellow-200 bg-yellow-50/30' :
-                    risk.value <= 45 ? 'border-orange-200 bg-orange-50/30' : 
-                    'border-red-200 bg-red-50/30'
-                  }`}>
-                    <div className="flex justify-between items-start mb-2">
-                      <h5 className={`text-sm font-medium leading-tight ${
-                        !risk.hasData ? 'text-gray-700' :
-                        risk.value <= 15 ? 'text-green-800' :
-                        risk.value <= 30 ? 'text-yellow-800' :
-                        risk.value <= 45 ? 'text-orange-800' : 
-                        'text-red-800'
+                  <div 
+                    key={index} 
+                    className={`p-5 rounded-2xl border transition-all duration-300 hover:shadow-md ${
+                      !risk.hasData ? 'border-neutral-200 bg-gradient-to-r from-neutral-50/80 to-neutral-100/50' : 
+                      risk.value <= 15 ? 'border-brand-success/30 bg-gradient-to-r from-brand-success/5 to-brand-success/10' :
+                      risk.value <= 30 ? 'border-brand-warning/30 bg-gradient-to-r from-brand-warning/5 to-brand-warning/10' :
+                      risk.value <= 45 ? 'border-orange-300 bg-gradient-to-r from-orange-50 to-orange-100/50' : 
+                      'border-brand-error/30 bg-gradient-to-r from-brand-error/5 to-brand-error/10'
+                    }`}
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <h5 className={`text-base font-semibold leading-tight ${
+                        !risk.hasData ? 'text-neutral-700' :
+                        risk.value <= 15 ? 'text-brand-success' :
+                        risk.value <= 30 ? 'text-brand-warning' :
+                        risk.value <= 45 ? 'text-orange-700' : 
+                        'text-brand-error'
                       }`}>
                         {risk.title}
                       </h5>
                       {risk.hasData && risk.value > 0 && (
-                        <div className="text-right flex-shrink-0 ml-3">
-                          <div className={`text-lg font-bold ${getRiskColor(risk.value)}`}>
+                        <div className="text-right flex-shrink-0 ml-4">
+                          <div className={`text-2xl font-bold ${getRiskColor(risk.value)}`}>
                             {Math.round(risk.value)}%
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-muted-foreground font-medium">
                             {risk.period}
                           </div>
                         </div>
                       )}
                     </div>
                     
-                    <p className={`text-xs mb-2 leading-relaxed ${
-                      !risk.hasData ? 'text-gray-600' :
-                      risk.value <= 15 ? 'text-green-700' :
-                      risk.value <= 30 ? 'text-yellow-700' :
-                      risk.value <= 45 ? 'text-orange-700' : 
-                      'text-red-700'
+                    <p className={`text-sm mb-3 leading-relaxed ${
+                      !risk.hasData ? 'text-neutral-600' :
+                      risk.value <= 15 ? 'text-brand-success/80' :
+                      risk.value <= 30 ? 'text-brand-warning/80' :
+                      risk.value <= 45 ? 'text-orange-600' : 
+                      'text-brand-error/80'
                     }`}>
                       {risk.description}
                     </p>
                     
-                    <div className={`text-xs ${
-                      !risk.hasData ? 'text-gray-500' :
-                      risk.value <= 15 ? 'text-green-600' :
-                      risk.value <= 30 ? 'text-yellow-600' :
+                    <div className={`text-sm font-medium ${
+                      !risk.hasData ? 'text-neutral-500' :
+                      risk.value <= 15 ? 'text-brand-success/70' :
+                      risk.value <= 30 ? 'text-brand-warning/70' :
                       risk.value <= 45 ? 'text-orange-600' : 
-                      'text-red-600'
+                      'text-brand-error/70'
                     }`}>
-                      <span className="font-medium">
+                      <span className="font-semibold">
                         {!risk.hasData ? '' : 'Факторы: '}
                       </span>
                       {risk.factors}
                     </div>
                     
                     {risk.mechanism && (
-                      <p className="text-xs text-gray-500 mt-2 italic">
+                      <p className="text-sm text-muted-foreground mt-3 italic border-t border-current/20 pt-3">
                         {risk.mechanism}
                       </p>
                     )}
@@ -350,60 +368,89 @@ const PriorityMetricsSection = () => {
       </Card>
 
       {/* Топ-5 критических биомаркеров */}
-      <Card className="shadow-sm border-gray-200/80">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            Топ-5 критических биомаркеров
+      <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="absolute inset-0 bg-gradient-glass"></div>
+        <CardHeader className="relative pb-4">
+          <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-brand-primary/20 to-brand-primary/10 rounded-lg">
+              <BarChart3 className="h-5 w-5 text-brand-primary" />
+            </div>
+            <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              Топ-5 критических биомаркеров
+            </span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           {biomarkersLoading ? (
-            <div className="text-center py-6">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto mb-2"></div>
-              <p className="text-xs text-gray-600">Загружаем биомаркеры...</p>
+            <div className="text-center py-10">
+              <div className="relative">
+                <div className="w-12 h-12 border-4 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="absolute inset-0 w-8 h-8 border-2 border-transparent border-t-brand-secondary rounded-full animate-spin mx-auto mt-2" style={{animationDirection: 'reverse'}}></div>
+              </div>
+              <p className="text-base font-medium text-muted-foreground">Загружаем биомаркеры...</p>
+              <p className="text-sm text-muted-foreground/80 mt-1">Анализ показателей</p>
             </div>
           ) : worstBiomarkers.length === 0 ? (
-            <div className="text-center py-6">
-              <AlertTriangle className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-              <p className="text-sm text-gray-500 mb-2">Нет данных о биомаркерах</p>
-              <p className="text-xs text-gray-400">Загрузите результаты анализов для получения данных</p>
+            <div className="text-center py-10">
+              <div className="w-16 h-16 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle className="h-8 w-8 text-neutral-400" />
+              </div>
+              <h3 className="text-base font-semibold text-foreground mb-2">Нет данных о биомаркерах</h3>
+              <p className="text-sm text-muted-foreground mb-4">Загрузите результаты анализов для получения данных</p>
+              <button className="text-sm text-brand-primary font-semibold hover:text-brand-primary-dark transition-colors">
+                Загрузить анализы →
+              </button>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {worstBiomarkers.map((biomarker, index) => {
                 const StatusIcon = getBiomarkerStatusIcon(biomarker.status);
                 return (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50/50 rounded-lg border border-gray-200/50 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => navigate('/my-biomarkers')}>
-                    <div className="flex items-center gap-3">
-                      <StatusIcon className={`h-4 w-4 ${getBiomarkerStatusColor(biomarker.status)}`} />
+                  <div 
+                    key={index} 
+                    className="flex items-center justify-between p-4 bg-gradient-to-r from-white/80 to-neutral-50/80 rounded-xl border border-neutral-200/50 hover:bg-white/90 hover:shadow-md transition-all duration-300 cursor-pointer hover:scale-[1.01] backdrop-blur-sm group" 
+                    onClick={() => navigate('/my-biomarkers')}
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="p-2 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-lg group-hover:shadow-sm transition-all duration-300">
+                        <StatusIcon className={`h-5 w-5 ${getBiomarkerStatusColor(biomarker.status)}`} />
+                      </div>
                       <div>
-                        <h5 className="text-sm font-medium text-gray-800">
+                        <h5 className="text-base font-semibold text-foreground mb-1">
                           {biomarker.name}
                         </h5>
-                        <span className="text-xs text-gray-600">
-                          {biomarker.value || 'Нет данных'}
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground font-medium">
+                            {biomarker.value || 'Нет данных'}
+                          </span>
                           {biomarker.reference_range && (
-                            <span className="text-gray-500 ml-1">
-                              (норма: {biomarker.reference_range})
+                            <span className="text-xs text-muted-foreground/70 px-2 py-1 bg-neutral-100 rounded-full">
+                              норма: {biomarker.reference_range}
                             </span>
                           )}
-                        </span>
+                        </div>
                       </div>
                     </div>
-                    <Badge 
-                      className={`${getBiomarkerStatusColor(biomarker.status)} bg-transparent border text-xs px-2 py-1`}
-                    >
-                      {biomarker.status === 'critical' ? 'Критично' :
-                       biomarker.status?.toLowerCase() === 'high' ? 'Высокий' :
-                       biomarker.status?.toLowerCase() === 'elevated' ? 'Повышен' :
-                       biomarker.status?.toLowerCase() === 'above_normal' ? 'Выше нормы' :
-                       biomarker.status?.toLowerCase() === 'low' ? 'Понижен' :
-                       biomarker.status?.toLowerCase() === 'below_normal' ? 'Ниже нормы' :
-                       biomarker.status?.toLowerCase() === 'attention' ? 'Внимание' :
-                       biomarker.status?.toLowerCase() === 'borderline' ? 'Граничный' :
-                       biomarker.status?.toLowerCase() === 'abnormal' ? 'Аномальный' : 
-                       biomarker.status}
-                    </Badge>
+                    
+                    <div className="flex items-center gap-3">
+                      <div className={`px-3 py-1 rounded-full text-xs font-semibold border ${getBiomarkerStatusColor(biomarker.status)} bg-current/10`}>
+                        {biomarker.status === 'critical' ? 'Критично' :
+                         biomarker.status?.toLowerCase() === 'high' ? 'Высокий' :
+                         biomarker.status?.toLowerCase() === 'elevated' ? 'Повышен' :
+                         biomarker.status?.toLowerCase() === 'above_normal' ? 'Выше нормы' :
+                         biomarker.status?.toLowerCase() === 'low' ? 'Понижен' :
+                         biomarker.status?.toLowerCase() === 'below_normal' ? 'Ниже нормы' :
+                         biomarker.status?.toLowerCase() === 'attention' ? 'Внимание' :
+                         biomarker.status?.toLowerCase() === 'borderline' ? 'Граничный' :
+                         biomarker.status?.toLowerCase() === 'abnormal' ? 'Аномальный' : 
+                         biomarker.status}
+                      </div>
+                      
+                      <div className="p-1 bg-neutral-100 rounded-full group-hover:bg-neutral-200 transition-colors">
+                        <ChevronRight className="h-4 w-4 text-neutral-400 group-hover:text-neutral-600 group-hover:translate-x-0.5 transition-all" />
+                      </div>
+                    </div>
                   </div>
                 );
               })}
