@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, TrendingDown, Heart, Brain, Activity, Bone, AlertTriangle, CheckCircle, AlertCircle, BarChart3, ChevronRight } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { TrendingUp, TrendingDown, Heart, Brain, Activity, Bone, AlertTriangle, CheckCircle, AlertCircle, BarChart3, ChevronDown, Info } from 'lucide-react';
 import { useBiomarkers } from '@/hooks/useBiomarkers';
 import { useNavigate } from 'react-router-dom';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
@@ -265,7 +266,7 @@ const PriorityMetricsSection = () => {
         
         {isLoadingRisks ? (
           <div className="text-center py-3">
-            <div className="w-4 h-4 border-2 border-brand-accent/20 border-t-brand-accent rounded-full animate-spin mx-auto"></div>
+            <div className="w-4 h-4 rounded-full animate-spin mx-auto bg-gradient-to-r from-brand-accent to-transparent"></div>
           </div>
         ) : aiRiskScores.length === 0 ? (
           <div className="text-center py-3">
@@ -273,11 +274,12 @@ const PriorityMetricsSection = () => {
             <p className="text-xs text-brand-success">Рисков не выявлено</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <Accordion type="single" collapsible className="space-y-1">
             {aiRiskScores.map((risk, index) => (
-              <div 
+              <AccordionItem 
                 key={index} 
-                className={`p-2 rounded-lg ${
+                value={`risk-${index}`}
+                className={`rounded-lg ${
                   !risk.hasData ? 'bg-neutral-50' : 
                   risk.value <= 15 ? 'bg-brand-success/5' :
                   risk.value <= 30 ? 'bg-brand-warning/5' :
@@ -285,104 +287,99 @@ const PriorityMetricsSection = () => {
                   'bg-brand-error/5'
                 }`}
               >
-                <div className="flex justify-between items-center mb-1">
-                  <h5 className={`text-xs font-semibold ${
-                    !risk.hasData ? 'text-neutral-800' :
-                    risk.value <= 15 ? 'text-emerald-800' :
-                    risk.value <= 30 ? 'text-amber-800' :
-                    risk.value <= 45 ? 'text-orange-800' : 
-                    'text-red-800'
-                  }`}>
-                    {risk.title}
-                  </h5>
-                  {risk.hasData && risk.value > 0 && (
-                    <span className={`text-sm font-bold ${getRiskColor(risk.value)}`}>
-                      {Math.round(risk.value)}%
-                    </span>
-                  )}
-                </div>
-                
-                <p className={`text-xs ${
-                  !risk.hasData ? 'text-neutral-600' :
-                  risk.value <= 15 ? 'text-emerald-600' :
-                  risk.value <= 30 ? 'text-amber-600' :
-                  risk.value <= 45 ? 'text-orange-600' : 
-                  'text-red-600'
-                }`}>
-                  {risk.level} • {risk.period}
-                </p>
-              </div>
+                <AccordionTrigger className="px-2 py-2 hover:no-underline">
+                  <div className="flex justify-between items-center w-full">
+                    <h5 className={`text-xs font-semibold ${
+                      !risk.hasData ? 'text-neutral-800' :
+                      risk.value <= 15 ? 'text-emerald-800' :
+                      risk.value <= 30 ? 'text-amber-800' :
+                      risk.value <= 45 ? 'text-orange-800' : 
+                      'text-red-800'
+                    }`}>
+                      {risk.title}
+                    </h5>
+                    {risk.hasData && risk.value > 0 && (
+                      <span className={`text-sm font-bold mr-2 ${getRiskColor(risk.value)}`}>
+                        {Math.round(risk.value)}%
+                      </span>
+                    )}
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-2 pb-2">
+                  <div className="space-y-2">
+                    <p className={`text-xs ${
+                      !risk.hasData ? 'text-neutral-600' :
+                      risk.value <= 15 ? 'text-emerald-700' :
+                      risk.value <= 30 ? 'text-amber-700' :
+                      risk.value <= 45 ? 'text-orange-700' : 
+                      'text-red-700'
+                    }`}>
+                      <strong>Описание:</strong> {risk.description}
+                    </p>
+                    <p className={`text-xs ${
+                      !risk.hasData ? 'text-neutral-600' :
+                      risk.value <= 15 ? 'text-emerald-600' :
+                      risk.value <= 30 ? 'text-amber-600' :
+                      risk.value <= 45 ? 'text-orange-600' : 
+                      'text-red-600'
+                    }`}>
+                      <strong>Период:</strong> {risk.period}
+                    </p>
+                    {risk.factors && (
+                      <p className="text-xs text-slate-600">
+                        <strong>Факторы риска:</strong> {risk.factors}
+                      </p>
+                    )}
+                    {risk.mechanism && (
+                      <p className="text-xs text-slate-600">
+                        <strong>Механизм:</strong> {risk.mechanism}
+                      </p>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
         )}
       </Card>
 
       {/* Топ-5 критических биомаркеров */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 transition-all duration-300">
-        <div className="absolute inset-0 bg-gradient-glass"></div>
-        <CardHeader className="relative pb-4">
-          <CardTitle className="text-lg font-semibold text-foreground flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-brand-primary/20 to-brand-primary/10 rounded-lg">
-              <BarChart3 className="h-5 w-5 text-brand-primary" />
-            </div>
-            <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              Топ-5 критических биомаркеров
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="relative">
-          {biomarkersLoading ? (
-            <div className="text-center py-10">
-              <div className="relative">
-                <div className="w-12 h-12 border-4 border-brand-primary/20 border-t-brand-primary rounded-full animate-spin mx-auto mb-4"></div>
-                <div className="absolute inset-0 w-8 h-8 border-2 border-transparent border-t-brand-secondary rounded-full animate-spin mx-auto mt-2" style={{animationDirection: 'reverse'}}></div>
-              </div>
-              <p className="text-base font-medium text-muted-foreground">Загружаем биомаркеры...</p>
-              <p className="text-sm text-muted-foreground/80 mt-1">Анализ показателей</p>
-            </div>
-          ) : worstBiomarkers.length === 0 ? (
-            <div className="text-center py-10">
-              <div className="w-16 h-16 bg-gradient-to-br from-neutral-100 to-neutral-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle className="h-8 w-8 text-neutral-400" />
-              </div>
-              <h3 className="text-base font-semibold text-foreground mb-2">Нет данных о биомаркерах</h3>
-              <p className="text-sm text-muted-foreground mb-4">Загрузите результаты анализов для получения данных</p>
-              <button className="text-sm text-brand-primary font-semibold hover:text-brand-primary-dark transition-colors">
-                Загрузить анализы →
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {worstBiomarkers.map((biomarker, index) => {
-                const StatusIcon = getBiomarkerStatusIcon(biomarker.status);
-                return (
-                  <div 
-                    key={index} 
-                    className="flex items-center justify-between p-4 bg-white/80 rounded-xl hover:bg-white/90 transition-all duration-300 cursor-pointer hover:scale-[1.01] group" 
-                    onClick={() => navigate('/my-biomarkers')}
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    <div className="flex items-center gap-4">
-                      <StatusIcon className={`h-5 w-5 ${getBiomarkerStatusColor(biomarker.status)}`} />
-                      <div>
-                        <h5 className="text-base font-semibold text-foreground mb-1">
+      <Card className="p-2">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-5 h-5 bg-gradient-to-br from-brand-primary/20 to-brand-primary/10 rounded-md flex items-center justify-center">
+            <BarChart3 className="h-3 w-3 text-brand-primary" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground">Топ-5 критических биомаркеров</h3>
+        </div>
+        
+        {biomarkersLoading ? (
+          <div className="text-center py-3">
+            <div className="w-4 h-4 rounded-full animate-spin mx-auto bg-gradient-to-r from-brand-primary to-transparent"></div>
+          </div>
+        ) : worstBiomarkers.length === 0 ? (
+          <div className="text-center py-3">
+            <AlertTriangle className="h-5 w-5 text-neutral-400 mx-auto mb-1" />
+            <p className="text-xs text-neutral-600">Нет данных о биомаркерах</p>
+          </div>
+        ) : (
+          <Accordion type="single" collapsible className="space-y-1">
+            {worstBiomarkers.map((biomarker, index) => {
+              const StatusIcon = getBiomarkerStatusIcon(biomarker.status);
+              return (
+                <AccordionItem 
+                  key={index} 
+                  value={`biomarker-${index}`}
+                  className="bg-white/80 rounded-lg"
+                >
+                  <AccordionTrigger className="px-2 py-2 hover:no-underline">
+                    <div className="flex justify-between items-center w-full">
+                      <div className="flex items-center gap-2">
+                        <StatusIcon className={`h-4 w-4 ${getBiomarkerStatusColor(biomarker.status)}`} />
+                        <h5 className="text-xs font-semibold text-foreground">
                           {biomarker.name}
                         </h5>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground font-medium">
-                            {biomarker.value || 'Нет данных'}
-                          </span>
-                          {biomarker.reference_range && (
-                            <span className="text-xs text-muted-foreground/70 px-2 py-1 bg-neutral-50 rounded-full">
-                              норма: {biomarker.reference_range}
-                            </span>
-                          )}
-                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className={`px-3 py-1 rounded-full text-xs font-semibold ${getBiomarkerStatusColor(biomarker.status)} bg-current/10`}>
+                      <div className={`px-2 py-1 rounded-full text-xs font-semibold mr-2 ${getBiomarkerStatusColor(biomarker.status)} bg-current/10`}>
                         {biomarker.status === 'critical' ? 'Критично' :
                          biomarker.status?.toLowerCase() === 'high' ? 'Высокий' :
                          biomarker.status?.toLowerCase() === 'elevated' ? 'Повышен' :
@@ -394,15 +391,33 @@ const PriorityMetricsSection = () => {
                          biomarker.status?.toLowerCase() === 'abnormal' ? 'Аномальный' : 
                          biomarker.status}
                       </div>
-                      
-                      <ChevronRight className="h-4 w-4 text-neutral-400 group-hover:text-neutral-600 group-hover:translate-x-0.5 transition-all" />
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-2 pb-2">
+                    <div className="space-y-2">
+                      <p className="text-xs text-slate-700">
+                        <strong>Значение:</strong> {biomarker.value || 'Нет данных'}
+                      </p>
+                      {biomarker.reference_range && (
+                        <p className="text-xs text-slate-600">
+                          <strong>Норма:</strong> {biomarker.reference_range}
+                        </p>
+                      )}
+                      <div className="mt-2 pt-2">
+                        <button 
+                          onClick={() => navigate('/my-biomarkers')}
+                          className="text-xs text-brand-primary font-semibold hover:text-brand-primary-dark transition-colors"
+                        >
+                          Подробнее в анализах →
+                        </button>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+        )}
       </Card>
 
     </div>
