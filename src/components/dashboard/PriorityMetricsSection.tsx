@@ -186,11 +186,11 @@ const PriorityMetricsSection = () => {
   };
 
   const getRiskColor = (value: number) => {
-    if (value <= 5) return 'text-brand-success';
-    if (value <= 15) return 'text-brand-success';
-    if (value <= 30) return 'text-brand-warning';
-    if (value <= 50) return 'text-brand-error';
-    return 'text-brand-error';
+    if (value <= 5) return 'text-emerald-700';
+    if (value <= 15) return 'text-emerald-700';
+    if (value <= 30) return 'text-amber-700';
+    if (value <= 50) return 'text-red-700';
+    return 'text-red-800';
   };
 
   // Получаем топ-5 худших биомаркеров
@@ -310,12 +310,12 @@ const PriorityMetricsSection = () => {
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <h5 className={`text-base font-semibold leading-tight ${
+                      <h5 className={`text-base font-bold leading-tight ${
                         !risk.hasData ? 'text-neutral-800' :
-                        risk.value <= 15 ? 'text-brand-success' :
-                        risk.value <= 30 ? 'text-brand-warning' :
-                        risk.value <= 45 ? 'text-orange-700' : 
-                        'text-brand-error'
+                        risk.value <= 15 ? 'text-emerald-800' :
+                        risk.value <= 30 ? 'text-amber-800' :
+                        risk.value <= 45 ? 'text-orange-800' : 
+                        'text-red-800'
                       }`}>
                         {risk.title}
                       </h5>
@@ -333,20 +333,20 @@ const PriorityMetricsSection = () => {
                     
                     <p className={`text-sm mb-3 leading-relaxed font-medium ${
                       !risk.hasData ? 'text-neutral-700' :
-                      risk.value <= 15 ? 'text-brand-success' :
-                      risk.value <= 30 ? 'text-brand-warning' :
+                      risk.value <= 15 ? 'text-emerald-700' :
+                      risk.value <= 30 ? 'text-amber-700' :
                       risk.value <= 45 ? 'text-orange-700' : 
-                      'text-brand-error'
+                      'text-red-700'
                     }`}>
                       {risk.description}
                     </p>
                     
                     <div className={`text-sm font-semibold ${
                       !risk.hasData ? 'text-neutral-600' :
-                      risk.value <= 15 ? 'text-brand-success' :
-                      risk.value <= 30 ? 'text-brand-warning' :
-                      risk.value <= 45 ? 'text-orange-700' : 
-                      'text-brand-error'
+                      risk.value <= 15 ? 'text-emerald-600' :
+                      risk.value <= 30 ? 'text-amber-600' :
+                      risk.value <= 45 ? 'text-orange-600' : 
+                      'text-red-600'
                     }`}>
                       <span className="font-bold">
                         {!risk.hasData ? '' : 'Факторы: '}
@@ -355,7 +355,7 @@ const PriorityMetricsSection = () => {
                     </div>
                     
                     {risk.mechanism && (
-                      <p className="text-sm text-muted-foreground/80 mt-3 italic pt-3 border-t border-current/20 font-medium">
+                      <p className="text-sm text-slate-600 mt-3 italic pt-3 border-t border-slate-200 font-medium">
                         {risk.mechanism}
                       </p>
                     )}
