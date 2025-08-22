@@ -126,7 +126,7 @@ const MyGoalsSection: React.FC = () => {
               <p className="text-sm text-muted-foreground mb-4">Установите цели здоровья для персонализированных рекомендаций</p>
               <button 
                 onClick={() => window.location.href = '/health-profile'}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-accent text-white font-medium rounded-lg hover:shadow-lg transition-all duration-300 hover:scale-105"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-primary to-brand-accent text-white font-medium rounded-lg transition-all duration-300 hover:scale-105"
               >
                 <Target className="h-4 w-4" />
                 Установить цели здоровья

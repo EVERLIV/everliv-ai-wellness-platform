@@ -158,7 +158,7 @@ const DashboardChatsList: React.FC = () => {
   }
 
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 hover:shadow-xl transition-all duration-300 animate-fade-in">
+    <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 transition-all duration-300 animate-fade-in">
       <div className="absolute inset-0 bg-gradient-glass"></div>
       <CardHeader className="relative pb-3">
         <CardTitle className="flex items-center gap-3 text-foreground">
@@ -181,7 +181,7 @@ const DashboardChatsList: React.FC = () => {
             <Button 
               size="sm" 
               onClick={() => navigate('/ai-doctor/personal')}
-              className="bg-gradient-to-r from-brand-accent to-brand-accent/80 text-white hover:shadow-lg transition-all duration-300 hover:scale-105"
+              className="bg-gradient-to-r from-brand-accent to-brand-accent/80 text-white transition-all duration-300 hover:scale-105"
             >
               <Plus className="h-3 w-3 mr-2" />
               Начать консультацию
@@ -224,7 +224,7 @@ const DashboardChatsList: React.FC = () => {
             
             <Button 
               variant="outline" 
-              className="w-full mt-4 border-brand-accent/30 text-brand-accent hover:bg-brand-accent/10 hover:border-brand-accent/50 transition-all duration-300 backdrop-blur-sm"
+              className="w-full mt-4 border-brand-accent/30 text-brand-accent hover:bg-brand-accent/10 hover:border-brand-accent/50 transition-all duration-300"
               onClick={() => navigate('/ai-doctor/personal')}
             >
               <MessageSquare className="h-4 w-4 mr-2" />

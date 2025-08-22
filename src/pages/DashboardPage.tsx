@@ -90,7 +90,7 @@ const DashboardPage = () => {
           // Мобильная версия - новый порядок блоков
           <div className="space-y-6">
             {/* 1. Индекс здоровья */}
-            <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/50 to-card border-0 hover:shadow-xl transition-all duration-300 animate-fade-in">
+            <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/50 to-card border-0 transition-all duration-300 animate-fade-in">
               <div className="absolute inset-0 bg-gradient-glass"></div>
               <CardHeader className="relative pb-2">
                 <CardTitle className="flex items-center gap-3 text-foreground">
@@ -211,7 +211,7 @@ const DashboardPage = () => {
             {/* Правая колонка - Данные здоровья */}
             <div className="space-y-8">
               {/* Индекс здоровья */}
-              <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/50 to-card border-0 hover:shadow-xl transition-all duration-300">
+              <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/50 to-card border-0 transition-all duration-300">
                 <div className="absolute inset-0 bg-gradient-glass"></div>
                 <CardHeader className="relative pb-3">
                   <CardTitle className="flex items-center gap-3 text-foreground">
