@@ -175,51 +175,67 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         "flex-1 overflow-y-auto scroll-smooth bg-gray-50",
         isMobile ? "px-3 py-3" : "px-4 py-4"
       )}>
-        <div className="space-y-2 max-w-4xl mx-auto">
+        <div className="space-y-4 max-w-4xl mx-auto">
           {messages.map((message) => (
             <div key={message.id} className={cn(
               "flex",
               message.role === "user" ? "justify-end" : "justify-start"
             )}>
-              <div className={cn(
-                  "max-w-[80%] rounded-xl",
-                  isMobile ? "px-3 py-2 text-sm" : "px-4 py-3 text-sm",
-                message.role === "user" 
-                  ? "bg-blue-500 text-white" 
-                  : "bg-gray-200 text-gray-900"
-              )}>
-                <div className="leading-relaxed whitespace-pre-wrap">
-                  {message.content}
+              {message.role === "user" ? (
+                // Исходящие сообщения (пользователь) - справа с градиентом
+                <div className={cn(
+                  "relative max-w-[75%] rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 text-white animate-in slide-in-from-right-2 duration-300 shadow-lg",
+                  isMobile ? "px-4 py-3 text-sm" : "px-5 py-4 text-sm"
+                )}>
+                  <div className="leading-relaxed whitespace-pre-wrap">
+                    {message.content}
+                  </div>
+                  {/* Хвостик справа */}
+                  <div className="absolute right-[-6px] top-4 w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[8px] border-l-blue-600"></div>
                 </div>
-              </div>
+              ) : (
+                // Входящие сообщения (ИИ) - слева
+                <div className={cn(
+                  "relative max-w-[75%] rounded-2xl bg-gray-100 text-gray-900 animate-in slide-in-from-left-2 duration-300 shadow-md",
+                  isMobile ? "px-4 py-3 text-sm" : "px-5 py-4 text-sm"
+                )}>
+                  <div className="leading-relaxed whitespace-pre-wrap">
+                    {message.content}
+                  </div>
+                  {/* Хвостик слева */}
+                  <div className="absolute left-[-6px] top-4 w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-r-[8px] border-r-gray-100"></div>
+                </div>
+              )}
             </div>
           ))}
           
-          {/* Suggested Questions */}
+          {/* Suggested Questions - облачный стиль */}
           {showSuggestedQuestions && (
             <div className="flex justify-start">
               <div className={cn(
-                "max-w-[80%] rounded-xl bg-gray-200 text-gray-900",
-                isMobile ? "px-3 py-2" : "px-4 py-3"
+                "relative max-w-[75%] rounded-2xl bg-gradient-to-r from-gray-100 to-gray-200 text-gray-900 animate-in slide-in-from-left-2 duration-300 shadow-md",
+                isMobile ? "px-4 py-3" : "px-5 py-4"
               )}>
-                <div className={cn("text-gray-900 mb-2", isMobile ? "text-xs" : "text-sm")}>
+                <div className={cn("text-gray-900 mb-3", isMobile ? "text-xs" : "text-sm")}>
                   Выберите популярный вопрос:
                 </div>
                 
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-2">
                   {suggestedQuestions.map((question, index) => (
                     <button
                       key={index}
                       onClick={() => handleSuggestedQuestion(question)}
                       className={cn(
-                        "bg-gray-100 hover:bg-gray-300 text-gray-800 rounded-full transition-colors duration-200",
-                        isMobile ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-xs"
+                        "bg-white hover:bg-blue-50 text-gray-800 hover:text-blue-700 border border-gray-200 hover:border-blue-300 rounded-full transition-all duration-200 shadow-sm hover:shadow-md",
+                        isMobile ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-xs"
                       )}
                     >
                       {question}
                     </button>
                   ))}
                 </div>
+                {/* Хвостик слева */}
+                <div className="absolute left-[-6px] top-4 w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-r-[8px] border-r-gray-200"></div>
               </div>
             </div>
           )}
@@ -227,15 +243,17 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
           {isProcessing && (
             <div className="flex justify-start">
               <div className={cn(
-                "max-w-[80%] rounded-xl bg-gray-200 text-gray-900",
-                isMobile ? "px-3 py-2" : "px-4 py-3"
+                "relative max-w-[75%] rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 text-gray-900 animate-in slide-in-from-left-2 duration-300 shadow-md",
+                isMobile ? "px-4 py-3" : "px-5 py-4"
               )}>
-                <div className="flex items-center gap-2 text-blue-600">
-                  <Loader2 className={cn("animate-spin", isMobile ? "h-3 w-3" : "h-3 w-3")} />
+                <div className="flex items-center gap-3 text-blue-600">
+                  <Loader2 className={cn("animate-spin", isMobile ? "h-4 w-4" : "h-4 w-4")} />
                   <span className={cn(isMobile ? "text-xs" : "text-sm")}>
                     Анализирую...
                   </span>
                 </div>
+                {/* Хвостик слева */}
+                <div className="absolute left-[-6px] top-4 w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-r-[8px] border-r-blue-100"></div>
               </div>
             </div>
           )}
