@@ -256,7 +256,7 @@ const PriorityMetricsSection = () => {
     <div className="space-y-6 animate-fade-in">
 
       {/* ИИ-скоры рисков */}
-      <Card className="p-2">
+      <Card className="p-2 border-none shadow-none">
         <div className="flex items-center gap-2 mb-2">
           <div className="w-5 h-5 bg-gradient-to-br from-brand-accent/20 to-brand-accent/10 rounded-md flex items-center justify-center">
             <Brain className="h-3 w-3 text-brand-accent" />
@@ -276,17 +276,17 @@ const PriorityMetricsSection = () => {
         ) : (
           <Accordion type="single" collapsible className="space-y-1">
             {aiRiskScores.map((risk, index) => (
-              <AccordionItem 
-                key={index} 
-                value={`risk-${index}`}
-                className={`rounded-lg ${
-                  !risk.hasData ? 'bg-neutral-50' : 
-                  risk.value <= 15 ? 'bg-brand-success/5' :
-                  risk.value <= 30 ? 'bg-brand-warning/5' :
-                  risk.value <= 45 ? 'bg-orange-50' : 
-                  'bg-brand-error/5'
-                }`}
-              >
+                <AccordionItem 
+                  key={index} 
+                  value={`risk-${index}`}
+                  className={`rounded-lg border-none shadow-none ${
+                    !risk.hasData ? 'bg-neutral-50' : 
+                    risk.value <= 15 ? 'bg-brand-success/5' :
+                    risk.value <= 30 ? 'bg-brand-warning/5' :
+                    risk.value <= 45 ? 'bg-orange-50' : 
+                    'bg-brand-error/5'
+                  }`}
+                >
                 <AccordionTrigger className="px-2 py-2 hover:no-underline">
                   <div className="flex justify-between items-center w-full">
                     <h5 className={`text-xs font-semibold ${
@@ -344,7 +344,7 @@ const PriorityMetricsSection = () => {
       </Card>
 
       {/* Топ-5 критических биомаркеров */}
-      <Card className="p-2">
+      <Card className="p-2 border-none shadow-none">
         <div className="flex items-center gap-2 mb-2">
           <div className="w-5 h-5 bg-gradient-to-br from-brand-primary/20 to-brand-primary/10 rounded-md flex items-center justify-center">
             <BarChart3 className="h-3 w-3 text-brand-primary" />
@@ -369,7 +369,7 @@ const PriorityMetricsSection = () => {
                 <AccordionItem 
                   key={index} 
                   value={`biomarker-${index}`}
-                  className="bg-white/80 rounded-lg"
+                  className="bg-white/80 rounded-lg border-none shadow-none"
                 >
                   <AccordionTrigger className="px-2 py-2 hover:no-underline">
                     <div className="flex justify-between items-center w-full">
