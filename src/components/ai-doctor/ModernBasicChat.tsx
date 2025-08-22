@@ -24,10 +24,8 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [messageCount, setMessageCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const maxMessages = 3;
 
   const suggestedQuestions = [
     "Головная боль",
@@ -39,20 +37,11 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
   ];
 
   useEffect(() => {
-    if (user) {
-      const today = new Date().toDateString();
-      const storageKey = `basic_ai_doctor_messages_${user.id}_${today}`;
-      const savedCount = localStorage.getItem(storageKey);
-      if (savedCount) {
-        setMessageCount(parseInt(savedCount, 10));
-      }
-    }
-
     // Приветственное сообщение
     const welcomeMessage: Message = {
       id: 'welcome',
       role: 'assistant',
-      content: 'Привет! 👋 Я ваш ИИ-доктор EVERLIV.\n\nГотов помочь с вопросами о здоровье. У вас есть 3 бесплатные консультации сегодня.',
+      content: 'Привет! 👋 Я ваш ИИ-доктор EVERLIV.\n\nГотов помочь с вопросами о здоровье!',
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
@@ -74,7 +63,7 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!inputText.trim() || isProcessing || messageCount >= maxMessages) {
+    if (!inputText.trim() || isProcessing) {
       return;
     }
 
@@ -88,15 +77,6 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
     setMessages(prev => [...prev, userMessage]);
     setInputText("");
     setIsProcessing(true);
-    
-    const newCount = messageCount + 1;
-    setMessageCount(newCount);
-    
-    if (user) {
-      const today = new Date().toDateString();
-      const storageKey = `basic_ai_doctor_messages_${user.id}_${today}`;
-      localStorage.setItem(storageKey, newCount.toString());
-    }
 
     try {
       const { data, error } = await supabase.functions.invoke('ai-doctor', {
@@ -135,18 +115,6 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
 
       setMessages(prev => [...prev, assistantMessage]);
 
-      if (newCount >= maxMessages) {
-        setTimeout(() => {
-          const limitMessage: Message = {
-            id: 'limit-reached',
-            role: 'assistant',
-            content: '⏰ **Дневной лимит исчерпан**\n\nВы использовали все 3 бесплатные консультации сегодня.\n\nДля неограниченного общения с персональным ИИ-доктором оформите премиум подписку! 🚀',
-            timestamp: new Date()
-          };
-          setMessages(prev => [...prev, limitMessage]);
-        }, 1000);
-      }
-
     } catch (error) {
       console.error('Ошибка вызова ИИ-доктора:', error);
       const errorMessage: Message = {
@@ -175,7 +143,6 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
     }
   };
 
-  const isLimitReached = messageCount >= maxMessages;
   const showSuggestedQuestions = messages.length <= 1;
 
   return (
@@ -185,39 +152,22 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         "flex items-center justify-between bg-gray-50",
         isMobile ? "px-4 py-3 safe-area-pt" : "px-6 py-4"
       )}>
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="text-gray-500 hover:text-gray-700 rounded-full w-9 h-9 p-0 hover:bg-gray-100"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          
-          <div>
-            <h1 className={cn("font-semibold text-gray-900", isMobile ? "text-base" : "text-lg")}>
-              ИИ-Доктор
-            </h1>
-          </div>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="text-gray-500 hover:text-gray-700 rounded-full w-9 h-9 p-0 hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
         
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-500 hover:text-gray-700 rounded-lg w-9 h-9 p-0 hover:bg-gray-100"
-          >
-            <Grid3X3 className="h-4 w-4" />
-          </Button>
-          
-          <div className={cn(
-            "px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full font-medium",
-            isMobile ? "text-xs" : "text-sm"
-          )}>
-            {maxMessages - messageCount}/{maxMessages}
-          </div>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-gray-500 hover:text-gray-700 rounded-lg w-9 h-9 p-0 hover:bg-gray-100"
+        >
+          <Grid3X3 className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Chat Messages - Pure Background */}
@@ -274,7 +224,7 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
           ))}
           
           {/* Suggested Questions - Integrated seamlessly */}
-          {showSuggestedQuestions && !isLimitReached && (
+          {showSuggestedQuestions && (
             <div className="flex items-start gap-3">
               <div className={cn(
                 "flex-shrink-0 rounded-full flex items-center justify-center bg-blue-500 text-white",
@@ -361,64 +311,47 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         isMobile ? "px-4 py-3" : "px-6 py-4"
       )}>
         <div className="max-w-4xl mx-auto">
-          {isLimitReached ? (
-            <div className="text-center p-6 bg-blue-50 rounded-2xl">
-              <h3 className={cn("font-semibold text-blue-900 mb-2", isMobile ? "text-base" : "text-lg")}>
-                ⏰ Дневной лимит исчерпан
-              </h3>
-              <p className={cn("text-blue-700 mb-4", isMobile ? "text-sm" : "text-base")}>
-                Для неограниченного общения с персональным ИИ-доктором
-              </p>
-              <button 
-                className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6 py-2 font-medium transition-colors duration-200"
-                onClick={() => window.location.href = "/pricing"}
-              >
-                🚀 Обновить до Премиум
-              </button>
-            </div>
-          ) : (
-            <div className="flex gap-3 items-end">
-              <div className="flex-1 min-w-0">
-                <textarea
-                  ref={textareaRef}
-                  placeholder="Задайте вопрос о здоровье..."
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  disabled={isProcessing}
-                  className={cn(
-                    "w-full resize-none bg-white placeholder:text-gray-400 overflow-hidden focus:outline-none rounded-2xl transition-all duration-200",
-                    isMobile 
-                      ? "min-h-[44px] px-4 py-3 text-sm" 
-                      : "min-h-[48px] px-5 py-3 text-base"
-                  )}
-                  style={{ 
-                    lineHeight: '1.5',
-                    wordBreak: 'break-word',
-                    overflowWrap: 'break-word',
-                    maxHeight: isMobile ? '80px' : '100px'
-                  }}
-                  rows={1}
-                />
-              </div>
-              <button
-                onClick={handleSubmit}
-                disabled={!inputText.trim() || isProcessing}
+          <div className="flex gap-2 items-end">
+            <div className="flex-1 min-w-0">
+              <textarea
+                ref={textareaRef}
+                placeholder="Задайте вопрос о здоровье..."
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={isProcessing}
                 className={cn(
-                  "flex-shrink-0 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 transition-colors duration-200 rounded-full flex items-center justify-center",
+                  "w-full resize-none bg-gray-100 placeholder:text-gray-500 overflow-hidden focus:outline-none focus:bg-gray-200 border-0 transition-all duration-200",
                   isMobile 
-                    ? "h-[44px] w-[44px]" 
-                    : "h-[48px] w-[48px]"
+                    ? "min-h-[44px] px-4 py-3 text-sm rounded-2xl" 
+                    : "min-h-[48px] px-5 py-3 text-base rounded-2xl"
                 )}
-              >
-                {isProcessing ? (
-                  <Loader2 className={cn("animate-spin text-white", isMobile ? "h-4 w-4" : "h-4 w-4")} />
-                ) : (
-                  <Send className={cn("text-white", isMobile ? "h-4 w-4" : "h-4 w-4")} />
-                )}
-              </button>
+                style={{ 
+                  lineHeight: '1.5',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'break-word',
+                  maxHeight: isMobile ? '80px' : '100px'
+                }}
+                rows={1}
+              />
             </div>
-          )}
+            <button
+              onClick={handleSubmit}
+              disabled={!inputText.trim() || isProcessing}
+              className={cn(
+                "flex-shrink-0 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 transition-all duration-200 flex items-center justify-center border-0 outline-0",
+                isMobile 
+                  ? "h-[44px] w-[44px] rounded-xl" 
+                  : "h-[48px] w-[48px] rounded-xl"
+              )}
+            >
+              {isProcessing ? (
+                <Loader2 className={cn("animate-spin text-white", isMobile ? "h-5 w-5" : "h-5 w-5")} />
+              ) : (
+                <Send className={cn("text-white", isMobile ? "h-5 w-5" : "h-5 w-5")} />
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
