@@ -42,11 +42,11 @@ export const ActivityRings: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
-      <h3 className="text-xl font-bold text-gray-900 mb-6">Активность сегодня</h3>
+    <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border border-gray-100 mx-2 md:mx-0">
+      <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6">Активность сегодня</h3>
       
-      <div className="flex items-center justify-center mb-8">
-        <div className="relative w-48 h-48">
+      <div className="flex items-center justify-center mb-6 md:mb-8">
+        <div className="relative w-36 h-36 md:w-48 md:h-48">
           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
             {rings.map((ring, index) => {
               const radius = 35 - index * 8;
@@ -84,8 +84,8 @@ export const ActivityRings: React.FC = () => {
           {/* Center content */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <div className="text-3xl font-bold text-gray-900">78%</div>
-              <div className="text-sm text-gray-500">Общий прогресс</div>
+              <div className="text-2xl md:text-3xl font-bold text-gray-900">78%</div>
+              <div className="text-xs md:text-sm text-gray-500">Общий прогресс</div>
             </div>
           </div>
         </div>

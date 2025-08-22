@@ -100,40 +100,42 @@ export const HealthMetricsGrid: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <h3 className="text-xl font-bold text-gray-900">Показатели здоровья</h3>
+    <div className="space-y-4 md:space-y-6 px-2 md:px-0">
+      <h3 className="text-lg md:text-xl font-bold text-gray-900">Показатели здоровья</h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
         {metrics.map((metric) => (
           <div
             key={metric.id}
-            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200"
+            className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200"
           >
-            <div className="flex items-start justify-between mb-4">
-              <div
-                className="p-3 rounded-xl"
-                style={{ backgroundColor: metric.bgColor }}
-              >
-                <span style={{ color: metric.color }}>
-                  {metric.icon}
-                </span>
-              </div>
+          <div className="flex items-start justify-between mb-3 md:mb-4">
+            <div
+              className="p-2 md:p-3 rounded-lg md:rounded-xl"
+              style={{ backgroundColor: metric.bgColor }}
+            >
+              <span style={{ color: metric.color }} className="block w-4 h-4 md:w-6 md:h-6">
+                {React.cloneElement(metric.icon as React.ReactElement, {
+                  className: "w-4 h-4 md:w-6 md:h-6"
+                })}
+              </span>
+            </div>
               
-              <div className={`flex items-center space-x-1 text-sm ${getTrendColor(metric.trend)}`}>
+              <div className={`flex items-center space-x-1 text-xs md:text-sm ${getTrendColor(metric.trend)}`}>
                 <span>{getTrendIcon(metric.trend)}</span>
                 <span>{metric.trendValue}</span>
               </div>
             </div>
             
-            <div>
-              <h4 className="text-sm font-medium text-gray-600 mb-1">{metric.title}</h4>
-              <div className="flex items-baseline space-x-1">
-                <span className="text-2xl font-bold text-gray-900">{metric.value}</span>
-                {metric.unit && (
-                  <span className="text-sm text-gray-500">{metric.unit}</span>
-                )}
-              </div>
+          <div>
+            <h4 className="text-xs md:text-sm font-medium text-gray-600 mb-1">{metric.title}</h4>
+            <div className="flex items-baseline space-x-1">
+              <span className="text-lg md:text-2xl font-bold text-gray-900">{metric.value}</span>
+              {metric.unit && (
+                <span className="text-xs md:text-sm text-gray-500">{metric.unit}</span>
+              )}
             </div>
+          </div>
           </div>
         ))}
       </div>

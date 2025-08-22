@@ -71,30 +71,30 @@ export const QuickActions: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-xl font-bold text-gray-900">Быстрые действия</h3>
+      <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6 px-2 md:px-0">Быстрые действия</h3>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 px-2 md:px-0">
         {actions.map((action) => (
           <button
             key={action.id}
             onClick={action.action}
-            className="group bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-200 text-left hover:-translate-y-1"
+            className="group bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-200 text-left hover:-translate-y-1"
           >
-            <div className="flex items-start space-x-4">
+            <div className="flex flex-col md:flex-row items-start md:items-start space-y-3 md:space-y-0 md:space-x-4">
               <div
-                className="p-3 rounded-xl group-hover:scale-110 transition-transform duration-200"
+                className="p-2 md:p-3 rounded-lg md:rounded-xl group-hover:scale-110 transition-transform duration-200"
                 style={{ backgroundColor: action.bgColor }}
               >
-                <span style={{ color: action.color }}>
+                <span style={{ color: action.color }} className="block">
                   {action.icon}
                 </span>
               </div>
               
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 mb-1 group-hover:text-gray-700">
+              <div className="flex-1 text-center md:text-left">
+                <h4 className="font-medium md:font-semibold text-sm md:text-base text-gray-900 mb-1 group-hover:text-gray-700">
                   {action.title}
                 </h4>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs md:text-sm text-gray-500 hidden md:block">
                   {action.description}
                 </p>
               </div>

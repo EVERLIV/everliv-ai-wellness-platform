@@ -93,53 +93,55 @@ export const TodaySchedule: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-900">Расписание на сегодня</h3>
-        <div className="text-sm text-gray-500">
+    <div className="bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-lg border border-gray-100 mx-2 md:mx-0">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
+        <h3 className="text-lg md:text-xl font-bold text-gray-900">Расписание на сегодня</h3>
+        <div className="text-xs md:text-sm text-gray-500">
           {scheduleItems.filter(item => item.completed).length} из {scheduleItems.length} выполнено
         </div>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-3 md:space-y-4">
         {scheduleItems.map((item) => (
           <div
             key={item.id}
-            className={`flex items-center space-x-4 p-4 rounded-xl border transition-all duration-200 ${
+            className={`flex items-center space-x-3 md:space-x-4 p-3 md:p-4 rounded-xl border transition-all duration-200 ${
               item.completed 
                 ? 'bg-gray-50 border-gray-200 opacity-75' 
                 : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-sm'
             }`}
           >
-            <div className="flex items-center space-x-3">
-              <div className="text-sm font-medium text-gray-500 w-12">
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <div className="text-xs md:text-sm font-medium text-gray-500 w-10 md:w-12">
                 {item.time}
               </div>
               
               <div
-                className="p-2 rounded-lg"
+                className="p-1.5 md:p-2 rounded-lg"
                 style={{ 
                   backgroundColor: getTypeBgColor(item.type),
                   color: getTypeColor(item.type)
                 }}
               >
-                {getIcon(item.type)}
+                {React.cloneElement(getIcon(item.type) as React.ReactElement, {
+                  className: "w-3 h-3 md:w-5 md:h-5"
+                })}
               </div>
             </div>
             
             <div className="flex-1">
-              <h4 className={`font-medium ${item.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+              <h4 className={`text-sm md:text-base font-medium ${item.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
                 {item.title}
               </h4>
               {item.description && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-xs md:text-sm text-gray-500 mt-1 hidden md:block">
                   {item.description}
                 </p>
               )}
             </div>
             
             <button
-              className={`w-6 h-6 rounded-full border-2 transition-all duration-200 ${
+              className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 transition-all duration-200 ${
                 item.completed
                   ? 'bg-green-500 border-green-500'
                   : 'border-gray-300 hover:border-green-400'
@@ -149,7 +151,7 @@ export const TodaySchedule: React.FC = () => {
               }}
             >
               {item.completed && (
-                <svg className="w-3 h-3 text-white mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-2 h-2 md:w-3 md:h-3 text-white mx-auto" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               )}

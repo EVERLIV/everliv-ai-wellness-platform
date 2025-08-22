@@ -19,13 +19,17 @@ const DashboardPage = () => {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          {/* Hero Section */}
+      {/* Полноширинный фон */}
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        {/* Hero Section - полная ширина */}
+        <div className="w-full">
           <LifestyleHero userName={userName} />
-          
+        </div>
+        
+        {/* Основной контент с отступами только по бокам */}
+        <div className="px-4 pb-6">
           {isMobile ? (
-            // Мобильная версия - стек вертикально
+            // Мобильная версия - вертикальный стек
             <div className="space-y-6">
               <ActivityRings />
               <QuickActions />
@@ -34,19 +38,18 @@ const DashboardPage = () => {
               <WeeklyProgress />
             </div>
           ) : (
-            // Десктопная версия - современная сетка
-            <div className="grid grid-cols-12 gap-6">
-              {/* Левая колонка - основной контент */}
-              <div className="col-span-8 space-y-6">
-                <QuickActions />
-                <HealthMetricsGrid />
-                <WeeklyProgress />
-              </div>
-              
-              {/* Правая колонка - боковые виджеты */}
-              <div className="col-span-4 space-y-6">
-                <ActivityRings />
-                <TodaySchedule />
+            // Десктопная версия
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-12 gap-6">
+                <div className="col-span-8 space-y-6">
+                  <QuickActions />
+                  <HealthMetricsGrid />
+                  <WeeklyProgress />
+                </div>
+                <div className="col-span-4 space-y-6">
+                  <ActivityRings />
+                  <TodaySchedule />
+                </div>
               </div>
             </div>
           )}
