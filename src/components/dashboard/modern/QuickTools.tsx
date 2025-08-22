@@ -65,33 +65,44 @@ export const QuickTools: React.FC<QuickToolsProps> = () => {
   ];
 
   return (
-    <div className="space-y-3 md:space-y-4 px-4 md:px-0">
-      <h3 className="text-base md:text-lg font-bold text-gray-900 mb-3 md:mb-4 px-0">Инструменты</h3>
+    <div className="space-y-6 px-6 md:px-8">
+      <div className="flex items-center gap-3">
+        <div className="w-1 h-8 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-full"></div>
+        <h3 className="text-xl font-bold text-slate-800 tracking-tight">Инструменты</h3>
+      </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3 px-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {tools.map((tool) => (
           <button
             key={tool.id}
             onClick={() => navigate(tool.path)}
-            className="group bg-white rounded-lg md:rounded-xl p-3 md:p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 text-left hover:-translate-y-1"
+            className="group relative bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/20 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 text-left overflow-hidden"
           >
-            <div className="flex flex-col md:flex-row items-start md:items-start space-y-3 md:space-y-0 md:space-x-4">
-              <div
-                className="p-2 md:p-3 rounded-lg md:rounded-xl group-hover:scale-110 transition-transform duration-200"
-                style={{ backgroundColor: tool.bgColor }}
-              >
-                <span style={{ color: tool.color }} className="block">
-                  {tool.icon}
-                </span>
-              </div>
-              
-              <div className="flex-1 text-center md:text-left">
-                <h4 className="font-medium md:font-semibold text-sm md:text-base text-gray-900 mb-1 group-hover:text-gray-700">
-                  {tool.title}
-                </h4>
-                <p className="text-xs md:text-sm text-gray-500 hidden md:block">
-                  {tool.description}
-                </p>
+            {/* Hover gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-start gap-4">
+                <div
+                  className="p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${tool.color}15, ${tool.color}25)`,
+                    border: `1px solid ${tool.color}20`
+                  }}
+                >
+                  <span style={{ color: tool.color }} className="block">
+                    {tool.icon}
+                  </span>
+                </div>
+                
+                <div className="flex-1">
+                  <h4 className="font-bold text-slate-800 mb-2 group-hover:text-indigo-700 transition-colors duration-200">
+                    {tool.title}
+                  </h4>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {tool.description}
+                  </p>
+                </div>
               </div>
             </div>
           </button>

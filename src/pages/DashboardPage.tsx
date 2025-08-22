@@ -19,15 +19,15 @@ const DashboardPage = () => {
 
   return (
     <AppLayout>
-      {/* Полноэкранный фон без отступов */}
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-        {/* Hero Section - полная ширина без отступов */}
+      {/* Современный фон с градиентом */}
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
+        {/* Hero Section */}
         <div className="w-full">
           <LifestyleHero userName={userName} />
         </div>
         
-        {/* Основной контент без боковых отступов */}
-        <div className="w-full">
+        {/* Основной контент */}
+        <div className="w-full py-8">
           {isMobile ? (
             // Мобильная версия - компактный стек
             <div className="space-y-3">

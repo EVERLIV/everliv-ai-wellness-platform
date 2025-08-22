@@ -85,9 +85,9 @@ export const HealthMetricsGrid: React.FC = () => {
 
   const getTrendColor = (trend: string) => {
     switch (trend) {
-      case 'up': return 'text-green-600';
-      case 'down': return 'text-red-600';
-      default: return 'text-gray-500';
+      case 'up': return 'text-emerald-600';
+      case 'down': return 'text-red-500';
+      default: return 'text-slate-500';
     }
   };
 
@@ -100,42 +100,56 @@ export const HealthMetricsGrid: React.FC = () => {
   };
 
   return (
-    <div className="space-y-3 md:space-y-4 px-4 md:px-0">
-      <h3 className="text-base md:text-lg font-bold text-gray-900">Показатели здоровья</h3>
+    <div className="space-y-6 px-6 md:px-8">
+      <div className="flex items-center gap-3">
+        <div className="w-1 h-8 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-full"></div>
+        <h3 className="text-xl font-bold text-slate-800 tracking-tight">Показатели здоровья</h3>
+      </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {metrics.map((metric) => (
           <div
             key={metric.id}
-            className="bg-white rounded-lg md:rounded-xl p-3 md:p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200"
+            className="group relative bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow-lg border border-white/20 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 overflow-hidden"
           >
-          <div className="flex items-start justify-between mb-3 md:mb-4">
-            <div
-              className="p-2 md:p-3 rounded-lg md:rounded-xl"
-              style={{ backgroundColor: metric.bgColor }}
-            >
-              <span style={{ color: metric.color }} className="block w-4 h-4 md:w-6 md:h-6">
-                {React.cloneElement(metric.icon as React.ReactElement, {
-                  className: "w-4 h-4 md:w-6 md:h-6"
-                })}
-              </span>
-            </div>
+            {/* Gradient overlay */}
+            <div 
+              className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-300 rounded-3xl"
+              style={{ background: `linear-gradient(135deg, ${metric.color}, ${metric.color}80)` }}
+            ></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-start justify-between mb-4">
+                <div
+                  className="p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${metric.color}15, ${metric.color}25)`,
+                    border: `1px solid ${metric.color}20`
+                  }}
+                >
+                  <span style={{ color: metric.color }} className="block">
+                    {React.cloneElement(metric.icon as React.ReactElement, {
+                      className: "w-6 h-6"
+                    })}
+                  </span>
+                </div>
+                
+                <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${getTrendColor(metric.trend)} bg-white/50 border border-current/20`}>
+                  <span className="text-lg font-bold">{getTrendIcon(metric.trend)}</span>
+                  <span className="font-bold">{metric.trendValue}</span>
+                </div>
+              </div>
               
-              <div className={`flex items-center space-x-1 text-xs md:text-sm ${getTrendColor(metric.trend)}`}>
-                <span>{getTrendIcon(metric.trend)}</span>
-                <span>{metric.trendValue}</span>
+              <div>
+                <h4 className="text-sm font-bold text-slate-700 mb-2 tracking-wide uppercase">{metric.title}</h4>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-slate-800">{metric.value}</span>
+                  {metric.unit && (
+                    <span className="text-sm text-slate-500 font-medium">{metric.unit}</span>
+                  )}
+                </div>
               </div>
             </div>
-            
-          <div>
-            <h4 className="text-xs md:text-sm font-medium text-gray-600 mb-1">{metric.title}</h4>
-            <div className="flex items-baseline space-x-1">
-              <span className="text-lg md:text-2xl font-bold text-gray-900">{metric.value}</span>
-              {metric.unit && (
-                <span className="text-xs md:text-sm text-gray-500">{metric.unit}</span>
-              )}
-            </div>
-          </div>
           </div>
         ))}
       </div>
