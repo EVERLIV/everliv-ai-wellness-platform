@@ -300,7 +300,7 @@ const PriorityMetricsSection = () => {
                 {aiRiskScores.map((risk, index) => (
                   <div 
                     key={index} 
-                    className={`p-5 rounded-2xl transition-all duration-300 hover:opacity-90 ${
+                    className={`p-5 rounded-2xl transition-all duration-300 ${
                       !risk.hasData ? 'bg-neutral-50/80' : 
                       risk.value <= 15 ? 'bg-brand-success/5' :
                       risk.value <= 30 ? 'bg-brand-warning/5' :
