@@ -68,7 +68,7 @@ const BottomNavigation = () => {
                 "relative flex flex-col items-center justify-center",
                 "py-2 px-1 transition-all duration-300 ease-out",
                 "active:scale-95 touch-manipulation",
-                "focus:outline-none focus:ring-2 focus:ring-primary/20",
+                "focus:outline-none focus-visible:outline-none",
                 isItemActive 
                   ? `${item.color}` 
                   : "text-muted-foreground/60 hover:text-foreground/80 hover:scale-105"
