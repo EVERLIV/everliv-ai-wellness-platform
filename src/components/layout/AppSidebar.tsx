@@ -21,10 +21,7 @@ import {
   TestTube,
   TrendingUp,
   BookOpen,
-  ChevronLeft,
-  Home,
-  Target,
-  Zap
+  ChevronLeft
 } from "lucide-react";
 
 import {
@@ -40,40 +37,17 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 const menuItems = [
   {
-    groupLabel: "Главное",
+    groupLabel: "Инструменты",
     items: [
-      { title: "Панель управления", url: "/dashboard", icon: Home, badge: null },
-      { title: "Мои цели", url: "/goals", icon: Target, badge: "3" },
-    ]
-  },
-  {
-    groupLabel: "Анализ и диагностика",
-    items: [
-      { title: "ИИ Доктор", url: "/ai-doctor", icon: Brain, badge: null },
-      { title: "Анализы крови", url: "/lab-analyses", icon: TestTube, badge: "Новое" },
-      { title: "Диагностика", url: "/diagnostics", icon: Stethoscope, badge: null },
-      { title: "Мои биомаркеры", url: "/my-biomarkers", icon: Activity, badge: null },
-    ]
-  },
-  {
-    groupLabel: "Здоровье и отслеживание",
-    items: [
-      { title: "Профиль здоровья", url: "/health-profile", icon: Heart, badge: null },
-      { title: "Аналитика", url: "/analytics", icon: BarChart3, badge: null },
-      { title: "Календарь здоровья", url: "/calendar", icon: Calendar, badge: null },
-      { title: "Питание", url: "/nutrition", icon: Utensils, badge: null },
-    ]
-  },
-  {
-    groupLabel: "Ресурсы",
-    items: [
-      { title: "Рекомендации", url: "/recommendations", icon: Zap, badge: "5" },
-      { title: "База знаний", url: "/medical-knowledge", icon: BookOpen, badge: null },
-      { title: "Специалисты", url: "/specialists", icon: HeartHandshake, badge: null },
+      { title: "ИИ Доктор", url: "/ai-doctor", icon: Brain },
+      { title: "Профиль здоровья", url: "/health-profile", icon: Heart },
+      { title: "Аналитика", url: "/analytics", icon: BarChart3 },
+      { title: "Лабораторные анализы", url: "/lab-analyses", icon: TestTube },
+      { title: "Мои биомаркеры", url: "/my-biomarkers", icon: Activity },
+      { title: "База знаний", url: "/medical-knowledge", icon: BookOpen },
     ]
   }
 ];
@@ -92,52 +66,44 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className="border-r border-border bg-surface"
+      className="w-56 border-r border-border bg-card"
       collapsible="icon"
     >
       {/* Отступ от хедера */}
       <div className="h-14"></div>
 
-      <SidebarContent className="bg-transparent px-4">
+      {/* Компактная кнопка скрытия */}
+      <div className="flex justify-end px-2 pb-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleSidebar}
+          className="h-6 w-6 p-0 hover:bg-gray-100 rounded-full opacity-60 hover:opacity-100 transition-opacity"
+          title="Скрыть панель"
+        >
+          <ChevronLeft className="h-3 w-3 text-muted-foreground" />
+        </Button>
+      </div>
+
+      <SidebarContent className="bg-card pt-0">
         {menuItems.map((group, groupIndex) => (
-          <SidebarGroup key={groupIndex} className="mb-8">
-            <SidebarGroupLabel className="text-xs font-semibold text-foreground-light uppercase tracking-wider mb-3">
+          <SidebarGroup key={groupIndex}>
+            <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3 py-2">
               {!collapsed && group.groupLabel}
             </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu className="space-y-2">
+              <SidebarMenu>
                 {group.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <NavLink 
                         to={item.url} 
                         end 
-                        className={({ isActive }) =>
-                          `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group ${
-                            isActive 
-                              ? "bg-primary-ultra-light text-primary border-l-2 border-primary" 
-                              : "text-foreground-medium hover:bg-surface-elevated hover:text-foreground"
-                          }`
-                        }
+                        className={getNavCls}
                         title={collapsed ? item.title : undefined}
                       >
-                        <item.icon className={`h-5 w-5 flex-shrink-0 transition-colors ${
-                          currentPath === item.url ? "text-primary" : "text-foreground-light group-hover:text-foreground-medium"
-                        }`} />
-                        {!collapsed && (
-                          <div className="flex-1 flex items-center justify-between">
-                            <span className="text-sm font-medium">{item.title}</span>
-                            {item.badge && (
-                              <Badge 
-                                variant={item.badge === "Новое" ? "destructive" : "secondary"} 
-                                size="sm"
-                                className="text-xs"
-                              >
-                                {item.badge}
-                              </Badge>
-                            )}
-                          </div>
-                        )}
+                        <item.icon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                        {!collapsed && <span className="text-sm text-muted-foreground">{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -146,16 +112,6 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
-        
-        {/* Совет дня внизу */}
-        {!collapsed && (
-          <div className="mt-auto mb-6 p-4 bg-secondary-ultra-light rounded-xl border border-secondary/20">
-            <div className="text-sm font-semibold text-secondary-dark mb-2">💡 Совет дня</div>
-            <div className="text-xs text-foreground-medium leading-relaxed">
-              Регулярно отслеживайте показатели здоровья для лучших результатов
-            </div>
-          </div>
-        )}
       </SidebarContent>
     </Sidebar>
   );

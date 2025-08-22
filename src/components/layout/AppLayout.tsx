@@ -97,8 +97,6 @@ export function AppLayout({ children }: AppLayoutProps) {
     { label: "Еще", href: "/more" },
   ];
 
-  const isDashboard = location.pathname.startsWith('/dashboard');
-
   return (
     <div className="min-h-screen flex flex-col w-full bg-background">
       {/* Полноширинный навбар */}
@@ -242,7 +240,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <div className="flex flex-1 flex-col min-w-0">
             {/* Основной контент */}
             <main className="flex-1 overflow-auto bg-background">
-              <div className={isDashboard ? "w-full px-0 py-0" : "container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-6xl min-h-full"}>
+              <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-6xl min-h-full">
                 {children}
               </div>
             </main>

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { NewCard } from '@/components/ui/new-card';
+import { Button } from '@/components/ui/button';
 import { 
   MessageSquare, 
   User, 
@@ -28,95 +28,91 @@ const DashboardQuickActionsGrid: React.FC = () => {
       title: 'ИИ Доктор',
       description: 'Персональная консультация',
       path: '/ai-doctor',
-      gradient: 'gradient-primary',
-      iconBg: 'bg-primary/10',
-      iconColor: 'text-primary'
+      gradient: 'bg-gradient-to-br from-brand-primary to-brand-primary-dark',
+      iconColor: 'text-white/90'
     },
     {
       icon: Heart,
       title: 'Профиль здоровья',
       description: 'Управление данными',
       path: '/health-profile',
-      gradient: 'gradient-secondary',
-      iconBg: 'bg-error/10',
-      iconColor: 'text-error'
+      gradient: 'bg-gradient-to-br from-brand-error to-red-600',
+      iconColor: 'text-white/90'
     },
     {
       icon: BarChart3,
       title: 'Аналитика',
       description: 'Отчеты и тренды',
       path: '/analytics',
-      gradient: 'gradient-accent',
-      iconBg: 'bg-success/10',
-      iconColor: 'text-success'
+      gradient: 'bg-gradient-to-br from-brand-success to-green-600',
+      iconColor: 'text-white/90'
     },
     {
       icon: TestTube,
       title: 'Лабораторные анализы',
       description: 'Результаты тестов',
       path: '/lab-analyses',
-      gradient: 'gradient-secondary',
-      iconBg: 'bg-secondary/10',
-      iconColor: 'text-secondary'
+      gradient: 'bg-gradient-to-br from-brand-accent to-purple-600',
+      iconColor: 'text-white/90'
     },
     {
       icon: Activity,
       title: 'Мои биомаркеры',
       description: 'Динамика показателей',
       path: '/my-biomarkers',
-      gradient: 'gradient-primary',
-      iconBg: 'bg-primary/10',
-      iconColor: 'text-primary'
+      gradient: 'bg-gradient-to-br from-brand-secondary to-cyan-600',
+      iconColor: 'text-white/90'
     },
     {
       icon: BookOpen,
       title: 'База знаний',
       description: 'Медицинская информация',
       path: '/medical-knowledge',
-      gradient: 'gradient-accent',
-      iconBg: 'bg-accent/10',
-      iconColor: 'text-accent'
+      gradient: 'bg-gradient-to-br from-teal-500 to-brand-secondary',
+      iconColor: 'text-white/90'
     }
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-foreground mb-2">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between px-1">
+        <h3 className={`font-semibold text-gray-900 ${isMobile ? 'text-base' : 'text-lg'}`}>
           Быстрые действия
-        </h2>
-        <p className="text-foreground-medium">
-          Основные функции платформы здоровья
-        </p>
+        </h3>
       </div>
       
-      <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-2 lg:grid-cols-3 gap-6'}`}>
+      <div className={`grid ${isMobile ? 'grid-cols-1 gap-2' : 'grid-cols-2 lg:grid-cols-3 gap-3'}`}>
         {actions.map((action) => (
-          <NewCard
+          <Button
             key={action.path}
-            variant="glass"
-            hover="lift"
-            className="group cursor-pointer transition-all duration-300 hover:shadow-glow-primary"
+            variant="ghost"
+            className={`
+              h-auto p-0 group hover:scale-[1.01] transition-all duration-200
+              ${isMobile ? 'w-full' : ''}
+            `}
             onClick={() => navigate(action.path)}
           >
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className={`w-12 h-12 rounded-xl ${action.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                  <action.icon className={`w-6 h-6 ${action.iconColor}`} />
+            <div className={`
+              w-full ${action.gradient} rounded-lg p-3 text-left
+              shadow-md hover:shadow-lg transition-all duration-200
+              ${isMobile ? 'min-h-[60px]' : 'min-h-[70px]'}
+            `}>
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <action.icon className={`${isMobile ? 'h-4 w-4' : 'h-4 w-4'} ${action.iconColor} flex-shrink-0`} />
+                    <h4 className={`font-medium text-white truncate ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                      {action.title}
+                    </h4>
+                  </div>
+                  <p className={`text-white/80 ${isMobile ? 'text-xs' : 'text-xs'} leading-tight truncate`}>
+                    {action.description}
+                  </p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-foreground-light group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors duration-300 mb-2">
-                  {action.title}
-                </h3>
-                <p className="text-foreground-medium text-sm leading-relaxed">
-                  {action.description}
-                </p>
+                <ChevronRight className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-white/60 group-hover:text-white transition-colors flex-shrink-0 ml-2`} />
               </div>
             </div>
-          </NewCard>
+          </Button>
         ))}
       </div>
     </div>
