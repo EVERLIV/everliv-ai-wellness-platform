@@ -1,7 +1,32 @@
 
 import { CachedAnalytics, AnalysisRecord, ChatRecord } from '@/types/analytics';
 import { supabase } from '@/integrations/supabase/client';
-import { normalizeRiskLevel, calculateDefaultRiskLevel, calculateDefaultHealthScore } from './analytics/healthScoreCalculator';
+// Simple fallback calculations
+const normalizeRiskLevel = (riskLevel: string): string => {
+  if (!riskLevel || riskLevel === 'unknown') return 'средний';
+  const level = riskLevel.toLowerCase().trim();
+  if (level.includes('низк') || level === 'low') return 'низкий';
+  if (level.includes('высок') || level === 'high') return 'высокий';
+  return 'средний';
+};
+
+const calculateDefaultRiskLevel = (healthProfile: any): string => {
+  let riskFactors = 0;
+  if (healthProfile.smokingStatus === 'regular') riskFactors += 2;
+  if (healthProfile.physicalActivity === 'sedentary') riskFactors += 1;
+  if (healthProfile.stressLevel > 7) riskFactors += 1;
+  if (riskFactors >= 3) return 'высокий';
+  if (riskFactors >= 1) return 'средний';
+  return 'низкий';
+};
+
+const calculateDefaultHealthScore = (healthProfile: any): number => {
+  let score = 80;
+  if (healthProfile.smokingStatus === 'regular') score -= 15;
+  if (healthProfile.physicalActivity === 'sedentary') score -= 10;
+  if (healthProfile.stressLevel > 7) score -= 8;
+  return Math.max(30, Math.min(100, score));
+};
 import { generateRecentActivities, checkRecentActivity } from './analytics/activityGenerator';
 
 export const generateAnalyticsData = async (

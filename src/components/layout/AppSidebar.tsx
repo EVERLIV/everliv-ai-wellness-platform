@@ -47,23 +47,7 @@ const menuItems = [
       { title: "Аналитика", url: "/analytics", icon: BarChart3 },
       { title: "Лабораторные анализы", url: "/lab-analyses", icon: TestTube },
       { title: "Мои биомаркеры", url: "/my-biomarkers", icon: Activity },
-      { title: "Биологический возраст", url: "/biological-age", icon: TrendingUp },
-      { title: "База знаний", url: "/knowledge-base", icon: BookOpen },
-      { title: "Календарь здоровья", url: "/health-calendar", icon: Calendar },
-    ]
-  },
-  {
-    groupLabel: "Поддержка",
-    items: [
-      { title: "Центр помощи", url: "/help", icon: HelpCircle },
-      { title: "Уведомления", url: "/notifications", icon: Bell },
-      { title: "Конфиденциальность", url: "/privacy", icon: Shield },
-    ]
-  },
-  {
-    groupLabel: "Настройки",
-    items: [
-      { title: "Настройки профиля", url: "/settings", icon: Settings },
+      { title: "База знаний", url: "/medical-knowledge", icon: BookOpen },
     ]
   }
 ];

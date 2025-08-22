@@ -1,7 +1,6 @@
 
 import React from "react";
 import Header from "@/components/Header";
-import DashboardHealthSummary from "@/components/dashboard/DashboardHealthSummary";
 import DashboardQuickActions from "@/components/dashboard/DashboardQuickActions";
 import DashboardWrapper from "@/components/dashboard/DashboardWrapper";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -43,10 +42,7 @@ const Dashboard = () => {
               getSubscriptionColor={getSubscriptionColor}
             />
             
-            <div className="grid gap-6 md:grid-cols-2">
-              <DashboardHealthSummary />
-              <DashboardQuickActions />
-            </div>
+            <DashboardQuickActions />
           </div>
         </div>
       </div>

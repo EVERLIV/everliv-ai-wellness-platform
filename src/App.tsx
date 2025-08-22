@@ -27,7 +27,7 @@ const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 const Science = lazy(() => import("./pages/Science"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
-const Pricing = lazy(() => import("./pages/Pricing"));
+const PricingPage = lazy(() => import("./pages/Pricing"));
 const Partnership = lazy(() => import("./pages/Partnership"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Support = lazy(() => import("./pages/Support"));
@@ -42,9 +42,7 @@ const MoscowClinics = lazy(() => import("./pages/MoscowClinics"));
 const ServicesPage = lazy(() => import("./pages/ServicesPage"));
 const Community = lazy(() => import("./pages/Community"));
 const Webinars = lazy(() => import("./pages/Webinars"));
-const BiologicalAgePage = lazy(() => import("./pages/BiologicalAge"));
 
-const HealthCalendar = lazy(() => import("./pages/HealthCalendar"));
 
 // Auth pages
 const Login = lazy(() => import("./pages/Login"));
@@ -55,24 +53,11 @@ const AuthConfirm = lazy(() => import("./pages/AuthConfirm"));
 const Welcome = lazy(() => import("./pages/Welcome"));
 
 // Protected pages
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const DashboardPage = lazy(() => import("./pages/DashboardPage"));
-const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
-const PricingPage = lazy(() => import("./pages/PricingPage"));
-const UserProfile = lazy(() => import("./pages/UserProfile"));
-const Settings = lazy(() => import("./pages/Settings"));
+// Protected pages  
 const HealthProfile = lazy(() => import("./pages/HealthProfile"));
-const BloodAnalysis = lazy(() => import("./pages/BloodAnalysis"));
 const LabAnalyses = lazy(() => import("./pages/LabAnalyses"));
-const AnalysisDetails = lazy(() => import("./pages/AnalysisDetails"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const AIDoctorPage = lazy(() => import("./pages/AIDoctorPage"));
-const AIDoctorBasicPage = lazy(() => import("./pages/AIDoctorBasicPage"));
-const AIDoctorPersonalPage = lazy(() => import("./pages/AIDoctorPersonalPage"));
-const ProtocolTracking = lazy(() => import("./pages/ProtocolTracking"));
-const SubscriptionPage = lazy(() => import("./pages/SubscriptionPage"));
-const UserSubscription = lazy(() => import("./pages/UserSubscription"));
-const Checkout = lazy(() => import("./pages/Checkout"));
 const MyBiomarkers = lazy(() => import("./pages/MyBiomarkers"));
 
 import { SmartAuthProvider } from "./contexts/SmartAuthContext";
@@ -111,44 +96,14 @@ const App = () => (
                        <Route path="/welcome" element={<Welcome />} />
 
                       {/* Protected routes */}
-                      <Route path="/dashboard" element={
-                        <ProtectedRoute>
-                          <DashboardPage />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/notifications" element={
-                        <ProtectedRoute>
-                          <NotificationsPage />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/profile" element={
-                        <ProtectedRoute>
-                          <UserProfile />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/settings" element={
-                        <ProtectedRoute>
-                          <Settings />
-                        </ProtectedRoute>
-                      } />
                       <Route path="/health-profile" element={
                         <ProtectedRoute>
                           <HealthProfile />
                         </ProtectedRoute>
                       } />
-                      <Route path="/blood-analysis" element={
-                        <ProtectedRoute>
-                          <BloodAnalysis />
-                        </ProtectedRoute>
-                      } />
                       <Route path="/lab-analyses" element={
                         <ProtectedRoute>
                           <LabAnalyses />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/analysis-details" element={
-                        <ProtectedRoute>
-                          <AnalysisDetails />
                         </ProtectedRoute>
                       } />
                       <Route path="/analytics" element={
@@ -159,36 +114,6 @@ const App = () => (
                       <Route path="/ai-doctor" element={
                         <ProtectedRoute>
                           <AIDoctorPage />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/ai-doctor/basic" element={
-                        <ProtectedRoute>
-                          <AIDoctorBasicPage />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/ai-doctor/personal" element={
-                        <ProtectedRoute>
-                          <AIDoctorPersonalPage />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/subscription" element={
-                        <ProtectedRoute>
-                          <SubscriptionPage />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/user-subscription" element={
-                        <ProtectedRoute>
-                          <UserSubscription />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/checkout" element={
-                        <ProtectedRoute>
-                          <Checkout />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/health-calendar" element={
-                        <ProtectedRoute>
-                          <HealthCalendar />
                         </ProtectedRoute>
                       } />
                       <Route path="/my-biomarkers" element={
@@ -220,7 +145,6 @@ const App = () => (
                       <Route path="/services" element={<ServicesPage />} />
                       <Route path="/community" element={<Community />} />
                       <Route path="/webinars" element={<Webinars />} />
-                      <Route path="/biological-age" element={<BiologicalAgePage />} />
 
                       {/* Route modules - lazy loaded */}
                       <Route path="/services/*" element={<ServiceRoutes />} />
