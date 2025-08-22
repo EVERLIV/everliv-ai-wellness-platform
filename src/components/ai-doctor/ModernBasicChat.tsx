@@ -250,7 +250,7 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         isMobile ? "px-4 py-3" : "px-6 py-4"
       )}>
         <div className="max-w-4xl mx-auto">
-          <div className="flex gap-3 items-end">
+          <div className="flex gap-3 items-center">
             <div className="flex-1 min-w-0">
               <textarea
                 ref={textareaRef}
