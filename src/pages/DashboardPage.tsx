@@ -4,10 +4,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { LifestyleHero } from '@/components/dashboard/modern/LifestyleHero';
-import { ActivityRings } from '@/components/dashboard/modern/ActivityRings';
+import { MyGoals } from '@/components/dashboard/modern/MyGoals';
 import { HealthMetricsGrid } from '@/components/dashboard/modern/HealthMetricsGrid';
 import { WeeklyProgress } from '@/components/dashboard/modern/WeeklyProgress';
-import { QuickActions } from '@/components/dashboard/modern/QuickActions';
+import { QuickTools } from '@/components/dashboard/modern/QuickTools';
 import { TodaySchedule } from '@/components/dashboard/modern/TodaySchedule';
 
 const DashboardPage = () => {
@@ -31,8 +31,8 @@ const DashboardPage = () => {
           {isMobile ? (
             // Мобильная версия - компактный стек
             <div className="space-y-3">
-              <ActivityRings />
-              <QuickActions />
+              <MyGoals />
+              <QuickTools />
               <HealthMetricsGrid />
               <TodaySchedule />
               <WeeklyProgress />
@@ -42,12 +42,12 @@ const DashboardPage = () => {
             <div className="w-full px-4">
               <div className="grid grid-cols-12 gap-4">
                 <div className="col-span-8 space-y-4">
-                  <QuickActions />
+                  <QuickTools />
                   <HealthMetricsGrid />
                   <WeeklyProgress />
                 </div>
                 <div className="col-span-4 space-y-4">
-                  <ActivityRings />
+                  <MyGoals />
                   <TodaySchedule />
                 </div>
               </div>
