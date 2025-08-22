@@ -100,14 +100,14 @@ export const HealthMetricsGrid: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 md:space-y-6 px-2 md:px-0">
-      <h3 className="text-lg md:text-xl font-bold text-gray-900">Показатели здоровья</h3>
+    <div className="space-y-3 md:space-y-4 px-4 md:px-0">
+      <h3 className="text-base md:text-lg font-bold text-gray-900">Показатели здоровья</h3>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
         {metrics.map((metric) => (
           <div
             key={metric.id}
-            className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200"
+            className="bg-white rounded-lg md:rounded-xl p-3 md:p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200"
           >
           <div className="flex items-start justify-between mb-3 md:mb-4">
             <div

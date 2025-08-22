@@ -93,19 +93,19 @@ export const TodaySchedule: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-lg border border-gray-100 mx-2 md:mx-0">
-      <div className="flex items-center justify-between mb-4 md:mb-6">
-        <h3 className="text-lg md:text-xl font-bold text-gray-900">Расписание на сегодня</h3>
+    <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-4 shadow-sm border border-gray-100">
+      <div className="flex items-center justify-between mb-3 md:mb-4">
+        <h3 className="text-base md:text-lg font-bold text-gray-900">Расписание на сегодня</h3>
         <div className="text-xs md:text-sm text-gray-500">
           {scheduleItems.filter(item => item.completed).length} из {scheduleItems.length} выполнено
         </div>
       </div>
       
-      <div className="space-y-3 md:space-y-4">
+      <div className="space-y-2 md:space-y-3">
         {scheduleItems.map((item) => (
           <div
             key={item.id}
-            className={`flex items-center space-x-3 md:space-x-4 p-3 md:p-4 rounded-xl border transition-all duration-200 ${
+            className={`flex items-center space-x-2 md:space-x-3 p-2 md:p-3 rounded-lg border transition-all duration-200 ${
               item.completed 
                 ? 'bg-gray-50 border-gray-200 opacity-75' 
                 : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-sm'

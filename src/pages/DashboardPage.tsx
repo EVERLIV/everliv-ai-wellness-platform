@@ -19,18 +19,18 @@ const DashboardPage = () => {
 
   return (
     <AppLayout>
-      {/* Полноширинный фон */}
+      {/* Полноэкранный фон без отступов */}
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-        {/* Hero Section - полная ширина */}
+        {/* Hero Section - полная ширина без отступов */}
         <div className="w-full">
           <LifestyleHero userName={userName} />
         </div>
         
-        {/* Основной контент с отступами только по бокам */}
-        <div className="px-4 pb-6">
+        {/* Основной контент без боковых отступов */}
+        <div className="w-full">
           {isMobile ? (
-            // Мобильная версия - вертикальный стек
-            <div className="space-y-6">
+            // Мобильная версия - компактный стек
+            <div className="space-y-3">
               <ActivityRings />
               <QuickActions />
               <HealthMetricsGrid />
@@ -38,15 +38,15 @@ const DashboardPage = () => {
               <WeeklyProgress />
             </div>
           ) : (
-            // Десктопная версия
-            <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-12 gap-6">
-                <div className="col-span-8 space-y-6">
+            // Десктопная версия - полная ширина
+            <div className="w-full px-4">
+              <div className="grid grid-cols-12 gap-4">
+                <div className="col-span-8 space-y-4">
                   <QuickActions />
                   <HealthMetricsGrid />
                   <WeeklyProgress />
                 </div>
-                <div className="col-span-4 space-y-6">
+                <div className="col-span-4 space-y-4">
                   <ActivityRings />
                   <TodaySchedule />
                 </div>

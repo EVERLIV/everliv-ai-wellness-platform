@@ -71,14 +71,14 @@ export const QuickActions: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-4 md:mb-6 px-2 md:px-0">Быстрые действия</h3>
+      <h3 className="text-base md:text-lg font-bold text-gray-900 mb-3 md:mb-4 px-4 md:px-0">Быстрые действия</h3>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 px-2 md:px-0">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3 px-4 md:px-0">
         {actions.map((action) => (
           <button
             key={action.id}
             onClick={action.action}
-            className="group bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-200 text-left hover:-translate-y-1"
+            className="group bg-white rounded-lg md:rounded-xl p-3 md:p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 text-left hover:-translate-y-1"
           >
             <div className="flex flex-col md:flex-row items-start md:items-start space-y-3 md:space-y-0 md:space-x-4">
               <div

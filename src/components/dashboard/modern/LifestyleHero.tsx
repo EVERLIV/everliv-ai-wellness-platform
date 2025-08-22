@@ -13,59 +13,59 @@ export const LifestyleHero: React.FC<LifestyleHeroProps> = ({ userName }) => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(255,255,255,0.05),transparent_50%)]"></div>
       
       {/* Content */}
-      <div className="relative z-10 px-4 py-8 md:py-12">
-        <div className="max-w-7xl mx-auto">
+      <div className="relative z-10 px-6 py-6 md:py-8">
+        <div className="w-full">
           {/* Мобильная версия */}
           <div className="block md:hidden">
-            <div className="text-center space-y-6">
+            <div className="text-center space-y-4">
               {/* Profile Circle */}
               <div className="flex justify-center">
                 <div className="relative">
-                  <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm p-0.5">
+                  <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm p-0.5">
                     <div className="w-full h-full rounded-full bg-white/10 flex items-center justify-center">
-                      <Activity className="w-8 h-8 text-white" />
+                      <Activity className="w-6 h-6 text-white" />
                     </div>
                   </div>
-                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-white" />
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                    <Zap className="w-3 h-3 text-white" />
                   </div>
                 </div>
               </div>
               
               {/* Welcome Text */}
               <div>
-                <h1 className="text-3xl font-bold text-white mb-2">
+                <h1 className="text-2xl font-bold text-white mb-2">
                   Привет, {userName}! 👋
                 </h1>
-                <p className="text-lg text-white/80">
+                <p className="text-base text-white/80">
                   Готов к новому дню достижений?
                 </p>
               </div>
               
               {/* Mobile Stats */}
-              <div className="grid grid-cols-3 gap-4 mt-6">
+              <div className="grid grid-cols-3 gap-3 mt-4">
                 <div className="text-center">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm mx-auto mb-2">
-                    <TrendingUp className="w-6 h-6 text-white" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm mx-auto mb-2">
+                    <TrendingUp className="w-5 h-5 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-white">92%</div>
-                  <div className="text-sm text-white/70">Health Score</div>
+                  <div className="text-xl font-bold text-white">92%</div>
+                  <div className="text-xs text-white/70">Health Score</div>
                 </div>
                 
                 <div className="text-center">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm mx-auto mb-2">
-                    <Activity className="w-6 h-6 text-white" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm mx-auto mb-2">
+                    <Activity className="w-5 h-5 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-white">12.5k</div>
-                  <div className="text-sm text-white/70">Шагов</div>
+                  <div className="text-xl font-bold text-white">12.5k</div>
+                  <div className="text-xs text-white/70">Шагов</div>
                 </div>
                 
                 <div className="text-center">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm mx-auto mb-2">
-                    <Award className="w-6 h-6 text-white" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm mx-auto mb-2">
+                    <Award className="w-5 h-5 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-white">5</div>
-                  <div className="text-sm text-white/70">Целей</div>
+                  <div className="text-xl font-bold text-white">5</div>
+                  <div className="text-xs text-white/70">Целей</div>
                 </div>
               </div>
             </div>
