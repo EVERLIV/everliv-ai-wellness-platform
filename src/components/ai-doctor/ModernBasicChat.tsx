@@ -54,9 +54,9 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      const maxHeight = isMobile ? 80 : 100;
+      const maxHeight = isMobile ? 60 : 80;
       const newHeight = Math.min(textareaRef.current.scrollHeight, maxHeight);
-      textareaRef.current.style.height = `${Math.max(newHeight, isMobile ? 44 : 48)}px`;
+      textareaRef.current.style.height = `${Math.max(newHeight, isMobile ? 36 : 40)}px`;
     }
   }, [inputText, isMobile]);
 
@@ -150,40 +150,40 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
       {/* Minimalist Header */}
       <div className={cn(
         "flex items-center justify-between bg-gray-50",
-        isMobile ? "px-4 py-3 safe-area-pt" : "px-6 py-4"
+        isMobile ? "px-3 py-2 safe-area-pt" : "px-4 py-3"
       )}>
         <Button
           variant="ghost"
           size="sm"
           onClick={onBack}
-          className="text-gray-500 hover:text-gray-700 rounded-full w-9 h-9 p-0 hover:bg-gray-100"
+          className="text-gray-500 hover:text-gray-700 rounded-full w-7 h-7 p-0 hover:bg-gray-100"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-3 w-3" />
         </Button>
         
         <Button
           variant="ghost"
           size="sm"
-          className="text-gray-500 hover:text-gray-700 rounded-lg w-9 h-9 p-0 hover:bg-gray-100"
+          className="text-gray-500 hover:text-gray-700 rounded-lg w-7 h-7 p-0 hover:bg-gray-100"
         >
-          <Grid3X3 className="h-4 w-4" />
+          <Grid3X3 className="h-3 w-3" />
         </Button>
       </div>
 
       {/* Chat Messages - Pure Background */}
       <div className={cn(
         "flex-1 overflow-y-auto scroll-smooth bg-gray-50",
-        isMobile ? "px-4 py-4" : "px-6 py-6"
+        isMobile ? "px-3 py-3" : "px-4 py-4"
       )}>
-        <div className="space-y-3 max-w-4xl mx-auto">
+        <div className="space-y-2 max-w-4xl mx-auto">
           {messages.map((message) => (
             <div key={message.id} className={cn(
               "flex",
               message.role === "user" ? "justify-end" : "justify-start"
             )}>
               <div className={cn(
-                "max-w-[80%] rounded-2xl",
-                isMobile ? "px-4 py-3 text-sm" : "px-5 py-4 text-base",
+                  "max-w-[80%] rounded-xl",
+                  isMobile ? "px-3 py-2 text-sm" : "px-4 py-3 text-sm",
                 message.role === "user" 
                   ? "bg-blue-500 text-white" 
                   : "bg-gray-200 text-gray-900"
@@ -199,21 +199,21 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
           {showSuggestedQuestions && (
             <div className="flex justify-start">
               <div className={cn(
-                "max-w-[80%] rounded-2xl bg-gray-200 text-gray-900",
-                isMobile ? "px-4 py-3" : "px-5 py-4"
+                "max-w-[80%] rounded-xl bg-gray-200 text-gray-900",
+                isMobile ? "px-3 py-2" : "px-4 py-3"
               )}>
-                <div className={cn("text-gray-900 mb-3", isMobile ? "text-sm" : "text-base")}>
+                <div className={cn("text-gray-900 mb-2", isMobile ? "text-xs" : "text-sm")}>
                   Выберите популярный вопрос:
                 </div>
                 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1">
                   {suggestedQuestions.map((question, index) => (
                     <button
                       key={index}
                       onClick={() => handleSuggestedQuestion(question)}
                       className={cn(
                         "bg-gray-100 hover:bg-gray-300 text-gray-800 rounded-full transition-colors duration-200",
-                        isMobile ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm"
+                        isMobile ? "px-2 py-1 text-xs" : "px-3 py-1.5 text-xs"
                       )}
                     >
                       {question}
@@ -227,12 +227,12 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
           {isProcessing && (
             <div className="flex justify-start">
               <div className={cn(
-                "max-w-[80%] rounded-2xl bg-gray-200 text-gray-900",
-                isMobile ? "px-4 py-3" : "px-5 py-4"
+                "max-w-[80%] rounded-xl bg-gray-200 text-gray-900",
+                isMobile ? "px-3 py-2" : "px-4 py-3"
               )}>
                 <div className="flex items-center gap-2 text-blue-600">
-                  <Loader2 className={cn("animate-spin", isMobile ? "h-4 w-4" : "h-4 w-4")} />
-                  <span className={cn(isMobile ? "text-sm" : "text-base")}>
+                  <Loader2 className={cn("animate-spin", isMobile ? "h-3 w-3" : "h-3 w-3")} />
+                  <span className={cn(isMobile ? "text-xs" : "text-sm")}>
                     Анализирую...
                   </span>
                 </div>
@@ -247,10 +247,10 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
       {/* Input Area - Clean Design */}
       <div className={cn(
         "bg-gray-50 safe-area-pb",
-        isMobile ? "px-4 py-3" : "px-6 py-4"
+        isMobile ? "px-3 py-2" : "px-4 py-3"
       )}>
         <div className="max-w-4xl mx-auto">
-          <div className="flex gap-3 items-center">
+          <div className="flex gap-2 items-center">
             <div className="flex-1 min-w-0">
               <textarea
                 ref={textareaRef}
@@ -262,14 +262,14 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
                 className={cn(
                   "w-full resize-none bg-gray-100 placeholder:text-gray-500 overflow-hidden focus:outline-none focus:bg-gray-200 border-0 transition-all duration-200",
                   isMobile 
-                    ? "min-h-[44px] px-4 py-3 text-sm rounded-2xl" 
-                    : "min-h-[48px] px-5 py-3 text-base rounded-2xl"
+                    ? "min-h-[36px] px-3 py-2 text-sm rounded-xl" 
+                    : "min-h-[40px] px-4 py-2.5 text-sm rounded-xl"
                 )}
                 style={{ 
                   lineHeight: '1.5',
                   wordBreak: 'break-word',
                   overflowWrap: 'break-word',
-                  maxHeight: isMobile ? '80px' : '100px'
+                  maxHeight: isMobile ? '60px' : '80px'
                 }}
                 rows={1}
               />
@@ -280,14 +280,14 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
               className={cn(
                 "flex-shrink-0 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 transition-all duration-200 flex items-center justify-center border-0 outline-0 rounded-full",
                 isMobile 
-                  ? "h-[44px] w-[44px]" 
-                  : "h-[48px] w-[48px]"
+                  ? "h-[36px] w-[36px]" 
+                  : "h-[40px] w-[40px]"
               )}
             >
               {isProcessing ? (
-                <Loader2 className={cn("animate-spin text-white", isMobile ? "h-5 w-5" : "h-5 w-5")} />
+                <Loader2 className={cn("animate-spin text-white", isMobile ? "h-4 w-4" : "h-4 w-4")} />
               ) : (
-                <Send className={cn("text-white", isMobile ? "h-5 w-5" : "h-5 w-5")} />
+                <Send className={cn("text-white", isMobile ? "h-4 w-4" : "h-4 w-4")} />
               )}
             </button>
           </div>
