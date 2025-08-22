@@ -2,9 +2,9 @@ import React from 'react';
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
-import { HealthLayout, HealthHeader, HealthSection } from '@/design-system/components/HealthLayout';
-import { MetricCard } from '@/design-system/components/HealthMetrics';
-import { Heart, Activity, TrendingUp, Calendar, Target } from 'lucide-react';
+import { NewCard, NewCardHeader, NewCardTitle, NewCardContent } from '@/components/ui/new-card';
+import { NewButton } from '@/components/ui/new-button';
+import { Heart, Activity, TrendingUp, Calendar, Target, Sparkles } from 'lucide-react';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -70,55 +70,78 @@ const DashboardPage = () => {
 
   return (
     <AppLayout>
-      <HealthLayout variant="gradient" padding="lg">
-        {/* EVA Health Header */}
-        <HealthHeader
-          title={`Добро пожаловать, ${userName}!`}
-          subtitle="Управляйте своим здоровьем с помощью ИИ-платформы"
-          avatar={
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-eva-primary to-eva-accent flex items-center justify-center">
-              <Heart className="w-6 h-6 text-white" />
-            </div>
-          }
-        />
-
-        {isMobile ? (
-          // Мобильная версия с EVA layout
-          <div className="space-y-6">
-            {/* 1. Мои цели */}
-            <MyGoalsSection />
-
-            {/* 2. Быстрые действия */}
-            <DashboardQuickActionsGrid />
-
-            {/* 3. ИИ-предикты рисков заболеваний и Топ-5 критических биомаркеров */}
-            <PriorityMetricsSection />
-
-            {/* 4. Истории чатов с ИИ */}
-            <DashboardChatsList />
-          </div>
-        ) : (
-          // Десктопная версия с EVA layout
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Левая колонка - Быстрые действия */}
-            <div className="lg:col-span-2 space-y-8">
-              <DashboardQuickActionsGrid />
-
-              {/* Приоритетные метрики */}
-              <PriorityMetricsSection />
-            </div>
-
-            {/* Правая колонка - Данные здоровья */}
-            <div className="space-y-8">
-              {/* Мои цели */}
-              <MyGoalsSection />
-
-              {/* Истории чатов с ИИ */}
-              <DashboardChatsList />
+      <div className="min-h-screen bg-background">
+        {/* НОВЫЙ HEADER С GLASSMORPHISM */}
+        <div className="relative overflow-hidden">
+          {/* Gradient Background */}
+          <div className="absolute inset-0 gradient-primary opacity-10"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary opacity-5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-accent opacity-5 rounded-full blur-3xl"></div>
+          
+          <div className="relative px-6 py-12 md:px-8 lg:px-12">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  {/* Avatar с новым дизайном */}
+                  <div className="w-16 h-16 rounded-2xl gradient-primary p-0.5 shadow-glow-primary">
+                    <div className="w-full h-full bg-surface rounded-2xl flex items-center justify-center">
+                      <Heart className="w-8 h-8 text-primary" />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h1 className="text-4xl font-bold text-gradient-primary">
+                      Добро пожаловать, {userName}!
+                    </h1>
+                    <p className="text-lg text-foreground-medium mt-2">
+                      Управляйте своим здоровьем с помощью ИИ-платформы
+                    </p>
+                  </div>
+                </div>
+                
+                <NewButton 
+                  variant="glass" 
+                  size="lg"
+                  leftIcon={<Sparkles className="w-5 h-5" />}
+                  className="shadow-glow-primary"
+                >
+                  ИИ Анализ
+                </NewButton>
+              </div>
             </div>
           </div>
-        )}
-      </HealthLayout>
+        </div>
+
+        {/* ОСНОВНОЙ КОНТЕНТ */}
+        <div className="px-6 py-8 md:px-8 lg:px-12">
+          <div className="max-w-7xl mx-auto">
+            {isMobile ? (
+              // Мобильная версия
+              <div className="space-y-8">
+                <MyGoalsSection />
+                <DashboardQuickActionsGrid />
+                <PriorityMetricsSection />
+                <DashboardChatsList />
+              </div>
+            ) : (
+              // Десктопная версия с новым layout
+              <div className="grid grid-cols-12 gap-8">
+                {/* Левая колонка - 8 columns */}
+                <div className="col-span-8 space-y-8">
+                  <DashboardQuickActionsGrid />
+                  <PriorityMetricsSection />
+                </div>
+
+                {/* Правая колонка - 4 columns */}
+                <div className="col-span-4 space-y-8">
+                  <MyGoalsSection />
+                  <DashboardChatsList />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </AppLayout>
   );
 };

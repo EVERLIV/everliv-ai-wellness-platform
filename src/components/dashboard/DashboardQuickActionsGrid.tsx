@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EVAButton } from '@/design-system/components/EVAButton';
-import { HealthMetricsGrid, HealthSection } from '@/design-system/components/HealthLayout';
+import { NewCard } from '@/components/ui/new-card';
 import { 
   MessageSquare, 
   User, 
@@ -29,85 +28,98 @@ const DashboardQuickActionsGrid: React.FC = () => {
       title: 'ИИ Доктор',
       description: 'Персональная консультация',
       path: '/ai-doctor',
-      variant: 'primary' as const
+      gradient: 'gradient-primary',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary'
     },
     {
       icon: Heart,
       title: 'Профиль здоровья',
       description: 'Управление данными',
       path: '/health-profile',
-      variant: 'danger' as const
+      gradient: 'gradient-secondary',
+      iconBg: 'bg-error/10',
+      iconColor: 'text-error'
     },
     {
       icon: BarChart3,
       title: 'Аналитика',
       description: 'Отчеты и тренды',
       path: '/analytics',
-      variant: 'success' as const
+      gradient: 'gradient-accent',
+      iconBg: 'bg-success/10',
+      iconColor: 'text-success'
     },
     {
       icon: TestTube,
       title: 'Лабораторные анализы',
       description: 'Результаты тестов',
       path: '/lab-analyses',
-      variant: 'secondary' as const
+      gradient: 'gradient-secondary',
+      iconBg: 'bg-secondary/10',
+      iconColor: 'text-secondary'
     },
     {
       icon: Activity,
       title: 'Мои биомаркеры',
       description: 'Динамика показателей',
       path: '/my-biomarkers',
-      variant: 'primary' as const
+      gradient: 'gradient-primary',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary'
     },
     {
       icon: BookOpen,
       title: 'База знаний',
       description: 'Медицинская информация',
       path: '/medical-knowledge',
-      variant: 'secondary' as const
+      gradient: 'gradient-accent',
+      iconBg: 'bg-accent/10',
+      iconColor: 'text-accent'
     }
   ];
 
   return (
-    <HealthSection 
-      title="Быстрые действия" 
-      background="surface"
-      className="eva-mobile-section"
-    >
-      <HealthMetricsGrid 
-        layout={isMobile ? "1x3" : "2x3"} 
-        className={isMobile ? "gap-3" : "gap-4"}
-      >
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-semibold text-foreground mb-2">
+          Быстрые действия
+        </h2>
+        <p className="text-foreground-medium">
+          Основные функции платформы здоровья
+        </p>
+      </div>
+      
+      <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-2 lg:grid-cols-3 gap-6'}`}>
         {actions.map((action) => (
-          <div
+          <NewCard
             key={action.path}
-            className="group cursor-pointer"
+            variant="glass"
+            hover="lift"
+            className="group cursor-pointer transition-all duration-300 hover:shadow-glow-primary"
             onClick={() => navigate(action.path)}
           >
-            <div className="bg-eva-surface border border-neutral-200 rounded-2xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 eva-touch-target">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-xl bg-eva-primary/10 flex items-center justify-center group-hover:bg-eva-primary/20 transition-colors">
-                      <action.icon className="h-5 w-5 text-eva-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-eva-text-primary text-sm truncate group-hover:text-eva-primary transition-colors">
-                        {action.title}
-                      </h4>
-                      <p className="text-eva-text-secondary text-xs leading-tight truncate">
-                        {action.description}
-                      </p>
-                    </div>
-                  </div>
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className={`w-12 h-12 rounded-xl ${action.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                  <action.icon className={`w-6 h-6 ${action.iconColor}`} />
                 </div>
-                <ChevronRight className="h-4 w-4 text-eva-text-muted group-hover:text-eva-primary transition-colors flex-shrink-0" />
+                <ChevronRight className="w-5 h-5 text-foreground-light group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors duration-300 mb-2">
+                  {action.title}
+                </h3>
+                <p className="text-foreground-medium text-sm leading-relaxed">
+                  {action.description}
+                </p>
               </div>
             </div>
-          </div>
+          </NewCard>
         ))}
-      </HealthMetricsGrid>
-    </HealthSection>
+      </div>
+    </div>
   );
 };
 

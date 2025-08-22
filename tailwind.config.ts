@@ -36,89 +36,133 @@ export default {
 		},
 		extend: {
 			colors: {
-				border: 'hsl(var(--border))',
-				input: 'hsl(var(--input))',
-				ring: 'hsl(var(--ring))',
-				background: 'hsl(var(--background))',
-				foreground: 'hsl(var(--foreground))',
+				// Новая цветовая палитра
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					dark: 'hsl(var(--primary-dark))',
+					light: 'hsl(var(--primary-light))',
+					'ultra-light': 'hsl(var(--primary-ultra-light))',
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
-				},
-				destructive: {
-					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
-				},
-				muted: {
-					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))'
+					dark: 'hsl(var(--secondary-dark))',
+					light: 'hsl(var(--secondary-light))',
+					'ultra-light': 'hsl(var(--secondary-ultra-light))',
 				},
 				accent: {
 					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
+					dark: 'hsl(var(--accent-dark))',
+					light: 'hsl(var(--accent-light))',
 				},
-				popover: {
-					DEFAULT: 'hsl(var(--popover))',
-					foreground: 'hsl(var(--popover-foreground))'
+				background: 'hsl(var(--background))',
+				foreground: {
+					DEFAULT: 'hsl(var(--foreground))',
+					medium: 'hsl(var(--foreground-medium))',
+					light: 'hsl(var(--foreground-light))',
+					'ultra-light': 'hsl(var(--foreground-ultra-light))',
 				},
-				card: {
-					DEFAULT: 'hsl(var(--card))',
-					foreground: 'hsl(var(--card-foreground))'
+				surface: {
+					DEFAULT: 'hsl(var(--surface))',
+					elevated: 'hsl(var(--surface-elevated))',
+					glass: 'hsl(var(--surface-glass))',
 				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--background))',
-					foreground: 'hsl(var(--foreground))',
-					primary: 'hsl(var(--primary))',
-					'primary-foreground': 'hsl(var(--primary-foreground))',
-					accent: 'hsl(var(--accent))',
-					'accent-foreground': 'hsl(var(--accent-foreground))',
-					border: 'hsl(var(--border))',
-					ring: 'hsl(var(--ring))'
+				border: {
+					DEFAULT: 'hsl(var(--border))',
+					medium: 'hsl(var(--border-medium))',
+					strong: 'hsl(var(--border-strong))',
 				},
-				// EVA Health App colors
-				eva: {
-					primary: 'hsl(var(--eva-primary))',
-					'primary-dark': 'hsl(var(--eva-primary-dark))',
-					'primary-light': 'hsl(var(--eva-primary-light))',
-					critical: 'hsl(var(--eva-critical))',
-					warning: 'hsl(var(--eva-warning))',
-					normal: 'hsl(var(--eva-normal))',
-					optimal: 'hsl(var(--eva-optimal))',
-					background: 'hsl(var(--eva-background))',
-					surface: 'hsl(var(--eva-surface))',
-					accent: 'hsl(var(--eva-accent))',
-					'text-primary': 'hsl(var(--eva-text-primary))',
-					'text-secondary': 'hsl(var(--eva-text-secondary))',
-					'text-muted': 'hsl(var(--eva-text-muted))',
+				// Семантические цвета
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					light: 'hsl(var(--success-light))',
 				},
-				// Legacy brand colors for compatibility
-				brand: {
-					primary: 'hsl(var(--brand-primary))',
-					'primary-dark': 'hsl(var(--brand-primary-dark))',
-					'primary-light': 'hsl(var(--brand-primary-light))',
-					secondary: 'hsl(var(--brand-secondary))',
-					accent: 'hsl(var(--brand-accent))',
-					warning: 'hsl(var(--brand-warning))',
-					success: 'hsl(var(--brand-success))',
-					error: 'hsl(var(--brand-error))',
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					light: 'hsl(var(--warning-light))',
 				},
-				// Neutral palette
-				neutral: {
-					50: 'hsl(var(--neutral-50))',
-					100: 'hsl(var(--neutral-100))',
-					200: 'hsl(var(--neutral-200))',
-					300: 'hsl(var(--neutral-300))',
-					400: 'hsl(var(--neutral-400))',
-					500: 'hsl(var(--neutral-500))',
-					600: 'hsl(var(--neutral-600))',
-					700: 'hsl(var(--neutral-700))',
-					800: 'hsl(var(--neutral-800))',
-					900: 'hsl(var(--neutral-900))',
+				error: {
+					DEFAULT: 'hsl(var(--error))',
+					light: 'hsl(var(--error-light))',
 				},
+				info: {
+					DEFAULT: 'hsl(var(--info))',
+					light: 'hsl(var(--info-light))',
+				},
+			},
+			fontFamily: {
+				sans: ['var(--font-sans)'],
+				mono: ['var(--font-mono)'],
+			},
+			fontSize: {
+				xs: 'var(--text-xs)',
+				sm: 'var(--text-sm)',
+				base: 'var(--text-base)',
+				md: 'var(--text-md)',
+				lg: 'var(--text-lg)',
+				xl: 'var(--text-xl)',
+				'2xl': 'var(--text-2xl)',
+				'3xl': 'var(--text-3xl)',
+				'4xl': 'var(--text-4xl)',
+				'5xl': 'var(--text-5xl)',
+				'6xl': 'var(--text-6xl)',
+			},
+			fontWeight: {
+				light: 'var(--font-light)',
+				normal: 'var(--font-normal)',
+				medium: 'var(--font-medium)',
+				semibold: 'var(--font-semibold)',
+				bold: 'var(--font-bold)',
+				extrabold: 'var(--font-extrabold)',
+			},
+			lineHeight: {
+				none: 'var(--leading-none)',
+				tight: 'var(--leading-tight)',
+				snug: 'var(--leading-snug)',
+				normal: 'var(--leading-normal)',
+				relaxed: 'var(--leading-relaxed)',
+				loose: 'var(--leading-loose)',
+			},
+			spacing: {
+				xs: 'var(--space-xs)',
+				sm: 'var(--space-sm)',
+				1: 'var(--space-1)',
+				1.5: 'var(--space-1-5)',
+				2: 'var(--space-2)',
+				2.5: 'var(--space-2-5)',
+				3: 'var(--space-3)',
+				4: 'var(--space-4)',
+				5: 'var(--space-5)',
+				6: 'var(--space-6)',
+				8: 'var(--space-8)',
+				10: 'var(--space-10)',
+				12: 'var(--space-12)',
+				16: 'var(--space-16)',
+			},
+			borderRadius: {
+				xs: 'var(--radius-xs)',
+				sm: 'var(--radius-sm)',
+				DEFAULT: 'var(--radius-md)',
+				md: 'var(--radius-md)',
+				lg: 'var(--radius-lg)',
+				xl: 'var(--radius-xl)',
+				'2xl': 'var(--radius-2xl)',
+				'3xl': 'var(--radius-3xl)',
+				full: 'var(--radius-full)',
+			},
+			boxShadow: {
+				xs: 'var(--shadow-xs)',
+				sm: 'var(--shadow-sm)',
+				DEFAULT: 'var(--shadow-md)',
+				md: 'var(--shadow-md)',
+				lg: 'var(--shadow-lg)',
+				xl: 'var(--shadow-xl)',
+				'2xl': 'var(--shadow-2xl)',
+				'glow-primary': 'var(--glow-primary)',
+				'glow-secondary': 'var(--glow-secondary)',
+				'glow-accent': 'var(--glow-accent)',
+			},
+			backdropBlur: {
+				glass: '12px',
 			},
 			spacing: {
 				'xs': '0.5rem',    // 8px
