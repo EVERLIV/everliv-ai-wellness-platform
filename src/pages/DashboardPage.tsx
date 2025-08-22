@@ -19,15 +19,15 @@ const DashboardPage = () => {
 
   return (
     <AppLayout>
-      {/* Современный фон с градиентом */}
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
-        {/* Hero Section */}
-        <div className="w-full">
+      {/* Чистый фон без градиентов */}
+      <div className="min-h-screen bg-slate-50">
+        {/* Hero Section - простой заголовок */}
+        <div className="w-full bg-white">
           <LifestyleHero userName={userName} />
         </div>
         
         {/* Основной контент */}
-        <div className="w-full py-8">
+        <div className="w-full py-6">
           {isMobile ? (
             // Мобильная версия - компактный стек
             <div className="space-y-3">
