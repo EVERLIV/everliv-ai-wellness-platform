@@ -175,127 +175,66 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         "flex-1 overflow-y-auto scroll-smooth bg-gray-50",
         isMobile ? "px-4 py-4" : "px-6 py-6"
       )}>
-        <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="space-y-3 max-w-4xl mx-auto">
           {messages.map((message) => (
-            <div key={message.id} className="flex items-start gap-3">
+            <div key={message.id} className={cn(
+              "flex",
+              message.role === "user" ? "justify-end" : "justify-start"
+            )}>
               <div className={cn(
-                "flex-shrink-0 rounded-full flex items-center justify-center",
-                isMobile ? "w-8 h-8" : "w-9 h-9",
+                "max-w-[80%] rounded-2xl",
+                isMobile ? "px-4 py-3 text-sm" : "px-5 py-4 text-base",
                 message.role === "user" 
-                  ? "bg-gray-200 text-gray-600" 
-                  : "bg-blue-500 text-white"
+                  ? "bg-blue-500 text-white" 
+                  : "bg-gray-200 text-gray-900"
               )}>
-                {message.role === "user" ? (
-                  <User className={cn(isMobile ? "h-4 w-4" : "h-4 w-4")} />
-                ) : (
-                  <Stethoscope className={cn(isMobile ? "h-4 w-4" : "h-4 w-4")} />
-                )}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={cn("font-medium text-gray-900", isMobile ? "text-sm" : "text-base")}>
-                    {message.role === "user" ? "Вы" : "ИИ-Доктор"}
-                  </span>
-                  <span className={cn("text-gray-500", isMobile ? "text-xs" : "text-sm")}>
-                    {message.timestamp.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-                
-                <div className={cn(
-                  "rounded-2xl",
-                  isMobile ? "p-3" : "p-4",
-                  message.role === "user" 
-                    ? "bg-gray-100 text-gray-900" 
-                    : "bg-white text-gray-900"
-                )}>
-                  <div className={cn(
-                    "leading-relaxed whitespace-pre-wrap",
-                    isMobile ? "text-sm" : "text-base"
-                  )}>
-                    {message.content}
-                  </div>
+                <div className="leading-relaxed whitespace-pre-wrap">
+                  {message.content}
                 </div>
               </div>
             </div>
           ))}
           
-          {/* Suggested Questions - Integrated seamlessly */}
+          {/* Suggested Questions */}
           {showSuggestedQuestions && (
-            <div className="flex items-start gap-3">
+            <div className="flex justify-start">
               <div className={cn(
-                "flex-shrink-0 rounded-full flex items-center justify-center bg-blue-500 text-white",
-                isMobile ? "w-8 h-8" : "w-9 h-9"
+                "max-w-[80%] rounded-2xl bg-gray-200 text-gray-900",
+                isMobile ? "px-4 py-3" : "px-5 py-4"
               )}>
-                <Stethoscope className={cn(isMobile ? "h-4 w-4" : "h-4 w-4")} />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={cn("font-medium text-gray-900", isMobile ? "text-sm" : "text-base")}>
-                    ИИ-Доктор
-                  </span>
+                <div className={cn("text-gray-900 mb-3", isMobile ? "text-sm" : "text-base")}>
+                  Выберите популярный вопрос:
                 </div>
                 
-                <div className={cn(
-                  "rounded-2xl bg-white",
-                  isMobile ? "p-3" : "p-4"
-                )}>
-                  <div className={cn("text-gray-900 mb-4", isMobile ? "text-sm" : "text-base")}>
-                    Выберите популярный вопрос:
-                  </div>
-                  
-                  <div className={cn(
-                    "flex flex-wrap gap-2",
-                    isMobile ? "gap-2" : "gap-2"
-                  )}>
-                    {suggestedQuestions.map((question, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleSuggestedQuestion(question)}
-                        className={cn(
-                          "bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-full transition-colors duration-200",
-                          isMobile ? "px-3 py-2 text-xs" : "px-4 py-2 text-sm"
-                        )}
-                      >
-                        {question}
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex flex-wrap gap-2">
+                  {suggestedQuestions.map((question, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleSuggestedQuestion(question)}
+                      className={cn(
+                        "bg-gray-100 hover:bg-gray-300 text-gray-800 rounded-full transition-colors duration-200",
+                        isMobile ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm"
+                      )}
+                    >
+                      {question}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
           )}
           
           {isProcessing && (
-            <div className="flex items-start gap-3">
+            <div className="flex justify-start">
               <div className={cn(
-                "flex-shrink-0 rounded-full flex items-center justify-center bg-blue-500 text-white",
-                isMobile ? "w-8 h-8" : "w-9 h-9"
+                "max-w-[80%] rounded-2xl bg-gray-200 text-gray-900",
+                isMobile ? "px-4 py-3" : "px-5 py-4"
               )}>
-                <Stethoscope className={cn(isMobile ? "h-4 w-4" : "h-4 w-4")} />
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={cn("font-medium text-gray-900", isMobile ? "text-sm" : "text-base")}>
-                    ИИ-Доктор
+                <div className="flex items-center gap-2 text-blue-600">
+                  <Loader2 className={cn("animate-spin", isMobile ? "h-4 w-4" : "h-4 w-4")} />
+                  <span className={cn(isMobile ? "text-sm" : "text-base")}>
+                    Анализирую...
                   </span>
-                </div>
-                
-                <div className={cn(
-                  "rounded-2xl bg-white",
-                  isMobile ? "p-3" : "p-4"
-                )}>
-                  <div className="flex items-center gap-2 text-blue-600">
-                    <Loader2 className={cn("animate-spin", isMobile ? "h-4 w-4" : "h-4 w-4")} />
-                    <span className={cn(isMobile ? "text-sm" : "text-base")}>
-                      Анализирую...
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -311,7 +250,7 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         isMobile ? "px-4 py-3" : "px-6 py-4"
       )}>
         <div className="max-w-4xl mx-auto">
-          <div className="flex gap-2 items-end">
+          <div className="flex gap-3 items-end">
             <div className="flex-1 min-w-0">
               <textarea
                 ref={textareaRef}
@@ -339,10 +278,10 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
               onClick={handleSubmit}
               disabled={!inputText.trim() || isProcessing}
               className={cn(
-                "flex-shrink-0 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 transition-all duration-200 flex items-center justify-center border-0 outline-0",
+                "flex-shrink-0 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 transition-all duration-200 flex items-center justify-center border-0 outline-0 rounded-full",
                 isMobile 
-                  ? "h-[44px] w-[44px] rounded-xl" 
-                  : "h-[48px] w-[48px] rounded-xl"
+                  ? "h-[44px] w-[44px]" 
+                  : "h-[48px] w-[48px]"
               )}
             >
               {isProcessing ? (
