@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { MessageSquare, Bot, Clock, ArrowRight, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSecureAIDoctor } from '@/hooks/useSecureAIDoctor';
@@ -136,103 +137,82 @@ const DashboardChatsList: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Card className="shadow-sm border-gray-200/80">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-gray-900">
-            <MessageSquare className="h-5 w-5 text-purple-600" />
-            <span className="text-lg font-semibold">Последние чаты</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="animate-pulse space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="p-3 bg-gray-100 rounded-lg">
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded"></div>
-              </div>
-            ))}
+      <Card className="p-2 border-none shadow-none">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-5 h-5 bg-gradient-to-br from-brand-accent/20 to-brand-accent/10 rounded-md flex items-center justify-center">
+            <MessageSquare className="h-3 w-3 text-brand-accent" />
           </div>
-        </CardContent>
+          <h3 className="text-sm font-semibold text-foreground">Истории чатов с ИИ</h3>
+        </div>
+        <div className="animate-pulse space-y-1">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="p-2 bg-gray-100 rounded-lg">
+              <div className="h-3 bg-gray-200 rounded mb-1"></div>
+              <div className="h-2 bg-gray-200 rounded"></div>
+            </div>
+          ))}
+        </div>
       </Card>
     );
   }
 
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-card via-neutral-50/30 to-card border-0 transition-all duration-300 animate-fade-in">
-      <div className="absolute inset-0 bg-gradient-glass"></div>
-      <CardHeader className="relative pb-3">
-        <CardTitle className="flex items-center gap-3 text-foreground">
-          <div className="p-2 bg-gradient-to-br from-brand-accent/20 to-brand-accent/10 rounded-lg">
-            <MessageSquare className="h-4 w-4 text-brand-accent" />
-          </div>
-          <span className="text-base font-semibold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-            Истории чатов с ИИ
-          </span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="relative space-y-3">
-        {recentChats.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-brand-accent/10 to-brand-accent/5 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MessageSquare className="h-8 w-8 text-brand-accent/60" />
-            </div>
-            <h3 className="text-sm font-semibold text-foreground mb-2">Нет чатов с ИИ доктором</h3>
-            <p className="text-xs text-muted-foreground mb-4">Начните персональную консультацию с ИИ</p>
-            <Button 
-              size="sm" 
-              onClick={() => navigate('/ai-doctor/personal')}
-              className="bg-gradient-to-r from-brand-accent to-brand-accent/80 text-white transition-all duration-300 hover:scale-105"
+    <Card className="p-2 border-none shadow-none">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-5 h-5 bg-gradient-to-br from-brand-accent/20 to-brand-accent/10 rounded-md flex items-center justify-center">
+          <MessageSquare className="h-3 w-3 text-brand-accent" />
+        </div>
+        <h3 className="text-sm font-semibold text-foreground">Истории чатов с ИИ</h3>
+      </div>
+      
+      {recentChats.length === 0 ? (
+        <div className="text-center py-3">
+          <MessageSquare className="h-5 w-5 text-brand-accent mx-auto mb-1" />
+          <p className="text-xs text-neutral-600">Нет чатов</p>
+        </div>
+      ) : (
+        <Accordion type="single" collapsible className="space-y-1">
+          {recentChats.map((chat, index) => (
+            <AccordionItem 
+              key={chat.id} 
+              value={`chat-${index}`}
+              className="bg-white/80 rounded-lg border-none shadow-none"
             >
-              <Plus className="h-3 w-3 mr-2" />
-              Начать консультацию
-            </Button>
-          </div>
-        ) : (
-          <>
-            {recentChats.map((chat, index) => (
-              <div
-                key={chat.id}
-                className="p-3 bg-white/80 rounded-xl hover:bg-white/90 transition-all duration-300 cursor-pointer hover:scale-[1.01]"
-                onClick={() => handleChatClick(chat.id)}
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <Bot className="h-3 w-3 text-brand-accent flex-shrink-0" />
-                    <h4 className="font-semibold text-foreground text-sm truncate">
+              <AccordionTrigger className="px-2 py-2 hover:no-underline">
+                <div className="flex justify-between items-center w-full">
+                  <div className="flex items-center gap-2">
+                    <Bot className="h-4 w-4 text-brand-accent" />
+                    <h5 className="text-xs font-semibold text-foreground truncate max-w-[120px]">
                       {chat.title}
-                    </h4>
+                    </h5>
                   </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ml-2 ${getTypeColor(chat.type)}`}>
+                  <span className={`px-1.5 py-0.5 rounded-full text-xs font-semibold mr-2 ${getTypeColor(chat.type)}`}>
                     {getTypeLabel(chat.type)}
                   </span>
                 </div>
-                
-                <p className="text-xs text-muted-foreground mb-3 line-clamp-2 leading-relaxed pl-6">
-                  {chat.lastMessage}
-                </p>
-                
-                <div className="flex items-center justify-between pl-6">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    <span>{chat.timestamp}</span>
+              </AccordionTrigger>
+              <AccordionContent className="px-2 pb-2">
+                <div className="space-y-2">
+                  <p className="text-xs text-slate-700">
+                    <strong>Последнее сообщение:</strong> {chat.lastMessage}
+                  </p>
+                  <p className="text-xs text-slate-600">
+                    <strong>Время:</strong> {chat.timestamp}
+                  </p>
+                  <div className="mt-2 pt-2">
+                    <button 
+                      onClick={() => handleChatClick(chat.id)}
+                      className="text-xs text-brand-accent font-semibold hover:text-brand-accent-dark transition-colors"
+                    >
+                      Открыть чат →
+                    </button>
                   </div>
-                  <ArrowRight className="h-3 w-3 text-brand-accent" />
                 </div>
-              </div>
-            ))}
-            
-            <Button 
-              variant="outline" 
-              className="w-full mt-4 border-brand-accent/30 text-brand-accent hover:bg-brand-accent/10 hover:border-brand-accent/50 transition-all duration-300"
-              onClick={() => navigate('/ai-doctor/personal')}
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Все чаты с ИИ доктором
-            </Button>
-          </>
-        )}
-      </CardContent>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      )}
     </Card>
   );
 };
