@@ -182,7 +182,9 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
 
           {/* Form Content */}
           <div className="px-5">
-            {currentStepData.component}
+            <div className="space-y-6">
+              {currentStepData.component}
+            </div>
           </div>
         </div>
 
