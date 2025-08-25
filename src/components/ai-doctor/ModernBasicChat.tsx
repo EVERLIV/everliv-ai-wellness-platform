@@ -260,17 +260,17 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
       {/* Suggested Questions */}
       {showSuggestedQuestions && (
         <div className={cn(
-          "bg-white border-t border-gray-200",
-          isMobile ? "px-4 py-3" : "px-6 py-4"
+          "bg-white",
+          isMobile ? "px-4 py-2" : "px-6 py-3"
         )}>
-          <div className="flex flex-wrap gap-2 justify-center">
+          <div className="flex flex-wrap gap-1.5 justify-center">
             {suggestedQuestions.map((question, index) => (
               <button
                 key={index}
                 onClick={() => handleSuggestedQuestion(question)}
                 className={cn(
                   "bg-gradient-to-r from-purple-100 to-blue-100 hover:from-purple-200 hover:to-blue-200 text-purple-700 border border-purple-200 hover:border-purple-300 rounded-full transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 touch-manipulation",
-                  isMobile ? "px-4 py-2 text-sm" : "px-5 py-2.5 text-sm"
+                  isMobile ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-xs"
                 )}
               >
                 {question}
@@ -282,10 +282,10 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
 
       {/* Input Area - Modern Mobile Design */}
       <div className={cn(
-        "bg-white border-t border-gray-200 safe-area-pb",
+        "bg-white safe-area-pb",
         isMobile ? "px-4 py-3" : "px-6 py-4"
       )}>
-        <div className="flex gap-3 items-end">
+        <div className="flex gap-3 items-center">
           <div className="flex-1 min-w-0">
             <textarea
               ref={textareaRef}
