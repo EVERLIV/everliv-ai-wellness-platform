@@ -339,103 +339,133 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
       {/* Suggested Questions */}
       {showSuggestedQuestions && (
         <div className={cn(
-          "bg-white",
-          isMobile ? "px-4 py-2" : "px-6 py-3"
+          "bg-white/95 backdrop-blur-sm",
+          isMobile ? "px-4 py-4" : "px-6 py-6"
         )}>
-          <div className="flex flex-wrap gap-1.5 justify-center">
+          <div className="flex flex-wrap gap-3 justify-center">
             {suggestedQuestions.map((question, index) => (
               <button
                 key={index}
                 onClick={() => handleSuggestedQuestion(question)}
                 className={cn(
-                  "bg-gradient-to-r from-purple-100 to-blue-100 hover:from-purple-200 hover:to-blue-200 text-purple-700 border border-purple-200 hover:border-purple-300 rounded-full transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 touch-manipulation",
-                  isMobile ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-xs"
+                  "relative overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 hover:from-blue-100 hover:via-purple-100 hover:to-pink-100 text-purple-700 border border-purple-200/50 hover:border-purple-300 rounded-2xl transition-all duration-300 shadow-sm hover:shadow-lg transform hover:scale-105 active:scale-95 hover:-translate-y-1 touch-manipulation font-medium",
+                  isMobile ? "px-4 py-3 text-sm" : "px-5 py-3 text-sm"
                 )}
+                style={{
+                  background: 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)',
+                  boxShadow: '0 2px 8px rgba(123, 31, 162, 0.08), 0 1px 2px rgba(123, 31, 162, 0.12)'
+                }}
               >
-                {question}
+                <span className="relative z-10">🩺 {question}</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500"></div>
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {/* Input Area - Modern Mobile Design */}
+      {/* Input Area - Modern Design with White Container */}
       <div className={cn(
-        "bg-white safe-area-pb",
-        isMobile ? "px-4 py-3" : "px-6 py-4"
+        "bg-white/95 backdrop-blur-sm border-t border-gray-100 safe-area-pb",
+        isMobile ? "px-4 py-4" : "px-6 py-6"
       )}>
+        {/* Typing indicator */}
+        {isProcessing && (
+          <div className="flex items-center gap-2 mb-3 text-gray-500 text-sm">
+            <span>Доктор печатает</span>
+            <div className="flex gap-1">
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+            </div>
+          </div>
+        )}
+
         <div className="relative">
-          {/* Input container with embedded icons */}
-          <div className="relative bg-gray-100 rounded-full border-0 focus-within:ring-2 focus-within:ring-purple-300 transition-all duration-200 flex items-center">
-            {/* Left icons inside input */}
-            <div className="flex items-center gap-0.5 ml-2 flex-shrink-0">
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-200"
-              >
-                <Paperclip className="h-4 w-4" />
-              </button>
-              
-              <button
-                onClick={isRecording ? stopRecording : startRecording}
-                disabled={isTranscribing}
+          {/* Modern Input Container */}
+          <div 
+            className="relative bg-white rounded-3xl border-2 border-gray-200 focus-within:border-purple-400 transition-all duration-300 focus-within:shadow-lg focus-within:shadow-purple-100/50 focus-within:-translate-y-0.5"
+            style={{
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.08)'
+            }}
+          >
+            <div className="flex items-end p-1.5 gap-2">
+              {/* Left Action Buttons */}
+              <div className="flex gap-1 pb-2">
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-10 h-10 rounded-xl bg-gray-50 hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-all duration-200 flex items-center justify-center hover:scale-105"
+                >
+                  <Paperclip className="h-5 w-5" />
+                </button>
+                
+                <button
+                  onClick={isRecording ? stopRecording : startRecording}
+                  disabled={isTranscribing}
+                  className={cn(
+                    "w-10 h-10 rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105",
+                    isRecording 
+                      ? "bg-red-50 hover:bg-red-100 text-red-500" 
+                      : "bg-gray-50 hover:bg-blue-50 text-gray-600 hover:text-blue-600"
+                  )}
+                >
+                  {isTranscribing ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : isRecording ? (
+                    <MicOff className="h-5 w-5" />
+                  ) : (
+                    <Mic className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+
+              {/* Text Input */}
+              <textarea
+                ref={textareaRef}
+                placeholder={isTranscribing ? "Обрабатываю голос..." : "Опишите ваши симптомы или задайте вопрос..."}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={isProcessing || isRecording}
                 className={cn(
-                  "transition-colors p-1 rounded-full",
-                  isRecording 
-                    ? "text-red-500 hover:text-red-600 hover:bg-red-50" 
-                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-200"
+                  "flex-1 resize-none bg-transparent placeholder:text-gray-400 text-gray-800 overflow-hidden focus:outline-none border-0 transition-all duration-200 touch-manipulation font-normal",
+                  isMobile 
+                    ? "min-h-[40px] px-4 py-3 text-base leading-6" 
+                    : "min-h-[44px] px-4 py-3 text-base leading-6"
                 )}
+                style={{ 
+                  maxHeight: '120px'
+                }}
+                rows={1}
+              />
+
+              {/* Send Button */}
+              <button
+                onClick={handleSubmit}
+                disabled={!inputText.trim() || isProcessing}
+                className={cn(
+                  "flex-shrink-0 mb-1 relative overflow-hidden rounded-2xl transition-all duration-300 flex items-center justify-center border-0 outline-0 shadow-sm hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation",
+                  !inputText.trim() || isProcessing
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-br from-purple-500 via-purple-600 to-blue-600 text-white hover:from-purple-600 hover:to-blue-700",
+                  isMobile 
+                    ? "h-12 w-12" 
+                    : "h-12 w-12"
+                )}
+                style={{
+                  background: !inputText.trim() || isProcessing 
+                    ? '#f3f4f6' 
+                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                }}
               >
-                {isTranscribing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : isRecording ? (
-                  <MicOff className="h-4 w-4" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full hover:translate-x-full transition-transform duration-500"></div>
+                {isProcessing ? (
+                  <Loader2 className="h-6 w-6 animate-spin relative z-10" />
                 ) : (
-                  <Mic className="h-4 w-4" />
+                  <Send className="h-6 w-6 relative z-10" />
                 )}
               </button>
             </div>
-
-            {/* Text input */}
-            <textarea
-              ref={textareaRef}
-              placeholder={isTranscribing ? "Обрабатываю голос..." : "Напишите сообщение..."}
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={isProcessing || isRecording}
-              className={cn(
-                "flex-1 resize-none bg-transparent placeholder:text-gray-500 text-gray-800 overflow-hidden focus:outline-none border-0 transition-all duration-200 touch-manipulation",
-                isMobile 
-                  ? "min-h-[36px] px-2 py-2 text-sm" 
-                  : "min-h-[40px] px-3 py-2.5 text-sm"
-              )}
-              style={{ 
-                lineHeight: '1.4',
-                wordBreak: 'break-word',
-                overflowWrap: 'break-word',
-                maxHeight: isMobile ? '60px' : '70px'
-              }}
-              rows={1}
-            />
-
-            {/* Send button inside input - right side */}
-            <button
-              onClick={handleSubmit}
-              disabled={!inputText.trim() || isProcessing}
-              className={cn(
-                "flex-shrink-0 mr-1.5 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:bg-gray-300 transition-all duration-200 flex items-center justify-center border-0 outline-0 rounded-full shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 touch-manipulation",
-                isMobile 
-                  ? "h-[26px] w-[26px]" 
-                  : "h-[30px] w-[30px]"
-              )}
-            >
-              {isProcessing ? (
-                <Loader2 className="h-3 w-3 animate-spin text-white" />
-              ) : (
-                <Send className="h-3 w-3 text-white" />
-              )}
-            </button>
           </div>
         </div>
 
