@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User, ChevronRight, Grid3X3 } from "lucide-react";
+import { Plus, Sparkles, ArrowLeft, MessageSquare, Send, Loader2, BookOpen, User, ChevronRight, Grid3X3, Mic, MicOff, Paperclip, Camera, Image } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -24,8 +24,13 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const suggestedQuestions = [
     "Анализ крови", 
@@ -137,6 +142,95 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e as any);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: { 
+          sampleRate: 16000,
+          channelCount: 1 
+        } 
+      });
+      
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
+      
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        await transcribeAudio(audioBlob);
+        
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Ошибка доступа к микрофону:', error);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const transcribeAudio = async (audioBlob: Blob) => {
+    setIsTranscribing(true);
+    try {
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      
+      const { data, error } = await supabase.functions.invoke('voice-to-text', {
+        body: { audio: base64Audio }
+      });
+
+      if (error) throw error;
+      
+      if (data.text) {
+        setInputText(prev => prev + (prev ? ' ' : '') + data.text);
+      }
+    } catch (error) {
+      console.error('Ошибка транскрипции:', error);
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Здесь можно добавить логику загрузки файла
+      console.log('Выбран файл:', file.name);
+      
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          // Добавить текст о прикрепленном изображении
+          setInputText(prev => prev + (prev ? '\n' : '') + `[Прикреплено изображение: ${file.name}]`);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+    
+    // Сбросить input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -270,20 +364,54 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         "bg-white safe-area-pb",
         isMobile ? "px-4 py-3" : "px-6 py-4"
       )}>
-        <div className="flex gap-3 items-center">
+        <div className="flex gap-2 items-center">
+          {/* Left actions */}
+          <div className="flex gap-1">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className={cn(
+                "flex-shrink-0 bg-gray-100 hover:bg-gray-200 text-gray-600 transition-all duration-200 flex items-center justify-center border-0 outline-0 rounded-full touch-manipulation",
+                isMobile ? "h-[28px] w-[28px]" : "h-[32px] w-[32px]"
+              )}
+            >
+              <Paperclip className="h-3 w-3" />
+            </button>
+            
+            <button
+              onClick={isRecording ? stopRecording : startRecording}
+              disabled={isTranscribing}
+              className={cn(
+                "flex-shrink-0 transition-all duration-200 flex items-center justify-center border-0 outline-0 rounded-full touch-manipulation",
+                isRecording 
+                  ? "bg-red-500 hover:bg-red-600 text-white" 
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-600",
+                isMobile ? "h-[28px] w-[28px]" : "h-[32px] w-[32px]"
+              )}
+            >
+              {isTranscribing ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : isRecording ? (
+                <MicOff className="h-3 w-3" />
+              ) : (
+                <Mic className="h-3 w-3" />
+              )}
+            </button>
+          </div>
+
+          {/* Text input */}
           <div className="flex-1 min-w-0">
             <textarea
               ref={textareaRef}
-              placeholder="Напишите сообщение..."
+              placeholder={isTranscribing ? "Обрабатываю голос..." : "Напишите сообщение..."}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
-              disabled={isProcessing}
+              disabled={isProcessing || isRecording}
               className={cn(
                 "w-full resize-none bg-gray-100 placeholder:text-gray-500 text-gray-800 overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-300 border-0 transition-all duration-200 touch-manipulation",
                 isMobile 
-                  ? "min-h-[32px] px-3 py-2 text-sm rounded-lg" 
-                  : "min-h-[36px] px-4 py-2 text-sm rounded-lg"
+                  ? "min-h-[28px] px-3 py-1.5 text-sm rounded-lg" 
+                  : "min-h-[32px] px-4 py-2 text-sm rounded-lg"
               )}
               style={{ 
                 lineHeight: '1.3',
@@ -294,23 +422,34 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
               rows={1}
             />
           </div>
+
+          {/* Send button */}
           <button
             onClick={handleSubmit}
             disabled={!inputText.trim() || isProcessing}
             className={cn(
               "flex-shrink-0 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:bg-gray-300 transition-all duration-200 flex items-center justify-center border-0 outline-0 rounded-full shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 touch-manipulation",
               isMobile 
-                ? "h-[32px] w-[32px]" 
-                : "h-[36px] w-[36px]"
+                ? "h-[28px] w-[28px]" 
+                : "h-[32px] w-[32px]"
             )}
           >
             {isProcessing ? (
-              <Loader2 className="h-4 w-4 animate-spin text-white" />
+              <Loader2 className="h-3 w-3 animate-spin text-white" />
             ) : (
-              <Send className="h-4 w-4 text-white" />
+              <Send className="h-3 w-3 text-white" />
             )}
           </button>
         </div>
+
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*,.pdf,.doc,.docx,.txt"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
       </div>
     </div>
   );
