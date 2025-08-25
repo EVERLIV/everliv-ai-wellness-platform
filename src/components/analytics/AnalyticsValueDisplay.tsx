@@ -14,10 +14,10 @@ const AnalyticsValueDisplay: React.FC<AnalyticsValueDisplayProps> = ({
 }) => {
   return (
     <div className={`space-y-1 ${className}`}>
-      <label className="text-sm font-medium text-gray-700">
+      <label className="text-sm font-medium text-secondary-foreground">
         {label}
       </label>
-      <p className="text-base font-semibold text-gray-900">
+      <p className="text-base font-semibold text-primary">
         {value}
       </p>
     </div>

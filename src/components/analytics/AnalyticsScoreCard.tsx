@@ -41,28 +41,28 @@ const AnalyticsScoreCard: React.FC<AnalyticsScoreCardProps> = ({
   const ScoreIcon = getScoreIcon();
 
   return (
-    <div className="bg-white p-3 border">
-      <div className="flex items-center gap-2 mb-3">
-        <ScoreIcon className="h-4 w-4" />
-        <h3 className="text-sm font-medium">Общий балл здоровья</h3>
+    <div className="bg-surface border border-border rounded-lg p-content">
+      <div className="flex items-center gap-2 mb-content-xs">
+        <ScoreIcon className="h-5 w-5 text-accent" />
+        <h3 className="text-base font-semibold text-primary">Общий балл здоровья</h3>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-content-xs">
         <div className="space-y-1">
-          <span className="text-xs text-gray-600">Балл здоровья</span>
-          <div className="text-lg font-medium">{healthScore}/100</div>
+          <span className="text-xs text-muted-foreground">Балл здоровья</span>
+          <div className="text-2xl font-bold text-primary">{healthScore}/100</div>
         </div>
         <div className="space-y-1">
-          <span className="text-xs text-gray-600">Уровень риска</span>
+          <span className="text-xs text-muted-foreground">Уровень риска</span>
           <div>
-            <Badge variant={getRiskLevelColor(riskLevel)} className="text-xs px-2 py-0.5">
+            <Badge variant={getRiskLevelColor(riskLevel)} className="text-xs">
               {getRiskLevelText(riskLevel)}
             </Badge>
           </div>
         </div>
         {lastUpdated && (
           <div className="space-y-1">
-            <span className="text-xs text-gray-600">Последнее обновление</span>
-            <div className="text-xs font-medium">
+            <span className="text-xs text-muted-foreground">Последнее обновление</span>
+            <div className="text-xs font-medium text-foreground">
               {new Date(lastUpdated).toLocaleDateString('ru-RU')}
             </div>
           </div>

@@ -18,17 +18,17 @@ const AnalyticsDisplayCard: React.FC<AnalyticsDisplayCardProps> = ({
   className = ""
 }) => {
   return (
-    <Card className={`shadow-sm hover:shadow-md transition-shadow ${className}`}>
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg sm:text-xl font-semibold flex items-center gap-2">
+    <div className={`bg-surface border border-border rounded-lg overflow-hidden ${className}`}>
+      <div className="p-content border-b border-border bg-muted/30">
+        <h3 className="text-base font-semibold flex items-center gap-2 text-primary">
           <Icon className="h-5 w-5 flex-shrink-0" />
           {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pt-0">
+        </h3>
+      </div>
+      <div className="p-content">
         {children}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
