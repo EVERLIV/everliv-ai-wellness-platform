@@ -364,80 +364,78 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         "bg-white safe-area-pb",
         isMobile ? "px-4 py-3" : "px-6 py-4"
       )}>
-        <div className="relative flex items-center">
+        <div className="relative">
           {/* Input container with embedded icons */}
-          <div className="relative flex-1">
-            <div className="flex items-center">
-              {/* Left icons inside input */}
-              <div className="absolute left-3 z-10 flex items-center gap-2">
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
-                >
-                  <Paperclip className="h-4 w-4" />
-                </button>
-                
-                <button
-                  onClick={isRecording ? stopRecording : startRecording}
-                  disabled={isTranscribing}
-                  className={cn(
-                    "transition-colors p-1 rounded-full",
-                    isRecording 
-                      ? "text-red-500 hover:text-red-600 hover:bg-red-50" 
-                      : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                  )}
-                >
-                  {isTranscribing ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : isRecording ? (
-                    <MicOff className="h-4 w-4" />
-                  ) : (
-                    <Mic className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-
-              {/* Text input with padding for icons */}
-              <textarea
-                ref={textareaRef}
-                placeholder={isTranscribing ? "Обрабатываю голос..." : "Напишите сообщение..."}
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={isProcessing || isRecording}
-                className={cn(
-                  "w-full resize-none bg-gray-100 placeholder:text-gray-500 text-gray-800 overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-300 border-0 transition-all duration-200 touch-manipulation",
-                  isMobile 
-                    ? "min-h-[36px] pl-20 pr-12 py-2 text-sm rounded-full" 
-                    : "min-h-[40px] pl-24 pr-14 py-2.5 text-sm rounded-full"
-                )}
-                style={{ 
-                  lineHeight: '1.3',
-                  wordBreak: 'break-word',
-                  overflowWrap: 'break-word',
-                  maxHeight: isMobile ? '60px' : '70px'
-                }}
-                rows={1}
-              />
-
-              {/* Send button inside input - right side */}
+          <div className="relative bg-gray-100 rounded-full border-0 focus-within:ring-2 focus-within:ring-purple-300 transition-all duration-200">
+            {/* Left icons inside input */}
+            <div className="absolute left-2 top-1/2 -translate-y-1/2 z-10 flex items-center gap-1">
               <button
-                onClick={handleSubmit}
-                disabled={!inputText.trim() || isProcessing}
+                onClick={() => fileInputRef.current?.click()}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1.5 rounded-full hover:bg-gray-200"
+              >
+                <Paperclip className="h-3.5 w-3.5" />
+              </button>
+              
+              <button
+                onClick={isRecording ? stopRecording : startRecording}
+                disabled={isTranscribing}
                 className={cn(
-                  "absolute right-2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:bg-gray-300 transition-all duration-200 flex items-center justify-center border-0 outline-0 rounded-full shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 touch-manipulation",
-                  isMobile 
-                    ? "h-[28px] w-[28px]" 
-                    : "h-[32px] w-[32px]"
+                  "transition-colors p-1.5 rounded-full",
+                  isRecording 
+                    ? "text-red-500 hover:text-red-600 hover:bg-red-50" 
+                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-200"
                 )}
               >
-                {isProcessing ? (
-                  <Loader2 className="h-3 w-3 animate-spin text-white" />
+                {isTranscribing ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : isRecording ? (
+                  <MicOff className="h-3.5 w-3.5" />
                 ) : (
-                  <Send className="h-3 w-3 text-white" />
+                  <Mic className="h-3.5 w-3.5" />
                 )}
               </button>
             </div>
+
+            {/* Text input with padding for icons */}
+            <textarea
+              ref={textareaRef}
+              placeholder={isTranscribing ? "Обрабатываю голос..." : "Напишите сообщение..."}
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isProcessing || isRecording}
+              className={cn(
+                "w-full resize-none bg-transparent placeholder:text-gray-500 text-gray-800 overflow-hidden focus:outline-none border-0 transition-all duration-200 touch-manipulation",
+                isMobile 
+                  ? "min-h-[36px] pl-16 pr-12 py-2 text-sm" 
+                  : "min-h-[40px] pl-20 pr-14 py-2.5 text-sm"
+              )}
+              style={{ 
+                lineHeight: '1.3',
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+                maxHeight: isMobile ? '60px' : '70px'
+              }}
+              rows={1}
+            />
+
+            {/* Send button inside input - right side */}
+            <button
+              onClick={handleSubmit}
+              disabled={!inputText.trim() || isProcessing}
+              className={cn(
+                "absolute right-1.5 top-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:bg-gray-300 transition-all duration-200 flex items-center justify-center border-0 outline-0 rounded-full shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 touch-manipulation",
+                isMobile 
+                  ? "h-[30px] w-[30px]" 
+                  : "h-[34px] w-[34px]"
+              )}
+            >
+              {isProcessing ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
+              ) : (
+                <Send className="h-3.5 w-3.5 text-white" />
+              )}
+            </button>
           </div>
         </div>
 
