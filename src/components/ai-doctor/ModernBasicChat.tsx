@@ -384,14 +384,14 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         <div className="relative">
           {/* Compact Input Container */}
           <div 
-            className="relative bg-gray-50 rounded-2xl transition-all duration-200 focus-within:bg-gray-100"
+            className="relative bg-gray-50 rounded-xl transition-all duration-200 focus-within:bg-gray-100"
           >
             <div className="flex items-center p-1 gap-1">
               {/* Left Action Buttons */}
               <div className="flex gap-0.5">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-8 h-8 rounded-lg bg-transparent hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-all duration-200 flex items-center justify-center"
+                  className="w-8 h-8 rounded-xl bg-transparent hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-all duration-200 flex items-center justify-center"
                 >
                   <Paperclip className="h-4 w-4" />
                 </button>
@@ -400,7 +400,7 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
                   onClick={isRecording ? stopRecording : startRecording}
                   disabled={isTranscribing}
                   className={cn(
-                    "w-8 h-8 rounded-lg transition-all duration-200 flex items-center justify-center",
+                    "w-8 h-8 rounded-xl transition-all duration-200 flex items-center justify-center",
                     isRecording 
                       ? "bg-transparent hover:bg-red-100 text-red-500" 
                       : "bg-transparent hover:bg-gray-200 text-gray-500 hover:text-gray-700"
