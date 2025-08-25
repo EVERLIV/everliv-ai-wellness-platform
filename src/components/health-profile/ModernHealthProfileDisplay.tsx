@@ -278,21 +278,6 @@ const ModernHealthProfileDisplay: React.FC<ModernHealthProfileDisplayProps> = ({
               <div className="text-lg font-bold text-amber-900">{healthProfile.caffeineIntake}</div>
             </div>
           </div>
-          
-          {/* Lab Results Section */}
-          {healthProfile.labResults && Object.keys(healthProfile.labResults).length > 0 && (
-            <div className="mt-4">
-              <h4 className="text-sm font-semibold text-gray-900 mb-2">Лабораторные результаты</h4>
-              <div className="space-y-2">
-                {Object.entries(healthProfile.labResults).map(([key, value]) => (
-                  <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
-                    <span className="text-xs text-gray-600 font-medium capitalize">{key.replace(/_/g, ' ')}</span>
-                    <span className="text-xs font-semibold text-gray-900">{value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
