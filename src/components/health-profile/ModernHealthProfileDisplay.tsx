@@ -24,8 +24,6 @@ import { translateValue } from "@/utils/healthProfileTranslations";
 import { translateGoalText, translateHealthGoal } from "@/utils/goalTranslations";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHealthGoalsManager } from "@/hooks/useHealthGoalsManager";
-import { useDailyHealthMetrics } from "@/hooks/useDailyHealthMetrics";
-import DynamicHealthMetrics from "./DynamicHealthMetrics";
 import EditHealthGoalsModal from "./EditHealthGoalsModal";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { cn } from "@/lib/utils";
@@ -41,11 +39,9 @@ const ModernHealthProfileDisplay: React.FC<ModernHealthProfileDisplayProps> = ({
 }) => {
   const { user } = useAuth();
   const { goals } = useHealthGoalsManager();
-  const { metrics, isLoading: metricsLoading, saveMetrics } = useDailyHealthMetrics();
   const { updateHealthProfile, saveHealthProfile } = useHealthProfile();
 
   // Состояния для управления открытием секций
-  const [isMetricsOpen, setIsMetricsOpen] = useState(false);
   const [isGoalsOpen, setIsGoalsOpen] = useState(false);
   const [isMedicalOpen, setIsMedicalOpen] = useState(false);
 
@@ -213,38 +209,6 @@ const ModernHealthProfileDisplay: React.FC<ModernHealthProfileDisplayProps> = ({
           </div>
         </div>
 
-        {/* Health Metrics Section */}
-        <div>
-          <button 
-            onClick={() => setIsMetricsOpen(!isMetricsOpen)}
-            className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors active:bg-gray-100 touch-manipulation rounded-lg"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 bg-green-100 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-green-600" />
-              </div>
-              <div className="text-left">
-                <span className="text-sm font-semibold text-gray-900 block">Метрики</span>
-                <span className="text-xs text-gray-500">Динамические</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
-                Активно
-              </span>
-              {isMetricsOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-            </div>
-          </button>
-          {isMetricsOpen && (
-            <div className="mt-3 animate-in slide-in-from-top-2 duration-200">
-              <DynamicHealthMetrics 
-                metrics={metrics}
-                isLoading={metricsLoading}
-                onMetricsUpdate={() => {}}
-              />
-            </div>
-          )}
-        </div>
 
         {/* Health Goals Section */}
         <div>
