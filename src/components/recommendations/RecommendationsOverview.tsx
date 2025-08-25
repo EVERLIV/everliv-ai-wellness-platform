@@ -58,11 +58,11 @@ const RecommendationsOverview: React.FC<RecommendationsOverviewProps> = ({ recom
   ];
 
   return (
-    <div className="bg-surface rounded-lg p-content border-0">
-      <div className="pb-content-xs border-b border-border/50">
-        <h3 className="text-lg font-semibold text-primary">Обзор рекомендаций</h3>
+    <div className="bg-surface rounded-lg p-3 md:p-4 border-0">
+      <div className="pb-3 border-b border-border/50">
+        <h3 className="text-base md:text-lg font-semibold text-primary">Обзор рекомендаций</h3>
       </div>
-      <div className="pt-content-xs space-y-content">
+      <div className="pt-3 space-y-3 md:space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {sections.map((section, index) => (
             <div key={index} className={`p-3 rounded-lg ${section.bgColor}`}>

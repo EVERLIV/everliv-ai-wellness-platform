@@ -89,18 +89,18 @@ const AIHealthConsultant: React.FC<AIHealthConsultantProps> = ({
 
   if (isLoading) {
     return (
-      <div className="bg-surface rounded-lg p-content border-0">
-        <div className="pb-content-xs border-b border-border/50">
+      <div className="bg-surface rounded-lg p-3 md:p-4 border-0">
+        <div className="pb-3 border-b border-border/50">
           <div className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold text-primary">ИИ-Консультант анализирует...</h3>
+            <Brain className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+            <h3 className="text-base md:text-lg font-semibold text-primary">ИИ-Консультант анализирует...</h3>
           </div>
         </div>
-        <div className="pt-content-xs">
-          <div className="flex items-center justify-center py-8">
+        <div className="pt-3">
+          <div className="flex items-center justify-center py-6 md:py-8">
             <div className="flex flex-col items-center space-y-3">
-              <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full"></div>
-              <p className="text-sm text-muted-foreground">Анализирую ваши данные о здоровье...</p>
+              <div className="animate-spin h-6 w-6 md:h-8 md:w-8 border-2 border-primary border-t-transparent rounded-full"></div>
+              <p className="text-xs md:text-sm text-muted-foreground">Анализирую данные...</p>
             </div>
           </div>
         </div>
@@ -109,22 +109,22 @@ const AIHealthConsultant: React.FC<AIHealthConsultantProps> = ({
   }
 
   return (
-    <div className="bg-surface rounded-lg p-content border-0">
-      <div className="pb-content-xs border-b border-border/50">
+    <div className="bg-surface rounded-lg p-3 md:p-4 border-0">
+      <div className="pb-3 border-b border-border/50">
         <div className="flex items-center gap-2">
-          <Brain className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold text-primary">ИИ-Консультант по здоровью</h3>
+          <Brain className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+          <h3 className="text-base md:text-lg font-semibold text-primary">ИИ-Консультант</h3>
         </div>
       </div>
-      <div className="pt-content-xs space-y-content">
+      <div className="pt-3 space-y-3 md:space-y-4">
         {/* Дисклеймер */}
         <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
           <div className="flex gap-2">
-            <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
+            <AlertCircle className="h-4 w-4 text-warning flex-shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <p className="text-sm font-medium text-warning">Важное уведомление</p>
+              <p className="text-xs md:text-sm font-medium text-warning">Важное уведомление</p>
               <p className="text-xs text-secondary-foreground">
-                Я — ваш ИИ-ассистент по здоровью. Мои рекомендации основаны на анализе предоставленных данных и не являются диагнозом или заменой консультации с врачом. Перед применением любых рекомендаций проконсультируйтесь со своим лечащим врачом.
+                Я — ваш ИИ-ассистент. Рекомендации не являются диагнозом. Обязательно проконсультируйтесь с врачом.
               </p>
             </div>
           </div>
@@ -132,25 +132,25 @@ const AIHealthConsultant: React.FC<AIHealthConsultantProps> = ({
 
         {/* Краткое резюме */}
         {summary && (
-          <div className="space-y-2">
-            <h3 className="font-medium text-primary">Краткое резюме состояния здоровья</h3>
-            <p className="text-sm text-secondary-foreground">{summary.summary}</p>
+          <div className="space-y-3">
+            <h3 className="text-sm md:text-base font-medium text-primary">Краткое резюме</h3>
+            <p className="text-xs md:text-sm text-secondary-foreground">{summary.summary}</p>
             
-            <div className="grid grid-cols-3 gap-3 mt-3">
-              <div className="text-center p-3 bg-primary/5 rounded-lg">
-                <div className="text-lg font-semibold text-primary">{summary.healthScore}%</div>
-                <div className="text-xs text-muted-foreground">Индекс здоровья</div>
+            <div className="grid grid-cols-3 gap-2 md:gap-3">
+              <div className="text-center p-2 md:p-3 bg-primary/5 rounded-lg">
+                <div className="text-sm md:text-lg font-semibold text-primary">{summary.healthScore}%</div>
+                <div className="text-xs text-muted-foreground">Индекс</div>
               </div>
-              <div className="text-center p-3 bg-muted/30 rounded-lg">
-                <div className="text-lg font-semibold text-foreground">{summary.bmi}</div>
+              <div className="text-center p-2 md:p-3 bg-muted/30 rounded-lg">
+                <div className="text-sm md:text-lg font-semibold text-foreground">{summary.bmi}</div>
                 <div className="text-xs text-muted-foreground">ИМТ</div>
               </div>
-              <div className={`text-center p-3 rounded-lg ${
+              <div className={`text-center p-2 md:p-3 rounded-lg ${
                 summary.riskLevel === 'low' ? 'bg-success/10 text-success' :
                 summary.riskLevel === 'high' ? 'bg-destructive/10 text-destructive' :
                 'bg-warning/10 text-warning'
               }`}>
-                <div className="text-lg font-semibold capitalize">{
+                <div className="text-sm md:text-lg font-semibold capitalize">{
                   summary.riskLevel === 'low' ? 'Низкий' :
                   summary.riskLevel === 'high' ? 'Высокий' : 'Средний'
                 }</div>
@@ -163,16 +163,16 @@ const AIHealthConsultant: React.FC<AIHealthConsultantProps> = ({
         {/* Приоритетные направления */}
         {priorities.length > 0 && (
           <div className="space-y-3">
-            <h3 className="font-medium text-primary">Приоритетные направления для работы</h3>
-            <div className="space-y-3">
+            <h3 className="text-sm md:text-base font-medium text-primary">Приоритетные направления</h3>
+            <div className="space-y-2">
               {priorities.map((priority, index) => (
-                <div key={index} className="space-y-2 p-3 rounded-lg bg-surface">
+                <div key={index} className="p-2 md:p-3 rounded-lg bg-muted/20">
                   <div className="flex items-start gap-2">
-                    {priority.type === 'critical' && <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />}
-                    {priority.type === 'warning' && <Clock className="h-4 w-4 text-warning flex-shrink-0 mt-0.5" />}
-                    {priority.type === 'info' && <CheckCircle className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />}
+                    {priority.type === 'critical' && <AlertCircle className="h-3 w-3 md:h-4 md:w-4 text-destructive flex-shrink-0 mt-0.5" />}
+                    {priority.type === 'warning' && <Clock className="h-3 w-3 md:h-4 md:w-4 text-warning flex-shrink-0 mt-0.5" />}
+                    {priority.type === 'info' && <CheckCircle className="h-3 w-3 md:h-4 md:w-4 text-primary flex-shrink-0 mt-0.5" />}
                     <div className="space-y-1 flex-1">
-                      <h4 className="text-sm font-medium text-primary">{priority.title}</h4>
+                      <h4 className="text-xs md:text-sm font-medium text-primary">{priority.title}</h4>
                       <p className="text-xs text-secondary-foreground">{priority.description}</p>
                       <p className="text-xs text-muted-foreground italic">{priority.action}</p>
                     </div>
@@ -185,11 +185,11 @@ const AIHealthConsultant: React.FC<AIHealthConsultantProps> = ({
 
         {/* План дальнейших действий */}
         <div className="space-y-2">
-          <h3 className="font-medium text-primary">План дальнейших действий</h3>
-          <div className="space-y-2 text-sm text-secondary-foreground">
-            <p>• Рекомендую повторно проанализировать показатели через 3 месяца</p>
-            <p>• Обязательно проконсультируйтесь с врачом для постановки диагноза и назначения лечения</p>
-            <p>• Следите за динамикой ключевых биомаркеров еженедельно</p>
+          <h3 className="text-sm md:text-base font-medium text-primary">План действий</h3>
+          <div className="space-y-1 text-xs md:text-sm text-secondary-foreground">
+            <p>• Повторный анализ через 3 месяца</p>
+            <p>• Консультация с врачом обязательна</p>
+            <p>• Контроль биомаркеров еженедельно</p>
           </div>
         </div>
       </div>

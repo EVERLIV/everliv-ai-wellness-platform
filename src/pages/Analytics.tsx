@@ -122,137 +122,174 @@ const Analytics = () => {
   return (
     <AppLayout>
       <div className="p-container space-y-content">
-        {/* Header */}
-        <div className="space-y-content-xs">
+        {/* Mobile-First Header */}
+        <div className="space-y-3">
           <div className="space-y-1">
-            <h1 className="text-xl font-bold text-primary">ИИ-Рекомендации по здоровью</h1>
-            <p className="text-sm text-secondary-foreground">Персонализированные рекомендации на основе ваших данных</p>
+            <h1 className="text-lg md:text-xl font-bold text-primary">ИИ-Рекомендации</h1>
+            <p className="text-xs md:text-sm text-secondary-foreground">Персональные рекомендации на основе ваших данных</p>
           </div>
           
-          <div className="flex gap-2">
-            <Button
-              onClick={handleGenerateRecommendations}
-              disabled={isLoading}
-              variant="secondary"
-              size="sm"
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-              {isLoading ? 'Генерируем...' : 'Обновить рекомендации'}
-            </Button>
-          </div>
+          <Button
+            onClick={handleGenerateRecommendations}
+            disabled={isLoading}
+            variant="secondary"
+            size="sm"
+            className="w-full sm:w-auto"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            {isLoading ? 'Генерируем...' : 'Обновить рекомендации'}
+          </Button>
         </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-content">
-          {/* Left Sidebar - Health Metrics */}
-          <div className="lg:col-span-1 space-y-content">
-            <HealthMetricsCard healthProfile={healthProfile} analytics={analytics} />
+        {/* Mobile Health Summary */}
+        {healthProfile && (
+          <div className="lg:hidden bg-surface rounded-lg p-3 border-0">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-primary">Ваш профиль</h3>
+              {analytics?.healthScore && (
+                <div className="text-right">
+                  <div className="text-lg font-bold text-primary">{analytics.healthScore}%</div>
+                  <div className="text-xs text-muted-foreground">Индекс здоровья</div>
+                </div>
+              )}
+            </div>
+            
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="text-center p-2 bg-muted/20 rounded">
+                <div className="font-medium text-foreground">{healthProfile.age}</div>
+                <div className="text-muted-foreground">лет</div>
+              </div>
+              <div className="text-center p-2 bg-muted/20 rounded">
+                <div className="font-medium text-foreground">
+                  {healthProfile.weight && healthProfile.height 
+                    ? (healthProfile.weight / Math.pow(healthProfile.height / 100, 2)).toFixed(1)
+                    : 'Н/Д'
+                  }
+                </div>
+                <div className="text-muted-foreground">ИМТ</div>
+              </div>
+              <div className="text-center p-2 bg-muted/20 rounded">
+                <div className="font-medium text-foreground">{healthProfile.sleepHours}ч</div>
+                <div className="text-muted-foreground">сон</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile-Optimized Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <div className="overflow-x-auto">
+            <TabsList className="inline-flex h-9 items-center justify-start rounded-lg bg-muted/30 p-1 text-muted-foreground min-w-full">
+              <TabsTrigger value="overview" className="flex items-center gap-1 text-xs px-2 py-1.5 whitespace-nowrap">
+                <Brain className="h-3 w-3" />
+                <span>Обзор</span>
+              </TabsTrigger>
+              <TabsTrigger value="lifestyle" className="flex items-center gap-1 text-xs px-2 py-1.5 whitespace-nowrap">
+                <Heart className="h-3 w-3" />
+                <span>Образ жизни</span>
+              </TabsTrigger>
+              <TabsTrigger value="nutrition" className="flex items-center gap-1 text-xs px-2 py-1.5 whitespace-nowrap">
+                <Apple className="h-3 w-3" />
+                <span>Питание</span>
+              </TabsTrigger>
+              <TabsTrigger value="biomarkers" className="flex items-center gap-1 text-xs px-2 py-1.5 whitespace-nowrap">
+                <FlaskConical className="h-3 w-3" />
+                <span>Анализы</span>
+              </TabsTrigger>
+              <TabsTrigger value="supplements" className="flex items-center gap-1 text-xs px-2 py-1.5 whitespace-nowrap">
+                <Pill className="h-3 w-3" />
+                <span>Добавки</span>
+              </TabsTrigger>
+            </TabsList>
           </div>
 
-          {/* Main Content Area */}
-          <div className="lg:col-span-3">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-content">
-              <TabsList className="grid w-full grid-cols-5 bg-muted/30 p-1 h-auto">
-                <TabsTrigger value="overview" className="flex items-center gap-1 text-xs py-2">
-                  <Brain className="h-3 w-3" />
-                  <span className="hidden sm:inline">Обзор</span>
-                </TabsTrigger>
-                <TabsTrigger value="lifestyle" className="flex items-center gap-1 text-xs py-2">
-                  <Heart className="h-3 w-3" />
-                  <span className="hidden sm:inline">Образ жизни</span>
-                </TabsTrigger>
-                <TabsTrigger value="nutrition" className="flex items-center gap-1 text-xs py-2">
-                  <Apple className="h-3 w-3" />
-                  <span className="hidden sm:inline">Питание</span>
-                </TabsTrigger>
-                <TabsTrigger value="biomarkers" className="flex items-center gap-1 text-xs py-2">
-                  <FlaskConical className="h-3 w-3" />
-                  <span className="hidden sm:inline">Биомаркеры</span>
-                </TabsTrigger>
-                <TabsTrigger value="supplements" className="flex items-center gap-1 text-xs py-2">
-                  <Pill className="h-3 w-3" />
-                  <span className="hidden sm:inline">Добавки</span>
-                </TabsTrigger>
-              </TabsList>
+          {/* Content Area */}
+          <div className="min-h-[400px]">
+            <TabsContent value="overview" className="space-y-4 mt-0">
+              <AIHealthConsultant 
+                healthProfile={healthProfile} 
+                analytics={analytics}
+                recommendations={recommendations}
+                isLoading={isLoading}
+              />
+              
+              {/* Desktop Health Metrics */}
+              <div className="hidden lg:block">
+                <HealthMetricsCard healthProfile={healthProfile} analytics={analytics} />
+              </div>
+              
+              <RecommendationsOverview recommendations={recommendations} />
+            </TabsContent>
 
-              <TabsContent value="overview" className="space-y-content mt-4">
-                <div className="space-y-content">
-                  <AIHealthConsultant 
-                    healthProfile={healthProfile} 
-                    analytics={analytics}
-                    recommendations={recommendations}
-                    isLoading={isLoading}
-                  />
-                  <RecommendationsOverview recommendations={recommendations} />
-                </div>
-              </TabsContent>
+            <TabsContent value="lifestyle" className="space-y-4 mt-0">
+              <LifestyleRecommendations 
+                recommendations={recommendations} 
+                healthProfile={healthProfile}
+              />
+            </TabsContent>
 
-              <TabsContent value="lifestyle" className="space-y-content mt-4">
-                <LifestyleRecommendations 
-                  recommendations={recommendations} 
-                  healthProfile={healthProfile}
-                />
-              </TabsContent>
-
-              <TabsContent value="nutrition" className="space-y-content mt-4">
-                <div className="grid gap-content">
-                  {recommendations?.foods && recommendations.foods.length > 0 ? (
-                    <div className="space-y-content-xs">
-                      <h3 className="text-lg font-semibold text-primary">Рекомендации по питанию</h3>
-                      <div className="grid gap-3">
-                         {recommendations.foods.map((food, index) => (
-                          <div key={index} className="bg-surface rounded-lg p-content-xs border-0">
-                            <div className="space-y-2">
-                              <div className="flex justify-between items-start">
-                                <h4 className="font-medium text-primary">{food.name}</h4>
-                                <span className="text-sm text-muted-foreground">{food.portion}</span>
-                              </div>
-                              <p className="text-sm text-secondary-foreground">{food.reason}</p>
-                              <div className="grid grid-cols-4 gap-2 text-xs">
-                                <div className="text-center p-2 bg-muted/30 rounded">
-                                  <div className="font-medium">{food.calories}</div>
-                                  <div className="text-muted-foreground">ккал</div>
-                                </div>
-                                <div className="text-center p-2 bg-muted/30 rounded">
-                                  <div className="font-medium">{food.protein}г</div>
-                                  <div className="text-muted-foreground">белки</div>
-                                </div>
-                                <div className="text-center p-2 bg-muted/30 rounded">
-                                  <div className="font-medium">{food.carbs}г</div>
-                                  <div className="text-muted-foreground">углеводы</div>
-                                </div>
-                                <div className="text-center p-2 bg-muted/30 rounded">
-                                  <div className="font-medium">{food.fat}г</div>
-                                  <div className="text-muted-foreground">жиры</div>
-                                </div>
-                              </div>
+            <TabsContent value="nutrition" className="space-y-4 mt-0">
+              {recommendations?.foods && recommendations.foods.length > 0 ? (
+                <div className="space-y-3">
+                  <h3 className="text-base font-semibold text-primary">Рекомендации по питанию</h3>
+                  <div className="space-y-3">
+                    {recommendations.foods.map((food, index) => (
+                      <div key={index} className="bg-surface rounded-lg p-3 border-0">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-start gap-3">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-primary text-sm">{food.name}</h4>
+                              <p className="text-xs text-secondary-foreground mt-1">{food.reason}</p>
+                            </div>
+                            <span className="text-xs text-muted-foreground px-2 py-1 bg-muted/30 rounded whitespace-nowrap">
+                              {food.portion}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-4 gap-1.5 text-xs">
+                            <div className="text-center p-1.5 bg-muted/20 rounded">
+                              <div className="font-medium text-xs">{food.calories}</div>
+                              <div className="text-muted-foreground text-xs">ккал</div>
+                            </div>
+                            <div className="text-center p-1.5 bg-muted/20 rounded">
+                              <div className="font-medium text-xs">{food.protein}г</div>
+                              <div className="text-muted-foreground text-xs">белки</div>
+                            </div>
+                            <div className="text-center p-1.5 bg-muted/20 rounded">
+                              <div className="font-medium text-xs">{food.carbs}г</div>
+                              <div className="text-muted-foreground text-xs">углев.</div>
+                            </div>
+                            <div className="text-center p-1.5 bg-muted/20 rounded">
+                              <div className="font-medium text-xs">{food.fat}г</div>
+                              <div className="text-muted-foreground text-xs">жиры</div>
                             </div>
                           </div>
-                        ))}
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="text-center p-content text-muted-foreground">
-                      Нет доступных рекомендаций по питанию
-                    </div>
-                  )}
+                    ))}
+                  </div>
                 </div>
-              </TabsContent>
+              ) : (
+                <div className="text-center p-8 text-muted-foreground">
+                  <Apple className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p className="text-sm">Нет доступных рекомендаций по питанию</p>
+                  <p className="text-xs mt-1">Сгенерируйте рекомендации для получения персональных советов</p>
+                </div>
+              )}
+            </TabsContent>
 
-              <TabsContent value="biomarkers" className="space-y-content mt-4">
-                <BiomarkersInsights 
-                  recommendations={recommendations}
-                  healthProfile={healthProfile}
-                  analytics={analytics}
-                />
-              </TabsContent>
+            <TabsContent value="biomarkers" className="space-y-4 mt-0">
+              <BiomarkersInsights 
+                recommendations={recommendations}
+                healthProfile={healthProfile}
+                analytics={analytics}
+              />
+            </TabsContent>
 
-              <TabsContent value="supplements" className="space-y-content mt-4">
-                <SupplementsRecommendations recommendations={recommendations} />
-              </TabsContent>
-            </Tabs>
+            <TabsContent value="supplements" className="space-y-4 mt-0">
+              <SupplementsRecommendations recommendations={recommendations} />
+            </TabsContent>
           </div>
-        </div>
+        </Tabs>
       </div>
     </AppLayout>
   );
