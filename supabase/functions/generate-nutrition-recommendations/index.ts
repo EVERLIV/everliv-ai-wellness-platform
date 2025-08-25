@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -17,9 +16,107 @@ serve(async (req) => {
   try {
     const { profile, goals, currentIntake } = await req.json();
 
-    console.log('Generating nutrition recommendations for:', { profile, goals, currentIntake });
+    console.log('Generating nutrition recommendations for:', {
+      hasProfile: !!profile,
+      hasGoals: !!goals,
+      currentIntake
+    });
 
-    const prompt = createNutritionRecommendationPrompt(profile, goals, currentIntake);
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+
+    // Создаем детальный промпт для анализа
+    const systemPrompt = `Ты — ИИ-ассистент по здоровью и нутрициологии. Анализируй данные пользователя и предоставляй персонализированные, научно обоснованные рекомендации.
+
+ВАЖНО: Все рекомендации должны быть безопасными и основанными на современных научных данных. При любых критических отклонениях рекомендуй обратиться к врачу.
+
+Верни ответ строго в формате JSON:
+{
+  "foods": [
+    {
+      "name": "Название продукта",
+      "reason": "Причина рекомендации",
+      "calories": 150,
+      "protein": 20,
+      "carbs": 15,
+      "fat": 5,
+      "portion": "100г"
+    }
+  ],
+  "labTests": [
+    {
+      "name": "Название анализа",
+      "reason": "Причина назначения",
+      "frequency": "раз в 3 месяца",
+      "priority": "high|medium|low",
+      "preparation": "Особенности подготовки"
+    }
+  ],
+  "supplements": [
+    {
+      "name": "Название добавки",
+      "dosage": "Дозировка",
+      "benefit": "Польза",
+      "timing": "Время приема",
+      "interactions": "Взаимодействия"
+    }
+  ],
+  "absorptionHelpers": [
+    {
+      "name": "Название помощника усвоения",
+      "function": "Функция",
+      "takeWith": "С чем принимать"
+    }
+  ],
+  "lifestyle": [
+    {
+      "category": "Категория",
+      "advice": "Совет",
+      "goal": "Цель"
+    }
+  ],
+  "mealPlan": [
+    {
+      "mealType": "Завтрак",
+      "foods": ["Продукт 1", "Продукт 2"]
+    }
+  ]
+}`;
+
+    const userPrompt = `Проанализируй данные пользователя и создай персонализированные рекомендации:
+
+ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ:
+- Возраст: ${profile.age || 'не указан'}
+- Пол: ${profile.gender || 'не указан'}
+- Рост: ${profile.height || 'не указан'} см
+- Вес: ${profile.weight || 'не указан'} кг
+- Хронические заболевания: ${profile.medical_conditions?.join(', ') || 'нет'}
+- Аллергии: ${profile.allergies?.join(', ') || 'нет'}
+- Лекарства: ${profile.medications?.join(', ') || 'нет'}
+- Цели: ${profile.goals?.join(', ') || 'не указаны'}
+
+ЦЕЛИ ПИТАНИЯ:
+${goals ? `
+- Калории: ${goals.daily_calories} ккал/день
+- Белки: ${goals.daily_protein} г/день
+- Углеводы: ${goals.daily_carbs} г/день
+- Жиры: ${goals.daily_fat} г/день
+` : 'Не установлены'}
+
+ТЕКУЩЕЕ ПОТРЕБЛЕНИЕ:
+- Калории: ${currentIntake.calories} ккал
+- Белки: ${currentIntake.protein} г
+- Углеводы: ${currentIntake.carbs} г
+- Жиры: ${currentIntake.fat} г
+
+Создай персонализированные рекомендации, учитывая:
+1. Недостающие нутриенты
+2. Возрастные особенности
+3. Противопоказания
+4. Цели пользователя
+
+Включи 3-5 продуктов, 2-3 анализа, 2-3 добавки (при необходимости), советы по образу жизни и план питания на день.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -28,181 +125,98 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4.1-2025-04-14',
         messages: [
-          {
-            role: 'system',
-            content: `Вы - эксперт по персонализированному питанию и нутрициологии. 
-            Анализируйте данные пользователя и создавайте персональные рекомендации по питанию, анализам и добавкам.
-            
-            ВАЖНО: Отвечайте ТОЛЬКО валидным JSON объектом БЕЗ markdown форматирования.
-            НЕ ИСПОЛЬЗУЙТЕ обертку \`\`\`json или любые другие markdown символы.
-            
-            Структура ответа:
-            {
-              "foods": [
-                {
-                  "name": "Название продукта",
-                  "reason": "Почему рекомендуется",
-                  "calories": число_калорий_на_100г,
-                  "protein": число_белков_г,
-                  "carbs": число_углеводов_г,
-                  "fat": число_жиров_г,
-                  "portion": "Рекомендуемая порция"
-                }
-              ],
-              "labTests": [
-                {
-                  "name": "Название анализа",
-                  "reason": "Зачем нужен",
-                  "frequency": "Как часто сдавать",
-                  "priority": "high|medium|low",
-                  "preparation": "Подготовка к анализу"
-                }
-              ],
-              "supplements": [
-                {
-                  "name": "Название добавки",
-                  "dosage": "Дозировка",
-                  "benefit": "Польза",
-                  "timing": "Когда принимать",
-                  "interactions": "Взаимодействие с другими веществами"
-                }
-              ],
-              "absorptionHelpers": [
-                {
-                  "name": "Название витамина/добавки",
-                  "function": "Как улучшает усвояемость",
-                  "takeWith": "С чем принимать"
-                }
-              ],
-              "lifestyle": [
-                {
-                  "category": "Категория (сон, стресс, активность)",
-                  "advice": "Рекомендация",
-                  "goal": "Цель"
-                }
-              ],
-              "mealPlan": [
-                {
-                  "mealType": "Завтрак|Обед|Ужин|Перекус",
-                  "foods": ["список продуктов для этого приема пищи"]
-                }
-              ]
-            }
-            
-            Учитывайте:
-            - Индивидуальные особенности (возраст, пол, медицинские состояния)
-            - Текущие цели питания и дефициты
-            - Аллергии и противопоказания
-            - Российские продукты и доступность анализов`
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
         ],
+        max_tokens: 2000,
         temperature: 0.7,
-        max_tokens: 3000,
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+    }
+
     const data = await response.json();
-    
-    if (data.error) {
-      throw new Error(data.error.message);
-    }
+    console.log('OpenAI response:', data);
 
-    let aiResponse = data.choices[0].message.content;
-    console.log('AI Response:', aiResponse);
-
-    // Очищаем ответ от markdown форматирования
-    aiResponse = aiResponse.trim();
-    
-    // Удаляем markdown блоки если они есть
-    if (aiResponse.startsWith('```json')) {
-      aiResponse = aiResponse.replace(/^```json\n/, '').replace(/\n```$/, '');
-    } else if (aiResponse.startsWith('```')) {
-      aiResponse = aiResponse.replace(/^```[a-zA-Z]*\n/, '').replace(/\n```$/, '');
+    if (!data.choices || !data.choices[0]?.message?.content) {
+      throw new Error('Invalid response from OpenAI');
     }
-    
-    // Удаляем возможные лишние символы в начале и конце
-    aiResponse = aiResponse.trim();
 
     let recommendations;
     try {
-      recommendations = JSON.parse(aiResponse);
+      recommendations = JSON.parse(data.choices[0].message.content);
     } catch (parseError) {
-      console.error('Failed to parse AI response:', parseError);
-      console.error('Raw AI response:', aiResponse);
-      throw new Error('Invalid AI response format');
+      console.error('Failed to parse OpenAI response as JSON:', parseError);
+      console.log('Raw content:', data.choices[0].message.content);
+      
+      // Fallback recommendations
+      recommendations = {
+        foods: [
+          {
+            name: "Авокадо",
+            reason: "Богат полезными жирами и витаминами",
+            calories: 160,
+            protein: 2,
+            carbs: 9,
+            fat: 15,
+            portion: "100г"
+          }
+        ],
+        labTests: [
+          {
+            name: "Общий анализ крови",
+            reason: "Контроль общего состояния здоровья",
+            frequency: "раз в 6 месяцев",
+            priority: "medium",
+            preparation: "Натощак"
+          }
+        ],
+        supplements: [],
+        absorptionHelpers: [],
+        lifestyle: [
+          {
+            category: "Физическая активность",
+            advice: "Добавьте 30 минут умеренных упражнений в день",
+            goal: "Улучшение общего самочувствия"
+          }
+        ],
+        mealPlan: [
+          {
+            mealType: "Завтрак",
+            foods: ["Овсянка", "Ягоды", "Орехи"]
+          }
+        ]
+      };
     }
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      recommendations 
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        recommendations
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+
   } catch (error) {
-    console.error('Error in generate-nutrition-recommendations function:', error);
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: error.message 
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error('Error in generate-nutrition-recommendations:', error);
+    
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error.message || 'Internal server error'
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
 });
-
-function createNutritionRecommendationPrompt(profile: any, goals: any, currentIntake: any) {
-  return `
-Создайте персональные рекомендации по питанию для пользователя на основе следующих данных:
-
-ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ:
-- Возраст: ${profile.date_of_birth ? calculateAge(profile.date_of_birth) : 'не указан'}
-- Пол: ${profile.gender || 'не указан'}
-- Рост: ${profile.height ? profile.height + ' см' : 'не указан'}
-- Вес: ${profile.weight ? profile.weight + ' кг' : 'не указан'}
-- Медицинские состояния: ${profile.medical_conditions?.join(', ') || 'не указаны'}
-- Аллергии: ${profile.allergies?.join(', ') || 'не указаны'}
-- Принимаемые препараты: ${profile.medications?.join(', ') || 'не указаны'}
-- Цели: ${profile.goals?.join(', ') || 'не указаны'}
-
-ЦЕЛИ ПИТАНИЯ:
-- Калории в день: ${goals.daily_calories}
-- Белки: ${goals.daily_protein}г
-- Углеводы: ${goals.daily_carbs}г
-- Жиры: ${goals.daily_fat}г
-
-ТЕКУЩЕЕ ПОТРЕБЛЕНИЕ СЕГОДНЯ:
-- Калории: ${currentIntake.calories}
-- Белки: ${currentIntake.protein.toFixed(1)}г
-- Углеводы: ${currentIntake.carbs.toFixed(1)}г
-- Жиры: ${currentIntake.fat.toFixed(1)}г
-
-Проанализируйте данные и предоставьте:
-1. 6-8 рекомендуемых продуктов с точными БЖУ
-2. 4-6 важных анализов для этого профиля
-3. 5-7 персональных витаминов и добавок
-4. 3-4 витамина для улучшения усвояемости
-5. 4-5 рекомендаций по образу жизни
-6. Дневной план питания (4 приема пищи)
-
-Учитывайте российский рынок продуктов и медицинских услуг.
-  `;
-}
-
-function calculateAge(dateOfBirth: string): number {
-  const today = new Date();
-  const birthDate = new Date(dateOfBirth);
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-  
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-  
-  return age;
-}

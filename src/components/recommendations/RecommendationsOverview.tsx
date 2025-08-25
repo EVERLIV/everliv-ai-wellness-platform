@@ -9,16 +9,16 @@ interface RecommendationsOverviewProps {
 const RecommendationsOverview: React.FC<RecommendationsOverviewProps> = ({ recommendations }) => {
   if (!recommendations) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Обзор рекомендаций</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="bg-surface rounded-lg p-content border-0">
+        <div className="pb-content-xs border-b border-border/50">
+          <h3 className="text-lg font-semibold text-primary">Обзор рекомендаций</h3>
+        </div>
+        <div className="pt-content-xs">
           <p className="text-muted-foreground text-center py-4">
             Загрузите данные для получения персонализированных рекомендаций
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
@@ -58,11 +58,11 @@ const RecommendationsOverview: React.FC<RecommendationsOverviewProps> = ({ recom
   ];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Обзор рекомендаций</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-content">
+    <div className="bg-surface rounded-lg p-content border-0">
+      <div className="pb-content-xs border-b border-border/50">
+        <h3 className="text-lg font-semibold text-primary">Обзор рекомендаций</h3>
+      </div>
+      <div className="pt-content-xs space-y-content">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {sections.map((section, index) => (
             <div key={index} className={`p-3 rounded-lg ${section.bgColor}`}>
@@ -105,8 +105,8 @@ const RecommendationsOverview: React.FC<RecommendationsOverviewProps> = ({ recom
             )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

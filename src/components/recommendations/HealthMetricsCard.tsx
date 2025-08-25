@@ -10,19 +10,19 @@ interface HealthMetricsCardProps {
 const HealthMetricsCard: React.FC<HealthMetricsCardProps> = ({ healthProfile, analytics }) => {
   if (!healthProfile) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="bg-surface rounded-lg p-content border-0">
+        <div className="pb-content-xs border-b border-border/50">
+          <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-primary" />
-            Профиль здоровья
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+            <h3 className="text-lg font-semibold text-primary">Профиль здоровья</h3>
+          </div>
+        </div>
+        <div className="pt-content-xs">
           <p className="text-muted-foreground text-center py-4">
             Данные не загружены
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
@@ -81,14 +81,14 @@ const HealthMetricsCard: React.FC<HealthMetricsCardProps> = ({ healthProfile, an
   ];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <div className="bg-surface rounded-lg p-content border-0">
+      <div className="pb-content-xs border-b border-border/50">
+        <div className="flex items-center gap-2">
           <User className="h-5 w-5 text-primary" />
-          Профиль здоровья
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-content-xs">
+          <h3 className="text-lg font-semibold text-primary">Профиль здоровья</h3>
+        </div>
+      </div>
+      <div className="pt-content-xs space-y-content-xs">
         {/* Health Score */}
         {analytics?.healthScore && (
           <div className="text-center p-3 bg-primary/5 rounded-lg">
@@ -135,8 +135,8 @@ const HealthMetricsCard: React.FC<HealthMetricsCardProps> = ({ healthProfile, an
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

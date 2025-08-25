@@ -71,7 +71,7 @@ const Analytics = () => {
             <p className="text-sm text-secondary-foreground">Персонализированные рекомендации на основе ваших данных</p>
           </div>
 
-          <div className="bg-surface rounded-lg p-content">
+          <div className="bg-surface rounded-lg p-content border-0">
             <div className="text-center space-y-content">
               <div className="flex flex-col items-center space-y-3">
                 <AlertTriangle className="h-12 w-12 text-warning" />
@@ -152,30 +152,30 @@ const Analytics = () => {
           {/* Main Content Area */}
           <div className="lg:col-span-3">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-content">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="overview" className="flex items-center gap-1">
-                  <Brain className="h-4 w-4" />
+              <TabsList className="grid w-full grid-cols-5 bg-muted/30 p-1 h-auto">
+                <TabsTrigger value="overview" className="flex items-center gap-1 text-xs py-2">
+                  <Brain className="h-3 w-3" />
                   <span className="hidden sm:inline">Обзор</span>
                 </TabsTrigger>
-                <TabsTrigger value="lifestyle" className="flex items-center gap-1">
-                  <Heart className="h-4 w-4" />
+                <TabsTrigger value="lifestyle" className="flex items-center gap-1 text-xs py-2">
+                  <Heart className="h-3 w-3" />
                   <span className="hidden sm:inline">Образ жизни</span>
                 </TabsTrigger>
-                <TabsTrigger value="nutrition" className="flex items-center gap-1">
-                  <Apple className="h-4 w-4" />
+                <TabsTrigger value="nutrition" className="flex items-center gap-1 text-xs py-2">
+                  <Apple className="h-3 w-3" />
                   <span className="hidden sm:inline">Питание</span>
                 </TabsTrigger>
-                <TabsTrigger value="biomarkers" className="flex items-center gap-1">
-                  <FlaskConical className="h-4 w-4" />
+                <TabsTrigger value="biomarkers" className="flex items-center gap-1 text-xs py-2">
+                  <FlaskConical className="h-3 w-3" />
                   <span className="hidden sm:inline">Биомаркеры</span>
                 </TabsTrigger>
-                <TabsTrigger value="supplements" className="flex items-center gap-1">
-                  <Pill className="h-4 w-4" />
+                <TabsTrigger value="supplements" className="flex items-center gap-1 text-xs py-2">
+                  <Pill className="h-3 w-3" />
                   <span className="hidden sm:inline">Добавки</span>
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="overview" className="space-y-content">
+              <TabsContent value="overview" className="space-y-content mt-4">
                 <div className="space-y-content">
                   <AIHealthConsultant 
                     healthProfile={healthProfile} 
@@ -187,21 +187,21 @@ const Analytics = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="lifestyle" className="space-y-content">
+              <TabsContent value="lifestyle" className="space-y-content mt-4">
                 <LifestyleRecommendations 
                   recommendations={recommendations} 
                   healthProfile={healthProfile}
                 />
               </TabsContent>
 
-              <TabsContent value="nutrition" className="space-y-content">
+              <TabsContent value="nutrition" className="space-y-content mt-4">
                 <div className="grid gap-content">
                   {recommendations?.foods && recommendations.foods.length > 0 ? (
                     <div className="space-y-content-xs">
                       <h3 className="text-lg font-semibold text-primary">Рекомендации по питанию</h3>
                       <div className="grid gap-3">
-                        {recommendations.foods.map((food, index) => (
-                          <div key={index} className="bg-surface rounded-lg p-content-xs">
+                         {recommendations.foods.map((food, index) => (
+                          <div key={index} className="bg-surface rounded-lg p-content-xs border-0">
                             <div className="space-y-2">
                               <div className="flex justify-between items-start">
                                 <h4 className="font-medium text-primary">{food.name}</h4>
@@ -239,7 +239,7 @@ const Analytics = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="biomarkers" className="space-y-content">
+              <TabsContent value="biomarkers" className="space-y-content mt-4">
                 <BiomarkersInsights 
                   recommendations={recommendations}
                   healthProfile={healthProfile}
@@ -247,7 +247,7 @@ const Analytics = () => {
                 />
               </TabsContent>
 
-              <TabsContent value="supplements" className="space-y-content">
+              <TabsContent value="supplements" className="space-y-content mt-4">
                 <SupplementsRecommendations recommendations={recommendations} />
               </TabsContent>
             </Tabs>

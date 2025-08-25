@@ -89,34 +89,34 @@ const AIHealthConsultant: React.FC<AIHealthConsultantProps> = ({
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="bg-surface rounded-lg p-content border-0">
+        <div className="pb-content-xs border-b border-border/50">
+          <div className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-primary" />
-            ИИ-Консультант анализирует...
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+            <h3 className="text-lg font-semibold text-primary">ИИ-Консультант анализирует...</h3>
+          </div>
+        </div>
+        <div className="pt-content-xs">
           <div className="flex items-center justify-center py-8">
             <div className="flex flex-col items-center space-y-3">
               <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full"></div>
               <p className="text-sm text-muted-foreground">Анализирую ваши данные о здоровье...</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <div className="bg-surface rounded-lg p-content border-0">
+      <div className="pb-content-xs border-b border-border/50">
+        <div className="flex items-center gap-2">
           <Brain className="h-5 w-5 text-primary" />
-          ИИ-Консультант по здоровью
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-content">
+          <h3 className="text-lg font-semibold text-primary">ИИ-Консультант по здоровью</h3>
+        </div>
+      </div>
+      <div className="pt-content-xs space-y-content">
         {/* Дисклеймер */}
         <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
           <div className="flex gap-2">
@@ -192,8 +192,8 @@ const AIHealthConsultant: React.FC<AIHealthConsultantProps> = ({
             <p>• Следите за динамикой ключевых биомаркеров еженедельно</p>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
