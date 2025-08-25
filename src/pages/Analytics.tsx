@@ -1,80 +1,65 @@
-
 import React, { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import AnalyticsScoreCard from '@/components/analytics/AnalyticsScoreCard';
-import AnalyticsBiomarkersCard from '@/components/analytics/AnalyticsBiomarkersCard';
-import AnalyticsDisplayCard from '@/components/analytics/AnalyticsDisplayCard';
-import AnalyticsValueDisplay from '@/components/analytics/AnalyticsValueDisplay';
-import PersonalAIConsultant from '@/components/analytics/PersonalAIConsultant';
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
-import { useRecommendationsInvalidation } from '@/hooks/useRecommendationsInvalidation';
+import { usePersonalizedRecommendations } from '@/hooks/usePersonalizedRecommendations';
+import { useCachedAnalytics } from '@/hooks/useCachedAnalytics';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, AlertTriangle, User, TestTube, Calendar, Target, Brain } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RefreshCw, AlertTriangle, User, TestTube, Brain, Heart, Apple, FlaskConical, Pill } from 'lucide-react';
+import AIHealthConsultant from '@/components/recommendations/AIHealthConsultant';
+import RecommendationsOverview from '@/components/recommendations/RecommendationsOverview';
+import HealthMetricsCard from '@/components/recommendations/HealthMetricsCard';
+import BiomarkersInsights from '@/components/recommendations/BiomarkersInsights';
+import SupplementsRecommendations from '@/components/recommendations/SupplementsRecommendations';
+import LifestyleRecommendations from '@/components/recommendations/LifestyleRecommendations';
 
 const Analytics = () => {
+  const { healthProfile, isLoading: profileLoading } = useHealthProfile();
+  const { 
+    recommendations, 
+    isLoading: recommendationsLoading, 
+    generateRecommendations 
+  } = usePersonalizedRecommendations();
   const { 
     analytics, 
-    isLoading, 
-    isGenerating, 
     hasHealthProfile, 
-    hasAnalyses, 
-    generateAnalytics 
+    hasAnalyses 
   } = useCachedAnalytics();
   
-  const { healthProfile } = useHealthProfile();
-  const isMobile = useIsMobile();
-  
-  // Инициализируем отслеживание изменений для инвалидации кэша рекомендаций
-  // useRecommendationsInvalidation(); // Временно отключено для отладки
+  const [activeTab, setActiveTab] = useState('overview');
 
-  // Перевод целей на русский язык
-  const translateGoal = (goal: string): string => {
-    const translations: Record<string, string> = {
-      'biological_age': 'Биологический возраст',
-      'cardiovascular': 'Сердечно-сосудистое здоровье',
-      'cognitive': 'Когнитивное здоровье',
-      'musculoskeletal': 'Опорно-двигательная система',
-      'metabolism': 'Метаболизм',
-      'muscle_gain': 'Набор мышечной массы',
-      'weight_loss': 'Снижение веса',
-      'energy_boost': 'Повышение энергии',
-      'sleep_improvement': 'Улучшение сна',
-      'stress_reduction': 'Снижение стресса',
-      'immunity_boost': 'Укрепление иммунитета',
-      'longevity': 'Увеличение продолжительности жизни',
-      'hormonal_balance': 'Гормональный баланс',
-      'digestive_health': 'Здоровье пищеварения',
-      'skin_health': 'Здоровье кожи',
-      'metabolic_health': 'Метаболическое здоровье',
-      'bone_health': 'Здоровье костей',
-      'mental_health': 'Психическое здоровье',
-      'detox': 'Детоксикация организма',
-      'athletic_performance': 'Спортивные результаты'
+  const handleGenerateRecommendations = async () => {
+    if (!healthProfile || !analytics) return;
+    
+    // Создаем совместимый объект профиля
+    const profileData = {
+      id: '',
+      first_name: '',
+      last_name: '', 
+      nickname: '',
+      date_of_birth: '',
+      gender: healthProfile.gender,
+      height: healthProfile.height,
+      weight: healthProfile.weight,
+      medical_conditions: healthProfile.chronicConditions || [],
+      allergies: healthProfile.allergies || [],
+      medications: healthProfile.medications || [],
+      goals: healthProfile.healthGoals || []
     };
-    return translations[goal] || goal;
+    
+    await generateRecommendations({
+      profile: profileData,
+      goals: analytics.nutritionGoals || null,
+      currentIntake: {
+        calories: analytics.currentNutrition?.calories || 0,
+        protein: analytics.currentNutrition?.protein || 0,
+        carbs: analytics.currentNutrition?.carbs || 0,
+        fat: analytics.currentNutrition?.fat || 0
+      }
+    });
   };
 
-  const handleGenerateAnalytics = async () => {
-    console.log('🔄 Manual analytics refresh triggered');
-    await generateAnalytics();
-  };
-
-  if (isLoading) {
-    return (
-      <AppLayout>
-        <div className="flex items-center justify-center min-h-[400px] p-container">
-          <div className="text-center space-y-4">
-            <div className="animate-spin h-10 w-10 border-2 border-primary border-t-transparent rounded-full mx-auto"></div>
-            <p className="text-secondary-foreground">Загрузка аналитики...</p>
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
+  const isLoading = profileLoading || recommendationsLoading;
 
   // Если нет профиля здоровья или анализов
   if (!hasHealthProfile || !hasAnalyses) {
@@ -82,27 +67,27 @@ const Analytics = () => {
       <AppLayout>
         <div className="p-container space-y-content">
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-primary">Персональная аналитика</h1>
-            <p className="text-sm text-secondary-foreground">Ваш персональный анализ здоровья</p>
+            <h1 className="text-2xl font-bold text-primary">ИИ-Рекомендации по здоровью</h1>
+            <p className="text-sm text-secondary-foreground">Персонализированные рекомендации на основе ваших данных</p>
           </div>
 
-          <div className="bg-surface border border-border rounded-lg p-content">
+          <div className="bg-surface rounded-lg p-content">
             <div className="text-center space-y-content">
               <div className="flex flex-col items-center space-y-3">
                 <AlertTriangle className="h-12 w-12 text-warning" />
                 <h3 className="text-lg font-semibold text-primary">Недостаточно данных для анализа</h3>
               </div>
               
-              <p className="text-secondary-foreground">
-                Для генерации персональных рекомендаций необходимо:
+              <p className="text-secondary-foreground max-w-md mx-auto">
+                Для получения персонализированных рекомендаций ИИ-ассистента необходимо:
               </p>
               
               <div className="space-y-3 max-w-md mx-auto">
-                <div className={`flex items-center gap-3 p-3 rounded-lg ${hasHealthProfile ? 'bg-success/10 text-success border border-success/20' : 'bg-muted text-muted-foreground'}`}>
+                <div className={`flex items-center gap-3 p-3 rounded-lg ${hasHealthProfile ? 'bg-success/10 text-success' : 'bg-muted/50 text-muted-foreground'}`}>
                   <User className="h-5 w-5 flex-shrink-0" />
                   <span className="text-sm">{hasHealthProfile ? '✓ Профиль здоровья создан' : 'Создать профиль здоровья'}</span>
                 </div>
-                <div className={`flex items-center gap-3 p-3 rounded-lg ${hasAnalyses ? 'bg-success/10 text-success border border-success/20' : 'bg-muted text-muted-foreground'}`}>
+                <div className={`flex items-center gap-3 p-3 rounded-lg ${hasAnalyses ? 'bg-success/10 text-success' : 'bg-muted/50 text-muted-foreground'}`}>
                   <TestTube className="h-5 w-5 flex-shrink-0" />
                   <span className="text-sm">{hasAnalyses ? '✓ Анализы загружены' : 'Загрузить анализы крови'}</span>
                 </div>
@@ -134,184 +119,138 @@ const Analytics = () => {
     );
   }
 
-  // Если нет аналитики, но есть данные
-  if (!analytics) {
-    return (
-      <AppLayout>
-        <div className="p-container space-y-content">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-primary">Персональная аналитика</h1>
-            <p className="text-sm text-secondary-foreground">Ваш персональный анализ здоровья</p>
-          </div>
-
-          <div className="bg-surface border border-border rounded-lg p-content">
-            <div className="text-center space-y-content">
-              <div className="flex flex-col items-center space-y-3">
-                <RefreshCw className="h-12 w-12 text-primary" />
-                <h3 className="text-lg font-semibold text-primary">Готов к анализу</h3>
-              </div>
-              
-              <p className="text-secondary-foreground">
-                Ваши данные готовы для генерации персональных рекомендаций ИИ-доктором
-              </p>
-              
-              <Button 
-                onClick={handleGenerateAnalytics}
-                disabled={isGenerating}
-                size="lg"
-                className="w-full max-w-xs mx-auto"
-              >
-                {isGenerating ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    Анализируем...
-                  </>
-                ) : (
-                  'Сгенерировать рекомендации'
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
-
-  // Основная страница с рекомендациями
   return (
     <AppLayout>
       <div className="p-container space-y-content">
         {/* Header */}
         <div className="space-y-content-xs">
           <div className="space-y-1">
-            <h1 className="text-xl font-bold text-primary">Персональная аналитика</h1>
-            <p className="text-sm text-secondary-foreground">Ваш персональный анализ здоровья</p>
+            <h1 className="text-xl font-bold text-primary">ИИ-Рекомендации по здоровью</h1>
+            <p className="text-sm text-secondary-foreground">Персонализированные рекомендации на основе ваших данных</p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-2 w-full">
-            <Link to="/my-recommendations" className="flex-1 sm:flex-none">
-              <Button variant="secondary" size="sm" className="w-full sm:w-auto">
-                <Calendar className="h-4 w-4 mr-2" />
-                {isMobile ? 'Мои рекомендации' : 'Мои рекомендации'}
-              </Button>
-            </Link>
+          <div className="flex gap-2">
             <Button
-              onClick={handleGenerateAnalytics}
-              disabled={isGenerating}
+              onClick={handleGenerateRecommendations}
+              disabled={isLoading}
               variant="secondary"
               size="sm"
-              className="flex-1 sm:flex-none"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
-              Обновить
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              {isLoading ? 'Генерируем...' : 'Обновить рекомендации'}
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-content">
-          {/* Main Content - Left 2/3 */}
-          <div className="lg:col-span-2 space-y-content">
-            {/* Health Goals Section */}
-            {healthProfile?.healthGoals && healthProfile.healthGoals.length > 0 && (
-              <div className="space-y-content-xs">
-                <div className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-accent" />
-                  <h3 className="text-base font-semibold text-primary">Мои цели</h3>
-                </div>
-                <div className="space-y-2">
-                  {healthProfile.healthGoals.slice(0, 3).map((goal, index) => (
-                    <div key={index} className="flex items-center gap-3 p-content-xs bg-accent/5 border border-accent/20 rounded-md">
-                      <div className="w-2 h-2 bg-accent rounded-full flex-shrink-0"></div>
-                      <span className="text-sm text-foreground">
-                        {translateGoal(goal)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Personal AI Consultant - Main Content */}
-            <div className="space-y-content-xs">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-primary" />
-                  <h3 className="text-base font-semibold text-primary">ИИ-Консультант по здоровью</h3>
-                </div>
-                <Button
-                  onClick={handleGenerateAnalytics}
-                  disabled={isGenerating}
-                  variant="ghost"
-                  size="sm"
-                >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
-                  Обновить
-                </Button>
-              </div>
-              <div>
-                <PersonalAIConsultant 
-                  analytics={analytics} 
-                  healthProfile={healthProfile}
-                />
-              </div>
-            </div>
-
-            {/* Biomarkers Analysis */}
-            <AnalyticsBiomarkersCard analytics={analytics} />
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-content">
+          {/* Left Sidebar - Health Metrics */}
+          <div className="lg:col-span-1 space-y-content">
+            <HealthMetricsCard healthProfile={healthProfile} analytics={analytics} />
           </div>
 
-          {/* Right Sidebar - 1/3 */}
-          <div className="space-y-content">
-            {/* Health Index */}
-            <AnalyticsScoreCard
-              healthScore={analytics.healthScore}
-              riskLevel={analytics.riskLevel}
-              lastUpdated={analytics.lastUpdated}
-            />
+          {/* Main Content Area */}
+          <div className="lg:col-span-3">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-content">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="overview" className="flex items-center gap-1">
+                  <Brain className="h-4 w-4" />
+                  <span className="hidden sm:inline">Обзор</span>
+                </TabsTrigger>
+                <TabsTrigger value="lifestyle" className="flex items-center gap-1">
+                  <Heart className="h-4 w-4" />
+                  <span className="hidden sm:inline">Образ жизни</span>
+                </TabsTrigger>
+                <TabsTrigger value="nutrition" className="flex items-center gap-1">
+                  <Apple className="h-4 w-4" />
+                  <span className="hidden sm:inline">Питание</span>
+                </TabsTrigger>
+                <TabsTrigger value="biomarkers" className="flex items-center gap-1">
+                  <FlaskConical className="h-4 w-4" />
+                  <span className="hidden sm:inline">Биомаркеры</span>
+                </TabsTrigger>
+                <TabsTrigger value="supplements" className="flex items-center gap-1">
+                  <Pill className="h-4 w-4" />
+                  <span className="hidden sm:inline">Добавки</span>
+                </TabsTrigger>
+              </TabsList>
 
-            {/* Health Profile Summary */}
-            {healthProfile && (
-              <div className="space-y-content-xs">
-                <div className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-primary" />
-                  <h3 className="text-base font-semibold text-primary">Профиль здоровья</h3>
+              <TabsContent value="overview" className="space-y-content">
+                <div className="space-y-content">
+                  <AIHealthConsultant 
+                    healthProfile={healthProfile} 
+                    analytics={analytics}
+                    recommendations={recommendations}
+                    isLoading={isLoading}
+                  />
+                  <RecommendationsOverview recommendations={recommendations} />
                 </div>
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1 p-content-xs bg-muted/30 rounded-md">
-                      <span className="text-xs text-muted-foreground">Возраст</span>
-                      <span className="text-sm font-medium text-foreground block">{healthProfile.age} лет</span>
+              </TabsContent>
+
+              <TabsContent value="lifestyle" className="space-y-content">
+                <LifestyleRecommendations 
+                  recommendations={recommendations} 
+                  healthProfile={healthProfile}
+                />
+              </TabsContent>
+
+              <TabsContent value="nutrition" className="space-y-content">
+                <div className="grid gap-content">
+                  {recommendations?.foods && recommendations.foods.length > 0 ? (
+                    <div className="space-y-content-xs">
+                      <h3 className="text-lg font-semibold text-primary">Рекомендации по питанию</h3>
+                      <div className="grid gap-3">
+                        {recommendations.foods.map((food, index) => (
+                          <div key={index} className="bg-surface rounded-lg p-content-xs">
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-start">
+                                <h4 className="font-medium text-primary">{food.name}</h4>
+                                <span className="text-sm text-muted-foreground">{food.portion}</span>
+                              </div>
+                              <p className="text-sm text-secondary-foreground">{food.reason}</p>
+                              <div className="grid grid-cols-4 gap-2 text-xs">
+                                <div className="text-center p-2 bg-muted/30 rounded">
+                                  <div className="font-medium">{food.calories}</div>
+                                  <div className="text-muted-foreground">ккал</div>
+                                </div>
+                                <div className="text-center p-2 bg-muted/30 rounded">
+                                  <div className="font-medium">{food.protein}г</div>
+                                  <div className="text-muted-foreground">белки</div>
+                                </div>
+                                <div className="text-center p-2 bg-muted/30 rounded">
+                                  <div className="font-medium">{food.carbs}г</div>
+                                  <div className="text-muted-foreground">углеводы</div>
+                                </div>
+                                <div className="text-center p-2 bg-muted/30 rounded">
+                                  <div className="font-medium">{food.fat}г</div>
+                                  <div className="text-muted-foreground">жиры</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="space-y-1 p-content-xs bg-muted/30 rounded-md">
-                      <span className="text-xs text-muted-foreground">ИМТ</span>
-                      <span className="text-sm font-medium text-foreground block">{((healthProfile.weight / Math.pow(healthProfile.height / 100, 2)).toFixed(1))}</span>
+                  ) : (
+                    <div className="text-center p-content text-muted-foreground">
+                      Нет доступных рекомендаций по питанию
                     </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1 p-content-xs bg-muted/30 rounded-md">
-                      <span className="text-xs text-muted-foreground">Часы сна</span>
-                      <span className="text-sm font-medium text-foreground block">{healthProfile.sleepHours} часов</span>
-                    </div>
-                    <div className="space-y-1 p-content-xs bg-muted/30 rounded-md">
-                      <span className="text-xs text-muted-foreground">Стресс</span>
-                      <span className="text-sm font-medium text-foreground block">{healthProfile.stressLevel}/10</span>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1 p-content-xs bg-muted/30 rounded-md">
-                      <span className="text-xs text-muted-foreground">Активность</span>
-                      <span className="text-sm font-medium text-foreground block">{healthProfile.exerciseFrequency}/нед</span>
-                    </div>
-                    <div className="space-y-1 p-content-xs bg-muted/30 rounded-md">
-                      <span className="text-xs text-muted-foreground">Вода</span>
-                      <span className="text-sm font-medium text-foreground block">{healthProfile.waterIntake} ст</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
-              </div>
-            )}
+              </TabsContent>
+
+              <TabsContent value="biomarkers" className="space-y-content">
+                <BiomarkersInsights 
+                  recommendations={recommendations}
+                  healthProfile={healthProfile}
+                  analytics={analytics}
+                />
+              </TabsContent>
+
+              <TabsContent value="supplements" className="space-y-content">
+                <SupplementsRecommendations recommendations={recommendations} />
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
