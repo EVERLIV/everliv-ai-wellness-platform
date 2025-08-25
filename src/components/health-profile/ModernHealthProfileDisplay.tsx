@@ -2,16 +2,9 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   User, 
-  Activity, 
   Target, 
-  Pill, 
-  FileText,
   Edit,
   Bell,
-  BarChart3,
-  TrendingUp,
-  ChevronDown,
-  ChevronUp,
   Heart,
   Brain,
   Droplets,
@@ -24,7 +17,6 @@ import { translateValue } from "@/utils/healthProfileTranslations";
 import { translateGoalText, translateHealthGoal } from "@/utils/goalTranslations";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHealthGoalsManager } from "@/hooks/useHealthGoalsManager";
-import EditHealthGoalsModal from "./EditHealthGoalsModal";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { cn } from "@/lib/utils";
 
@@ -40,10 +32,6 @@ const ModernHealthProfileDisplay: React.FC<ModernHealthProfileDisplayProps> = ({
   const { user } = useAuth();
   const { goals } = useHealthGoalsManager();
   const { updateHealthProfile, saveHealthProfile } = useHealthProfile();
-
-  // Состояния для управления открытием секций
-  const [isGoalsOpen, setIsGoalsOpen] = useState(false);
-  const [isMedicalOpen, setIsMedicalOpen] = useState(false);
 
   const handleSaveHealthProfile = async (): Promise<void> => {
     await saveHealthProfile();
@@ -212,144 +200,97 @@ const ModernHealthProfileDisplay: React.FC<ModernHealthProfileDisplayProps> = ({
 
         {/* Health Goals Section */}
         <div>
-          <button 
-            onClick={() => setIsGoalsOpen(!isGoalsOpen)}
-            className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors active:bg-gray-100 touch-manipulation rounded-lg"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 bg-purple-100 rounded-full flex items-center justify-center">
-                <Target className="w-4 h-4 text-purple-600" />
-              </div>
-              <div className="text-left">
-                <span className="text-sm font-semibold text-gray-900 block">Цели</span>
-                <span className="text-xs text-gray-500">{allGoals.length} активных</span>
-              </div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 bg-purple-100 rounded-full flex items-center justify-center">
+              <Target className="w-4 h-4 text-purple-600" />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
-                {allGoals.length}
-              </span>
-              {isGoalsOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+            <div>
+              <span className="text-sm font-semibold text-gray-900 block">Цели</span>
+              <span className="text-xs text-gray-500">{allGoals.length} активных</span>
             </div>
-          </button>
-          {isGoalsOpen && (
-            <div className="mt-3 animate-in slide-in-from-top-2 duration-200">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xs text-gray-600 font-medium">Активные цели</span>
-                <EditHealthGoalsModal
-                  healthProfile={healthProfile}
-                  onUpdate={updateHealthProfile}
-                  onSave={handleSaveHealthProfile}
-                />
-              </div>
-              {allGoals.length > 0 ? (
-                <div className="space-y-2">
-                  {allGoals.slice(0, 3).map((goal) => (
-                    <div key={goal.id} className="p-2.5 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg">
-                      <h3 className="font-medium text-purple-900 text-sm mb-1">{goal.title}</h3>
-                      <div className="flex items-center gap-2">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(goal.priority)}`}>
-                          {getPriorityText(goal.priority)}
-                        </span>
-                        <span className="text-xs text-purple-600 font-medium">{getCategoryText(goal.category)}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {allGoals.length > 3 && (
-                    <div className="text-center py-2">
-                      <span className="text-xs text-purple-600 font-medium">+{allGoals.length - 3} ещё</span>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-center py-4">
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Target className="w-5 h-5 text-purple-600" />
+          </div>
+          
+          {allGoals.length > 0 ? (
+            <div className="space-y-2">
+              {allGoals.map((goal) => (
+                <div key={goal.id} className="p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg">
+                  <h3 className="font-medium text-purple-900 text-sm mb-2">{goal.title}</h3>
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(goal.priority)}`}>
+                      {getPriorityText(goal.priority)}
+                    </span>
+                    <span className="text-xs text-purple-600 font-medium">{getCategoryText(goal.category)}</span>
                   </div>
-                  <p className="text-sm text-gray-600 mb-3">Нет активных целей</p>
-                  <button className="bg-purple-600 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-purple-700 transition-colors active:scale-95 touch-manipulation">
-                    Добавить цель
-                  </button>
                 </div>
-              )}
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-4">
+              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Target className="w-5 h-5 text-purple-600" />
+              </div>
+              <p className="text-sm text-gray-600 mb-3">Нет активных целей</p>
             </div>
           )}
         </div>
 
         {/* Medical Information */}
         <div>
-          <button 
-            onClick={() => setIsMedicalOpen(!isMedicalOpen)}
-            className="w-full p-3 flex items-center justify-between hover:bg-gray-50 transition-colors active:bg-gray-100 touch-manipulation rounded-lg"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 bg-red-100 rounded-full flex items-center justify-center">
-                <Heart className="w-4 h-4 text-red-500" />
-              </div>
-              <div className="text-left">
-                <span className="text-sm font-semibold text-gray-900 block">Показатели</span>
-                <span className="text-xs text-gray-500">Физические</span>
-              </div>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 bg-red-100 rounded-full flex items-center justify-center">
+              <Heart className="w-4 h-4 text-red-500" />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">
-                6
-              </span>
-              {isMedicalOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+            <div>
+              <span className="text-sm font-semibold text-gray-900 block">Показатели</span>
+              <span className="text-xs text-gray-500">Физические</span>
             </div>
-          </button>
-          {isMedicalOpen && (
-            <div className="mt-3 animate-in slide-in-from-top-2 duration-200">
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                <div className="p-2.5 bg-gradient-to-br from-red-50 to-red-100 rounded-lg text-center active:scale-95 transition-transform touch-manipulation">
-                  <Brain className="w-4 h-4 text-red-500 mx-auto mb-1" />
-                  <div className="text-xs text-red-700 font-medium">Стресс</div>
-                  <div className="text-lg font-bold text-red-900">{healthProfile.stressLevel}/10</div>
-                </div>
-                <div className="p-2.5 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg text-center active:scale-95 transition-transform touch-manipulation">
-                  <Brain className="w-4 h-4 text-orange-500 mx-auto mb-1" />
-                  <div className="text-xs text-orange-700 font-medium">Тревога</div>
-                  <div className="text-lg font-bold text-orange-900">{healthProfile.anxietyLevel}/10</div>
-                </div>
-                <div className="p-2.5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg text-center active:scale-95 transition-transform touch-manipulation">
-                  <Bed className="w-4 h-4 text-blue-500 mx-auto mb-1" />
-                  <div className="text-xs text-blue-700 font-medium">Сон</div>
-                  <div className="text-lg font-bold text-blue-900">{healthProfile.sleepHours}ч</div>
-                </div>
-                <div className="p-2.5 bg-gradient-to-br from-green-50 to-green-100 rounded-lg text-center active:scale-95 transition-transform touch-manipulation">
-                  <Dumbbell className="w-4 h-4 text-green-500 mx-auto mb-1" />
-                  <div className="text-xs text-green-700 font-medium">Спорт</div>
-                  <div className="text-lg font-bold text-green-900">{healthProfile.exerciseFrequency}/нед</div>
-                </div>
-                <div className="p-2.5 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-lg text-center active:scale-95 transition-transform touch-manipulation">
-                  <Droplets className="w-4 h-4 text-cyan-500 mx-auto mb-1" />
-                  <div className="text-xs text-cyan-700 font-medium">Вода</div>
-                  <div className="text-lg font-bold text-cyan-900">{healthProfile.waterIntake}</div>
-                </div>
-                <div className="p-2.5 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg text-center active:scale-95 transition-transform touch-manipulation">
-                  <Coffee className="w-4 h-4 text-amber-500 mx-auto mb-1" />
-                  <div className="text-xs text-amber-700 font-medium">Кофеин</div>
-                  <div className="text-lg font-bold text-amber-900">{healthProfile.caffeineIntake}</div>
-                </div>
-              </div>
-              
-              {/* Lab Results */}
-              {healthProfile.labResults && Object.keys(healthProfile.labResults).length > 0 && (
-                <div className="border-t border-gray-100 pt-3">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-gray-600" />
-                    Анализы
-                  </h3>
-                  <div className="space-y-2">
-                    {Object.entries(healthProfile.labResults).map(([key, value]) => (
-                      <div key={key} className="flex justify-between items-center p-2.5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg text-sm active:scale-95 transition-transform touch-manipulation">
-                        <span className="text-gray-700 font-medium text-xs">{key}</span>
-                        <span className="font-semibold text-gray-900 text-xs">{value}</span>
-                      </div>
-                    ))}
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <div className="p-2.5 bg-gradient-to-br from-red-50 to-red-100 rounded-lg text-center active:scale-95 transition-transform touch-manipulation">
+              <Brain className="w-4 h-4 text-red-500 mx-auto mb-1" />
+              <div className="text-xs text-red-700 font-medium">Стресс</div>
+              <div className="text-lg font-bold text-red-900">{healthProfile.stressLevel}/10</div>
+            </div>
+            <div className="p-2.5 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg text-center active:scale-95 transition-transform touch-manipulation">
+              <Brain className="w-4 h-4 text-orange-500 mx-auto mb-1" />
+              <div className="text-xs text-orange-700 font-medium">Тревога</div>
+              <div className="text-lg font-bold text-orange-900">{healthProfile.anxietyLevel}/10</div>
+            </div>
+            <div className="p-2.5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg text-center active:scale-95 transition-transform touch-manipulation">
+              <Bed className="w-4 h-4 text-blue-500 mx-auto mb-1" />
+              <div className="text-xs text-blue-700 font-medium">Сон</div>
+              <div className="text-lg font-bold text-blue-900">{healthProfile.sleepHours}ч</div>
+            </div>
+            <div className="p-2.5 bg-gradient-to-br from-green-50 to-green-100 rounded-lg text-center active:scale-95 transition-transform touch-manipulation">
+              <Dumbbell className="w-4 h-4 text-green-500 mx-auto mb-1" />
+              <div className="text-xs text-green-700 font-medium">Спорт</div>
+              <div className="text-lg font-bold text-green-900">{healthProfile.exerciseFrequency}/нед</div>
+            </div>
+            <div className="p-2.5 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-lg text-center active:scale-95 transition-transform touch-manipulation">
+              <Droplets className="w-4 h-4 text-cyan-500 mx-auto mb-1" />
+              <div className="text-xs text-cyan-700 font-medium">Вода</div>
+              <div className="text-lg font-bold text-cyan-900">{healthProfile.waterIntake}</div>
+            </div>
+            <div className="p-2.5 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg text-center active:scale-95 transition-transform touch-manipulation">
+              <Coffee className="w-4 h-4 text-amber-500 mx-auto mb-1" />
+              <div className="text-xs text-amber-700 font-medium">Кофеин</div>
+              <div className="text-lg font-bold text-amber-900">{healthProfile.caffeineIntake}</div>
+            </div>
+          </div>
+          
+          {/* Lab Results Section */}
+          {healthProfile.labResults && Object.keys(healthProfile.labResults).length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">Лабораторные результаты</h4>
+              <div className="space-y-2">
+                {Object.entries(healthProfile.labResults).map(([key, value]) => (
+                  <div key={key} className="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                    <span className="text-xs text-gray-600 font-medium capitalize">{key.replace(/_/g, ' ')}</span>
+                    <span className="text-xs font-semibold text-gray-900">{value}</span>
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
           )}
         </div>
