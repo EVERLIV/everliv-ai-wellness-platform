@@ -52,20 +52,30 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ data, onChang
         />
       </div>
 
-      <div className="field">
-        <label className="block text-base font-medium text-gray-900 mb-2">
-          Пол
-        </label>
-        <select
-          value={data.gender}
-          onChange={(e) => onChange({ gender: e.target.value as any })}
-          className="w-full border-none bg-transparent text-lg font-normal text-gray-900 py-3 border-b-2 border-gray-200 focus:border-blue-600 focus:outline-none transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e')] bg-[right_0_center] bg-no-repeat bg-[length:20px] pr-8"
-        >
-          <option value="male">Мужской</option>
-          <option value="female">Женский</option>
-          <option value="other">Другой</option>
-        </select>
-      </div>
+        <div className="field">
+          <label className="block text-base font-medium text-gray-900 mb-2">
+            Пол
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { value: 'male', label: 'Мужской' },
+              { value: 'female', label: 'Женский' }
+            ].map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => onChange({ gender: option.value as any })}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  data.gender === option.value
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
       <div className="field">
         <label className="block text-base font-medium text-gray-900 mb-2">

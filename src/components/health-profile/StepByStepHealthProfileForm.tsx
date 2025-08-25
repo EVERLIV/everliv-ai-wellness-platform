@@ -172,14 +172,6 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
             </div>
           </div>
 
-          {/* Form Header */}
-          <div className="px-5 pb-5 flex items-center gap-2">
-            <currentStepData.icon className="w-5 h-5 text-blue-600" />
-            <h3 className="text-base font-semibold text-gray-900">
-              {currentStepData.title}
-            </h3>
-          </div>
-
           {/* Form Content */}
           <div className="px-5">
             <div className="space-y-6">
@@ -221,21 +213,6 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
                 <ArrowRight className="w-5 h-5" />
               </button>
             )}
-          </div>
-          
-          {/* Progress Dots */}
-          <div className="flex justify-center gap-2">
-            {steps.map((_, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "w-2 h-2 rounded-full transition-all",
-                  index === currentStep
-                    ? "bg-blue-600"
-                    : "bg-gray-300"
-                )}
-              />
-            ))}
           </div>
         </div>
       </div>
