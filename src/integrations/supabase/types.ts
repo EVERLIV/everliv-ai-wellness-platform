@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -2298,13 +2298,13 @@ export type Database = {
     }
     Functions: {
       calculate_dynamic_health_score: {
-        Args: { user_id_param: string; days_back?: number }
+        Args: { days_back?: number; user_id_param: string }
         Returns: number
       }
       has_role: {
         Args:
-          | { _user_id: string; _role: Database["public"]["Enums"]["app_role"] }
-          | { user_id: number; role_name: string }
+          | { _role: Database["public"]["Enums"]["app_role"]; _user_id: string }
+          | { role_name: string; user_id: number }
         Returns: boolean
       }
       is_admin: {
@@ -2313,17 +2313,17 @@ export type Database = {
       }
       recommend_protocols_for_user: {
         Args: {
-          user_id_param: string
-          match_threshold?: number
           match_count?: number
+          match_threshold?: number
+          user_id_param: string
         }
         Returns: {
-          protocol_id: string
-          title: string
-          description: string
           category: string
-          similarity: number
+          description: string
+          protocol_id: string
           recommendation_reason: string
+          similarity: number
+          title: string
         }[]
       }
     }

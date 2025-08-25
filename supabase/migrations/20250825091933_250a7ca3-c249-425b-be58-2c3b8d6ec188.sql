@@ -1,0 +1,2 @@
+-- Create voice-to-text Edge Function
+-- This will be handled by creating the edge function file directly
