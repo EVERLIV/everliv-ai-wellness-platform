@@ -4,7 +4,7 @@ import {
   User, 
   Target, 
   Edit,
-  Bell,
+  ArrowLeft,
   Heart,
   Brain,
   Droplets,
@@ -19,6 +19,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useHealthGoalsManager } from "@/hooks/useHealthGoalsManager";
 import { useHealthProfile } from "@/hooks/useHealthProfile";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface ModernHealthProfileDisplayProps {
   healthProfile: HealthProfileData;
@@ -32,6 +33,7 @@ const ModernHealthProfileDisplay: React.FC<ModernHealthProfileDisplayProps> = ({
   const { user } = useAuth();
   const { goals } = useHealthGoalsManager();
   const { updateHealthProfile, saveHealthProfile } = useHealthProfile();
+  const navigate = useNavigate();
 
   const handleSaveHealthProfile = async (): Promise<void> => {
     await saveHealthProfile();
@@ -117,12 +119,10 @@ const ModernHealthProfileDisplay: React.FC<ModernHealthProfileDisplayProps> = ({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => window.history.back()}
+              onClick={() => navigate('/dashboard')}
               className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors active:scale-95 touch-manipulation"
             >
-              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
+              <ArrowLeft className="w-4 h-4 text-gray-600" />
             </button>
             <div>
               <h1 className="text-lg font-semibold text-gray-900">
@@ -133,10 +133,6 @@ const ModernHealthProfileDisplay: React.FC<ModernHealthProfileDisplayProps> = ({
               </p>
             </div>
           </div>
-          
-          <button className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors active:scale-95 touch-manipulation">
-            <Bell className="w-4 h-4 text-gray-600" />
-          </button>
         </div>
         
         <button
