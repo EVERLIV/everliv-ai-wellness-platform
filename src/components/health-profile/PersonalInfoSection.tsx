@@ -48,7 +48,7 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ data, onChang
           placeholder="Введите возраст"
           min="1"
           max="150"
-          className="w-full border-none bg-transparent text-lg font-normal text-gray-900 py-3 border-b-2 border-gray-200 focus:border-blue-600 focus:outline-none transition-colors placeholder:text-gray-400"
+          className="w-full bg-gray-50 rounded-lg px-3 py-3 text-lg font-normal text-gray-900 border border-gray-200 focus:border-blue-600 focus:outline-none transition-colors placeholder:text-gray-400"
         />
       </div>
 
@@ -88,7 +88,7 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ data, onChang
           placeholder="Введите рост в см"
           min="1"
           max="300"
-          className="w-full border-none bg-transparent text-lg font-normal text-gray-900 py-3 border-b-2 border-gray-200 focus:border-blue-600 focus:outline-none transition-colors placeholder:text-gray-400"
+          className="w-full bg-gray-50 rounded-lg px-3 py-3 text-lg font-normal text-gray-900 border border-gray-200 focus:border-blue-600 focus:outline-none transition-colors placeholder:text-gray-400"
         />
       </div>
 
@@ -103,7 +103,7 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({ data, onChang
           placeholder="Введите вес в кг"
           min="1"
           max="500"
-          className="w-full border-none bg-transparent text-lg font-normal text-gray-900 py-3 border-b-2 border-gray-200 focus:border-blue-600 focus:outline-none transition-colors placeholder:text-gray-400"
+          className="w-full bg-gray-50 rounded-lg px-3 py-3 text-lg font-normal text-gray-900 border border-gray-200 focus:border-blue-600 focus:outline-none transition-colors placeholder:text-gray-400"
         />
       </div>
     </div>

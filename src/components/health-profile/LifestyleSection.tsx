@@ -106,7 +106,7 @@ const LifestyleSection: React.FC<LifestyleSectionProps> = ({ data, onChange }) =
           value={data.waterIntake || ''}
           onChange={(e) => onChange({ waterIntake: parseInt(e.target.value) || 0 })}
           placeholder="Количество стаканов воды в день"
-          className="border-none bg-transparent text-lg font-normal text-gray-900 py-3 border-b-2 border-gray-200 focus:border-blue-600 focus:ring-0 focus:ring-offset-0 rounded-none shadow-none placeholder:text-gray-400"
+          className="bg-gray-50 rounded-lg px-3 py-3 text-lg font-normal text-gray-900 border border-gray-200 focus:border-blue-600 focus:ring-0 focus:ring-offset-0 placeholder:text-gray-400"
         />
       </div>
 
@@ -119,7 +119,7 @@ const LifestyleSection: React.FC<LifestyleSectionProps> = ({ data, onChange }) =
           value={data.caffeineIntake || ''}
           onChange={(e) => onChange({ caffeineIntake: parseInt(e.target.value) || 0 })}
           placeholder="Количество чашек кофе в день"
-          className="border-none bg-transparent text-lg font-normal text-gray-900 py-3 border-b-2 border-gray-200 focus:border-blue-600 focus:ring-0 focus:ring-offset-0 rounded-none shadow-none placeholder:text-gray-400"
+          className="bg-gray-50 rounded-lg px-3 py-3 text-lg font-normal text-gray-900 border border-gray-200 focus:border-blue-600 focus:ring-0 focus:ring-offset-0 placeholder:text-gray-400"
         />
       </div>
     </div>

@@ -181,7 +181,7 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
         </div>
 
         {/* Bottom Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-50 px-5 py-4 pb-8">
+        <div className="fixed bottom-0 left-0 right-0 bg-gray-50 px-5 py-4">
           <div className="flex gap-3 mb-4 max-w-sm mx-auto">
             <button
               onClick={handlePrevious}

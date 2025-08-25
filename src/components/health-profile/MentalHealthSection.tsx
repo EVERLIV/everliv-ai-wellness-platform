@@ -23,7 +23,7 @@ const MentalHealthSection: React.FC<MentalHealthSectionProps> = ({ data, onChang
           value={data.stressLevel || ''}
           onChange={(e) => onChange({ stressLevel: parseInt(e.target.value) || 5 })}
           placeholder="Оцените уровень стресса от 1 до 10"
-          className="border-none bg-transparent text-lg font-normal text-gray-900 py-3 border-b-2 border-gray-200 focus:border-blue-600 focus:ring-0 focus:ring-offset-0 rounded-none shadow-none placeholder:text-gray-400"
+          className="bg-gray-50 rounded-lg px-3 py-3 text-lg font-normal text-gray-900 border border-gray-200 focus:border-blue-600 focus:ring-0 focus:ring-offset-0 placeholder:text-gray-400"
         />
       </div>
 
@@ -38,7 +38,7 @@ const MentalHealthSection: React.FC<MentalHealthSectionProps> = ({ data, onChang
           value={data.anxietyLevel || ''}
           onChange={(e) => onChange({ anxietyLevel: parseInt(e.target.value) || 5 })}
           placeholder="Оцените уровень тревожности от 1 до 10"
-          className="border-none bg-transparent text-lg font-normal text-gray-900 py-3 border-b-2 border-gray-200 focus:border-blue-600 focus:ring-0 focus:ring-offset-0 rounded-none shadow-none placeholder:text-gray-400"
+          className="bg-gray-50 rounded-lg px-3 py-3 text-lg font-normal text-gray-900 border border-gray-200 focus:border-blue-600 focus:ring-0 focus:ring-offset-0 placeholder:text-gray-400"
         />
       </div>
 
