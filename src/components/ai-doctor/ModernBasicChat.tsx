@@ -28,12 +28,9 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const suggestedQuestions = [
-    "Головная боль",
-    "Витамины зимой", 
-    "Качество сна",
-    "Результаты анализов",
-    "Боль в спине",
-    "Профилактика простуды"
+    "Анализ крови", 
+    "Симптомы",
+    "Рекомендации"
   ];
 
   useEffect(() => {
@@ -41,7 +38,7 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
     const welcomeMessage: Message = {
       id: 'welcome',
       role: 'assistant',
-      content: 'Привет! 👋 Готов помочь с вопросами о здоровье.',
+      content: 'Здравствуйте! Я ваш персональный ИИ-консультант по здоровью. Могу помочь с интерпретацией анализов, ответить на вопросы о здоровье или дать рекомендации по улучшению самочувствия. Чем могу помочь?',
       timestamp: new Date()
     };
     setMessages([welcomeMessage]);
@@ -146,104 +143,110 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
   const showSuggestedQuestions = messages.length <= 1;
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
-      {/* Minimalist Header */}
+    <div className="h-full flex flex-col bg-gradient-to-b from-gray-50 to-white">
+      {/* Mobile-First Header */}
       <div className={cn(
-        "flex items-center justify-between bg-gray-50",
-        isMobile ? "px-3 py-2 safe-area-pt" : "px-4 py-3"
+        "flex items-center justify-between bg-gradient-to-r from-purple-600 to-blue-600 text-white sticky top-0 z-10 backdrop-blur-lg shadow-lg",
+        isMobile ? "px-4 py-3 safe-area-pt" : "px-6 py-4"
       )}>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onBack}
-          className="text-gray-500 hover:text-gray-700 rounded-full w-7 h-7 p-0 hover:bg-gray-100"
-        >
-          <ArrowLeft className="h-3 w-3" />
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onBack}
+            className="text-white hover:text-white hover:bg-white/20 rounded-full w-8 h-8 p-0"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+              <Stethoscope className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <h1 className={cn("font-semibold", isMobile ? "text-base" : "text-lg")}>
+                ИИ Доктор
+              </h1>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className={cn("text-white/90", isMobile ? "text-xs" : "text-sm")}>
+                  Онлайн
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
         
         <Button
           variant="ghost"
           size="sm"
-          className="text-gray-500 hover:text-gray-700 rounded-lg w-7 h-7 p-0 hover:bg-gray-100"
+          className="text-white hover:text-white hover:bg-white/20 rounded-lg w-8 h-8 p-0"
         >
-          <Grid3X3 className="h-3 w-3" />
+          <Grid3X3 className="h-4 w-4" />
         </Button>
       </div>
 
-      {/* Chat Messages - Pure Background */}
+      {/* Chat Messages - Modern Mobile Design */}
       <div className={cn(
-        "flex-1 overflow-y-auto scroll-smooth bg-gray-50",
-        isMobile ? "px-3 py-3" : "px-4 py-4"
+        "flex-1 overflow-y-auto scroll-smooth bg-gradient-to-b from-gray-50 to-white touch-manipulation",
+        isMobile ? "px-4 py-4" : "px-6 py-6"
       )}>
-        <div className="space-y-4 max-w-4xl mx-auto">
+        <div className="space-y-3 max-w-none">
           {messages.map((message) => (
             <div key={message.id} className={cn(
-              "flex w-full",
+              "flex items-end gap-2",
               message.role === "user" ? "justify-end" : "justify-start"
             )}>
+              {message.role === "assistant" && (
+                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mb-1">
+                  <Stethoscope className="h-4 w-4 text-white" />
+                </div>
+              )}
+              
               {message.role === "user" ? (
-                // Исходящие сообщения (пользователь) - справа с градиентом
+                // User messages - right side with gradient
                 <div className={cn(
-                  "relative w-full rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 text-white animate-in slide-in-from-right-2 duration-300 shadow-lg",
-                  isMobile ? "px-4 py-3 text-sm" : "px-5 py-4 text-sm"
+                  "max-w-[85%] rounded-2xl rounded-br-md bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg transform transition-all duration-300 hover:scale-[1.02]",
+                  isMobile ? "px-4 py-3 text-sm" : "px-5 py-4 text-base"
                 )}>
                   <div className="leading-relaxed whitespace-pre-wrap">
                     {message.content}
                   </div>
                 </div>
               ) : (
-                // Входящие сообщения (ИИ) - слева
+                // AI messages - left side with modern styling
                 <div className={cn(
-                  "relative w-full rounded-2xl bg-gray-100 text-gray-900 animate-in slide-in-from-left-2 duration-300 shadow-md",
-                  isMobile ? "px-4 py-3 text-sm" : "px-5 py-4 text-sm"
+                  "max-w-[85%] rounded-2xl rounded-bl-md bg-white text-gray-800 shadow-md border border-gray-100 transform transition-all duration-300 hover:scale-[1.02]",
+                  isMobile ? "px-4 py-3 text-sm" : "px-5 py-4 text-base"
                 )}>
                   <div className="leading-relaxed whitespace-pre-wrap">
                     {message.content}
                   </div>
                 </div>
               )}
+              
+              {message.role === "user" && (
+                <div className="w-8 h-8 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full flex items-center justify-center flex-shrink-0 mb-1">
+                  <User className="h-4 w-4 text-white" />
+                </div>
+              )}
             </div>
           ))}
           
-          {/* Suggested Questions - облачный стиль */}
-          {showSuggestedQuestions && (
-            <div className="flex justify-start w-full">
-              <div className={cn(
-                "relative w-full rounded-2xl bg-gray-100 text-gray-900 animate-in slide-in-from-left-2 duration-300 shadow-md",
-                isMobile ? "px-4 py-3" : "px-5 py-4"
-              )}>
-                <div className={cn("text-gray-900 mb-3", isMobile ? "text-xs" : "text-sm")}>
-                  Выберите популярный вопрос:
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                  {suggestedQuestions.map((question, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleSuggestedQuestion(question)}
-                      className={cn(
-                        "bg-white hover:bg-blue-50 text-gray-800 hover:text-blue-700 border border-gray-200 hover:border-blue-300 rounded-full transition-all duration-200 shadow-sm hover:shadow-md",
-                        isMobile ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-xs"
-                      )}
-                    >
-                      {question}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
           
           {isProcessing && (
-            <div className="flex justify-start w-full">
+            <div className="flex items-end gap-2 justify-start">
+              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mb-1">
+                <Stethoscope className="h-4 w-4 text-white" />
+              </div>
               <div className={cn(
-                "relative w-full rounded-2xl bg-blue-50 text-gray-900 animate-in slide-in-from-left-2 duration-300 shadow-md",
+                "max-w-[85%] rounded-2xl rounded-bl-md bg-white text-gray-800 shadow-md border border-gray-100",
                 isMobile ? "px-4 py-3" : "px-5 py-4"
               )}>
-                <div className="flex items-center gap-3 text-blue-600">
-                  <Loader2 className={cn("animate-spin", isMobile ? "h-4 w-4" : "h-4 w-4")} />
-                  <span className={cn(isMobile ? "text-xs" : "text-sm")}>
-                    Анализирую...
+                <div className="flex items-center gap-3 text-purple-600">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className={cn(isMobile ? "text-sm" : "text-base")}>
+                    Печатает...
                   </span>
                 </div>
               </div>
@@ -254,53 +257,74 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area - Clean Design */}
-      <div className={cn(
-        "bg-gray-50 safe-area-pb",
-        isMobile ? "px-3 py-2" : "px-4 py-3"
-      )}>
-        <div className="max-w-4xl mx-auto">
-          <div className="flex gap-2 items-center">
-            <div className="flex-1 min-w-0">
-              <textarea
-                ref={textareaRef}
-                placeholder="Задайте вопрос о здоровье..."
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={isProcessing}
+      {/* Suggested Questions */}
+      {showSuggestedQuestions && (
+        <div className={cn(
+          "bg-white border-t border-gray-200",
+          isMobile ? "px-4 py-3" : "px-6 py-4"
+        )}>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {suggestedQuestions.map((question, index) => (
+              <button
+                key={index}
+                onClick={() => handleSuggestedQuestion(question)}
                 className={cn(
-                  "w-full resize-none bg-gray-100 placeholder:text-gray-500 overflow-hidden focus:outline-none focus:bg-gray-200 border-0 transition-all duration-200",
-                  isMobile 
-                    ? "min-h-[36px] px-3 py-2 text-sm rounded-xl" 
-                    : "min-h-[40px] px-4 py-2.5 text-sm rounded-xl"
+                  "bg-gradient-to-r from-purple-100 to-blue-100 hover:from-purple-200 hover:to-blue-200 text-purple-700 border border-purple-200 hover:border-purple-300 rounded-full transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 touch-manipulation",
+                  isMobile ? "px-4 py-2 text-sm" : "px-5 py-2.5 text-sm"
                 )}
-                style={{ 
-                  lineHeight: '1.5',
-                  wordBreak: 'break-word',
-                  overflowWrap: 'break-word',
-                  maxHeight: isMobile ? '60px' : '80px'
-                }}
-                rows={1}
-              />
-            </div>
-            <button
-              onClick={handleSubmit}
-              disabled={!inputText.trim() || isProcessing}
-              className={cn(
-                "flex-shrink-0 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 transition-all duration-200 flex items-center justify-center border-0 outline-0 rounded-full",
-                isMobile 
-                  ? "h-[36px] w-[36px]" 
-                  : "h-[40px] w-[40px]"
-              )}
-            >
-              {isProcessing ? (
-                <Loader2 className={cn("animate-spin text-white", isMobile ? "h-4 w-4" : "h-4 w-4")} />
-              ) : (
-                <Send className={cn("text-white", isMobile ? "h-4 w-4" : "h-4 w-4")} />
-              )}
-            </button>
+              >
+                {question}
+              </button>
+            ))}
           </div>
+        </div>
+      )}
+
+      {/* Input Area - Modern Mobile Design */}
+      <div className={cn(
+        "bg-white border-t border-gray-200 safe-area-pb",
+        isMobile ? "px-4 py-3" : "px-6 py-4"
+      )}>
+        <div className="flex gap-3 items-end">
+          <div className="flex-1 min-w-0">
+            <textarea
+              ref={textareaRef}
+              placeholder="Напишите сообщение..."
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={isProcessing}
+              className={cn(
+                "w-full resize-none bg-gray-100 placeholder:text-gray-500 text-gray-800 overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-300 border-0 transition-all duration-200 touch-manipulation",
+                isMobile 
+                  ? "min-h-[40px] px-4 py-3 text-base rounded-2xl" 
+                  : "min-h-[44px] px-5 py-3 text-base rounded-2xl"
+              )}
+              style={{ 
+                lineHeight: '1.4',
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+                maxHeight: isMobile ? '80px' : '100px'
+              }}
+              rows={1}
+            />
+          </div>
+          <button
+            onClick={handleSubmit}
+            disabled={!inputText.trim() || isProcessing}
+            className={cn(
+              "flex-shrink-0 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:bg-gray-300 transition-all duration-200 flex items-center justify-center border-0 outline-0 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 touch-manipulation",
+              isMobile 
+                ? "h-[40px] w-[40px]" 
+                : "h-[44px] w-[44px]"
+            )}
+          >
+            {isProcessing ? (
+              <Loader2 className="h-5 w-5 animate-spin text-white" />
+            ) : (
+              <Send className="h-5 w-5 text-white" />
+            )}
+          </button>
         </div>
       </div>
     </div>
