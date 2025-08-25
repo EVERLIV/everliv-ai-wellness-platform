@@ -194,40 +194,28 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         <div className="space-y-3 max-w-none">
           {messages.map((message) => (
             <div key={message.id} className={cn(
-              "flex items-end gap-2",
+              "flex",
               message.role === "user" ? "justify-end" : "justify-start"
             )}>
-              {message.role === "assistant" && (
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mb-1">
-                  <Stethoscope className="h-4 w-4 text-white" />
-                </div>
-              )}
-              
               {message.role === "user" ? (
                 // User messages - right side with gradient
                 <div className={cn(
-                  "max-w-[85%] rounded-2xl rounded-br-md bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg transform transition-all duration-300 hover:scale-[1.02]",
-                  isMobile ? "px-4 py-3 text-sm" : "px-5 py-4 text-base"
+                  "max-w-[280px] rounded-lg rounded-br-sm bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-sm",
+                  isMobile ? "px-3 py-2 text-sm" : "px-4 py-2.5 text-sm"
                 )}>
-                  <div className="leading-relaxed whitespace-pre-wrap">
+                  <div className="leading-normal whitespace-pre-wrap">
                     {message.content}
                   </div>
                 </div>
               ) : (
                 // AI messages - left side with modern styling
                 <div className={cn(
-                  "max-w-[85%] rounded-2xl rounded-bl-md bg-white text-gray-800 shadow-md border border-gray-100 transform transition-all duration-300 hover:scale-[1.02]",
-                  isMobile ? "px-4 py-3 text-sm" : "px-5 py-4 text-base"
+                  "max-w-[280px] rounded-lg rounded-bl-sm bg-gray-100 text-gray-800 shadow-sm",
+                  isMobile ? "px-3 py-2 text-sm" : "px-4 py-2.5 text-sm"
                 )}>
-                  <div className="leading-relaxed whitespace-pre-wrap">
+                  <div className="leading-normal whitespace-pre-wrap">
                     {message.content}
                   </div>
-                </div>
-              )}
-              
-              {message.role === "user" && (
-                <div className="w-8 h-8 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full flex items-center justify-center flex-shrink-0 mb-1">
-                  <User className="h-4 w-4 text-white" />
                 </div>
               )}
             </div>
@@ -235,17 +223,14 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
           
           
           {isProcessing && (
-            <div className="flex items-end gap-2 justify-start">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mb-1">
-                <Stethoscope className="h-4 w-4 text-white" />
-              </div>
+            <div className="flex justify-start">
               <div className={cn(
-                "max-w-[85%] rounded-2xl rounded-bl-md bg-white text-gray-800 shadow-md border border-gray-100",
-                isMobile ? "px-4 py-3" : "px-5 py-4"
+                "max-w-[280px] rounded-lg rounded-bl-sm bg-gray-100 text-gray-800 shadow-sm",
+                isMobile ? "px-3 py-2 text-sm" : "px-4 py-2.5 text-sm"
               )}>
-                <div className="flex items-center gap-3 text-purple-600">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className={cn(isMobile ? "text-sm" : "text-base")}>
+                <div className="flex items-center gap-2 text-purple-600">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span className="text-sm">
                     Печатает...
                   </span>
                 </div>
@@ -297,14 +282,14 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
               className={cn(
                 "w-full resize-none bg-gray-100 placeholder:text-gray-500 text-gray-800 overflow-hidden focus:outline-none focus:ring-2 focus:ring-purple-300 border-0 transition-all duration-200 touch-manipulation",
                 isMobile 
-                  ? "min-h-[40px] px-4 py-3 text-base rounded-2xl" 
-                  : "min-h-[44px] px-5 py-3 text-base rounded-2xl"
+                  ? "min-h-[32px] px-3 py-2 text-sm rounded-lg" 
+                  : "min-h-[36px] px-4 py-2 text-sm rounded-lg"
               )}
               style={{ 
-                lineHeight: '1.4',
+                lineHeight: '1.3',
                 wordBreak: 'break-word',
                 overflowWrap: 'break-word',
-                maxHeight: isMobile ? '80px' : '100px'
+                maxHeight: isMobile ? '60px' : '70px'
               }}
               rows={1}
             />
@@ -313,16 +298,16 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
             onClick={handleSubmit}
             disabled={!inputText.trim() || isProcessing}
             className={cn(
-              "flex-shrink-0 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:bg-gray-300 transition-all duration-200 flex items-center justify-center border-0 outline-0 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 touch-manipulation",
+              "flex-shrink-0 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 disabled:bg-gray-300 transition-all duration-200 flex items-center justify-center border-0 outline-0 rounded-full shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 touch-manipulation",
               isMobile 
-                ? "h-[40px] w-[40px]" 
-                : "h-[44px] w-[44px]"
+                ? "h-[32px] w-[32px]" 
+                : "h-[36px] w-[36px]"
             )}
           >
             {isProcessing ? (
-              <Loader2 className="h-5 w-5 animate-spin text-white" />
+              <Loader2 className="h-4 w-4 animate-spin text-white" />
             ) : (
-              <Send className="h-5 w-5 text-white" />
+              <Send className="h-4 w-4 text-white" />
             )}
           </button>
         </div>
