@@ -364,57 +364,54 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
         </div>
       )}
 
-      {/* Input Area - Modern Design with White Container */}
+      {/* Input Area - Compact Design */}
       <div className={cn(
-        "bg-white/95 backdrop-blur-sm border-t border-gray-100 safe-area-pb",
-        isMobile ? "px-4 py-4" : "px-6 py-6"
+        "bg-white safe-area-pb",
+        isMobile ? "px-4 py-3" : "px-6 py-4"
       )}>
         {/* Typing indicator */}
         {isProcessing && (
-          <div className="flex items-center gap-2 mb-3 text-gray-500 text-sm">
+          <div className="flex items-center gap-2 mb-2 text-gray-500 text-xs">
             <span>Доктор печатает</span>
             <div className="flex gap-1">
-              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
-              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+              <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce"></div>
+              <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
             </div>
           </div>
         )}
 
         <div className="relative">
-          {/* Modern Input Container */}
+          {/* Compact Input Container */}
           <div 
-            className="relative bg-white rounded-3xl border-2 border-gray-200 focus-within:border-purple-400 transition-all duration-300 focus-within:shadow-lg focus-within:shadow-purple-100/50 focus-within:-translate-y-0.5"
-            style={{
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.08)'
-            }}
+            className="relative bg-gray-50 rounded-2xl transition-all duration-200 focus-within:bg-gray-100"
           >
-            <div className="flex items-end p-1.5 gap-2">
+            <div className="flex items-center p-1 gap-1">
               {/* Left Action Buttons */}
-              <div className="flex gap-1 pb-2">
+              <div className="flex gap-0.5">
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-10 h-10 rounded-xl bg-gray-50 hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-all duration-200 flex items-center justify-center hover:scale-105"
+                  className="w-8 h-8 rounded-lg bg-transparent hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-all duration-200 flex items-center justify-center"
                 >
-                  <Paperclip className="h-5 w-5" />
+                  <Paperclip className="h-4 w-4" />
                 </button>
                 
                 <button
                   onClick={isRecording ? stopRecording : startRecording}
                   disabled={isTranscribing}
                   className={cn(
-                    "w-10 h-10 rounded-xl transition-all duration-200 flex items-center justify-center hover:scale-105",
+                    "w-8 h-8 rounded-lg transition-all duration-200 flex items-center justify-center",
                     isRecording 
-                      ? "bg-red-50 hover:bg-red-100 text-red-500" 
-                      : "bg-gray-50 hover:bg-blue-50 text-gray-600 hover:text-blue-600"
+                      ? "bg-transparent hover:bg-red-100 text-red-500" 
+                      : "bg-transparent hover:bg-gray-200 text-gray-500 hover:text-gray-700"
                   )}
                 >
                   {isTranscribing ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   ) : isRecording ? (
-                    <MicOff className="h-5 w-5" />
+                    <MicOff className="h-4 w-4" />
                   ) : (
-                    <Mic className="h-5 w-5" />
+                    <Mic className="h-4 w-4" />
                   )}
                 </button>
               </div>
@@ -422,19 +419,20 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
               {/* Text Input */}
               <textarea
                 ref={textareaRef}
-                placeholder={isTranscribing ? "Обрабатываю голос..." : "Опишите ваши симптомы или задайте вопрос..."}
+                placeholder={isTranscribing ? "Обрабатываю голос..." : "Напишите сообщение..."}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={isProcessing || isRecording}
                 className={cn(
-                  "flex-1 resize-none bg-transparent placeholder:text-gray-400 text-gray-800 overflow-hidden focus:outline-none border-0 transition-all duration-200 touch-manipulation font-normal",
+                  "flex-1 resize-none bg-transparent placeholder:text-gray-400 text-gray-800 overflow-hidden focus:outline-none border-0 transition-all duration-200 touch-manipulation",
                   isMobile 
-                    ? "min-h-[40px] px-4 py-3 text-base leading-6" 
-                    : "min-h-[44px] px-4 py-3 text-base leading-6"
+                    ? "min-h-[32px] px-2 py-2 text-sm placeholder:text-xs" 
+                    : "min-h-[36px] px-3 py-2 text-sm placeholder:text-xs"
                 )}
                 style={{ 
-                  maxHeight: '120px'
+                  maxHeight: '80px',
+                  lineHeight: '1.4'
                 }}
                 rows={1}
               />
@@ -444,25 +442,19 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
                 onClick={handleSubmit}
                 disabled={!inputText.trim() || isProcessing}
                 className={cn(
-                  "flex-shrink-0 mb-1 relative overflow-hidden rounded-2xl transition-all duration-300 flex items-center justify-center border-0 outline-0 shadow-sm hover:shadow-lg transform hover:scale-105 active:scale-95 touch-manipulation",
+                  "flex-shrink-0 rounded-xl transition-all duration-200 flex items-center justify-center transform hover:scale-105 active:scale-95 touch-manipulation",
                   !inputText.trim() || isProcessing
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-br from-purple-500 via-purple-600 to-blue-600 text-white hover:from-purple-600 hover:to-blue-700",
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white",
                   isMobile 
-                    ? "h-12 w-12" 
-                    : "h-12 w-12"
+                    ? "h-8 w-8" 
+                    : "h-9 w-9"
                 )}
-                style={{
-                  background: !inputText.trim() || isProcessing 
-                    ? '#f3f4f6' 
-                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full hover:translate-x-full transition-transform duration-500"></div>
                 {isProcessing ? (
-                  <Loader2 className="h-6 w-6 animate-spin relative z-10" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Send className="h-6 w-6 relative z-10" />
+                  <Send className="h-4 w-4" />
                 )}
               </button>
             </div>
