@@ -41,17 +41,17 @@ const AnalyticsScoreCard: React.FC<AnalyticsScoreCardProps> = ({
   const ScoreIcon = getScoreIcon();
 
   return (
-    <div className="bg-surface border border-border rounded-lg p-content">
-      <div className="flex items-center gap-2 mb-content-xs">
+    <div className="space-y-content-xs">
+      <div className="flex items-center gap-2">
         <ScoreIcon className="h-5 w-5 text-accent" />
         <h3 className="text-base font-semibold text-primary">Общий балл здоровья</h3>
       </div>
       <div className="space-y-content-xs">
-        <div className="space-y-1">
+        <div className="space-y-1 p-content-xs bg-primary/5 border border-primary/20 rounded-lg">
           <span className="text-xs text-muted-foreground">Балл здоровья</span>
           <div className="text-2xl font-bold text-primary">{healthScore}/100</div>
         </div>
-        <div className="space-y-1">
+        <div className="space-y-1 p-content-xs bg-muted/30 rounded-lg">
           <span className="text-xs text-muted-foreground">Уровень риска</span>
           <div>
             <Badge variant={getRiskLevelColor(riskLevel)} className="text-xs">
@@ -60,7 +60,7 @@ const AnalyticsScoreCard: React.FC<AnalyticsScoreCardProps> = ({
           </div>
         </div>
         {lastUpdated && (
-          <div className="space-y-1">
+          <div className="space-y-1 p-content-xs bg-muted/30 rounded-lg">
             <span className="text-xs text-muted-foreground">Последнее обновление</span>
             <div className="text-xs font-medium text-foreground">
               {new Date(lastUpdated).toLocaleDateString('ru-RU')}

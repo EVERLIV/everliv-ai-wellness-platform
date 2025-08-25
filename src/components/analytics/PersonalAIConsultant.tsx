@@ -240,7 +240,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
         <>
           {/* Основная информация */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-content">
-            <div className="bg-primary/5 border border-primary/20 p-content rounded-lg">
+            <div className="p-content-xs bg-primary/5 border border-primary/20 rounded-lg">
               <div className="flex items-center gap-2 mb-content-xs">
                 <Activity className="h-5 w-5 text-primary" />
                 <h3 className="font-semibold text-primary">Общий балл здоровья</h3>
@@ -253,7 +253,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
               </p>
             </div>
 
-            <div className="bg-success/5 border border-success/20 p-content rounded-lg">
+            <div className="p-content-xs bg-success/5 border border-success/20 rounded-lg">
               <div className="flex items-center gap-2 mb-content-xs">
                 <Target className="h-5 w-5 text-success" />
                 <h3 className="font-semibold text-success">Анализ целей</h3>
@@ -267,7 +267,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
           </div>
 
           {/* Общая оценка состояния */}
-          <div className="bg-surface border border-border p-content rounded-lg">
+          <div className="p-content-xs bg-surface border border-border rounded-lg">
             <div className="flex items-center gap-2 mb-content-xs">
               <Brain className="h-5 w-5 text-primary" />
               <h3 className="font-semibold text-primary">Общая оценка состояния</h3>
@@ -279,14 +279,14 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
 
           {/* Ключевые находки */}
           {consultation.keyFindings && consultation.keyFindings.length > 0 && (
-            <div className="bg-surface border border-border p-content rounded-lg">
+            <div className="p-content-xs bg-surface border border-border rounded-lg">
               <div className="flex items-center gap-2 mb-content-xs">
                 <ClipboardList className="h-5 w-5 text-warning" />
                 <h3 className="font-semibold text-primary">Ключевые находки</h3>
               </div>
               <ul className="space-y-2">
                 {consultation.keyFindings.map((finding, index) => (
-                  <li key={index} className="flex items-start gap-2 text-sm">
+                  <li key={index} className="flex items-start gap-2 text-sm p-2 bg-warning/5 rounded-md">
                     <div className="w-1.5 h-1.5 bg-warning rounded-full mt-2 flex-shrink-0"></div>
                     <span className="text-secondary-foreground">{finding}</span>
                   </li>
@@ -297,14 +297,14 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
 
           {/* Персональные рекомендации */}
           {consultation.personalizedRecommendations && consultation.personalizedRecommendations.length > 0 && (
-            <div className="bg-surface border border-border p-content rounded-lg">
-              <div className="flex items-center gap-2 mb-content-xs">
+            <div className="space-y-content-xs">
+              <div className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-success" />
                 <h3 className="font-semibold text-primary">Персональные рекомендации</h3>
               </div>
               <div className="space-y-2">
                 {consultation.personalizedRecommendations.slice(0, 8).map((recommendation, index) => (
-                  <div key={index} className="flex items-start gap-2 p-3 bg-muted/30 rounded-lg border border-border">
+                  <div key={index} className="flex items-start gap-2 p-content-xs bg-success/5 border border-success/20 rounded-lg">
                     <div className="w-1.5 h-1.5 bg-success rounded-full mt-2 flex-shrink-0"></div>
                     <p className="text-sm text-secondary-foreground">{recommendation}</p>
                   </div>
@@ -314,7 +314,7 @@ const PersonalAIConsultant: React.FC<PersonalAIConsultantProps> = ({
           )}
 
           {/* Дисклеймер */}
-          <div className="bg-warning/5 border border-warning/20 p-content rounded-lg">
+          <div className="p-content-xs bg-warning/5 border border-warning/20 rounded-lg">
             <div className="flex items-start gap-2">
               <AlertTriangle className="h-5 w-5 text-warning mt-0.5 flex-shrink-0" />
               <div>
