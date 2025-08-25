@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from "react";
-import { User, Activity, Brain, Apple, Moon, FileText, Stethoscope, Target, Pill } from "lucide-react";
+import { User, Activity, Brain, Apple, Moon, FileText, Stethoscope, Target, Pill, ArrowLeft, ArrowRight } from "lucide-react";
 import { HealthProfileData } from "@/types/healthProfile";
 import PersonalInfoSection from "./PersonalInfoSection";
 import PhysicalHealthSection from "./PhysicalHealthSection";
@@ -11,13 +11,9 @@ import LabResultsSection from "./LabResultsSection";
 import MedicalHistorySection from "./MedicalHistorySection";
 import MedicationsSection from "./MedicationsSection";
 import HealthGoalsSection from "./HealthGoalsSection";
-import StepContent from "./StepContent";
-import FormControls from "./FormControls";
-import MobileStepDots from "./MobileStepDots";
 import { StepConfig } from "./types";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface StepByStepHealthProfileFormProps {
   healthProfile: HealthProfileData;
@@ -33,6 +29,7 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
   onChange
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const isMobile = useIsMobile();
 
   // Используем useCallback для предотвращения лишних ререндеров
   const handleChange = useCallback((updates: Partial<HealthProfileData>) => {
@@ -123,59 +120,193 @@ const StepByStepHealthProfileForm: React.FC<StepByStepHealthProfileFormProps> = 
     }
   }, [isFirstStep]);
 
-  const handleStepClick = useCallback((stepIndex: number) => {
-    setCurrentStep(stepIndex);
-  }, []);
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        {/* Mobile Header */}
+        <div className="px-4 pt-safe py-4 bg-white border-b border-gray-100 sticky top-0 z-10">
+          <div className="flex items-center justify-between mb-4">
+            <button 
+              onClick={onCancel}
+              className="flex items-center gap-2 text-blue-600"
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="text-sm font-medium">Отмена</span>
+            </button>
+            <div className="text-sm text-gray-500 font-medium">
+              {currentStep + 1} из {steps.length}
+            </div>
+          </div>
+          
+          <h1 className="text-xl font-semibold text-gray-900 mb-1">
+            {currentStepData.title}
+          </h1>
+          <p className="text-sm text-gray-600 mb-4">
+            {currentStepData.subtitle}
+          </p>
+          
+          {/* Progress Bar */}
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
 
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <currentStepData.icon className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {currentStepData.title}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {currentStepData.subtitle}
+                </p>
+              </div>
+            </div>
+            
+            {currentStepData.component}
+          </div>
+        </div>
+
+        {/* Mobile Bottom Navigation */}
+        <div className="px-4 py-4 pb-safe bg-white border-t border-gray-100">
+          <div className="flex items-center justify-between gap-4">
+            <button
+              onClick={handlePrevious}
+              disabled={isFirstStep}
+              className={cn(
+                "flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all active:scale-95",
+                isFirstStep
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              )}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Назад
+            </button>
+            
+            {isLastStep ? (
+              <button
+                onClick={onSave}
+                className="flex-1 bg-green-600 text-white py-3 px-6 rounded-xl font-medium hover:bg-green-700 transition-colors active:scale-95"
+              >
+                Сохранить профиль
+              </button>
+            ) : (
+              <button
+                onClick={handleNext}
+                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors active:scale-95"
+              >
+                Далее
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          
+          {/* Step Dots */}
+          <div className="flex justify-center gap-2 mt-4">
+            {steps.map((_, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "w-2 h-2 rounded-full transition-all duration-200",
+                  index === currentStep
+                    ? "bg-blue-600 w-6"
+                    : index < currentStep
+                    ? "bg-blue-300"
+                    : "bg-gray-200"
+                )}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop version remains the same for now
   return (
     <div className="space-y-6">
-      {/* Modern Progress Header */}
+      {/* Desktop content unchanged */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Профиль здоровья</h2>
             <p className="text-gray-600">Заполните информацию для персональных рекомендаций</p>
           </div>
-          <Button variant="ghost" size="sm" onClick={onCancel} className="gap-2">
-            <X className="h-4 w-4" />
-            <span className="hidden sm:inline">Отмена</span>
-          </Button>
+          <button onClick={onCancel} className="text-gray-500 hover:text-gray-700">
+            Отмена
+          </button>
         </div>
         
-        {/* Progress bar */}
         <div className="space-y-3">
           <div className="flex justify-between text-sm text-gray-600">
             <span>Шаг {currentStep + 1} из {steps.length}</span>
             <span className="font-medium text-blue-600">{Math.round(progress)}%</span>
           </div>
-          <Progress value={progress} className="h-2" />
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Step Content */}
-      <StepContent
-        title={currentStepData.title}
-        subtitle={currentStepData.subtitle}
-        icon={currentStepData.icon}
-      >
-        {currentStepData.component}
-      </StepContent>
-
-      {/* Form Controls */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <FormControls
-          isFirstStep={isFirstStep}
-          isLastStep={isLastStep}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          onSave={onSave}
-        />
+        <div className="flex items-center gap-3 mb-6">
+          <currentStepData.icon className="w-6 h-6 text-blue-600" />
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900">
+              {currentStepData.title}
+            </h3>
+            <p className="text-gray-600">
+              {currentStepData.subtitle}
+            </p>
+          </div>
+        </div>
+        
+        {currentStepData.component}
+      </div>
 
-        <MobileStepDots
-          currentStep={currentStep}
-          totalSteps={steps.length}
-          onStepClick={handleStepClick}
-        />
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="flex justify-between gap-4">
+          <button
+            onClick={handlePrevious}
+            disabled={isFirstStep}
+            className={cn(
+              "px-6 py-2 rounded-lg font-medium transition-colors",
+              isFirstStep
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            )}
+          >
+            Назад
+          </button>
+          
+          {isLastStep ? (
+            <button
+              onClick={onSave}
+              className="px-8 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+            >
+              Сохранить профиль
+            </button>
+          ) : (
+            <button
+              onClick={handleNext}
+              className="px-8 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
+              Далее
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

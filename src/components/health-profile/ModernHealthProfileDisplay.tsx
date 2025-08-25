@@ -130,25 +130,40 @@ const ModernHealthProfileDisplay: React.FC<ModernHealthProfileDisplayProps> = ({
     <div className="w-full max-w-md mx-auto bg-gray-50 min-h-screen overflow-hidden touch-pan-y">
       {/* Header - Safe area aware */}
       <div className="px-4 pt-safe py-4 bg-white border-b border-gray-100 sticky top-0 z-10 backdrop-blur-sm bg-white/95">
-        <h1 className="text-xl font-semibold text-gray-900 mb-1">
-          Профиль здоровья
-        </h1>
-        <p className="text-sm text-gray-600 mb-3">
-          Управление и мониторинг вашего здоровья
-        </p>
-        
-        <div className="flex items-center gap-2">
-          <button className="w-9 h-9 border border-gray-200 rounded-xl bg-white flex items-center justify-center hover:bg-gray-50 transition-colors active:scale-95 touch-manipulation">
-            <Bell className="w-4 h-4 text-gray-600" />
-          </button>
-          <button
-            onClick={onEdit}
-            className="bg-blue-600 text-white border-none rounded-xl px-4 py-2.5 text-sm font-medium flex items-center gap-2 hover:bg-blue-700 transition-all active:scale-95 touch-manipulation shadow-sm"
-          >
-            <Edit className="w-3 h-3" />
-            Изменить
-          </button>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => window.history.back()}
+              className="w-9 h-9 border border-gray-200 rounded-xl bg-white flex items-center justify-center hover:bg-gray-50 transition-colors active:scale-95 touch-manipulation"
+            >
+              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900 mb-1">
+                Профиль здоровья
+              </h1>
+              <p className="text-sm text-gray-600">
+                Управление и мониторинг здоровья
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button className="w-9 h-9 border border-gray-200 rounded-xl bg-white flex items-center justify-center hover:bg-gray-50 transition-colors active:scale-95 touch-manipulation">
+              <Bell className="w-4 h-4 text-gray-600" />
+            </button>
+          </div>
         </div>
+        
+        <button
+          onClick={onEdit}
+          className="w-full bg-blue-600 text-white border-none rounded-xl px-4 py-3 text-sm font-medium flex items-center justify-center gap-2 hover:bg-blue-700 transition-all active:scale-95 touch-manipulation shadow-sm"
+        >
+          <Edit className="w-4 h-4" />
+          Редактировать профиль
+        </button>
       </div>
 
       {/* Content Area with proper spacing */}
