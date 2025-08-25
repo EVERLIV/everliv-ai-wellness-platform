@@ -340,20 +340,20 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
       {showSuggestedQuestions && (
         <div className={cn(
           "bg-white/95 backdrop-blur-sm",
-          isMobile ? "px-4 py-4" : "px-6 py-6"
+          isMobile ? "px-4 py-2" : "px-6 py-3"
         )}>
-          <div className="flex flex-wrap gap-3 justify-center">
+          <div className="flex flex-wrap gap-1.5 justify-center">
             {suggestedQuestions.map((question, index) => (
               <button
                 key={index}
                 onClick={() => handleSuggestedQuestion(question)}
                 className={cn(
-                  "relative overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 hover:from-blue-100 hover:via-purple-100 hover:to-pink-100 text-purple-700 border border-purple-200/50 hover:border-purple-300 rounded-2xl transition-all duration-300 shadow-sm hover:shadow-lg transform hover:scale-105 active:scale-95 hover:-translate-y-1 touch-manipulation font-medium",
-                  isMobile ? "px-4 py-3 text-sm" : "px-5 py-3 text-sm"
+                  "relative overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 hover:from-blue-100 hover:via-purple-100 hover:to-pink-100 text-purple-700 border border-purple-200/50 hover:border-purple-300 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105 active:scale-95 hover:-translate-y-0.5 touch-manipulation font-medium",
+                  isMobile ? "px-2 py-1 text-xs" : "px-2.5 py-1.5 text-xs"
                 )}
                 style={{
                   background: 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)',
-                  boxShadow: '0 2px 8px rgba(123, 31, 162, 0.08), 0 1px 2px rgba(123, 31, 162, 0.12)'
+                  boxShadow: '0 1px 4px rgba(123, 31, 162, 0.06), 0 1px 2px rgba(123, 31, 162, 0.08)'
                 }}
               >
                 <span className="relative z-10">🩺 {question}</span>
@@ -425,14 +425,16 @@ const ModernBasicChat: React.FC<ModernBasicChatProps> = ({ onBack }) => {
                 onKeyDown={handleKeyDown}
                 disabled={isProcessing || isRecording}
                 className={cn(
-                  "flex-1 resize-none bg-transparent placeholder:text-gray-400 text-gray-800 overflow-hidden focus:outline-none border-0 transition-all duration-200 touch-manipulation",
+                  "flex-1 resize-none bg-transparent placeholder:text-gray-400 text-gray-800 overflow-hidden focus:outline-none border-0 transition-all duration-200 touch-manipulation flex items-center",
                   isMobile 
                     ? "min-h-[32px] px-2 py-2 text-sm placeholder:text-xs" 
                     : "min-h-[36px] px-3 py-2 text-sm placeholder:text-xs"
                 )}
                 style={{ 
                   maxHeight: '80px',
-                  lineHeight: '1.4'
+                  lineHeight: '1.4',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}
                 rows={1}
               />
